@@ -100,6 +100,30 @@ jobs:
           cd apps/ui
           npx expo prebuild --platform android --no-install
 
+      - name: Inject release signing config
+        run: |
+          set -euo pipefail
+          cat >> apps/ui/android/app/build.gradle <<'EOF'
+
+          // --- 无极开物 release signing (props from ORG_GRADLE_PROJECT_* env) ---
+          android {
+              signingConfigs {
+                  release {
+                      storeFile file(KAIWU_RELEASE_STORE_FILE)
+                      storePassword KAIWU_RELEASE_STORE_PASSWORD
+                      keyAlias KAIWU_RELEASE_KEY_ALIAS
+                      keyPassword KAIWU_RELEASE_KEY_PASSWORD
+                  }
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.release
+                  }
+              }
+          }
+          EOF
+          grep -n "KAIWU_RELEASE_STORE_FILE" apps/ui/android/app/build.gradle
+
       - name: Build Android Release APK
         env:
           ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
