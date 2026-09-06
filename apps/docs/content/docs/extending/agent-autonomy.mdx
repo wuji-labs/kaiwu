@@ -3,7 +3,7 @@ title: Agent autonomy
 description: An agent working in one session can create and coordinate other sessions. What it may do by default, what it can never do, and how to narrow it.
 ---
 
-An agent working inside a Happier session can start other sessions and give them work. It can hand a self-contained task to a fresh session on another machine and carry on with its own, then check back on what came out.
+An agent working inside a Kaiwu session can start other sessions and give them work. It can hand a self-contained task to a fresh session on another machine and carry on with its own, then check back on what came out.
 
 This is on by default. It is worth knowing exactly what that means, because the useful half and the dangerous half were separated deliberately.
 
@@ -29,7 +29,7 @@ The pattern is that anything which spends your money, answers on your behalf, or
 
 ## The one thing that cannot be turned on
 
-**A child session can never have more authority than the session that created it.** If an agent asks for a permission mode above its own, the request is rejected rather than downgraded — Happier compares the requested mode against the caller's and refuses anything higher.
+**A child session can never have more authority than the session that created it.** If an agent asks for a permission mode above its own, the request is rejected rather than downgraded — Kaiwu compares the requested mode against the caller's and refuses anything higher.
 
 This is not a setting. There is no toggle that grants a spawned session more freedom than its parent, which means the blast radius of an autonomous agent is bounded by the permissions you gave the session you are actually looking at.
 
@@ -64,7 +64,7 @@ Setting it to **Plan** or **Read-only** is the strongest practical control here:
 
 ## Where you see it happen
 
-A spawned session is an ordinary Happier session. It appears in your session list, syncs to your devices, and can be read, steered and stopped by you like any other. Nothing an agent creates is hidden from you.
+A spawned session is an ordinary Kaiwu session. It appears in your session list, syncs to your devices, and can be read, steered and stopped by you like any other. Nothing an agent creates is hidden from you.
 
 Actions that need your decision surface as approval requests rather than proceeding silently — see [Inbox and approvals](/sessions/inbox-and-approvals).
 
@@ -76,7 +76,7 @@ Actions that need your decision surface as approval requests rather than proceed
 
 ## Related
 
-- [Happier tools and actions](/extending/happier-tools) — the full action surface an agent can reach
+- [Kaiwu tools and actions](/extending/happier-tools) — the full action surface an agent can reach
 - [Permissions](/sessions/permissions) — what each permission mode allows
 - [Inbox and approvals](/sessions/inbox-and-approvals) — how approval requests reach you
 - [Subagents](/extending/subagents) — an agent's *own* internal subagents, which is a different mechanism

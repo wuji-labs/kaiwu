@@ -11,7 +11,7 @@ import { buildVoiceDiscoveryChecklistLines, buildVoiceToolDocumentationLines } f
 
 export type VoicePromptVerbosity = 'short' | 'balanced';
 
-export const DEFAULT_VOICE_ASSISTANT_NAME = 'Happier Voice';
+export const DEFAULT_VOICE_ASSISTANT_NAME = 'Kaiwu Voice';
 
 function buildVoiceAgentBaseText(params?: Readonly<{
   assistantName?: string;
@@ -27,7 +27,7 @@ function buildVoiceAgentBaseText(params?: Readonly<{
       : '- be concise but include enough detail to be helpful.\n';
 
   return [
-    `${assistantName} is a voice interface for an AI coding assistant running inside Happier.`,
+    `${assistantName} is a voice interface for an AI coding assistant running inside Kaiwu.`,
     '',
     'Core behavior:',
     brevityRule.trimEnd(),

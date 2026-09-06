@@ -1,9 +1,9 @@
 ---
 title: Dev box
-description: Run Happier CLI + daemon inside a container (dev-box), and pair it to your account without opening a browser.
+description: Run Kaiwu CLI + daemon inside a container (dev-box), and pair it to your account without opening a browser.
 ---
 
-This page explains how to run Happier inside a container (for example: a remote VM or a disposable “dev box”) and authenticate it **from your local machine**.
+This page explains how to run Kaiwu inside a container (for example: a remote VM or a disposable “dev box”) and authenticate it **from your local machine**.
 
 ## Dev box image
 
@@ -24,13 +24,13 @@ The image includes:
 - the published `happier` CLI binary
 - optional provider CLIs, installed on first boot via `happier install provider`
 
-The image does not include a source checkout or `hstack`; it is meant for using Happier from a container, not developing Happier itself.
+The image does not include a source checkout or `hstack`; it is meant for using Kaiwu from a container, not developing Kaiwu itself.
 
 Note: “dev box” is our Docker image name — it’s not tied to any specific editor “devcontainer” feature.
 
 ### Optional: install provider CLIs on first boot
 
-Set `HAPPIER_PROVIDER_CLIS` to install provider CLIs through the Happier CLI:
+Set `HAPPIER_PROVIDER_CLIS` to install provider CLIs through the Kaiwu CLI:
 
 ```bash
 docker run --rm -it \
@@ -40,7 +40,7 @@ docker run --rm -it \
 
 Supported values today: `claude`, `codex`.
 
-## Recommended: persist Happier state
+## Recommended: persist Kaiwu state
 
 Persist `~/.happier` so credentials, machine IDs, logs, etc. survive container restarts:
 

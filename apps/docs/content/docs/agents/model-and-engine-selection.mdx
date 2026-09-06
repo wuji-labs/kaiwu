@@ -3,7 +3,7 @@ title: Model and engine selection
 description: Choose a backend engine, pick a model, use live model lists, and save favorite model choices for new sessions.
 ---
 
-Happier uses **engine** in the app UI for the backend choice that will run a session.
+Kaiwu uses **engine** in the app UI for the backend choice that will run a session.
 
 An engine can be:
 
@@ -21,7 +21,7 @@ The left side of the picker shows engine choices. The right side shows the selec
 
 - model choices
 - provider or ACP configuration options
-- refresh status when Happier is probing the selected machine
+- refresh status when Kaiwu is probing the selected machine
 - model-specific controls, when the provider exposes them
 
 Running sessions can also show a model/config picker in the input settings for the current session. Favorites are part of the **new session** engine picker.
@@ -39,21 +39,21 @@ The list is capability-aware:
 - profiles can filter which engines are compatible
 - engine details can vary by machine, working directory, profile, and connected-service state
 
-If only one engine is available, Happier can skip most of the picker chrome and use that engine directly.
+If only one engine is available, Kaiwu can skip most of the picker chrome and use that engine directly.
 
 ## Choose a model
 
 Most model pickers start with **Use CLI settings**.
 
-Use this when you want Happier to avoid setting a model override and let the provider CLI/runtime decide from its own settings.
+Use this when you want Kaiwu to avoid setting a model override and let the provider CLI/runtime decide from its own settings.
 
-When you choose a specific model, Happier stores that selection for the session launch. The exact apply behavior depends on the provider and runtime. Some providers can change models on the next prompt or live through ACP; others only apply the model when a new provider process starts.
+When you choose a specific model, Kaiwu stores that selection for the session launch. The exact apply behavior depends on the provider and runtime. Some providers can change models on the next prompt or live through ACP; others only apply the model when a new provider process starts.
 
 For running-session apply timing, see [Permissions](/sessions/permissions).
 
 ## Live model lists
 
-Some engines expose models dynamically. Happier probes the selected machine/backend and shows the models that backend currently reports.
+Some engines expose models dynamically. Kaiwu probes the selected machine/backend and shows the models that backend currently reports.
 
 This matters because the available list can depend on:
 
@@ -70,9 +70,9 @@ Use the refresh button in the model section after changing provider login state,
 
 Not every provider has a dynamic model API.
 
-For static-only providers, Happier uses its built-in provider catalog instead. Claude is the main example: Claude models can still be selected and favorited even though the model list is static rather than dynamically probed.
+For static-only providers, Kaiwu uses its built-in provider catalog instead. Claude is the main example: Claude models can still be selected and favorited even though the model list is static rather than dynamically probed.
 
-Static model lists can still change when Happier updates its provider catalog.
+Static model lists can still change when Kaiwu updates its provider catalog.
 
 ## Custom model ids
 
@@ -82,15 +82,15 @@ Use this for providers or profiles where you know the exact model id but it is n
 
 Important details:
 
-- Happier sends the id to the provider; the provider still decides whether it is valid.
+- Kaiwu sends the id to the provider; the provider still decides whether it is valid.
 - Custom ids are useful for provider-compatible gateways, custom endpoints, or newly released models.
-- A custom id is not automatically a favorite candidate. Favorites use models Happier can verify from the current live list or static catalog.
+- A custom id is not automatically a favorite candidate. Favorites use models Kaiwu can verify from the current live list or static catalog.
 
 ## Model-specific options
 
 Some models expose extra controls, such as thinking, reasoning, effort, or a provider-specific mode.
 
-When those controls exist, Happier shows them inside the selected model card. They are part of the selected engine's configuration surface, not a separate global settings page.
+When those controls exist, Kaiwu shows them inside the selected model card. They are part of the selected engine's configuration surface, not a separate global settings page.
 
 Not every provider exposes these options, and not every model under the same provider exposes the same options.
 
@@ -139,15 +139,15 @@ Favorites are saved, but selection still respects the current backend state.
 For dynamically probed engines:
 
 - a favorite is selectable only when the current probe reports that model as available
-- if the model disappears because auth changed, the CLI changed, or the provider removed it, Happier does not start a session with that unavailable model
+- if the model disappears because auth changed, the CLI changed, or the provider removed it, Kaiwu does not start a session with that unavailable model
 - refresh the probe after fixing login/configuration
 
 For static-only engines:
 
-- favorites are checked against Happier's static provider catalog
+- favorites are checked against Kaiwu's static provider catalog
 - Claude models can be favorited and selected from the catalog without a live model probe
 
-If a saved favorite no longer appears in the current live/static model list, Happier keeps it in the Favorites section with a setup hint so you can remove it. It will not be selectable until the backend reports it again.
+If a saved favorite no longer appears in the current live/static model list, Kaiwu keeps it in the Favorites section with a setup hint so you can remove it. It will not be selectable until the backend reports it again.
 
 ## Profile and backend compatibility
 
@@ -198,7 +198,7 @@ Check whether a selected profile or feature setting is hiding that engine.
 
 ### I cannot favorite a custom model id
 
-Favorites are limited to concrete models Happier can verify from a dynamic probe or static catalog.
+Favorites are limited to concrete models Kaiwu can verify from a dynamic probe or static catalog.
 
 Use the custom model entry for one-off ids. If the provider later reports that id in its model list, it can become favoritable.
 

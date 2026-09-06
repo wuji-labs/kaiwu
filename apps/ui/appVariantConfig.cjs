@@ -43,33 +43,33 @@ function buildProductionConfig(overrides) {
 
 const APP_ENVIRONMENT_CONFIGS = {
     internaldev: buildRingBackedConfig('internaldev', {
-        name: 'Happier (internal dev)',
-        iosBundleId: 'dev.happier.app.dev.internal',
-        androidPackage: 'dev.happier.app.internaldev',
+        name: '无极开物 (internal dev)',
+        iosBundleId: 'com.wujilabs.kaiwu.dev.internal',
+        androidPackage: 'com.wujilabs.kaiwu.internaldev',
         enableAssociatedDomains: false,
     }),
     internalpreview: buildRingBackedConfig('internalpreview', {
-        name: 'Happier (internal preview)',
-        iosBundleId: 'dev.happier.app.internalpreview',
-        androidPackage: 'dev.happier.app.internalpreview',
+        name: '无极开物 (internal preview)',
+        iosBundleId: 'com.wujilabs.kaiwu.internalpreview',
+        androidPackage: 'com.wujilabs.kaiwu.internalpreview',
         enableAssociatedDomains: false,
     }),
     publicdev: buildRingBackedConfig('publicdev', {
-        name: 'Happier (dev)',
-        iosBundleId: 'dev.happier.app.publicdev',
-        androidPackage: 'dev.happier.app.publicdev',
+        name: '无极开物 (dev)',
+        iosBundleId: 'com.wujilabs.kaiwu.publicdev',
+        androidPackage: 'com.wujilabs.kaiwu.publicdev',
         enableAssociatedDomains: false,
     }),
     preview: buildRingBackedConfig('preview', {
-        name: 'Happier (preview)',
-        iosBundleId: 'dev.happier.app.preview',
-        androidPackage: 'dev.happier.app.preview',
+        name: '无极开物 (preview)',
+        iosBundleId: 'com.wujilabs.kaiwu.preview',
+        androidPackage: 'com.wujilabs.kaiwu.preview',
         enableAssociatedDomains: false,
     }),
     production: buildProductionConfig({
-        name: 'Happier',
-        iosBundleId: 'dev.happier.app',
-        androidPackage: 'dev.happier.app',
+        name: '无极开物',
+        iosBundleId: 'com.wujilabs.kaiwu',
+        androidPackage: 'com.wujilabs.kaiwu',
         enableAssociatedDomains: true,
     }),
 };

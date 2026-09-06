@@ -3,7 +3,7 @@ title: Files and the editor
 description: Browse, search, upload, preview and edit the files in a session's workspace, from any client.
 ---
 
-A session is attached to a folder on one of your machines, and Happier gives you
+A session is attached to a folder on one of your machines, and Kaiwu gives you
 that folder directly — not a copy, and not a summary the agent wrote. You can
 read what the agent is working on, fix a typo yourself, drop a screenshot into
 the repository, or open the file it just mentioned, without leaving the session.
@@ -12,7 +12,7 @@ the repository, or open the file it just mentioned, without leaving the session.
   Browsing and previewing files is part of the normal session UI. The embedded
   editor is a toggle under **Settings → Features → Embedded file editor**, on by
   default. Some actions need the machine running the session to be reachable —
-  though if the session is inactive and the machine is still online, Happier can
+  though if the session is inactive and the machine is still online, Kaiwu can
   still load file data through the machine-level workspace APIs.
 </Callout>
 
@@ -45,7 +45,7 @@ Important behaviors:
 
 - Tabs keep their local state while you switch between them.
 - Scroll position is preserved when you return to a tab.
-- If you start editing a file, Happier keeps that editor state instead of reloading it on every tab switch.
+- If you start editing a file, Kaiwu keeps that editor state instead of reloading it on every tab switch.
 - Pinned tabs stay open until you explicitly close them.
 - On smaller layouts, the details surface can switch into an overlay/focused mode instead of permanently shrinking the main session area.
 
@@ -87,7 +87,7 @@ Opening a file uses the same details surface whether you start from the file tre
 
 The file tree is repository-aware.
 
-When source-control data is available, Happier can show:
+When source-control data is available, Kaiwu can show:
 
 - modified / added / removed badges
 - line-count summaries (for example additions/removals)
@@ -120,7 +120,7 @@ These actions are meant for lightweight workspace edits without leaving the sess
 
 ### Uploads
 
-Happier supports several upload flows:
+Kaiwu supports several upload flows:
 
 - **Upload files** from the Files toolbar
 - **Upload folder** on web
@@ -141,8 +141,8 @@ See: [Attachments & image previews](/apps/attachments)
 
 The toolbar upload menu includes an upload destination selector.
 
-- If you leave it empty, Happier uploads into the **project root**.
-- If you set a workspace-relative path, Happier uploads into that destination and creates missing parent directories as needed.
+- If you leave it empty, Kaiwu uploads into the **project root**.
+- If you set a workspace-relative path, Kaiwu uploads into that destination and creates missing parent directories as needed.
 - Drag/drop over a specific folder row overrides the root/default destination and uploads into that folder.
 
 Typical use cases:
@@ -153,19 +153,19 @@ Typical use cases:
 
 ### Upload conflict handling
 
-When uploaded files already exist at the destination, Happier asks how to resolve the conflict batch:
+When uploaded files already exist at the destination, Kaiwu asks how to resolve the conflict batch:
 
 - **Skip**
 - **Replace**
 - **Keep both**
 
-`Keep both` is the default. Happier automatically creates a suffixed name such as `file (1).txt`.
+`Keep both` is the default. Kaiwu automatically creates a suffixed name such as `file (1).txt`.
 
 ### Transfer progress and cancel
 
 Uploads and downloads run as managed transfers instead of fire-and-forget actions.
 
-- Happier shows transfer progress while the upload or download is still active.
+- Kaiwu shows transfer progress while the upload or download is still active.
 - You can cancel a transfer before it finishes.
 - Folder `.zip` downloads are built first, then streamed back in chunks.
 - Direct file preview, file download, folder download, and review/diff loading all use the same transfer/decryption path for session workspace data.
@@ -200,7 +200,7 @@ Directory deletion is confirmed explicitly and applies recursively.
 
 Opening a file from the Files tab or from Review opens it in the details pane.
 
-Depending on the file type, Happier can show:
+Depending on the file type, Kaiwu can show:
 
 - a text preview
 - a live editor
@@ -209,13 +209,13 @@ Depending on the file type, Happier can show:
 
 ### Image and binary handling
 
-Happier now treats image previews as a first-class workflow:
+Kaiwu now treats image previews as a first-class workflow:
 
 - common raster images can be previewed inline
 - SVG files can also be previewed instead of being treated as opaque binaries
 - true binary files stay safe and do not try to render through the text diff pipeline
 
-If a file has no textual diff (for example an image or binary blob), Happier avoids crashing the diff renderer and falls back to the correct preview/placeholder path instead.
+If a file has no textual diff (for example an image or binary blob), Kaiwu avoids crashing the diff renderer and falls back to the correct preview/placeholder path instead.
 
 ### Editing behavior
 
@@ -244,7 +244,7 @@ Depending on the file and repository state, it can include:
 - selected-line actions when line-level selection is supported
 - a revert action when the file can be reverted safely
 
-On wide layouts, the path and actions share one horizontal row. On narrow layouts, Happier wraps the actions into a compact second row so the path, filename, and important actions stay readable.
+On wide layouts, the path and actions share one horizontal row. On narrow layouts, Kaiwu wraps the actions into a compact second row so the path, filename, and important actions stay readable.
 
 ## Link project files from the session composer
 
@@ -268,7 +268,7 @@ You can also use `@`-style file search in the composer where supported. The goal
 
 ## Open workspace file links from the transcript
 
-When an assistant response includes a markdown link to a file in the current workspace, Happier can turn that link into in-app file navigation instead of sending you to a broken browser URL.
+When an assistant response includes a markdown link to a file in the current workspace, Kaiwu can turn that link into in-app file navigation instead of sending you to a broken browser URL.
 
 Supported link shapes include:
 
@@ -280,7 +280,7 @@ Supported link shapes include:
 - Windows drive paths such as `C:\Users\Alice\project\src\index.ts`
 - Windows `file:///C:/...` links and UNC-style file URLs inside the workspace
 
-Happier only opens links that resolve inside the current workspace. Links outside the workspace, traversal paths, and arbitrary non-loopback `http`/`https` URLs stay external or are ignored for workspace navigation.
+Kaiwu only opens links that resolve inside the current workspace. Links outside the workspace, traversal paths, and arbitrary non-loopback `http`/`https` URLs stay external or are ignored for workspace navigation.
 
 On desktop, opening a workspace file link opens the right sidebar/details pane. On phone-sized layouts, it opens the file in the **Tabs** surface with the session header still visible.
 

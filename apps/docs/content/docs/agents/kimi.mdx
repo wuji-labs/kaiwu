@@ -1,9 +1,9 @@
 ---
 title: Kimi
-description: Configure Kimi in Happier via ACP-backed local runtime integration.
+description: Configure Kimi in Kaiwu via ACP-backed local runtime integration.
 ---
 
-Happier supports Kimi as a local CLI-backed provider.
+Kaiwu supports Kimi as a local CLI-backed provider.
 
 <Callout type="info">
   Kimi is an **experimental** integration. It works and people use it
@@ -19,7 +19,7 @@ Happier supports Kimi as a local CLI-backed provider.
 
 ## Install Kimi
 
-Happier can run the vendor installer for you:
+Kaiwu can run the vendor installer for you:
 
 ```bash
 happier install provider kimi
@@ -39,19 +39,19 @@ Invoke-RestMethod https://code.kimi.com/install.ps1 | Invoke-Expression
 kimi --version
 ```
 
-## Local authentication in Happier
+## Local authentication in Kaiwu
 
 Kimi supports launching its native setup/login flow from:
 
 - **Settings → AI & Agents → AI backends → Kimi**
 
-Happier opens Kimi and sends `/setup` for you.
+Kaiwu opens Kimi and sends `/setup` for you.
 
-Auth-status detection for Kimi is currently conservative, so Happier may still show **Unknown** even though the login flow is available.
+Auth-status detection for Kimi is currently conservative, so Kaiwu may still show **Unknown** even though the login flow is available.
 
 For the shared user guide, see [Provider authentication](/agents/provider-authentication).
 
-## Start Kimi with Happier
+## Start Kimi with Kaiwu
 
 ```bash
 happier kimi
@@ -59,16 +59,16 @@ happier kimi
 
 ## Notes
 
-- Resume availability is session-specific in Happier and depends on valid resume metadata plus the current backend/settings.
+- Resume availability is session-specific in Kaiwu and depends on valid resume metadata plus the current backend/settings.
 - Model, mode, and permission behavior can still vary by installed Kimi runtime.
-- Tool calls are normalized to canonical Happier tool renderers.
+- Tool calls are normalized to canonical Kaiwu tool renderers.
 
 ## Troubleshooting
 
 If Kimi is not detected:
 
 1. Verify `kimi --version` works.
-2. Restart Happier.
+2. Restart Kaiwu.
 3. Set `HAPPIER_KIMI_PATH` if needed.
 
 ## Related

@@ -3,7 +3,7 @@ title: Session read and unread state
 description: Understand unread session badges, Mark as unread, Mark as read, keeping a session in Needs attention, and what happens when the session is already open.
 ---
 
-Happier tracks whether each session has transcript activity you have not viewed yet.
+Kaiwu tracks whether each session has transcript activity you have not viewed yet.
 
 Unread state is intentionally simple:
 
@@ -22,9 +22,9 @@ You can change a session's read state from the same places you manage other sess
 - the session header action menu
 - the Session info screen quick actions
 
-When the session is currently read, Happier shows **Mark as unread**.
+When the session is currently read, Kaiwu shows **Mark as unread**.
 
-When the session is currently unread, Happier shows **Mark as read**.
+When the session is currently unread, Kaiwu shows **Mark as read**.
 
 ## What Mark as unread does
 
@@ -35,7 +35,7 @@ For example:
 - you opened a session by accident and want it to count as new again
 - you skimmed the last turn and want to read it properly later
 
-When you mark a session unread, Happier moves your read position to just before the latest committed transcript activity. The transcript does not change, and no message is created or deleted.
+When you mark a session unread, Kaiwu moves your read position to just before the latest committed transcript activity. The transcript does not change, and no message is created or deleted.
 
 Marking a session unread is not a good way to keep a session in front of you after you have read it, because opening it again clears the unread state and the session drops back down the list. Use [Keep in Needs attention](#keeping-a-session-in-needs-attention) for that.
 
@@ -43,7 +43,7 @@ Marking a session unread is not a good way to keep a session in front of you aft
 
 Use **Mark as read** when the session no longer needs unread attention.
 
-Happier moves your read position to the latest committed transcript activity. The unread badge clears for that session unless newer activity arrives afterwards.
+Kaiwu moves your read position to the latest committed transcript activity. The unread badge clears for that session unless newer activity arrives afterwards.
 
 ## Keeping a session in Needs attention
 
@@ -77,7 +77,7 @@ A per-session choice always wins over the default, in both directions: a session
 
 Opening a session normally marks it read because viewing the transcript is treated as read intent.
 
-Manual **Mark as unread** is different. If you mark the session unread while you are already inside it, Happier keeps it unread for that current view instead of immediately marking it read again.
+Manual **Mark as unread** is different. If you mark the session unread while you are already inside it, Kaiwu keeps it unread for that current view instead of immediately marking it read again.
 
 That means this flow works as expected:
 
@@ -92,7 +92,7 @@ This avoids the common problem where marking the current item unread is instantl
 
 Closing the session view ends that viewing activation.
 
-If you later reopen the same session directly, by deep link, notification, browser refresh, or from the session list, Happier treats that as a new viewing activation. If the session is visible and focused, it can be marked read again.
+If you later reopen the same session directly, by deep link, notification, browser refresh, or from the session list, Kaiwu treats that as a new viewing activation. If the session is visible and focused, it can be marked read again.
 
 This is deliberate: reopening a session is a new read intent.
 
@@ -114,7 +114,7 @@ For split views, each visible pane has its own viewing activation, but the final
 
 ## Sessions where the action is hidden
 
-Happier hides manual read-state actions when they would not make sense or when you do not have the right access:
+Kaiwu hides manual read-state actions when they would not make sense or when you do not have the right access:
 
 - empty sessions
 - archived sessions

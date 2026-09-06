@@ -3,7 +3,7 @@ title: Encryption & plaintext storage
 description: Configure whether the server stores session content end-to-end encrypted or as plaintext.
 ---
 
-Happier is designed around **end-to-end encryption (E2EE)**: clients encrypt session content locally and the server stores **ciphertext**.
+Kaiwu is designed around **end-to-end encryption (E2EE)**: clients encrypt session content locally and the server stores **ciphertext**.
 
 For some self-hosted or enterprise deployments, you may want to **opt out of E2EE for storage** so the server can store session content as **plaintext** (for example to enable future server-side indexing/search).
 
@@ -15,7 +15,7 @@ This page explains the **server operator** configuration and what it means for *
 - **Plaintext storage**: the server *can* read and process new session content stored in plaintext.
 
 Important: plaintext storage is a **storage mode**, not an authentication mode.
-- Phase 1 plaintext storage still uses the normal Happier login model (device-key accounts).
+- Phase 1 plaintext storage still uses the normal Kaiwu login model (device-key accounts).
 - Users can choose plaintext for new sessions only when the server policy allows it.
 
 ## Storage policy (server-wide)

@@ -73,7 +73,7 @@ async function main() {
 
   // Create STDIO MCP server
   const server = new McpServer({
-    name: 'Happier MCP Bridge',
+    name: 'Kaiwu MCP Bridge',
     version: '1.0.0',
   });
 

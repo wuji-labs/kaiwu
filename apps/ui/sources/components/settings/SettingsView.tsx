@@ -155,7 +155,7 @@ export const SettingsView = React.memo(function SettingsView() {
     }, []);
 
     const handleGitHub = async () => {
-        const url = 'https://github.com/happier-dev/happier';
+        const url = 'https://chengqiyun.com';
         const supported = await Linking.canOpenURL(url);
         if (supported) {
             await Linking.openURL(url);
@@ -329,7 +329,7 @@ export const SettingsView = React.memo(function SettingsView() {
                             <Image
                                 source={theme.dark ? require('@/assets/images/logotype-light.png') : require('@/assets/images/logotype-dark.png')}
                                 contentFit="contain"
-                                style={{ width: 300, height: 90 }}
+                                style={{ width: 300, height: 66 }}
                             />
                         </>
                     )}

@@ -28,7 +28,7 @@ export type PublicRpcHandlerErrorCode =
   (typeof PUBLIC_RPC_HANDLER_ERROR_CODES)[keyof typeof PUBLIC_RPC_HANDLER_ERROR_CODES];
 
 const PUBLIC_RPC_HANDLER_ERROR_GUIDANCE =
-  'This answer could not be handled safely. Update or reconnect Happier, then try again.';
+  'This answer could not be handled safely. Update or reconnect Kaiwu, then try again.';
 
 const PUBLIC_RPC_HANDLER_ERROR_CODE_SET = new Set<string>(Object.values(PUBLIC_RPC_HANDLER_ERROR_CODES));
 

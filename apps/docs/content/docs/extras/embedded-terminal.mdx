@@ -1,9 +1,9 @@
 ---
 title: Embedded terminal
-description: Use the connected machine terminal directly inside Happier, including the bottom panel, sidebar, details panel, and mobile behavior.
+description: Use the connected machine terminal directly inside Kaiwu, including the bottom panel, sidebar, details panel, and mobile behavior.
 ---
 
-Happier can show a live terminal for the current session directly inside the app UI.
+Kaiwu can show a live terminal for the current session directly inside the app UI.
 
 This is useful when you want to run quick shell commands, inspect project state, follow logs, or open detected local URLs without leaving the session.
 
@@ -11,7 +11,7 @@ The same terminal foundation is also reused for **provider login flows** from pr
 
 ## What it does
 
-- Opens a live shell backed by your connected Happier daemon.
+- Opens a live shell backed by your connected Kaiwu daemon.
 - Treats the terminal as part of the current session, not as a separate detached tool.
 - Reuses the same terminal session when you move it between panel locations.
 - Preserves the terminal across normal navigation and page refresh for that session.
@@ -24,13 +24,13 @@ Choose a preferred location in **Settings → Features → Embedded terminal loc
 - **Sidebar** — useful when you want the transcript and terminal visible side by side.
 - **Details panel** — useful when the terminal is a secondary detail view for the current session.
 
-On phones, Happier uses a more focused terminal presentation instead of trying to keep desktop-style docked panels on screen at the same time.
+On phones, Kaiwu uses a more focused terminal presentation instead of trying to keep desktop-style docked panels on screen at the same time.
 
 ## How to open it
 
 1. Open a session.
 2. Use the **Terminal** button in the session header.
-3. Happier opens the terminal in your selected dock location.
+3. Kaiwu opens the terminal in your selected dock location.
 
 Inside the terminal toolbar you can:
 
@@ -47,7 +47,7 @@ The bottom panel is a real panel region in the session layout, not a one-off ter
 
 - Drag the top edge of the bottom panel to resize it.
 - If the screen still has enough height for both the main content and the bottom panel, the panel stays **docked**.
-- If the panel becomes too tall to fit beside the main content, Happier automatically switches it to an **overlay**.
+- If the panel becomes too tall to fit beside the main content, Kaiwu automatically switches it to an **overlay**.
 - If you shrink it again, it returns to the docked layout.
 
 ### Overlay behavior
@@ -71,7 +71,7 @@ What to expect:
 
 ## Mobile behavior
 
-On mobile/native clients, Happier renders the terminal through an embedded WebView terminal surface.
+On mobile/native clients, Kaiwu renders the terminal through an embedded WebView terminal surface.
 
 That gives you:
 
@@ -87,7 +87,7 @@ On phone layouts using the default **Cockpit** session layout, Terminal appears 
 - the selected terminal location supports a session tab,
 - the current session resolves to a reachable machine target.
 
-If the terminal tab is not available, Happier hides it instead of showing a broken empty tab. In that case, use the session header terminal action or change the embedded-terminal location setting.
+If the terminal tab is not available, Kaiwu hides it instead of showing a broken empty tab. In that case, use the session header terminal action or change the embedded-terminal location setting.
 
 In Cockpit, the terminal keeps the normal session header and safe-area spacing, and switching between Terminal, Files, Git, Tabs, and the agent chat does not add every tab switch to the back stack.
 
@@ -101,7 +101,7 @@ The embedded terminal depends on all of the following:
 - your **daemon is running and connected** for the machine you want to control,
 - the current session resolves to a reachable machine target.
 
-If the daemon is offline or the machine target is unavailable, Happier shows a terminal error state instead of a live shell.
+If the daemon is offline or the machine target is unavailable, Kaiwu shows a terminal error state instead of a live shell.
 
 ## Important things to know
 
@@ -116,11 +116,11 @@ If the daemon is offline or the machine target is unavailable, Happier shows a t
 - Start a local dev server and open the detected URL from the terminal banner.
 - Follow logs while keeping the main transcript visible.
 - Keep one session’s shell history open while moving between panel layouts.
-- Open a provider login flow from settings without leaving Happier.
+- Open a provider login flow from settings without leaving Kaiwu.
 
 ## Provider login terminal
 
-When a provider supports native CLI login from Happier, the app opens that login flow with the same terminal transport and pane system used for session terminals.
+When a provider supports native CLI login from Kaiwu, the app opens that login flow with the same terminal transport and pane system used for session terminals.
 
 What stays consistent:
 

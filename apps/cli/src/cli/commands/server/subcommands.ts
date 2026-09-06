@@ -134,7 +134,7 @@ async function assertRelayUrlAnswersBeforePersisting(params: Readonly<{
   const result = await probeServerVersion(params.probeUrl);
   if (result.ok) return;
 
-  const headline = `No Happier relay answered at ${params.probeUrl}.`;
+  const headline = `No Kaiwu relay answered at ${params.probeUrl}.`;
   const detailLines = relayProbeFailureDetailLines(result);
 
   if (!params.interactive) {

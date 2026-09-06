@@ -1,5 +1,7 @@
 import type { AppVariant } from '@/sync/runtime/appVariant';
 
+const INSTALL_BASE_URL = 'https://kaiwu.chengqiyun.com/install';
+
 function toOptionalNonEmptyString(value: unknown): string | null {
     if (typeof value !== 'string') return null;
     const trimmed = value.trim().toLowerCase();
@@ -24,9 +26,9 @@ export function buildHappierCliInstallCommand(input: Readonly<{
 }>): string {
     const channel = resolveInstallChannel(input);
     if (channel === 'preview') {
-        return `curl -fsSL https://happier.dev/install | bash -s -- --channel preview${input.suppressAutomaticSetup ? ' --yes' : ''}`;
+        return `curl -fsSL ${INSTALL_BASE_URL} | bash -s -- --channel preview${input.suppressAutomaticSetup ? ' --yes' : ''}`;
     }
     return input.suppressAutomaticSetup
-        ? 'curl -fsSL https://happier.dev/install | bash -s -- --yes'
-        : 'curl -fsSL https://happier.dev/install | bash';
+        ? `curl -fsSL ${INSTALL_BASE_URL} | bash -s -- --yes`
+        : `curl -fsSL ${INSTALL_BASE_URL} | bash`;
 }

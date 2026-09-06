@@ -2,6 +2,7 @@
 
 const relayWriteFramePrefix = '\u001eHAPPIER_PTY_WRITE ';
 const ptyBackendIds = ['node-pty', '@homebridge/node-pty-prebuilt-multiarch'];
+const relayWatchdogMs = 30_000;
 
 function describeError(error) {
   return error instanceof Error ? error.message : String(error);
@@ -185,10 +186,27 @@ function onStdinEnd() {
 process.stdin.on('data', onStdinData);
 process.stdin.on('end', onStdinEnd);
 
+let lastActivityMs = Date.now();
+let watchdogTimer = null;
+const startWatchdog = () => {
+  if (watchdogTimer) clearTimeout(watchdogTimer);
+  watchdogTimer = setTimeout(() => {
+    if (!exiting && (Date.now() - lastActivityMs) >= relayWatchdogMs) {
+      process.exit(1);
+    }
+  }, relayWatchdogMs);
+  watchdogTimer.unref?.();
+};
+
 pty.onData((data) => {
+  lastActivityMs = Date.now();
   process.stdout.write(data);
+  startWatchdog();
 });
 
 pty.onExit((event) => {
+  if (watchdogTimer) clearTimeout(watchdogTimer);
   requestRelayExit(typeof event.exitCode === 'number' ? event.exitCode : 1);
 });
+
+startWatchdog();

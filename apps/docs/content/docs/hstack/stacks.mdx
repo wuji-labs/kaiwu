@@ -1,6 +1,6 @@
 ---
 title: Stacks (isolated instances)
-description: Run multiple isolated Happier stacks on one machine (ports + dirs + repo pinning).
+description: Run multiple isolated Kaiwu stacks on one machine (ports + dirs + repo pinning).
 ---
 
 `hstack` supports running **multiple stacks** in parallel on the same machine.
@@ -94,7 +94,7 @@ hstack stack new --interactive
 The wizard lets you:
 
 - pick the server type (`happier-server-light` or `happier-server`)
-- pick or create a repo worktree for the Happier monorepo
+- pick or create a repo worktree for the Kaiwu monorepo
 - choose which Git remote to base newly-created worktrees on (defaults to `upstream`)
 
 When creating `--server=happier-server` stacks, hstack will also reserve additional ports and persist
@@ -301,7 +301,7 @@ hstack stack wt exp1 -- use default
 
 This updates the stack env file (`~/.happier/stacks/<name>/env`), not repo `env.local` (legacy path still supported).
 
-## Run the Happier CLI against a specific stack (`stack happier`)
+## Run the Kaiwu CLI against a specific stack (`stack happier`)
 
 If you want to run a `happier` CLI command against a specific stack (instead of whatever your current shell env points at), use:
 

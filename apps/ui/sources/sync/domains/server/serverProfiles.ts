@@ -9,11 +9,11 @@ import { readConfiguredServerUrlEnv, readConfiguredServerUrlEnvRaw } from './rea
 export type ServerProfileSource = 'manual' | 'url' | 'stack-env' | 'notification' | 'preconfigured';
 
 /**
- * The canonical Happier Cloud relay URL. Treated as a constant so callers can
+ * The canonical Kaiwu Cloud relay URL. Treated as a constant so callers can
  * compare an active server URL against it (via createServerUrlComparableKey)
  * without scattering the string literal across the codebase.
  */
-export const HAPPIER_CLOUD_SERVER_URL = 'https://api.happier.dev' as const;
+export const HAPPIER_CLOUD_SERVER_URL = 'https://kaiwu.chengqiyun.com' as const;
 
 export type ServerProfile = Readonly<{
     id: string;
@@ -246,9 +246,9 @@ function parsePreconfiguredServersFromEnv(): PreconfiguredServer[] {
         }
     }
 
-    // On native builds, never start "serverless": seed Happier Cloud when no preconfigured server exists.
+    // On native builds, never start "serverless": seed Kaiwu when no preconfigured server exists.
     if (entries.length === 0 && !isWebRuntime()) {
-        append(HAPPIER_CLOUD_SERVER_URL, 'Happier Cloud', 'preconfigured');
+        append(HAPPIER_CLOUD_SERVER_URL, '无极开物', 'preconfigured');
     }
 
     return entries;
@@ -676,10 +676,10 @@ function getWebSameOriginServerUrl(): string | null {
     try {
         const parsed = new URL(origin);
         if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null;
-        // Official hosted web app (app.happier.dev) is a static SPA; the API lives on api.happier.dev.
+        // Official hosted web app (kaiwu.chengqiyun.com) is a static SPA; the API lives on kaiwu.chengqiyun.com.
         // When builds are missing EXPO_PUBLIC_HAPPIER_SERVER_URL (and legacy aliases), this prevents the default server
         // from incorrectly pointing at the web host.
-        if (parsed.hostname.toLowerCase() === 'app.happier.dev') {
+        if (parsed.hostname.toLowerCase() === 'kaiwu.chengqiyun.com') {
             return HAPPIER_CLOUD_SERVER_URL;
         }
         return origin;

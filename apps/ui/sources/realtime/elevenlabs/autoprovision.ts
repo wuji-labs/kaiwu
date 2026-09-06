@@ -8,7 +8,7 @@ import { listElevenLabsVoices } from './elevenLabsVoices';
 import { selectPreferredElevenLabsVoiceId } from './selectPreferredElevenLabsVoiceId';
 import { resolveUiVoicePromptStackBlocks } from '@/voice/agent/resolveUiVoicePromptStackBlocks';
 
-const HAPPIER_ELEVENLABS_AGENT_NAME = 'Happier Voice';
+const HAPPIER_ELEVENLABS_AGENT_NAME = 'Kaiwu Voice';
 const DEFAULT_CLIENT_TOOL_RESPONSE_TIMEOUT_SECS = 60;
 const MAX_CLIENT_TOOL_RESPONSE_TIMEOUT_SECS = 120;
 const USER_INTERACTIVE_CLIENT_TOOL_RESPONSE_TIMEOUT_SECS = 120;

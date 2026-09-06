@@ -166,7 +166,7 @@ title: Keyboard shortcuts
 description: Every rebindable shortcut and the command palette, with the defaults for web and native.
 ---
 
-Happier has ${commands.size} keyboard commands. Every one can be rebound, and the defaults
+Kaiwu has ${commands.size} keyboard commands. Every one can be rebound, and the defaults
 differ between the web client and the native apps where the platform already
 claims a key.
 
@@ -182,7 +182,7 @@ platform convention rather than for "the modifier key".
 ## The command palette
 
 The fastest way to reach anything without remembering a binding. It searches
-built-in commands, your custom prompts and Happier actions in one list.
+built-in commands, your custom prompts and Kaiwu actions in one list.
 
 ${formatBindings(commands.get('commandPalette.open'))}
 

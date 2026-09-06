@@ -60,11 +60,11 @@ Then follow the provider setup guide:
 
 ## Standard authentication (device-key accounts)
 
-Happier uses a **device-key** account model (each account is tied to a device secret).
+Kaiwu uses a **device-key** account model (each account is tied to a device secret).
 
 - Default behavior: users can create accounts via device-key signup (`POST /v1/auth`).
 - You can optionally require external providers (GitHub and/or OIDC) for signup and/or ongoing access.
-- External providers are **not** “password login”: if a user is trying to access an *existing* Happier account from a new device/browser, they still need to **restore** the account (for example via **Add your phone** / **Restore account**), then connect providers from settings.
+- External providers are **not** “password login”: if a user is trying to access an *existing* Kaiwu account from a new device/browser, they still need to **restore** the account (for example via **Add your phone** / **Restore account**), then connect providers from settings.
 
 ### Keyed vs keyless (how providers show up in the UI)
 
@@ -72,7 +72,7 @@ The same OAuth provider (for example GitHub or an OIDC provider) can appear in t
 
 - **Keyed provisioning** (“Continue with GitHub”): creates a **device-key** account.
   - Users must back up a secret key and **restore** on new devices/browsers.
-  - This is the standard Happier model and works on E2EE-only servers.
+  - This is the standard Kaiwu model and works on E2EE-only servers.
 - **Keyless login** (“Sign in with GitHub”): signs in to a **keyless/plain** account (no device keys).
   - Sign-in can be **seamless across devices**, but it is intended for enterprise deployments and usually paired with plaintext storage.
 
@@ -82,7 +82,7 @@ Server operators control which role(s) are enabled via `/v1/features` (policy + 
 
 Clients should treat `GET /v1/features` as the source of truth for “what auth flows are available”.
 
-Happier advertises auth entrypoints via:
+Kaiwu advertises auth entrypoints via:
 
 - `capabilities.auth.methods[]` (preferred; method + action + mode)
 - plus legacy surfaces like `capabilities.auth.signup.methods[]` for older clients
@@ -95,14 +95,14 @@ Each method can advertise multiple actions:
 
 And each action declares its account key mode:
 
-- `keyed`: device-key account (default Happier model)
+- `keyed`: device-key account (default Kaiwu model)
 - `keyless`: no device keys (enterprise mode; typically paired with plaintext storage)
 
 ## Keyless authentication (enterprise)
 
 Some deployments want accounts to exist **without device keys** (for example: company-managed identity, server-side indexing/search, and simpler multi-device behavior).
 
-Happier currently supports keyless login via:
+Kaiwu currently supports keyless login via:
 
 - [mTLS auth](/self-hosting/auth-mtls)
 - keyless OAuth login (GitHub/OIDC) when enabled by feature env vars
@@ -194,7 +194,7 @@ HAPPIER_FEATURE_ENCRYPTION__ALLOW_ACCOUNT_OPTOUT=1
 
 If you enable any external OAuth providers (GitHub and/or OIDC), the server must know where to redirect the browser **back to the client app** after OAuth completes.
 
-- If you use the hosted web app, you don’t need to set anything (default is `https://app.happier.dev`).
+- If you use the hosted web app, you don’t need to set anything (default is `https://kaiwu.chengqiyun.com`).
 - If you self-host the web app (or you’re using a local dev UI), you **must** configure one of:
   - `HAPPIER_WEBAPP_URL` (most common for web)
   - `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE` (often used for mobile deep links or custom paths)

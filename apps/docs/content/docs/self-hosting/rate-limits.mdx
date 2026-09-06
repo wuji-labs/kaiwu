@@ -3,7 +3,7 @@ title: API rate limits
 description: Every rate-limited endpoint, its default, what it counts against, and the two environment variables that change it.
 ---
 
-Happier rate-limits its busiest endpoints. The defaults suit a normal
+Kaiwu rate-limits its busiest endpoints. The defaults suit a normal
 deployment; you would usually only raise one after watching a specific endpoint
 throttle under real load, or lower one on a server exposed to the public
 internet.
@@ -17,7 +17,7 @@ The window accepts the same duration strings the defaults use (`1 minute`,
 
 **What it counts against** matters more than the number. `Account` limits are
 per signed-in account, so one busy user cannot exhaust another's budget.
-`IP address` limits apply before Happier knows who is calling — they protect
+`IP address` limits apply before Kaiwu knows who is calling — they protect
 unauthenticated routes, and behind a reverse proxy they are only as accurate as
 the forwarded client address your proxy sets. 27 of the 33 limits are
 per-account.

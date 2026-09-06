@@ -1,9 +1,9 @@
 ---
 title: Updates
-description: How updates work across Happier apps, CLIs, installers, Docker images, and release assets.
+description: How updates work across Kaiwu apps, CLIs, installers, Docker images, and release assets.
 ---
 
-Happier ships multiple apps + tools, and **how updates work depends on how you installed each one**.
+Kaiwu ships multiple apps + tools, and **how updates work depends on how you installed each one**.
 
 This page is the “source of truth” for:
 
@@ -33,7 +33,7 @@ The table below covers all user-facing released assets and how updates work.
 
 | Shipped asset | How you got it | Updates happen when… | Automatic? | How to update / control |
 | --- | --- | --- | --- | --- |
-| **Desktop app** (Tauri, “Tori” / Happier desktop) | Installed app bundle (`.app` / installer) | The app checks a signed update feed and offers an in-app update | **Checks automatically**, install is **user-triggered** | Accept the in-app update prompt; stable/preview/dev is determined by which build you installed |
+| **Desktop app** (Tauri, “Tori” / Kaiwu desktop) | Installed app bundle (`.app` / installer) | The app checks a signed update feed and offers an in-app update | **Checks automatically**, install is **user-triggered** | Accept the in-app update prompt; stable/preview/dev is determined by which build you installed |
 | **Mobile app** (iOS/Android) | App Store / Play Store | (1) JS/asset OTA updates may be fetched; (2) native updates come from the store | OTA can be **automatic + user-applied**; store updates are **store-managed** | In-app “Update available” banner applies OTA updates (reload). Native updates require installing the new store version |
 | **Web app** (hosted) | You open the hosted web UI | New deployments go live; users get them on refresh | Yes (on refresh) | Refresh the page (hard refresh if your browser is caching aggressively) |
 | **Self-hosted web UI bundle** (`happier-ui-web`) | Embedded/served by your self-hosted server, Docker image, or runner | It changes when your server runtime updates (or when your runner downloads a newer UI bundle) | Depends on the host (see below) | Control updates via the host (Docker pull, `happier relay host install`, runner restart, or pin tags) |
@@ -41,8 +41,8 @@ The table below covers all user-facing released assets and how updates work.
 | **UI embedded in relay-server Docker image** | Part of the Docker image build | It updates with the Docker image | No | Same as the Docker image update (pull + restart) |
 | **Relay server npm package** (`@happier-dev/relay-server`) | `npx … @happier-dev/relay-server happier-server …` | The runner fetches the latest server runtime/UI bundle for the selected rolling tags on startup | Yes (on restart) | Restart the runner to pick up newest rolling tag; pin via `--tag server-vX.Y.Z` and `--ui-tag ui-web-vX.Y.Z`; disable UI via `--without-ui` or `HAPPIER_SERVER_UI_DIR=` |
 | **UI “embedded” in relay-server npm runner** | Downloaded + cached by the runner (not shipped inside npm tarball) | The runner downloads the UI bundle when needed | Yes (on restart) | Same controls as the runner: `--ui-tag …`, `--without-ui`, or set `HAPPIER_SERVER_UI_DIR` to a fixed directory |
-| **Managed Relay runtime** (`happier relay host …`) | Install the Happier CLI, then run `happier relay host install …` | You rerun `happier relay host install` | No | `happier relay host install` (local or with `--ssh user@host`) |
-| **CLI installer** (`https://happier.dev/install`) | `curl …install \| bash` / `irm …install.ps1` | You rerun it (or use the CLI’s self-update for installer installs) | No | Re-run the installer, or run the lane-specific command (`happier`, `hprev`, or `hdev`) with `self update` |
+| **Managed Relay runtime** (`happier relay host …`) | Install the Kaiwu CLI, then run `happier relay host install …` | You rerun `happier relay host install` | No | `happier relay host install` (local or with `--ssh user@host`) |
+| **CLI installer** (`https://kaiwu.chengqiyun.com/install`) | `curl …install \| bash` / `irm …install.ps1` | You rerun it (or use the CLI’s self-update for installer installs) | No | Re-run the installer, or run the lane-specific command (`happier`, `hprev`, or `hdev`) with `self update` |
 | **CLI installer payload** | Installed under `~/.happier/cli{,-preview,-dev}/{versions,current,previous}` with lane-specific shims in `~/.happier/bin` and `~/.local/bin` (or Windows equivalent) | You run `happier self update`, `hprev self update`, `hdev self update`, or rerun the installer | No (but it can show notices) | Installer lanes are `stable` (`happier`), `preview` (`hprev`), and `dev` (`hdev`). You can still target `--channel preview|dev` or `--to versionOrTag` explicitly. |
 | **CLI npm package** (`@happier-dev/cli`) | `npm install -g @happier-dev/cli` | You upgrade the npm package | No (but it can show notices) | `npm install -g @happier-dev/cli@latest` (or `@next` for preview) |
 | **Stack npm package** (`@happier-dev/stack`) | `npm install -g @happier-dev/stack` | You upgrade the npm package (or use `hstack self update` runtime install) | No (but it can show notices) | `hstack self update` (recommended in-stack) or `npm install -g @happier-dev/stack@latest` |
@@ -52,7 +52,7 @@ The table below covers all user-facing released assets and how updates work.
 Self-host and relay runtime downloads are verified before install:
 
 - **SHA256**: downloaded archive matches the published checksums file.
-- **minisign**: the checksums file is verified with the embedded Happier minisign public key.
+- **minisign**: the checksums file is verified with the embedded Kaiwu minisign public key.
 
 ## Desktop app (Tauri)
 
@@ -134,7 +134,7 @@ happier self update --to 0.1.2
 Rerunning the installer is also a valid update path:
 
 ```bash
-curl -fsSL https://happier.dev/install | bash
+curl -fsSL https://kaiwu.chengqiyun.com/install | bash
 ```
 
 ### If you installed the CLI via npm
@@ -171,13 +171,13 @@ The installer supports a few “actions” that are useful for scripting:
 
 ```bash
 # Check the installed binary + PATH shim
-curl -fsSL https://happier.dev/install | bash -s -- --check
+curl -fsSL https://kaiwu.chengqiyun.com/install | bash -s -- --check
 
 # Print the latest version available on the selected channel
-curl -fsSL https://happier.dev/install | bash -s -- --version
+curl -fsSL https://kaiwu.chengqiyun.com/install | bash -s -- --version
 
 # Update/reinstall to latest on the selected channel
-curl -fsSL https://happier.dev/install | bash
+curl -fsSL https://kaiwu.chengqiyun.com/install | bash
 ```
 
 Windows (PowerShell) updates work the same way (rerun the installer).

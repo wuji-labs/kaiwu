@@ -334,7 +334,7 @@ function resolveSubprocessRuntimeExecutable(runtime: Exclude<HappyCliSubprocessR
       isBunRuntime: isBun(),
     });
     if (!javaScriptRuntime) {
-      throw new ReferenceError(buildMissingJavaScriptRuntimeMessage('Happier CLI subprocess'));
+      throw new ReferenceError(buildMissingJavaScriptRuntimeMessage('Kaiwu CLI subprocess'));
     }
     return javaScriptRuntime;
   }
@@ -784,7 +784,7 @@ export function buildHappyCliSubprocessInvocation(
     }
     if (isRuntimeBackedSubprocess()) {
       throw new HappyCliImmutableRuntimeClosureError(
-        'Runtime-backed Happier CLI runner requires its admitted immutable dist closure; mutable source fallback is disabled.',
+        'Runtime-backed Kaiwu CLI runner requires its admitted immutable dist closure; mutable source fallback is disabled.',
       );
     }
     const tsxInvocation = buildDevTsxSubprocessInvocation(args, entrypoint);
@@ -793,7 +793,7 @@ export function buildHappyCliSubprocessInvocation(
 
   if (isRuntimeBackedSubprocess()) {
     throw new HappyCliImmutableRuntimeClosureError(
-      'Runtime-backed Happier CLI runner could not resolve its admitted immutable dist closure.',
+      'Runtime-backed Kaiwu CLI runner could not resolve its admitted immutable dist closure.',
     );
   }
 
@@ -854,7 +854,7 @@ export function resolveHappyCliSubprocessRuntimeDecision(
   const invocation = buildHappyCliSubprocessInvocation([], options);
   if (invocation.runtime !== 'node') {
     throw new HappyCliImmutableRuntimeClosureError(
-      'Runtime-backed Happier CLI runner did not resolve to the admitted Node.js closure.',
+      'Runtime-backed Kaiwu CLI runner did not resolve to the admitted Node.js closure.',
     );
   }
   return {

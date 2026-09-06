@@ -559,7 +559,7 @@ describe('PetsSettingsScreen', () => {
 
         await screen.pressByTestIdAsync('settings-pets-help-docs');
 
-        expect(openExternalUrlMock).toHaveBeenCalledWith('https://docs.happier.dev');
+        expect(openExternalUrlMock).toHaveBeenCalledWith('https://kaiwu.chengqiyun.com/docs');
     });
 
     it('lets desktop users choose attention-or-active overlay visibility for this device', async () => {

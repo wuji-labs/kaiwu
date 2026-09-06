@@ -8,8 +8,8 @@ export function resolveWebappUrlFromServerUrl(serverUrl: string): string {
             return normalized;
         }
         const origin = parsed.origin.replace(/\/+$/, '');
-        if (origin === 'https://api.happier.dev') {
-            return 'https://app.happier.dev';
+        if (origin === 'https://api.kaiwu.chengqiyun.com' || origin === 'https://kaiwu.chengqiyun.com') {
+            return 'https://kaiwu.chengqiyun.com';
         }
         return origin;
     } catch {

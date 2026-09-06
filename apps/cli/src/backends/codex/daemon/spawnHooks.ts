@@ -35,7 +35,7 @@ export const codexDaemonSpawnHooks: DaemonSpawnHooks = {
         ok: false,
         reasonCode: 'codex_acp_unavailable',
         errorMessage:
-          'Codex ACP is enabled, but codex-acp could not be resolved. Install codex-acp from the Happier app (Machine details → Installables), add codex-acp to PATH, or disable the experiment.',
+          'Codex ACP is enabled, but codex-acp could not be resolved. Install codex-acp from the Kaiwu app (Machine details → Installables), add codex-acp to PATH, or disable the experiment.',
       };
     }
 

@@ -15,7 +15,7 @@ export function buildProviderCliUnavailableMessage(params: Readonly<{
   return [
     `${runtimeSpec.title} not found or not executable${resolvedCommand ? `: ${resolvedCommand}` : ''}`,
     '',
-    `Install ${runtimeSpec.title} via the Happier provider settings or add "${runtimeSpec.binaryName}" to PATH.`,
+    `Install ${runtimeSpec.title} via the Kaiwu provider settings or add "${runtimeSpec.binaryName}" to PATH.`,
     ...(setupGuideUrl ? ['', `Setup guide: ${setupGuideUrl}`] : []),
     ...(alternativeCommandHint ? ['', alternativeCommandHint] : []),
   ].join('\n');

@@ -1,13 +1,13 @@
 ---
 title: Session handoff
-description: Move a live Happier session between machines, keep the same session id, and understand workspace-transfer and direct-session options.
+description: Move a live Kaiwu session between machines, keep the same session id, and understand workspace-transfer and direct-session options.
 ---
 
-Session handoff lets you move a live Happier session from one machine to another without forking it.
+Session handoff lets you move a live Kaiwu session from one machine to another without forking it.
 
 The important promise is simple:
 
-- the same Happier session id stays in place
+- the same Kaiwu session id stays in place
 - the active owner changes from one machine to another
 - the conversation can continue on the target machine
 
@@ -31,7 +31,7 @@ Open the action, choose the destination machine, review the handoff options, and
 
 When handoff succeeds:
 
-- the Happier session id stays the same
+- the Kaiwu session id stays the same
 - the transcript stays in the same session
 - session metadata stays attached to that same session
 - the new machine becomes the active owner
@@ -65,18 +65,18 @@ Current status:
 
 Session handoff works with both user-facing session models:
 
-- Happier sessions
+- Kaiwu sessions
 - Direct sessions
 
 See [Continuing a session](/sessions/continuing-a-session).
 
-### Happier sessions
+### Kaiwu sessions
 
-For a Happier session, handoff moves the live owner to another machine while keeping the same Happier-managed session.
+For a Kaiwu session, handoff moves the live owner to another machine while keeping the same Kaiwu-managed session.
 
 This is the simplest case:
 
-- same Happier session
+- same Kaiwu session
 - new owning machine
 - same transcript and session id
 
@@ -91,13 +91,13 @@ You can choose:
 
 Use Keep direct when you want the target machine to keep following the provider-backed session.
 
-Use Convert to synced when you want to move out of the machine-bound direct model and let Happier own the session going forward.
+Use Convert to synced when you want to move out of the machine-bound direct model and let Kaiwu own the session going forward.
 
 ## Workspace transfer
 
 Workspace transfer is optional.
 
-By default, Happier keeps the target workspace unchanged unless you turn transfer on.
+By default, Kaiwu keeps the target workspace unchanged unless you turn transfer on.
 
 When enabled, the handoff modal lets you choose:
 
@@ -128,7 +128,7 @@ If you choose Include selected ignored files, you can provide include globs such
 
 ### Safe-by-default path checks
 
-Happier blocks workspace transfer for unsafe source paths such as:
+Kaiwu blocks workspace transfer for unsafe source paths such as:
 
 - the filesystem root
 - your home directory
@@ -162,7 +162,7 @@ Connected services are often the easiest way to make handoff work across machine
 
 Why:
 
-- the credential lives in your Happier account
+- the credential lives in your Kaiwu account
 - compatible backends can reuse that credential on another machine
 - you do not need to depend only on the target machine’s native CLI login state
 
@@ -186,7 +186,7 @@ If a provider/backend relies on the native provider CLI login state, the target 
 
 So the mental model is:
 
-- Connected services help when the backend can materialize auth from Happier-managed credentials
+- Connected services help when the backend can materialize auth from Kaiwu-managed credentials
 - Provider authentication still matters for machine-local provider CLI workflows
 
 Related guide:
@@ -195,7 +195,7 @@ Related guide:
 
 ## What you see during handoff
 
-When you start handoff, Happier shows a progress modal while it:
+When you start handoff, Kaiwu shows a progress modal while it:
 
 - prepares the target machine
 - moves the session state
@@ -204,7 +204,7 @@ When you start handoff, Happier shows a progress modal while it:
 
 After completion:
 
-- the session stays in place in Happier
+- the session stays in place in Kaiwu
 - the active machine changes
 - the old owner relinquishes control
 
@@ -218,15 +218,15 @@ Examples:
 
 - move from your laptop to a desktop
 - move from a host machine to a VM
-- move from one dedicated Happier home to another
+- move from one dedicated Kaiwu home to another
 
 ### Keep a direct session provider-backed, but move it
 
 Use Keep direct when the provider-backed ownership model is still what you want and the provider supports direct handoff.
 
-### Convert a direct session into a Happier session
+### Convert a direct session into a Kaiwu session
 
-Use Convert to synced when you started from a provider-native session but now want Happier to own the transcript and future continuity.
+Use Convert to synced when you started from a provider-native session but now want Kaiwu to own the transcript and future continuity.
 
 ### Move the session but leave the target workspace alone
 
@@ -251,7 +251,7 @@ Usually one of these is true:
 This usually means:
 
 - your defaults have workspace transfer off, or
-- Happier detected an unsafe source path such as `~` or a filesystem root
+- Kaiwu detected an unsafe source path such as `~` or a filesystem root
 
 ### The handoff action is missing
 

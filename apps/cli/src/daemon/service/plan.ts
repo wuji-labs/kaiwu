@@ -403,7 +403,7 @@ export function planDaemonServiceInstall(params: Readonly<{
     : resolveSystemdUserUnitPath({ userHomeDir: params.userHomeDir, instanceId, channel, targetMode });
 
   const unit = renderSystemdServiceUnit({
-    description: targetMode === 'default-following' ? 'Happier CLI daemon (default)' : `Happier CLI daemon (${instanceId})`,
+    description: targetMode === 'default-following' ? 'Kaiwu CLI daemon (default)' : `Kaiwu CLI daemon (${instanceId})`,
     execStart: programArgs,
     workingDirectory: mode === 'system' ? params.userHomeDir : '%h',
     env: {

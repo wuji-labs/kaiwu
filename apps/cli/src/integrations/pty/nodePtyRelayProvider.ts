@@ -26,6 +26,7 @@ type NodeRelaySpawnProcess = (
 
 const relayWriteFramePrefix = '\u001eHAPPIER_PTY_WRITE ';
 const relayKillFallbackMs = 2_000;
+const relayZombieDetectionMs = 5_000;
 
 function normalizeArgs(args: string[] | string): string[] {
   return Array.isArray(args) ? [...args] : [String(args)];
@@ -63,6 +64,8 @@ function childToPtyProcess(child: ChildProcessWithoutNullStreams): PtyProcess {
   let completedExit: PtyExitEvent | null = null;
   let relayInputClosed = false;
   let killFallbackTimer: ReturnType<typeof setTimeout> | null = null;
+  let zombieDetectionTimer: ReturnType<typeof setTimeout> | null = null;
+  let hasExited = false;
 
   const emitExit = (event: PtyExitEvent) => {
     if (completedExit) return;
@@ -70,6 +73,10 @@ function childToPtyProcess(child: ChildProcessWithoutNullStreams): PtyProcess {
     if (killFallbackTimer) {
       clearTimeout(killFallbackTimer);
       killFallbackTimer = null;
+    }
+    if (zombieDetectionTimer) {
+      clearTimeout(zombieDetectionTimer);
+      zombieDetectionTimer = null;
     }
     for (const listener of exitListeners) {
       listener(event);
@@ -106,22 +113,37 @@ function childToPtyProcess(child: ChildProcessWithoutNullStreams): PtyProcess {
     }
   };
 
+  const recordExit = () => {
+    if (hasExited) return;
+    hasExited = true;
+    emitExit({ exitCode: typeof child.exitCode === 'number' ? child.exitCode : -1 });
+  };
+
   child.once('error', () => {
     emitExit({ exitCode: -1 });
   });
   child.stdin.on('error', () => {
     relayInputClosed = true;
   });
-  child.once('exit', () => {
-    relayInputClosed = true;
-  });
+  child.once('exit', recordExit);
   child.once('close', (exitCode: number | null, signal: NodeJS.Signals | null) => {
+    if (hasExited) return;
     const numericSignal = typeof signal === 'string' ? null : signal;
     emitExit({
       exitCode: typeof exitCode === 'number' ? exitCode : -1,
       ...(typeof numericSignal === 'number' ? { signal: numericSignal } : {}),
     } satisfies PtyExitEvent);
   });
+  child.stdout.once('end', recordExit);
+  child.stderr.once('end', recordExit);
+  if (!zombieDetectionTimer) {
+    zombieDetectionTimer = setTimeout(() => {
+      if (!completedExit && !hasExited) {
+        recordExit();
+      }
+    }, relayZombieDetectionMs);
+    zombieDetectionTimer.unref?.();
+  }
 
   return {
     write: (data) => {

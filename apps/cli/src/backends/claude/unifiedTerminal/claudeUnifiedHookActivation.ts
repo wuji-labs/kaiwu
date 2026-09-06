@@ -6,7 +6,7 @@ export class ClaudeUnifiedTerminalHookActivationError extends Error {
 
   constructor() {
     super(
-      'Claude accepted terminal input without activating Happier session hooks. '
+      'Claude accepted terminal input without activating Kaiwu session hooks. '
       + 'The session was stopped because permissions and lifecycle events could not be routed safely.',
     );
     this.name = 'ClaudeUnifiedTerminalHookActivationError';

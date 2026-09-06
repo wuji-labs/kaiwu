@@ -84,7 +84,7 @@ export function buildDaemonTakeoverNotice(params: Readonly<{
   return {
     title: 'Taking over the current manual daemon.',
     lines: [
-      `Happier will stop the current manual daemon before it ${params.action === 'start'
+      `Kaiwu will stop the current manual daemon before it ${params.action === 'start'
         ? 'starts the daemon'
         : params.action === 'start-sync'
           ? 'starts the daemon synchronously'

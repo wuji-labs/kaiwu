@@ -84,7 +84,7 @@ export function createHappierMcpServer(
     : { encryptionKey: new Uint8Array(0), encryptionVariant: 'legacy' as const };
 
   const mcp = new McpServer({
-    name: 'Happier MCP',
+    name: 'Kaiwu MCP',
     version: '1.0.0',
   });
 

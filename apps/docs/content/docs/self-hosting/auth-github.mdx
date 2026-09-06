@@ -3,7 +3,7 @@ title: GitHub auth
 description: Configure GitHub OAuth (signup + connect) and optional GitHub allowlists for a self-hosted server.
 ---
 
-This guide covers GitHub auth on the Happier server:
+This guide covers GitHub auth on the Kaiwu server:
 - GitHub OAuth (signup + connect)
 - Enforcing GitHub as a required login provider
 - Optional allowlists (users/orgs) and offboarding behavior
@@ -12,7 +12,7 @@ This guide covers GitHub auth on the Happier server:
 
 Use this when you want users to **sign up with GitHub** and you want to **disable anonymous signup**.
 
-Note: Happier accounts are still **device-key** accounts. GitHub acts as an attached identity provider (used for signup, connect, and policy enforcement), not as a replacement for device-key login.
+Note: Kaiwu accounts are still **device-key** accounts. GitHub acts as an attached identity provider (used for signup, connect, and policy enforcement), not as a replacement for device-key login.
 
 UI note:
 - If both anonymous signup and GitHub signup are enabled, the welcome screen shows **Create account** and **Continue with GitHub**.
@@ -20,7 +20,7 @@ UI note:
 
 ### 1) Create a GitHub OAuth App
 
-Happier uses a **GitHub OAuth App** (not a GitHub App) for the OAuth redirect flow.
+Kaiwu uses a **GitHub OAuth App** (not a GitHub App) for the OAuth redirect flow.
 
 1. In GitHub, go to **Settings → Developer settings → OAuth Apps → New OAuth App**.
 2. Set **Authorization callback URL** to:
@@ -30,7 +30,7 @@ Happier uses a **GitHub OAuth App** (not a GitHub App) for the OAuth redirect fl
    - **Client secret**
 
 Notes:
-- The Happier server currently talks to `github.com` / `api.github.com` directly, so this setup is for **GitHub.com** (not GitHub Enterprise Server).
+- The Kaiwu server currently talks to `github.com` / `api.github.com` directly, so this setup is for **GitHub.com** (not GitHub Enterprise Server).
 - The callback URL must match exactly (scheme/host/path) what you put in `GITHUB_REDIRECT_URL`.
 - GitHub generally requires `https://` callback URLs, except for loopback development URLs like `http://localhost:PORT/...`.
 - You do **not** need GitHub’s “Device Flow / device authentication flow”. Our server uses the standard browser redirect OAuth flow, so you can leave “Enable Device Flow” **disabled**.
@@ -45,8 +45,8 @@ GITHUB_CLIENT_ID=...
 GITHUB_CLIENT_SECRET=...
 GITHUB_REDIRECT_URL=https://YOUR_SERVER/v1/oauth/github/callback
 
-# OAuth return redirect back to the client (required unless you are using https://app.happier.dev)
-# - Web: set this to the URL you open in the browser for the Happier web app (self-hosted or local dev).
+# OAuth return redirect back to the client (required unless you are using https://kaiwu.chengqiyun.com)
+# - Web: set this to the URL you open in the browser for the Kaiwu web app (self-hosted or local dev).
 # - Mobile: use HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE + HAPPIER_OAUTH_RETURN_ALLOWED_SCHEMES instead.
 HAPPIER_WEBAPP_URL=https://YOUR_WEBAPP
 
@@ -65,17 +65,17 @@ Alternative (mobile deep link return):
 1. Restart the server.
 2. Check `GET /v1/features` and confirm:
    - `capabilities.oauth.providers.github.configured` is `true`
-3. Open the Happier app and confirm “Continue with GitHub” is available.
-4. If your GitHub login is already taken (or doesn’t match the username rules), Happier will ask you to choose a username during signup. This is expected.
-   - Important: this is **signup** (creating a new Happier account). If you’re trying to use GitHub to “log in” to an existing Happier account from another device, you must use **device-key restore** (for example **Add your phone** / **Restore account**) and then connect GitHub from **Settings → Account**.
+3. Open the Kaiwu app and confirm “Continue with GitHub” is available.
+4. If your GitHub login is already taken (or doesn’t match the username rules), Kaiwu will ask you to choose a username during signup. This is expected.
+   - Important: this is **signup** (creating a new Kaiwu account). If you’re trying to use GitHub to “log in” to an existing Kaiwu account from another device, you must use **device-key restore** (for example **Add your phone** / **Restore account**) and then connect GitHub from **Settings → Account**.
 
 Troubleshooting:
-- If you see an error like “provider already linked”, it means this GitHub identity is already connected to an existing Happier account on that server.
+- If you see an error like “provider already linked”, it means this GitHub identity is already connected to an existing Kaiwu account on that server.
   - Use **device-key restore** on this device/browser, then continue.
 
 ## Keyless GitHub login (optional, enterprise)
 
-Happier can also use GitHub OAuth as a **keyless login method** (no device keys).
+Kaiwu can also use GitHub OAuth as a **keyless login method** (no device keys).
 
 This is intended for enterprise deployments where:
 - you want seamless sign-in across devices (no restore key prompts), and
@@ -124,8 +124,8 @@ Required:
 - `GITHUB_REDIRECT_URL` (preferred) or legacy `GITHUB_REDIRECT_URI`
   - Must be: `https://YOUR_SERVER/v1/oauth/github/callback`
 
-Required **unless** you are using the hosted client at `https://app.happier.dev`:
-- `HAPPIER_WEBAPP_URL` (default `https://app.happier.dev`)
+Required **unless** you are using the hosted client at `https://kaiwu.chengqiyun.com`:
+- `HAPPIER_WEBAPP_URL` (default `https://kaiwu.chengqiyun.com`)
 
 Optional (typically only needed for mobile deep links / custom schemes):
 - `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE`
@@ -137,14 +137,14 @@ Optional (typically only needed for mobile deep links / custom schemes):
 Notes:
 - `GITHUB_REDIRECT_URL` must be reachable by GitHub (it’s where GitHub redirects the browser after the user approves OAuth).
 - If your server is behind a reverse proxy, `GITHUB_REDIRECT_URL` should be the **public** URL (not an internal container hostname).
-- `HAPPIER_WEBAPP_URL` / `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE` are only “optional” if you are using the hosted client at `https://app.happier.dev`.
+- `HAPPIER_WEBAPP_URL` / `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE` are only “optional” if you are using the hosted client at `https://kaiwu.chengqiyun.com`.
   - If you are self-hosting the web app, or using a local dev web UI, you must set one of these so the server can redirect back to your client after OAuth.
 
 ## OAuth return URL to the client (advanced)
 
 After the server handles the GitHub callback, it redirects the browser back to the client so the client can finish the flow.
 
-- Default return base: `HAPPIER_WEBAPP_URL` (`https://app.happier.dev`)
+- Default return base: `HAPPIER_WEBAPP_URL` (`https://kaiwu.chengqiyun.com`)
   - The server redirects to `${HAPPIER_WEBAPP_URL}/oauth/github?...` unless you override it.
 - Override return base (without provider suffix): `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE`
   - Example: `https://app.example.com/custom-oauth` → redirects to `https://app.example.com/custom-oauth/github?...`
@@ -153,7 +153,7 @@ After the server handles the GitHub callback, it redirects the browser back to t
   - `http://` is only allowed for loopback hosts like `localhost`, `127.0.0.1`, and `*.localhost`, and is not allowed for non-loopback hosts.
 
 Troubleshooting:
-- If you get redirected to `https://app.happier.dev` even after setting `HAPPIER_WEBAPP_URL`, the server likely rejected your configured return URL as unsafe. For local web dev, use `http://localhost:PORT` or `http://*.localhost:PORT` (or use `https://`).
+- If you get redirected to `https://kaiwu.chengqiyun.com` even after setting `HAPPIER_WEBAPP_URL`, the server likely rejected your configured return URL as unsafe. For local web dev, use `http://localhost:PORT` or `http://*.localhost:PORT` (or use `https://`).
 
 ## OAuth scopes
 

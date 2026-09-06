@@ -22,10 +22,10 @@ import {
 const OPEN_TAG = '<happier_session_reference>';
 const CLOSE_TAG = '</happier_session_reference>';
 
-const HEADER = 'The user referenced other Happier session(s) in this message. Use them only if the request calls for it.';
+const HEADER = 'The user referenced other Kaiwu session(s) in this message. Use them only if the request calls for it.';
 
 const FOOTER = [
-    'Happier session tools may be available to you (for example: read a session\'s transcript or status, or send it a message).',
+    'Kaiwu session tools may be available to you (for example: read a session\'s transcript or status, or send it a message).',
     'No transcript content is included here — read it with a tool if you need it.',
     'If a tool call fails, or no such tool is available, say so to the user instead of guessing or working around it.',
 ].join(' ');

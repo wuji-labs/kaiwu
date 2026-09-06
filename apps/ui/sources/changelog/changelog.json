@@ -3,7 +3,7 @@
     {
       "version": 1,
       "date": "2026-02-15",
-      "summary": "Welcome to Happier - your secure, encrypted mobile companion for Claude Code. This inaugural release establishes the foundation for private, powerful AI interactions on the go.",
+      "summary": "Welcome to Kaiwu - your secure, encrypted mobile companion for Claude Code. This inaugural release establishes the foundation for private, powerful AI interactions on the go.",
       "changes": [
         "Implemented end-to-end encrypted session management ensuring complete privacy",
         "Integrated intelligent voice assistant with natural conversation capabilities",
@@ -11,7 +11,7 @@
         "Built seamless real-time synchronization across all your devices",
         "Established native support for iOS, Android, and responsive web interfaces"
       ],
-      "rawMarkdown": "## Version 1 - 2026-02-15\n\n\nWelcome to Happier - your secure, encrypted mobile companion for Claude Code. This inaugural release establishes the foundation for private, powerful AI interactions on the go.\n\n- Implemented end-to-end encrypted session management ensuring complete privacy\n- Integrated intelligent voice assistant with natural conversation capabilities\n- Added experimental file manager with syntax highlighting and tree navigation\n- Built seamless real-time synchronization across all your devices\n- Established native support for iOS, Android, and responsive web interfaces"
+      "rawMarkdown": "## Version 1 - 2026-02-15\n\n\nWelcome to Kaiwu - your secure, encrypted mobile companion for Claude Code. This inaugural release establishes the foundation for private, powerful AI interactions on the go.\n\n- Implemented end-to-end encrypted session management ensuring complete privacy\n- Integrated intelligent voice assistant with natural conversation capabilities\n- Added experimental file manager with syntax highlighting and tree navigation\n- Built seamless real-time synchronization across all your devices\n- Established native support for iOS, Android, and responsive web interfaces"
     }
   ],
   "latestVersion": 1

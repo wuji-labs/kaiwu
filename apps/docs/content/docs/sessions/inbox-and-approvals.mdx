@@ -3,7 +3,7 @@ title: Inbox and approvals
 description: Understand the global Inbox, approval requests, permission requests, and how this differs from Friends.
 ---
 
-Happier has a **global Inbox**.
+Kaiwu has a **global Inbox**.
 
 Inbox is the place where the app surfaces **things that need your attention**, even when they come from different parts of the product.
 
@@ -23,7 +23,7 @@ Use Inbox when you want to answer: **“What needs my attention right now?”**
 
 Approval requests are the user-facing layer for actions that should not run immediately.
 
-Instead of executing directly, Happier can create an approval request that you review first.
+Instead of executing directly, Kaiwu can create an approval request that you review first.
 
 This is important for actions such as:
 
@@ -50,7 +50,7 @@ Statuses include states such as:
 - executed
 - failed
 
-### Why Happier uses approvals
+### Why Kaiwu uses approvals
 
 This gives you:
 
@@ -71,7 +71,7 @@ Examples:
 - disable an action entirely on one surface while keeping it available on another
 - require approval for built-in surface aliases too, such as CLI `set-title` / MCP `session_title_set`, because they resolve to the same underlying action policy
 
-In **Settings → Actions**, Happier stores this as per-action, per-surface policy.
+In **Settings → Actions**, Kaiwu stores this as per-action, per-surface policy.
 
 That means approvals are not implemented as one-off action-specific code paths.
 The same generic approval flow can be reused across:
@@ -102,7 +102,7 @@ These are about **runtime tool access**.
 
 Some requests are not plain tool permissions and not generic approval queue items.
 
-Happier also surfaces **user-action requests**, where the agent needs a structured human response before it can continue.
+Kaiwu also surfaces **user-action requests**, where the agent needs a structured human response before it can continue.
 
 Common examples:
 
@@ -114,7 +114,7 @@ These are handled through one generalized response model instead of one-off cust
 
 ### What you can do with a user-action request
 
-Depending on the request, Happier can ask you to:
+Depending on the request, Kaiwu can ask you to:
 
 - approve
 - reject
@@ -129,7 +129,7 @@ This is why `Exit Plan Mode` and `AskUserQuestion` can both appear as user-facin
 When a provider supports a planning mode, a common user-action flow is:
 
 1. the agent proposes a plan
-2. Happier shows an **Exit Plan Mode** request
+2. Kaiwu shows an **Exit Plan Mode** request
 3. you can:
    - **Approve Plan**
    - **Request changes**
@@ -171,7 +171,7 @@ Notifications can also include a short summary of what the tool or request is as
 
 ## Permission requests vs user-action requests
 
-This distinction is important in current Happier builds:
+This distinction is important in current Kaiwu builds:
 
 - **Permission request** = “should this tool/action be allowed?”
 - **User-action request** = “the agent needs a structured human decision or answer before it can continue”
@@ -182,7 +182,7 @@ But they are intentionally tracked and rendered as different request types.
 
 ### Approval requests
 
-An approval request is about **running a higher-level action through Happier’s action system**.
+An approval request is about **running a higher-level action through Kaiwu’s action system**.
 
 Examples:
 
@@ -197,11 +197,11 @@ These are about **action execution**, not only tool access.
 The typical flow is:
 
 1. something proposes an action
-2. Happier creates an approval request
+2. Kaiwu creates an approval request
 3. the request appears in **Inbox**
 4. you open it and review the summary/details
 5. you approve or reject it
-6. if approved, Happier executes the underlying action and records the result
+6. if approved, Kaiwu executes the underlying action and records the result
 
 This gives one review model across the product instead of many one-off confirmation systems.
 
@@ -240,14 +240,14 @@ Because approvals are stored as real data, they survive normal app navigation an
 1. Open **Inbox** if the request is surfaced there
 2. Review what the agent or tool is asking to do
 3. Approve or deny based on what you want the session to be allowed to do
-4. If Happier offers a scoped “don’t ask again” choice, use that when you want the rest of the session to stop prompting for the same tool or command pattern
+4. If Kaiwu offers a scoped “don’t ask again” choice, use that when you want the rest of the session to stop prompting for the same tool or command pattern
 
 ### Answer an AskUserQuestion or Exit Plan Mode request
 
 1. Open the surfaced request in the transcript, details view, or Inbox
 2. Review the question or action being requested
 3. Approve, reject, request changes, choose a plan approval variant, or answer the question directly
-4. Happier sends that response back through the generalized user-action response path
+4. Kaiwu sends that response back through the generalized user-action response path
 
 ### Manage friends separately
 

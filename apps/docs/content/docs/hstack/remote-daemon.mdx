@@ -1,17 +1,17 @@
 ---
 title: Remote daemon setup (SSH)
-description: Install Happier on a remote host, pair credentials, and optionally install the daemon service.
+description: Install Kaiwu on a remote host, pair credentials, and optionally install the daemon service.
 ---
 
 This page documents `hstack remote daemon setup`, a workflow to provision a **remote machine** (VPS, home server, dev box) over SSH:
 
-- installs the Happier CLI on the remote host
+- installs the Kaiwu CLI on the remote host
 - pairs/authenticates the remote host against your account
 - optionally installs + starts the daemon as a **user service**
 
 ## Quickstart
 
-From a machine where you already have Happier authenticated:
+From a machine where you already have Kaiwu authenticated:
 
 ```bash
 hstack remote daemon setup --ssh user@host
@@ -72,7 +72,7 @@ Under the hood, `hstack remote daemon setup` orchestrates the same pairing flow 
 - [Pairing JSON (manual / scripting)](/apps/cli#pairing-json-manual--scripting)
 - [Remote machine pairing over SSH (automated)](/apps/cli#remote-machine-pairing-ssh-automated)
 
-If you prefer, you can run pairing directly with the Happier CLI:
+If you prefer, you can run pairing directly with the Kaiwu CLI:
 
 ```bash
 happier auth pair-remote --ssh user@host --json

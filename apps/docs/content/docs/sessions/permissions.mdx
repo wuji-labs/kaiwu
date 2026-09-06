@@ -5,14 +5,14 @@ description: Choose how much access your agent has (CLI + app), and how changes 
 
 ## What permissions control
 
-Permissions determine **how often Happier asks for approval** when an agent wants to run tools (like editing files or running commands), and how restrictive the session environment should be.
+Permissions determine **how often Kaiwu asks for approval** when an agent wants to run tools (like editing files or running commands), and how restrictive the session environment should be.
 
 You can set permissions in two places:
 
 - **CLI**: when starting a session
 - **App UI**: per-session (and as defaults for new sessions)
 
-Happier stores your choice in the session so it stays consistent when you open the same session on another device.
+Kaiwu stores your choice in the session so it stays consistent when you open the same session on another device.
 
 ## Permission modes
 
@@ -23,13 +23,13 @@ These are the modes you may see in the CLI and/or the app:
 - **Safe YOLO**: automatically allows read-like actions; asks for approval before write-like actions.
 - **YOLO**: skips approvals as much as the provider allows (full speed, least safe).
 
-Not every provider supports every mode. When a mode isn’t supported, Happier will **fall back** to the closest supported behavior and show you the **Effective** policy in the UI.
+Not every provider supports every mode. When a mode isn’t supported, Kaiwu will **fall back** to the closest supported behavior and show you the **Effective** policy in the UI.
 
 Legacy note:
 
 - some older sessions and compatibility paths may still carry `plan` in permission metadata
-- in current Happier builds, **Plan** is treated as a **session mode**, not a normal permission choice
-- when Happier sees legacy `permissionMode=plan`, it maps that to **Mode = Plan** for compatible providers
+- in current Kaiwu builds, **Plan** is treated as a **session mode**, not a normal permission choice
+- when Kaiwu sees legacy `permissionMode=plan`, it maps that to **Mode = Plan** for compatible providers
 
 ## Session modes
 
@@ -66,21 +66,21 @@ In a session, open the input settings and pick a value from the **Mode** section
 
 If the provider does not support session modes, the Mode control is not shown.
 
-When session modes are available, Happier also supports returning to the provider default mode. In the app this appears as the default/no-override option.
+When session modes are available, Kaiwu also supports returning to the provider default mode. In the app this appears as the default/no-override option.
 
 ### Important: Plan mode does not bypass permissions
 
 Plan mode changes how the provider behaves. It does **not** mean “auto-approve everything”.
 
-In current Happier builds:
+In current Kaiwu builds:
 
 - you can be in **Mode = Plan** and still receive permission prompts
 - your selected **permission mode** still matters when the provider/runtime asks for approval
-- when you exit plan mode, Happier returns the session to the normal working mode for that provider
+- when you exit plan mode, Kaiwu returns the session to the normal working mode for that provider
 
 ### Exiting plan mode
 
-When a provider asks to exit plan mode, Happier surfaces that as a **user-action request**, not as a generic permission prompt.
+When a provider asks to exit plan mode, Kaiwu surfaces that as a **user-action request**, not as a generic permission prompt.
 
 Typical actions are:
 
@@ -98,9 +98,9 @@ Those approval variants affect what happens **after** plan mode ends. They do no
 
 ## Resume support
 
-Resume is now a **session-level eligibility decision** in Happier, not a normal runtime-probing flow.
+Resume is now a **session-level eligibility decision** in Kaiwu, not a normal runtime-probing flow.
 
-In practice, Happier decides resumability from:
+In practice, Kaiwu decides resumability from:
 
 - the session’s agent/provider
 - whether the session has a valid stored provider resume id
@@ -109,9 +109,9 @@ In practice, Happier decides resumability from:
 For Codex specifically:
 
 - resume depends on the session metadata and the selected backend path
-- **App Server** is the default resumable path in Happier
+- **App Server** is the default resumable path in Kaiwu
 - if Codex is set to plain `mcp`, fresh sessions can still run there, but vendor resume is not available on that path
-- explicit resume remains **fail-closed**: Happier errors instead of silently starting a fresh session
+- explicit resume remains **fail-closed**: Kaiwu errors instead of silently starting a fresh session
 
 For the user-facing workflow, see [Resume inactive sessions](/sessions/session-resume).
 
@@ -134,8 +134,8 @@ happier gemini --model gemini-2.5-pro
 
 In a session, open the input settings and pick a model from the **Model** section.
 
-For ACP providers that advertise supported models, Happier will show the provider’s live list.
-For providers without a live list (like Claude Code), Happier may allow entering a **custom model id**.
+For ACP providers that advertise supported models, Kaiwu will show the provider’s live list.
+For providers without a live list (like Claude Code), Kaiwu may allow entering a **custom model id**.
 
 ### Model apply behavior (what happens after you change it)
 
@@ -143,8 +143,8 @@ Model changes are capability-driven and provider-specific:
 
 - **Claude**: applies on the next prompt (no session restart required).
 - **Codex (MCP)**: model is decided when the MCP session starts; changing model means starting a new MCP session.
-- **Codex/OpenCode/Kilo/Auggie (ACP)**: Happier applies model changes live when `session/set_model` is supported; otherwise it falls back to provider config options when available.
-- **Gemini (ACP)**: model changes may require recreating the underlying ACP process; Happier preserves context using replay/history so the session still continues.
+- **Codex/OpenCode/Kilo/Auggie (ACP)**: Kaiwu applies model changes live when `session/set_model` is supported; otherwise it falls back to provider config options when available.
+- **Gemini (ACP)**: model changes may require recreating the underlying ACP process; Kaiwu preserves context using replay/history so the session still continues.
 
 For the full guide to engine picking, dynamic/static model lists, custom model ids, model-specific options, and favorite models, see [Model and engine selection](/agents/model-and-engine-selection).
 
@@ -187,7 +187,7 @@ into `yolo`, and Claude additionally treats `plan` as read-only. So the table
 above is what the CLI parses, and what your agent actually runs is that value
 narrowed to the modes it supports.
 
-If you pass an unknown value, Happier prints the supported list and examples.
+If you pass an unknown value, Kaiwu prints the supported list and examples.
 
 ## App UI usage
 
@@ -204,7 +204,7 @@ The picker shows:
 
 Action approvals are configured independently from permission modes.
 
-Use **Settings → Actions** when you want to choose, per action and per surface, whether Happier should:
+Use **Settings → Actions** when you want to choose, per action and per surface, whether Kaiwu should:
 
 - make the action available at all
 - route the action through an approval request before it executes
@@ -216,7 +216,7 @@ That same approval model applies across the main action surfaces, including:
 - the external MCP surface
 - voice surfaces
 
-For the broader model, see [Happier tools & actions](/extending/happier-tools) and [Inbox and approvals](/sessions/inbox-and-approvals).
+For the broader model, see [Kaiwu tools & actions](/extending/happier-tools) and [Inbox and approvals](/sessions/inbox-and-approvals).
 
 ### Set defaults for new sessions
 
@@ -277,7 +277,7 @@ That setting changes the UI surface for approvals. It does not change the underl
 
 ### Remembering approvals for the current session
 
-When Happier shows a permission prompt, some providers can also offer scoped “don’t ask again” choices.
+When Kaiwu shows a permission prompt, some providers can also offer scoped “don’t ask again” choices.
 
 Examples:
 
@@ -290,11 +290,11 @@ Important details:
 
 - this is **session-scoped**, not a permanent global policy
 - command-scoped approvals are narrower than tool-scoped approvals
-- if the provider/runtime does not support a matching allowlist update, Happier falls back to normal prompting
+- if the provider/runtime does not support a matching allowlist update, Kaiwu falls back to normal prompting
 
 ### Push notifications for permission and user-action requests
 
-When push notifications are enabled for the account, Happier can also notify you when a session is blocked on either:
+When push notifications are enabled for the account, Kaiwu can also notify you when a session is blocked on either:
 
 - a **permission request**, or
 - a **user-action request** such as **AskUserQuestion** or **Exit Plan Mode**
@@ -311,7 +311,7 @@ Pressing `Allow` or `Deny` opens the app, sends the response when the target ser
 
 Pressing `Answer` opens the app on the exact session so you can answer in context.
 
-If the notification targets a server that is not already trusted on the device, Happier routes you through the safer add/switch flow instead of auto-approving on an unknown server.
+If the notification targets a server that is not already trusted on the device, Kaiwu routes you through the safer add/switch flow instead of auto-approving on an unknown server.
 
 ### Transcript-storage defaults
 
@@ -345,11 +345,11 @@ without reopening the dropdown.
 
 Codex can run via different backends:
 
-- **App Server**: the default backend in Happier and the normal resume path when the session has valid Codex resume metadata
+- **App Server**: the default backend in Kaiwu and the normal resume path when the session has valid Codex resume metadata
 - **ACP**: still available when you explicitly switch Codex to ACP mode; resume can also work there
-- **MCP**: still usable for normal fresh sessions, but plain MCP is not a vendor-resume path in current Happier builds
+- **MCP**: still usable for normal fresh sessions, but plain MCP is not a vendor-resume path in current Kaiwu builds
 
-In Happier, **permissions remain the primary control** for Codex. Happier maps your selected permission intent to the closest backend-native policy for the active Codex backend.
+In Kaiwu, **permissions remain the primary control** for Codex. Kaiwu maps your selected permission intent to the closest backend-native policy for the active Codex backend.
 
 Model IDs can also vary by Codex build and account. If model selection isn’t shown in the app for your Codex session, you can still set it via the CLI (when supported by your installed Codex backend).
 
@@ -359,25 +359,25 @@ The UI’s **Effective** line is the source of truth for what your current sessi
 
 Claude supports both:
 
-- normal Happier **permission modes**, and
+- normal Kaiwu **permission modes**, and
 - a provider-specific **Mode = Plan**
 
 While Claude is in plan mode:
 
 - Claude can still ask for permissions
-- Happier still surfaces permission prompts normally
+- Kaiwu still surfaces permission prompts normally
 - **Exit Plan Mode** is surfaced as a user-action request with plan-specific approval choices
 
 If the Effective line is different from what you expected, treat the Effective line as source of truth for that session.
 
 ## Remembering a shell command
 
-When you allow a shell command and ask Happier to remember it, the grant is
+When you allow a shell command and ask Kaiwu to remember it, the grant is
 narrower than it looks — deliberately, because "remember `git`" should not
 become "run anything that starts with git".
 
 An exact match on the whole command always wins, including a chained one you
-approved as a unit. Otherwise Happier parses the command and applies three
+approved as a unit. Otherwise Kaiwu parses the command and applies three
 rules:
 
 - **Unquoted redirection is refused.** An unquoted `<` or `>` anywhere in the

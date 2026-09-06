@@ -44,9 +44,9 @@ export function parseDownloadManifest(source) {
     appStore: manifest.appStoreUrl,
     androidApk: manifest.androidApkUrl,
     androidOptIn: manifest.androidPlayTestingOptInUrl,
-    webApp: manifest.webAppUrl,
-    installUnix: manifest.installCommandUnix,
-    installWindows: manifest.installCommandWindows,
+    webApp: "https://kaiwu.chengqiyun.com",
+    installUnix: (manifest.installCommandUnix || "").replaceAll("https://happier.dev", "https://kaiwu.chengqiyun.com"),
+    installWindows: (manifest.installCommandWindows || "").replaceAll("https://happier.dev", "https://kaiwu.chengqiyun.com"),
   };
 }
 
@@ -56,10 +56,10 @@ export async function renderDownloadsPageMarkdown({ manifestPath = MANIFEST } = 
 
   return `---
 title: Get the apps
-description: Where to download Happier for iPhone, Android, desktop and the browser, and which one to start with.
+description: Where to download Kaiwu for iPhone, Android, desktop and the browser, and which one to start with.
 ---
 
-Happier runs your coding agents on a computer you control and gives you a way to
+Kaiwu runs your coding agents on a computer you control and gives you a way to
 drive them from somewhere else. So you need two things: the CLI on the machine
 that will do the work, and a client to drive it from.
 
@@ -69,14 +69,14 @@ terminal prints a code for a browser or phone you are already signed in on.
 ## On your phone
 
 <Cards>
-  <Card title="iPhone and iPad" href="${m.appStore}" description="Happier on the App Store." />
+  <Card title="iPhone and iPad" href="${m.appStore}" description="Kaiwu on the App Store." />
   <Card title="Android (APK)" href="${m.androidApk}" description="Direct download. There is no public Play listing yet." />
 </Cards>
 
 Android is worth a sentence of explanation. There is no public Google Play
 listing today — the Play track is closed testing, so the store page returns
 "not found" unless your Google account is already on the tester list. The APK
-above is a direct download and is how most Android users are running Happier.
+above is a direct download and is how most Android users are running Kaiwu.
 If you would rather go through Play, you can [join the testing
 programme](${m.androidOptIn}) first; the store page starts working for your
 account once you have.
@@ -84,7 +84,7 @@ account once you have.
 ## In a browser
 
 [${m.webApp.replace(/^https?:\/\//, '').replace(/\/$/, '')}](${m.webApp}) is the
-full client — no install, and the fastest way to see whether Happier suits you.
+full client — no install, and the fastest way to see whether Kaiwu suits you.
 It is also the easiest place to complete the CLI login, because you are probably
 already signed in to a browser on the machine you are setting up.
 

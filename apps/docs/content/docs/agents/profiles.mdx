@@ -35,7 +35,7 @@ They are **fixed per session** after launch. If you want a different profile, st
 
 ## Built-in vs custom profiles
 
-Happier ships with built-in profiles for common setups, plus your own custom profiles.
+Kaiwu ships with built-in profiles for common setups, plus your own custom profiles.
 
 Built-in examples include:
 
@@ -64,9 +64,9 @@ If Profiles is turned off, the app falls back to the machine environment without
 2. Click **Add Profile**
 3. Give the profile a clear name
 4. Choose which backend choices it should be compatible with
-5. Add the environment variables Happier should inject when the session starts
+5. Add the environment variables Kaiwu should inject when the session starts
 6. Mark any required values as:
-   - **Secret** when Happier should satisfy them from a saved secret, machine env, or prompt flow
+   - **Secret** when Kaiwu should satisfy them from a saved secret, machine env, or prompt flow
    - **Config** when the variable must already exist on the target machine
 7. Save the profile
 
@@ -83,9 +83,9 @@ When Profiles is enabled:
 1. Start a new session from the app
 2. Choose the backend you want to run
 3. Pick a profile
-4. Complete any missing requirements if Happier asks
+4. Complete any missing requirements if Kaiwu asks
 
-For UI-started or remote-started sessions, Happier can satisfy required secrets from:
+For UI-started or remote-started sessions, Kaiwu can satisfy required secrets from:
 
 - the **machine environment** on the daemon host
 - a **saved secret** bound to that profile
@@ -95,7 +95,7 @@ If a required config variable is missing on the target machine, the app blocks t
 
 After the session starts, the chosen profile is shown in **Session Info → AI Profile**.
 
-Configured ACP backends participate in this flow the same way built-in backends do. If a profile is intended for one specific backend, Happier preserves that relationship directly.
+Configured ACP backends participate in this flow the same way built-in backends do. If a profile is intended for one specific backend, Kaiwu preserves that relationship directly.
 
 ## Use profiles in the CLI
 
@@ -137,8 +137,8 @@ happier gemini --profile gemini-vertex
 Profile lookup rules:
 
 - exact **profile id** match wins first
-- otherwise Happier matches by **case-insensitive name**
-- if more than one profile has the same name, Happier asks you to use the id
+- otherwise Kaiwu matches by **case-insensitive name**
+- if more than one profile has the same name, Kaiwu asks you to use the id
 
 The CLI does **not** auto-apply your last-used profile. Use `--profile` explicitly.
 
@@ -147,7 +147,7 @@ The CLI does **not** auto-apply your last-used profile. Use `--profile` explicit
 When a profile requires secrets, the CLI resolves them in this order:
 
 1. current shell environment
-2. saved secret binding from your Happier settings
+2. saved secret binding from your Kaiwu settings
 3. interactive prompt in a TTY session
 
 If the CLI is running non-interactively and a required secret is still missing, it fails with guidance instead of starting a broken session.
@@ -183,7 +183,7 @@ Use the built-in **DeepSeek (Reasoner)** profile when you want Claude sessions t
 - App UI: start a Claude session and choose **DeepSeek (Reasoner)**
 - CLI: `happier claude --profile deepseek`
 
-Happier will apply the required auth token and the Claude-compatible env mapping for you.
+Kaiwu will apply the required auth token and the Claude-compatible env mapping for you.
 
 ### Example: Codex via OpenAI API key
 
@@ -220,7 +220,7 @@ Check:
 
 - you are logged in with `happier auth login`
 - the profile exists in **Settings → Profiles**
-- the profile is saved in the same Happier account/server you are targeting
+- the profile is saved in the same Kaiwu account/server you are targeting
 
 Use:
 
@@ -234,7 +234,7 @@ Either:
 
 - export the required env var in your shell
 - bind a saved secret to the profile in the app
-- rerun the command in an interactive terminal so Happier can prompt for it
+- rerun the command in an interactive terminal so Kaiwu can prompt for it
 
 ### “The app says a profile is not ready”
 

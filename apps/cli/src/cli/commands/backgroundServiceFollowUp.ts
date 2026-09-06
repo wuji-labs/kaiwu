@@ -110,7 +110,7 @@ function renderRepairGuidance(params: Readonly<{ modes?: readonly BackgroundServ
 function renderMissingHomeRepairGuidance(params: Readonly<{ modes?: readonly BackgroundServiceFollowUpMode[] }>): readonly string[] {
     const requiresSudo = params.modes?.includes('system') ?? false;
     return [
-        'Detected default-following background services with missing Happier home metadata. Automatic restart guidance will not replace or remove them; remove the legacy service(s) from the owning installation first:',
+        'Detected default-following background services with missing Kaiwu home metadata. Automatic restart guidance will not replace or remove them; remove the legacy service(s) from the owning installation first:',
         requiresSudo ? '  sudo happier doctor repair --yes' : '  happier doctor repair --yes',
     ];
 }
@@ -190,7 +190,7 @@ export async function promptToAuthenticateForServerChange(params: Readonly<{
     }
 
     const answer = String(
-        await params.promptInput(`Authenticate Happier against ${params.targetServerUrl} now? [Y/n]: `),
+        await params.promptInput(`Authenticate Kaiwu against ${params.targetServerUrl} now? [Y/n]: `),
     ).trim().toLowerCase();
     const shouldAuthenticate = answer === '' || answer === 'y' || answer === 'yes';
     if (!shouldAuthenticate) {
@@ -224,7 +224,7 @@ function renderManualServerChangeFollowUp(params: Readonly<{
     }
 
     return [
-        `Authenticate Happier against ${params.targetServerUrl} and then restart the background service so it follows that server:`,
+        `Authenticate Kaiwu against ${params.targetServerUrl} and then restart the background service so it follows that server:`,
         '  happier auth login',
         ...resolveRestartModes(params.modes).map(renderRestartCommand),
     ];

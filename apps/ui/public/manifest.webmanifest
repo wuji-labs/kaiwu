@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "Happier",
-  "short_name": "Happier",
-  "description": "Monitor and control your coding agents from anywhere.",
+  "name": "无极开物",
+  "short_name": "Kaiwu",
+  "description": "无极开物 · 随时随地监控与操控你电脑上的 AI 编码代理（Claude Code、Codex 等）。",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -18,6 +18,15 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
-  ]
+  ],
+  "lang": "zh-CN",
+  "background_color": "#12151E",
+  "theme_color": "#12151E"
 }

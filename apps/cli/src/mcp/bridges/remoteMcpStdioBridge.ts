@@ -93,7 +93,7 @@ async function main(): Promise<void> {
   const remoteClient = await connectRemoteClient(config);
 
   const server = new Server(
-    { name: 'Happier MCP Remote Bridge', version: '1.0.0' },
+    { name: 'Kaiwu MCP Remote Bridge', version: '1.0.0' },
     { capabilities: { tools: {} } },
   );
 

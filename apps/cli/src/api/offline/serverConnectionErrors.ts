@@ -348,7 +348,7 @@ class OfflineState {
                 return `${f.operation} failed: ${desc}${url}`;
             })
             .join('; ');
-        writeConsoleLogBestEffort(`⚠️  Happier server unreachable, offline mode with auto-reconnect enabled - error details: ${summary}`);
+        writeConsoleLogBestEffort(`⚠️  Kaiwu server unreachable, offline mode with auto-reconnect enabled - error details: ${summary}`);
 
         // Print detail lines if present - consistent 3-space indent with arrow
         const allDetails = [...this.failures.values()]

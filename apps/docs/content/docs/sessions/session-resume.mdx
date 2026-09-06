@@ -1,9 +1,9 @@
 ---
 title: Resume inactive sessions
-description: Resume an inactive Happier session from the app, web UI, or CLI without starting over.
+description: Resume an inactive Kaiwu session from the app, web UI, or CLI without starting over.
 ---
 
-Session resume lets you continue an **inactive Happier session** by asking the provider backend to reopen the same provider session, then reconnecting that provider session to the same Happier session.
+Session resume lets you continue an **inactive Kaiwu session** by asking the provider backend to reopen the same provider session, then reconnecting that provider session to the same Kaiwu session.
 
 <Callout type="info">
   Sending to a resumable inactive session while its machine is offline is currently available in development builds and is not yet a released contract.
@@ -12,35 +12,35 @@ Session resume lets you continue an **inactive Happier session** by asking the p
 This is different from:
 
 - **Attach**: reconnecting to a session that is still running locally through its live terminal/provider host
-- **Browse Direct sessions**: opening a provider-native session that Happier does not own yet
-- **Resume session**: starting a new Happier session by resuming a session the agent already has (see [Continuing a session](/sessions/continuing-a-session))
+- **Browse Direct sessions**: opening a provider-native session that Kaiwu does not own yet
+- **Resume session**: starting a new Kaiwu session by resuming a session the agent already has (see [Continuing a session](/sessions/continuing-a-session))
 - **Starting a new session**: creating a fresh provider session with no vendor resume
 
-## What “resume” means in Happier
+## What “resume” means in Kaiwu
 
-In Happier, resume is a strict workflow:
+In Kaiwu, resume is a strict workflow:
 
-1. Happier finds the existing Happier session
-2. Happier checks whether that session is actually **vendor-resumable**
-3. Happier asks the backend/provider to resume the same vendor session
-4. If that vendor resume fails, Happier shows an error instead of silently starting a new session
+1. Kaiwu finds the existing Kaiwu session
+2. Kaiwu checks whether that session is actually **vendor-resumable**
+3. Kaiwu asks the backend/provider to resume the same vendor session
+4. If that vendor resume fails, Kaiwu shows an error instead of silently starting a new session
 
 That strict behavior matters because it keeps one session identity and one transcript source of truth.
 
-When a synced Happier session resumes, Happier continues the existing session. It does **not** create a second imported-history pass just because you resumed it.
+When a synced Kaiwu session resumes, Kaiwu continues the existing session. It does **not** create a second imported-history pass just because you resumed it.
 
 ## When a session is resumable
 
 A session is resumable only when all of these are true:
 
-- the session is a normal Happier-managed session
+- the session is a normal Kaiwu-managed session
 - it is currently **inactive**
 - it is **not archived**
-- Happier has a valid provider resume id stored in session metadata
+- Kaiwu has a valid provider resume id stored in session metadata
 - the selected backend/provider supports resume for that session
 - your current settings do not disable that backend
 
-If any of those checks fail, Happier treats the session as **not resumable** and shows that clearly in the UI or CLI.
+If any of those checks fail, Kaiwu treats the session as **not resumable** and shows that clearly in the UI or CLI.
 
 ## App and web behavior
 
@@ -48,8 +48,8 @@ In the app or web UI, an inactive session can still accept input **only if it is
 
 Typical behavior:
 
-- **Inactive + resumable + machine reachable**: you can send a message; Happier either attempts to resume it or leaves it queued according to your automatic-resume policy
-- **Inactive + resumable + machine offline**: you can still send; Happier keeps the message in the Pending queue and starts it after reconnect only if that send has been authorized for processing when available
+- **Inactive + resumable + machine reachable**: you can send a message; Kaiwu either attempts to resume it or leaves it queued according to your automatic-resume policy
+- **Inactive + resumable + machine offline**: you can still send; Kaiwu keeps the message in the Pending queue and starts it after reconnect only if that send has been authorized for processing when available
 - **Inactive + not resumable**: input is disabled
 
 The session continues to show **offline** while its machine is unavailable. A banner above the composer explains whether a queued message is waiting for automatic resume, has been left queued by your preference, or needs an explicit retry after a start failure.
@@ -58,7 +58,7 @@ Under **Settings → Session → Message sending**, **Automatic resume after sen
 
 ## CLI behavior
 
-Happier CLI exposes two main workflows for resume.
+Kaiwu CLI exposes two main workflows for resume.
 
 ### List sessions
 
@@ -96,9 +96,9 @@ Use:
 happier resume
 ```
 
-In a real TTY, Happier opens an interactive selector and shows resumable inactive sessions sorted by recent activity.
+In a real TTY, Kaiwu opens an interactive selector and shows resumable inactive sessions sorted by recent activity.
 
-If your terminal does not support the interactive selector, Happier tells you to use `happier session list --resumable` and then resume by id.
+If your terminal does not support the interactive selector, Kaiwu tells you to use `happier session list --resumable` and then resume by id.
 
 ### Resume by id
 
@@ -108,13 +108,13 @@ happier resume <session-id>
 
 You can pass a full session id or an unambiguous prefix.
 
-Happier then:
+Kaiwu then:
 
 1. resolves the session
 2. validates that it is inactive, not archived, and resumable
 3. restores the session’s working directory
 4. resumes the provider session
-5. reconnects that provider session to the same Happier session
+5. reconnects that provider session to the same Kaiwu session
 
 If the session is active already, archived, missing its working directory, or not vendor-resumable, the command fails with a clear error.
 
@@ -124,22 +124,22 @@ The `RESUME` column is a quick summary:
 
 - `yes`: resumable
 - `no(unsupported)`: that agent/backend does not support vendor resume
-- `no(missing-id)`: the session does not have the provider resume id Happier needs
+- `no(missing-id)`: the session does not have the provider resume id Kaiwu needs
 - `no(disabled)`: resume exists for that backend, but your current settings disable it
 - `no(off)`: account settings disabled that backend entirely
 
 ## Codex-specific behavior
 
-Codex resume in Happier normally uses the default App Server path. ACP resume is still available when you explicitly choose ACP.
+Codex resume in Kaiwu normally uses the default App Server path. ACP resume is still available when you explicitly choose ACP.
 
 Important points:
 
-- Codex now defaults to **App Server** in Happier
+- Codex now defaults to **App Server** in Kaiwu
 - legacy `mcp_resume` behavior is gone
 - if you opt Codex back to plain **MCP**, fresh sessions can still start there, but vendor resume is not available on that path
-- for new Codex sessions, Happier does not silently fall back from the default App Server path; choose ACP or MCP explicitly if you want a different backend
+- for new Codex sessions, Kaiwu does not silently fall back from the default App Server path; choose ACP or MCP explicitly if you want a different backend
 - App Server is the default resumable path; ACP still works when you explicitly select it
-- for an explicit **resume**, Happier stays strict and errors instead of falling back
+- for an explicit **resume**, Kaiwu stays strict and errors instead of falling back
 
 So for Codex, “can I resume this session?” depends on the session metadata and on whether the current backend path supports resume for that session.
 
@@ -166,13 +166,13 @@ Attach can mean different things depending on how the session was started:
 
 ## Resume vs Direct sessions
 
-Direct sessions are provider-native sessions that Happier can inspect or follow, but that Happier does not fully own yet.
+Direct sessions are provider-native sessions that Kaiwu can inspect or follow, but that Kaiwu does not fully own yet.
 
 For those sessions:
 
 - browsing/opening happens through the **Direct** sessions flow
 - syncing/importing happens through **Take over + import**
-- normal Happier resume applies after the session is a synced Happier session and has valid vendor-resume metadata
+- normal Kaiwu resume applies after the session is a synced Kaiwu session and has valid vendor-resume metadata
 
 ## Things to check if resume is unavailable
 
@@ -181,9 +181,9 @@ If a session does not resume, check:
 - is the session inactive rather than already running?
 - is it archived?
 - does it belong to the provider/backend you think it does?
-- are you on the correct Happier server/account profile?
+- are you on the correct Kaiwu server/account profile?
 - for Codex, is the selected resume path available (App Server by default, or ACP when explicitly selected)?
-- is the owning machine online and reachable from Happier?
+- is the owning machine online and reachable from Kaiwu?
 
 ## Related
 

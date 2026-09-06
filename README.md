@@ -1,5 +1,8 @@
+> **本仓是 [happier-dev/happier](https://github.com/happier-dev/happier) 的下游二次开发分支。**  
+> **This repository is a downstream fork of [happier-dev/happier](https://github.com/happier-dev/happier) with Kaiwu branding.**
+
 <div align="center">
-  <img src="/.github/hero.png" title="Happier Dev" alt="Happier Dev - Mobile, Web and Desktop client for Claude Code, Codex, OpenCode, Pi, Cursor" width="850" />
+  <img src="/.github/hero.png" title="Kaiwu" alt="Kaiwu (无极开物) - Mobile, Web and Desktop client for Claude Code, Codex, OpenCode, Pi, Cursor" width="850" />
 
   ### Mobile, Web and Desktop client for Claude Code, Codex, OpenCode, Pi, Cursor, ...
   

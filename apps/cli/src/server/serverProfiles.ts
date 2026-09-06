@@ -106,7 +106,7 @@ function coerceProfile(value: any): ServerProfile | null {
 
   if (!id || !serverUrl || !webappUrl) return null;
   const displayName = id === 'cloud'
-    ? 'Happier Cloud'
+    ? 'Kaiwu Cloud'
     : name;
   if (!displayName) return null;
   return {
@@ -537,7 +537,7 @@ export async function removeServerProfile(
     throw new Error(`Server profile not found: ${identifier}`);
   }
   if (resolvedId === 'cloud') {
-    throw new Error('Cannot remove the Happier Cloud server profile');
+    throw new Error('Cannot remove the Kaiwu Cloud server profile');
   }
 
   if (resolvedId === activeServerId && !force) {

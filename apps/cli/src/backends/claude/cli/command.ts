@@ -70,7 +70,7 @@ export function stripHappyInternalSettingsFlag(
     i++; // Consume the value (if any), like upstream's behavior.
 
     const displayedValue = typeof settingsValue === 'string' ? settingsValue : '<missing>';
-    warn(chalk.yellow(`⚠️  Warning: --settings is used internally by Happier for session tracking.`));
+    warn(chalk.yellow(`⚠️  Warning: --settings is used internally by Kaiwu for session tracking.`));
     warn(chalk.yellow(`   Your settings file "${displayedValue}" will be ignored.`));
     warn(chalk.yellow(`   To configure Claude, edit ~/.claude/settings.json instead.`));
   }
@@ -205,7 +205,7 @@ export async function handleClaudeCliCommand(context: CommandContext): Promise<v
     const providerHelpArgs = [...parsed.providerArgs, '--help'];
     const providerHelpCommand = `claude ${providerHelpArgs.join(' ')}`;
     console.log(`${buildRootHelpText()}
-${chalk.bold('Happier supports ALL Claude options!')}
+${chalk.bold('Kaiwu supports ALL Claude options!')}
   Use any claude flag with happier as you would with claude. Our favorite:
 
   happier --resume

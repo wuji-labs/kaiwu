@@ -52,7 +52,7 @@ export function sanitizeBugReportUrl(input: string | null | undefined): string |
 export function inferBugReportDeploymentTypeFromServerUrl(serverUrl: string): BugReportDeploymentType {
   try {
     const host = new URL(serverUrl).hostname.toLowerCase();
-    if (host.endsWith('happier.dev')) return 'cloud';
+    if (host.endsWith('happier.dev') || host === 'kaiwu.chengqiyun.com') return 'cloud';
     if (host.endsWith('.internal') || host.endsWith('.corp')) return 'enterprise';
     return 'self-hosted';
   } catch {

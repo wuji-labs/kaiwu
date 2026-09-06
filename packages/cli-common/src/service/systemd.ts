@@ -62,7 +62,7 @@ export function renderSystemdServiceUnit(params: Readonly<{
 }>): string {
   const desc = assertSingleLineSystemdField(
     'description',
-    String(params.description ?? '').trim() || 'Happier Service',
+    String(params.description ?? '').trim() || 'Kaiwu Service',
   );
   const restartPolicy = assertSingleLineSystemdField(
     'restart',

@@ -709,7 +709,7 @@ export async function runCodex(opts: {
                 throw new Error(
                     `Codex ACP is required to resume sessions, but it cannot start on this machine.\n` +
                     `Reason: ${reason}\n` +
-                    `Fix: install codex-acp via Happier → Machine Details → Installables, add codex-acp to PATH, or disable ACP for this session.`,
+                    `Fix: install codex-acp via Kaiwu → Machine Details → Installables, add codex-acp to PATH, or disable ACP for this session.`,
                 );
             }
             useCodexAcp = false;
@@ -2271,11 +2271,11 @@ export async function runCodex(opts: {
                                   `Reason: could not resume the remote Codex ${remoteResumeBackendLabel} session (${resumeId}).\n` +
                                   `Details: ${reason}\n` +
                                   `Fix: ensure Codex ${remoteResumeBackendLabel} can run reliably on this machine, then retry switching to remote.\n` +
-                                  `Note: Happier refuses to start a new remote Codex session during a local→remote switch, because it would fork the conversation.`
+                                  `Note: Kaiwu refuses to start a new remote Codex session during a local→remote switch, because it would fork the conversation.`
                                 : `Failed to resume this Codex ${remoteResumeBackendLabel} session (${resumeId}).\n` +
                                   `Reason: ${reason}\n` +
                                   `Fix: ensure Codex ${remoteResumeBackendLabel} can run on this machine, then retry.\n` +
-                                  `Note: Happier refuses to start a new Codex session when --resume was requested.`;
+                                  `Note: Kaiwu refuses to start a new Codex session when --resume was requested.`;
                             messageBuffer.addMessage(message, 'status');
                             session.sendSessionEvent({ type: 'message', message });
                             throw createCodexResumeError(message, e);
@@ -2592,11 +2592,11 @@ export async function runCodex(opts: {
                                           `Reason: could not resume the remote Codex ${remoteResumeBackendLabel} session (${resumeId}).\n` +
                                           `Details: ${reason}\n` +
                                           `Fix: ensure Codex ${remoteResumeBackendLabel} can run reliably on this machine, then retry switching to remote.\n` +
-                                          `Note: Happier refuses to start a new remote Codex session during a local→remote switch, because it would fork the conversation.`
+                                          `Note: Kaiwu refuses to start a new remote Codex session during a local→remote switch, because it would fork the conversation.`
                                         : `Failed to resume this Codex ${remoteResumeBackendLabel} session (${resumeId}).\n` +
                                           `Reason: ${reason}\n` +
                                           `Fix: ensure Codex ${remoteResumeBackendLabel} can run on this machine, then retry.\n` +
-                                          `Note: Happier refuses to start a new Codex session when --resume was requested.`;
+                                          `Note: Kaiwu refuses to start a new Codex session when --resume was requested.`;
                                     messageBuffer.addMessage(message, 'status');
                                     session.sendSessionEvent({ type: 'message', message });
                                     throw createCodexResumeError(message, e);

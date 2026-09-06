@@ -254,7 +254,7 @@ export async function machineSpawnNewSession(options: SpawnSessionOptions): Prom
                 errorCode: SPAWN_SESSION_ERROR_CODES.INVALID_REQUEST,
                 errorMessage:
                     'Update or reconnect the CLI to continue from this Session. Continuing from an existing '
-                    + 'Session requires Happier CLI 0.2.10-dev.76 or newer on this '
+                    + 'Session requires Kaiwu CLI 0.2.10-dev.76 or newer on this '
                     + `machine (detected ${versionLabel}).`,
             };
         }
@@ -273,7 +273,7 @@ export async function machineSpawnNewSession(options: SpawnSessionOptions): Prom
                 type: 'error',
                 errorCode: SPAWN_SESSION_ERROR_CODES.INVALID_REQUEST,
                 errorMessage:
-                    'The selected backend target requires a compatible 0.1.0-dev build or Happier CLI v0.2.0 ' +
+                    'The selected backend target requires a compatible 0.1.0-dev build or Kaiwu CLI v0.2.0 ' +
                     `or newer on this machine (detected ${versionLabel}).`,
             };
         }

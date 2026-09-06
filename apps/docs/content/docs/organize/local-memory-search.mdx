@@ -3,9 +3,9 @@ title: Local memory search
 description: Build a device-local memory index on a machine, search past conversation context, and optionally improve deep ranking with local or remote embeddings.
 ---
 
-Local memory search lets Happier build a **machine-local search index** from your decrypted session transcripts on a specific daemon-connected machine.
+Local memory search lets Kaiwu build a **machine-local search index** from your decrypted session transcripts on a specific daemon-connected machine.
 
-Use it when you want Happier to answer questions such as:
+Use it when you want Kaiwu to answer questions such as:
 
 - “Do you remember when we discussed this?”
 - “Find the session where we talked about OpenCode quotas.”
@@ -13,7 +13,7 @@ Use it when you want Happier to answer questions such as:
 
 ## What it does
 
-When local memory search is enabled on a machine, Happier can:
+When local memory search is enabled on a machine, Kaiwu can:
 
 - build and maintain a **local derived index** from that machine’s transcripts
 - search that index from the app/web UI
@@ -47,7 +47,7 @@ That means:
 
 - each machine has its own index
 - a laptop and a remote dev box do **not** automatically share one memory index
-- if a machine is offline, Happier cannot query its local memory index
+- if a machine is offline, Kaiwu cannot query its local memory index
 - remote embeddings settings are also machine-local, not shared globally
 
 This design is deliberate:
@@ -58,7 +58,7 @@ This design is deliberate:
 
 ## Light vs deep indexing
 
-Happier supports two indexing modes.
+Kaiwu supports two indexing modes.
 
 ### Light
 
@@ -86,7 +86,7 @@ Deep mode uses more disk and can take longer to backfill.
 
 ## Backfill behavior
 
-When you turn local memory search on, you can choose how much history Happier should index:
+When you turn local memory search on, you can choose how much history Kaiwu should index:
 
 - **New only** — index only content created after enabling memory search
 - **Last 30 days** — backfill recent history
@@ -114,17 +114,17 @@ Embeddings are optional and only apply to **deep** indexing mode.
 
 Without embeddings:
 
-- Happier still performs deep search
+- Kaiwu still performs deep search
 - ranking falls back to text-based matching only
 
 With embeddings:
 
-- Happier can improve deep-search ranking
+- Kaiwu can improve deep-search ranking
 - the embeddings layer is blended with text ranking
 
 ## Embeddings presets
 
-Happier currently exposes these modes:
+Kaiwu currently exposes these modes:
 
 - **Off** — deep search uses text-only ranking
 - **Balanced** — `Xenova/all-MiniLM-L6-v2`
@@ -145,7 +145,7 @@ Happier currently exposes these modes:
 
 For local presets and custom local models:
 
-- Happier manages the local runtime itself
+- Kaiwu manages the local runtime itself
 - the model downloads on first use
 - after that, the model runs locally from the daemon cache
 
@@ -168,13 +168,13 @@ Important details:
 
 - the remote settings are **machine-local**
 - the API key is stored in the daemon’s local sealed settings, not as plaintext
-- if the remote endpoint is unavailable or misconfigured, Happier falls back safely to text-only ranking instead of breaking memory search
+- if the remote endpoint is unavailable or misconfigured, Kaiwu falls back safely to text-only ranking instead of breaking memory search
 
 ## Privacy and cleanup
 
 Local memory search is designed around derived local data.
 
-When enabled, Happier stores local indexes such as:
+When enabled, Kaiwu stores local indexes such as:
 
 - the light index database
 - the deep index database
@@ -184,7 +184,7 @@ You can enable **Delete on disable** to remove local indexes and caches when mem
 
 ## What agents do with it
 
-When memory search is available and usable, Happier prompts its agents to use memory tools for recall requests.
+When memory search is available and usable, Kaiwu prompts its agents to use memory tools for recall requests.
 
 In practice, that means:
 

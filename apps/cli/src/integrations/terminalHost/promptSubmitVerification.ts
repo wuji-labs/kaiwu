@@ -1,5 +1,6 @@
 const DEFAULT_POST_SUBMIT_SETTLE_MS = 50;
 const DEFAULT_PRE_SUBMIT_POLL_MS = 250;
+const DEFAULT_PRE_SUBMIT_POLL_MAX_ITERATIONS = 100;
 
 export type TerminalPromptSubmitVerificationPolicy = Readonly<{
   shouldVerifyAfterSubmit(promptText: string): boolean;
@@ -72,7 +73,10 @@ export async function runTerminalPromptSubmission(params: Readonly<{
       1,
       Math.trunc(params.stagingPollIntervalMs ?? DEFAULT_PRE_SUBMIT_POLL_MS),
     );
-    while (true) {
+    let pollIteration = 0;
+    const maxIterations = DEFAULT_PRE_SUBMIT_POLL_MAX_ITERATIONS;
+    while (pollIteration < maxIterations) {
+      pollIteration++;
       const remainingTimeoutMs = params.remainingTimeoutMs?.();
       try {
         if (await params.verifyStagedBeforeSubmit({
@@ -113,6 +117,15 @@ export async function runTerminalPromptSubmission(params: Readonly<{
         };
       }
       await (params.wait ?? defaultWait)(Math.min(stagingPollIntervalMs, remainingTimeoutMs));
+    }
+    if (pollIteration >= maxIterations) {
+      return {
+        success: false,
+        reason: 'timeout',
+        phase: 'after_write_before_enter',
+        duplicateRisk: 'possible',
+        submitMayHaveReachedPane: false,
+      };
     }
   }
 

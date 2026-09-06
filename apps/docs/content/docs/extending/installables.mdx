@@ -1,11 +1,11 @@
 ---
 title: Installables
-description: Let Happier manage machine-local tools like Codex ACP and GitHub CLI, with install and update policies per machine.
+description: Let Kaiwu manage machine-local tools like Codex ACP and GitHub CLI, with install and update policies per machine.
 ---
 
-Some Happier features depend on **machine-local tools** being present on the connected machine.
+Some Kaiwu features depend on **machine-local tools** being present on the connected machine.
 
-Happier calls these **Installables**.
+Kaiwu calls these **Installables**.
 
 Today, the main user-facing installables are:
 
@@ -14,7 +14,7 @@ Today, the main user-facing installables are:
 
 ## Why Installables exist
 
-Some features need more than the main Happier app and daemon. For example, Codex ACP needs a machine-local `codex-acp` binary when you explicitly run Codex in ACP mode rather than the default App Server path.
+Some features need more than the main Kaiwu app and daemon. For example, Codex ACP needs a machine-local `codex-acp` binary when you explicitly run Codex in ACP mode rather than the default App Server path.
 
 Without Installables management, this usually turns into:
 
@@ -30,27 +30,27 @@ Open:
 
 - **Machine Details → Installables**
 
-This screen shows the installables Happier knows how to manage for that specific machine.
+This screen shows the installables Kaiwu knows how to manage for that specific machine.
 
 For each installable, you can see:
 
 - whether it is installed
 - the installed version
 - whether an update is available
-- the latest known version (when Happier checks it)
+- the latest known version (when Kaiwu checks it)
 - the current auto-install and auto-update policy
 
 ## Auto-install when needed
 
 Each installable has an **Auto-install when needed** setting.
 
-When this is on, Happier can install the tool in the background when you use a feature that depends on it.
+When this is on, Kaiwu can install the tool in the background when you use a feature that depends on it.
 
 Example:
 
 - you start a new Codex session with the **ACP backend**
-- Happier sees that **Codex ACP** is relevant for that session
-- if Codex ACP is missing and auto-install is enabled, Happier starts a background install on that machine
+- Kaiwu sees that **Codex ACP** is relevant for that session
+- if Codex ACP is missing and auto-install is enabled, Kaiwu starts a background install on that machine
 
 This is designed to improve the **next** relevant session without blocking the current one.
 
@@ -60,7 +60,7 @@ Each installable also has an **Auto-update** policy:
 
 - **Off**: never update automatically
 - **Notify**: show that an update is available, but do not upgrade automatically
-- **Auto**: upgrade automatically in the background when Happier checks and sees that a newer version is available
+- **Auto**: upgrade automatically in the background when Kaiwu checks and sees that a newer version is available
 
 Default behavior varies by installable.
 
@@ -69,7 +69,7 @@ For Codex ACP, the default is:
 - **Auto-install when needed**: on
 - **Auto-update**: auto
 
-For optional helper tools such as `gh`, Happier can use a more conservative policy such as "do not auto-install" and "notify about updates."
+For optional helper tools such as `gh`, Kaiwu can use a more conservative policy such as "do not auto-install" and "notify about updates."
 
 ## What happens for Codex-related installables
 
@@ -90,9 +90,9 @@ Codex ACP still matters only when you explicitly choose the ACP backend.
 
 If you start a new Codex session and select the ACP backend:
 
-- Happier tries to keep the session usable immediately
+- Kaiwu tries to keep the session usable immediately
 - if Codex ACP is already installed, it uses the installed binary
-- if Codex ACP is missing, Happier can still fall back to the existing fresh-session path while it installs Codex ACP in the background for future sessions
+- if Codex ACP is missing, Kaiwu can still fall back to the existing fresh-session path while it installs Codex ACP in the background for future sessions
 
 This means the first ACP-related session on a machine may still be slower than later ones.
 
@@ -101,21 +101,21 @@ This means the first ACP-related session on a machine may still be slower than l
 Codex resume is stricter:
 
 - resume requires **Codex ACP**
-- if ACP is unavailable, Happier does **not** silently replace resume with a fresh session
+- if ACP is unavailable, Kaiwu does **not** silently replace resume with a fresh session
 
-If resume is important on a machine, leave Codex ACP installed and let Happier keep it updated.
+If resume is important on a machine, leave Codex ACP installed and let Kaiwu keep it updated.
 
 ### Plain MCP note
 
-If you switch Codex to plain `mcp`, Happier can still start fresh Codex sessions there, but vendor resume is not available on that path in current builds.
+If you switch Codex to plain `mcp`, Kaiwu can still start fresh Codex sessions there, but vendor resume is not available on that path in current builds.
 
 ## What happens for GitHub CLI (`gh`)
 
 GitHub CLI is a generic installable dependency, not an agent backend.
 
-Happier can use `gh` for GitHub source-control workflows when:
+Kaiwu can use `gh` for GitHub source-control workflows when:
 
-- you have not connected a GitHub token in Happier, or
+- you have not connected a GitHub token in Kaiwu, or
 - the local `gh` path is the most appropriate way to use an already-authenticated machine
 
 Workflows that can use `gh` include:
@@ -126,9 +126,9 @@ Workflows that can use `gh` include:
 
 Resolution order:
 
-1. Happier prefers a working system `gh` if it is already installed.
-2. If a Happier-managed `gh` exists for the machine, Happier can use it.
-3. If neither exists, Happier can show installation/remediation guidance.
+1. Kaiwu prefers a working system `gh` if it is already installed.
+2. If a Kaiwu-managed `gh` exists for the machine, Kaiwu can use it.
+3. If neither exists, Kaiwu can show installation/remediation guidance.
 
 Installing `gh` does not authenticate it. To use the CLI path, authenticate it on that machine with GitHub CLI's normal auth flow, such as:
 
@@ -136,16 +136,16 @@ Installing `gh` does not authenticate it. To use the CLI path, authenticate it o
 gh auth login
 ```
 
-For cross-machine workflows, a connected GitHub token is usually more portable because it travels through Happier's connected-service model. The `gh` path is best when the machine is already set up and authenticated.
+For cross-machine workflows, a connected GitHub token is usually more portable because it travels through Kaiwu's connected-service model. The `gh` path is best when the machine is already set up and authenticated.
 
 Default policy for `gh` differs from Codex ACP:
 
 - **Auto-install when needed**: off
 - **Auto-update**: notify
 
-That keeps GitHub CLI installation explicit. Happier does not silently install a new GitHub CLI binary just because you opened a source-control screen.
+That keeps GitHub CLI installation explicit. Kaiwu does not silently install a new GitHub CLI binary just because you opened a source-control screen.
 
-GitLab note: GitLab merge-request workflows can use an authenticated `glab` CLI when it is already available, but `glab` is not currently a Happier-managed installable.
+GitLab note: GitLab merge-request workflows can use an authenticated `glab` CLI when it is already available, but `glab` is not currently a Kaiwu-managed installable.
 
 ## Scope and expectations
 
@@ -167,9 +167,9 @@ This is especially useful if you use:
 
 Installables management does **not** force you to use a managed copy when you already have your own tool installed.
 
-In general, Happier still prefers a working user/system install by default when the provider resolution logic supports that.
+In general, Kaiwu still prefers a working user/system install by default when the provider resolution logic supports that.
 
-Installables mainly gives Happier a reliable managed path so that:
+Installables mainly gives Kaiwu a reliable managed path so that:
 
 - required tools can be present without manual setup
 - supported features keep working on fresh machines

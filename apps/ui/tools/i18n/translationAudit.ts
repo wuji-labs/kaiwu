@@ -62,6 +62,9 @@ const ALLOW_SAME_STRING_VALUES = new Set<string>([
     'TCP',
     'UDP',
     'Happier',
+    'Kaiwu',
+    'Kaiwu Voice',
+    '无极开物',
     // Proper nouns / product feature names that are intentionally not localized.
     'Zen',
     'Codex',

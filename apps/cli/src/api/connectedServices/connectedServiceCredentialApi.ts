@@ -54,7 +54,7 @@ export class ConnectedServiceCredentialUnsupportedFormatError extends Error {
   readonly profileId: string;
 
   constructor(serviceId: ConnectedServiceId, profileId: string) {
-    super(`Connected service credential is in an unsupported legacy format (${serviceId}/${profileId}). Reconnect it in Happier.`);
+    super(`Connected service credential is in an unsupported legacy format (${serviceId}/${profileId}). Reconnect it in Kaiwu.`);
     this.name = 'ConnectedServiceCredentialUnsupportedFormatError';
     this.serviceId = serviceId;
     this.profileId = profileId;

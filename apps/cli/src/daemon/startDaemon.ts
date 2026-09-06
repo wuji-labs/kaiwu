@@ -4313,7 +4313,7 @@ export async function startDaemon(options: Readonly<{ takeover?: boolean }> = {}
                 return {
                   type: 'error',
                 errorCode: SPAWN_SESSION_ERROR_CODES.SPAWN_NO_PID,
-                  errorMessage: 'Failed to spawn Happier process - no PID returned'
+                  errorMessage: 'Failed to spawn Kaiwu process - no PID returned'
                 };
               }
 

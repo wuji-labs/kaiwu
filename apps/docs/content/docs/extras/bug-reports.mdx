@@ -1,9 +1,9 @@
 ---
 title: Bug reports
-description: Send issue reports from Happier with optional diagnostics for faster triage.
+description: Send issue reports from Kaiwu with optional diagnostics for faster triage.
 ---
 
-Happier includes a built-in bug report flow from app settings.
+Kaiwu includes a built-in bug report flow from app settings.
 
 When enabled by your server, users can submit:
 
@@ -13,10 +13,10 @@ When enabled by your server, users can submit:
 
 ## Server controls
 
-Use these env vars on the Happier server:
+Use these env vars on the Kaiwu server:
 
 - `HAPPIER_FEATURE_BUG_REPORTS__ENABLED` (default `1`)
-- `HAPPIER_FEATURE_BUG_REPORTS__PROVIDER_URL` (default `https://reports.happier.dev`)
+- `HAPPIER_FEATURE_BUG_REPORTS__PROVIDER_URL` (default `https://kaiwu.chengqiyun.com`)
   - If set to an invalid URL, provider submission is disabled instead of falling back to a central default.
 - `HAPPIER_FEATURE_BUG_REPORTS__DEFAULT_INCLUDE_DIAGNOSTICS` (default `1`)
 - `HAPPIER_FEATURE_BUG_REPORTS__MAX_ARTIFACT_BYTES` (default `10485760`)
@@ -35,7 +35,7 @@ To hard-disable server log exfiltration, keep `HAPPIER_BUG_REPORTS_SERVER_DIAGNO
 
 For shared servers, keep `HAPPIER_BUG_REPORTS_SERVER_DIAGNOSTICS_ACCESS_MODE=owner` (or leave it unset) and define `HAPPIER_SERVER_OWNER_USER_IDS` so only configured owners can fetch server diagnostics snapshots.
 
-`HAPPIER_SERVER_OWNER_USER_IDS` uses Happier account ids (not usernames). Owners can copy their id from Settings → Account in the app.
+`HAPPIER_SERVER_OWNER_USER_IDS` uses Kaiwu account ids (not usernames). Owners can copy their id from Settings → Account in the app.
 
 ## Privacy and control
 
@@ -47,7 +47,7 @@ For shared servers, keep `HAPPIER_BUG_REPORTS_SERVER_DIAGNOSTICS_ACCESS_MODE=own
 
 ## Similar issues (duplicates)
 
-To reduce duplicate reports, Happier can search GitHub for potentially similar issues while you fill the report.
+To reduce duplicate reports, Kaiwu can search GitHub for potentially similar issues while you fill the report.
 
 - In the app, you can select one of the suggested issues to post your report as a comment instead of opening a new issue.
 - In the CLI, you can:
@@ -73,7 +73,7 @@ If required fields are missing in an interactive terminal, the CLI prompts for t
 
 ### Reporter GitHub username (optional)
 
-If you want maintainers to be able to reach you, provide your GitHub username via `--github-username`. Happier appends a `Reporter GitHub: \`...\`` line to the report summary (sanitized to avoid accidental formatting/pings).
+If you want maintainers to be able to reach you, provide your GitHub username via `--github-username`. Kaiwu appends a `Reporter GitHub: \`...\`` line to the report summary (sanitized to avoid accidental formatting/pings).
 
 ## When to use
 

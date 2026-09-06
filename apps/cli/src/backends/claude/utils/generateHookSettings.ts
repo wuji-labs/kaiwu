@@ -369,9 +369,9 @@ export function generateHookPluginDir(port: number, options: GenerateHookSetting
     const manifest = {
         name: `happier-session-hooks-${pluginIdentity.id}`,
         version: '1.0.0',
-        description: 'Happier session-scoped Claude Code hooks.',
+        description: 'Kaiwu session-scoped Claude Code hooks.',
         author: {
-            name: 'Happier',
+            name: 'Kaiwu',
         },
     };
     writePrivateFileSync(join(manifestDir, 'plugin.json'), JSON.stringify(manifest, null, 2));

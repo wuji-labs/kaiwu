@@ -64,7 +64,7 @@ ${chalk.bold('Usage:')}
 
 ${chalk.bold('Options:')}
   -p <message>    Notification message (required)
-  -t <title>      Notification title (optional, defaults to "Happier")
+  -t <title>      Notification title (optional, defaults to "Kaiwu")
 
 ${chalk.bold('Examples:')}
   happier notify -p "Deployment complete!"
@@ -93,7 +93,7 @@ ${chalk.bold('Examples:')}
   try {
     const api = await ApiClient.create(credentials);
 
-    const notificationTitle = title || 'Happier';
+    const notificationTitle = title || 'Kaiwu';
 
     await sendPushNotification({ api, title: notificationTitle, message });
 

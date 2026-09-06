@@ -16,7 +16,7 @@ function createBuiltInMcpPreviewEntry(): BuiltInMcpPreviewEntryV1 {
   return {
     key: 'built-in:happier',
     name: 'happier',
-    title: 'Happier',
+    title: 'Kaiwu',
     transport: 'stdio',
     authMode: 'none',
     selected: true,

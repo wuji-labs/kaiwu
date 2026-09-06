@@ -10,6 +10,6 @@ export function buildReadOnlyFooterLines(providerName: string): string[] {
   const name = providerName.trim().length > 0 ? providerName.trim() : 'this provider';
   return [
     "Logs only — you can’t send prompts from this terminal.",
-    `Use the Happier app/web (interactive terminal mode isn’t supported for ${name}).`,
+    `Use the Kaiwu app/web (interactive terminal mode isn’t supported for ${name}).`,
   ];
 }

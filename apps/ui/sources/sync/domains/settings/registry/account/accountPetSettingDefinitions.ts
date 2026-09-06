@@ -22,7 +22,7 @@ export const ACCOUNT_PET_SETTING_DEFINITIONS = defineSettingDefinitions({
     petsEnabled: {
         schema: z.boolean(),
         default: false,
-        description: 'Enable Happier pet companions for the account',
+        description: 'Enable Kaiwu pet companions for the account',
         storageScope: 'account',
         analytics: { trackCurrentState: true, trackChanges: true, valueKind: 'boolean', privacy: 'safe', identityScope: 'person' },
     },

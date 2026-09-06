@@ -18,7 +18,7 @@ const COMMAND_SURFACE_MANIFEST: readonly CliCommandSurfaceEntry[] = [
   {
     command: 'setup',
     rootHelpLabel: 'happier setup',
-    rootHelpDescription: 'Connect this computer to your Happier account',
+    rootHelpDescription: 'Connect this computer to your Kaiwu account',
     rootHelpDetail: 'choose where your relay lives, then sign in',
     allowTmux: false,
   },

@@ -212,7 +212,7 @@ function subLine(row: Row, findings: readonly RepairFinding[]): string | null {
       case 'automatic_startup_duplicate_pinned_same_server':
         return 'duplicate — only one should run';
       case 'automatic_startup_foreign_home':
-        return 'from another Happier home — manual cleanup required';
+        return 'from another Kaiwu home — manual cleanup required';
     }
   }
 

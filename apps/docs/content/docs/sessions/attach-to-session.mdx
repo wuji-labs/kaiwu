@@ -1,15 +1,15 @@
 ---
 title: Attach to a running session
-description: Start a session from the Happier app, attach to it later in your terminal, and switch between remote and local control.
+description: Start a session from the Kaiwu app, attach to it later in your terminal, and switch between remote and local control.
 ---
 
-This guide explains how to start a supported session from the Happier app, leave it running on your machine, and then reconnect to that same session later from a terminal.
+This guide explains how to start a supported session from the Kaiwu app, leave it running on your machine, and then reconnect to that same session later from a terminal.
 
 This is the main workflow behind:
 
 - starting a session from the app UI while you are away from your terminal,
 - reconnecting later with `happier attach <session-id>`, and
-- switching the same session between **remote control** (from Happier) and **local control** (from the provider TUI in your terminal).
+- switching the same session between **remote control** (from Kaiwu) and **local control** (from the provider TUI in your terminal).
 
 ## When to use it
 
@@ -23,7 +23,7 @@ This workflow is useful when you want to:
 Common examples:
 
 - start a **Codex** or **Claude** session from the app, then attach later from your terminal,
-- start an **OpenCode** session from the app, then reopen it locally without creating a second Happier session,
+- start an **OpenCode** session from the app, then reopen it locally without creating a second Kaiwu session,
 - begin a task from the UI, then run `happier attach <session-id>` when you want to use the provider’s native TUI directly,
 - leave a session running in the background and reconnect later without starting a new one.
 
@@ -38,14 +38,14 @@ happier attach <session-id>
 
 What happens depends on how that session was started:
 
-- **tmux-backed session**: Happier reattaches you to the live tmux session
-- **Windows Terminal session**: Happier focuses the existing Windows Terminal host for that session
-- **Windows Console session**: Happier brings the existing console host to the foreground
-- **provider-native attach session**: Happier uses the provider’s own attach flow for that session
+- **tmux-backed session**: Kaiwu reattaches you to the live tmux session
+- **Windows Terminal session**: Kaiwu focuses the existing Windows Terminal host for that session
+- **Windows Console session**: Kaiwu brings the existing console host to the foreground
+- **provider-native attach session**: Kaiwu uses the provider’s own attach flow for that session
 
 `happier attach` reconnects to the existing session. It does not start a new one.
 
-If you run `happier attach` without a session id in a supported terminal, Happier opens an interactive list of active sessions:
+If you run `happier attach` without a session id in a supported terminal, Kaiwu opens an interactive list of active sessions:
 
 - attachable sessions on the current machine are selectable
 - active sessions that are visible but not attachable stay disabled with an explanation
@@ -63,16 +63,16 @@ This is the classic attach flow for providers such as **Claude** and **Codex** o
 
 Requirements:
 
-- the session must run on a machine where Happier CLI/daemon is available,
+- the session must run on a machine where Kaiwu CLI/daemon is available,
 - `tmux` integration must be enabled before the session starts,
 - you must attach from the same machine that owns the running session,
-- you must be using the same Happier account/server profile that started the session.
+- you must be using the same Kaiwu account/server profile that started the session.
 
-`tmux` keeps the provider process alive after the app starts it, so Happier can reconnect to it later.
+`tmux` keeps the provider process alive after the app starts it, so Kaiwu can reconnect to it later.
 
 ### Windows interactive-host sessions
 
-On **Windows**, tmux is often not the right answer. Happier also supports Windows-specific remote session modes:
+On **Windows**, tmux is often not the right answer. Kaiwu also supports Windows-specific remote session modes:
 
 - **Hidden** — best for purely remote usage from the app
 - **Windows Terminal** — best when you want to come back later and continue in a Windows Terminal window
@@ -98,7 +98,7 @@ In the app:
 2. Open **Session**
 3. Enable the **tmux integration** option
 
-Once enabled, new supported sessions started from the app are launched inside `tmux` so Happier can reattach them later.
+Once enabled, new supported sessions started from the app are launched inside `tmux` so Kaiwu can reattach them later.
 
 ### Choose the default Windows mode
 
@@ -126,7 +126,7 @@ Precedence is:
 
 The most common flow looks like this:
 
-1. Start the session in the Happier app
+1. Start the session in the Kaiwu app
 2. Use it normally in **remote** mode
 3. Run `happier attach <session-id>` on the owning machine
 4. Switch to **local** mode when you want direct provider-TUI control
@@ -135,29 +135,29 @@ The most common flow looks like this:
 
 Starting local control is terminal-driven. To take local control, attach from the terminal on the owning machine with `happier attach <session-id>`.
 
-If you send a message from the app while a Claude or Codex session is in local mode, Happier queues it first instead of typing it into your terminal. If the local turn is still running, Happier waits for that turn to finish, abort, or otherwise reach a safe boundary before switching the session back to remote processing and delivering the queued message.
+If you send a message from the app while a Claude or Codex session is in local mode, Kaiwu queues it first instead of typing it into your terminal. If the local turn is still running, Kaiwu waits for that turn to finish, abort, or otherwise reach a safe boundary before switching the session back to remote processing and delivering the queued message.
 
 ## Remote control vs local control
 
 The same session can move between two control styles:
 
-- **Remote control**: you interact from Happier’s UI and Happier drives the provider in the background
+- **Remote control**: you interact from Kaiwu’s UI and Kaiwu drives the provider in the background
 - **Local control**: you interact from the provider’s own terminal UI after attaching locally
 
 This is a control switch inside the same session, not a new session. The transcript, session id, and session settings stay the same.
 
-Remote-to-local control starts from the terminal with `happier attach`. Local-to-remote control can be requested from the app when the session is currently locally controlled. Happier may wait until the current local turn is done before it takes remote control, because forcing a prompt into a busy terminal TUI could interrupt or abort the provider’s current work.
+Remote-to-local control starts from the terminal with `happier attach`. Local-to-remote control can be requested from the app when the session is currently locally controlled. Kaiwu may wait until the current local turn is done before it takes remote control, because forcing a prompt into a busy terminal TUI could interrupt or abort the provider’s current work.
 
 ## Supported providers
 
 ### Claude
 
-- Claude supports local and remote control in Happier.
+- Claude supports local and remote control in Kaiwu.
 - In local mode, you use the normal Claude terminal UI directly.
 - App messages sent while Claude is locally controlled are queued and delivered after the current local turn reaches a safe stopping point.
 - On machines with `tmux`, this usually uses tmux-backed attach.
-- On Windows, use Happier’s Windows remote session modes instead of expecting tmux.
-- If **local permission bridge** is enabled, some permission prompts can still appear in Happier while the session is locally attached.
+- On Windows, use Kaiwu’s Windows remote session modes instead of expecting tmux.
+- If **local permission bridge** is enabled, some permission prompts can still appear in Kaiwu while the session is locally attached.
 
 See also: [Claude](/agents/claude)
 
@@ -167,23 +167,23 @@ See also: [Claude](/agents/claude)
 - After attaching, you can switch into local control and continue from the Codex TUI directly.
 - App messages sent while Codex is locally controlled are queued and delivered after Codex finishes, aborts, or exits the current local turn.
 - On machines with `tmux`, this usually uses tmux-backed attach.
-- On Windows, use Happier’s Windows remote session modes instead of expecting tmux.
-- Switching back to remote lets Happier take over again without losing the session.
+- On Windows, use Kaiwu’s Windows remote session modes instead of expecting tmux.
+- Switching back to remote lets Kaiwu take over again without losing the session.
 
 See also: [Codex](/agents/codex)
 
 ### OpenCode
 
 - OpenCode supports app-started sessions plus later terminal attachment.
-- For supported sessions, Happier can use OpenCode’s native attach flow instead of tmux.
+- For supported sessions, Kaiwu can use OpenCode’s native attach flow instead of tmux.
 - OpenCode uses shared local control, so the app can remain writable while the OpenCode TUI is attached.
-- The session remains the same Happier session while you move between remote and local/shared control.
+- The session remains the same Kaiwu session while you move between remote and local/shared control.
 
 See also: [OpenCode](/agents/opencode)
 
 ## What happens to messages while switching
 
-Happier keeps one canonical session state. During switching:
+Kaiwu keeps one canonical session state. During switching:
 
 - transcript history remains shared,
 - permission mode follows the session,
@@ -192,7 +192,7 @@ Happier keeps one canonical session state. During switching:
 
 This is expected. It prevents messages from being lost during mode switches or reconnects.
 
-For Claude and Codex local control, the pending queue also protects the current terminal turn. Happier does not send a queued app message into the provider TUI while that TUI is busy. It waits for the local turn to complete or stop, then resumes remote control and processes the queued message from the same session.
+For Claude and Codex local control, the pending queue also protects the current terminal turn. Kaiwu does not send a queued app message into the provider TUI while that TUI is busy. It waits for the local turn to complete or stop, then resumes remote control and processes the queued message from the same session.
 
 ## Troubleshooting
 
@@ -202,7 +202,7 @@ Check that:
 
 - the session was started with an attachable mode before it began running,
 - the session was started on this same machine,
-- you are authenticated against the same Happier server/account.
+- you are authenticated against the same Kaiwu server/account.
 
 ### The session starts in the app but cannot be attached later
 
@@ -215,14 +215,14 @@ This usually means one of the following:
 
 ### On Windows, `Windows Terminal` is unavailable
 
-If Happier cannot use **Windows Terminal** on that machine:
+If Kaiwu cannot use **Windows Terminal** on that machine:
 
 - install or update Windows Terminal, or
 - choose **Console** or **Hidden** instead.
 
 ### The app briefly shows queued or waiting states during switching
 
-Short “waiting”, “pending”, or “resume” states during local ↔ remote switching are normal. Happier may wait for the provider process, transcript source, or daemon heartbeat to settle before the UI fully reflects the new mode.
+Short “waiting”, “pending”, or “resume” states during local ↔ remote switching are normal. Kaiwu may wait for the provider process, transcript source, or daemon heartbeat to settle before the UI fully reflects the new mode.
 
 ## Related guides
 

@@ -17,15 +17,15 @@ import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
 const navTitle = (
   <span className="flex items-center gap-2">
     <img
-      src="/brand/logotype-dark.png"
-      alt="Happier"
+      src="/docs/brand/logotype-dark.png"
+      alt="无极开物"
       width={120}
       height={28}
       className="h-6 w-auto dark:hidden"
     />
     <img
-      src="/brand/logotype-light.png"
-      alt="Happier"
+      src="/docs/brand/logotype-light.png"
+      alt="无极开物"
       width={120}
       height={28}
       className="hidden h-6 w-auto dark:block"

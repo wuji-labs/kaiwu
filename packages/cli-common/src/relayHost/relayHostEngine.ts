@@ -156,7 +156,7 @@ function buildRelayRuntimeServiceSpec(params: Readonly<{
 }>): ServiceSpec {
   return {
     label: params.label,
-    description: `Happier Relay Runtime (${params.label})`,
+    description: `Kaiwu Relay Runtime (${params.label})`,
     programArgs: [params.serverBinaryPath],
     workingDirectory: params.installRoot,
     env: params.env,
@@ -1925,7 +1925,7 @@ export function createRelayHostEngine(deps: RelayHostEngineDeps): RelayHostEngin
       throw new Error(
         remoteMessage
         || result.stderr.trim()
-        || 'Remote relay host uninstall did not report success. Ensure the installed Happier CLI is present and retry.',
+        || 'Remote relay host uninstall did not report success. Ensure the installed Kaiwu CLI is present and retry.',
       );
     }
   }

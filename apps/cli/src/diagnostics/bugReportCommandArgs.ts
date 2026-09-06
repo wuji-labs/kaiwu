@@ -62,9 +62,9 @@ export function bugReportUsage(): string {
     '  --no-similar-issues                Skip searching for similar issues',
     '  --server-version <version>',
     '  --deployment-type <cloud|self-hosted|enterprise>',
-    '  --session-id <id>                  Bind the report to a specific Happier session id',
+    '  --session-id <id>                  Bind the report to a specific Kaiwu session id',
     '  --attach <path>                    Attach an additional file (repeatable)',
-    '  --attach-session-log <path>        Attach a Happier session log file (repeatable)',
+    '  --attach-session-log <path>        Attach a Kaiwu session log file (repeatable)',
     '  --attach-provider-transcript <path> Attach a provider transcript (Claude/Codex/...) (repeatable)',
     '  -h, --help',
   ].join('\n');

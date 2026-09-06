@@ -116,7 +116,7 @@ hstack auth --help
 
 In a TTY, `hstack auth login` is **local-first**:
 
-- it prefers authenticating against your **local stack** (not the hosted Happier app)
+- it prefers authenticating against your **local stack** (not the hosted Kaiwu app)
 - it guides you through opening the stack’s web UI and connecting your terminal
 - if the stack isn’t running, it can start it in the background for you
 
@@ -187,7 +187,7 @@ Notes:
 - `stack`: force using your stack’s web UI origin (env override → runtime/server UI when active → running Expo → stack server)
 - `expo`: use a running Expo dev server’s web UI (fails if no Expo web app is running)
 - `public`: use the stack’s public/server URL
-- `hosted`: use the hosted web app (`https://app.happier.dev`) for the approval UI (most reliable when your stack isn’t serving a web UI)
+- `hosted`: use the hosted web app (`https://kaiwu.chengqiyun.com`) for the approval UI (most reliable when your stack isn’t serving a web UI)
 
 If `auto` selects Expo but Expo fails to become ready, `hstack` will:
 

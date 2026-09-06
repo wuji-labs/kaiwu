@@ -61,7 +61,7 @@ export const PublicLinkDialog = memo(function PublicLinkDialog({
         }
 
         const configuredWebAppUrl = (process.env.EXPO_PUBLIC_HAPPY_WEBAPP_URL || '').trim();
-        const webAppUrl = configuredWebAppUrl || 'https://app.happier.dev';
+        const webAppUrl = configuredWebAppUrl || 'https://kaiwu.chengqiyun.com';
         return `${webAppUrl}${path}`;
     }, []);
 

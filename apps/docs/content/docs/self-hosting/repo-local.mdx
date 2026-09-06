@@ -1,9 +1,9 @@
 ---
 title: Run From A Monorepo Clone (Repo-Local Mode)
-description: Use yarn commands from the Happier monorepo root to run a stackless local stack, install an OS service, and configure Tailscale.
+description: Use yarn commands from the Kaiwu monorepo root to run a stackless local stack, install an OS service, and configure Tailscale.
 ---
 
-If you cloned the Happier monorepo, you can run most day-to-day workflows directly from the repo root using `yarn` scripts.
+If you cloned the Kaiwu monorepo, you can run most day-to-day workflows directly from the repo root using `yarn` scripts.
 
 Note: the GitHub repo default branch is `dev` and may be unstable. If you want a more stable base when running from source, check out `preview`.
 
@@ -71,7 +71,7 @@ Wrapper defaults/convenience rewrites:
 
 - `yarn tui` becomes `hstack tui dev` (when no extra args are passed).
 - `yarn stop` becomes `hstack stack stop <repo-stack>`.
-- `yarn mobile:install` becomes `hstack stack mobile:install <repo-stack> --name="Happier (Local)"` unless you pass your own `--name`.
+- `yarn mobile:install` becomes `hstack stack mobile:install <repo-stack> --name="Kaiwu (Local)"` unless you pass your own `--name`.
 
 ## Passing Arguments And Getting Help
 
@@ -91,7 +91,7 @@ yarn service -- --help
 yarn remote -- --help
 ```
 
-## Run The Happier CLI From Anywhere (Use This Repo Checkout)
+## Run The Kaiwu CLI From Anywhere (Use This Repo Checkout)
 
 If you want `hstack` / `happier` commands you run from any terminal to execute from **this** clone (instead of a runtime install),
 activate repo-local shims:
@@ -276,7 +276,7 @@ This section documents runtime commands exposed at monorepo root. It intentional
 | --- | --- | --- | --- |
 | `yarn auth` | `hstack auth ...` | Login/status/dev-key auth helpers for this repo-local stack. | `status`, `login`, `seed`, `--method=mobile|web`, `--no-open` |
 | `yarn daemon` | `hstack daemon ...` | Manage daemon process (`start`, `stop`, `restart`, `status`) in stack scope. | `status`, `restart`, `--identity=<name>`, `--json` |
-| `yarn happier` | `hstack happier ...` | Run Happier CLI against this repo-local stack context. | provider/CLI args passthrough |
+| `yarn happier` | `hstack happier ...` | Run Kaiwu CLI against this repo-local stack context. | provider/CLI args passthrough |
 | `yarn cli:activate` | `hstack init --cli-root-dir=<this-repo>/apps/stack --no-runtime --no-bootstrap` | Point global `hstack`/`happier` shims to this clone. | `--home-dir=...` |
 | `yarn cli:activate:path` | same as above + `--install-path` | Same as `cli:activate` and also update shell PATH. | none (forwards extra args) |
 
@@ -337,7 +337,7 @@ Service log line count defaults to `120`; override with `HAPPIER_STACK_LOG_LINES
 | Yarn script | Underlying command | Purpose | Common args |
 | --- | --- | --- | --- |
 | `yarn mobile` | `hstack mobile` | iOS mobile helper against repo-local stack context. | command-specific flags |
-| `yarn mobile:install` | `hstack stack mobile:install <repo-stack> --name=Happier (Local)` | Full install flow for a stack-scoped app build; no stack name needed. | `--name=...`, `--device=...`, `--configuration=...` |
+| `yarn mobile:install` | `hstack stack mobile:install <repo-stack> --name=Kaiwu (Local)` | Full install flow for a stack-scoped app build; no stack name needed. | `--name=...`, `--device=...`, `--configuration=...` |
 | `yarn mobile-dev-client` | `hstack mobile-dev-client` | Install/manage shared hstack iOS dev-client app. | `--install`, `--device=...`, `--clean` |
 
 ### Advanced Workflows

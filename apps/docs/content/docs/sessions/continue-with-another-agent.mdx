@@ -3,11 +3,11 @@ title: Continue with another Agent
 description: Switch the coding Agent running a session in place, keep the same session, and see what context was handed over.
 ---
 
-A Happier session normally runs under one coding Agent for its whole life. **Continue with another Agent** lets you change that Agent in place, mid-conversation, without starting a new session.
+A Kaiwu session normally runs under one coding Agent for its whole life. **Continue with another Agent** lets you change that Agent in place, mid-conversation, without starting a new session.
 
 ## Development status
 
-This capability exists in the current development source and is **not yet available in released Happier builds**. It has not passed an integrated live gate, so treat the behavior described below as the current development contract rather than as shipped behavior. Availability, copy, and failure handling can still change.
+This capability exists in the current development source and is **not yet available in released Kaiwu builds**. It has not passed an integrated live gate, so treat the behavior described below as the current development contract rather than as shipped behavior. Availability, copy, and failure handling can still change.
 
 The promise is narrow and worth stating exactly:
 
@@ -43,32 +43,32 @@ An armed choice is scoped to this session and to the Agent that was running it w
 
 ## When it is available
 
-The switch works only for a **hosted** session whose current Agent Happier can name and is **strictly idle**. The Session's recorded machine is not a switch gate: the stop and activation owners determine whether this CLI can perform their work. A cold inactive Session counts as stopped once its canonical Session state confirms that fact.
+The switch works only for a **hosted** session whose current Agent Kaiwu can name and is **strictly idle**. The Session's recorded machine is not a switch gate: the stop and activation owners determine whether this CLI can perform their work. A cold inactive Session counts as stopped once its canonical Session state confirms that fact.
 
 It is not available when:
 
-- **The session's transcript is not hosted by Happier.** A [direct session](/sessions/continuing-a-session), where the Agent owns its own store, has no Happier conversation for another Agent to continue.
+- **The session's transcript is not hosted by Kaiwu.** A [direct session](/sessions/continuing-a-session), where the Agent owns its own store, has no Kaiwu conversation for another Agent to continue.
 - **You have read-only access to the session.** The picker says so once for the session rather than once per Agent.
 - **The current Agent is still working.** Send is refused with *"`{Agent}` is still working. Nothing was sent — try again once it finishes."* Wait for the turn to finish and send again.
-- **No reachable CLI can perform the operation, or its CLI is older than the feature.** Happier distinguishes the two where it can, and says "update or reconnect" when it genuinely cannot tell.
+- **No reachable CLI can perform the operation, or its CLI is older than the feature.** Kaiwu distinguishes the two where it can, and says "update or reconnect" when it genuinely cannot tell.
 - **The target is a Custom ACP backend.** Configured ACP backends stay visible in the picker so the catalog reads the same everywhere, but in-place switching to them is not supported yet rather than failing at send time.
 
 The switch never moves a session to another machine. If you want that, use [session handoff](/sessions/session-handoff).
 
 ## Switching back to an Agent you used before
 
-If you switch back to an Agent that already ran this session **on the same machine**, it resumes its own conversation instead of starting a fresh one. Happier then replays only what happened while that Agent was away, so it is not re-told history it already holds.
+If you switch back to an Agent that already ran this session **on the same machine**, it resumes its own conversation instead of starting a fresh one. Kaiwu then replays only what happened while that Agent was away, so it is not re-told history it already holds.
 
 Two things follow from that:
 
 - It only happens when that Agent's own provider-session resume is supported and allowed for you. An Agent you have disabled in settings, a provider that does not support resume at all, and — for Codex — a backend mode that does not offer it, all fall back to a fresh start with the **full** carried-over context instead. See [Continuing a session](/sessions/continuing-a-session).
-- The Agent's own vendor session can be gone by the time you return: providers prune, rotate and expire their session stores. Happier does not pre-check it. The recorded boundary advances only when the provider accepts the requested native identity, including when no replay seed is needed; prompt delivery or replay-seed retirement alone is not that proof. A failed strict return leaves the earlier boundary unchanged and invalidates that identity instead of offering it again as a valid native return.
+- The Agent's own vendor session can be gone by the time you return: providers prune, rotate and expire their session stores. Kaiwu does not pre-check it. The recorded boundary advances only when the provider accepts the requested native identity, including when no replay seed is needed; prompt delivery or replay-seed retirement alone is not that proof. A failed strict return leaves the earlier boundary unchanged and invalidates that identity instead of offering it again as a valid native return.
 
 ## What the arriving Agent is given
 
 The arriving Agent gets a bounded, text-only brief. Depending on what exists, it can include:
 
-- a short header saying this is the same Happier session under a new Agent, and naming the Agent that just left
+- a short header saying this is the same Kaiwu session under a new Agent, and naming the Agent that just left
 - the session title
 - for a fresh arriving Agent, an explicit note that the previous Agent's own conversation state does **not** carry over, so what follows is a replay; a returning Agent instead resumes its own native conversation and receives only the away-delta
 - what the previous Agent was tracking — its in-flight plan — attributed to it and marked as past
@@ -103,12 +103,12 @@ If the machine is unreachable, or the rebuild fails for a reason that might not 
 
 ## When something goes wrong
 
-Happier is explicit about whether your message was sent and whether the switch happened.
+Kaiwu is explicit about whether your message was sent and whether the switch happened.
 
 - **Nothing was sent, nothing changed.** Wrong permissions, an unsupported session, a target that is not available to the CLI performing the operation, a session that changed while you were choosing, an Agent that was still working, or an Agent that could not be stopped. Fix the cause and send again — your draft is kept.
-- **The previous Agent stopped, but the switch did not complete.** Your message was not sent. Happier reconciles the current Session facts automatically; your draft stays available and the ordinary send is the retry when the Session is still the source.
+- **The previous Agent stopped, but the switch did not complete.** Your message was not sent. Kaiwu reconciles the current Session facts automatically; your draft stays available and the ordinary send is the retry when the Session is still the source.
 - **The session switched but the target did not start.** Your exact message is already queued and will be delivered when the Session resumes; do not send it again. The existing **Resume session** action is offered only when the Session is already the target and inactive.
-- **Happier could not confirm what happened.** While this is unresolved, the composer performs one automatic reconciliation and refuses new sends rather than risk sending your message twice.
+- **Kaiwu could not confirm what happened.** While this is unresolved, the composer performs one automatic reconciliation and refuses new sends rather than risk sending your message twice.
 
 There is no *Check status*, *Resume source*, or *Resume target* control, recovery panel, polling, or
 second recovery state machine. Apart from **Resume session** for an inactive target, the composer
@@ -116,7 +116,7 @@ banner offers no recovery action.
 
 Retrying the same armed switch reuses the same identity, so a retry admits one message rather than a duplicate.
 
-One send has one destination. If the composer is already addressing something else — a voice adapter, or a delegated run — Happier refuses instead of quietly delivering the message to the wrong place, and tells you to clear one of the two.
+One send has one destination. If the composer is already addressing something else — a voice adapter, or a delegated run — Kaiwu refuses instead of quietly delivering the message to the wrong place, and tells you to clear one of the two.
 
 ## For operators
 

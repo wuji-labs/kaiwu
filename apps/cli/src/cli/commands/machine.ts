@@ -263,7 +263,7 @@ function formatRemoteBackgroundServicePrompt(prompt: Readonly<{ kind: string; da
     .filter(Boolean);
 
   return [
-    fallbackMessage || 'Remote machine already has Happier background services. Replace them with the selected release channel?',
+    fallbackMessage || 'Remote machine already has Kaiwu background services. Replace them with the selected release channel?',
     targetReleaseChannel ? `Target release channel: ${targetReleaseChannel}` : '',
     targetServerUrl ? `Target server: ${targetServerUrl}` : '',
     serviceLines.length ? 'Existing services:' : '',

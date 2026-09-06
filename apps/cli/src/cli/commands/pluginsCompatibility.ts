@@ -10,7 +10,7 @@ function usage(): string {
     `${chalk.bold('Usage:')}`,
     '  happier plugins list [--json]',
     '',
-    'This Happier version does not support installing plugins.',
+    'This Kaiwu version does not support installing plugins.',
   ].join('\n');
 }
 
@@ -39,13 +39,13 @@ export async function handlePluginsCompatibilityCliCommand(context: CommandConte
       kind: 'plugins_unsupported',
       error: {
         code: 'unsupported_in_this_version',
-        message: `Plugin command '${subcommand}' is not supported by this Happier version`,
+        message: `Plugin command '${subcommand}' is not supported by this Kaiwu version`,
       },
     });
     return;
   }
 
-  console.error(chalk.red('Error:'), `Plugin command '${subcommand}' is not supported by this Happier version`);
+  console.error(chalk.red('Error:'), `Plugin command '${subcommand}' is not supported by this Kaiwu version`);
   console.log(usage());
   process.exitCode = 1;
 }

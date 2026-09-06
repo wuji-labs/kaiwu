@@ -112,7 +112,7 @@ ${chalk.bold('Usage:')}
   If you want to kill all happier related processes run
   ${chalk.cyan('happier doctor clean')}
 
-${chalk.bold('Note:')} The daemon is the local Happier process on this computer. Automatic startup is provided by installed background services (\`happier service\`).
+${chalk.bold('Note:')} The daemon is the local Kaiwu process on this computer. Automatic startup is provided by installed background services (\`happier service\`).
 
 ${chalk.bold('To clean up runaway processes:')} Use ${chalk.cyan('happier doctor clean')}
 `);

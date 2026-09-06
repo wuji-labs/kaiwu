@@ -1,9 +1,9 @@
 ---
 title: Encryption model
-description: How Happier session encryption, secret-key restore, and plaintext storage mode work from a user perspective.
+description: How Kaiwu session encryption, secret-key restore, and plaintext storage mode work from a user perspective.
 ---
 
-Happier supports two account/storage models:
+Kaiwu supports two account/storage models:
 
 - **Device-key accounts (default)**: session content is encrypted before the server stores it
 - **Plaintext storage deployments**: the server stores new session content in plaintext instead of encrypted-at-rest form
@@ -15,7 +15,7 @@ This page explains what that means as a user, what your secret key is for, and w
 For device-key accounts:
 
 - encryption keys are created on your device,
-- Happier encrypts supported session content before it is stored on the server,
+- Kaiwu encrypts supported session content before it is stored on the server,
 - another device or browser must be explicitly restored before it can read your existing encrypted data.
 
 This is why a brand-new browser or device may ask you to restore access before older sessions become readable there.
@@ -34,7 +34,7 @@ Without restore, the new device can still authenticate to your account, but it c
 
 ## Where restore happens
 
-Restore happens in Happier’s app flows, not in normal provider CLIs.
+Restore happens in Kaiwu’s app flows, not in normal provider CLIs.
 
 Common restore flows include:
 
@@ -42,7 +42,7 @@ Common restore flows include:
 - **Restore account** on a new browser/computer and approving it from another already-signed-in device,
 - **Restore with Secret Key Instead** when you need a manual recovery path.
 
-The Happier CLI does not usually need your secret key directly. It relies on the app/account restore flow.
+The Kaiwu CLI does not usually need your secret key directly. It relies on the app/account restore flow.
 
 For the concrete QR/button flows, see [Features → Device linking & restore](/accounts/device-linking-and-restore).
 
@@ -52,7 +52,7 @@ After a device is restored:
 
 - the same encrypted sessions become readable there,
 - the same account can continue using the web app, desktop app, and CLI,
-- session sharing continues to work through Happier’s normal access controls.
+- session sharing continues to work through Kaiwu’s normal access controls.
 
 ## Plaintext storage mode
 
@@ -91,9 +91,9 @@ The difference is the storage mode behind the scenes.
 
 ## Which mode am I using?
 
-That depends on how your Happier server is configured.
+That depends on how your Kaiwu server is configured.
 
-- On standard Happier deployments, assume **device-key encrypted storage** unless your admin/server explicitly documents otherwise.
+- On standard Kaiwu deployments, assume **device-key encrypted storage** unless your admin/server explicitly documents otherwise.
 - On enterprise or special deployments, the server may advertise **optional** or **plaintext-only** storage behavior.
 
 If you operate the server yourself, see [Server → Encryption & plaintext storage](/self-hosting/encryption).

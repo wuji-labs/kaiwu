@@ -70,18 +70,18 @@ function sanitizeNotificationAction(
 
 function buildSwitchReasonSentence(reason: string, serviceDisplayName: string): string {
   if (reason === 'soft_threshold') {
-    return `Happier switched ${serviceDisplayName} accounts preventively because the previous account was near the configured soft limit.`;
+    return `Kaiwu switched ${serviceDisplayName} accounts preventively because the previous account was near the configured soft limit.`;
   }
   if (reason === 'usage_limit' || reason === 'rate_limit') {
-    return `The provider reported a usage or quota issue, so Happier switched ${serviceDisplayName} accounts.`;
+    return `The provider reported a usage or quota issue, so Kaiwu switched ${serviceDisplayName} accounts.`;
   }
   if (reason === 'auth_invalid' || reason === 'auth_expired' || reason === 'refresh_failure' || reason === 'refresh_failed') {
-    return `The ${serviceDisplayName} credential stopped working, so Happier switched accounts.`;
+    return `The ${serviceDisplayName} credential stopped working, so Kaiwu switched accounts.`;
   }
   if (reason === 'manual') {
     return `The session ${serviceDisplayName} account changed.`;
   }
-  return `Happier switched ${serviceDisplayName} accounts.`;
+  return `Kaiwu switched ${serviceDisplayName} accounts.`;
 }
 
 function formatUsageSide(label: string, usage: Readonly<{ label: string | null; remainingPercent: number }>): string {
@@ -198,8 +198,8 @@ export function buildActivityNotificationContent(
     const safeReason = providerErrorCode.display ?? reason.display;
     const reasonClause = safeReason ? ` Provider code: ${safeReason}.` : '';
     const body = event.status === 'reconnect_required'
-      ? `${serviceDisplayName} account ${profileLabel} needs to be reconnected before Happier can use it again.${reasonClause}`
-      : `${serviceDisplayName} account ${profileLabel} could not be refreshed. Happier will retry automatically.${reasonClause}`;
+      ? `${serviceDisplayName} account ${profileLabel} needs to be reconnected before Kaiwu can use it again.${reasonClause}`
+      : `${serviceDisplayName} account ${profileLabel} could not be refreshed. Kaiwu will retry automatically.${reasonClause}`;
     const action = sanitizeNotificationAction(event.action);
     return {
       title: event.sessionTitle ?? (event.status === 'reconnect_required' ? `${serviceDisplayName} account needs reconnect` : `${serviceDisplayName} account refresh failed`),

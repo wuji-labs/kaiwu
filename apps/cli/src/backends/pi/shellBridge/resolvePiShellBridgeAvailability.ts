@@ -23,7 +23,7 @@ type PiShellBridgeEnvironment = Readonly<Record<string, string | undefined>>;
 
 function buildPiWindowsShellBridgeErrorMessage(searchedPaths: readonly string[]): string {
   return [
-    'Pi requires Bash to use Happier tools on Windows.',
+    'Pi requires Bash to use Kaiwu tools on Windows.',
     'Install Git for Windows (https://git-scm.com/download/win), add a Pi-recognized Bash executable to PATH, or set shellPath in Pi settings.json.',
     ...(searchedPaths.length > 0 ? ['Searched Git Bash in:', ...searchedPaths.map((candidate) => `  ${candidate}`)] : []),
   ].join('\n');

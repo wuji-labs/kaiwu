@@ -673,7 +673,7 @@ function buildRelayRuntimeServiceSpec(params: Readonly<{
 }>): ServiceSpec {
     return {
         label: params.serviceName,
-        description: `Happier Relay Runtime (${params.serviceName})`,
+        description: `Kaiwu Relay Runtime (${params.serviceName})`,
         programArgs: [params.serverBinaryPath],
         workingDirectory: params.installRoot,
         env: params.env,

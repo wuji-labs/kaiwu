@@ -3,7 +3,7 @@ title: Participant routing & live run messaging
 description: Send messages to the lead, a Claude teammate, or a running execution run from the same session UI.
 ---
 
-Happier supports **participant routing** inside a session.
+Kaiwu supports **participant routing** inside a session.
 
 That means the same session composer can target:
 
@@ -35,11 +35,11 @@ Depending on the session, the chip can list:
 - **Broadcast**
 - one or more **running execution runs**
 
-Happier remembers the selection **per screen while that screen stays open**. If you leave and reopen the screen, the selection resets to the default state for that screen.
+Kaiwu remembers the selection **per screen while that screen stays open**. If you leave and reopen the screen, the selection resets to the default state for that screen.
 
 ## View-aware automatic selection
 
-If you open a focused teammate or run transcript, Happier can auto-select that recipient for the composer.
+If you open a focused teammate or run transcript, Kaiwu can auto-select that recipient for the composer.
 
 This only happens when:
 
@@ -68,13 +68,13 @@ Sending to a Claude teammate or to Broadcast creates a **routed participant mess
 
 User-visible behavior:
 
-- Happier keeps your original text in the transcript,
+- Kaiwu keeps your original text in the transcript,
 - the transcript shows a structured card such as **To: alpha** or **To: Broadcast: qa-team**,
 - the card is visually distinct from a normal user bubble.
 
 Implementation detail that matters for users:
 
-- Happier rewrites the backend prompt that Claude receives,
+- Kaiwu rewrites the backend prompt that Claude receives,
 - but the UI does **not** show that internal Claude-specific rewrite,
 - you only see the message you actually typed.
 
@@ -86,7 +86,7 @@ This is useful when a review, delegate, or other execution run is already workin
 
 ## Execution-run delivery modes
 
-When the selected recipient is an execution run, Happier shows a **Delivery** chip.
+When the selected recipient is an execution run, Kaiwu shows a **Delivery** chip.
 
 The app currently exposes two user-facing modes:
 
@@ -96,9 +96,9 @@ This is the default.
 
 Behavior:
 
-- if the backend supports in-flight steering, Happier steers the current turn immediately,
-- otherwise Happier aborts the current turn and sends your message as the next turn,
-- the run itself keeps going; Happier does **not** kill the whole run just because steering is unavailable.
+- if the backend supports in-flight steering, Kaiwu steers the current turn immediately,
+- otherwise Kaiwu aborts the current turn and sends your message as the next turn,
+- the run itself keeps going; Kaiwu does **not** kill the whole run just because steering is unavailable.
 
 Use this when you want the least disruptive follow-up.
 
@@ -106,7 +106,7 @@ Use this when you want the least disruptive follow-up.
 
 Behavior:
 
-- Happier always aborts the current turn,
+- Kaiwu always aborts the current turn,
 - then immediately sends your new instruction as a new turn.
 
 Use this when the current turn is clearly headed in the wrong direction and you want to replace it now.
@@ -121,7 +121,7 @@ In practice:
 - a bounded run is only selectable while its active turn is still in flight,
 - once a run finishes, stops, or becomes non-sendable, it disappears from the recipient list.
 
-This is why a run can sometimes still say **running** in a broad sense but no longer offer a send control: Happier follows the runtime’s real sendability contract instead of guessing from a stale transcript state.
+This is why a run can sometimes still say **running** in a broad sense but no longer offer a send control: Kaiwu follows the runtime’s real sendability contract instead of guessing from a stale transcript state.
 
 ## How routed messages appear in the transcript
 
