@@ -721,7 +721,7 @@ describe('createOpenCodeServerRuntime', () => {
       });
       void promptPromise.catch(() => undefined);
 
-      await expect(promptPromise).rejects.toThrow(/required Happier MCP registration failed.*required bridge add failed/i);
+      await expect(promptPromise).rejects.toThrow(/required Kaiwu MCP registration failed.*required bridge add failed/i);
       expect(client.sessionPromptAsync).not.toHaveBeenCalled();
       expect(session.sendAgentMessage).toHaveBeenCalledWith(
         'opencode',
@@ -767,7 +767,7 @@ describe('createOpenCodeServerRuntime', () => {
       });
       void promptPromise.catch(() => undefined);
 
-      await expect(promptPromise).rejects.toThrow(/required Happier MCP registration failed.*bridge tools unavailable/i);
+      await expect(promptPromise).rejects.toThrow(/required Kaiwu MCP registration failed.*bridge tools unavailable/i);
       expect(client.sessionPromptAsync).not.toHaveBeenCalled();
       expect(session.sendAgentMessage).toHaveBeenCalledWith(
         'opencode',
@@ -805,7 +805,7 @@ describe('createOpenCodeServerRuntime', () => {
       });
       void promptPromise.catch(() => undefined);
 
-      await expect(promptPromise).rejects.toThrow(/required Happier MCP server configuration is missing/i);
+      await expect(promptPromise).rejects.toThrow(/required Kaiwu MCP server configuration is missing/i);
       expect(client.mcpAdd).not.toHaveBeenCalled();
       expect(client.sessionPromptAsync).not.toHaveBeenCalled();
       expect(session.sendAgentMessage).toHaveBeenCalledWith(

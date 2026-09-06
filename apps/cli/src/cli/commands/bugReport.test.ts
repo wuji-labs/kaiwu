@@ -10,7 +10,7 @@ function createDeps(overrides: Partial<BugReportCommandDependencies> = {}): BugR
   return {
     getActiveServerProfile: async () => ({
       id: 'cloud',
-      name: 'Happier Cloud',
+      name: 'Kaiwu Cloud',
       serverUrl: 'https://api.happier.dev',
       webappUrl: 'https://app.happier.dev',
     }),

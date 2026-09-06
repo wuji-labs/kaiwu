@@ -12,7 +12,7 @@ import { resolveSessionRunnerRestartEligibility } from './sessionRunnerRuntime/r
 import type { Credentials } from '@/persistence';
 
 describe('adoptSessionsFromMarkers respawn descriptor', () => {
-  it('adopts a classified runner with command drift when its process-instance fingerprint matches', () => {
+  it('adopts a classified runner with command drift when its process-instance fingerprint matches', async () => {
     const markerCommand = 'happier plugins list --json';
     const runningCommand = 'happier claude --resume sess-existing';
     const marker = {
@@ -28,7 +28,7 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     };
     const map = new Map<number, TrackedSession>();
 
-    const { adopted } = adoptSessionsFromMarkers({
+    const { adopted } = await adoptSessionsFromMarkers({
       markers: [marker],
       happyProcesses: [{ pid: 121, command: runningCommand, type: 'user-session' } satisfies HappyProcessInfo],
       pidToTrackedSession: map,
@@ -42,10 +42,10 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     });
   });
 
-  it('restores the exact active turn from the adopted runner marker without inference', () => {
+  it('restores the exact active turn from the adopted runner marker without inference', async () => {
     const command = `${process.execPath} -e "setInterval(()=>{}, 1000)"`;
     const map = new Map<number, TrackedSession>();
-    const { adopted } = adoptSessionsFromMarkers({
+    const { adopted } = await adoptSessionsFromMarkers({
       markers: [{
         pid: 122,
         happySessionId: 'sess-active-turn',
@@ -65,7 +65,7 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     expect(map.get(122)?.activeTurnId).toBe('session-turn:restored-exact');
   });
 
-  it('hydrates spawnOptions when marker includes respawn descriptor', () => {
+  it('hydrates spawnOptions when marker includes respawn descriptor', async () => {
     const command = `${process.execPath} -e "setInterval(()=>{}, 1000)"`;
     const marker = {
       pid: 123,
@@ -93,7 +93,7 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     };
 
     const map = new Map<number, TrackedSession>();
-    const { adopted } = adoptSessionsFromMarkers({
+    const { adopted } = await adoptSessionsFromMarkers({
       markers: [marker],
       happyProcesses: [{ pid: 123, command, type: 'daemon-spawned-session' } satisfies HappyProcessInfo],
       pidToTrackedSession: map,
@@ -115,7 +115,7 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     });
   });
 
-  it('applies marker metadata runtime snapshot when hydrating respawn descriptor spawn options', () => {
+  it('applies marker metadata runtime snapshot when hydrating respawn descriptor spawn options', async () => {
     const command = `${process.execPath} -e "setInterval(()=>{}, 1000)"`;
     const markerConnectedServices = {
       v: 1,
@@ -158,7 +158,7 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     };
 
     const map = new Map<number, TrackedSession>();
-    const { adopted } = adoptSessionsFromMarkers({
+    const { adopted } = await adoptSessionsFromMarkers({
       markers: [marker],
       happyProcesses: [{ pid: 124, command, type: 'daemon-spawned-session' } satisfies HappyProcessInfo],
       pidToTrackedSession: map,
@@ -177,7 +177,7 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     });
   });
 
-  it('does not set spawnOptions when marker does not include respawn descriptor', () => {
+  it('does not set spawnOptions when marker does not include respawn descriptor', async () => {
     const command = `${process.execPath} -e "setInterval(()=>{}, 1000)"`;
     const marker = {
       pid: 234,
@@ -193,7 +193,7 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     };
 
     const map = new Map<number, TrackedSession>();
-    const { adopted } = adoptSessionsFromMarkers({
+    const { adopted } = await adoptSessionsFromMarkers({
       markers: [marker],
       happyProcesses: [{ pid: 234, command, type: 'daemon-spawned-session' } satisfies HappyProcessInfo],
       pidToTrackedSession: map,
@@ -203,7 +203,7 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     expect(map.get(234)?.spawnOptions).toBeUndefined();
   });
 
-  it('rehydrates legacy respawn descriptors onto canonical codexBackendMode for daemon restarts', () => {
+  it('rehydrates legacy respawn descriptors onto canonical codexBackendMode for daemon restarts', async () => {
     const command = `${process.execPath} -e "setInterval(()=>{}, 1000)"`;
     const marker = {
       pid: 345,
@@ -225,7 +225,7 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     };
 
     const map = new Map<number, TrackedSession>();
-    const { adopted } = adoptSessionsFromMarkers({
+    const { adopted } = await adoptSessionsFromMarkers({
       markers: [marker],
       happyProcesses: [{ pid: 345, command, type: 'daemon-spawned-session' } satisfies HappyProcessInfo],
       pidToTrackedSession: map,
@@ -240,7 +240,7 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     expect(map.get(345)?.spawnOptions).not.toHaveProperty('experimentalCodexAcp');
   });
 
-  it('rehydrates encrypted respawn environment variables when credentials are available', () => {
+  it('rehydrates encrypted respawn environment variables when credentials are available', async () => {
     const credentials: Credentials = {
       token: 't',
       encryption: { type: 'legacy', secret: new Uint8Array(32).fill(9) },
@@ -280,7 +280,7 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     };
 
     const map = new Map<number, TrackedSession>();
-    const { adopted } = adoptSessionsFromMarkers({
+    const { adopted } = await adoptSessionsFromMarkers({
       markers: [marker],
       happyProcesses: [{ pid: 456, command, type: 'daemon-spawned-session' } satisfies HappyProcessInfo],
       pidToTrackedSession: map,
@@ -297,7 +297,7 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     });
   });
 
-  it('adopts daemon-started markers when command hash drifts but both commands are owned live daemon session commands', () => {
+  it('adopts daemon-started markers when command hash drifts but both commands are owned live daemon session commands', async () => {
     const runtimeEntrypoint = resolve(process.cwd(), 'dist', 'index.mjs');
     const markerCommand = `${process.execPath} ${runtimeEntrypoint} claude --happy-starting-mode remote --started-by daemon`;
     const runningCommand = `${process.execPath} ${runtimeEntrypoint} claude --happy-starting-mode remote --started-by daemon --existing-session sess-567`;
@@ -315,7 +315,7 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     };
 
     const map = new Map<number, TrackedSession>();
-    const { adopted } = adoptSessionsFromMarkers({
+    const { adopted } = await adoptSessionsFromMarkers({
       markers: [marker],
       happyProcesses: [{ pid: 567, command: runningCommand, type: 'daemon-spawned-session' } satisfies HappyProcessInfo],
       pidToTrackedSession: map,
@@ -326,7 +326,7 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     expect(map.get(567)?.reattachedFromDiskMarker).toBe(true);
   });
 
-  it('adopts daemon-started markers with respawn descriptors when the live command hash drifts and runtime command identity is degraded', () => {
+  it('adopts daemon-started markers with respawn descriptors when the live command hash drifts and runtime command identity is degraded', async () => {
     const runtimeEntrypoint = resolve(process.cwd(), '.project', 'tmp', 'cli-dist-snapshot', 'src', 'index.ts');
     const markerCommand = `${process.execPath} ${runtimeEntrypoint} claude --happy-starting-mode remote --started-by daemon`;
     const marker = {
@@ -348,7 +348,7 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     };
 
     const map = new Map<number, TrackedSession>();
-    const { adopted } = adoptSessionsFromMarkers({
+    const { adopted } = await adoptSessionsFromMarkers({
       markers: [marker],
       happyProcesses: [{ pid: 678, command: 'node', type: 'daemon-spawned-session' } satisfies HappyProcessInfo],
       pidToTrackedSession: map,
@@ -359,7 +359,7 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     expect(map.get(678)?.reattachedFromDiskMarker).toBe(true);
   });
 
-  it('adopts daemon-started respawn markers during cli-update takeover when marker command is non-owned and live command identity is degraded', () => {
+  it('adopts daemon-started respawn markers during cli-update takeover when marker command is non-owned and live command identity is degraded', async () => {
     const markerCommand = 'happier claude --happy-starting-mode remote --started-by daemon';
     const marker = {
       pid: 679,
@@ -380,7 +380,7 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     };
 
     const map = new Map<number, TrackedSession>();
-    const { adopted } = adoptSessionsFromMarkers({
+    const { adopted } = await adoptSessionsFromMarkers({
       markers: [marker],
       happyProcesses: [{ pid: 679, command: 'node', type: 'daemon-spawned-session' } satisfies HappyProcessInfo],
       pidToTrackedSession: map,
@@ -391,7 +391,7 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     expect(map.get(679)?.reattachedFromDiskMarker).toBe(true);
   });
 
-  it('adopts daemon-started respawn markers when process classification degrades to user-session during takeover', () => {
+  it('adopts daemon-started respawn markers when process classification degrades to user-session during takeover', async () => {
     const markerCommand = 'happier claude --happy-starting-mode remote --started-by daemon';
     const marker = {
       pid: 680,
@@ -412,7 +412,7 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     };
 
     const map = new Map<number, TrackedSession>();
-    const { adopted } = adoptSessionsFromMarkers({
+    const { adopted } = await adoptSessionsFromMarkers({
       markers: [marker],
       happyProcesses: [{ pid: 680, command: 'node', type: 'user-session' } satisfies HappyProcessInfo],
       pidToTrackedSession: map,
@@ -423,7 +423,7 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     expect(map.get(680)?.reattachedFromDiskMarker).toBe(true);
   });
 
-  it('restores vendorResumeId from the respawn descriptor so restart eligibility survives adoption', () => {
+  it('restores vendorResumeId from the respawn descriptor so restart eligibility survives adoption', async () => {
     const command = `${process.execPath} -e "setInterval(()=>{}, 1000)" --happy-starting-mode remote --started-by daemon`;
     const marker = {
       pid: 781,
@@ -445,7 +445,7 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     };
 
     const map = new Map<number, TrackedSession>();
-    const { adopted } = adoptSessionsFromMarkers({
+    const { adopted } = await adoptSessionsFromMarkers({
       markers: [marker],
       happyProcesses: [{ pid: 781, command, type: 'daemon-spawned-session' } satisfies HappyProcessInfo],
       pidToTrackedSession: map,
@@ -456,7 +456,7 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     expect(resolveSessionRunnerRestartEligibility(map.get(781)).eligible).toBe(true);
   });
 
-  it('backfills vendorResumeId from live argv when the descriptor lacks resume identity', () => {
+  it('backfills vendorResumeId from live argv when the descriptor lacks resume identity', async () => {
     const command = `${process.execPath} -e "setInterval(()=>{}, 1000)" --resume vendor-argv-782 --happy-starting-mode remote --started-by daemon`;
     const marker = {
       pid: 782,
@@ -477,7 +477,7 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     };
 
     const map = new Map<number, TrackedSession>();
-    const { adopted } = adoptSessionsFromMarkers({
+    const { adopted } = await adoptSessionsFromMarkers({
       markers: [marker],
       happyProcesses: [{ pid: 782, command, type: 'daemon-spawned-session' } satisfies HappyProcessInfo],
       pidToTrackedSession: map,

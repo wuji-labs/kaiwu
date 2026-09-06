@@ -1854,7 +1854,7 @@ export const de: TranslationStructure = {
         developerTools: 'Entwickler-Tools',
         about: 'Über',
         actionsSettingsAboutSubtitle: 'Aktionen global aktivieren oder deaktivieren, pro Oberfläche (UI/Voice/MCP) und pro Platzierung (wo sie in der UI erscheinen). Deaktivierte Aktionen sind zur Laufzeit fail-closed.',
-        aboutFooter: 'Kaiwu ist ein mobiler Client für Codex, Claude Code und OpenCode. Standardmäßig Ende-zu-Ende-verschlüsselt, mit Kontowiederherstellung für deine anderen Geräte. Nicht mit Anthropic verbunden.',
+        aboutFooter: 'Kaiwu wird von WUJI-Labs entwickelt und von Qianyuan Zhizhong (Nanjing) Technology Co., Ltd. betrieben. Standardmäßig Ende-zu-Ende-verschlüsselt, mit Kontowiederherstellung auf deinen anderen Geräten. Nicht mit Anthropic, OpenAI oder anderen Modellanbietern verbunden; Claude, Codex und andere sind Marken ihrer jeweiligen Inhaber.',
         whatsNew: 'Neuigkeiten',
         whatsNewSubtitle: 'Die neuesten Updates und Verbesserungen ansehen',
         reportIssue: 'Problem melden',

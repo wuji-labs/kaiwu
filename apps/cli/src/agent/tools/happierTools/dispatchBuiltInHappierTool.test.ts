@@ -115,7 +115,7 @@ describe('built-in Happier tools', () => {
     expect(result).toEqual({
       ok: false,
       errorCode: 'unknown_tool',
-      error: 'Unknown built-in Happier tool: change_title',
+      error: 'Unknown built-in Kaiwu tool: change_title',
     });
     expect(changeTitle).not.toHaveBeenCalled();
   });
@@ -419,7 +419,7 @@ describe('built-in Happier tools', () => {
     expect(result).toEqual({
       ok: false,
       errorCode: 'unknown_tool',
-      error: 'Unknown built-in Happier tool: review_start',
+      error: 'Unknown built-in Kaiwu tool: review_start',
     });
     expect(executeActionByToolName).not.toHaveBeenCalled();
   });

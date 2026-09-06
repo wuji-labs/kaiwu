@@ -52,7 +52,7 @@ export const SettingsView = React.memo(function SettingsView() {
     const { width, height } = useWindowDimensions();
     const appVersion = Constants.expoConfig?.version || '1.0.0';
     const auth = useAuth();
-    const isPhoneSizedWeb = Platform.OS === 'web' && isWebMobileLikeQrScannerHost({ width, height });
+    const isPhoneSizedWeb = Platform.OS === 'web' && (Math.min(width, height) <= 500 || isWebMobileLikeQrScannerHost({ width, height }));
     const [devModeEnabled, setDevModeEnabled] = useLocalSettingMutable('devModeEnabled');
     const voiceEntitlement = useEntitlement('voice');
     const isPro = __DEV__ || voiceEntitlement;

@@ -1,7 +1,7 @@
 import { classifyProcessByPid } from './doctor';
 import { hashProcessCommand } from './sessionRegistry';
 import type { ProcessRunState } from './processRunState';
-import { readProcessInstanceFingerprintSync } from '@happier-dev/cli-common/processInstance';
+import { readProcessInstanceFingerprint } from '@happier-dev/cli-common/processInstance';
 
 export type SessionRunnerProcessIdentity =
   | Readonly<{ kind: 'happy'; processCommandHash: string; processInstanceFingerprint?: string }>
@@ -15,7 +15,7 @@ export type SessionRunnerProcessIdentity =
  * null when the PID was inspected and is not Happy, and throw when identity is unknown.
  */
 export type SessionRunnerProcessCommandHashReader = (pid: number) => Promise<string | null>;
-export type SessionRunnerProcessInstanceFingerprintReader = (pid: number) => string | null;
+export type SessionRunnerProcessInstanceFingerprintReader = (pid: number) => Promise<string | null> | string | null;
 
 export function isValidProcessCommandHash(value: string | null | undefined): value is string {
   return typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
@@ -26,7 +26,7 @@ async function readInjectedProcessIdentity(
   getProcessCommandHash: SessionRunnerProcessCommandHashReader,
   getProcessInstanceFingerprint: SessionRunnerProcessInstanceFingerprintReader,
 ): Promise<SessionRunnerProcessIdentity> {
-  const processInstanceFingerprint = getProcessInstanceFingerprint(pid) ?? undefined;
+  const processInstanceFingerprint = (await Promise.resolve(getProcessInstanceFingerprint(pid))) ?? undefined;
   try {
     const processCommandHash = await getProcessCommandHash(pid);
     if (isValidProcessCommandHash(processCommandHash)) {
@@ -45,12 +45,12 @@ export async function readSessionRunnerProcessIdentity(params: Readonly<{
   getProcessCommandHash?: SessionRunnerProcessCommandHashReader;
   getProcessInstanceFingerprint?: SessionRunnerProcessInstanceFingerprintReader;
 }>): Promise<SessionRunnerProcessIdentity> {
-  const getProcessInstanceFingerprint = params.getProcessInstanceFingerprint ?? readProcessInstanceFingerprintSync;
+  const getProcessInstanceFingerprint = params.getProcessInstanceFingerprint ?? readProcessInstanceFingerprint;
   if (params.getProcessCommandHash) {
     return await readInjectedProcessIdentity(params.pid, params.getProcessCommandHash, getProcessInstanceFingerprint);
   }
 
-  const processInstanceFingerprint = getProcessInstanceFingerprint(params.pid) ?? undefined;
+  const processInstanceFingerprint = (await Promise.resolve(getProcessInstanceFingerprint(params.pid))) ?? undefined;
   const classified = await classifyProcessByPid(params.pid).catch(() => ({ kind: 'unknown' as const }));
   if (classified.kind === 'happy') {
     return {
@@ -64,6 +64,7 @@ export async function readSessionRunnerProcessIdentity(params: Readonly<{
   }
   return { kind: 'unknown', ...(processInstanceFingerprint ? { processInstanceFingerprint } : {}) };
 }
+
 
 export function storedProcessIdentityProvesPidReuse(params: Readonly<{
   storedProcessInstanceFingerprint: string | null | undefined;

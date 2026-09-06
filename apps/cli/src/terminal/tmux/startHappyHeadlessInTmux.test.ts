@@ -76,7 +76,7 @@ describe.sequential('startHappyHeadlessInTmux', () => {
 
     await startHappyHeadlessInTmux([]);
 
-    expect(output.lines.some((line) => line.includes('Started Happier in tmux'))).toBe(true);
+    expect(output.lines.some((line) => line.includes('Started Kaiwu in tmux'))).toBe(true);
     expect(output.lines.some((line) => line.includes('tmux select-window -t') && line.includes('picked:happy-123-claude'))).toBe(true);
     expect(output.lines.some((line) => line.includes('tmux attach -t'))).toBe(false);
   }, 15_000);

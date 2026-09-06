@@ -170,7 +170,7 @@ export default React.memo(() => {
         }
     };
 
-    const isPhoneSizedWeb = Platform.OS === 'web' && isWebMobileLikeQrScannerHost({ width, height });
+    const isPhoneSizedWeb = Platform.OS === 'web' && (Math.min(width, height) <= 500 || isWebMobileLikeQrScannerHost({ width, height }));
     const showAddYourPhone = isRunningOnMac() || (Platform.OS === 'web' && !isPhoneSizedWeb);
     const showLinkNewDevice = !isRunningOnMac() && (Platform.OS !== 'web' || isPhoneSizedWeb);
     const showAccountAccessGroup = showAddYourPhone || showLinkNewDevice;

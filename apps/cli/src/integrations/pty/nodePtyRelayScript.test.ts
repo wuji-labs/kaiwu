@@ -57,9 +57,29 @@ function createRelayScriptHarness(
     },
   });
 
+  let timerIdSequence = 0;
+  const activeTimers = new Map<number, NodeJS.Timeout>();
+  const mockSetTimeout = (callback: () => void, delay: number) => {
+    const id = ++timerIdSequence;
+    const timeout = setTimeout(() => {
+      activeTimers.delete(id);
+      callback();
+    }, delay);
+    activeTimers.set(id, timeout);
+    return id as unknown as NodeJS.Timeout;
+  };
+  const mockClearTimeout = (id: NodeJS.Timeout) => {
+    if (typeof id === 'number' && activeTimers.has(id)) {
+      clearTimeout(activeTimers.get(id)!);
+      activeTimers.delete(id);
+    }
+  };
+
   vm.runInNewContext(source, {
     Buffer,
     process: fakeProcess,
+    setTimeout: mockSetTimeout,
+    clearTimeout: mockClearTimeout,
     require: (id: string) => {
       if (Object.prototype.hasOwnProperty.call(modules, id)) {
         const value = modules[id];

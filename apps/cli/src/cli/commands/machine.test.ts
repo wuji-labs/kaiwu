@@ -378,7 +378,7 @@ describe('handleMachineCommand', () => {
                 tsMs: 1,
                 type: 'prompt',
                 stepId: 'daemon.service.preflight',
-                message: 'Remote machine already has Happier background services. Replace them with the selected release channel?',
+                message: 'Remote machine already has Kaiwu background services. Replace them with the selected release channel?',
                 data: {
                   kind: 'daemon.replaceRemoteBackgroundServices',
                   targetServerUrl: 'https://relay.example.test',

@@ -27,7 +27,7 @@ const emptyAdoptResult = {
   eligible: 0,
   adoptedPids: [],
   respawnRestoreErrors: [],
-} satisfies ReturnType<typeof adoptSessionsFromMarkers>;
+} satisfies Awaited<ReturnType<typeof adoptSessionsFromMarkers>>;
 
 function mockHappyProcessesForDiscovery(processes: ReadonlyArray<HappyProcessInfo>): void {
   vi.mocked(findAllHappyProcesses).mockResolvedValue([...processes]);
@@ -68,7 +68,7 @@ vi.mock('../doctor', () => ({
 }));
 
 vi.mock('../reattach', () => ({
-  adoptSessionsFromMarkers: vi.fn(() => emptyAdoptResult),
+  adoptSessionsFromMarkers: vi.fn(async () => emptyAdoptResult),
   isOwnedLiveDaemonSessionProcessCommand: isOwnedLiveDaemonSessionProcessCommandMock,
 }));
 
@@ -770,7 +770,7 @@ describe('reattachTrackedSessionsFromMarkers', () => {
           '/home/guest/.happier/cli-preview/current/happier claude --happy-starting-mode remote --started-by daemon --existing-session session-live-terminal-restart',
       } satisfies HappyProcessInfo,
     ]);
-    vi.mocked(adoptSessionsFromMarkers).mockImplementationOnce(({ pidToTrackedSession }) => {
+    vi.mocked(adoptSessionsFromMarkers).mockImplementationOnce(async ({ pidToTrackedSession }) => {
       pidToTrackedSession.set(24684, {
         startedBy: 'daemon',
         happySessionId: 'session-live-terminal-restart',
@@ -1415,7 +1415,7 @@ describe('reattachTrackedSessionsFromMarkers', () => {
       } as any,
     ]);
     vi.spyOn(process, 'kill').mockImplementation(() => true);
-    vi.mocked(adoptSessionsFromMarkers).mockReturnValue(emptyAdoptResult);
+    vi.mocked(adoptSessionsFromMarkers).mockResolvedValue(emptyAdoptResult);
 
     const pidToTrackedSession = new Map<number, TrackedSession>();
     await reattachTrackedSessionsFromMarkers({ pidToTrackedSession });
@@ -1726,7 +1726,7 @@ describe('reattachTrackedSessionsFromMarkers', () => {
       markedProcess,
       markerlessProcess,
     ]);
-    vi.mocked(adoptSessionsFromMarkers).mockImplementationOnce(({ pidToTrackedSession }) => {
+    vi.mocked(adoptSessionsFromMarkers).mockImplementationOnce(async ({ pidToTrackedSession }) => {
       pidToTrackedSession.set(markedProcess.pid, {
         pid: markedProcess.pid,
         startedBy: 'daemon',
@@ -1834,7 +1834,7 @@ describe('reattachTrackedSessionsFromMarkers', () => {
         command: 'happy codex --existing-session session-123',
       } satisfies HappyProcessInfo,
     ]);
-    vi.mocked(adoptSessionsFromMarkers).mockImplementationOnce(({ pidToTrackedSession }) => {
+    vi.mocked(adoptSessionsFromMarkers).mockImplementationOnce(async ({ pidToTrackedSession }) => {
       pidToTrackedSession.set(22222, {
         pid: 22222,
         startedBy: 'terminal',
@@ -1907,7 +1907,7 @@ describe('reattachTrackedSessionsFromMarkers', () => {
         command: 'happy opencode --existing-session session-opencode-live-owner',
       } satisfies HappyProcessInfo,
     ]);
-    vi.mocked(adoptSessionsFromMarkers).mockImplementationOnce(({ pidToTrackedSession }) => {
+    vi.mocked(adoptSessionsFromMarkers).mockImplementationOnce(async ({ pidToTrackedSession }) => {
       pidToTrackedSession.set(22223, {
         pid: 22223,
         startedBy: 'terminal',

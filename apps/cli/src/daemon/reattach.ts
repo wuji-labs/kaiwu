@@ -13,7 +13,7 @@ import {
 import type { SpawnSessionOptions } from '@/rpc/handlers/registerSessionHandlers';
 import { resolveSessionRuntimeSnapshot } from './sessions/runtimeSnapshot/resolveSessionRuntimeSnapshot';
 import { extractResumeIdFromCommand } from './sessions/extractResumeIdFromCommand';
-import { readProcessInstanceFingerprintSync } from '@happier-dev/cli-common/processInstance';
+import { readProcessInstanceFingerprint, readProcessInstanceFingerprintSync } from '@happier-dev/cli-common/processInstance';
 
 type AdoptSessionsFromMarkersResult = Readonly<{
   adopted: number;
@@ -153,17 +153,17 @@ function canAdoptDaemonStartedHashDriftMarker(params: Readonly<{
   );
 }
 
-export function adoptSessionsFromMarkers(params: {
+export async function adoptSessionsFromMarkers(params: {
   markers: DaemonSessionMarker[];
   happyProcesses: HappyProcessInfo[];
   pidToTrackedSession: Map<number, TrackedSession>;
   credentials?: Credentials | null;
-  readProcessInstanceFingerprint?: typeof readProcessInstanceFingerprintSync;
-}): AdoptSessionsFromMarkersResult {
+  readProcessInstanceFingerprint?: (pid: number) => Promise<string | null> | string | null;
+}): Promise<AdoptSessionsFromMarkersResult> {
   const happyPidToType = new Map(params.happyProcesses.map((p) => [p.pid, p.type] as const));
   const happyPidToCommandHash = new Map(params.happyProcesses.map((p) => [p.pid, hashProcessCommand(p.command)] as const));
   const happyPidToCommand = new Map(params.happyProcesses.map((p) => [p.pid, p.command] as const));
-  const readProcessInstanceFingerprint = params.readProcessInstanceFingerprint ?? readProcessInstanceFingerprintSync;
+  const readProcessInstanceFingerprintImpl = params.readProcessInstanceFingerprint ?? readProcessInstanceFingerprint;
 
   let adopted = 0;
   let eligible = 0;
@@ -179,7 +179,7 @@ export function adoptSessionsFromMarkers(params: {
     }
     eligible++;
 
-    const currentProcessInstanceFingerprint = readProcessInstanceFingerprint(marker.pid) ?? undefined;
+    const currentProcessInstanceFingerprint = (await Promise.resolve(readProcessInstanceFingerprintImpl(marker.pid))) ?? undefined;
     if (
       marker.processInstanceFingerprint
       && currentProcessInstanceFingerprint !== marker.processInstanceFingerprint

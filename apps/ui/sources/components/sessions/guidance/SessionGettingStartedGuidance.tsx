@@ -240,11 +240,12 @@ function resolveAppVariantForCliInstall(): AppVariant {
     );
 }
 
-function buildCliInstallCommand(options?: Readonly<{ suppressAutomaticSetup?: boolean }>): string {
+function buildCliInstallCommand(options?: Readonly<{ suppressAutomaticSetup?: boolean; platform?: 'windows' | 'posix' }>): string {
     return buildHappierCliInstallCommand({
         appVariant: resolveAppVariantForCliInstall(),
         distTagOverride: config.cliNpmDistTag,
         suppressAutomaticSetup: options?.suppressAutomaticSetup,
+        platform: options?.platform,
     });
 }
 
@@ -284,15 +285,24 @@ function buildSteps(model: SessionGettingStartedGuidanceViewModel): SessionGetti
         case 'connect_machine': {
             const steps: SessionGettingStartedGuidanceStep[] = [];
             const cliCommandName = buildCliCommandName();
+            // 操作者通常在手机/网页上看这段引导，而要安装的是另一台电脑——不能按浏览器系统猜。
+            // 两条命令都给：Windows 在前（我方用户以 Windows 为主），macOS/Linux 在后。
             steps.push({
                 id: 'install_cli',
-                title: t('sessionGettingStarted.steps.installCli.title'),
+                title: `${t('sessionGettingStarted.steps.installCli.title')} · Windows`,
+                description: t('sessionGettingStarted.steps.installCli.description'),
+                command: buildCliInstallCommand({ suppressAutomaticSetup: true, platform: 'windows' }),
+                copyLabel: t('sessionGettingStarted.steps.installCli.copyLabel'),
+            });
+            steps.push({
+                id: 'install_cli_unix',
+                title: `${t('sessionGettingStarted.steps.installCli.title')} · macOS / Linux`,
                 description: t('sessionGettingStarted.steps.installCli.description'),
                 // This card already knows which relay the user is connecting.
                 // Suppress the installer's generic automatic handoff, then let
                 // the one target-bound setup command own relay selection,
                 // authentication, and service reconciliation.
-                command: buildCliInstallCommand({ suppressAutomaticSetup: true }),
+                command: buildCliInstallCommand({ suppressAutomaticSetup: true, platform: 'posix' }),
                 copyLabel: t('sessionGettingStarted.steps.installCli.copyLabel'),
             });
             steps.push({

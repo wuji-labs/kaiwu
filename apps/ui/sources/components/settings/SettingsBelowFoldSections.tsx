@@ -402,14 +402,14 @@ const SettingsAboutSection = React.memo(function SettingsAboutSection({
                 />
             ) : null}
             <Item
-                title="无极开物"
+                title="官方网站"
                 icon={<Icon name="globe" size={29} color={theme.colors.text.primary} />}
                 subtitle="chengqiyun.com"
                 onPress={handleGitHub}
             />
             <Item
                 title="无极开物"
-                subtitle="WUJI-Labs 出品｜乾元执中（南京）科技有限公司｜基于开源项目 happier-dev/happier 二次开发 · https://github.com/happier-dev/happier · MIT License"
+                subtitle="WUJI-Labs 出品｜乾元执中（南京）科技有限公司"
                 icon={<Icon name="info" size={29} color={theme.colors.text.secondary} />}
                 showChevron={false}
             />
@@ -422,7 +422,7 @@ const SettingsAboutSection = React.memo(function SettingsAboutSection({
                 title={t('settings.privacyPolicy')}
                 icon={<Icon name="shield-check" size={29} color={theme.colors.accent.blue} />}
                 onPress={async () => {
-                    const url = 'https://chengqiyun.com';
+                    const url = 'https://kaiwu.chengqiyun.com/docs/legal/privacy';
                     const supported = await Linking.canOpenURL(url);
                     if (supported) {
                         await Linking.openURL(url);
@@ -433,7 +433,7 @@ const SettingsAboutSection = React.memo(function SettingsAboutSection({
                 title={t('settings.termsOfService')}
                 icon={<Icon name="file-text" size={29} color={theme.colors.accent.blue} />}
                 onPress={async () => {
-                    const url = 'https://chengqiyun.com';
+                    const url = 'https://kaiwu.chengqiyun.com/docs/legal/terms';
                     const supported = await Linking.canOpenURL(url);
                     if (supported) {
                         await Linking.openURL(url);

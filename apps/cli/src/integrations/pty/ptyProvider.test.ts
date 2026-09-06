@@ -93,9 +93,8 @@ afterEach(() => {
 });
 
 describe('createNodePtyProvider', () => {
-  it('uses the compiled binary path as the require base inside embedded bun bundles', async () => {
-    vi.resetModules();
-    const { resolvePtyProviderRequireBase } = await import('@/integrations/pty/ptyProvider');
+  it('uses the compiled binary path as the require base inside embedded bun bundles', () => {
+    const { resolvePtyProviderRequireBase } = require('@/integrations/pty/ptyProvider');
     expect(
       resolvePtyProviderRequireBase({
         importMetaUrl: 'file:///$bunfs/root/happier',
@@ -104,9 +103,8 @@ describe('createNodePtyProvider', () => {
     ).toBe('/Applications/Happier.app/Contents/MacOS/happier');
   });
 
-  it('keeps the module url as the require base for source-mode runs', async () => {
-    vi.resetModules();
-    const { resolvePtyProviderRequireBase } = await import('@/integrations/pty/ptyProvider');
+  it('keeps the module url as the require base for source-mode runs', () => {
+    const { resolvePtyProviderRequireBase } = require('@/integrations/pty/ptyProvider');
     expect(
       resolvePtyProviderRequireBase({
         importMetaUrl: 'file:///Users/tester/dev/apps/cli/dist/integrations/pty/ptyProvider.js',
@@ -115,9 +113,8 @@ describe('createNodePtyProvider', () => {
     ).toBe('file:///Users/tester/dev/apps/cli/dist/integrations/pty/ptyProvider.js');
   });
 
-  it('uses the real packaged entrypoint as the require base for embedded Windows child processes', async () => {
-    vi.resetModules();
-    const { resolvePtyProviderRequireBase } = await import('@/integrations/pty/ptyProvider');
+  it('uses the real packaged entrypoint as the require base for embedded Windows child processes', () => {
+    const { resolvePtyProviderRequireBase } = require('@/integrations/pty/ptyProvider');
     expect(
       resolvePtyProviderRequireBase({
         importMetaUrl: 'file:///B:/%7EBUN/root/happier.exe',
@@ -279,11 +276,12 @@ describe('createNodePtyProvider', () => {
 
   it('tries packaged absolute module paths when bare PTY module resolution misses', async () => {
     const pty = createFakeProcess();
-    const nodePty = { spawn: vi.fn(() => pty) };
+    const nodePtyModule = { spawn: vi.fn(() => pty) };
     const absoluteNodePty = 'C:/Users/test/happier-v0.2.10-windows-x64/node_modules/node-pty';
 
     const { provider, requireCalls } = await loadProviderWithModules({
-      [absoluteNodePty]: nodePty,
+      'node-pty': new Error('not found'),
+      [absoluteNodePty]: nodePtyModule,
     }, {
       argv: [
         'bun',
@@ -306,12 +304,14 @@ describe('createNodePtyProvider', () => {
 
   it('tries packaged package entry files when Bun cannot resolve absolute package directories', async () => {
     const pty = createFakeProcess();
-    const nodePty = { spawn: vi.fn(() => pty) };
+    const nodePtyModule = { spawn: vi.fn(() => pty) };
     const packageDir = 'C:/Users/test/happier-v0.2.10-windows-x64/node_modules/node-pty';
     const packageEntry = 'C:/Users/test/happier-v0.2.10-windows-x64/node_modules/node-pty/lib/index.js';
 
     const { provider, requireCalls } = await loadProviderWithModules({
-      [packageEntry]: nodePty,
+      'node-pty': new Error('not found'),
+      [packageDir]: new Error('not found'),
+      [packageEntry]: nodePtyModule,
     }, {
       argv: [
         'bun',
@@ -337,11 +337,12 @@ describe('createNodePtyProvider', () => {
 
   it('tries packaged module paths next to the self-contained Windows executable', async () => {
     const pty = createFakeProcess();
-    const nodePty = { spawn: vi.fn(() => pty) };
+    const nodePtyModule = { spawn: vi.fn(() => pty) };
     const packageDir = 'C:/Users/test/happier-v0.2.10-windows-x64/node_modules/node-pty';
 
     const { provider, requireCalls } = await loadProviderWithModules({
-      [packageDir]: nodePty,
+      'node-pty': new Error('not found'),
+      [packageDir]: nodePtyModule,
     }, {
       currentExecPath: 'C:\\Users\\test\\happier-v0.2.10-windows-x64\\happier.exe',
       argv: [

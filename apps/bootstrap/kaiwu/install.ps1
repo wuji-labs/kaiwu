@@ -7,7 +7,7 @@ $ErrorActionPreference = "Stop"
 
 $KAIWU_SERVER_URL = if ($env:HAPPIER_SERVER_URL) { $env:HAPPIER_SERVER_URL } else { "https://kaiwu.chengqiyun.com" }
 $LATEST_METADATA_URL = "https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/latest.json"
-$FALLBACK_TGZ_URL = "https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/0.2.11/kaiwu-cli-0.2.11.tgz"
+$FALLBACK_TGZ_URL = "https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/0.2.12/kaiwu-cli-0.2.12.tgz"
 
 function Write-Info {
     param([string]$Message)
@@ -76,7 +76,7 @@ if (-not $hasNode) {
 # 2. 获取发布信息
 Write-Info "获取最新开物 CLI 发布信息..."
 $tgzUrl = $FALLBACK_TGZ_URL
-$version = "0.2.11"
+$version = "0.2.12"
 
 try {
     $metaJson = Invoke-RestMethod -Uri $LATEST_METADATA_URL -UseBasicParsing -TimeoutSec 10

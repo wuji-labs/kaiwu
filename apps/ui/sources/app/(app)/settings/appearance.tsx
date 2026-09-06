@@ -415,20 +415,22 @@ export default React.memo(function AppearanceSettingsScreen() {
                         setUiContentWidthMode(itemId);
                     }}
                 />
-                <Item
-                    title={t('settingsAppearance.multiPanePanels')}
-                    subtitle={t('settingsAppearance.multiPanePanelsDescription')}
-                    icon={<Icon name="browsers" size={29} color={theme.colors.accent.blue} />}
-                    rightElement={
-                        <Switch
-                            value={uiMultiPanePanelsEnabled}
-                            onValueChange={setUiMultiPanePanelsEnabled}
-                            disabled={!panelsSupported}
-                        />
-                    }
-                    disabled={!panelsSupported}
-                    showChevron={false}
-                />
+                {panelsSupported ? (
+                    <Item
+                        title={t('settingsAppearance.multiPanePanels')}
+                        subtitle={t('settingsAppearance.multiPanePanelsDescription')}
+                        icon={<Icon name="browsers" size={29} color={theme.colors.accent.blue} />}
+                        rightElement={
+                            <Switch
+                                value={uiMultiPanePanelsEnabled}
+                                onValueChange={setUiMultiPanePanelsEnabled}
+                                disabled={!panelsSupported}
+                            />
+                        }
+                        disabled={!panelsSupported}
+                        showChevron={false}
+                    />
+                ) : null}
                 <Item
                     title={t('settingsAppearance.backdropBlur')}
                     subtitle={t('settingsAppearance.backdropBlurDescription')}

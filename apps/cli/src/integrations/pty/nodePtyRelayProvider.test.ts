@@ -367,4 +367,28 @@ describe('createNodePtyRelayProvider', () => {
 
     expect(() => pty.resize(120, 40)).toThrow('terminal_resize_unavailable');
   });
+
+  it('reports process exit when close never fires but streams end', () => {
+    const fakeChild = createFakeChildProcess();
+    const provider = createNodePtyRelayProvider({
+      platform: 'win32',
+      resolveNodeExecutable: () => 'C:\\Users\\test\\.happier\\tools\\js-runtime\\current\\bin\\happier-js-runtime.cmd',
+      relayScriptPath: 'C:\\happier\\scripts\\node_pty_relay.cjs',
+      spawnProcess: vi.fn(() => fakeChild as unknown as ChildProcessWithoutNullStreams),
+      resolveCommandInvocation: passthroughCommandInvocation,
+    });
+    const pty = provider!.spawn({
+      file: 'C:\\managed\\node.exe',
+      args: [],
+      options: { cwd: 'C:\\workspace', env: { PATH: 'C:\\Windows\\System32' } },
+    } satisfies PtySpawnParams);
+    const onExit = vi.fn();
+    pty.onExit(onExit);
+
+    fakeChild.emit('exit', 0, null);
+    fakeChild.stdout.emit('end');
+    fakeChild.stderr.emit('end');
+
+    expect(onExit).toHaveBeenCalledWith({ exitCode: 0 });
+  });
 });
