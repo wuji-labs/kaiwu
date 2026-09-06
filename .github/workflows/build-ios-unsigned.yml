@@ -1,0 +1,141 @@
+name: BUILD — iOS Unsigned (Kaiwu)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-ios-unsigned-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build_unsigned_ios:
+    name: Build Unsigned iOS IPA
+    runs-on: macos-15
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.x
+          cache: yarn
+          cache-dependency-path: yarn.lock
+
+      - name: Enable Corepack (Yarn)
+        run: |
+          set -euo pipefail
+          corepack enable
+          corepack prepare yarn@1.22.22 --activate
+
+      - name: Install dependencies
+        env:
+          YARN_PRODUCTION: "false"
+          npm_config_production: "false"
+        run: |
+          set -euo pipefail
+          corepack yarn install --frozen-lockfile --network-concurrency 8 || corepack yarn install --network-concurrency 8
+
+      - name: Build internal packages
+        run: |
+          set -euo pipefail
+          corepack yarn build:packages
+
+      - name: Ensure UI workspace packages built
+        run: |
+          set -euo pipefail
+          cd apps/ui
+          corepack yarn -s ensure:workspace:built
+
+      - name: Prebuild iOS project
+        env:
+          APP_ENV: production
+          EXPO_UNSTABLE_WEB_MODAL: "1"
+        run: |
+          set -euo pipefail
+          cd apps/ui
+          npx expo prebuild --platform ios --no-install
+
+      - name: Install CocoaPods
+        run: |
+          set -euo pipefail
+          cd apps/ui/ios
+          pod install
+
+      - name: Discover workspace and scheme
+        id: xcode_meta
+        run: |
+          set -euo pipefail
+          cd apps/ui/ios
+          xcodebuild -list -json > xcode_list.json
+          cat xcode_list.json
+          WORKSPACE=$(find . -maxdepth 1 -name "*.xcworkspace" | head -n 1)
+          if [ -z "$WORKSPACE" ]; then
+            echo "No .xcworkspace found!" >&2
+            exit 1
+          fi
+          # Scheme name from xcodebuild -list
+          SCHEME=$(node -e '
+            const fs = require("fs");
+            const data = JSON.parse(fs.readFileSync("xcode_list.json", "utf8"));
+            const schemes = data.workspace?.schemes || data.project?.schemes || [];
+            // Prefer scheme matching "无极开物" or first non-Pods scheme
+            const target = schemes.find(s => s.includes("无极开物") || s.toLowerCase().includes("kaiwu")) || schemes.find(s => s !== "Pods") || schemes[0];
+            if (!target) throw new Error("No scheme found");
+            console.log(target);
+          ')
+          echo "Found workspace: $WORKSPACE, scheme: $SCHEME"
+          echo "workspace=$WORKSPACE" >> "$GITHUB_OUTPUT"
+          echo "scheme=$SCHEME" >> "$GITHUB_OUTPUT"
+
+      - name: Archive iOS (Unsigned)
+        env:
+          WORKSPACE: ${{ steps.xcode_meta.outputs.workspace }}
+          SCHEME: ${{ steps.xcode_meta.outputs.scheme }}
+        run: |
+          set -euo pipefail
+          cd apps/ui/ios
+          xcodebuild -workspace "$WORKSPACE" \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/kaiwu.xcarchive" \
+            archive \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            DEVELOPMENT_TEAM="" \
+            -allowProvisioningUpdates=NO \
+            -quiet
+
+      - name: Package unsigned IPA
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p "require('./apps/ui/package.json').version")
+          echo "App version: $VERSION"
+          mkdir -p Payload
+          cp -R "$RUNNER_TEMP/kaiwu.xcarchive/Products/Applications/"*.app Payload/
+
+          echo "=== Info.plist Proof ==="
+          plutil -p Payload/*.app/Info.plist | grep -E "CFBundleIdentifier|CFBundleDisplayName|CFBundleShortVersionString"
+
+          IPA_NAME="kaiwu-${VERSION}-unsigned.ipa"
+          zip -qry "$IPA_NAME" Payload
+          ls -lh "$IPA_NAME"
+          echo "ipa_name=$IPA_NAME" >> "$GITHUB_OUTPUT"
+          echo "app_version=$VERSION" >> "$GITHUB_OUTPUT"
+        id: package_ipa
+
+      - name: Upload unsigned IPA artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: kaiwu-ios-unsigned
+          path: ${{ steps.package_ipa.outputs.ipa_name }}
+          retention-days: 7
