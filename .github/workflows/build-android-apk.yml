@@ -135,11 +135,7 @@ jobs:
           set -euo pipefail
           cd apps/ui/android
           chmod +x gradlew
-          ./gradlew assembleRelease \
-            --parallel \
-            --build-cache \
-            --no-daemon \
-            -x bundleRelease 2>&1 | head -500 && echo "... (truncated logs)" || true
+          ./gradlew assembleRelease --no-daemon --stacktrace -x bundleRelease
 
       - name: Locate APK
         id: locate_apk
