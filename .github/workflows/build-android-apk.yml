@@ -100,6 +100,27 @@ jobs:
           cd apps/ui
           npx expo prebuild --platform android --no-install
 
+      - name: Patch google-services.json for com.wujilabs.kaiwu
+        run: |
+          set -euo pipefail
+          python3 - <<'PYEOF'
+          import json, copy
+          p = "apps/ui/android/app/google-services.json"
+          d = json.load(open(p))
+          pkgs = [c.get("client_info", {}).get("android_client_info", {}).get("package_name") for c in d.get("client", [])]
+          if "com.wujilabs.kaiwu" not in pkgs:
+              for c in d.get("client", []):
+                  if c.get("client_info", {}).get("android_client_info", {}).get("package_name") == "dev.happier.app":
+                      cloned = copy.deepcopy(c)
+                      cloned["client_info"]["android_client_info"]["package_name"] = "com.wujilabs.kaiwu"
+                      d["client"].append(cloned)
+                      break
+              json.dump(d, open(p, "w"), indent=2)
+              print("Patched google-services.json successfully")
+          else:
+              print("Already present in google-services.json")
+          PYEOF
+
       - name: Inject release signing config
         run: |
           set -euo pipefail
