@@ -126,6 +126,7 @@ jobs:
 
       - name: Build Android Release APK
         env:
+          SENTRY_DISABLE_AUTO_UPLOAD: "true"
           ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
           ORG_GRADLE_PROJECT_KAIWU_RELEASE_STORE_FILE: /tmp/kaiwu-release.jks
           ORG_GRADLE_PROJECT_KAIWU_RELEASE_STORE_PASSWORD: ${{ secrets.KAIWU_KEYSTORE_PASSWORD }}
