@@ -158,7 +158,7 @@ export const CLAUDE_REMOTE_PROVIDER_FIELDS = {
   claudeUnifiedTerminalWorkspaceTrust: {
     schema: z.enum(CLAUDE_UNIFIED_TERMINAL_WORKSPACE_TRUST_POLICIES),
     default: 'ask_every_time' as ClaudeUnifiedTerminalWorkspaceTrustPolicy,
-    description: 'How Claude unified terminal should answer Happier workspace trust prompts',
+    description: 'How Claude unified terminal should answer Kaiwu workspace trust prompts',
     storageScope: 'account',
     analytics: { trackCurrentState: true, trackChanges: true, valueKind: 'enum', privacy: 'safe', identityScope: 'person' },
   },

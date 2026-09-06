@@ -3,7 +3,7 @@ title: Mobile (iOS)
 description: Optional iOS development and dev-client workflow for local stacks.
 ---
 
-This is optional. Most people can use the served web UI on mobile via Tailscale or point the Happier app at their self-hosted relay (see [App → Relay selection](/apps/app#relay-selection)).
+This is optional. Most people can use the served web UI on mobile via Tailscale or point the Kaiwu app at their self-hosted relay (see [App → Relay selection](/apps/app#relay-selection)).
 
 ## Prereqs (one-time)
 
@@ -70,8 +70,8 @@ Notes:
 Install an isolated app for a specific stack (unique bundle id + scheme, Release config, no Metro):
 
 ```bash
-hstack stack mobile:install <stack> --name="Happier (<stack>)"
-hstack stack mobile:install <stack> --name="Happier PR 272" --device="Your iPhone"
+hstack stack mobile:install <stack> --name="Kaiwu (<stack>)"
+hstack stack mobile:install <stack> --name="Kaiwu PR 272" --device="Your iPhone"
 ```
 
 The chosen app name is persisted in the stack env so you can re-run installs without re-typing it.
@@ -160,8 +160,8 @@ Important:
 
 hstack uses these identities:
 
-- **Dev-client**: defaults to `Happier Dev` + bundle id `dev.happier.stack.dev.<user>`
-- **Per-stack release**: defaults to `Happier (<stack>)` + bundle id `dev.happier.stack.stack.<user>.<stack>`
+- **Dev-client**: defaults to `Kaiwu Dev` + bundle id `dev.happier.stack.dev.<user>`
+- **Per-stack release**: defaults to `Kaiwu (<stack>)` + bundle id `dev.happier.stack.stack.<user>.<stack>`
 
 If you want to build/install *manually* (instead of `mobile-dev-client` / `stack mobile:install`), you can override:
 
@@ -196,19 +196,19 @@ HAPPIER_STACK_DEV_CLIENT_SCHEME="hstack-dev"
 HAPPIER_STACK_SERVER_URL="https://<your-machine>.<tailnet>.ts.net"
 
 # Optional: home screen name:
-HAPPIER_STACK_IOS_APP_NAME="Happier"
+HAPPIER_STACK_IOS_APP_NAME="Kaiwu"
 ```
 
 ## EAS builds per stack (production / App Store-like)
 
 This section documents the end-to-end workflow for producing a **fully working** EAS Build (cloud) for a stack,
-with a **custom bundle id + app name** (example: `dev.happier.app` / `Happier`), while keeping upstream defaults unchanged when env vars are unset.
+with a **custom bundle id + app name** (example: `dev.happier.app` / `Kaiwu`), while keeping upstream defaults unchanged when env vars are unset.
 
 ### Overview
 
 To get a reliable EAS build for a stack-specific app identity, you generally need:
 
-- a **Happier monorepo worktree** that contains the app config hooks (dynamic `app.config.js`)
+- a **Kaiwu monorepo worktree** that contains the app config hooks (dynamic `app.config.js`)
 - a stack pinned to that worktree (`hstack stack wt <stack> -- use ...`)
 - stack env vars describing the **app identity** (bundle id, name, scheme, etc.)
 - EAS **environment variables** configured on Expo (so the cloud builder sees the same values)
@@ -238,7 +238,7 @@ These are evaluated by `apps/ui/app.config.js` when building:
 ```bash
 hstack stack env happier set \
   APP_ENV=production \
-  EXPO_APP_NAME="Happier" \
+  EXPO_APP_NAME="Kaiwu" \
   EXPO_APP_BUNDLE_ID="dev.happier.app" \
   EXPO_APP_SCHEME="happier" \
   EXPO_APP_SLUG="happier" \

@@ -2236,7 +2236,7 @@ export function registerMachineRpcHandlers(params: Readonly<{
     if (!allowedRoots.some((dir) => isPathInside(canonicalRequestedPath, dir))) {
       return {
         success: false,
-        error: 'Requested log path is outside allowed Happier directories',
+        error: 'Requested log path is outside allowed Kaiwu directories',
       };
     }
 

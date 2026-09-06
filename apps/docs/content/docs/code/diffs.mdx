@@ -3,7 +3,7 @@ title: Diffs and review
 description: Read what changed in a workspace — by repository, by turn, by session, or by what you have staged.
 ---
 
-Before you approve work, you want to see it. Happier's changed-files list and
+Before you approve work, you want to see it. Kaiwu's changed-files list and
 Review surface let you read a session's changes as one continuous diff instead
 of opening each file in turn, and to narrow that to just what this session did.
 
@@ -42,7 +42,7 @@ Possible scopes are:
 - **Session-attributed changes**: best-effort changes attributed to this session across more than one turn.
 - **Selected for commit**: only files that are currently fully or partially selected for the next commit. This appears only after at least one file is selected.
 
-The scope selector appears only when it is useful. If there is only the repository view, Happier shows the normal changed-files title instead of a redundant dropdown.
+The scope selector appears only when it is useful. If there is only the repository view, Kaiwu shows the normal changed-files title instead of a redundant dropdown.
 
 Changing scope changes the list you are looking at; it does not rewrite repository state. Selecting files for commit does not make them “session changes”. It only makes the **Selected for commit** scope available.
 
@@ -74,7 +74,7 @@ Use Review when you want to:
 
 - Diffs load progressively as needed instead of trying to mount everything at once.
 - Nearby diffs are prefetched so scrolling feels continuous.
-- If you manually collapse a diff, Happier remembers that and does not auto-expand it again just because you scroll away and back.
+- If you manually collapse a diff, Kaiwu remembers that and does not auto-expand it again just because you scroll away and back.
 - Switching away from Review and coming back restores your previous position.
 
 ### Editing from Review
@@ -85,8 +85,8 @@ From Review you can open a changed file into its own details tab, edit it, then 
 
 On mobile cockpit layouts, Review opens in the **Tabs** surface. Use the back button to return to the Git list you opened it from, or use the bottom tabs to switch surfaces without adding extra tab switches to the back stack.
 
-Attribution uses direct operation signals and provider/runtime change sets first. When multiple sessions are active on the same repository, attribution reliability is lower, so Happier favors repository truth over weak inference.
-If a scoped view cannot be supported confidently, Happier falls back to repository view or hides that scope rather than showing an empty or misleading list.
+Attribution uses direct operation signals and provider/runtime change sets first. When multiple sessions are active on the same repository, attribution reliability is lower, so Kaiwu favors repository truth over weak inference.
+If a scoped view cannot be supported confidently, Kaiwu falls back to repository view or hides that scope rather than showing an empty or misleading list.
 
 ## Related
 

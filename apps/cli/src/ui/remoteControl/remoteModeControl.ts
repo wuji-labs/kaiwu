@@ -208,7 +208,7 @@ export function formatRemoteModeStaticBanner(params: Readonly<{
 
   const lines = [
     header,
-    'This session is running in remote mode. You can access it from the Happier UI.',
+    'This session is running in remote mode. You can access it from the Kaiwu UI.',
   ];
   if (params.allowSwitchToLocal) {
     lines.push('Press Space twice or Ctrl-T to switch to local mode.');

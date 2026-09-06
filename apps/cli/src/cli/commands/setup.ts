@@ -50,13 +50,13 @@ import {
  */
 const UNATTENDED_CHILD_ENV: NodeJS.ProcessEnv = { HAPPIER_NONINTERACTIVE: '1' };
 
-const HELP = `happier setup — connect this computer to your Happier account
+const HELP = `happier setup — connect this computer to your Kaiwu account
 
 Usage:
   happier setup [options]
 
 Options:
-  --cloud                 Use Happier Cloud without being asked
+  --cloud                 Use Kaiwu Cloud without being asked
   --relay <url>           Use a relay you already run
   --this-computer         Install and use a relay on this computer
   --yes                   Ask nothing. Every step that needs no answer runs, then
@@ -158,7 +158,7 @@ async function printRelayReachabilityNextSteps(reachability: SetupRelayReachabil
         console.log('');
         return;
     }
-    console.log('If you already have an HTTPS address for it, point Happier at that:');
+    console.log('If you already have an HTTPS address for it, point Kaiwu at that:');
     console.log('');
     console.log('  happier server add --server-url https://relay.example.com --use');
     console.log('');
@@ -250,7 +250,7 @@ async function askWhereTheRelayLives(): Promise<SetupRelaySelection> {
             'Your relay routes messages between your phone and your computers.',
             'Choose where it lives — you can change this later.',
             '',
-            '  c) Happier Cloud            Hosted relay — easiest to start with',
+            '  c) Kaiwu Cloud            Hosted relay — easiest to start with',
             '  r) A relay I already run',
             '  t) On this computer',
             '',
@@ -318,7 +318,7 @@ async function runStep(step: SetupStep, unattended: boolean): Promise<boolean> {
             console.log('');
             console.log('No coding agent found on this computer.');
             console.log('');
-            console.log("Happier drives your coding agent; it does not ship one. Install at least");
+            console.log("Kaiwu drives your coding agent; it does not ship one. Install at least");
             console.log('one, then run `happier` again:');
             console.log('');
             console.log('  Claude Code   curl -fsSL https://claude.ai/install.sh | bash');

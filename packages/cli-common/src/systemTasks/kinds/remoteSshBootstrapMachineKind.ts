@@ -140,7 +140,7 @@ export function createRemoteSshBootstrapMachineTaskKind(
       ctx.emit({
         type: 'progress',
         stepId: 'ssh.installCli',
-        message: 'Installing Happier on the remote machine',
+        message: 'Installing Kaiwu on the remote machine',
       });
 
       await deps.installRemoteCli({

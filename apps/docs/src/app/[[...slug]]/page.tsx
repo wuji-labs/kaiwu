@@ -40,6 +40,9 @@ export default async function Page(props: PageProps<'/[[...slug]]'>) {
             a: createRelativeLink(source, page),
           })}
         />
+        <div className="mt-12 pt-6 border-t text-xs text-fd-muted-foreground">
+          基于开源项目 happier-dev/happier 二次开发 · MIT License
+        </div>
       </DocsBody>
     </DocsPage>
   );

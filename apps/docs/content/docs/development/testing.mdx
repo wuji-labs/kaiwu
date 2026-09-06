@@ -220,7 +220,7 @@ yarn typecheck
 
 ### TypeScript compiler ownership
 
-Happier uses the native TypeScript 7 compiler for first-party typecheck and package-build lanes. The `typescript` package remains on the API-compatible 5.9 line for AST-based tools and integrations that do not yet support TypeScript 7's native API.
+Kaiwu uses the native TypeScript 7 compiler for first-party typecheck and package-build lanes. The `typescript` package remains on the API-compatible 5.9 line for AST-based tools and integrations that do not yet support TypeScript 7's native API.
 
 Compiler selection is centralized in `scripts/workspaces/typescriptCommand.mjs`. Package scripts use the shared workspace runners rather than a bare `tsc` executable, so dependency hoisting or package-manager bin-link order cannot silently select the API package's older compiler.
 
@@ -335,7 +335,7 @@ CI sets these for relevant jobs. Local runs can set them manually when you need 
 
 #### Real Claude Agent Teams probe (opt-in)
 
-Happier includes a small opt-in probe that runs your locally installed `claude` CLI to discover the exact Agent Teams tool names and capture representative payload shapes:
+Kaiwu includes a small opt-in probe that runs your locally installed `claude` CLI to discover the exact Agent Teams tool names and capture representative payload shapes:
 
 - Test file: `packages/tests/suites/providers/claude.agentTeams.toolNames.realProbe.test.ts`
 

@@ -36,8 +36,8 @@ export function registerHappierMcpResources(
     'happier_action_specs',
     HAPPIER_MCP_ACTION_SPECS_RESOURCE_URI,
     {
-      title: 'Happier Action Specs',
-      description: 'JSON catalog of enabled Happier action specs available through the Happier MCP surface.',
+      title: 'Kaiwu Action Specs',
+      description: 'JSON catalog of enabled Kaiwu action specs available through the Kaiwu MCP surface.',
       mimeType: 'application/json',
     },
     async () => ({

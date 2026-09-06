@@ -3,12 +3,12 @@ title: Worktrees and forks
 description: Create clean upstream PR worktrees while keeping fork-only patches isolated.
 ---
 
-This repo is designed to run the **Happier** stack locally, while still making it easy to:
+This repo is designed to run the **Kaiwu** stack locally, while still making it easy to:
 
 - keep using **your fork** day-to-day
 - create **clean upstream PR branches** quickly (without carrying fork-only patches)
 
-hstack is monorepo-first: UI/CLI/server all live in the same Happier git repo.
+hstack is monorepo-first: UI/CLI/server all live in the same Kaiwu git repo.
 
 ---
 
@@ -50,7 +50,7 @@ These tokens/specs are accepted anywhere a “repo/worktree” is expected:
 - `pr/<...>` → `<workspace>/pr/<...>`
 - `local/<...>` → `<workspace>/local/<owner>/<...>` (owner is your local username)
 - `tmp/<...>` → `<workspace>/tmp/<owner>/<...>`
-- absolute path to a Happier monorepo checkout/worktree
+- absolute path to a Kaiwu monorepo checkout/worktree
 
 Examples:
 
@@ -67,7 +67,7 @@ hstack stack typecheck exp1 --repo=/abs/path/to/checkout
 
 Conventions:
 
-- `upstream`: the canonical Happier repo (`happier-dev/happier`)
+- `upstream`: the canonical Kaiwu repo (`happier-dev/happier`)
 - `origin`: your fork (where you push branches)
 
 The “upstream-first” flow is:

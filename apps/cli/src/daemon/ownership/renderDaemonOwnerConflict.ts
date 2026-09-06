@@ -47,10 +47,10 @@ export function renderDaemonOwnerConflict(params: Readonly<{
       lines: [
         ...details,
         owner.serviceManaged
-          ? 'Happier will continue without switching it.'
+          ? 'Kaiwu will continue without switching it.'
           : owner.serviceManaged === false
-            ? 'Happier will continue without starting another daemon.'
-            : 'Happier will continue without changing the current daemon.',
+            ? 'Kaiwu will continue without starting another daemon.'
+            : 'Kaiwu will continue without changing the current daemon.',
         owner.serviceManaged
           ? 'Use `happier doctor repair` if you want automatic startup to switch to this installation.'
           : owner.serviceManaged === false
@@ -122,7 +122,7 @@ export function renderDaemonOwnerConflict(params: Readonly<{
     return {
       title: owner.serviceManaged === true
         ? 'The current daemon is managed by a background service.'
-        : 'Happier could not determine how the current daemon was started.',
+        : 'Kaiwu could not determine how the current daemon was started.',
       lines: [
         ...details,
         owner.serviceManaged === true
@@ -138,7 +138,7 @@ export function renderDaemonOwnerConflict(params: Readonly<{
   return {
     title: owner.serviceManaged === true
       ? 'The current daemon is managed by a background service.'
-      : 'Happier could not determine how the current daemon was started.',
+      : 'Kaiwu could not determine how the current daemon was started.',
     lines: [
       ...details,
       owner.serviceManaged === true

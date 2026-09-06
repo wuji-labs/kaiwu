@@ -134,14 +134,14 @@ export async function renderFeatureFlagReferenceMarkdown({
 
   return `---
 title: Feature flags
-description: Every capability Happier can gate, who controls it, and what it defaults to — generated from the feature catalog.
+description: Every capability Kaiwu can gate, who controls it, and what it defaults to — generated from the feature catalog.
 ---
 
-Not everything Happier can do is switched on for everybody. A capability can be
+Not everything Kaiwu can do is switched on for everybody. A capability can be
 gated in three places, and a feature is only usable when all three agree:
 
 1. **The server** advertises which features it supports. Self-hosters control
-   this with \`HAPPIER_FEATURE_*\` environment variables; on Happier Cloud it is
+   this with \`HAPPIER_FEATURE_*\` environment variables; on Kaiwu Cloud it is
    set for you.
 2. **The build** can deny features regardless of the server, through
    \`HAPPIER_BUILD_FEATURES_ALLOW\` and \`HAPPIER_BUILD_FEATURES_DENY\`.
@@ -171,7 +171,7 @@ locally cannot enable a feature the server has not advertised.
 ## Features the server decides
 
 These have no user-facing switch. A self-hoster sets them through the
-environment; on Happier Cloud they are managed for you. \`server\` means the
+environment; on Kaiwu Cloud they are managed for you. \`server\` means the
 server owns the decision outright; \`client\` means the client owns the
 behaviour but still needs the server to advertise the capability.
 

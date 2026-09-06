@@ -72,7 +72,7 @@ export function describeDaemonServiceInstallConflict(params: Readonly<{
   if (params.conflictPlan.foreignHomeConflicts.length > 0) {
     return {
       blocking: true,
-      message: `Conflicting background services from another Happier home were detected: ${formatDaemonServiceLabels(params.conflictPlan.foreignHomeConflicts)}. Switch to that installation to manage its service or remove it manually before installing here.`,
+      message: `Conflicting background services from another Kaiwu home were detected: ${formatDaemonServiceLabels(params.conflictPlan.foreignHomeConflicts)}. Switch to that installation to manage its service or remove it manually before installing here.`,
     };
   }
 

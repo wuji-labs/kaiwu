@@ -3,7 +3,7 @@ title: Attachments & image previews
 description: Attach local files to a message, preview images before and after sending, and control where uploaded attachments are stored.
 ---
 
-Happier lets you attach local files directly to a message in both:
+Kaiwu lets you attach local files directly to a message in both:
 
 - a **new session composer** before the first message, and
 - an **existing session composer** inside an active transcript.
@@ -23,7 +23,7 @@ Use attachments when you want to send things like:
 
 ## How to add attachments
 
-Happier supports several attachment flows depending on platform:
+Kaiwu supports several attachment flows depending on platform:
 
 - **All platforms:** pick files with the attachment/file-picker flow
 - **Web:** drag and drop files into the composer
@@ -33,7 +33,7 @@ You can attach both images and non-image files in the same message.
 
 ## What you see before sending
 
-Before you send the message, Happier keeps attachments as **drafts** in the composer.
+Before you send the message, Kaiwu keeps attachments as **drafts** in the composer.
 
 In the **new-session flow**, those draft attachments are kept while you move around the same in-app flow, such as opening picker screens and returning to the composer.
 
@@ -59,7 +59,7 @@ You can remove an attachment before sending it.
 
 ### Upload progress
 
-When you send a message with attachments, Happier uploads each file first and shows **per-file progress** in the composer:
+When you send a message with attachments, Kaiwu uploads each file first and shows **per-file progress** in the composer:
 
 - image tiles show an upload overlay with a percentage
 - non-image chips show percentage progress inline
@@ -82,12 +82,12 @@ On **touch/native** surfaces, the navigation controls stay directly available be
 
 ## What happens when you send attachments
 
-Happier keeps the attachment flow provider-agnostic.
+Kaiwu keeps the attachment flow provider-agnostic.
 
 When you send a message with attachments:
 
-1. Happier uploads each file first
-2. Happier stores the files in the configured attachment upload location
+1. Kaiwu uploads each file first
+2. Kaiwu stores the files in the configured attachment upload location
 3. the sent message includes an attachments block with stable file paths
 4. the message tells the agent to read those paths from disk before answering
 
@@ -105,7 +105,7 @@ Sent user messages keep their attachments in the transcript.
 
 ### Inline transcript images
 
-If an attachment is an image, Happier shows it inline in the message instead of only listing the filename.
+If an attachment is an image, Kaiwu shows it inline in the message instead of only listing the filename.
 
 This makes transcripts easier to scan when you shared:
 
@@ -126,18 +126,18 @@ Non-image files still appear in the message attachments row and can be opened fr
 
 ### Very large or unavailable previews
 
-Happier does not try to force every image into an inline preview.
+Kaiwu does not try to force every image into an inline preview.
 
 If an image is too large for the in-app preview budget, or the preview cannot be loaded cleanly:
 
 - the attachment still remains attached to the message
-- Happier falls back to a placeholder/open-file path instead of pretending the preview succeeded
+- Kaiwu falls back to a placeholder/open-file path instead of pretending the preview succeeded
 
 This protects transcript performance while preserving access to the underlying file.
 
 ## Attachment storage location
 
-You can control where Happier stores uploaded message attachments.
+You can control where Kaiwu stores uploaded message attachments.
 
 Open:
 
@@ -148,7 +148,7 @@ Open:
 
 Default behavior stores attachments inside the current workspace.
 
-By default, Happier uses this workspace-relative directory:
+By default, Kaiwu uses this workspace-relative directory:
 
 ```text
 .happier/uploads
@@ -168,7 +168,7 @@ This is useful when:
 
 ## Source-control ignore behavior
 
-When workspace storage is enabled, Happier can also help keep attachment files out of normal source-control workflows.
+When workspace storage is enabled, Kaiwu can also help keep attachment files out of normal source-control workflows.
 
 Attachment settings let you choose the ignore strategy for workspace uploads.
 
@@ -180,11 +180,11 @@ This matters when you want the convenience of workspace-backed attachments witho
 
 Attachment uploads still follow the normal **maximum attachment size** setting.
 
-If a file is over that limit, Happier skips it and tells you why.
+If a file is over that limit, Kaiwu skips it and tells you why.
 
 ### No separate image-count cap
 
-Happier does not add a special “only a few images” composer rule on top of the normal attachment settings.
+Kaiwu does not add a special “only a few images” composer rule on top of the normal attachment settings.
 
 The main practical limit is still your configured file-size policy.
 
@@ -220,11 +220,11 @@ Use them together when you want to hand the agent both:
 
 In a session, the composer shows review comments as their own **Review** chip/attachment badge when saved comments are available for the current workspace.
 
-In a new-session flow, Happier can also discover saved review comments for the selected machine and directory. If you keep the review-comments chip enabled, the matching review comments are sent with the first actionable message. Turning that chip off does not remove attachment drafts.
+In a new-session flow, Kaiwu can also discover saved review comments for the selected machine and directory. If you keep the review-comments chip enabled, the matching review comments are sent with the first actionable message. Turning that chip off does not remove attachment drafts.
 
 ## Provider-specific note
 
-Regular session messages support attachments through Happier’s shared attachment flow.
+Regular session messages support attachments through Kaiwu’s shared attachment flow.
 
 For routed Claude teammate messages, check the Claude provider page for the current attachment limitations on that flow.
 

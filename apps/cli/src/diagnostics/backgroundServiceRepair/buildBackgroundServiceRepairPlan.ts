@@ -153,7 +153,7 @@ export function buildBackgroundServiceRepairPlan(params: Readonly<{
       existingServices: [...params.services],
       actions: [],
       manualWarnings: [
-        `Detected default-following background services with missing Happier home metadata (${described || 'unknown path'}). Automatic repair will not replace or remove them; remove the legacy service(s) from the owning installation first.`,
+        `Detected default-following background services with missing Kaiwu home metadata (${described || 'unknown path'}). Automatic repair will not replace or remove them; remove the legacy service(s) from the owning installation first.`,
       ],
     };
   }
@@ -172,7 +172,7 @@ export function buildBackgroundServiceRepairPlan(params: Readonly<{
       existingServices: [...params.services],
       actions: [],
       manualWarnings: [
-        `Detected default-following background services from another Happier home (${foreignHomeDefaultServices.map((service) => String(service.happierHomeDir ?? '').trim()).filter(Boolean).join(', ')}). Automatic repair will not replace or remove them; clean up the other installation first.`,
+        `Detected default-following background services from another Kaiwu home (${foreignHomeDefaultServices.map((service) => String(service.happierHomeDir ?? '').trim()).filter(Boolean).join(', ')}). Automatic repair will not replace or remove them; clean up the other installation first.`,
       ],
     };
   }
@@ -193,7 +193,7 @@ export function buildBackgroundServiceRepairPlan(params: Readonly<{
       existingServices: [...params.services],
       actions: [],
       manualWarnings: [
-        `Detected pinned background services for the current server from another Happier home (${foreignHomePinnedCurrentServerServices.map((service) => String(service.happierHomeDir ?? '').trim()).filter(Boolean).join(', ')}). Automatic repair will not replace or remove them; clean up the other installation first.`,
+        `Detected pinned background services for the current server from another Kaiwu home (${foreignHomePinnedCurrentServerServices.map((service) => String(service.happierHomeDir ?? '').trim()).filter(Boolean).join(', ')}). Automatic repair will not replace or remove them; clean up the other installation first.`,
       ],
     };
   }

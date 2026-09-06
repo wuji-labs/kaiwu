@@ -38,6 +38,8 @@ const DEFAULT_COLS = 120;
 const DEFAULT_ROWS = 40;
 const INPUT_STABILITY_DELAY_MS = 50;
 const POST_WRITE_LIVENESS_DELAY_MS = 25;
+const SESSION_HEARTBEAT_INTERVAL_MS = 3_000;
+const SESSION_INACTIVITY_TIMEOUT_MS = 15_000;
 
 type PtyTerminalHostSession = {
   pty: PtyProcess;
@@ -46,6 +48,8 @@ type PtyTerminalHostSession = {
   ended: boolean;
   exitCode?: number;
   signal?: number;
+  lastDataTimeMs: number;
+  heartbeatTimer: ReturnType<typeof setTimeout> | null;
 };
 
 function scheduledDeferral(input: TerminalPromptInput): Extract<TerminalInputInjectionResult, { status: 'deferred' }> | null {
@@ -258,15 +262,42 @@ export function createPtyTerminalHostAdapter(params?: Readonly<{
         disposables: [],
         screen,
         ended: false,
+        lastDataTimeMs: now(),
+        heartbeatTimer: null,
       };
       session.disposables.push(pty.onData((data) => {
+        session.lastDataTimeMs = now();
         screen.write(String(data ?? ''));
       }));
       session.disposables.push(pty.onExit((event) => {
         session.ended = true;
         session.exitCode = event.exitCode;
         if (typeof event.signal === 'number') session.signal = event.signal;
+        if (session.heartbeatTimer) {
+          clearTimeout(session.heartbeatTimer);
+          session.heartbeatTimer = null;
+        }
       }));
+      const startHeartbeat = (sess: PtyTerminalHostSession) => {
+        if (sess.heartbeatTimer) clearTimeout(sess.heartbeatTimer);
+        sess.heartbeatTimer = setTimeout(() => {
+          if (!sess.ended) {
+            const timeSinceLastData = now() - sess.lastDataTimeMs;
+            if (timeSinceLastData >= SESSION_INACTIVITY_TIMEOUT_MS) {
+              sess.ended = true;
+              try {
+                sess.pty.kill();
+              } catch {
+                // best-effort
+              }
+            } else {
+              startHeartbeat(sess);
+            }
+          }
+        }, SESSION_HEARTBEAT_INTERVAL_MS);
+        sess.heartbeatTimer.unref?.();
+      };
+      startHeartbeat(session);
       sessions.set(opts.sessionName, session);
 
       return {
@@ -387,9 +418,11 @@ export function createPtyTerminalHostAdapter(params?: Readonly<{
       if (!session) {
         return { paneAlive: false, paneDead: true, observedAt: now() };
       }
+      const isInactive = !session.ended && (now() - session.lastDataTimeMs) >= SESSION_INACTIVITY_TIMEOUT_MS;
+      const isDead = session.ended || isInactive;
       return {
-        paneAlive: !session.ended,
-        paneDead: session.ended,
+        paneAlive: !isDead,
+        paneDead: isDead,
         ...(session.exitCode !== undefined ? { paneExitStatus: session.exitCode } : {}),
         observedAt: now(),
       };

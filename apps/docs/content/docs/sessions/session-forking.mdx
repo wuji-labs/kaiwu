@@ -1,9 +1,9 @@
 ---
 title: Session forking & replay
-description: Branch Happier sessions safely, keep context via hidden replay seeds, and understand current Codex app-server fork and rollback behavior.
+description: Branch Kaiwu sessions safely, keep context via hidden replay seeds, and understand current Codex app-server fork and rollback behavior.
 ---
 
-Session forking lets you branch a session without losing the original conversation. This page explains how Happier session forks work, how replay seeds keep context hidden but intact, and what Codex app-server currently supports for native fork and rollback.
+Session forking lets you branch a session without losing the original conversation. This page explains how Kaiwu session forks work, how replay seeds keep context hidden but intact, and what Codex app-server currently supports for native fork and rollback.
 
 ## What you get
 
@@ -22,10 +22,10 @@ work. You can choose a **Native fork** when the Agent and fork point support one
 start a child with a bounded transcript seed, or **Configure a new session** to continue through the
 normal new-session screen.
 
-An explicit Native choice is strict: if the provider-native fork is unavailable or fails, Happier
+An explicit Native choice is strict: if the provider-native fork is unavailable or fails, Kaiwu
 reports that outcome instead of silently creating a replay child. Existing callers that explicitly
 use the compatibility `auto` strategy may still let the daemon choose its established native-or-replay
-policy. Native forks stay in progress until the provider resolves them; Happier does not abandon one
+policy. Native forks stay in progress until the provider resolves them; Kaiwu does not abandon one
 after an arbitrary deadline or run a fork-specific readiness poll.
 
 ## What replay does
@@ -38,7 +38,7 @@ after an arbitrary deadline or run a fork-specific readiness poll.
 ### Replay strategies
 
 - **Recent messages** (default): sends the recent dialog window.
-- **Summary + recent**: if enabled and `execution.runs` is available, Happier first generates a structured summary (Goal/Instructions/Discoveries/Accomplished/Relevant files) then appends recent messages. If execution runs are disabled, Happier falls back to recent-only.
+- **Summary + recent**: if enabled and `execution.runs` is available, Kaiwu first generates a structured summary (Goal/Instructions/Discoveries/Accomplished/Relevant files) then appends recent messages. If execution runs are disabled, Kaiwu falls back to recent-only.
 
 You can adjust the replay seed budget in Settings (`max seed characters`) to trade context vs. size.
 
@@ -56,17 +56,17 @@ You can adjust the replay seed budget in Settings (`max seed characters`) to tra
 ## Codex app-server behavior
 
 - **Native session-level fork**: Codex app-server supports the session action that forks from the latest committed conversation state.
-- **No native fork-from-message**: hovering an older message still requires Happier replay; if replay is disabled, that control is unavailable.
-- **Rollback to point**: Codex app-server supports rolling back the active conversation suffix before any committed user message. Happier restores that user message into the composer draft so you can edit and resend it, and marks rolled-back messages as historical in the transcript instead of deleting them from view.
-- **Legacy Codex flavors**: older session metadata may still say `openai` or `gpt`; Happier now treats those as Codex for fork/rollback UI support.
+- **No native fork-from-message**: hovering an older message still requires Kaiwu replay; if replay is disabled, that control is unavailable.
+- **Rollback to point**: Codex app-server supports rolling back the active conversation suffix before any committed user message. Kaiwu restores that user message into the composer draft so you can edit and resend it, and marks rolled-back messages as historical in the transcript instead of deleting them from view.
+- **Legacy Codex flavors**: older session metadata may still say `openai` or `gpt`; Kaiwu now treats those as Codex for fork/rollback UI support.
 
 ## OpenCode specifics
 
 - Two backends:
   - **Server-native (default)**: supports native fork-at-message, question events, and richer lifecycle. Uses a managed local OpenCode server unless you set an explicit server URL.
   - **ACP (legacy fallback)**: best-effort fork-at-latest when the ACP backend exposes `session/fork`; otherwise replay is used.
-- Explicit external server URL (Settings) is opt-in; only loopback `http` or `https` origins without credentials are accepted. Happier persists this URL per session when you explicitly set it; managed servers are not persisted.
-- Managed OpenCode server is shared per machine; if it dies, Happier restarts it automatically instead of blocking new sessions.
+- Explicit external server URL (Settings) is opt-in; only loopback `http` or `https` origins without credentials are accepted. Kaiwu persists this URL per session when you explicitly set it; managed servers are not persisted.
+- Managed OpenCode server is shared per machine; if it dies, Kaiwu restarts it automatically instead of blocking new sessions.
 
 ## AskUserQuestion (user actions)
 
@@ -76,7 +76,7 @@ You can adjust the replay seed budget in Settings (`max seed characters`) to tra
 ## Tips and troubleshooting
 
 - If a forked session lacks context, verify the fork point (hover fork vs. session-level fork) and that replay seeds are allowed in Settings.
-- For summary mode, ensure `execution.runs` is enabled; otherwise Happier uses recent-only.
+- For summary mode, ensure `execution.runs` is enabled; otherwise Kaiwu uses recent-only.
 - If an explicitly chosen native fork fails, select **Replay fork** yourself; it is never silently
   substituted. Compatibility callers that use `auto` retain their established daemon-selected
   fallback behavior.

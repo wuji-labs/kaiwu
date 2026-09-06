@@ -43,6 +43,8 @@ const config = {
    * only) — see the notes on each one under src/app.
    */
   output: 'export',
+  basePath: '/docs',
+  assetPrefix: '/docs',
 };
 
 export default withMDX(config);

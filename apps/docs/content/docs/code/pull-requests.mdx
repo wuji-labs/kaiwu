@@ -3,7 +3,7 @@ title: Pull requests
 description: Publish a branch and open or reuse a pull request from inside a session, using a connected credential or your local gh.
 ---
 
-When the work is done, the next step is usually a pull request. Happier can
+When the work is done, the next step is usually a pull request. Kaiwu can
 publish the branch and open or reuse the request without you switching to a
 browser or a terminal.
 
@@ -15,7 +15,7 @@ browser or a terminal.
 
 ## Pull requests and merge requests
 
-The Git tab includes a pull request / merge request surface for the current branch when Happier can detect a hosting provider from the repository remotes.
+The Git tab includes a pull request / merge request surface for the current branch when Kaiwu can detect a hosting provider from the repository remotes.
 
 It can show:
 
@@ -35,11 +35,11 @@ It can show:
 
 GitHub Enterprise-style remotes can be detected. Connected-account REST operations are designed for GitHub.com; enterprise/self-hosted cases usually depend on CLI auth or compare URLs.
 
-GitLab self-managed remotes keep their detected base URL. When `glab` is used, Happier checks authentication for the detected host when possible.
+GitLab self-managed remotes keep their detected base URL. When `glab` is used, Kaiwu checks authentication for the detected host when possible.
 
 ### Opening or reusing a request
 
-When the current branch is ready, Happier can open or reuse a pull request / merge request from the Git tab.
+When the current branch is ready, Kaiwu can open or reuse a pull request / merge request from the Git tab.
 
 Authentication order:
 
@@ -47,22 +47,22 @@ Authentication order:
 - **GitLab**: authenticated `glab`, then no-auth compare URL.
 - **Bitbucket**: no-auth compare URL.
 
-If Happier cannot create a request directly, it opens the provider's compare page so you can finish in the browser.
+If Kaiwu cannot create a request directly, it opens the provider's compare page so you can finish in the browser.
 
 ### Default branch guard
 
-If the current branch is the repository's default branch, Happier avoids opening a request directly from that branch when the backend policy requires a feature branch.
+If the current branch is the repository's default branch, Kaiwu avoids opening a request directly from that branch when the backend policy requires a feature branch.
 
 Instead, the UI offers the safe next step:
 
 - create a feature branch first, or
 - when local commits and capabilities allow it, create the feature branch and continue the pull-request flow as one guided action
 
-This keeps the user in Happier instead of blocking them with an instruction to go to the terminal.
+This keeps the user in Kaiwu instead of blocking them with an instruction to go to the terminal.
 
 ### Dirty and unpublished branches
 
-Happier does not silently create a pull request from a dirty unpublished branch.
+Kaiwu does not silently create a pull request from a dirty unpublished branch.
 
 If the branch has uncommitted work or no published upstream, commit and publish the branch first. The stacked action can combine supported steps such as commit, push, and create request when the repository state allows it.
 
@@ -80,13 +80,13 @@ Accepted references include:
 - `glab mr checkout 17`
 - a branch name when the text is not a URL or numeric request id
 
-Local checkout uses the existing Git protections for dirty worktrees and conflicts. Happier does not discard local changes to make checkout succeed.
+Local checkout uses the existing Git protections for dirty worktrees and conflicts. Kaiwu does not discard local changes to make checkout succeed.
 
 ### Open a PR or MR in a worktree
 
 You can also open a pull request or merge request in a separate worktree-backed session.
 
-Happier resolves the request through the hosting-provider adapter, prepares the checkout through the existing worktree/source-controller path, and opens a new session at that worktree path.
+Kaiwu resolves the request through the hosting-provider adapter, prepares the checkout through the existing worktree/source-controller path, and opens a new session at that worktree path.
 
 Use this when:
 

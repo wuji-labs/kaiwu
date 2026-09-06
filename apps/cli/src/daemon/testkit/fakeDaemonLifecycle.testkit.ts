@@ -14,7 +14,7 @@ import {
 const baselineServers = {
   cloud: {
     id: 'cloud',
-    name: 'Happier Cloud',
+    name: 'Kaiwu Cloud',
     serverUrl: 'https://api.happier.dev',
     webappUrl: 'https://app.happier.dev',
     createdAt: 0,

@@ -54,7 +54,7 @@ export function renderDaemonServiceLifecycleOwnershipConflict(params: Readonly<{
       ? 'enable automatic startup'
       : `${params.action} the background service`;
     return {
-      title: 'Happier could not determine how the current daemon was started.',
+      title: 'Kaiwu could not determine how the current daemon was started.',
       lines: [
         ...buildOwnerDetails(owner),
         `Stop the current daemon before trying to ${actionDescription}.`,
@@ -126,7 +126,7 @@ export function renderDaemonServiceStopOwnershipNote(params: Readonly<{
     title: 'Stopping this background service will not stop the current daemon.',
     lines: [
       ...buildOwnerDetails(owner),
-      'Happier could not determine how the current daemon was started.',
+      'Kaiwu could not determine how the current daemon was started.',
       'Stop the current daemon separately if you also need to switch which installation is running.',
     ],
   };
@@ -159,7 +159,7 @@ export function renderDaemonServiceRepairOwnershipNote(params: Readonly<{
     title: 'Repairing automatic startup will not stop what is currently running.',
     lines: [
       ...buildOwnerDetails(owner),
-      'Happier could not determine how the running daemon was started.',
+      'Kaiwu could not determine how the running daemon was started.',
       'Stop the running daemon separately if you also need to switch this installation immediately.',
     ],
   };

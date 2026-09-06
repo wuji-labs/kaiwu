@@ -124,6 +124,9 @@ function checkIfEnglish(path: string, value: any, englishValue: any, lang: strin
         if (trimmed === englishValue.trim()) {
             const stableProperNouns = new Set([
                 'Happier',
+                'Kaiwu',
+                'Kaiwu Voice',
+                '无极开物',
                 'Windows',
                 'Windows Terminal',
                 'Tmux',

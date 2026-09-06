@@ -3,18 +3,18 @@ title: OIDC auth
 description: Configure generic OIDC providers (Okta/Auth0/Azure AD/Keycloak, etc.) for a self-hosted server.
 ---
 
-Happier can be configured with **one or more** OIDC provider instances. This is intended for enterprise/self-hosting deployments where GitHub isn’t the desired identity provider.
+Kaiwu can be configured with **one or more** OIDC provider instances. This is intended for enterprise/self-hosting deployments where GitHub isn’t the desired identity provider.
 
 ## What standard is supported?
 
-Happier’s “custom provider” support is **OpenID Connect (OIDC) 1.0** using **OAuth 2.0 Authorization Code Flow** with **PKCE**.
+Kaiwu’s “custom provider” support is **OpenID Connect (OIDC) 1.0** using **OAuth 2.0 Authorization Code Flow** with **PKCE**.
 
 - OIDC discovery is required (`/.well-known/openid-configuration` under your `issuer`)
 - The provider must support code exchange at the token endpoint
 - `id_token` claims are used as the primary identity profile; optional `/userinfo` can be enabled
 - Optional refresh tokens can be stored (encrypted) for offboarding re-checks
 
-If you need SAML, the recommended approach is to use your IdP’s “OIDC app” or a SAML→OIDC bridge (Okta/Auth0/Azure AD/Keycloak, etc.), and configure Happier using the OIDC options below.
+If you need SAML, the recommended approach is to use your IdP’s “OIDC app” or a SAML→OIDC bridge (Okta/Auth0/Azure AD/Keycloak, etc.), and configure Kaiwu using the OIDC options below.
 
 ## Config sources
 
@@ -78,7 +78,7 @@ Notes:
 
 ## Group overage / external claims
 
-Some providers (notably Microsoft Entra ID / Azure AD) may omit groups from tokens and instead return an “overage” pointer (e.g. `_claim_names/_claim_sources`). If you configure `groupsAny`/`groupsAll`, Happier will **fail closed** when it detects group overage (treating the user as ineligible) unless it can read groups from the configured claim source (for example by enabling `fetchUserInfo` and mapping `claims.groups` appropriately).
+Some providers (notably Microsoft Entra ID / Azure AD) may omit groups from tokens and instead return an “overage” pointer (e.g. `_claim_names/_claim_sources`). If you configure `groupsAny`/`groupsAll`, Kaiwu will **fail closed** when it detects group overage (treating the user as ineligible) unless it can read groups from the configured claim source (for example by enabling `fetchUserInfo` and mapping `claims.groups` appropriately).
 
 ## Enabling OIDC signup / login enforcement
 
@@ -94,7 +94,7 @@ AUTH_PROVIDERS_CONFIG_PATH=/etc/happier/auth-providers.json
 
 ## Keyless OIDC login (optional, enterprise)
 
-Happier can also use an OIDC provider as a **keyless login method** (no device keys), when enabled by feature env vars.
+Kaiwu can also use an OIDC provider as a **keyless login method** (no device keys), when enabled by feature env vars.
 
 This is intended for enterprise deployments and is usually paired with plaintext storage mode. See:
 - [Server Auth](/self-hosting/auth)
@@ -145,19 +145,19 @@ AUTH_ANONYMOUS_SIGNUP_ENABLED=0
    - Make it mandatory for ongoing access: `AUTH_REQUIRED_LOGIN_PROVIDERS=<providerId>`
    - Disable anonymous signup if desired: `AUTH_ANONYMOUS_SIGNUP_ENABLED=false`
 5. Make sure the client app can return from OAuth:
-   - Web (required unless you use `https://app.happier.dev`): set `HAPPIER_WEBAPP_URL` (or `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE`)
+   - Web (required unless you use `https://kaiwu.chengqiyun.com`): set `HAPPIER_WEBAPP_URL` (or `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE`)
    - Mobile deep link: set `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE` and allow the scheme via `HAPPIER_OAUTH_RETURN_ALLOWED_SCHEMES` (e.g. `myapp`)
 6. Validate:
    - Restart the server (so it picks up env / config changes).
-   - Open the Happier app and confirm the new sign-in option appears on the welcome/login screen.
+   - Open the Kaiwu app and confirm the new sign-in option appears on the welcome/login screen.
    - If it doesn’t, double-check the redirect URL, issuer URL, and that `AUTH_SIGNUP_PROVIDERS` / `AUTH_REQUIRED_LOGIN_PROVIDERS` reference the same provider id. (For troubleshooting, you can also inspect `GET /v1/features`.)
 
 Note on “optional” web app URL env vars:
-- `HAPPIER_WEBAPP_URL` / `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE` are only “optional” if you are using the hosted client at `https://app.happier.dev`.
+- `HAPPIER_WEBAPP_URL` / `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE` are only “optional” if you are using the hosted client at `https://kaiwu.chengqiyun.com`.
   - If you are self-hosting the web app, or using a local dev web UI, you must set one of these so the server can redirect back to your client after OAuth.
 
 Troubleshooting:
-- If you get redirected to `https://app.happier.dev` even after setting `HAPPIER_WEBAPP_URL`, the server likely rejected your configured return URL as unsafe. For local web dev, use `http://localhost:PORT` or `http://*.localhost:PORT` (or use `https://`).
+- If you get redirected to `https://kaiwu.chengqiyun.com` even after setting `HAPPIER_WEBAPP_URL`, the server likely rejected your configured return URL as unsafe. For local web dev, use `http://localhost:PORT` or `http://*.localhost:PORT` (or use `https://`).
 
 ## “Custom providers” beyond OIDC
 

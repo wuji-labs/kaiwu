@@ -73,7 +73,7 @@ function showConnectHelp(targets: ReadonlyArray<CloudConnectTarget>, opts: Reado
       ? targets.map((t) => formatTargetLine(t)).join('\n')
       : '  (no connect targets registered)';
     console.log(`
-${chalk.bold('happier connect')} - Connect AI vendor subscriptions and API keys to Happier cloud
+${chalk.bold('happier connect')} - Connect AI vendor subscriptions and API keys to Kaiwu cloud
 
 ${chalk.bold('Usage:')}
 ${targetLines}
@@ -93,7 +93,7 @@ ${targetLines}
 
 ${chalk.bold('Description:')}
   The connect command allows you to securely store your connected-service credentials
-  in Happier cloud. This enables you to use these services through Happier
+  in Kaiwu cloud. This enables you to use these services through Kaiwu
   without exposing credentials locally.
 
 ${chalk.bold('Examples:')}
@@ -101,8 +101,8 @@ ${chalk.bold('Examples:')}
   happier connect status
 
 ${chalk.bold('Notes:')} 
-  • You must be authenticated with Happier first (run 'happier auth login')
-  • Credentials are encrypted and stored securely in Happier cloud
+  • You must be authenticated with Kaiwu first (run 'happier auth login')
+  • Credentials are encrypted and stored securely in Kaiwu cloud
   • You can manage your stored keys at app.happier.dev
   ${opts.includeExperimental ? '' : '• Some providers are experimental; use --all to show them'}
 `);
@@ -114,12 +114,12 @@ function formatTargetLine(target: CloudConnectTarget): string {
 }
 
 async function handleConnectVendor(target: CloudConnectTarget, options: ConnectParsedOptions): Promise<void> {
-    console.log(chalk.bold(`\n🔌 Connecting ${target.vendorDisplayName} to Happier cloud\n`));
+    console.log(chalk.bold(`\n🔌 Connecting ${target.vendorDisplayName} to Kaiwu cloud\n`));
 
     // Check if authenticated
     const credentials = await readCredentials();
     if (!credentials) {
-        console.log(chalk.yellow('⚠️  Not authenticated with Happier'));
+        console.log(chalk.yellow('⚠️  Not authenticated with Kaiwu'));
         console.log(chalk.gray('  Please run "happier auth login" first'));
         process.exit(1);
     }
@@ -200,7 +200,7 @@ async function handleConnectStatus(targets: ReadonlyArray<CloudConnectTarget>): 
     // Check if authenticated
     const credentials = await readCredentials();
     if (!credentials) {
-        console.log(chalk.yellow('⚠️  Not authenticated with Happier'));
+        console.log(chalk.yellow('⚠️  Not authenticated with Kaiwu'));
         console.log(chalk.gray('  Please run "happier auth login" first'));
         process.exit(1);
     }

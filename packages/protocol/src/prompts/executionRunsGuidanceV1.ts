@@ -25,11 +25,11 @@ export function normalizeExecutionRunsGuidanceFingerprintV1(entry: ExecutionRuns
   return `${description}|${intent}|${backend}|${model}`;
 }
 
-const BUILT_IN_EXECUTION_RUNS_GUIDANCE_V1 = `# Happier-Managed Runs
+const BUILT_IN_EXECUTION_RUNS_GUIDANCE_V1 = `# Kaiwu-Managed Runs
 
-Use the current backend's native subagent facility by default. Treat generic requests for a subagent, delegation, or parallel agents as native-subagent requests. Use Happier-managed execution or delegation runs only when the user explicitly requests a Happier-managed run, delegation, or subagent, or explicitly requests a subagent on another backend, provider, model, account, or service that native subagents cannot satisfy. Do not silently change backend or execution topology when native subagents fail or are unavailable.
+Use the current backend's native subagent facility by default. Treat generic requests for a subagent, delegation, or parallel agents as native-subagent requests. Use Kaiwu-managed execution or delegation runs only when the user explicitly requests a Kaiwu-managed run, delegation, or subagent, or explicitly requests a subagent on another backend, provider, model, account, or service that native subagents cannot satisfy. Do not silently change backend or execution topology when native subagents fail or are unavailable.
 
-- Explicit Happier wording includes “Happier subagent,” “Happier delegation run,” and “Happier execution run.” Only then discover actions with \`action_spec_search\` or \`action_spec_get\` and invoke them with \`action_execute\`.
+- Explicit Kaiwu wording includes “Kaiwu subagent,” “Kaiwu delegation run,” and “Kaiwu execution run.” Only then discover actions with \`action_spec_search\` or \`action_spec_get\` and invoke them with \`action_execute\`.
 - Prefer \`subagents.delegate.start\` for bounded delegation and \`execution.run.start\` for lower-level control. Do not use \`session.spawn_new\` for routine delegation.
 - In a session-agent call, omit \`sessionId\` to use the current invoking session. Supply it only for an intentional explicit cross-session target.
 - Resolve dependent values through \`action_options_resolve\` (the \`action.options.resolve\` action) with the partial action draft. Backend targets select provider/backend implementations, not parallelism slots. Respect the requested backend, model, account, and service.
@@ -66,7 +66,7 @@ export function buildExecutionRunsGuidanceBlockV1(params: Readonly<{
   const lines: string[] = [];
   lines.push('# Custom Execution-Run Rules');
   lines.push('');
-  lines.push('These user-configured rules may also require a Happier-managed run.');
+  lines.push('These user-configured rules may also require a Kaiwu-managed run.');
   lines.push('');
 
   let usedChars = lines.join('\n').length;

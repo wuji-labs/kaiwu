@@ -171,7 +171,7 @@ export async function dispatchBuiltInHappierTool(params: Readonly<{
       isActionEnabled,
       actionsSettings,
     })) {
-      return err('unknown_tool', `Unknown built-in Happier tool: ${params.toolName}`);
+      return err('unknown_tool', `Unknown built-in Kaiwu tool: ${params.toolName}`);
     }
   }
 
@@ -193,7 +193,7 @@ export async function dispatchBuiltInHappierTool(params: Readonly<{
       isActionEnabled,
       actionsSettings,
     })) {
-      return err('unknown_tool', `Unknown built-in Happier tool: ${params.toolName}`);
+      return err('unknown_tool', `Unknown built-in Kaiwu tool: ${params.toolName}`);
     }
   }
 
@@ -304,5 +304,5 @@ export async function dispatchBuiltInHappierTool(params: Readonly<{
     return await params.deps.executeActionByToolName(params.toolName, params.args, params.sessionId, ...actionExecutionOptionsArgs);
   }
 
-  return err('unknown_tool', `Unknown built-in Happier tool: ${params.toolName}`);
+  return err('unknown_tool', `Unknown built-in Kaiwu tool: ${params.toolName}`);
 }

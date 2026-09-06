@@ -1556,9 +1556,9 @@ export function buildHappierReplayPromptFromDialog(params: Readonly<{
     [
       sameSession
         ? nativeReturnPriorSeq === null
-          ? '- Handoff: same Happier session, now running under a different coding agent.'
-          : '- Handoff: same Happier session, returning to you.'
-        : '- Handoff: continuing from a previous Happier session that could not be vendor-resumed.',
+          ? '- Handoff: same Kaiwu session, now running under a different coding agent.'
+          : '- Handoff: same Kaiwu session, returning to you.'
+        : '- Handoff: continuing from a previous Kaiwu session that could not be vendor-resumed.',
       // Only true of a target that never ran this Session. A returning Agent's
       // own conversation state is exactly what the resume restored, so telling
       // it that its state does not carry over contradicts the boundary two

@@ -3,7 +3,7 @@ title: Isolated Linux VM (Apple Silicon)
 description: Run hstack flows in a clean Linux VM on macOS (Apple Silicon) for repeatable validation.
 ---
 
-If you want to validate hstack or a Happier PR using `hstack review-pr` on a **fresh isolated system** (no existing `~/.happier-stack`, no host tooling), the simplest repeatable approach on Apple Silicon is a Linux VM managed by **Lima** (it uses Apple’s Virtualization.framework).
+If you want to validate hstack or a Kaiwu PR using `hstack review-pr` on a **fresh isolated system** (no existing `~/.happier-stack`, no host tooling), the simplest repeatable approach on Apple Silicon is a Linux VM managed by **Lima** (it uses Apple’s Virtualization.framework).
 
 This avoids Docker/container UX issues (browser opening, Expo networking, file watching) while still being truly “clean”.
 
@@ -84,7 +84,7 @@ memory: "8GiB"
 
 ### 2c) Host access (ports + browser URLs)
 
-When you want to open Happier/Expo URLs in your macOS browser, **use localhost port forwarding**.
+When you want to open Kaiwu/Expo URLs in your macOS browser, **use localhost port forwarding**.
 
 Why this matters: the Expo web app uses WebCrypto (`crypto.subtle`) via `expo-crypto` for things like key derivation.
 Browsers only expose WebCrypto in **secure contexts**:

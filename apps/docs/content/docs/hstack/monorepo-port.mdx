@@ -1,9 +1,9 @@
 ---
 title: Monorepo port (legacy split repos)
-description: Use `hstack monorepo port` to port commits from split repos into the Happier monorepo (conflict-friendly).
+description: Use `hstack monorepo port` to port commits from split repos into the Kaiwu monorepo (conflict-friendly).
 ---
 
-This page documents `hstack monorepo port`, a helper that can apply commits from one or more “split repo” sources into a target Happier monorepo branch.
+This page documents `hstack monorepo port`, a helper that can apply commits from one or more “split repo” sources into a target Kaiwu monorepo branch.
 
 It works by generating patches (`git format-patch`) and applying them with `git am` into the target repo.
 
@@ -42,7 +42,7 @@ hstack monorepo port continue --target=/abs/path/to/monorepo
 
 ## What it maps
 
-`hstack monorepo port` is designed to port into the Happier monorepo layout by applying patches into:
+`hstack monorepo port` is designed to port into the Kaiwu monorepo layout by applying patches into:
 
 - UI: `apps/ui/` (legacy supported: `expo-app/`)
 - CLI: `apps/cli/` (legacy supported: `cli/`)
@@ -185,7 +185,7 @@ If the port stops on conflicts, you are in a normal `git am` session:
 
 ## Layout mapping
 
-The Happier monorepo uses:
+The Kaiwu monorepo uses:
 
 - UI: `apps/ui`
 - CLI: `apps/cli`

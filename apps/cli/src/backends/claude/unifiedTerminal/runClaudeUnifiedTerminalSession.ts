@@ -1049,7 +1049,7 @@ export async function runClaudeUnifiedTerminalSession<Mode extends EnhancedMode 
       throw new TerminalHostStartupError({
         hostKind: existing.handle.kind,
         reason: 'recovery_probe_inconclusive',
-        message: 'Terminal attachment has no bound Happier session identity; retaining it for manual recovery',
+        message: 'Terminal attachment has no bound Kaiwu session identity; retaining it for manual recovery',
         diagnostics: { reason, sessionName: existing.handle.sessionName, probeCount: proof.probeCount },
       });
     }

@@ -1,9 +1,9 @@
 ---
 title: Docker
-description: Deploy the Happier Server using Docker / Docker Compose.
+description: Deploy the Kaiwu Server using Docker / Docker Compose.
 ---
 
-This page explains how to deploy **your own Happier Server** with Docker. It focuses on the server only.
+This page explains how to deploy **your own Kaiwu Server** with Docker. It focuses on the server only.
 
 Use `/apps/server/.env.example` as your base env template and load the same values in Docker/Compose.
 
@@ -23,12 +23,12 @@ docker pull ghcr.io/happier-dev/relay-server:preview
 
 Published images:
 
-- `relay-server`: Happier Server + embedded web UI (this page)
-- `dev-box`: Happier CLI + daemon in Docker (see: [Dev box](/development/devcontainers))
+- `relay-server`: Kaiwu Server + embedded web UI (this page)
+- `dev-box`: Kaiwu CLI + daemon in Docker (see: [Dev box](/development/devcontainers))
 
 The published `relay-server` image is built from signed server-runtime and UI-web release artifacts. It runs as the non-root `happier` user, embeds the UI bundle at image build time, and does not need a source checkout or `hstack`.
 
-Prebuilt `relay-server` images support the default SQLite setup and the documented Postgres override. They intentionally do not include the generated MySQL Prisma client. To run Happier with MySQL, build a source-based `server` image from this repository with MySQL included at build time.
+Prebuilt `relay-server` images support the default SQLite setup and the documented Postgres override. They intentionally do not include the generated MySQL Prisma client. To run Kaiwu with MySQL, build a source-based `server` image from this repository with MySQL included at build time.
 
 Tags:
 
@@ -65,7 +65,7 @@ Configuration docs:
 
 Notes:
 
-- This Docker image runs the Happier Server directly (a self-host-friendly default config).
+- This Docker image runs the Kaiwu Server directly (a self-host-friendly default config).
 - It embeds the web UI bundle and serves it at `/` by default.
   - Disable UI serving: set `HAPPIER_SERVER_UI_DIR=` (empty).
   - Serve UI under `/ui`: set `HAPPIER_SERVER_UI_PREFIX=/ui`.
@@ -120,7 +120,7 @@ This approach:
 
 - avoids public ingress and TLS setup
 - gives you a stable HTTPS URL inside your tailnet
-- keeps the Happier server image unprivileged (Tailscale runs in its own container)
+- keeps the Kaiwu server image unprivileged (Tailscale runs in its own container)
 
 Minimal `docker-compose.yml` example (preview channel):
 
@@ -167,7 +167,7 @@ volumes:
 Notes:
 
 - Use an **ephemeral**, **one-time** pre-auth key for `TS_AUTHKEY` when possible.
-- `tailscale serve` publishes the Happier UI + API (including WebSockets) behind the Tailscale HTTPS endpoint.
+- `tailscale serve` publishes the Kaiwu UI + API (including WebSockets) behind the Tailscale HTTPS endpoint.
 - If your environment can’t use `/dev/net/tun` (some restricted hosts), fall back to a normal reverse proxy (Caddy/Traefik/nginx) or run Tailscale on the host OS and proxy to the container.
   - Make sure your proxy supports **WebSocket upgrades** for Socket.IO realtime at `/v1/updates` (otherwise machines can stay offline).
   - See: [Deployment → Environment variables → Networking / reverse proxy](/self-hosting/env#websockets-required-for-realtime--machine-online)
@@ -222,7 +222,7 @@ Notes:
 
 ## Full vs light presets
 
-Happier Server supports two presets that share the same API and runtime. A preset supplies topology and backend defaults; `HAPPIER_DB_PROVIDER` independently selects the database under either preset.
+Kaiwu Server supports two presets that share the same API and runtime. A preset supplies topology and backend defaults; `HAPPIER_DB_PROVIDER` independently selects the database under either preset.
 
 ### Full flavor (recommended for production)
 
@@ -582,7 +582,7 @@ Notes:
 
 ## Development notes (contributors)
 
-If you are developing Happier Server itself (not just deploying it), keep in mind:
+If you are developing Kaiwu Server itself (not just deploying it), keep in mind:
 
 - There are two runtime presets: **full** (`yarn --cwd apps/server start`) and **light** (`yarn --cwd apps/server start:light`).
 - The DB provider is independently selected via `HAPPIER_DB_PROVIDER=postgres|mysql|sqlite|pglite`; full defaults to Postgres and light defaults to SQLite.

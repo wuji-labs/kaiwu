@@ -5,7 +5,7 @@ export function showAuthHelp(): void {
 ${chalk.bold('happier auth')} - Authentication management
 
 ${chalk.bold('Usage:')}
-  happier auth login [--no-open] [--force] [--method web|mobile] [--wait-timeout <seconds>] [--server <name-or-id> | --server-url <url> [--webapp-url <url>] [--persist|--no-persist]]    Authenticate with Happier
+  happier auth login [--no-open] [--force] [--method web|mobile] [--wait-timeout <seconds>] [--server <name-or-id> | --server-url <url> [--webapp-url <url>] [--persist|--no-persist]]    Authenticate with Kaiwu
   happier auth request --json [--server <name-or-id> | --server-url <url> [--webapp-url <url>] [--persist|--no-persist]]                                    Create a claim-gated auth request (headless-friendly)
   happier auth approve --public-key <base64> --json [--server <name-or-id> | --server-url <url> [--webapp-url <url>] [--persist|--no-persist]]              Approve an auth request using your local credentials
   happier auth wait --public-key <base64> --json [--server <name-or-id> | --server-url <url> [--webapp-url <url>] [--persist|--no-persist]]                Wait for approval and write credentials for this machine
@@ -25,7 +25,7 @@ ${chalk.bold('Options:')}
   --public-key Used with approve/wait; the terminal public key from "auth request --json"
   --ssh        Used with pair-remote; ssh target (e.g. user@host)
   --no-post-check  Skip the post-pair 'doctor repair' handoff on the remote host (defaults to running it)
-  --remote-command       Happier command to run on the remote host (default: happier)
+  --remote-command       Kaiwu command to run on the remote host (default: happier)
   --server-url-for-remote  Address the remote host should use to reach this computer's relay
   --remote-server-url    Legacy alias for --server-url-for-remote
   --remote-local-server-url  Remote-local API URL paired with --remote-server-url

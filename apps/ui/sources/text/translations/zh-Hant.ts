@@ -1,5 +1,5 @@
 /**
- * Chinese (Traditional) translations for the Happier app
+ * Chinese (Traditional) translations for the 無極開物 app
  * Values can be:
  * - String constants for static text
  * - Functions with typed object parameters for dynamic text
@@ -10,10 +10,10 @@ import { zhHans } from './zh-Hans';
 
 const mcpServersUxTranslationExtension = {
   mcpServersConfiguredEmptySubtitle: '建立一個伺服器、匯入主機 JSON，或安裝推薦預設。',
-  mcpServersHeroSubtitle: ({ configuredCount }: { configuredCount: number }) => `Happier 中已設定 ${configuredCount} 個`,
+  mcpServersHeroSubtitle: ({ configuredCount }: { configuredCount: number }) => `無極開物 中已設定 ${configuredCount} 個`,
   mcpServersHeroSubtitleEmpty: '伺服器只需建立一次，就能預覽其適用位置，並匯入其他工具已在使用的設定。',
   mcpServersSegmentConfigured: '已設定',
-  mcpServersSegmentConfiguredSubtitle: '你的 Happier 目錄',
+  mcpServersSegmentConfiguredSubtitle: '你的 無極開物 目錄',
   mcpServersSegmentDetected: '已偵測到',
   mcpServersSegmentDetectedSubtitle: '在提供者設定檔中找到',
   mcpServersSegmentPreview: '預覽',
@@ -30,12 +30,12 @@ const mcpServersUxTranslationExtension = {
   mcpServersPreviewDirectorySubtitle: '選擇你打算在其中啟動工作階段的資料夾',
   mcpServersPreviewDirectoryPlaceholder: '/workspace/路徑',
   mcpServersPreviewRefreshTitle: '重新整理預覽',
-  mcpServersPreviewRefreshSubtitle: '為此情境解析 Happier 與提供者原生 MCP 伺服器',
+  mcpServersPreviewRefreshSubtitle: '為此情境解析 無極開物 與提供者原生 MCP 伺服器',
   mcpServersPreviewEmptyTitle: '尚無預覽',
   mcpServersPreviewEmptySubtitle: '選擇一個後端、機器和目錄，然後重新整理以檢視實際生效的 MCP 集合。',
   mcpServersPreviewDirectoryRequired: '請先選擇目錄以預覽此工作階段。',
-  mcpServersBuiltInDescription: '在 Happier 工作階段中一律可用。',
-  mcpServersSourceHappier: 'Happier',
+  mcpServersBuiltInDescription: '在 無極開物 工作階段中一律可用。',
+  mcpServersSourceHappier: '無極開物',
   mcpServersSourceBuiltIn: '內建',
   mcpServersSourceDetected: '已偵測到',
   mcpServersQuickInstallTitle: '快速安裝',
@@ -96,17 +96,17 @@ const mcpServersUxTranslationExtension = {
   mcpServersStatusDetected: ({ provider }: { provider: string }) => `已在 ${provider} 中啟用`,
   mcpServersStatusDisabledInProvider: ({ provider }: { provider: string }) => `已在 ${provider} 中停用`,
   mcpServersEditorAppliesTo: '適用於',
-  mcpServersEditorAppliesToSubtitle: '選擇 Happier 預設應將此伺服器新增到哪裡。',
+  mcpServersEditorAppliesToSubtitle: '選擇 無極開物 預設應將此伺服器新增到哪裡。',
   mcpServersAddApplyRule: '新增適用規則',
   mcpServersAddApplyRuleSubtitle: '選擇此伺服器預設應適用的位置。',
   mcpServersAddApplyRuleHelp: '儲存此適用規則，使其成為此伺服器設定的一部分。',
   mcpServersAddApplyRuleSave: '儲存適用規則',
   mcpServersDeliveryNativeTitle: '原生 MCP',
-  mcpServersDeliveryNativeSubtitle: '此後端會將 Happier 工具作為原生 MCP 伺服器接收。',
-  mcpServersDeliveryShellBridgeTitle: 'Happier Shell 橋接',
-  mcpServersDeliveryShellBridgeSubtitle: '此後端透過 `happier tools` 橋接呼叫 Happier 工具。',
+  mcpServersDeliveryNativeSubtitle: '此後端會將 無極開物 工具作為原生 MCP 伺服器接收。',
+  mcpServersDeliveryShellBridgeTitle: '無極開物 Shell 橋接',
+  mcpServersDeliveryShellBridgeSubtitle: '此後端透過 `happier tools` 橋接呼叫无极开物工具。',
   mcpServersDeliveryUnsupportedTitle: '不支援',
-  mcpServersDeliveryUnsupportedSubtitle: '此後端目前不會接收 Happier 工具。',
+  mcpServersDeliveryUnsupportedSubtitle: '此後端目前不會接收 無極開物 工具。',
 } as const;
 
 const newSessionMcpTranslationExtension = {
@@ -129,9 +129,9 @@ const newSessionMcpTranslationExtension = {
   mcpDetectedEmptyTitle: '未偵測到 MCP 伺服器',
   mcpDetectedEmptySubtitle: '更新以掃描此機器上的供應商設定檔。',
   mcpDetectedUnsupportedTitle: '偵測到的 MCP 伺服器不可用',
-  mcpDetectedUnsupportedSubtitle: '更新此機器上的 Happier 以啟用供應商設定掃描。',
-  mcpHappierSectionTitle: 'Happier MCP 伺服器',
-  mcpHappierEmptyTitle: 'Happier 中未定義 MCP 伺服器',
+  mcpDetectedUnsupportedSubtitle: '更新此機器上的 無極開物 以啟用供應商設定掃描。',
+  mcpHappierSectionTitle: '无极开物 MCP 伺服器',
+  mcpHappierEmptyTitle: '无极开物中未定義 MCP 伺服器',
   mcpHappierEmptySubtitle: '在設定中定義 MCP 伺服器以在工作階段中使用。',
   mcpReasonActiveByDefault: '預設包含',
   mcpReasonForcedIncluded: '由設定要求',
@@ -153,7 +153,7 @@ const settingsAppearanceTranslationExtension = {
     customGroup: 'Custom themes',
     customFooter: 'Tap a theme to activate it, or use row actions to edit, duplicate, or delete it.',
     defaultTheme: 'Default theme',
-    defaultThemeSubtitle: 'Use Happier theme colors without a custom profile',
+    defaultThemeSubtitle: 'Use 無極開物 theme colors without a custom profile',
     active: 'Active',
     customProfileSubtitle: 'Custom local theme profile',
     tapToActivate: 'Tap to activate',
@@ -161,7 +161,7 @@ const settingsAppearanceTranslationExtension = {
     createProfile: 'Create theme',
     createProfileSubtitle: 'Start from any built-in or custom theme',
     importProfile: 'Import theme',
-    importProfileSubtitle: 'Paste JSON or choose a Happier theme profile file',
+    importProfileSubtitle: 'Paste JSON or choose a 無極開物 theme profile file',
     exportProfile: 'Export theme',
     exportProfileSubtitle: 'Export this theme as JSON',
     presetsGroup: 'Built-in presets',
@@ -363,7 +363,7 @@ const memoryEmbeddingsTranslationExtension = {
       title: '提供者',
       options: {
         localTitle: '本機模型',
-        localSubtitle: '由 Happier 管理，並在首次使用時下載',
+        localSubtitle: '由 無極開物 管理，並在首次使用時下載',
         openAiCompatibleTitle: '相容 OpenAI 的端點',
         openAiCompatibleSubtitle: '使用你自己的嵌入伺服器與 API 金鑰',
       },
@@ -456,7 +456,7 @@ const promptLibraryUxRefinementTranslationExtension = {
     externalAssetsInstallMethodCopy: '複製檔案',
     externalAssetsInstallMethodCopySubtitle: '將獨立副本寫入所選目標位置',
     externalAssetsInstallMethodSymlink: '符號連結（建議）',
-    externalAssetsInstallMethodSymlinkSubtitle: '將目標連結到 Happier 管理的副本，方便後續更新',
+    externalAssetsInstallMethodSymlinkSubtitle: '將目標連結到 無極開物 管理的副本，方便後續更新',
     registriesAddGitSourceSubtitle: '新增 Git 儲存庫或本機檢出作為登錄來源',
     registriesSourceTitleLabel: '來源標題',
     registriesSourceUrlLabel: '儲存庫 URL 或本機路徑',
@@ -467,7 +467,7 @@ const promptLibraryUxRefinementTranslationExtension = {
     registriesItemFiles: '支援檔案',
     registriesItemPreview: 'SKILL.md 預覽',
     registriesItemPreviewUnavailable: '這個登錄項目沒有可用的 SKILL.md 預覽。',
-    registriesItemImportSubtitle: '將這個技能套件匯入 Happier 資料庫',
+    registriesItemImportSubtitle: '將這個技能套件匯入 無極開物 資料庫',
     registriesItemInstallAction: '安裝到機器',
     registriesItemInstallConfirmTitle: '要安裝這個登錄項目嗎？',
     registriesItemInstallConfirmBody: '這會先把技能匯入你的資料庫，然後安裝到所選機器目標。',
@@ -487,7 +487,7 @@ const sessionHandoffTranslationExtensions = {
   'zh-Hant': {
     activeWarning: {
       title: '此工作階段仍在這台裝置上執行',
-      message: '開始移交前，Happier 會先在這台裝置上停止此工作階段，再將其轉移到所選裝置。',
+      message: '開始移交前，無極開物 會先在這台裝置上停止此工作階段，再將其轉移到所選裝置。',
       confirm: '在此停止並移交',
     },
     progress: {
@@ -513,7 +513,7 @@ const sessionHandoffTranslationExtensions = {
     recovery: {
       title: '這台裝置上的工作階段在移交完成前已停止',
       messageAfterSourceStop:
-        'Happier 已經在這台裝置上停止了此工作階段，但未能在目標裝置上完成啟動。你可以在此重新啟動，或在恢復目標裝置期間維持停止狀態。',
+        '無極開物 已經在這台裝置上停止了此工作階段，但未能在目標裝置上完成啟動。你可以在此重新啟動，或在恢復目標裝置期間維持停止狀態。',
       restartOnSource: '在來源端重新啟動',
       keepStopped: '保持停止',
     },
@@ -566,8 +566,8 @@ const settingsSessionHandoffTranslationExtensions = {
       groupFooter: '僅在來源工作階段目前為直接模式時適用。',
       keepDirectTitle: '保持直接模式',
       keepDirectSubtitle: '當供應商支援時，將目標恢復為直接工作階段。',
-      convertToPersistedTitle: '轉換為 Happier',
-      convertToPersistedSubtitle: '匯入逐字稿並以 Happier 工作階段繼續。',
+      convertToPersistedTitle: '轉換為 無極開物',
+      convertToPersistedSubtitle: '匯入逐字稿並以 無極開物 工作階段繼續。',
     },
   },
 } as const;
@@ -904,7 +904,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                 title: '提供者',
                 options: {
                     localTitle: '本機模型',
-                    localSubtitle: '由 Happier 管理，首次使用時下載',
+                    localSubtitle: '由 無極開物 管理，首次使用時下載',
                     openAiCompatibleTitle: 'OpenAI 相容端點',
                     openAiCompatibleSubtitle: '使用你自己的嵌入伺服器與 API 金鑰',
                 },
@@ -1296,7 +1296,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
             invalidConfig: '已連線服務設定無效。',
             connectWebGroupTitle: '連線（網頁）',
             connectWebDescription:
-                '開啟授權 URL，在瀏覽器中完成 OAuth，然後將最終重新導向的 URL 複製並貼回 Happier。',
+                '開啟授權 URL，在瀏覽器中完成 OAuth，然後將最終重新導向的 URL 複製並貼回 無極開物。',
             openAuthorizationUrl: '開啟授權 URL',
             opensInNewTab: '將在新分頁中開啟',
             preparing: '準備中…',
@@ -1427,23 +1427,23 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                     `The daemon could not verify ${agentId} resume state because required resume inputs were missing. Reported reason: ${reason}. Start fresh under the selected account or continue with the current account.`,
                 metadata_update_failed: '工作階段無法儲存新的驗證選擇。請在工作階段完成同步後再試一次。',
                 no_eligible_group_member: '此池目前沒有符合備援條件的帳號。請檢查已連線帳號，必要時重新連線設定檔。',
-                recovery_retry_scheduled: 'Happier 已安排提供者復原重試。你可以立即重試或檢查已連線帳號。',
-                recovery_dead_lettered: 'Happier 已用盡自動提供者復原重試。請檢查已連線帳號或重新連線所選設定檔。',
-                runtime_auth_recovery_superseded: '這次供應商復原嘗試已被較新的連線服務狀態取代。Happier 不會繼續重試這個過期帳號。',
+                recovery_retry_scheduled: '無極開物 已安排提供者復原重試。你可以立即重試或檢查已連線帳號。',
+                recovery_dead_lettered: '無極開物 已用盡自動提供者復原重試。請檢查已連線帳號或重新連線所選設定檔。',
+                runtime_auth_recovery_superseded: '這次供應商復原嘗試已被較新的連線服務狀態取代。無極開物 不會繼續重試這個過期帳號。',
                 runtime_auth_generation_stale: '這次供應商復原嘗試屬於較舊的連線服務世代。請等待最新切換完成，或檢查已連線帳號。',
-                hot_apply_unavailable: '此供應商無法在執行中的工作階段安全切換驗證。Happier 會等待安全重新啟動或下一個可用的復原路徑。',
+                hot_apply_unavailable: '此供應商無法在執行中的工作階段安全切換驗證。無極開物 會等待安全重新啟動或下一個可用的復原路徑。',
                 app_server_unavailable: '供應商應用程式伺服器無法用於驗證或套用驗證切換。請在工作階段準備好後重試。',
                 provider_account_adoption_mismatch: '切換後提供者仍停留在其他帳號。請檢查已連線帳號或重試切換。',
-                provider_account_identity_unverified: 'Happier 無法證明目前供應商帳號身分。在取得更強證明前，它會避免分派到同一帳號。',
-                post_switch_verification_failed: 'Happier 無法驗證提供者是否採用了所選帳號。請檢查已連線帳號或重試切換。',
-                quota_snapshot_stale: '最新配額快照太舊，無法推動主動切換。Happier 會繼續使用被動復原，直到有新的配額資料。',
-                quota_fetch_disabled: '此供應商目前已停用配額檢查。Happier 會繼續使用被動復原。',
-                quota_fetch_backoff: '收到供應商或網路回應後，配額檢查暫時退避。Happier 稍後會重試重新整理配額。',
-                auth_surface_weakly_verified: 'Happier 已驗證所選驗證檔案已重寫，但此供應商不公開確切的目前帳號身分。',
-                connected_service_restart_requested: 'Happier 已要求安全地重新啟動工作階段，以套用所選的已連線帳戶。',
+                provider_account_identity_unverified: '無極開物 無法證明目前供應商帳號身分。在取得更強證明前，它會避免分派到同一帳號。',
+                post_switch_verification_failed: '無極開物 無法驗證提供者是否採用了所選帳號。請檢查已連線帳號或重試切換。',
+                quota_snapshot_stale: '最新配額快照太舊，無法推動主動切換。無極開物 會繼續使用被動復原，直到有新的配額資料。',
+                quota_fetch_disabled: '此供應商目前已停用配額檢查。無極開物 會繼續使用被動復原。',
+                quota_fetch_backoff: '收到供應商或網路回應後，配額檢查暫時退避。無極開物 稍後會重試重新整理配額。',
+                auth_surface_weakly_verified: '無極開物 已驗證所選驗證檔案已重寫，但此供應商不公開確切的目前帳號身分。',
+                connected_service_restart_requested: '無極開物 已要求安全地重新啟動工作階段，以套用所選的已連線帳戶。',
                 connected_service_credential_reconnect_required: '恢復此工作階段前，需要重新連線所選的已連線帳戶。請重新連線該設定檔，然後重試。',
                 claude_subscription_missing_claude_code_scope: '此 Claude 設定檔是在授予 Claude Code 範圍之前連線的。請重新連線，然後重試工作階段或帳號池切換。',
-                claude_subscription_native_auth_materialization_failed: 'Happier 無法為此設定檔建立 Claude Code 原生憑證檔案。請重新連線該設定檔，或選擇帳號池中的其他成員。',
+                claude_subscription_native_auth_materialization_failed: '無極開物 無法為此設定檔建立 Claude Code 原生憑證檔案。請重新連線該設定檔，或選擇帳號池中的其他成員。',
                 claude_subscription_setup_token_not_supported_for_unified: 'Claude Unified 模式必須使用原生 OAuth 憑證啟動 Claude CLI。請使用 OAuth 重新連線此設定檔，而不是設定權杖。',
             },
             actions: {
@@ -1492,7 +1492,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
             connectAccessTokenTitle: '透過存取權杖連線',
             connectAccessTokenSubtitle: '貼上 GitHub personal access token',
             openGithubTokenTemplateTitle: '建立 GitHub 權杖',
-            openGithubTokenTemplateSubtitle: '開啟 GitHub，並預先填入 Happier 需要的權限',
+            openGithubTokenTemplateSubtitle: '開啟 GitHub，並預先填入 無極開物 需要的權限',
             disconnectGroupCleanupConfirmBody: ({ service, profileId, groups }: { service: string; profileId: string; groups: string }) =>
                 `斷開 ${service}（${profileId}）並從 ${groups} 中移除？`,
             prompts: {
@@ -1642,13 +1642,13 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                 softSwitchThresholdTitle: '軟切換閾值',
                 softSwitchThresholdSubtitle: ({ percent }: { percent: string }) => `當此池中有另一個成員擁有更新的可用配額時，在剩餘低於 ${percent}% 時切換。`,
                 softSwitchThresholdPromptTitle: '軟切換閾值',
-                softSwitchThresholdPromptBody: '輸入剩餘百分比，Happier 會在該值以下優先選擇此多帳號池中更安全的成員。使用 0 可關閉預防性切換。',
+                softSwitchThresholdPromptBody: '輸入剩餘百分比，無極開物 會在該值以下優先選擇此多帳號池中更安全的成員。使用 0 可關閉預防性切換。',
                 invalidSoftSwitchThresholdTitle: '閾值無效',
                 invalidSoftSwitchThresholdBody: '請輸入 0 到 100 之間的數字。',
                 staleProbeTitle: '配額資料過期後重新檢查',
                 staleProbeSubtitle: ({ minutes }: { minutes: string }) => `當配額資料早於 ${minutes} 分鐘時再次檢查。`,
                 staleProbePromptTitle: '配額資料過期後重新檢查',
-                staleProbePromptBody: '輸入配額資料可重複使用的分鐘數，超過後 Happier 會重新檢查。',
+                staleProbePromptBody: '輸入配額資料可重複使用的分鐘數，超過後 無極開物 會重新檢查。',
                 invalidStaleProbeTitle: '檢查間隔無效',
                 invalidStaleProbeBody: '請輸入至少 1 分鐘。',
                 switchBudgetTitle: '自動切換限制',
@@ -1769,7 +1769,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
             groupUnknownSubtitle: '準備狀態仍在同步',
             groupUnsupportedSubtitle: '此執行階段無法切換帳號池',
             connectedServicesTitle: '使用已連線服務',
-            connectedServicesSubtitle: '從 Happier 雲端取得並生成',
+            connectedServicesSubtitle: '從 無極開物 雲端取得並生成',
             notConnectedTitle: '沒有已連線的服務',
             notConnectedSubtitle: '點按以開啟設定',
             profileLabel: '設定檔',
@@ -1778,7 +1778,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
 
     appCrash: {
         title: '發生錯誤',
-        subtitle: 'Happier 發生了非預期的錯誤。你可以重新啟動應用程式介面，或複製詳細資訊以便支援排查。',
+        subtitle: '無極開物 發生了非預期的錯誤。你可以重新啟動應用程式介面，或複製詳細資訊以便支援排查。',
         detailsTitle: '錯誤詳細資訊',
         restart: '重新啟動應用程式',
         restartAndReportIssue: '重新啟動並提交問題回報',
@@ -1951,11 +1951,11 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         enterUrlManually: '手動輸入 URL',
         scanComputerQrUnavailableTitle: '無法掃描電腦端 QR 碼',
         scanComputerQrUnavailableBody: '此伺服器已停用此登入方式。請使用下方其他選項來還原帳號。',
-        scanComputerQrInstructions: '掃描電腦端 Happier（設定 → 新增手機）中顯示的 QR 碼。',
+        scanComputerQrInstructions: '掃描電腦端 無極開物（設定 → 新增手機）中顯示的 QR 碼。',
         scanComputerQrButton: '掃描 QR 碼登入',
         waitingForApproval: '等待確認…',
         showQrInstead: '改為顯示 QR 碼',
-        addPhoneQrInstructions: '使用 Happier 手機 App 掃描此 QR 碼，在手機上登入。',
+        addPhoneQrInstructions: '使用 無極開物 手機 App 掃描此 QR 碼，在手機上登入。',
         serverUrlNotEmbeddedTitle: '在手機上設定伺服器',
         serverUrlNotEmbeddedBody:
             '此 QR 碼無法包含伺服器位址，因為伺服器被設定為 localhost。請在手機上前往 設定 → 伺服器，新增一個手機可連線的 URL（例如區網 IP 或 Tailscale URL），然後再掃描一次。',
@@ -1972,10 +1972,10 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         restoreQrInstructions: '在已登入的裝置上前往 設定 → 帳戶 並掃描此 QR 碼。',
         externalAuthVerifiedTitle: ({ provider }: { provider: string }) => `${provider} 驗證完成`,
         externalAuthVerifiedBody: ({ provider }: { provider: string }) =>
-            `我們找到了與 ${provider} 關聯的既有 Happier 帳戶。要在此裝置上完成登入，請使用 QR code 或你的密鑰來還原帳戶金鑰。`,
+            `我們找到了與 ${provider} 關聯的既有 無極開物 帳戶。要在此裝置上完成登入，請使用 QR code 或你的密鑰來還原帳戶金鑰。`,
         linkNewDeviceTitle: '連結新裝置',
         linkNewDeviceSubtitle: '掃描新裝置上顯示的 QR Code 以將其連結至此帳戶',
-        linkNewDeviceQrInstructions: '在新裝置上開啟 Happier 並顯示 QR Code',
+        linkNewDeviceQrInstructions: '在新裝置上開啟 無極開物 並顯示 QR Code',
         scanQrCodeOnDevice: '掃描 QR Code',
         unsupported: {
             connectTitle: ({ name }: { name: string }) => `連結 ${name}`,
@@ -2088,8 +2088,8 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         backendsSubtitle: "已設定的後端與自訂啟動目標。",
       },
       enableInjection: {
-        title: "Happier 執行指示",
-        subtitle: "關閉後，編碼代理的系統提示詞中將移除原生優先路由說明與 Happier 執行機制。",
+        title: "無極開物 執行指示",
+        subtitle: "關閉後，編碼代理的系統提示詞中將移除原生優先路由說明與 無極開物 執行機制。",
       },
       characterBudget: {
         title: "自訂規則字元上限",
@@ -2168,7 +2168,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         addYourPhoneSubtitle: '顯示 QR 碼以便在手機上登入',
         addMachine: '新增機器',
         machineSetupCurrentMachineTitle: '這台電腦',
-        machineSetupCurrentMachineSubtitle: '直接在此裝置上啟用 Happier',
+        machineSetupCurrentMachineSubtitle: '直接在此裝置上啟用 無極開物',
         machineSetupAdoptExistingTitle: '採用既有安裝',
         machineSetupAdoptExistingSubtitle: '使用此裝置上既有的守護行程/服務設定',
         machineSetupAdoptExistingProgressTitle: '正在檢查既有安裝',
@@ -2177,7 +2177,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         machineSetupSshMachineSubtitle: '連線開發主機、VM 或伺服器',
         machineSetupStagesTitle: '接下來會發生什麼',
         machineSetupStageConnect: '連線並驗證存取權',
-        machineSetupStageInstall: '安裝 Happier 並配對此機器',
+        machineSetupStageInstall: '安裝 無極開物 並配對此機器',
         machineSetupStageFinish: '在內建終端中完成設定',
         machineSetupComingSoon: '機器啟用功能即將推出。',
         machineSetupTaskWaitingForInput: '等待輸入',
@@ -2196,7 +2196,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         machineSetupRemoteRelaySwitchSubtitle: '立即切換並在新的 Relay 上繼續設定。',
         machineSetupRemoteRelaySwitchConfirmTitle: '切換 Relay？',
         machineSetupRemoteRelaySwitchConfirmBody: ({ relayUrl }: { relayUrl: string }) =>
-            `切換 Happier 到 ${relayUrl} 並繼續設定？`,
+            `切換 無極開物 到 ${relayUrl} 並繼續設定？`,
         machineSetupRemotePromptTrustAction: '信任主機金鑰',
         machineSetupRemotePromptReplaceAction: '替換已儲存的金鑰',
         machineSetupRemotePromptApproveAction: '核准配對',
@@ -2267,13 +2267,13 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         developerTools: '開發者工具',
         about: '關於',
         actionsSettingsAboutSubtitle: '可全域、依介面（UI/語音/MCP）以及依顯示位置（在介面中出現的位置）啟用或停用操作。停用的操作在執行時會以安全方式（fail-closed）被阻擋。',
-        aboutFooter: 'Happier Coder 是一個 Codex 和 Claude Code 行動用戶端。預設採用端對端加密，並可在其他裝置上還原您的帳戶。與 Anthropic 無關聯。',
+        aboutFooter: '無極開物 Coder 是一個 Codex 和 Claude Code 行動用戶端。預設採用端對端加密，並可在其他裝置上還原您的帳戶。與 Anthropic 無關聯。',
         whatsNew: '更新日誌',
         whatsNewSubtitle: '查看最新更新和改進',
         reportIssue: '回報問題',
         privacyPolicy: '隱私權政策',
         termsOfService: '服務條款',
-        rateUs: '為 Happier 評分',
+        rateUs: '為 無極開物 評分',
         rateUsSubtitle: '如果你喜歡這個 app，歡迎給我們一個簡短評分',
         eula: '終端使用者授權協議',
         supportUs: '支援我們',
@@ -2443,7 +2443,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
 		        mcpServersConfiguredEmptySubtitle: '建立伺服器、匯入主機 JSON，或安裝建議的預設。',
 		        mcpServersHeroSubtitleEmpty: '建立伺服器一次，預覽它們適用的位置，並匯入其他工具已在使用的設定。',
 		        mcpServersSegmentConfigured: '已設定',
-		        mcpServersSegmentConfiguredSubtitle: '你的 Happier 目錄',
+		        mcpServersSegmentConfiguredSubtitle: '你的 無極開物 目錄',
 		        mcpServersSegmentDetected: '已偵測',
 		        mcpServersSegmentDetectedSubtitle: '在提供者設定檔中找到',
 		        mcpServersSegmentPreview: '預覽',
@@ -2458,11 +2458,11 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
 		        mcpServersPreviewDirectoryTitle: '工作區目錄',
 		        mcpServersPreviewDirectorySubtitle: '選擇你打算啟動工作階段的資料夾',
 		        mcpServersPreviewRefreshTitle: '重新整理預覽',
-		        mcpServersPreviewRefreshSubtitle: '針對此情境解析 Happier 與提供者原生的 MCP 伺服器',
+		        mcpServersPreviewRefreshSubtitle: '針對此情境解析 無極開物 與提供者原生的 MCP 伺服器',
 		        mcpServersPreviewEmptyTitle: '尚無預覽',
 		        mcpServersPreviewEmptySubtitle: '選擇後端、機器與目錄後，再重新整理以檢視生效中的 MCP 集合。',
 		        mcpServersPreviewDirectoryRequired: '請選擇目錄以預覽此工作階段。',
-		        mcpServersBuiltInDescription: '在 Happier 工作階段中始終可用。',
+		        mcpServersBuiltInDescription: '在 無極開物 工作階段中始終可用。',
 		        mcpServersSourceBuiltIn: '內建',
 		        mcpServersSourceDetected: '已偵測',
 		        mcpServersQuickInstallTitle: '快速安裝',
@@ -2515,17 +2515,17 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
 		        mcpServersStatusAvailable: '可用',
 		        mcpServersStatusUnavailable: '不可用',
 		        mcpServersEditorAppliesTo: '適用於',
-		        mcpServersEditorAppliesToSubtitle: '選擇 Happier 預設應將此伺服器加到哪些地方。',
+		        mcpServersEditorAppliesToSubtitle: '選擇 無極開物 預設應將此伺服器加到哪些地方。',
 		        mcpServersAddApplyRule: '新增適用規則',
 		        mcpServersAddApplyRuleSubtitle: '選擇此伺服器預設應套用到哪些地方。',
 		        mcpServersAddApplyRuleHelp: '儲存這條適用規則，讓它成為此伺服器設定的一部分。',
 		        mcpServersAddApplyRuleSave: '儲存適用規則',
 		        mcpServersDeliveryNativeTitle: '原生 MCP',
-		        mcpServersDeliveryNativeSubtitle: '此後端會以原生 MCP 伺服器的方式接收 Happier 工具。',
-		        mcpServersDeliveryShellBridgeTitle: 'Happier Shell 橋接',
-		        mcpServersDeliveryShellBridgeSubtitle: '此後端會透過 `happier tools` 橋接呼叫 Happier 工具。',
+		        mcpServersDeliveryNativeSubtitle: '此後端會以原生 MCP 伺服器的方式接收 無極開物 工具。',
+		        mcpServersDeliveryShellBridgeTitle: '無極開物 Shell 橋接',
+		        mcpServersDeliveryShellBridgeSubtitle: '此後端會透過 `happier tools` 橋接呼叫无极开物工具。',
 		        mcpServersDeliveryUnsupportedTitle: '不支援',
-		        mcpServersDeliveryUnsupportedSubtitle: '此後端目前不會接收 Happier 工具。',
+		        mcpServersDeliveryUnsupportedSubtitle: '此後端目前不會接收 無極開物 工具。',
 
 		        // Dynamic settings messages
 		        accountConnected: ({ service }: { service: string }) => `已連結 ${service} 帳戶`,
@@ -2611,7 +2611,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         codingStack: '編碼堆疊',
         codingStackSubtitle: '套用到編碼工作階段',
         voiceStack: '語音堆疊',
-        voiceStackSubtitle: '套用到 Happier Voice',
+        voiceStackSubtitle: '套用到 無極開物語音',
         profileStacks: '個人檔案堆疊',
         profileStacksSubtitle: ({ count }: { count: number }) => `${count} 個個人檔案`,
         profileStackCount: ({ count }: { count: number }) => `${count} 個項目`,
@@ -3040,7 +3040,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                         subtitle: '在 web/desktop 上提供最佳 diff 渲染。使用 worker 管線，若不可用會安全降級。',
                     },
                     happier: {
-                        title: 'Diff 渲染器：Happier',
+                        title: 'Diff 渲染器：無極開物',
                         subtitle: '相容與排障用的降級渲染器。',
                     },
                 },
@@ -3103,7 +3103,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
 		        title: '桌面',
 		        footer: '管理這台電腦上的 Tauri 桌面整合。',
 		        startOnLoginTitle: '登入時啟動',
-		        startOnLoginSubtitle: '當你登入這台電腦時自動啟動 Happier。',
+		        startOnLoginSubtitle: '當你登入這台電腦時自動啟動 無極開物。',
 		    },
 
 		    settingsPets: {
@@ -3123,7 +3123,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
 		        deviceOverrideTitle: '在此裝置使用',
 		        deviceOverrideSubtitle: '在本機覆寫帳戶寵物設定。',
 		        sourceTitle: '寵物來源',
-		        builtInSubtitle: '內建於 Happier。',
+		        builtInSubtitle: '內建於 無極開物。',
 		        builtInBlinkSubtitle: '把工作階段訊號變成安靜的小狀態燈。',
 		        builtInFurySubtitle: '在進入 production 前壓力測試棘手流程。',
 		        builtInMiloSubtitle: '保持 UI 整潔，並趴在失敗測試上打盹。',
@@ -3132,7 +3132,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
 		        localLibraryTitle: '此裝置',
 		        localLibraryFooter: '本機寵物會留在此裝置，除非你將它們匯入帳戶。',
 		        helpDocsTitle: '寵物說明',
-		        helpDocsSubtitle: '開啟 Happier 文件以查看設定和疑難排解。',
+		        helpDocsSubtitle: '開啟 無極開物 文件以查看設定和疑難排解。',
 		        detectCodexPetsTitle: '偵測 Codex 寵物',
 		        detectCodexPetsSubtitle: '在本機 Codex homes 中尋找相容寵物。',
 		        detectedCodexPetsTileSubtitle: '已在 Codex 中找到，準備加入此裝置。',
@@ -3141,7 +3141,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
 		        detectedCodexPetsErrorTitle: '無法偵測 Codex 寵物',
 		        detectedCodexPetsErrorSubtitle: '請確認 daemon 已連線，然後再試一次。',
 		        detectedCodexPetsNoTargetTitle: '沒有可用的 daemon',
-		        detectedCodexPetsNoTargetSubtitle: '在此電腦上啟動 Happier，然後再次偵測 Codex 寵物。',
+		        detectedCodexPetsNoTargetSubtitle: '在此電腦上啟動 無極開物，然後再次偵測 Codex 寵物。',
 		        detectedCodexPetsDaemonMismatchTitle: '更新 daemon 以偵測寵物',
 		        detectedCodexPetsDaemonMismatchSubtitle: '此 daemon 尚未開放寵物偵測。重新整理 stack 後再試一次。',
 		        useOnThisDeviceTitle: '在此裝置使用',
@@ -3241,7 +3241,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
             footer: '控制帳戶切換與配額復原通知。',
             accountSwitch: {
                 title: '帳戶切換',
-                subtitle: '當 Happier 自動將提供者切換到另一個已連接帳戶時通知',
+                subtitle: '當 無極開物 自動將提供者切換到另一個已連接帳戶時通知',
             },
             quotaBlocked: {
                 title: '配額受阻',
@@ -3254,7 +3254,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         },
         pushPriming: {
             title: '開啟通知？',
-            body: 'Happier 可以在代理完成工作、需要權限決定或正在等待你時通知你。你隨時可以在設定中變更。',
+            body: '無極開物 可以在代理完成工作、需要權限決定或正在等待你時通知你。你隨時可以在設定中變更。',
             accept: '開啟',
             decline: '暫不',
             blockedTitle: '通知已被封鎖',
@@ -3488,7 +3488,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         },
         cliSourcePreference: {
             title: 'CLI 來源偏好',
-            subtitle: '當系統 CLI 與 Happier 管理安裝同時存在時，選擇優先使用哪一個。',
+            subtitle: '當系統 CLI 與 無極開物 管理安裝同時存在時，選擇優先使用哪一個。',
             options: {
                 systemFirst: {
                     title: '優先系統安裝',
@@ -3496,7 +3496,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                 },
                 managedFirst: {
                     title: '優先管理安裝',
-                    subtitle: '優先使用 Happier 為此提供者安裝的 CLI。',
+                    subtitle: '優先使用 無極開物 為此提供者安裝的 CLI。',
                 },
             },
         },
@@ -3560,11 +3560,11 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                 sections: {
                     claudeUnifiedTerminal: {
                         title: "統一終端執行階段",
-                        footer: "啟用後，Happier 會將提示送入同一個 Claude Code 終端工作階段，而不是啟動獨立的 Agent SDK runner。"
+                        footer: "啟用後，無極開物 會將提示送入同一個 Claude Code 終端工作階段，而不是啟動獨立的 Agent SDK runner。"
                     },
                     claudeCodeExperiments: {
                         title: "Claude Code 實驗功能",
-                        footer: "這些設定同時適用於由 Happier 啟動的 Claude 本機工作階段（終端）與遠端工作階段（Agent SDK）。"
+                        footer: "這些設定同時適用於由 無極開物 啟動的 Claude 本機工作階段（終端）與遠端工作階段（Agent SDK）。"
                     },
                     claudeRemoteSdk: {
                         title: "經典執行階段（Agent SDK 後備）",
@@ -3578,7 +3578,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                     },
                     claudeUnifiedTerminalHost: {
                         title: "終端主機",
-                        subtitle: "選擇 Happier 如何託管共享的 Claude 終端工作階段。",
+                        subtitle: "選擇 無極開物 如何託管共享的 Claude 終端工作階段。",
                         options: {
                             auto: {
                                 title: "自動",
@@ -3590,31 +3590,31 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                             },
                             zellij: {
                                 title: "zellij",
-                                subtitle: "使用 Happier 內建的 zellij 主機。"
+                                subtitle: "使用 無極開物 內建的 zellij 主機。"
                             }
                         }
                     },
                     claudeUnifiedTerminalWorkspaceTrust: {
                         title: "工作區信任",
-                        subtitle: "選擇當 Claude 詢問是否信任工作區時 Happier 的回應方式。",
+                        subtitle: "選擇當 Claude 詢問是否信任工作區時 無極開物 的回應方式。",
                         options: {
                             ask_every_time: {
                                 title: "每次詢問",
                                 subtitle: "在工作階段中顯示確切的工作區信任問題。"
                             },
                             always_trust_happier_workspaces: {
-                                title: "一律信任 Happier 工作區",
-                                subtitle: "信任 Happier 開啟的工作區中目前重新擷取的 Claude 提示。"
+                                title: "一律信任 無極開物 工作區",
+                                subtitle: "信任 無極開物 開啟的工作區中目前重新擷取的 Claude 提示。"
                             },
                             always_reject_happier_workspaces: {
-                                title: "一律拒絕 Happier 工作區",
-                                subtitle: "拒絕 Happier 開啟的工作區中目前重新擷取的 Claude 提示。"
+                                title: "一律拒絕 無極開物 工作區",
+                                subtitle: "拒絕 無極開物 開啟的工作區中目前重新擷取的 Claude 提示。"
                             }
                         }
                     },
                     claudeUnifiedTerminalResumeChoice: {
                         title: "大型會話恢復",
-                        subtitle: "選擇當 Claude 詢問如何恢復大型會話時 Happier 的回應方式。",
+                        subtitle: "選擇當 Claude 詢問如何恢復大型會話時 無極開物 的回應方式。",
                         options: {
                             ask_every_time: {
                                 title: "每次詢問",
@@ -3632,11 +3632,11 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                     },
                     claudeCodeExperimentalAgentTeamsEnabled: {
                         title: "強制啟用 Agent Teams",
-                        subtitle: "在所有由 Happier 啟動的 Claude 工作階段中啟用 Claude Code 的實驗性 Agent Teams（代理群）功能。"
+                        subtitle: "在所有由 無極開物 啟動的 Claude 工作階段中啟用 Claude Code 的實驗性 Agent Teams（代理群）功能。"
                     },
                     claudeRemoteAgentSdkEnabled: {
                         title: "使用 Agent SDK 後備",
-                        subtitle: "當統一終端執行階段關閉時，透過 Agent SDK 執行由 Happier 控制的 Claude 工作階段。"
+                        subtitle: "當統一終端執行階段關閉時，透過 Agent SDK 執行由 無極開物 控制的 Claude 工作階段。"
                     },
                     claudeRemoteDebugEnabled: {
                         title: "除錯模式",
@@ -3692,15 +3692,15 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                     },
                     claudeLocalPermissionBridgeEnabled: {
                         title: "實驗性：本機權限橋接",
-                        subtitle: "將 Claude 本機模式的權限請求轉送到 Happier，讓你可以在介面中核准或拒絕。"
+                        subtitle: "將 Claude 本機模式的權限請求轉送到 無極開物，讓你可以在介面中核准或拒絕。"
                     },
                     claudeLocalPermissionBridgeWaitIndefinitely: {
                         title: "保持請求開啟直到回應",
-                        subtitle: "啟用後，Happier 會持續保留 Claude 本機權限請求為待處理狀態，直到你在介面中核准或拒絕。"
+                        subtitle: "啟用後，無極開物 會持續保留 Claude 本機權限請求為待處理狀態，直到你在介面中核准或拒絕。"
                     },
                     claudeLocalPermissionBridgeTimeoutSeconds: {
                         title: "可選的權限逾時（秒）",
-                        subtitle: "僅在關閉無限等待時使用。超過此時間後，Happier 會回退到 Claude 的終端提示。"
+                        subtitle: "僅在關閉無限等待時使用。超過此時間後，無極開物 會回退到 Claude 的終端提示。"
                     },
                     claudeRemoteEnableFileCheckpointing: {
                         title: "檔案檢查點 + /rewind",
@@ -3733,7 +3733,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                     },
                     server: {
                         title: "伺服器連線",
-                        footer: "留空即可使用 Happier 管理的 OpenCode 伺服器生命週期。設定絕對 http(s) URL 以連線到現有的 OpenCode 伺服器。"
+                        footer: "留空即可使用 無極開物 管理的 OpenCode 伺服器生命週期。設定絕對 http(s) URL 以連線到現有的 OpenCode 伺服器。"
                     }
                 },
                 fields: {
@@ -3768,7 +3768,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                 sections: {
                     cli: {
                         title: "Cursor 命令列",
-                        footer: "當自動偵測不足時，使用指定的 Cursor 二進位檔。Happier 優先使用 cursor-agent，並可在啟用時回退到 agent。"
+                        footer: "當自動偵測不足時，使用指定的 Cursor 二進位檔。無極開物 優先使用 cursor-agent，並可在啟用時回退到 agent。"
                     }
                 },
                 fields: {
@@ -3806,7 +3806,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                 fields: {
                     kimiAcpPythonSelector: {
                         title: "Python stdio 選擇器",
-                        subtitle: "選擇 Happier 如何啟動 Kimi ACP 的 Python stdio 迴圈。",
+                        subtitle: "選擇 無極開物 如何啟動 Kimi ACP 的 Python stdio 迴圈。",
                         options: {
                             auto: {
                                 title: "自動",
@@ -4037,13 +4037,13 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         expConnectedServicesQuotas: '已連結服務配額',
         expConnectedServicesQuotasSubtitle: '顯示已連結服務的配額徽章與用量儀表',
         expChannelBridges: '頻道橋接',
-        expChannelBridgesSubtitle: '將 Telegram 等聊天頻道連接到 Happier 工作階段（實驗性）',
+        expChannelBridgesSubtitle: '將 Telegram 等聊天頻道連接到 無極開物 工作階段（實驗性）',
         expMemorySearch: '記憶搜尋',
         expMemorySearchSubtitle: '啟用本機記憶搜尋頁面與設定',
         expSessionsDirect: '直接工作階段',
         expSessionsDirectSubtitle: '在側邊欄列出並開啟由供應商支援的直接工作階段',
         expSessionsFolders: '工作階段資料夾',
-        expSessionsFoldersSubtitle: '使用工作區資料夾整理 Happier 側邊欄工作階段',
+        expSessionsFoldersSubtitle: '使用工作區資料夾整理 無極開物 側邊欄工作階段',
         expPetsCompanion: '寵物',
         expPetsCompanionSubtitle: '啟用 Blink 夥伴介面與本機寵物選擇',
         expScmOperations: '版本控制操作',
@@ -4118,7 +4118,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         failedToForkSession: '分支工作階段失敗',
         daemonUnavailableTitle: '守護程序無法使用',
         daemonUnavailableBody:
-            'Happier 無法連線到此裝置上的守護程序。它可能離線、仍在啟動，或與伺服器中斷連線。',
+            '無極開物 無法連線到此裝置上的守護程序。它可能離線、仍在啟動，或與伺服器中斷連線。',
         tryAgain: '請重試',
         contactSupport: '如果問題持續存在，請聯絡支援',
         sessionNotFound: '工作階段未找到',
@@ -4132,7 +4132,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         tokenStorageFailed: '儲存驗證權杖失敗',
         oauthStateMismatch: '安全驗證失敗。請重試',
         providerAlreadyLinked: ({ provider }: { provider: string }) =>
-            `${provider} 已連結到現有的 Happier 帳號。要在此裝置上登入，請從已登入的裝置將此裝置連結進來。`,
+            `${provider} 已連結到現有的 無極開物 帳號。要在此裝置上登入，請從已登入的裝置將此裝置連結進來。`,
         tokenExchangeFailed: '交換授權碼失敗',
         oauthAuthorizationDenied: '授權被拒絕',
         webViewLoadFailed: '載入驗證頁面失敗',
@@ -4168,7 +4168,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
     ...acpCatalogTranslationExtension.newSession,
     // Used by new-session screen and launch flows
 	        title: '啟動新工作階段',
-	        noMachinesFound: '未找到裝置。請先在您的電腦上啟動 Happier 工作階段。',
+	        noMachinesFound: '未找到裝置。請先在您的電腦上啟動 無極開物 工作階段。',
 	        allMachinesOffline: '所有裝置似乎都已離線',
 	        machineOfflineInlineTitle: '機器離線',
 	        machineOfflineInlineBody: '請在此機器上啟動守護程序，或在建立會話前選擇另一台機器。',
@@ -4191,12 +4191,12 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         notConnectedToServer: '未連線到伺服器。請檢查您的網路連線。',
         daemonRpcUnavailableTitle: '守護程序無法使用',
         daemonRpcUnavailableBody:
-            'Happier 無法連線到此裝置上的守護程序。它可能離線、仍在啟動，或與伺服器中斷連線。',
+            '無極開物 無法連線到此裝置上的守護程序。它可能離線、仍在啟動，或與伺服器中斷連線。',
         launchStillPendingTitle: '工作階段仍在啟動',
         createdWithSetupIssueTitle: '工作階段已建立',
         createdWithSetupIssueBody: '工作階段已建立，但初始設定尚未完成。你可以在此畫面重試，而不會建立另一個工作階段。',
         launchStillPendingBody:
-            'Happier 尚未確認新的工作階段。啟動要求仍已儲存。請重試以繼續同一次啟動，不會建立重複的工作階段。',
+            '無極開物 尚未確認新的工作階段。啟動要求仍已儲存。請重試以繼續同一次啟動，不會建立重複的工作階段。',
         connectedServiceSwitchUnavailable: {
             title: '無法切換',
             body: ({ reason, agentId }: { reason: string; agentId: string }) =>
@@ -4325,7 +4325,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
             save: '儲存',
             clearAndRemove: '清除',
             helpText: '你可以在「工作階段資訊」頁面找到工作階段 ID。',
-            cannotApplyBody: '此恢復 ID 目前無法套用。Happier 將改為啟動新的工作階段。',
+            cannotApplyBody: '此恢復 ID 目前無法套用。無極開物 將改為啟動新的工作階段。',
         },
         githubCliBanner: {
             title: 'GitHub CLI',
@@ -4337,7 +4337,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
             installTitle: '安裝 GitHub CLI？',
             updateTitle: '更新 GitHub CLI？',
             reinstallTitle: '重新安裝 GitHub CLI？',
-            description: '這會安裝 GitHub CLI，以便 Happier 在 pull request 流程中使用你的本機 GitHub 驗證。',
+            description: '這會安裝 GitHub CLI，以便 無極開物 在 pull request 流程中使用你的本機 GitHub 驗證。',
         },
     },
 
@@ -4513,8 +4513,8 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                     empty: "沒有移交任何內容。當時沒有可重播的先前對話。",
                     unavailableOperation: "請更新或重新連線這台機器上的 CLI 以重建此內容。",
                     notRebuildable: "此處確實移交了脈絡，但本工作階段的逐字紀錄已不再包含它，因此無法重建。",
-                    unavailableSource: "Happier 無法讀取本工作階段的逐字紀錄，因此無法重建此內容。",
-                    unreachable: "Happier 無法連線到代管本工作階段的機器。",
+                    unavailableSource: "無極開物 無法讀取本工作階段的逐字紀錄，因此無法重建此內容。",
+                    unreachable: "無極開物 無法連線到代管本工作階段的機器。",
                     retryAction: "重試",
                     jumpAction: "前往包含的最後一則訊息",
                 },
@@ -4543,7 +4543,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                     badgeLabel: '切換 Agent',
                     /** Delegates to the Session’s existing resume owner; never a second start path. */
                     resumeAction: '繼續工作階段',
-                    unknown: 'Happier 無法確認發生了什麼。請先檢查此工作階段再重新傳送。',
+                    unknown: '無極開物 無法確認發生了什麼。請先檢查此工作階段再重新傳送。',
                 },
             },
             sourceContext: {
@@ -4556,7 +4556,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                 removeAction: '移除',
                 removeA11y: '移除來源對話',
                 keepAction: '保留',
-                serverMismatch: '該對話位於另一台 Happier 伺服器上。請切換回該伺服器，或移除來源對話以重新開始。',
+                serverMismatch: '該對話位於另一台 無極開物 伺服器上。請切換回該伺服器，或移除來源對話以重新開始。',
             },
             forking: {
                 dividerTitle: '從較早的內容分支',
@@ -4576,7 +4576,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                     },
                     replay: {
                         title: 'Replay 分支',
-                        subtitle: 'Happier 會重播目前的對話，作為新工作階段的內容。',
+                        subtitle: '無極開物 會重播目前的對話，作為新工作階段的內容。',
                     },
                     configure: {
                         title: '設定新的工作階段',
@@ -4597,7 +4597,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                         openAction: '開啟分支',
                     },
                     unknown: {
-                        title: 'Happier 無法確認分支是否建立',
+                        title: '無極開物 無法確認分支是否建立',
                         body: '請求已經送出，因此分支可能已經存在。請先尋找它，而不是再分支一次，因為第二次嘗試可能會建立重複項目。',
                         checkAction: '尋找分支',
                         checking: '正在尋找你的分支…',
@@ -4606,7 +4606,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                     },
                     failure: {
                         updateRequired: '請更新或重新連線這台機器上的 CLI，才能分支此工作階段。',
-                        generic: 'Happier 無法建立分支。',
+                        generic: '無極開物 無法建立分支。',
                     },
                 },
             },
@@ -4634,13 +4634,13 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
             },
             staleRunner: {
                 title: '工作階段仍在舊版 CLI 上執行',
-                body: '重新啟動此工作階段 runner，以繼續使用已更新的 daemon CLI。Happier 工作階段本身會保持不變。',
+                body: '重新啟動此工作階段 runner，以繼續使用已更新的 daemon CLI。無極開物 工作階段本身會保持不變。',
                 busyBody: '工作階段 runner 正忙。請在目前活動結束後重試。',
-                failureBody: 'Happier 無法重新啟動此工作階段 runner。請在工作階段重新整理後重試。',
+                failureBody: '無極開物 無法重新啟動此工作階段 runner。請在工作階段重新整理後重試。',
                 identityChangedBody: '要求重新啟動時，工作階段 runner 已變更。請重新整理工作階段後重試。',
                 ineligibleBody: '此工作階段 runner 已不再符合計畫重新啟動條件。',
                 unsupportedBody: '此 daemon 尚未公開工作階段 runner 重新啟動操作。',
-                versionUnknownBody: 'Happier 尚無法確認此 runner 使用的 CLI 版本。',
+                versionUnknownBody: '無極開物 尚無法確認此 runner 使用的 CLI 版本。',
                 restartAction: '重新啟動 runner',
                 restartPendingAction: '正在重新啟動...',
                 statusBadge: '舊版 CLI',
@@ -4908,15 +4908,15 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                 },
                 discardConfirm: {
                     title: '丟棄待傳送訊息？',
-                    body: '這會保留一份已丟棄副本，並阻止 Happier 遞送這則待傳送訊息。',
+                    body: '這會保留一份已丟棄副本，並阻止 無極開物 遞送這則待傳送訊息。',
                 },
                 markHandledConfirm: {
                     title: '將待傳送訊息標記為已處理？',
-                    body: '僅在提供者已處理該訊息，或你不再希望 Happier 遞送它時使用。',
+                    body: '僅在提供者已處理該訊息，或你不再希望 無極開物 遞送它時使用。',
                 },
                 dismissDeliveryConfirm: {
                     title: '忽略結果不確定的遞送？',
-                    body: '這會封存原始訊息，不會再次傳送。如果提供者之後確認已遞送，Happier 仍可將原始訊息加入逐字稿。',
+                    body: '這會封存原始訊息，不會再次傳送。如果提供者之後確認已遞送，無極開物 仍可將原始訊息加入逐字稿。',
                 },
                 sendAsNewConfirm: {
                     title: '將此訊息以新訊息傳送？',
@@ -4953,7 +4953,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                     actionConflict: '套用操作時，這則待處理訊息的狀態已變更。請檢查目前狀態後再試一次。',
                     markHandledFailed: '將待遞送訊息標記為已處理失敗',
                     clearTerminalComposerFailed: '清空終端機輸入框失敗',
-                    clearTerminalComposerUnsupported: '此工作階段不支援從 Happier 清空終端機輸入框。',
+                    clearTerminalComposerUnsupported: '此工作階段不支援從 無極開物 清空終端機輸入框。',
                     clearTerminalComposerUnsafe: '目前無法安全地清空終端機輸入框。',
                 },
             },
@@ -5026,7 +5026,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         // Used by Server Configuration screen (app/(app)/server.tsx)
         serverConfiguration: 'Relay 設定',
         enterServerUrl: '請輸入 Relay URL',
-        notValidHappyServer: '不是有效的 Happier Relay',
+        notValidHappyServer: '不是有效的 無極開物 Relay',
         changeServer: '更改 Relay',
         continueWithServer: '繼續使用此 Relay？',
         resetToDefault: '重設為預設',
@@ -5160,7 +5160,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
     },
     sessionsList: {
         serverHeader: ({ server }: { server: string }) => `伺服器：${server}`,
-        storagePersistedTab: 'Happier',
+        storagePersistedTab: '無極開物',
         storageDirectTab: '直接',
         renameWorkspace: '重新命名工作區',
         renameWorkspacePromptTitle: '重新命名工作區',
@@ -5311,7 +5311,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         killSessionConfirm: '您確定要終止此工作階段嗎？',
         stopSession: '停止工作階段',
         stopSessionConfirm: '您確定要停止此工作階段嗎？',
-        stopSessionControlUnavailable: 'Happier 無法連線工作階段控制。請確認工作階段所在機器和守護程序在線上，然後重試。',
+        stopSessionControlUnavailable: '無極開物 無法連線工作階段控制。請確認工作階段所在機器和守護程序在線上，然後重試。',
         archiveSession: '封存工作階段',
         archiveSessionConfirm: '您確定要封存此工作階段嗎？',
         workspaceTitle: '工作區',
@@ -5324,9 +5324,9 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         createWorktreeSubtitle: '啟動新的工作階段，在這個已連結工作區中建立 Git worktree。',
         locationLabel: '位置',
         checkoutLabel: '簽出',
-        happySessionIdCopied: 'Happier 工作階段 ID 已複製到剪貼簿',
-        failedToCopySessionId: '複製 Happier 工作階段 ID 失敗',
-        happySessionId: 'Happier 工作階段 ID',
+        happySessionIdCopied: '無極開物 工作階段 ID 已複製到剪貼簿',
+        failedToCopySessionId: '複製 無極開物 工作階段 ID 失敗',
+        happySessionId: '無極開物 工作階段 ID',
         claudeCodeSessionId: 'Claude Code 工作階段 ID',
         claudeCodeSessionIdCopied: 'Claude Code 工作階段 ID 已複製到剪貼簿',
         aiProvider: 'AI 提供者',
@@ -5379,7 +5379,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         path: '路徑',
         operatingSystem: '作業系統',
         processId: '處理程序 ID',
-        happyHome: 'Happier 主目錄',
+        happyHome: '無極開物 主目錄',
         copyMetadata: '複製中繼資料',
         copyDebugInformation: '複製資訊',
         debugInformationCopyLabel: '資訊',
@@ -5415,7 +5415,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         emptyMainScreen: {
             // Used by SessionGettingStartedGuidance component
             readyToCode: '準備開始寫程式？',
-            installCli: '安裝 Happier CLI',
+            installCli: '安裝 無極開物 CLI',
             runIt: '執行它',
             scanQrCode: '掃描 QR Code',
             openCamera: '開啟相機',
@@ -5582,7 +5582,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
     },
 
     sidebar: {
-        sessionsTitle: 'Happier',
+        sessionsTitle: '無極開物',
     },
 
     toolView: {
@@ -5712,7 +5712,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         },
         acpHistoryImport: {
             title: '匯入工作階段歷史記錄？',
-            defaultNote: '此工作階段歷史記錄與 Happier 中既有內容不同。匯入可能會產生重複項。',
+            defaultNote: '此工作階段歷史記錄與 無極開物 中既有內容不同。匯入可能會產生重複項。',
             counts: {
                 local: ({ count }: { count: number }) => `本機：${count}`,
                 remote: ({ count }: { count: number }) => `遠端：${count}`,
@@ -5930,7 +5930,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
             },
             indexLock: {
                 title: '移除過期的 Git 鎖定？',
-                body: 'Git 回報存在索引鎖定。如果沒有其他 Git 指令正在執行，Happier 可以移除過期鎖定並重試。',
+                body: 'Git 回報存在索引鎖定。如果沒有其他 Git 指令正在執行，無極開物 可以移除過期鎖定並重試。',
                 confirm: '移除鎖定並重試',
                 recoveryFailed: '移除 Git 索引鎖定失敗。',
             },
@@ -6047,7 +6047,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
             experimentalHint: '編輯功能為實驗性。儲存以將變更寫回工作階段 worktree。',
             frontmatterReadOnly: 'Frontmatter (唯讀)',
         },
-        fileEditingUnsupported: '連線的守護程式不支援檔案編輯。請在該機器上更新 Happier 以啟用寫入操作。',
+        fileEditingUnsupported: '連線的守護程式不支援檔案編輯。請在該機器上更新 無極開物 以啟用寫入操作。',
         fileChangedExternally: '你編輯時，此檔案已在磁碟上變更。草稿已保持不變；儲存前請查看最新檔案。',
         selectionFailed: '更新選取失敗',
         openReviewCommentsFailed: '無法開啟審閱評論',
@@ -6286,7 +6286,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                     createFeatureBranch: '建立功能分支',
                     createFeatureBranchAndOpen: '建立分支並開啟 PR',
                     featureBranchPromptTitle: '功能分支名稱',
-                    featureBranchPromptBody: 'Happier 會先簽出此分支再繼續。',
+                    featureBranchPromptBody: '無極開物 會先簽出此分支再繼續。',
                     defaultBranchRequiresFeature: '從預設分支開啟拉取請求前，請先建立功能分支。',
                     defaultBranchDenied: '不能直接從預設分支開啟拉取請求。',
                     states: {
@@ -6377,7 +6377,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                 crossSession: ({ sessionId }: { sessionId: string }) => `由工作階段 ${sessionId} 啟動`,
                 externalCli: '由 CLI 從外部啟動',
                 externalMcp: '透過 MCP 從外部啟動',
-                externalAction: '透過 Happier 動作從外部啟動',
+                externalAction: '透過 無極開物 動作從外部啟動',
                 externalUnknown: '從外部啟動（來源不明）',
                 legacyUnknown: '啟動來源不明',
             },
@@ -6428,7 +6428,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         },
         spawnPolicy: {
             title: 'AI 工作階段建立策略',
-            footer: '這些控制項只會在 Happier 工作階段內的助理建立另一個工作階段時套用。從父工作階段繼承的設定仍會被允許；被拒絕的項目會用清楚錯誤拒絕明確覆寫。',
+            footer: '這些控制項只會在 無極開物 工作階段內的助理建立另一個工作階段時套用。從父工作階段繼承的設定仍會被允許；被拒絕的項目會用清楚錯誤拒絕明確覆寫。',
             toggles: {
                 allowCustomDirectory: { title: '自訂目錄', subtitle: '允許助理選擇不同的工作目錄。' },
                 allowCrossMachine: { title: '跨機器目標', subtitle: '允許在另一台可用機器上建立工作階段。' },
@@ -6533,11 +6533,11 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
             },
             session_agent: {
                 title: 'AI 工作階段',
-                subtitle: '控制在 Happier 工作階段內執行的助理可用的工具。',
+                subtitle: '控制在 無極開物 工作階段內執行的助理可用的工具。',
             },
             mcp: {
                 title: 'MCP',
-                subtitle: '控制使用 Happier MCP 操作目錄的外部 MCP 用戶端。',
+                subtitle: '控制使用 無極開物 MCP 操作目錄的外部 MCP 用戶端。',
             },
             cli: {
                 title: '工作階段控制 CLI',
@@ -6723,7 +6723,7 @@ settingsSession: {
         },
         messageSending: {
             inactiveResumePolicyTitle: '傳送後自動恢復',
-            inactiveResumePolicySubtitle: '選擇向非作用中工作階段傳送訊息後 Happier 應執行的操作。',
+            inactiveResumePolicySubtitle: '選擇向非作用中工作階段傳送訊息後 無極開物 應執行的操作。',
             inactiveResumePolicy: {
                 whenAvailableTitle: '立即或機器恢復時',
                 whenAvailableSubtitle: '可連線時立即恢復；否則在背景服務重新連線後處理。',
@@ -6765,7 +6765,7 @@ settingsSession: {
                 queueForReviewSubtitle: '先把訊息放入待處理，之後再用「立即導向」送出。',
             },
             nonSteerablePromptTitle: '當訊息無法引導目前回合時',
-            nonSteerablePromptFooter: '權限模式變更以及 /clear 或 /compact 無法在回合進行中套用。選擇代理程式忙碌時 Happier 如何處理此類訊息。',
+            nonSteerablePromptFooter: '權限模式變更以及 /clear 或 /compact 無法在回合進行中套用。選擇代理程式忙碌時 無極開物 如何處理此類訊息。',
             nonSteerablePrompt: {
                 askTitle: '每次詢問',
                 askSubtitle: '提供「中斷並立即傳送」或「排入佇列等回合結束」。',
@@ -6777,7 +6777,7 @@ settingsSession: {
         },
         usageLimitRecovery: {
             title: '使用限制恢復',
-            footer: '選擇當提供者要求等待後才能繼續時 Happier 的處理方式。',
+            footer: '選擇當提供者要求等待後才能繼續時 無極開物 的處理方式。',
             modeTitle: '達到使用限制時',
             askTitle: '每次詢問',
             askSubtitle: '等待或重試前顯示工作階段動作。',
@@ -7091,7 +7091,7 @@ settingsSession: {
               wizardPresentationTitle: '精靈選擇器版面',
               wizardPresentationFooter: 'Auto 會將短區段保留為清單，並將長區段切換為可搜尋下拉選單。',
               wizardPresentationAutoTitle: 'Auto',
-              wizardPresentationAutoSubtitle: '讓 Happier 依內容數量選擇最佳版面。',
+              wizardPresentationAutoSubtitle: '讓 無極開物 依內容數量選擇最佳版面。',
               wizardPresentationListTitle: '清單',
               wizardPresentationListSubtitle: '直接在精靈中顯示所有列。',
               wizardPresentationDropdownTitle: '下拉選單',
@@ -7099,7 +7099,7 @@ settingsSession: {
           },
           promptPersonalization: {
               title: 'Prompt personalization',
-              footer: 'Choose which built-in instructions Happier adds to new agent sessions. This does not hide options an agent already sends.',
+              footer: 'Choose which built-in instructions 無極開物 adds to new agent sessions. This does not hide options an agent already sends.',
               askAgentToRenameSessionsTitle: 'Session title updates',
               askAgentToRenameSessionsNeverTitle: 'Never',
               askAgentToRenameSessionsNeverSubtitle: 'Do not prompt agents to set session titles.',
@@ -7123,9 +7123,9 @@ settingsSession: {
           },
           defaultStorage: {
               title: '預設工作階段類型',
-              footer: '選擇新工作階段要以 Happier 工作階段，或直接由提供者支援的工作階段啟動。',
+              footer: '選擇新工作階段要以 無極開物 工作階段，或直接由提供者支援的工作階段啟動。',
               globalTitle: '全域預設',
-              persistedSubtitle: '預設將新工作階段儲存在 Happier 中，並在裝置間同步。',
+              persistedSubtitle: '預設將新工作階段儲存在 無極開物 中，並在裝置間同步。',
               directSubtitle: '在提供者支援時，啟動綁定機器的直接工作階段。',
               globalSubtitle: ({ label }: { label: string }) => `全域預設：${label}`,
               useGlobalDefault: '使用全域預設',
@@ -7211,12 +7211,12 @@ settingsSession: {
     settingsVoice: {
         // Voice settings screen
         modeTitle: '語音',
-        modeDescription: '設定語音功能。您可以完全關閉語音、使用 Happier Voice（需要訂閱），或使用您自己的 ElevenLabs 帳戶。',
+        modeDescription: '設定語音功能。您可以完全關閉語音、使用 無極開物語音（需要訂閱），或使用您自己的 ElevenLabs 帳戶。',
         mode: {
             off: '關閉',
             offSubtitle: '關閉所有語音功能',
-            happier: 'Happier Voice',
-            happierSubtitle: '使用 Happier Voice（需要訂閱）',
+            happier: '無極開物語音',
+            happierSubtitle: '使用 無極開物語音（需要訂閱）',
             local: '本機 OSS 語音',
             localSubtitle: '使用本機 OpenAI 相容的 STT/TTS 端點',
             byo: '使用我的 ElevenLabs',
@@ -7239,7 +7239,7 @@ settingsSession: {
 	            byo: {
 	                title: '使用我的 ElevenLabs',
 	                agentReuseDialog: {
-	                    title: 'Happier 代理已存在',
+	                    title: '無極開物 代理已存在',
 	                    messageWithId: ({ name, id }: { name: string; id: string }) =>
 	                        `我們找到一個既有的 ElevenLabs 代理（「${name}」，id：${id}）。\n\n要更新它還是建立新的？`,
 	                    messageNoId: ({ name }: { name: string }) =>
@@ -7259,10 +7259,10 @@ settingsSession: {
                     apiKeyHelpSubtitle: '建立並複製 ElevenLabs API 金鑰的逐步說明',
                     apiKeyHelpDialogTitle: '建立 ElevenLabs API 金鑰',
                     apiKeyHelpDialogBody: '開啟 ElevenLabs → Developers → API Keys → Create API key → 複製金鑰。',
-                autoprovCreate: '建立 Happier 代理',
-                autoprovCreateSubtitle: '使用您的 API 金鑰在 ElevenLabs 帳戶中建立並設定 Happier 代理',
+                autoprovCreate: '建立 無極開物 代理',
+                autoprovCreateSubtitle: '使用您的 API 金鑰在 ElevenLabs 帳戶中建立並設定 無極開物 代理',
                 autoprovUpdate: '更新代理',
-                autoprovUpdateSubtitle: '將您的代理更新到最新的 Happier 範本',
+                autoprovUpdateSubtitle: '將您的代理更新到最新的 無極開物 範本',
               autoprovCreated: ({ agentId }: { agentId: string }) => `已建立代理：${agentId}`,
             autoprovUpdated: '代理已更新',
             autoprovFailed: '建立/更新代理失敗。請再試一次。',
@@ -7382,7 +7382,7 @@ settingsSession: {
             conversationMode: '對話模式',
             conversationModeSubtitle: '直接寫入工作階段，或使用中介並顯式提交',
             mediatorBackend: '中介後端',
-            mediatorBackendSubtitle: 'Daemon（使用 Happier 後端）或 OpenAI 相容 HTTP',
+            mediatorBackendSubtitle: 'Daemon（使用 無極開物 後端）或 OpenAI 相容 HTTP',
             mediatorBackendDaemon: '守護程序',
             mediatorBackendOpenAi: 'OpenAI 相容 HTTP',
             mediatorPermissionPolicy: '中介權限',
@@ -7452,7 +7452,7 @@ settingsSession: {
             },
             testTts: '測試 TTS',
             testTtsSubtitle: '使用已設定的本機 TTS（裝置 TTS 或端點）播放一段短示例',
-            testTtsSample: '你好，這裡是 Happier。這是你本機 TTS 的測試。',
+            testTtsSample: '你好，這裡是 無極開物。這是你本機 TTS 的測試。',
             testTtsMissingBaseUrl: '請先設定 TTS 基礎 URL。',
             testTtsFailed: 'TTS 測試失敗。請檢查你的基礎 URL、API 金鑰、模型與聲音。',
             autoSpeak: '自動朗讀回覆',
@@ -7592,17 +7592,17 @@ settingsSession: {
         },
         defaultTitle: '新功能',
         onboardingShowcase: {
-                "title": "歡迎使用 Happier",
+                "title": "歡迎使用 無極開物",
                 "subtitle": "你的 AI 代理，出現在每個工作場景。",
                 "cards": {
                     "welcome": {
-                        "title": "歡迎使用 Happier",
+                        "title": "歡迎使用 無極開物",
                         "everywhereTitle": "你的 AI 代理，出現在每個工作場景",
                         "everywhereBody": "Claude Code、Codex、OpenCode、Pi，以及更多：手機、平板、瀏覽器或桌面端都能使用。",
                         "cockpitTitle": "你的行動 cockpit",
                         "cockpitBody": "聊天、檔案、Git、編輯器、終端機。打造並發布下一個專案所需的一切，都在指尖。",
                         "existingTitle": "既有工作階段，已經在那裡",
-                        "existingBody": "任何在你機器上執行的 Claude、Codex 或 OpenCode 工作階段，都可以在 Happier 中即時開啟。",
+                        "existingBody": "任何在你機器上執行的 Claude、Codex 或 OpenCode 工作階段，都可以在 無極開物 中即時開啟。",
                         "voiceTitle": "可以一起腦力激盪的語音助理",
                         "voiceBody": "詢問代理正在做什麼，核准權限請求，並傳送訊息。全程免手動。",
                         "reviewTitle": "檢視 diff 並留下評論",
@@ -7610,7 +7610,7 @@ settingsSession: {
                         "subagentsTitle": "跨 provider 的 subagents",
                         "subagentsBody": "從 Claude 工作階段啟動 Codex subagents。把工作拆給多個代理。讓訊息在工作階段之間流轉。",
                         "tuisTitle": "使用你喜歡的 TUI",
-                        "tuisBody": "在原生終端機 UI 中執行 Claude Code、Codex 或 OpenCode。Happier 會擷取它，並同步到每台裝置。",
+                        "tuisBody": "在原生終端機 UI 中執行 Claude Code、Codex 或 OpenCode。無極開物 會擷取它，並同步到每台裝置。",
                         "inboxTitle": "一個 inbox。所有工作階段。",
                         "inboxBody": "所有待核准事項、權限請求與未讀活動，跨所有工作階段和機器，集中在一個地方。",
                         "mcpTitle": "一個 MCP 設定。所有 provider。",
@@ -7675,7 +7675,7 @@ settingsSession: {
                     "mcp": {
                         "title": "一個設定。所有 provider。",
                         "wideTitle": "一個設定。\n所有 provider。",
-                        "body": "在 Happier 中定義一次 MCP，它們即可跨所有 backend 工作，甚至包括不原生支援 MCP 的 backend。管理 skills、prompts 等等！",
+                        "body": "在 無極開物 中定義一次 MCP，它們即可跨所有 backend 工作，甚至包括不原生支援 MCP 的 backend。管理 skills、prompts 等等！",
                         "alt": "共享 MCP 設定的抽象佔位圖。"
                     },
                     "queue": {
@@ -7717,7 +7717,7 @@ settingsSession: {
         invalidConnectionLink: '無效的連線連結',
         invalidConnectionLinkDescription: '連線連結缺失或無效。請檢查 URL 並重試。',
         connectTerminal: '連線終端',
-        terminalRequestDescription: '有終端正在請求連線到您的 Happier Coder 帳戶。這將允許終端安全地傳送和接收訊息。',
+        terminalRequestDescription: '有終端正在請求連線到您的 無極開物 Coder 帳戶。這將允許終端安全地傳送和接收訊息。',
         connectionDetails: '連線詳情',
         publicKey: '公鑰',
         encryption: '加密',
@@ -7833,12 +7833,12 @@ settingsSession: {
         // Unified onboarding redesign — welcome decision (right pane)
         welcomeQuestionTitle: '歡迎。',
         welcomeQuestionSubtitle: '第一次使用?',
-        welcomeQuestionBody: 'Happier 是你 AI 編碼代理的控制中心。無需電子郵件。你的帳戶是一把在本裝置上產生的私鑰。',
+        welcomeQuestionBody: '無極開物 是你 AI 編碼代理的控制中心。無需電子郵件。你的帳戶是一把在本裝置上產生的私鑰。',
 
         welcomePrimaryButton: '第一次使用 — 開始吧',
         welcomePrimarySubtitle: '一次點擊。無需表單。你的金鑰就在這裡。',
 
-        welcomeSecondaryButton: '登入 — 我已在使用 Happier',
+        welcomeSecondaryButton: '登入 — 我已在使用 無極開物',
         welcomeSecondarySubtitle: '掃描 QR 碼，或輸入你的密鑰',
 
         // Unified onboarding redesign — returning-user copy variants.
@@ -7868,8 +7868,8 @@ settingsSession: {
         // Returning-user buttons. For returning users we invert the visual
         // hierarchy: Login becomes the filled primary action (probability of
         // intent is high), Start fresh becomes the bordered secondary action.
-        // "I already use Happier" is dropped from the login button title for
-        // returning users because — they obviously do already use Happier.
+        // "I already use 無極開物" is dropped from the login button title for
+        // returning users because — they obviously do already use 無極開物.
         welcomeReturningLoginButton: '登入 — 繼續上次的工作',
         welcomeReturningStartFreshButton: '重新開始 — 建立新帳戶',
         welcomeReturningStartFreshSubtitle: '在本裝置上產生一把新金鑰。',
@@ -7878,7 +7878,7 @@ settingsSession: {
         welcomeFooterRelay: '自架?',
         welcomeFooterRelayAction: '使用自己的 Relay',
         // Shown in place of welcomeFooterRelay when the active server is a
-        // custom (non-Happier-Cloud) relay. The action below the label is the
+        // custom (non-無極開物-Cloud) relay. The action below the label is the
         // relay's host (optionally with :port) followed by a small pencil
         // icon so the user can tap to edit. Long hostnames are truncated with
         // a tail-ellipsis to avoid colliding with the right-side Docs group.
@@ -7886,8 +7886,8 @@ settingsSession: {
         welcomeFooterRelayEditAccessibility: '變更 Relay',
         welcomeFooterDocs: '需要協助?',
         welcomeFooterDocsAction: '文件',
-        welcomeFooterGithubLabel: 'GitHub 儲存庫',
-        welcomeFooterDiscordLabel: 'Discord 社群',
+        welcomeFooterGithubLabel: '官方網站',
+        welcomeFooterDiscordLabel: '微信社群',
 
         // Mobile brand hero CTA
         brandHeroGetStarted: '開始',
@@ -7982,7 +7982,7 @@ settingsSession: {
 
                     title: '安裝背景服務（建議）',
 
-                    description: '讓 Happier 在背景中保持就緒，以便遠端啟動。',
+                    description: '讓 無極開物 在背景中保持就緒，以便遠端啟動。',
 
                     copyLabel: '守護程式安裝',
 
@@ -8035,7 +8035,7 @@ settingsSession: {
         webDesktopOnlyBody: '請在桌面應用程式中設定此電腦。網頁版可以顯示狀態，但無法安裝或設定背景服務。',
         preAuthTitle: '登入前先選擇你的 Relay',
         preAuthBody: '在建立、還原或登入帳戶之前，先選擇你想在這台電腦上使用的 Relay。',
-        preAuthContinueHint: '繼續後，Happier 會帶你返回到針對所選 Relay 的登入流程，然後再回到這裡完成設定。',
+        preAuthContinueHint: '繼續後，無極開物 會帶你返回到針對所選 Relay 的登入流程，然後再回到這裡完成設定。',
         currentRelayTitle: '已選擇的 Relay',
         currentRelayDescription: ({ relayUrl }: { relayUrl: string }) => `Selected Relay: ${relayUrl}`,
         savedRelaysTitle: '已儲存的 Relay',
@@ -8085,13 +8085,13 @@ settingsSession: {
         installables: {
             screenTitle: '可安裝項目',
             aboutGroupTitle: '關於',
-            aboutSubtitle: '管理 Happier 可在此裝置上安裝並保持最新的工具。',
+            aboutSubtitle: '管理 無極開物 可在此裝置上安裝並保持最新的工具。',
             experimentalGroupTitle: ({ title }: { title: string }) => `${title}（實驗性）`,
             autoInstallTitle: '按需自動安裝',
             autoInstallSubtitle: '當所選後端需要時在背景安裝（盡力而為）。',
             autoUpdateTitle: '自動更新',
             autoUpdatePromptTitle: '自動更新',
-            autoUpdatePromptBody: '選擇 Happier 應如何處理此可安裝項目的更新。',
+            autoUpdatePromptBody: '選擇 無極開物 應如何處理此可安裝項目的更新。',
             autoUpdateModes: {
                 off: '關閉',
                 notify: '通知',
@@ -8206,22 +8206,22 @@ settingsSession: {
         switchingToRemote: '正在切換到遠端模式…',
         switchToRemote: '切換到遠端',
         detachLocalTerminal: '中斷終端機連線',
-        directSessionTakeoverAvailable: "此直接工作階段可在你的機器上使用。可在 Happier 中接管它並在此控制。",
+        directSessionTakeoverAvailable: "此直接工作階段可在你的機器上使用。可在 無極開物 中接管它並在此控制。",
         directSessionMachineOffline: "此直接工作階段目前無法使用，因為機器已離線。",
         switchingToDirectTakeover: "正在接管此直接工作階段…",
         switchingToPersistedTakeover: "正在接管並匯入此工作階段…",
         takeOverDirect: "接管",
         takeOverPersist: "接管並匯入",
-        directTakeoverDialogTitle: "要在 Happier 中繼續此直接工作階段嗎？",
-        directTakeoverDialogBody: "選擇 Happier 應如何接管。直接模式會繼續使用提供者的逐字稿。匯入會將逐字稿帶入 Happier。",
+        directTakeoverDialogTitle: "要在 無極開物 中繼續此直接工作階段嗎？",
+        directTakeoverDialogBody: "選擇 無極開物 應如何接管。直接模式會繼續使用提供者的逐字稿。匯入會將逐字稿帶入 無極開物。",
         directTakeoverDialogDirectTitle: "接管",
-        directTakeoverDialogDirectBody: "在 Happier 中控制此工作階段，而不將逐字稿匯入 Happier。",
+        directTakeoverDialogDirectBody: "在 無極開物 中控制此工作階段，而不將逐字稿匯入 無極開物。",
         directTakeoverDialogPersistTitle: "接管並匯入",
-        directTakeoverDialogPersistBody: "將逐字稿匯入 Happier，並繼續使用完整的 Happier 工作階段功能。",
+        directTakeoverDialogPersistBody: "將逐字稿匯入 無極開物，並繼續使用完整的 無極開物 工作階段功能。",
         directTakeoverDialogForceStopTitle: "先嘗試停止本機程序",
-        directTakeoverDialogForceStopBody: "Happier 找到了此工作階段對應的可信本機程序。如果你希望 Happier 在接管前先停止它，請啟用此選項。",
+        directTakeoverDialogForceStopBody: "無極開物 找到了此工作階段對應的可信本機程序。如果你希望 無極開物 在接管前先停止它，請啟用此選項。",
         directTakeoverForceStopConfirmTitle: "先停止本機程序？",
-        directTakeoverForceStopConfirmBody: "Happier 找到了此直接工作階段對應的可信本機程序。要在這裡接管前先停止它嗎？",
+        directTakeoverForceStopConfirmBody: "無極開物 找到了此直接工作階段對應的可信本機程序。要在這裡接管前先停止它嗎？",
         directTakeoverForceStopConfirmAction: "停止並接管",
     },
 

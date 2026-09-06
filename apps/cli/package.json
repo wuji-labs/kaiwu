@@ -65,6 +65,7 @@
   },
   "bin": {
     "happier": "./bin/happier.mjs",
+    "kaiwu": "./bin/happier.mjs",
     "happier-dev": "./bin/happier-dev.mjs",
     "happier-mcp": "./bin/happier-mcp.mjs"
   },

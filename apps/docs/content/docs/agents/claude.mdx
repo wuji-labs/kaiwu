@@ -1,23 +1,23 @@
 ---
 title: Claude
-description: Configure Claude in Happier (remote mode), including Agent SDK, partial streaming, and /rewind.
+description: Configure Claude in Kaiwu (remote mode), including Agent SDK, partial streaming, and /rewind.
 ---
 
-This page documents how Happier integrates with **Claude Code** and what Claude-specific settings do.
+This page documents how Kaiwu integrates with **Claude Code** and what Claude-specific settings do.
 
 ## Modes: local vs remote
 
-Happier supports two ways of running Claude:
+Kaiwu supports two ways of running Claude:
 
 - **Local mode**: you run **Claude Code’s own TUI** directly in your terminal.
-- **Remote mode**: you drive Claude from the **Happier UI**, but Claude still runs **locally on your machine** (Happier spawns the `claude` process in the background).
+- **Remote mode**: you drive Claude from the **Kaiwu UI**, but Claude still runs **locally on your machine** (Kaiwu spawns the `claude` process in the background).
 
 Remote mode has **three implementations**, selected in that order: unified
 terminal when it is enabled, otherwise Agent SDK, otherwise legacy.
 
-| Runtime | How Happier drives Claude | Terminal to join? |
+| Runtime | How Kaiwu drives Claude | Terminal to join? |
 | --- | --- | --- |
-| **Unified terminal** (opt-in) | Happier hosts Claude Code's own TUI in a terminal session and types prompts into its composer, so the app and the terminal share one Claude Code run. | Yes |
+| **Unified terminal** (opt-in) | Kaiwu hosts Claude Code's own TUI in a terminal session and types prompts into its composer, so the app and the terminal share one Claude Code run. | Yes |
 | **Agent SDK** (default) | Runs Claude through the official `@anthropic-ai/claude-agent-sdk` in a background process, publishing capabilities and optionally file checkpointing. | No |
 | **Legacy remote** (fallback) | The older SDK-like shim that spawns `claude` with a streaming output format and forwards hooks for session info. | No |
 
@@ -26,28 +26,28 @@ how a session behaves — steering, queued input, which runtime controls apply
 live — to be worth reading about first:
 [Claude unified terminal](/sessions/claude-unified-terminal).
 
-## Start in Happier, continue in the terminal
+## Start in Kaiwu, continue in the terminal
 
-Claude supports Happier’s attach flow for app-started sessions:
+Claude supports Kaiwu’s attach flow for app-started sessions:
 
-- start a Claude session from the Happier app,
-- let Happier run it remotely on your machine,
+- start a Claude session from the Kaiwu app,
+- let Kaiwu run it remotely on your machine,
 - later reattach with `happier attach <session-id>`,
 - switch into local mode when you want to use Claude Code’s native terminal UI directly.
 
-You can later switch back to remote mode and continue from the Happier app without starting a new session.
+You can later switch back to remote mode and continue from the Kaiwu app without starting a new session.
 
 Local control is started from the terminal. Use `happier attach <session-id>` on the machine that owns the session.
 
-If you send a message from the app while Claude is locally controlled, Happier stores it in the pending queue first. When Claude is idle, Happier can switch back to remote control and process the queued message. If Claude is still working in the terminal, Happier waits until the local turn finishes or stops before switching, so the app message does not interrupt the current Claude turn.
+If you send a message from the app while Claude is locally controlled, Kaiwu stores it in the pending queue first. When Claude is idle, Kaiwu can switch back to remote control and process the queued message. If Claude is still working in the terminal, Kaiwu waits until the local turn finishes or stops before switching, so the app message does not interrupt the current Claude turn.
 
-On machines with `tmux`, this is usually a tmux-backed attach flow. On Windows, use Happier’s Windows remote session mode (`Windows Terminal`, `Console`, or `Hidden`) instead of expecting tmux.
+On machines with `tmux`, this is usually a tmux-backed attach flow. On Windows, use Kaiwu’s Windows remote session mode (`Windows Terminal`, `Console`, or `Hidden`) instead of expecting tmux.
 
 For the full workflow, see [Features → Attach to a running session](/sessions/attach-to-session).
 
 ## Permissions and modes
 
-Happier uses:
+Kaiwu uses:
 
 - a **provider-agnostic permission mode** (`default`, `read-only`, `safe-yolo`, `yolo`)
 - a separate Claude **session mode** surface (including **Plan**)
@@ -60,7 +60,7 @@ For the full user guide (CLI flags, UI picker, defaults, and apply timing), see:
 
 ### Claude plan mode
 
-In current Happier builds, **Plan** is shown under **Mode**, not under the normal permission picker.
+In current Kaiwu builds, **Plan** is shown under **Mode**, not under the normal permission picker.
 
 That matters because:
 
@@ -71,7 +71,7 @@ Plan mode does **not** bypass approvals by itself. Claude can still ask for perm
 
 ### Exiting plan mode
 
-When Claude finishes planning, Happier surfaces **Exit Plan Mode** as a user-action request.
+When Claude finishes planning, Kaiwu surfaces **Exit Plan Mode** as a user-action request.
 
 Common choices are:
 
@@ -94,13 +94,13 @@ Permission mode is stored canonically in **session metadata**, so it follows the
 - open the same session on another device, or
 - switch between **local** and **remote** mode.
 
-Some permission behavior is implemented by Happier (tool approval gating) and can update immediately; other behavior depends on Claude’s own session flags and may only take effect when Claude is launched/resumed. The in-session picker’s “Effective policy” line is the source of truth for what will apply right now.
+Some permission behavior is implemented by Kaiwu (tool approval gating) and can update immediately; other behavior depends on Claude’s own session flags and may only take effect when Claude is launched/resumed. The in-session picker’s “Effective policy” line is the source of truth for what will apply right now.
 
-When local permission bridge is enabled, Claude permission prompts can still be forwarded into Happier while the terminal owns the session. Message sending is separate from permission approval: app messages sent during exclusive local control still go through the pending queue and are delivered only after Happier can safely resume remote processing.
+When local permission bridge is enabled, Claude permission prompts can still be forwarded into Kaiwu while the terminal owns the session. Message sending is separate from permission approval: app messages sent during exclusive local control still go through the pending queue and are delivered only after Kaiwu can safely resume remote processing.
 
 ## Install Claude Code
 
-Install and authenticate Claude Code on your machine first, then restart Happier.
+Install and authenticate Claude Code on your machine first, then restart Kaiwu.
 
 Use Anthropic’s official setup guide:
 
@@ -109,16 +109,16 @@ Use Anthropic’s official setup guide:
 
 Anthropic currently supports both install paths. Prefer the native installer flow in their docs, and use npm (`npm install -g @anthropic-ai/claude-code`) when that better fits your environment.
 
-### Let Happier install it
+### Let Kaiwu install it
 
-Happier can run the installer for you, using Anthropic's native installer rather than npm:
+Kaiwu can run the installer for you, using Anthropic's native installer rather than npm:
 
 ```bash
 happier install provider claude
 claude --version
 ```
 
-## Local authentication in Happier
+## Local authentication in Kaiwu
 
 Claude also supports **machine-local provider authentication** directly in provider settings.
 
@@ -129,20 +129,20 @@ Open:
 From there you can:
 
 - check whether Claude is logged in on the selected machine
-- see whether Happier detected CLI login, `ANTHROPIC_API_KEY`, or `ANTHROPIC_AUTH_TOKEN`
-- open Claude’s native login flow inside Happier
+- see whether Kaiwu detected CLI login, `ANTHROPIC_API_KEY`, or `ANTHROPIC_AUTH_TOKEN`
+- open Claude’s native login flow inside Kaiwu
 - refresh the auth state with **Check now**
 
-Happier launches Claude and sends `/login` for you when you use **Log in**.
+Kaiwu launches Claude and sends `/login` for you when you use **Log in**.
 
 For the shared user guide, see [Provider authentication](/agents/provider-authentication).
 
 ## Authentication (connected services)
 
-Claude can authenticate through Happier connected services:
+Claude can authenticate through Kaiwu connected services:
 
 - `claude-subscription`: Claude subscription credentials
-  - **Setup-token** (recommended default): generate on any machine with Claude Code installed via `claude setup-token`, then paste into Happier
+  - **Setup-token** (recommended default): generate on any machine with Claude Code installed via `claude setup-token`, then paste into Kaiwu
   - OAuth: available through paste redirect flows everywhere and in-app browser on native
 - `anthropic`: Anthropic API key (Anthropic Console)
 
@@ -175,12 +175,12 @@ Practical guidance:
 
 ## Session handoff
 
-Claude supports Happier session handoff between machines.
+Claude supports Kaiwu session handoff between machines.
 
 That means you can:
 
 - start a Claude session on one machine
-- hand off the same Happier session id to another machine
+- hand off the same Kaiwu session id to another machine
 - continue that session there
 - hand it back later if needed
 
@@ -195,7 +195,7 @@ See:
 - [Session handoff](/sessions/session-handoff)
 - [Connected services](/accounts/connected-services)
 
-## Where to configure Claude in Happier
+## Where to configure Claude in Kaiwu
 
 In the app:
 
@@ -210,32 +210,32 @@ The one exception is **Experimental: local permission bridge**, which affects **
 
 | Setting | Default | What it does |
 | --- | --- | --- |
-| **Use Agent SDK (remote)** | On | Enables the official Agent SDK remote runner (`@anthropic-ai/claude-agent-sdk`). When off, Happier uses the legacy remote runner. |
+| **Use Agent SDK (remote)** | On | Enables the official Agent SDK remote runner (`@anthropic-ai/claude-agent-sdk`). When off, Kaiwu uses the legacy remote runner. |
 | **Setting sources** | User + Project | Controls what Claude settings get loaded: **Project only** loads repo config (for example `CLAUDE.md`); **User + Project** includes user-global config too (including user-defined MCP servers); **None** ignores both for maximum determinism. |
-| **Force-enable Agent Teams (experimental)** | Off | When enabled, Happier force-enables Claude Code experimental Agent Teams for all Claude starts (local + remote). When off, Happier does not force-disable and Claude uses its own defaults. |
-| **Experimental: local permission bridge** | On | In local mode, forwards Claude permission prompts into Happier so you can approve/deny from the app UI instead of only in the terminal. |
+| **Force-enable Agent Teams (experimental)** | Off | When enabled, Kaiwu force-enables Claude Code experimental Agent Teams for all Claude starts (local + remote). When off, Kaiwu does not force-disable and Claude uses its own defaults. |
+| **Experimental: local permission bridge** | On | In local mode, forwards Claude permission prompts into Kaiwu so you can approve/deny from the app UI instead of only in the terminal. |
 | **File checkpointing + /rewind** | Off | Enables file checkpoint capture and the `/rewind` command (remote Agent SDK only). Adds overhead. |
 | **Max thinking tokens** | Default | Sets an upper bound on Claude’s internal thinking budget (remote Agent SDK only). |
 | **Disable TODOs** | Off | Adds a remote-mode system instruction that asks Claude not to create TODO items/lists in its output. |
 | **Strict MCP server config** | Off | Fails the remote start if any MCP server config is invalid (instead of trying to continue). |
 | **Advanced options (JSON)** | Empty | Power-user overrides for a limited allowlist of Agent SDK query options (remote Agent SDK only). Invalid JSON is ignored with a user-visible warning. |
 
-For the full user-facing MCP guide in Happier, see:
+For the full user-facing MCP guide in Kaiwu, see:
 
 - [MCP servers](/extending/mcp-servers)
 
 ## Environment variables
 
-Happier does not have a Claude-specific “env var” CLI flag. To set environment variables for Claude:
+Kaiwu does not have a Claude-specific “env var” CLI flag. To set environment variables for Claude:
 
 - **Local mode**: export env vars in your shell before running `happier` (Claude inherits them).
-- **Remote mode (from the app UI)**: set env vars on the profile/session in the UI (Happier forwards them to the spawned Claude process).
+- **Remote mode (from the app UI)**: set env vars on the profile/session in the UI (Kaiwu forwards them to the spawned Claude process).
 
 Remote Agent SDK mode uses a filtered environment by default, but **explicit** GUI/profile env vars (and connected-services auth env vars) are forwarded to the Claude subprocess so workflows like GitHub integration can work without leaking the full parent `process.env`.
 
-## Agent Teams (Claude swarms) in Happier
+## Agent Teams (Claude swarms) in Kaiwu
 
-When Agent Teams are enabled in Claude, Happier can:
+When Agent Teams are enabled in Claude, Kaiwu can:
 
 - **Force-enable Agent Teams** for all Claude starts (local + remote) via the **Force-enable Agent Teams (experimental)** setting.
 - **Route user messages** from the main session composer to:
@@ -257,12 +257,12 @@ When a Claude session has an active team, the session composer shows a **“To:�
 - pick a specific teammate, or
 - pick **Broadcast**.
 
-Routed messages are stored as a provider-agnostic structured message kind (`participant_message.v1`) so Happier can render them as a distinct card in the transcript (instead of looking like a normal bubble).
+Routed messages are stored as a provider-agnostic structured message kind (`participant_message.v1`) so Kaiwu can render them as a distinct card in the transcript (instead of looking like a normal bubble).
 
 The important user-visible rule is:
 
-- Happier shows the message you typed,
-- Happier does **not** show Claude’s internal prompt rewrite for the routing step.
+- Kaiwu shows the message you typed,
+- Kaiwu does **not** show Claude’s internal prompt rewrite for the routing step.
 
 ### View-aware default recipient
 
@@ -292,7 +292,7 @@ Routed messages currently do **not** support:
 
 Send those as regular lead messages instead.
 
-Regular non-routed session messages do support Happier attachments.
+Regular non-routed session messages do support Kaiwu attachments.
 
 See: [Attachments & image previews](/apps/attachments)
 
@@ -301,7 +301,7 @@ See: [Attachments & image previews](/apps/attachments)
 When **Experimental: local permission bridge** is enabled:
 
 - You can keep using Claude’s local TUI in your terminal.
-- Permission prompts are also available in Happier’s UI, so approvals can be done from the app.
+- Permission prompts are also available in Kaiwu’s UI, so approvals can be done from the app.
 - If the bridge is unavailable, Claude falls back to its normal permission prompt behavior in the terminal.
 
 This is intended to improve local-mode usability when you want to keep session control in the app while still using Claude’s local runtime.
@@ -310,7 +310,7 @@ This is intended to improve local-mode usability when you want to keep session c
 
 ### Advanced options (JSON): allowlist
 
-The advanced JSON field is intentionally restricted so it can’t break Happier’s control plane (hooks, permissions, session handling).
+The advanced JSON field is intentionally restricted so it can’t break Kaiwu’s control plane (hooks, permissions, session handling).
 
 Currently allowlisted keys:
 
@@ -330,7 +330,7 @@ All other keys are ignored.
 
 ## File checkpointing and `/rewind`
 
-When **File checkpointing + /rewind** is enabled, Happier captures checkpoint IDs and exposes a rewind command:
+When **File checkpointing + /rewind** is enabled, Kaiwu captures checkpoint IDs and exposes a rewind command:
 
 - `/checkpoints` shows captured checkpoint IDs (newest first).
 - `/rewind <checkpoint-id> --confirm` rewinds files to a specific checkpoint.
@@ -339,22 +339,22 @@ When **File checkpointing + /rewind** is enabled, Happier captures checkpoint ID
 Important notes:
 
 - **Agent SDK rewind is filesystem-only.** It does not delete or rewrite the conversation.
-- This is different from Claude Code’s interactive `/rewind` command in the TUI, which can rewind conversation context and/or files. Happier remote uses the Agent SDK rewind behavior.
+- This is different from Claude Code’s interactive `/rewind` command in the TUI, which can rewind conversation context and/or files. Kaiwu remote uses the Agent SDK rewind behavior.
 - `/rewind` requires explicit confirmation because it can discard local file edits.
 - Checkpointing is **remote Agent SDK only** and may be slower because it captures/streams checkpoint information.
-- If you try to `/rewind` without checkpointing enabled (or before a checkpoint is captured), Happier will report that no checkpoint is available.
+- If you try to `/rewind` without checkpointing enabled (or before a checkpoint is captured), Kaiwu will report that no checkpoint is available.
 
 ## Troubleshooting
 
 ### “Claude not found”
 
-Make sure Claude Code is installed on your machine, then restart Happier.
+Make sure Claude Code is installed on your machine, then restart Kaiwu.
 
 ### “Not authenticated”
 
 Log into Claude Code using its normal login flow, then retry.
 
-You can do that either in your terminal or directly from the Claude provider settings page in Happier.
+You can do that either in your terminal or directly from the Claude provider settings page in Kaiwu.
 
 ### Settings changes don’t seem to apply
 

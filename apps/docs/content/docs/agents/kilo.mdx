@@ -1,9 +1,9 @@
 ---
 title: Kilo (experimental)
-description: Configure Kilo in Happier, including install, machine-local login, and current limitations.
+description: Configure Kilo in Kaiwu, including install, machine-local login, and current limitations.
 ---
 
-Happier supports **Kilo** as a local CLI-backed provider.
+Kaiwu supports **Kilo** as a local CLI-backed provider.
 
 <Callout type="info">
   Kilo is an **experimental** integration. It works and people use it
@@ -19,21 +19,21 @@ Happier supports **Kilo** as a local CLI-backed provider.
 
 ## Install Kilo
 
-Install Kilo on your machine, then restart Happier:
+Install Kilo on your machine, then restart Kaiwu:
 
 ```bash
 npm install -g @kilocode/cli@latest
 kilo --version
 ```
 
-Happier can install it for you:
+Kaiwu can install it for you:
 
 ```bash
 happier install provider kilo
 kilo --version
 ```
 
-## Local authentication in Happier
+## Local authentication in Kaiwu
 
 Kilo supports launching its native login flow from:
 
@@ -41,16 +41,16 @@ Kilo supports launching its native login flow from:
 
 From there you can:
 
-- open Kilo and start its `/connect` flow directly inside Happier
+- open Kilo and start its `/connect` flow directly inside Kaiwu
 - use **Check now** to re-run auth detection on the selected machine
 
-Auth-status detection for Kilo is currently conservative. Happier can open the login flow, but may still show **Unknown** if Kilo does not expose a safe non-interactive local auth signal.
+Auth-status detection for Kilo is currently conservative. Kaiwu can open the login flow, but may still show **Unknown** if Kilo does not expose a safe non-interactive local auth signal.
 
 For the shared user guide, see [Provider authentication](/agents/provider-authentication).
 
-## Enable Kilo in Happier (experimental)
+## Enable Kilo in Kaiwu (experimental)
 
-Kilo is behind Happier’s experimental providers rollout.
+Kilo is behind Kaiwu’s experimental providers rollout.
 
 In the app:
 
@@ -69,12 +69,12 @@ In the app:
 ### “Kilo not found”
 
 - Confirm Kilo is installed: `kilo --version`
-- Restart Happier after installing.
+- Restart Kaiwu after installing.
 - If Kilo isn’t on PATH, set `HAPPIER_KILO_PATH` to the absolute path of the `kilo` binary.
 
 ### “Not authenticated”
 
-Use the Kilo provider settings page in Happier or run Kilo’s normal local login flow in your terminal, then use **Check now**.
+Use the Kilo provider settings page in Kaiwu or run Kilo’s normal local login flow in your terminal, then use **Check now**.
 
 ## Related
 

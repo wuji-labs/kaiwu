@@ -67,7 +67,7 @@ export function formatBugReportFallbackIssueBody(input: {
     input.severity ? '### Severity' : null,
     input.severity ?? null,
     input.severity ? '' : null,
-    '### Happier version',
+    '### Kaiwu version',
     input.environment.appVersion,
     '',
     '### Platform',

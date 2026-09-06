@@ -3,7 +3,7 @@ title: Friends
 description: Add friends, share sessions with people you trust, and discover users by username.
 ---
 
-Friends is a social layer on top of Happier sessions:
+Friends is a social layer on top of Kaiwu sessions:
 
 - **Discover** people by a username (`@username`)
 - **Send** friend requests and manage relationships
@@ -13,7 +13,7 @@ The server advertises Friends and GitHub OAuth availability via `GET /v1/feature
 
 ## Identity model (one username, regardless of how you got it)
 
-Happier uses a single, unique identifier for discovery: `account.username`.
+Kaiwu uses a single, unique identifier for discovery: `account.username`.
 
 - User search (`GET /v1/user/search`) matches `username`
 - Friend requests use account IDs internally, but the UI is centered around `@username`
@@ -26,7 +26,7 @@ Users should not need to know whether a username came from GitHub or was set man
 When a user connects GitHub:
 
 1. The server completes the OAuth flow and fetches `GET https://api.github.com/user` (scope is `read:user`).
-2. The server links the GitHub account to the Happier account (1 GitHub account → 1 Happier account).
+2. The server links the GitHub account to the Kaiwu account (1 GitHub account → 1 Kaiwu account).
 3. The server **does not overwrite** an existing `account.username`.
 4. If `account.username` is empty, the server tries to set it to the GitHub `login` (lowercased), **but only if that username is not already taken**.
 
@@ -80,8 +80,8 @@ Required to enable GitHub connect:
 
 Optional:
 
-- `HAPPIER_WEBAPP_URL` (default `https://app.happier.dev`): base URL/scheme for the client. The server redirects to `${HAPPIER_WEBAPP_URL}/oauth/github` after the server callback completes.
-  - This is only “optional” if you are using the hosted client at `https://app.happier.dev`. If you are self-hosting the web app (or using a local dev web UI), set `HAPPIER_WEBAPP_URL` (or `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE`) so OAuth can return to your client.
+- `HAPPIER_WEBAPP_URL` (default `https://kaiwu.chengqiyun.com`): base URL/scheme for the client. The server redirects to `${HAPPIER_WEBAPP_URL}/oauth/github` after the server callback completes.
+  - This is only “optional” if you are using the hosted client at `https://kaiwu.chengqiyun.com`. If you are self-hosting the web app (or using a local dev web UI), set `HAPPIER_WEBAPP_URL` (or `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE`) so OAuth can return to your client.
 - `GITHUB_STORE_ACCESS_TOKEN` (`true`/`false`, default `false`): whether to persist GitHub access tokens on the server (Friends does not require this). If you enforce org membership via `AUTH_GITHUB_ORG_MEMBERSHIP_SOURCE=oauth_user_token` (membership checks via user OAuth token mode), token storage is required for offboarding checks. See [Org membership source](/self-hosting/auth-github#org-membership-source-important).
 - `OAUTH_PENDING_TTL_SECONDS` (default `600`, min `60`, max `3600`): how long a “pending OAuth finalize” (e.g. waiting for username selection) can be finalized.
   - Legacy alias: `GITHUB_OAUTH_PENDING_TTL_SECONDS` (if `OAUTH_PENDING_TTL_SECONDS` is unset).
@@ -91,7 +91,7 @@ Optional:
 1. In GitHub, go to **Settings → Developer settings → OAuth Apps → New OAuth App**.
 2. Set **Authorization callback URL** to your server callback endpoint:
    - `https://YOUR_SERVER/v1/oauth/github/callback`
-   - You do **not** need GitHub’s “Device Flow / device authentication flow”. Happier uses the standard browser redirect OAuth flow, so you can leave “Enable Device Flow” **disabled**.
+   - You do **not** need GitHub’s “Device Flow / device authentication flow”. Kaiwu uses the standard browser redirect OAuth flow, so you can leave “Enable Device Flow” **disabled**.
 3. Copy the **Client ID** and **Client secret** into your server environment as `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET`.
 4. Set `GITHUB_REDIRECT_URL` to the same callback URL you registered above.
 5. (Self-hosting) Set `HAPPIER_WEBAPP_URL` to the URL/scheme that should receive the post-OAuth redirect.

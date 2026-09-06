@@ -12,7 +12,7 @@ import { DevicePetSelector, type DetectedDevicePetSelectorItem, type LocalDevice
 import type { CodexDetectionState, LocalPetImportDiagnostic, LocalPetRemovalDiagnostic } from './types';
 import { Icon } from '@/components/ui/icons/Icon';
 
-const PETS_HELP_URL = 'https://docs.happier.dev';
+const PETS_HELP_URL = 'https://kaiwu.chengqiyun.com/docs';
 
 type PetsLocalLibrarySectionProps = Readonly<{
     builtInPetRows: readonly BuiltInPetPackage[];

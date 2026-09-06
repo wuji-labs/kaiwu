@@ -78,7 +78,7 @@ export function buildHappierToolsPromptAppendix(params: Readonly<{
     '--json',
   ]);
   const memoryGuidance = params.memoryRecallGuidance?.enabled === true
-    ? `For recall questions about earlier conversations, use the Happier memory bridge tools before provider-native memory files, workspace search, or guesses from model memory.
+    ? `For recall questions about earlier conversations, use the Kaiwu memory bridge tools before provider-native memory files, workspace search, or guesses from model memory.
 
 Use \`${memorySearchCommand}\` first. ${memoryMachineId ? `Use machineId \`${memoryMachineId}\` for this session's daemon memory index.` : 'Fill in the current daemon machine id before running the command.'}
 
@@ -92,9 +92,9 @@ Do not use provider-native memory files or ad-hoc workspace search as a substitu
     ? ''
     : titleMode === 'initial'
       ? `
-Based on the user's first message, use the Happier tools bridge to set a short descriptive session title.
+Based on the user's first message, use the Kaiwu tools bridge to set a short descriptive session title.
 
-At the start of the session, use the Happier tools bridge to rename the session before replying when that would help keep the session organized.
+At the start of the session, use the Kaiwu tools bridge to rename the session before replying when that would help keep the session organized.
 
 Before your first substantive reply in the session, execute the CLI bridge command to rename the session unless the user explicitly told you not to use tools.
 
@@ -109,9 +109,9 @@ Only after the rename command succeeds should you inspect the workspace, use pro
 Do not merely describe the command or say that you plan to rename the session later; execute the CLI bridge command first when the title update is allowed.
 `
       : `
-Based on the user's message, use the Happier tools bridge to set or update a short descriptive session title.
+Based on the user's message, use the Kaiwu tools bridge to set or update a short descriptive session title.
 
-At the start of the session (and again if the task changes significantly), use the Happier tools bridge to rename the session before replying when that would help keep the session organized.
+At the start of the session (and again if the task changes significantly), use the Kaiwu tools bridge to rename the session before replying when that would help keep the session organized.
 
 Before your first substantive reply in the session, execute the CLI bridge command to rename the session unless the user explicitly told you not to use tools.
 
@@ -131,19 +131,19 @@ Do not merely describe the command or say that you plan to rename the session la
 Use \`${renameCommand}\` to rename the session.
 `;
 
-  return `Happier tools are available through the CLI bridge for this provider. They are not exposed as native tools in the provider tool inventory.
+  return `Kaiwu tools are available through the CLI bridge for this provider. They are not exposed as native tools in the provider tool inventory.
 ${titleGuidance}
 
-Use \`${listCommand}\` when you need to discover the available built-in Happier tools and custom configured tools.
+Use \`${listCommand}\` when you need to discover the available built-in Kaiwu tools and custom configured tools.
 ${renameCommandGuidance}
 
 ${memoryGuidance ? `${memoryGuidance}
 
-` : ''}For any other Happier or custom tool, call the same CLI bridge form with \`call --source <source> --tool <tool> --args-json '<json>' --json\`. Use the listed tool \`name\` verbatim for \`--tool\`; ActionSpec IDs (for example, \`subagents.delegate.start\`) are not tool names. If you start from an ActionSpec ID, invoke the listed \`action_execute\` tool and pass the ID as \`actionId\` in \`--args-json\`. When a custom tool is written as \`<source>/<tool>\`, pass the part before the slash to \`--source\` and the part after the slash to \`--tool\`.
+` : ''}For any other Kaiwu or custom tool, call the same CLI bridge form with \`call --source <source> --tool <tool> --args-json '<json>' --json\`. Use the listed tool \`name\` verbatim for \`--tool\`; ActionSpec IDs (for example, \`subagents.delegate.start\`) are not tool names. If you start from an ActionSpec ID, invoke the listed \`action_execute\` tool and pass the ID as \`actionId\` in \`--args-json\`. When a custom tool is written as \`<source>/<tool>\`, pass the part before the slash to \`--source\` and the part after the slash to \`--tool\`.
 
 Never violate the user's explicit constraints on tool usage. If the user says to avoid tools or to use exactly one tool, follow that instruction even if it means skipping the title update for that turn.
 
-Do not claim these Happier tools are unavailable without first using the CLI bridge to list or call them.
+Do not claim these Kaiwu tools are unavailable without first using the CLI bridge to list or call them.
 
 Prefer this exact CLI bridge command form over ad-hoc shell equivalents when the capability exists there.`;
 }

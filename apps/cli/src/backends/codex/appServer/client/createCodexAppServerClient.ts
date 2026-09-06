@@ -772,7 +772,7 @@ export async function createCodexAppServerClient(params: Readonly<{
         await request('initialize', {
             clientInfo: {
                 name: 'happier_cli',
-                title: 'Happier',
+                title: 'Kaiwu',
                 version: '0.1.0',
             },
             capabilities: {

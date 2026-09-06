@@ -44,8 +44,8 @@ import type {
   ServerProfileMissing,
 } from '@/diagnostics/doctorRepair';
 
-export const CLEAN_STATE_HEADER = '✔  Your Happier installation looks good.';
-export const MISMATCHED_STATE_HEADER = chalk.yellow.bold('Your Happier setup might need some attention:');
+export const CLEAN_STATE_HEADER = '✔  Your Kaiwu installation looks good.';
+export const MISMATCHED_STATE_HEADER = chalk.yellow.bold('Your Kaiwu setup might need some attention:');
 
 /**
  * Short, one-line headline per finding kind. Used in the summary block under
@@ -56,7 +56,7 @@ export function findingHeadline(finding: RepairFinding): string {
     case 'channel_switch_recommended':
       return `You\u2019re currently on ${finding.fromStack.releaseChannel}; you just installed the ${finding.toChannel} CLI`;
     case 'no_active_stack_yet':
-      return 'No active Happier stack yet — start one to begin using Happier';
+      return 'No active Kaiwu stack yet — start one to begin using Kaiwu';
     case 'no_servers_configured':
       return 'No server profiles are configured';
     case 'server_profile_missing':
@@ -70,11 +70,11 @@ export function findingHeadline(finding: RepairFinding): string {
     case 'dev_on_hosted_cloud_informational':
       return 'Dev CLI + hosted cloud — dev features may not be available';
     case 'multi_stack_detected_informational':
-      return 'Multiple Happier stacks running on this machine';
+      return 'Multiple Kaiwu stacks running on this machine';
     case 'cli_self_update_available':
       return 'A newer CLI is available for your release channel';
     case 'automatic_startup_foreign_home':
-      return 'A background service from another Happier installation was detected';
+      return 'A background service from another Kaiwu installation was detected';
     case 'automatic_startup_duplicate_default_following':
       return 'Multiple background services are configured to auto-start';
     case 'automatic_startup_duplicate_pinned_same_server':
@@ -483,7 +483,7 @@ export function copyDuplicatePinnedSameServer(
 export function copyMissing(finding: AutomaticStartupMissing): FindingPromptCopy {
   return {
     body: [
-      'Without an auto-starting service, Happier won\'t come back on after a reboot.',
+      'Without an auto-starting service, Kaiwu won\'t come back on after a reboot.',
     ],
     question: `Enable an auto-starting background service for the ${finding.targetReleaseChannel} channel?`,
     default: finding.targetReleaseChannel === 'stable' ? 'yes' : 'no',
@@ -500,12 +500,12 @@ export function copyForeignHome(finding: AutomaticStartupForeignHome, invoker: s
   }
   if (finding.entries.length > 0) {
     for (const entry of finding.entries) {
-      const home = entry.happierHomeDir ?? '(unknown Happier home)';
-      lines.push(`• ${entry.path}   (Happier home: ${home})`);
+      const home = entry.happierHomeDir ?? '(unknown Kaiwu home)';
+      lines.push(`• ${entry.path}   (Kaiwu home: ${home})`);
     }
   }
   lines.push('');
-  lines.push('This belongs to a different Happier home — I can\'t touch it safely.');
+  lines.push('This belongs to a different Kaiwu home — I can\'t touch it safely.');
   lines.push(`Remove it from the owning installation, then re-run \`${invoker} doctor repair\`.`);
   return lines;
 }
@@ -817,7 +817,7 @@ export function copyNoServersConfigured(invoker: string = 'happier'): readonly s
   return [
     'You need at least one server profile to connect to.',
     '',
-    'Sign in to Happier cloud with:',
+    'Sign in to Kaiwu cloud with:',
     `  ${authSignInCommand(invoker)}`,
     '',
     'Or connect to a self-hosted server with:',

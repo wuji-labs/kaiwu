@@ -22,7 +22,7 @@ function printMigrationBanner(params: Readonly<{ report: DoctorRepairReport }>):
   const serverUrl = activeProfile?.serverUrl ?? null;
   const channel = params.report.currentCli.releaseChannel;
   console.log('');
-  console.log(bold('Migrating Happier to the new background-service model'));
+  console.log(bold('Migrating Kaiwu to the new background-service model'));
   if (serverUrl) {
     console.log(muted(`Current default server: ${serverUrl} · CLI channel: ${channel}`));
   } else {

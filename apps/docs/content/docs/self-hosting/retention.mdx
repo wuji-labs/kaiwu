@@ -1,9 +1,9 @@
 ---
 title: Server retention policies
-description: Configure automatic cleanup for self-hosted Happier servers without changing the default keep-forever behavior.
+description: Configure automatic cleanup for self-hosted Kaiwu servers without changing the default keep-forever behavior.
 ---
 
-Happier server retention is optional and disabled by default.
+Kaiwu server retention is optional and disabled by default.
 
 If you do not set any retention env vars, the server keeps sessions and other retained records forever.
 
@@ -212,7 +212,7 @@ HAPPIER_SERVER_RETENTION__ACCOUNT_AUTH_REQUESTS__DAYS=7
 
 ## What users see in the app
 
-Happier surfaces the server's complete retention policy so users understand what it keeps and what it
+Kaiwu surfaces the server's complete retention policy so users understand what it keeps and what it
 eventually deletes. The UI renders the server-provided domain list generically, including domain ids a
 newer server adds before the client has a dedicated label.
 

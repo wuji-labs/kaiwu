@@ -187,7 +187,7 @@ export async function runDoctorCommand(filter?: 'all' | 'daemon'): Promise<void>
         snapshot = null;
     }
     
-    console.log(chalk.bold.cyan('\n🩺 Happier CLI Doctor\n'));
+    console.log(chalk.bold.cyan('\n🩺 Kaiwu CLI Doctor\n'));
 
     // For 'all' filter, show everything. For 'daemon', only show daemon-related info
     if (filter === 'all') {
@@ -195,7 +195,7 @@ export async function runDoctorCommand(filter?: 'all' | 'daemon'): Promise<void>
 
         // Version and basic info
         console.log(chalk.bold('📋 Basic Information'));
-        console.log(`Happier CLI Version: ${chalk.green(packageJson.version)}`);
+        console.log(`Kaiwu CLI Version: ${chalk.green(packageJson.version)}`);
         console.log(`Platform: ${chalk.green(process.platform)} ${process.arch}`);
         const runtimeDiagnostics = buildDoctorRuntimeDiagnostics();
         console.log(`Runtime: ${chalk.green(formatDoctorRuntimeLabel(runtimeDiagnostics))}`);
@@ -219,7 +219,7 @@ export async function runDoctorCommand(filter?: 'all' | 'daemon'): Promise<void>
 
 		        // Configuration
 		        console.log(chalk.bold('⚙️  Configuration'));
-		        console.log(`Happier Home: ${chalk.blue(configuration.happyHomeDir)}`);
+		        console.log(`Kaiwu Home: ${chalk.blue(configuration.happyHomeDir)}`);
 		        console.log(`Relay URL: ${chalk.blue(configuration.serverUrl)}`);
 		        console.log(`Logs Dir: ${chalk.blue(configuration.logsDir)}`);
 
@@ -414,7 +414,7 @@ export async function runDoctorCommand(filter?: 'all' | 'daemon'): Promise<void>
             // All Happier processes
             const allProcesses = await findAllHappyProcesses();
             if (allProcesses.length > 0) {
-                console.log(chalk.bold('\n🔍 All Happier CLI Processes'));
+                console.log(chalk.bold('\n🔍 All Kaiwu CLI Processes'));
 
                 // Group by type
                 const grouped = allProcesses.reduce((groups, process) => {

@@ -352,7 +352,7 @@ export function createOpenCodeServerRuntime(params: {
   ) {
     requiredMcpServerReadiness.deferred.resolve({
       status: 'failed',
-      error: new Error('required Happier MCP server configuration is missing'),
+      error: new Error('required Kaiwu MCP server configuration is missing'),
     });
   }
 
@@ -3847,7 +3847,7 @@ export function createOpenCodeServerRuntime(params: {
     if (!Object.prototype.hasOwnProperty.call(params.mcpServers, requiredMcpServerName)) {
       requiredMcpServerReadiness.deferred.resolve({
         status: 'failed',
-        error: new Error('required Happier MCP server configuration is missing'),
+        error: new Error('required Kaiwu MCP server configuration is missing'),
       });
     }
   };
@@ -3880,7 +3880,7 @@ export function createOpenCodeServerRuntime(params: {
         ) {
           requiredReadinessForRegistration.deferred.resolve({
             status: 'failed',
-            error: new Error('required Happier MCP server command is missing'),
+            error: new Error('required Kaiwu MCP server command is missing'),
           });
         }
         hadFailures = true;
@@ -3926,7 +3926,7 @@ export function createOpenCodeServerRuntime(params: {
         }
         logger.debug(
           serverName === requiredMcpServerName
-            ? '[OpenCodeServer] Required Happier MCP server registration failed; prompt admission will fail closed'
+            ? '[OpenCodeServer] Required Kaiwu MCP server registration failed; prompt admission will fail closed'
             : '[OpenCodeServer] Failed to register MCP server (non-fatal)',
           { serverName, error },
         );
@@ -4191,13 +4191,13 @@ export function createOpenCodeServerRuntime(params: {
 
       const requiredMcpReadiness = await waitForRequiredMcpServerBeforePrompt(thisTurnDeferred, promptSessionId);
       if (requiredMcpReadiness === null) {
-        throwPromptNotDispatched('required Happier MCP readiness ended before prompt_async');
+        throwPromptNotDispatched('required Kaiwu MCP readiness ended before prompt_async');
       } else if (requiredMcpReadiness.status === 'failed') {
         const detail = requiredMcpReadiness.error instanceof Error
           ? requiredMcpReadiness.error.message
           : formatErrorForUi(requiredMcpReadiness.error, { maxChars: 1_000 }).trim();
         throwPromptNotDispatched(
-          `required Happier MCP registration failed${detail ? `: ${detail}` : ''}`,
+          `required Kaiwu MCP registration failed${detail ? `: ${detail}` : ''}`,
         );
       }
 

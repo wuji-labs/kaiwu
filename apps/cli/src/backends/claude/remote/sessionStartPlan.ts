@@ -17,7 +17,7 @@ export class ClaudeResumeSessionUnavailableError extends Error {
   constructor(providerSessionId: string) {
     super(
       `Claude session ${providerSessionId} cannot be resumed because its transcript is unavailable. `
-      + 'Happier did not start a new session because the requested operation was resume.',
+      + 'Kaiwu did not start a new session because the requested operation was resume.',
     );
     this.name = 'ClaudeResumeSessionUnavailableError';
     this.providerSessionId = providerSessionId;

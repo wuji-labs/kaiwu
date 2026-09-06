@@ -34,7 +34,7 @@ export class CliClientUpgradeRequiredError extends Error {
     readonly requirement: NonNullable<ReturnType<typeof readCliClientUpgradeRequired>>['requirement'];
 
     constructor(payload: NonNullable<ReturnType<typeof readCliClientUpgradeRequired>>) {
-        super('This Happier client must be upgraded before it can sync sessions.');
+        super('This Kaiwu client must be upgraded before it can sync sessions.');
         this.name = 'CliClientUpgradeRequiredError';
         this.requirement = payload.requirement;
     }

@@ -118,7 +118,7 @@ export async function handleResumeCommand(
 
   const credentials = await readCredentialsFn();
   if (!credentials) {
-    console.error(chalk.yellow('⚠️  Not authenticated with Happier'));
+    console.error(chalk.yellow('⚠️  Not authenticated with Kaiwu'));
     console.error(chalk.gray('  Please run "happier auth login" first'));
     process.exit(1);
   }

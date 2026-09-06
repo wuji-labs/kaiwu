@@ -3,11 +3,11 @@ title: App
 description: Desktop, web, and mobile UI client.
 ---
 
-The Happier app is the interactive client for people using Happier on desktop, web, and mobile.
+The Kaiwu app is the interactive client for people using Kaiwu on desktop, web, and mobile.
 
 ## Relay selection
 
-The app can use Happier Cloud, or you can add one or more custom self-hosted Relays.
+The app can use Kaiwu Cloud, or you can add one or more custom self-hosted Relays.
 
 ### Saved Relays + switching
 
@@ -15,7 +15,7 @@ The app can use Happier Cloud, or you can add one or more custom self-hosted Rel
 - Credentials are stored **per Relay**, so a hosted account and a self-hosted account won’t overwrite each other.
 - On different Relays, accounts are independent even if you use the same login provider.
 - On web, you can switch the Relay **for this tab** or **make it the device default**.
-- Web tabs that use the same browser profile and origin share the same browser storage substrate. Happier separates local records by Relay and account inside that storage, but separate browser profiles are the isolation boundary when you need fully separate local storage.
+- Web tabs that use the same browser profile and origin share the same browser storage substrate. Kaiwu separates local records by Relay and account inside that storage, but separate browser profiles are the isolation boundary when you need fully separate local storage.
 
 ### Configure-server links (1-click)
 
@@ -23,7 +23,7 @@ Some installers (for example `hstack setup-from-source` and Proxmox) print one-c
 
 ## Desktop control panel
 
-On desktop, the app is intended to be the main control panel for your Happier setup:
+On desktop, the app is intended to be the main control panel for your Kaiwu setup:
 
 - start from the in-app `/setup` flow (desktop-only)
 - choose your Relay before signing in
@@ -42,7 +42,7 @@ For detailed Relay profile, switching, and multi-daemon guidance, see [Features 
 
 ## Notifications
 
-Happier supports push notifications for:
+Kaiwu supports push notifications for:
 
 - turn completion (`Ready`)
 - permission requests
@@ -104,7 +104,7 @@ Full guide: [Model and engine selection](/agents/model-and-engine-selection).
 
 ## Machine installables
 
-**Machine Details → Installables** manages tools Happier can install and keep
+**Machine Details → Installables** manages tools Kaiwu can install and keep
 updated on that specific machine, with per-machine **Auto-install when needed**
 and **Auto-update** (`off`, `notify`, `auto`). Policies are per machine, so a
 laptop and a remote box can differ.
@@ -270,7 +270,7 @@ Full matrix (all apps/assets): [Updates](/releases/updates).
 
 ## Authentication (keyed vs keyless)
 
-Happier supports both:
+Kaiwu supports both:
 
 - **Device-key accounts (default)**: end-to-end encrypted by default; users must **restore** access on new devices/browsers by using the account restore flow (for example **Add your phone** on a signed-in computer, or **Restore with Secret Key Instead**).
 - **Keyless accounts (enterprise)**: no device keys; sign-in can be **seamless across devices**, typically paired with plaintext storage mode.
@@ -286,9 +286,9 @@ In the app, these are different flows:
 - **Scan QR to connect terminal** approves a CLI/daemon connection and does not sign a new phone/browser into the UI
 - **Enter URL manually** is the fallback when you cannot scan
 
-On phones and mobile-sized web browsers with camera support, Happier opens the account-restore scanner first. On larger web/desktop layouts, Happier shows a QR code that another signed-in device can scan instead.
+On phones and mobile-sized web browsers with camera support, Kaiwu opens the account-restore scanner first. On larger web/desktop layouts, Kaiwu shows a QR code that another signed-in device can scan instead.
 
-If you self-host and your current server is `localhost`, Happier may intentionally omit the server URL from mobile QR/deep links. In that case, first configure the phone to a reachable server URL (LAN IP, Tailscale, or a public domain), then retry.
+If you self-host and your current server is `localhost`, Kaiwu may intentionally omit the server URL from mobile QR/deep links. In that case, first configure the phone to a reachable server URL (LAN IP, Tailscale, or a public domain), then retry.
 
 User guide: [Features → Device linking & restore](/accounts/device-linking-and-restore)
 

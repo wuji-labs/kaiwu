@@ -60,7 +60,7 @@ if (appLocalConfigModule && typeof appLocalConfigModule === 'object') {
 
 const DEFAULTS = {
     ...EXPO_PROJECT_CONFIG,
-    linkHost: "app.happier.dev",
+    linkHost: "app.chengqiyun.com",
 };
 
 // Allow opt-in overrides for local dev tooling without changing upstream defaults.

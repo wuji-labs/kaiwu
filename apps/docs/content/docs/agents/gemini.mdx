@@ -1,9 +1,9 @@
 ---
 title: Gemini
-description: Configure Gemini in Happier, including model selection and ACP-backed behavior.
+description: Configure Gemini in Kaiwu, including model selection and ACP-backed behavior.
 ---
 
-Happier integrates Gemini through the local Gemini CLI/runtime and ACP-compatible messaging.
+Kaiwu integrates Gemini through the local Gemini CLI/runtime and ACP-compatible messaging.
 
 <Callout type="info">
   Gemini is an **experimental** integration. It works and people use it
@@ -19,7 +19,7 @@ Happier integrates Gemini through the local Gemini CLI/runtime and ACP-compatibl
 
 ## Install Gemini
 
-Happier can install it for you:
+Kaiwu can install it for you:
 
 ```bash
 happier install provider gemini
@@ -33,7 +33,7 @@ npm install -g @google/gemini-cli
 gemini --version
 ```
 
-## Local authentication in Happier
+## Local authentication in Kaiwu
 
 Gemini supports machine-local auth management in:
 
@@ -42,14 +42,14 @@ Gemini supports machine-local auth management in:
 From there you can:
 
 - check Gemini’s local auth state on the selected machine
-- open Gemini’s native CLI auth flow directly inside Happier
+- open Gemini’s native CLI auth flow directly inside Kaiwu
 - refresh the auth state with **Check now**
 
-Happier can detect Gemini auth from environment variables, local Gemini auth/config files, and supported Google ADC files.
+Kaiwu can detect Gemini auth from environment variables, local Gemini auth/config files, and supported Google ADC files.
 
 For the shared user guide, see [Provider authentication](/agents/provider-authentication).
 
-## Start Gemini with Happier
+## Start Gemini with Kaiwu
 
 ```bash
 happier gemini
@@ -57,19 +57,19 @@ happier gemini
 
 ## Authentication (connected services)
 
-Gemini auth is managed through Happier connected services (`gemini`):
+Gemini auth is managed through Kaiwu connected services (`gemini`):
 
 - Settings → Connected services → Gemini
 - Or CLI: `happier connect gemini`
 
-For paste/redirect flows, Happier exchanges the OAuth code on the server and returns an encrypted bundle to the client (no Gemini OAuth secrets are bundled into the app UI).
+For paste/redirect flows, Kaiwu exchanges the OAuth code on the server and returns an encrypted bundle to the client (no Gemini OAuth secrets are bundled into the app UI).
 
 Supported UI methods:
 
 - paste redirect URL
 - in-app browser on native
 
-On web, Happier uses the paste flow.
+On web, Kaiwu uses the paste flow.
 
 If you are self-hosting and need to override OAuth client settings, see:
 
@@ -86,7 +86,7 @@ For cross-provider model behavior, live model lists, and favorites, see [Model a
 
 ## Troubleshooting
 
-- If Gemini is not detected, verify CLI installation and restart Happier.
+- If Gemini is not detected, verify CLI installation and restart Kaiwu.
 - If needed, point to binary explicitly with `HAPPIER_GEMINI_PATH`.
 
 ## Related

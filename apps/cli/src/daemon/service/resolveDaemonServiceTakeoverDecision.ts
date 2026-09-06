@@ -40,7 +40,7 @@ export function buildDaemonServiceTakeoverNotice(params: Readonly<{
   return {
     title: 'Taking over the current manual daemon.',
     lines: [
-      `Happier will stop the current manually started daemon before it ${describeAction(params.action)}.`,
+      `Kaiwu will stop the current manually started daemon before it ${describeAction(params.action)}.`,
     ],
   };
 }

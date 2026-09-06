@@ -86,12 +86,12 @@ function printMobileLinkMissingServerUrlHint(params: Readonly<{ serverUrl: strin
         // eslint-disable-next-line no-console
         console.log('Your relay URL is set to localhost, which is only reachable on this machine.');
         // eslint-disable-next-line no-console
-        console.log('On your phone, open Happier → Settings → Relays and add a URL your phone can reach (LAN IP/VPN/Tailscale).');
+        console.log('On your phone, open Kaiwu → Settings → Relays and add a URL your phone can reach (LAN IP/VPN/Tailscale).');
         // eslint-disable-next-line no-console
         console.log('Tip (recommended): set HAPPIER_PUBLIC_SERVER_URL to a shareable https:// URL so future QR codes include it automatically.');
     } else {
         // eslint-disable-next-line no-console
-        console.log('Your phone will use its currently configured relay (Happier → Settings → Relays).');
+        console.log('Your phone will use its currently configured relay (Kaiwu → Settings → Relays).');
     }
     // eslint-disable-next-line no-console
     console.log('');
@@ -288,11 +288,11 @@ async function doBothAuth(params: Readonly<{
         console.log('- Make sure your phone/browser can reach the relay URL embedded in the QR/deep link');
         console.log('- The app/web UI may prompt you to switch relays automatically (because the link includes server=...)');
     } else {
-        console.log('- Make sure your phone is already configured to the right relay (Happier → Settings → Relays)');
+        console.log('- Make sure your phone is already configured to the right relay (Kaiwu → Settings → Relays)');
         console.log('- Tip: set HAPPIER_PUBLIC_SERVER_URL to embed a shareable relay URL in future QR codes');
     }
     console.log('- Sign in (or create an account)');
-    console.log('- If you already have a Happier account on another device, sign in with that same account');
+    console.log('- If you already have a Kaiwu account on another device, sign in with that same account');
     console.log('');
 
     if (!terminalMobileEmbedsServerUrl) {
@@ -318,14 +318,14 @@ async function doBothAuth(params: Readonly<{
     }
 
     console.log('Mobile (recommended)');
-    console.log('Scan this QR code with your Happier mobile app:\n');
+    console.log('Scan this QR code with your Kaiwu mobile app:\n');
     displayQRCode(terminalLinks.mobileUrl);
     console.log('\nOr manually open this URL:');
     console.log(terminalLinks.mobileUrl);
     console.log('');
 
     console.log('Web (fallback)');
-    console.log('Open this URL in a browser where you are signed in to Happier:');
+    console.log('Open this URL in a browser where you are signed in to Kaiwu:');
     console.log(terminalLinks.webUrl);
     console.log('');
 
@@ -422,7 +422,7 @@ async function doMobileAuth(params: Readonly<{
     if (params.pairingRequirement === 'v3') {
         console.log('Authenticated pairing v3 is required. For protection from an untrusted relay, approve with the native mobile app; web pairing trusts the web app origin.');
     }
-    console.log('If you already have a Happier account on another device, sign in with that same account.\n');
+    console.log('If you already have a Kaiwu account on another device, sign in with that same account.\n');
 
     const publicKeyB64Url = encodeBase64Url(params.keypair.publicKey);
     const terminalLinks = buildTerminalConnectLinks({
@@ -455,7 +455,7 @@ async function doMobileAuth(params: Readonly<{
         printMobileLinkMissingServerUrlHint({ serverUrl: configuration.serverUrl, kind: 'terminalConnect' });
     }
 
-    console.log('Scan this QR code with your Happier mobile app:\n');
+    console.log('Scan this QR code with your Kaiwu mobile app:\n');
     displayQRCode(terminalLinks.mobileUrl);
 
     console.log('\nOr manually enter this URL:');
@@ -491,7 +491,7 @@ async function doWebAuth(params: Readonly<{
     if (params.pairingRequirement === 'v3') {
         console.log('Authenticated pairing v3 is required, but web pairing still trusts the web app origin. Use the native mobile app for protection from an untrusted relay.\n');
     }
-    console.log('If you already have a Happier account on another device, sign in with that same account.\n');
+    console.log('If you already have a Kaiwu account on another device, sign in with that same account.\n');
 
     const publicKeyB64Url = encodeBase64Url(params.keypair.publicKey);
     const terminalLinks = buildTerminalConnectLinks({
@@ -596,7 +596,7 @@ async function waitForAuthentication(params: Readonly<{
                     if (!opened) {
                         console.log(
                             params.pairingRequirement === 'v3'
-                                ? '\n\nAuthenticated terminal pairing v3 is required. Update the Happier mobile app and scan a new QR code.'
+                                ? '\n\nAuthenticated terminal pairing v3 is required. Update the Kaiwu mobile app and scan a new QR code.'
                                 : '\n\nFailed to decrypt response. Please try again.',
                         );
                         return null;

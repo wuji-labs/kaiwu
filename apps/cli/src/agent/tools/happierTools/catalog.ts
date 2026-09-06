@@ -34,7 +34,7 @@ const MANUAL_TOOLS: readonly HappierBuiltInToolDefinition[] = Object.freeze([
   {
     name: 'action_execute',
     title: 'Execute Action',
-    description: 'Execute a Happier action by action id with structured input',
+    description: 'Execute a Kaiwu action by action id with structured input',
     inputSchema: actionExecuteToolInputSchema,
   },
 ]);

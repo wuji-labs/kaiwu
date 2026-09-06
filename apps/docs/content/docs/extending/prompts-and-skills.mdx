@@ -1,9 +1,9 @@
 ---
 title: Prompts, skills, templates, and registries
-description: Manage reusable prompt content in Happier, attach it to agents and profiles, and install or export it to provider-native locations on your machines.
+description: Manage reusable prompt content in Kaiwu, attach it to agents and profiles, and install or export it to provider-native locations on your machines.
 ---
 
-Happier groups reusable AI instructions into one product area with a single canonical library and several ways to apply or export what you save there.
+Kaiwu groups reusable AI instructions into one product area with a single canonical library and several ways to apply or export what you save there.
 
 From a user perspective, there are five related pieces:
 
@@ -15,9 +15,9 @@ From a user perspective, there are five related pieces:
 
 The core rule is:
 
-- **Happier library is the source of truth**
+- **Kaiwu library is the source of truth**
 - external files are optional imports, installs, and exports
-- Happier tracks explicit links so it can detect drift instead of silently overwriting files
+- Kaiwu tracks explicit links so it can detect drift instead of silently overwriting files
 
 ## The library
 
@@ -87,9 +87,9 @@ Tags are lighter-weight than folders and work well for:
 - `research`
 - `profile`
 
-## Templates (slash commands inside Happier)
+## Templates (slash commands inside Kaiwu)
 
-Templates are Happier-native slash shortcuts built from saved prompts.
+Templates are Kaiwu-native slash shortcuts built from saved prompts.
 
 Open **Settings → Prompts & Skills → Templates** to create them.
 
@@ -107,11 +107,11 @@ Use templates when you want a fast reusable composer shortcut without turning th
 
 When you type a saved token in the composer:
 
-- Happier resolves the linked prompt
+- Kaiwu resolves the linked prompt
 - inserts the prompt content into the composer
 - optionally sends immediately if the template is configured that way
 
-Happier blocks collisions with built-in action commands, so a template token cannot silently override a core slash action.
+Kaiwu blocks collisions with built-in action commands, so a template token cannot silently override a core slash action.
 
 ## System prompt additions
 
@@ -135,7 +135,7 @@ System prompt additions are:
 - individually enabled or disabled
 - reusable across multiple surfaces
 
-Happier resolves them into the session’s append/system prompt in a shared way across UI and CLI.
+Kaiwu resolves them into the session’s append/system prompt in a shared way across UI and CLI.
 
 That means:
 
@@ -176,12 +176,12 @@ Examples include:
 ### What you can do there
 
 - discover supported external assets on a selected machine
-- inspect what Happier can read from that machine or project
+- inspect what Kaiwu can read from that machine or project
 - import external assets into the library
 
-### What “managed by Happier” means
+### What “managed by Kaiwu” means
 
-When you export or install a library item to a machine target, Happier stores an explicit **external link**.
+When you export or install a library item to a machine target, Kaiwu stores an explicit **external link**.
 
 That link records:
 
@@ -190,7 +190,7 @@ That link records:
 - the external reference/path identity
 - digests used for drift detection
 
-This is what lets Happier show whether an external copy is still in sync.
+This is what lets Kaiwu show whether an external copy is still in sync.
 
 ## Exporting library items to machines
 
@@ -204,23 +204,23 @@ Use this when you want:
 
 ### Install method: copy vs symlink
 
-For bundle-based targets such as skills, Happier supports:
+For bundle-based targets such as skills, Kaiwu supports:
 
 - **Copy** — writes an independent copy into the selected target
-- **Symlink** — writes a Happier-managed materialized copy and links the target to it
+- **Symlink** — writes a Kaiwu-managed materialized copy and links the target to it
 
 Use **symlink** when you want easier updates and a single managed copy per install target. Use **copy** when you need a completely standalone on-disk copy.
 
 ### Drift safety
 
-Happier does not silently overwrite changed external assets.
+Kaiwu does not silently overwrite changed external assets.
 
 If a linked external file or directory changes on disk after export:
 
-- Happier detects the digest mismatch
+- Kaiwu detects the digest mismatch
 - export, install, or delete actions fail with a conflict instead of overwriting
 
-This is deliberate. The library and the machine copy are related, but Happier still treats local disk mutations as real changes that need review.
+This is deliberate. The library and the machine copy are related, but Kaiwu still treats local disk mutations as real changes that need review.
 
 ## Registries
 
@@ -234,7 +234,7 @@ Current registry concepts:
 
 ### `skills.sh`
 
-Happier integrates with the actual public `skills.sh` registry surface instead of only scanning the CLI repo.
+Kaiwu integrates with the actual public `skills.sh` registry surface instead of only scanning the CLI repo.
 
 In practice:
 
@@ -249,7 +249,7 @@ Git sources let you add:
 - a repository URL, or
 - a local checkout path
 
-Happier scans those sources for skill bundles and exposes them through the same registry UI as built-in sources.
+Kaiwu scans those sources for skill bundles and exposes them through the same registry UI as built-in sources.
 
 This is useful for:
 
@@ -259,11 +259,11 @@ This is useful for:
 
 ## Import vs install vs export
 
-These terms mean different things in Happier:
+These terms mean different things in Kaiwu:
 
 ### Import
 
-Bring something **into the Happier library**.
+Bring something **into the Kaiwu library**.
 
 Examples:
 
@@ -278,7 +278,7 @@ Result:
 
 - synced library item
 - external machine install
-- explicit external link recorded by Happier
+- explicit external link recorded by Kaiwu
 
 ### Export
 
@@ -290,7 +290,7 @@ Result:
 
 ## Provider support
 
-Happier keeps the library model provider-agnostic, but external asset support depends on each provider’s file conventions.
+Kaiwu keeps the library model provider-agnostic, but external asset support depends on each provider’s file conventions.
 
 Current examples include:
 
@@ -339,11 +339,11 @@ The library itself still works even when a provider has no stable external asset
 
 ### Library first
 
-Happier is designed so you can reason about prompt content from one place first, then connect it to machines and providers as needed.
+Kaiwu is designed so you can reason about prompt content from one place first, then connect it to machines and providers as needed.
 
 ### External files are real
 
-If you or another tool edits an exported asset on disk, Happier treats that as a real external change and refuses silent overwrite.
+If you or another tool edits an exported asset on disk, Kaiwu treats that as a real external change and refuses silent overwrite.
 
 ### Templates are different from system prompt additions
 

@@ -144,7 +144,7 @@ export function explainAttachIneligibility(input: Readonly<{
       category: 'started_outside_tmux',
       shortReason: 'started outside tmux',
       fullReason: 'This session was started outside tmux and can\'t be attached.',
-      nextStepHint: 'Enable "Spawn Sessions in Tmux" in the Happier app → Session Settings, then start a new session.',
+      nextStepHint: 'Enable "Spawn Sessions in Tmux" in the Kaiwu app → Session Settings, then start a new session.',
     };
   }
 
@@ -170,9 +170,9 @@ export function explainAttachIneligibility(input: Readonly<{
     if (sessionHost && input.currentMachineHost && compareMachineHosts(sessionHost, input.currentMachineHost)) {
       return {
         category: 'machine_identity_mismatch',
-        shortReason: 'different Happier machine identity; no terminal attach target',
-        fullReason: 'This session is running on this computer under a different Happier machine identity, but this CLI does not have a tmux target or local attachment marker for it.',
-        nextStepHint: 'Use the same Happier app or daemon that started the session, or start a new tmux-backed session from this CLI profile.',
+        shortReason: 'different Kaiwu machine identity; no terminal attach target',
+        fullReason: 'This session is running on this computer under a different Kaiwu machine identity, but this CLI does not have a tmux target or local attachment marker for it.',
+        nextStepHint: 'Use the same Kaiwu app or daemon that started the session, or start a new tmux-backed session from this CLI profile.',
       };
     }
 

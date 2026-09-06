@@ -1,18 +1,18 @@
 ---
-title: Happier tools & actions
-description: Use one unified tools surface across providers, with built-in Happier actions, custom MCP tools, and on-demand action discovery.
+title: Kaiwu tools & actions
+description: Use one unified tools surface across providers, with built-in Kaiwu actions, custom MCP tools, and on-demand action discovery.
 ---
 
-Happier exposes one unified **Happier tools** surface.
+Kaiwu exposes one unified **Kaiwu tools** surface.
 
 That surface includes:
 
-- **Built-in Happier actions** such as review, plan, delegate, session mode changes, session targeting, and request responses
+- **Built-in Kaiwu actions** such as review, plan, delegate, session mode changes, session targeting, and request responses
 - **Custom tools** from your configured MCP servers
 
-You do not need to think about those as two different systems. Happier delivers them through the best transport the current provider supports.
+You do not need to think about those as two different systems. Kaiwu delivers them through the best transport the current provider supports.
 
-Happier also separates three related ideas:
+Kaiwu also separates three related ideas:
 
 - **Action availability**: whether an action is allowed on a surface at all.
 - **Action discovery**: whether an agent or client can find the action through `action_spec_search` / `action_spec_get` and execute it through `action_execute`.
@@ -20,9 +20,9 @@ Happier also separates three related ideas:
 
 An action can be available and discoverable without being exposed as a direct tool. That mode is called **discoverable-only**.
 
-## What “Happier tools” means
+## What “Kaiwu tools” means
 
-Happier tools are the actions and external tools that an agent can use through Happier itself.
+Kaiwu tools are the actions and external tools that an agent can use through Kaiwu itself.
 
 Examples:
 
@@ -42,11 +42,11 @@ From the user point of view, this is one product surface:
 
 Different providers accept tools in different ways.
 
-Happier supports two delivery modes:
+Kaiwu supports two delivery modes:
 
 ### Native MCP
 
-For providers that can consume MCP directly, Happier injects tools as native MCP tools.
+For providers that can consume MCP directly, Kaiwu injects tools as native MCP tools.
 
 Current native-MCP providers include:
 
@@ -59,7 +59,7 @@ Current native-MCP providers include:
 
 ### Shell bridge
 
-For providers that can execute shell commands but do not use native MCP directly, Happier exposes the same tool surface through the `happier tools` CLI bridge.
+For providers that can execute shell commands but do not use native MCP directly, Kaiwu exposes the same tool surface through the `happier tools` CLI bridge.
 
 Current shell-bridge providers include:
 
@@ -72,20 +72,20 @@ Current shell-bridge providers include:
 
 The important user-facing result is the same:
 
-- the provider can still use Happier-managed tools
-- the transcript still shows normal Happier tool activity
+- the provider can still use Kaiwu-managed tools
+- the transcript still shows normal Kaiwu tool activity
 - MCP server configuration still happens in one place
 
 ## Built-in actions vs custom MCP tools
 
-Happier tools intentionally mix:
+Kaiwu tools intentionally mix:
 
-- **built-in actions** backed by Happier `ActionSpec`
+- **built-in actions** backed by Kaiwu `ActionSpec`
 - **custom MCP tools** from configured MCP servers
 
 ### Built-in actions
 
-Built-in actions are the safest way to expose structured Happier workflows to agents.
+Built-in actions are the safest way to expose structured Kaiwu workflows to agents.
 
 Examples include:
 
@@ -105,14 +105,14 @@ These actions have canonical:
 - examples
 - option sources
 
-That means Happier can reuse the same source of truth across:
+That means Kaiwu can reuse the same source of truth across:
 
 - app launchers and forms
 - voice tools
 - MCP delivery
 - CLI bridge delivery
 
-For session agents, most first-party action-backed tools default to discoverable-only. The session still gets a small direct bootstrap set for action discovery and generic execution, and the larger action catalog stays available through that bootstrap path. This keeps provider-native tool inventories focused while preserving access to Happier workflows.
+For session agents, most first-party action-backed tools default to discoverable-only. The session still gets a small direct bootstrap set for action discovery and generic execution, and the larger action catalog stays available through that bootstrap path. This keeps provider-native tool inventories focused while preserving access to Kaiwu workflows.
 
 ### Custom MCP tools
 
@@ -122,7 +122,7 @@ Custom MCP tools are still configured the same way as before:
 - scope them by machine and workspace
 - preview what a session will see
 
-Once configured, they join the same Happier tools surface as built-in actions.
+Once configured, they join the same Kaiwu tools surface as built-in actions.
 
 The direct/discoverable-only exposure setting applies to built-in action-backed tools. Configured custom MCP tools keep their normal direct MCP delivery behavior and are controlled from **Settings → MCP servers** unless a separate custom-tool discovery path is added later.
 
@@ -141,11 +141,11 @@ For sensitive actions, you can also configure the surface as **approval-gated**.
 
 In the app, this lives under **Settings → Actions**.
 
-When an action is approval-gated, callers do not execute it immediately. Instead, Happier creates an approval request and surfaces it in **Inbox** for review and execution.
+When an action is approval-gated, callers do not execute it immediately. Instead, Kaiwu creates an approval request and surfaces it in **Inbox** for review and execution.
 
 Eligible tool-backed action surfaces also have a **tool exposure** setting:
 
-- **Use default** follows Happier’s default for that action and surface.
+- **Use default** follows Kaiwu’s default for that action and surface.
 - **Discoverable only** keeps the action available through discovery and `action_execute`, but does not register a named direct tool on that surface.
 - **Direct tool** registers the action as its own named tool when the action is otherwise enabled on that surface.
 
@@ -155,7 +155,7 @@ User guide: [Inbox and approvals](/sessions/inbox-and-approvals)
 
 ## Discovery-first behavior
 
-Happier no longer needs to stuff a huge fixed action catalog into every prompt.
+Kaiwu no longer needs to stuff a huge fixed action catalog into every prompt.
 
 Instead, agents can discover actions on demand.
 
@@ -168,17 +168,17 @@ The built-in discovery flow is:
 
 This reduces prompt overload and keeps the available tool surface aligned with the real current runtime.
 
-This is the default posture for in-session agents. Happier-managed review, plan, delegate, and execution-run launch actions stay discoverable, but they are not promoted into the session agent’s direct tool list unless the default or your settings make them direct. External MCP clients and CLI workflows keep direct named tools by default where those tools are configured, so existing automations can continue to use them.
+This is the default posture for in-session agents. Kaiwu-managed review, plan, delegate, and execution-run launch actions stay discoverable, but they are not promoted into the session agent’s direct tool list unless the default or your settings make them direct. External MCP clients and CLI workflows keep direct named tools by default where those tools are configured, so existing automations can continue to use them.
 
-Discoverability is not authorization to choose Happier-managed delegation. For an ordinary request to delegate work, use the current Agent's native subagent or parallel-agent facility when it has one. Discover and start a Happier-managed run only when the user explicitly asks for a Happier run, Happier delegation run, or Happier subagent; asks for another Agent backend, model provider, model, account, or service that the native facility cannot satisfy; or has enabled a custom rule that requires Happier.
+Discoverability is not authorization to choose Kaiwu-managed delegation. For an ordinary request to delegate work, use the current Agent's native subagent or parallel-agent facility when it has one. Discover and start a Kaiwu-managed run only when the user explicitly asks for a Kaiwu run, Kaiwu delegation run, or Kaiwu subagent; asks for another Agent backend, model provider, model, account, or service that the native facility cannot satisfy; or has enabled a custom rule that requires Kaiwu.
 
 These choices create different things:
 
 - **Provider-native subagents** stay inside the current Agent's own delegation system and are the normal choice for ordinary parallel work.
-- **Happier-managed execution runs** include Happier review, plan, and delegate subagents. Happier owns their launch, lifecycle, transcript access, and controls.
-- **Independent Happier sessions** are top-level sessions created with `session.spawn_new`. They are not routine delegation and do not replace a subagent run.
+- **Kaiwu-managed execution runs** include Kaiwu review, plan, and delegate subagents. Kaiwu owns their launch, lifecycle, transcript access, and controls.
+- **Independent Kaiwu sessions** are top-level sessions created with `session.spawn_new`. They are not routine delegation and do not replace a subagent run.
 
-### Starting and observing a Happier-managed run
+### Starting and observing a Kaiwu-managed run
 
 For an action invoked by an agent inside a session, `sessionId` is optional. Omit it to host the run in the invoking session. Supply an explicit `sessionId` only when deliberately targeting another authorized session; explicit cross-session hosting remains supported.
 
@@ -188,7 +188,7 @@ Waiting is only observation. If a bounded wait times out, the run may still be a
 
 ## Hot-path actions
 
-Happier still keeps a small dynamic hot path for common actions.
+Kaiwu still keeps a small dynamic hot path for common actions.
 
 This hot path is **not** a hard-coded documentation list. It is derived from the canonical `ActionSpec` metadata and the current exposure policy, so when an action’s voice/tool metadata or direct/discoverable setting changes, the hot path changes with it.
 
@@ -200,7 +200,7 @@ These are two different user-facing concepts.
 
 ### Plan subagent
 
-Use **Start plan run** when you want Happier to launch a separate planning run or planner-style subagent.
+Use **Start plan run** when you want Kaiwu to launch a separate planning run or planner-style subagent.
 
 This creates parallel work in the **Agents** surface.
 
@@ -210,11 +210,11 @@ Use **Set session mode** when you want the current session itself to switch into
 
 This changes the mode of the current session. It does **not** start a new subagent.
 
-If the provider does not support session modes, Happier simply does not offer that control.
+If the provider does not support session modes, Kaiwu simply does not offer that control.
 
 ## Responding to user actions
 
-Happier uses one generalized response path for user-action-style requests.
+Kaiwu uses one generalized response path for user-action-style requests.
 
 That includes cases such as:
 
@@ -235,7 +235,7 @@ This keeps request handling consistent across UI, voice, and agent-driven flows.
 
 ### App
 
-In the app, Happier tools show up through:
+In the app, Kaiwu tools show up through:
 
 - **Settings → MCP servers**
 - the session **MCP chip**
@@ -245,7 +245,7 @@ In the app, Happier tools show up through:
 
 ### CLI
 
-In the CLI, Happier exposes:
+In the CLI, Kaiwu exposes:
 
 ```bash
 happier tools list
@@ -259,7 +259,7 @@ happier tools call --session-id <session-id> --source happier --tool <tool-name>
 
 Use `list` when you want to inspect the current built-in and custom tool surface.
 
-Use `call` when you want to invoke one built-in Happier tool or one configured custom MCP tool directly.
+Use `call` when you want to invoke one built-in Kaiwu tool or one configured custom MCP tool directly.
 
 ## Common workflows
 
@@ -280,13 +280,13 @@ Use a plan subagent only when you want parallel planning work rather than changi
 
 ### I want the same tool configuration to work across providers
 
-Configure the tool once in Happier.
+Configure the tool once in Kaiwu.
 
-If the provider supports native MCP, Happier uses that. If not, Happier uses the shell bridge automatically when supported.
+If the provider supports native MCP, Kaiwu uses that. If not, Kaiwu uses the shell bridge automatically when supported.
 
 ### I want voice to do structured work reliably
 
-Voice can use the same built-in actions as the rest of Happier, including:
+Voice can use the same built-in actions as the rest of Kaiwu, including:
 
 - action discovery
 - subagent launch

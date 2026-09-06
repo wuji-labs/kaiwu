@@ -134,7 +134,7 @@ function supported(value) {
  *
  * This replaced a bare "Plan mode: yes/no" column, which was actively
  * misleading. `supportsPlanMode` is derived from `semantics === 'agent-modes'`
- * and describes whether Happier offers Claude's *dedicated* plan-mode control —
+ * and describes whether Kaiwu offers Claude's *dedicated* plan-mode control —
  * not whether the agent has a plan mode at all. Codex's modes arrive over ACP
  * and really can include `plan`; rendering that as a dash told readers the
  * opposite of the truth.
@@ -231,7 +231,7 @@ export async function renderAgentReferenceMarkdown({
   );
 
   const mediaTools = table(
-    ['Agent', 'Publishes generated media', 'Declares image input', 'Declares native image generation', 'Happier tools', 'Connected Services'],
+    ['Agent', 'Publishes generated media', 'Declares image input', 'Declares native image generation', 'Kaiwu tools', 'Connected Services'],
     ids.map((id) => {
       const m = agents.getAgentMediaCapabilities(id);
       const t = core(id).tools;
@@ -262,18 +262,18 @@ export async function renderAgentReferenceMarkdown({
 
   return `---
 title: Agent capabilities
-description: What each coding agent can and cannot do inside Happier, generated from the agent manifest.
+description: What each coding agent can and cannot do inside Kaiwu, generated from the agent manifest.
 ---
 
-Happier drives coding agents; it does not replace them. What any given session
-can do is therefore the intersection of what Happier supports and what that
+Kaiwu drives coding agents; it does not replace them. What any given session
+can do is therefore the intersection of what Kaiwu supports and what that
 agent's own CLI exposes — which is why these tables exist rather than one list
 of features.
 
 Every table on this page is generated from the agent manifest in
 \`packages/agents\`, so it describes the build you are reading the docs for
 rather than the state of things whenever someone last updated a wiki page. A
-dash means the agent does not support that capability, not that Happier has not
+dash means the agent does not support that capability, not that Kaiwu has not
 got to it yet.
 
 ${stable.length} of the ${ids.length} agents are marked Stable: ${stable.join(', ')}.
@@ -286,11 +286,11 @@ separate from availability of a feature; see
 
 ${overview}
 
-Where the managed-install column names a package, Happier can install the agent
+Where the managed-install column names a package, Kaiwu can install the agent
 for you from the machine's detail screen. Where it says the vendor's own
 installer, run that first — see the agent's own page for the exact command.
 
-**Custom ACP** is not a bundled agent. It is how you point Happier at any agent
+**Custom ACP** is not a bundled agent. It is how you point Kaiwu at any agent
 that speaks the Agent Client Protocol, so its row describes the adapter rather
 than a particular vendor. See [Custom ACP](/agents/custom-acp).
 
@@ -304,10 +304,10 @@ work everywhere. They do not.
 
 ${sessions}
 
-"Resume its own sessions" means Happier can reattach to a conversation the agent
-started outside Happier. "Fork" means the agent's own runtime can branch a
-conversation; where it cannot, Happier's replay fork still works, because that
-is Happier's own mechanism rather than the agent's. See
+"Resume its own sessions" means Kaiwu can reattach to a conversation the agent
+started outside Kaiwu. "Fork" means the agent's own runtime can branch a
+conversation; where it cannot, Kaiwu's replay fork still works, because that
+is Kaiwu's own mechanism rather than the agent's. See
 [Session forking](/sessions/session-forking).
 
 The last column is a declaration rather than a gate — nothing currently reads
@@ -320,13 +320,13 @@ you can actually browse and import is described in
 ${runtime}
 
 Steering is what lets you add a correction to a turn already in flight instead
-of interrupting it. Where an agent cannot steer, Happier interrupts and resends,
+of interrupting it. Where an agent cannot steer, Kaiwu interrupts and resends,
 which is slower and loses less than it sounds — see [Steering](/sessions/steering).
 
 **Session modes are not permission modes.** Where the list comes *from the
-agent*, Happier shows whichever modes that build advertises for the session, so
+agent*, Kaiwu shows whichever modes that build advertises for the session, so
 the choices can differ between versions and the Mode control is hidden when the
-runtime offers none. A dash under "Dedicated plan control" means Happier has no
+runtime offers none. A dash under "Dedicated plan control" means Kaiwu has no
 plan-specific affordance for that agent — **not** that the agent lacks a plan
 mode. Codex, for instance, reaches \`plan\` through the Mode control.
 
@@ -334,11 +334,11 @@ mode. Codex, for instance, reaches \`plan\` through the Mode control.
 
 ${mediaTools}
 
-Two of these columns describe what an integration **declares**, not what Happier
+Two of these columns describe what an integration **declares**, not what Kaiwu
 enforces, and the distinction matters if you are deciding whether to attach a
 screenshot.
 
-**Publishes generated media** is behavioural: Happier reads it when wiring an
+**Publishes generated media** is behavioural: Kaiwu reads it when wiring an
 agent's runtime, so an agent marked here really can put generated images into a
 session.
 
@@ -346,7 +346,7 @@ session.
 integration's own statements about the agent, and no code path currently gates
 on either. In practice, an ACP-backed session attaches your trusted local images
 to the prompt regardless of what the manifest says — whether the agent then does
-anything useful with them is the agent's business, not Happier's. So treat a
+anything useful with them is the agent's business, not Kaiwu's. So treat a
 dash in those two columns as "not claimed", not "will be refused", and expect
 some declarations to lag the runtime.
 

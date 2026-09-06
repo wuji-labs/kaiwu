@@ -1,12 +1,12 @@
 ---
 title: Voice
-description: Choose a voice mode, understand how voice conversations map to sessions, and configure ElevenLabs or local voice in Happier.
+description: Choose a voice mode, understand how voice conversations map to sessions, and configure ElevenLabs or local voice in Kaiwu.
 ---
 
-Happier supports four voice modes in **Settings → Voice**:
+Kaiwu supports four voice modes in **Settings → Voice**:
 
 - **Off**: disables all voice features.
-- **Happier Voice**: realtime ElevenLabs voice using Happier-managed credentials and server-side quotas.
+- **Kaiwu Voice**: realtime ElevenLabs voice using Kaiwu-managed credentials and server-side quotas.
 - **Use my ElevenLabs**: realtime ElevenLabs voice using your own API key and agent.
 - **Local voice**: a configurable STT/TTS pipeline with device, self-hosted, Google, and local-neural providers.
 
@@ -14,7 +14,7 @@ Happier supports four voice modes in **Settings → Voice**:
 
 If you only need one rule of thumb:
 
-- choose **Happier Voice** for the simplest “just works” realtime voice experience
+- choose **Kaiwu Voice** for the simplest “just works” realtime voice experience
 - choose **Use my ElevenLabs** if you want full control over your own ElevenLabs account and agent
 - choose **Local voice** if you want device speech, self-hosted endpoints, or on-device neural speech
 
@@ -24,7 +24,7 @@ All voice modes share a few top-level settings:
 
 ### Preferred language
 
-**Preferred language** sets the language Happier should prefer for spoken responses and voice-side interactions.
+**Preferred language** sets the language Kaiwu should prefer for spoken responses and voice-side interactions.
 
 Use this when:
 
@@ -50,7 +50,7 @@ You can also enable **Auto-expand on start** if you want the activity feed to op
 
 ### Privacy
 
-Happier includes privacy controls for what voice providers can see.
+Kaiwu includes privacy controls for what voice providers can see.
 
 Defaults are intentionally conservative for sensitive data:
 
@@ -66,11 +66,11 @@ If you need stricter privacy, start by disabling:
 
 ## Voice conversations and session targeting
 
-Voice in Happier is more than a floating microphone button. It has its own conversation state and can act on real sessions.
+Voice in Kaiwu is more than a floating microphone button. It has its own conversation state and can act on real sessions.
 
 ### Hidden voice conversation
 
-When voice is active, Happier keeps a hidden voice conversation session.
+When voice is active, Kaiwu keeps a hidden voice conversation session.
 
 Open it when you want to:
 
@@ -104,9 +104,9 @@ For local voice agent mode, start location depends on **where** you launch voice
 
 This gives you a neutral default for global voice use, while still letting session-started voice work directly against the current project when you want that behavior.
 
-## Happier Voice
+## Kaiwu Voice
 
-**Happier Voice** is the managed realtime option.
+**Kaiwu Voice** is the managed realtime option.
 
 Use it when you want:
 
@@ -114,7 +114,7 @@ Use it when you want:
 - a true realtime voice session
 - server-managed access control, quota enforcement, and subscription rules
 
-Happier Voice is available only when the connected server advertises it through `/v1/features`.
+Kaiwu Voice is available only when the connected server advertises it through `/v1/features`.
 
 ### Native background audio
 
@@ -148,7 +148,7 @@ The voice picker is searchable and supports inline preview playback, so you can 
 
 ### API key permissions
 
-When creating a restricted ElevenLabs API key for Happier, enable:
+When creating a restricted ElevenLabs API key for Kaiwu, enable:
 
 - **Text to Speech** → **Access**
 - **Voices** → **Read**
@@ -157,19 +157,19 @@ When creating a restricted ElevenLabs API key for Happier, enable:
 
 ### Saved credentials
 
-Your ElevenLabs API key is saved in Happier as an encrypted secret setting rather than a plaintext field, so you do not need to re-enter it every time.
+Your ElevenLabs API key is saved in Kaiwu as an encrypted secret setting rather than a plaintext field, so you do not need to re-enter it every time.
 
-### Auto-provisioning a Happier agent
+### Auto-provisioning a Kaiwu agent
 
-If you do not want to create or update the ElevenLabs agent manually, Happier can help provision it for you.
+If you do not want to create or update the ElevenLabs agent manually, Kaiwu can help provision it for you.
 
 From the ElevenLabs section you can:
 
-- create a new Happier-compatible agent
-- update an existing Happier agent template
+- create a new Kaiwu-compatible agent
+- update an existing Kaiwu agent template
 - reuse an existing agent if you already have one
 
-This is the easiest way to keep your ElevenLabs agent aligned with Happier’s current tool and prompt wiring.
+This is the easiest way to keep your ElevenLabs agent aligned with Kaiwu’s current tool and prompt wiring.
 
 ## Local voice
 
@@ -191,15 +191,15 @@ Local voice settings also include voice-agent behavior such as backend selection
 
 ### Backend and model lists are machine-aware
 
-When you use **Agent** mode, Happier does not guess a fake model list locally.
+When you use **Agent** mode, Kaiwu does not guess a fake model list locally.
 
 - the **Voice agent backend** list follows your enabled backend toggles
-- the **Agent machine** setting decides which machine Happier probes for backend capabilities
+- the **Agent machine** setting decides which machine Kaiwu probes for backend capabilities
 - the **chat model** and **commit model** lists come from that selected machine when the backend supports dynamic model probing
 
 This means the exact model list can differ between machines.
 
-If the selected machine cannot provide a dynamic list for the chosen backend, Happier falls back to the safe options that are always valid:
+If the selected machine cannot provide a dynamic list for the chosen backend, Kaiwu falls back to the safe options that are always valid:
 
 - **Use CLI settings**
 - **Custom…**
@@ -229,11 +229,11 @@ Use **Agent** when you want a colleague-style voice layer that can ask follow-up
 
 ### TTS still matters in direct-to-session mode
 
-Even in **Direct to session**, TTS can still be enabled so Happier can read agent replies back to you.
+Even in **Direct to session**, TTS can still be enabled so Kaiwu can read agent replies back to you.
 
 ### Hands-free mode
 
-When you use **Device STT**, Happier can also expose hands-free endpointing controls such as silence timeout and minimum speech duration.
+When you use **Device STT**, Kaiwu can also expose hands-free endpointing controls such as silence timeout and minimum speech duration.
 
 ### Test TTS
 
@@ -245,7 +245,7 @@ See the full setup guide: [Local voice providers](/voice/local-providers).
 
 ## What voice can do
 
-Voice uses the same structured action system as the rest of Happier.
+Voice uses the same structured action system as the rest of Kaiwu.
 
 Common voice actions include:
 
@@ -263,7 +263,7 @@ This is why voice is more reliable than a plain free-form speech interface: it c
 
 ### I want the simplest realtime voice setup
 
-Use **Happier Voice**.
+Use **Kaiwu Voice**.
 
 ### I want ElevenLabs, but with my own billing and voices
 
@@ -304,4 +304,4 @@ On mobile, `localhost` usually points to the phone itself, not your computer. Us
 - [Local voice providers](/voice/local-providers)
 - [Permissions](/sessions/permissions)
 - [Inbox and approvals](/sessions/inbox-and-approvals)
-- [Happier tools](/extending/happier-tools)
+- [Kaiwu tools](/extending/happier-tools)

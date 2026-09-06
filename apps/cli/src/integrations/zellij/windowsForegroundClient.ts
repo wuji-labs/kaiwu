@@ -7,7 +7,7 @@ export function createWindowsTerminalZellijForegroundClientLauncher(params?: Rea
   titlePrefix?: string;
 }>): (launchParams: ZellijForegroundClientLaunchParams) => Promise<void> {
   const windowId = params?.windowId ?? 'happier-claude-unified-zellij';
-  const titlePrefix = params?.titlePrefix ?? 'Happier Claude';
+  const titlePrefix = params?.titlePrefix ?? 'Kaiwu Claude';
   return async (launchParams) => {
     const args = ['attach', '--create', launchParams.sessionName];
     if (launchParams.cwd || launchParams.defaultShell) {

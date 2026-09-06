@@ -2,10 +2,10 @@ import type { TranslationStructure } from "../_types";
 
 const mcpServersUxTranslationExtension = {
   mcpServersConfiguredEmptySubtitle: 'Crea un servidor, importa JSON del host o instala un preajuste recomendado.',
-  mcpServersHeroSubtitle: ({ configuredCount }: { configuredCount: number }) => `${configuredCount} configurados en Happier`,
+  mcpServersHeroSubtitle: ({ configuredCount }: { configuredCount: number }) => `${configuredCount} configurados en Kaiwu`,
   mcpServersHeroSubtitleEmpty: 'Crea servidores una vez, previsualiza dónde se aplican e importa lo que ya usan otras herramientas.',
   mcpServersSegmentConfigured: 'Configurado',
-  mcpServersSegmentConfiguredSubtitle: 'Tu catálogo de Happier',
+  mcpServersSegmentConfiguredSubtitle: 'Tu catálogo de Kaiwu',
   mcpServersSegmentDetected: 'Detectado',
   mcpServersSegmentDetectedSubtitle: 'Encontrado en archivos de configuración del proveedor',
   mcpServersSegmentPreview: 'Vista previa',
@@ -22,12 +22,12 @@ const mcpServersUxTranslationExtension = {
   mcpServersPreviewDirectorySubtitle: 'Elige la carpeta en la que piensas iniciar la sesión',
   mcpServersPreviewDirectoryPlaceholder: '/ruta/al/workspace',
   mcpServersPreviewRefreshTitle: 'Actualizar vista previa',
-  mcpServersPreviewRefreshSubtitle: 'Resolver los servidores MCP de Happier y los nativos del proveedor para este contexto',
+  mcpServersPreviewRefreshSubtitle: 'Resolver los servidores MCP de Kaiwu y los nativos del proveedor para este contexto',
   mcpServersPreviewEmptyTitle: 'Aún no hay vista previa',
   mcpServersPreviewEmptySubtitle: 'Elige un backend, una máquina y un directorio, y luego actualiza para inspeccionar el conjunto MCP efectivo.',
   mcpServersPreviewDirectoryRequired: 'Elige un directorio para previsualizar esta sesión.',
-  mcpServersBuiltInDescription: 'Siempre disponible en sesiones de Happier.',
-  mcpServersSourceHappier: 'Happier',
+  mcpServersBuiltInDescription: 'Siempre disponible en sesiones de Kaiwu.',
+  mcpServersSourceHappier: 'Kaiwu',
   mcpServersSourceBuiltIn: 'Integrado',
   mcpServersSourceDetected: 'Detectado',
   mcpServersQuickInstallTitle: 'Instalación rápida',
@@ -88,17 +88,17 @@ const mcpServersUxTranslationExtension = {
   mcpServersStatusDetected: ({ provider }: { provider: string }) => `Habilitado en ${provider}`,
   mcpServersStatusDisabledInProvider: ({ provider }: { provider: string }) => `Deshabilitado en ${provider}`,
   mcpServersEditorAppliesTo: 'Se aplica a',
-  mcpServersEditorAppliesToSubtitle: 'Elige dónde debe añadir Happier este servidor de forma predeterminada.',
+  mcpServersEditorAppliesToSubtitle: 'Elige dónde debe añadir Kaiwu este servidor de forma predeterminada.',
   mcpServersAddApplyRule: 'Añadir regla de aplicación',
   mcpServersAddApplyRuleSubtitle: 'Elige dónde debe aplicarse este servidor de forma predeterminada.',
   mcpServersAddApplyRuleHelp: 'Guarda esta regla de aplicación para incluirla en esta configuración de servidor.',
   mcpServersAddApplyRuleSave: 'Guardar regla de aplicación',
   mcpServersDeliveryNativeTitle: 'MCP nativo',
-  mcpServersDeliveryNativeSubtitle: 'Este backend recibe las herramientas de Happier como servidores MCP nativos.',
-  mcpServersDeliveryShellBridgeTitle: 'Puente de shell de Happier',
-  mcpServersDeliveryShellBridgeSubtitle: 'Este backend llama a las herramientas de Happier a través del puente `happier tools`.',
+  mcpServersDeliveryNativeSubtitle: 'Este backend recibe las herramientas de Kaiwu como servidores MCP nativos.',
+  mcpServersDeliveryShellBridgeTitle: 'Puente de shell de Kaiwu',
+  mcpServersDeliveryShellBridgeSubtitle: 'Este backend llama a las herramientas de Kaiwu a través del puente `happier tools`.',
   mcpServersDeliveryUnsupportedTitle: 'No compatible',
-  mcpServersDeliveryUnsupportedSubtitle: 'Este backend todavía no recibe herramientas de Happier.',
+  mcpServersDeliveryUnsupportedSubtitle: 'Este backend todavía no recibe herramientas de Kaiwu.',
 } as const;
 
 const newSessionMcpTranslationExtension = {
@@ -121,9 +121,9 @@ const newSessionMcpTranslationExtension = {
   mcpDetectedEmptyTitle: 'No se detectaron servidores MCP',
   mcpDetectedEmptySubtitle: 'Actualiza para escanear los archivos de configuración del proveedor en esta máquina.',
   mcpDetectedUnsupportedTitle: 'Los servidores MCP detectados no están disponibles',
-  mcpDetectedUnsupportedSubtitle: 'Actualiza Happier en esta máquina para habilitar el escaneo de la configuración del proveedor.',
-  mcpHappierSectionTitle: 'Servidores MCP de Happier',
-  mcpHappierEmptyTitle: 'No hay servidores MCP definidos en Happier',
+  mcpDetectedUnsupportedSubtitle: 'Actualiza Kaiwu en esta máquina para habilitar el escaneo de la configuración del proveedor.',
+  mcpHappierSectionTitle: 'Servidores MCP de Kaiwu',
+  mcpHappierEmptyTitle: 'No hay servidores MCP definidos en Kaiwu',
   mcpHappierEmptySubtitle: 'Define servidores MCP en los ajustes para usarlos en las sesiones.',
   mcpReasonActiveByDefault: 'Incluidos por defecto',
   mcpReasonForcedIncluded: 'Requeridos por la configuración',
@@ -145,7 +145,7 @@ const settingsAppearanceTranslationExtension = {
     customGroup: 'Custom themes',
     customFooter: 'Tap a theme to activate it, or use row actions to edit, duplicate, or delete it.',
     defaultTheme: 'Default theme',
-    defaultThemeSubtitle: 'Use Happier theme colors without a custom profile',
+    defaultThemeSubtitle: 'Use Kaiwu theme colors without a custom profile',
     active: 'Active',
     customProfileSubtitle: 'Custom local theme profile',
     tapToActivate: 'Tap to activate',
@@ -153,7 +153,7 @@ const settingsAppearanceTranslationExtension = {
     createProfile: 'Create theme',
     createProfileSubtitle: 'Start from any built-in or custom theme',
     importProfile: 'Import theme',
-    importProfileSubtitle: 'Paste JSON or choose a Happier theme profile file',
+    importProfileSubtitle: 'Paste JSON or choose a Kaiwu theme profile file',
     exportProfile: 'Export theme',
     exportProfileSubtitle: 'Export this theme as JSON',
     presetsGroup: 'Built-in presets',
@@ -355,7 +355,7 @@ const memoryEmbeddingsTranslationExtension = {
       title: 'Proveedor',
       options: {
         localTitle: 'Modelo local',
-        localSubtitle: 'Gestionado por Happier y descargado en el primer uso',
+        localSubtitle: 'Gestionado por Kaiwu y descargado en el primer uso',
         openAiCompatibleTitle: 'Punto final compatible con OpenAI',
         openAiCompatibleSubtitle: 'Usa tu propio servidor de embeddings y tu clave de API',
       },
@@ -450,7 +450,7 @@ const promptLibraryUxRefinementTranslationExtension = {
     externalAssetsInstallMethodCopySubtitle: 'Escribe una copia independiente en el destino seleccionado',
     externalAssetsInstallMethodSymlink: 'Enlace simbólico (recomendado)',
     externalAssetsInstallMethodSymlinkSubtitle:
-      'Vincula el destino a una copia gestionada por Happier para facilitar las actualizaciones',
+      'Vincula el destino a una copia gestionada por Kaiwu para facilitar las actualizaciones',
     registriesAddGitSourceSubtitle: 'Añade un repositorio Git o una copia local como fuente de registro',
     registriesSourceTitleLabel: 'Título de la fuente',
     registriesSourceUrlLabel: 'URL del repositorio o ruta local',
@@ -462,7 +462,7 @@ const promptLibraryUxRefinementTranslationExtension = {
     registriesItemPreview: 'Vista previa de SKILL.md',
     registriesItemPreviewUnavailable:
       'No hay una vista previa de SKILL.md disponible para este elemento del registro.',
-    registriesItemImportSubtitle: 'Importa este paquete de habilidad a la biblioteca de Happier',
+    registriesItemImportSubtitle: 'Importa este paquete de habilidad a la biblioteca de Kaiwu',
     registriesItemInstallAction: 'Instalar en la máquina',
     registriesItemInstallConfirmTitle: '¿Instalar elemento del registro?',
     registriesItemInstallConfirmBody:
@@ -509,7 +509,7 @@ const sessionHandoffTranslationExtensions = {
     recovery: {
       title: 'La sesión se detuvo aquí antes de completar la transferencia',
       messageAfterSourceStop:
-        'Happier ya detuvo esta sesión en esta máquina, pero no pudo terminar de iniciarla en la máquina de destino. Reiníciala aquí o mantenla detenida mientras recuperas la máquina de destino.',
+        'Kaiwu ya detuvo esta sesión en esta máquina, pero no pudo terminar de iniciarla en la máquina de destino. Reiníciala aquí o mantenla detenida mientras recuperas la máquina de destino.',
       restartOnSource: 'Reiniciar en el origen',
       keepStopped: 'Mantener detenida',
     },
@@ -562,8 +562,8 @@ const settingsSessionHandoffTranslationExtensions = {
       groupFooter: 'Solo se aplica cuando la sesion de origen es actualmente directa.',
       keepDirectTitle: 'Mantener directa',
       keepDirectSubtitle: 'Reanuda el destino como una sesion directa cuando el proveedor lo permita.',
-      convertToPersistedTitle: 'Convertir a Happier',
-      convertToPersistedSubtitle: 'Importa la transcripción y continúa como una sesión de Happier.',
+      convertToPersistedTitle: 'Convertir a Kaiwu',
+      convertToPersistedSubtitle: 'Importa la transcripción y continúa como una sesión de Kaiwu.',
     },
   },
 } as const;
@@ -587,7 +587,7 @@ function plural({
 }
 
 /**
- * Spanish translations for the Happier app
+ * Spanish translations for the Kaiwu app
  * Must match the exact structure of the English translations
  */
 export const es: TranslationStructure = {
@@ -855,7 +855,7 @@ export const es: TranslationStructure = {
     codingStack: "Pila de código",
     codingStackSubtitle: "Se aplica a las sesiones de código",
     voiceStack: "Pila de voz",
-    voiceStackSubtitle: "Se aplica a Happier Voice",
+    voiceStackSubtitle: "Se aplica a Kaiwu Voice",
     profileStacks: "Pilas de perfil",
     profileStacksSubtitle: ({ count }: { count: number }) => `${count} perfil${count === 1 ? "" : "es"}`,
     profileStackCount: ({ count }: { count: number }) => `${count} elemento${count === 1 ? "" : "s"}`,
@@ -1152,7 +1152,7 @@ export const es: TranslationStructure = {
   appCrash: {
     title: "Algo salió mal",
     subtitle:
-      "Happier tuvo un error inesperado. Puedes reiniciar la interfaz de la app o copiar los detalles para soporte.",
+      "Kaiwu tuvo un error inesperado. Puedes reiniciar la interfaz de la app o copiar los detalles para soporte.",
     detailsTitle: "Detalles del error",
     restart: "Reiniciar app",
     restartAndReportIssue: "Reiniciar y abrir informe de error",
@@ -1358,11 +1358,11 @@ export const es: TranslationStructure = {
     scanComputerQrUnavailableTitle: "Escaneo de QR del ordenador no disponible",
     scanComputerQrUnavailableBody:
       "Este método de inicio de sesión está deshabilitado en este servidor. Usa otra opción a continuación para restaurar tu cuenta.",
-    scanComputerQrInstructions: "Escanea el código QR que se muestra en Happier en tu computadora (Configuración → Añade tu teléfono).",
+    scanComputerQrInstructions: "Escanea el código QR que se muestra en Kaiwu en tu computadora (Configuración → Añade tu teléfono).",
     scanComputerQrButton: "Escanear QR para iniciar sesión",
     waitingForApproval: "Esperando aprobación…",
     showQrInstead: "Mostrar un código QR en su lugar",
-    addPhoneQrInstructions: "Escanea este código QR con la app móvil de Happier para iniciar sesión en tu teléfono.",
+    addPhoneQrInstructions: "Escanea este código QR con la app móvil de Kaiwu para iniciar sesión en tu teléfono.",
     serverUrlNotEmbeddedTitle: "Configura el servidor en tu teléfono",
     serverUrlNotEmbeddedBody:
       "Este código QR no puede incluir la dirección del servidor porque está configurada como localhost. En tu teléfono, ve a Configuración → Servidores y agrega una URL a la que el teléfono pueda acceder (IP de la LAN o Tailscale) y luego vuelve a escanear.",
@@ -1384,14 +1384,14 @@ export const es: TranslationStructure = {
     externalAuthVerifiedTitle: ({ provider }: { provider: string }) =>
       `${provider} verificado`,
     externalAuthVerifiedBody: ({ provider }: { provider: string }) =>
-      `Encontramos una cuenta existente de Happier vinculada a ${provider}. Para terminar de iniciar sesión en este dispositivo, restaura tu clave de cuenta con el código QR o tu clave secreta.`,
+      `Encontramos una cuenta existente de Kaiwu vinculada a ${provider}. Para terminar de iniciar sesión en este dispositivo, restaura tu clave de cuenta con el código QR o tu clave secreta.`,
     restoreWithSecretKeyInstead: "Restaurar con clave secreta",
     restoreWithSecretKeyDescription:
       "Ingresa tu clave secreta para recuperar el acceso a tu cuenta.",
     lostAccessLink: "¿Sin acceso?",
     lostAccessTitle: "¿Perdiste el acceso a tu cuenta?",
     lostAccessBody:
-      "Si ya no tienes ningún dispositivo vinculado a esta cuenta y perdiste tu clave secreta, puedes restablecer tu cuenta con tu proveedor de identidad. Esto crea una nueva cuenta de Happier. No se puede recuperar tu historial cifrado anterior.",
+      "Si ya no tienes ningún dispositivo vinculado a esta cuenta y perdiste tu clave secreta, puedes restablecer tu cuenta con tu proveedor de identidad. Esto crea una nueva cuenta de Kaiwu. No se puede recuperar tu historial cifrado anterior.",
     lostAccessContinue: ({ provider }: { provider: string }) =>
       `Continuar con ${provider}`,
     lostAccessConfirmTitle: "¿Restablecer cuenta?",
@@ -1401,7 +1401,7 @@ export const es: TranslationStructure = {
     secretKeyPlaceholder: "XXXXX-XXXXX-XXXXX...",
     linkNewDeviceTitle: "Vincular Nuevo Dispositivo",
     linkNewDeviceSubtitle: "Escanea el código QR que se muestra en tu nuevo dispositivo para vincularlo a esta cuenta",
-    linkNewDeviceQrInstructions: "Abre Happier en tu nuevo dispositivo y muestra el código QR",
+    linkNewDeviceQrInstructions: "Abre Kaiwu en tu nuevo dispositivo y muestra el código QR",
     scanQrCodeOnDevice: "Escanear Código QR",
     unsupported: {
       connectTitle: ({ name }: { name: string }) => `Conectar ${name}`,
@@ -1491,7 +1491,7 @@ export const es: TranslationStructure = {
         expectedBehaviorPlaceholder: "¿Qué debería ocurrir en su lugar?",
         reproductionStepsLabel: "Pasos de reproducción (opcional)",
         reproductionStepsPlaceholder:
-          "1. Abre Happier\n2. Inicia una sesión\n3. ...",
+          "1. Abre Kaiwu\n2. Inicia una sesión\n3. ...",
         whatChangedLabel: "Qué cambió recientemente (opcional)",
         whatChangedPlaceholder:
           "Actualizaciones, cambios de configuración, nuevos pasos de configuración...",
@@ -1575,7 +1575,7 @@ export const es: TranslationStructure = {
       title: "Activado",
       subtitle: "Crear y mantener un índice local en esta máquina",
       footer:
-        "Cuando está activado, Happier crea un índice local en el dispositivo a partir de transcripciones descifradas para facilitar el recuerdo y la búsqueda.",
+        "Cuando está activado, Kaiwu crea un índice local en el dispositivo a partir de transcripciones descifradas para facilitar el recuerdo y la búsqueda.",
     },
     budgets: {
       groupTitle: "Presupuesto de disco",
@@ -1838,8 +1838,8 @@ export const es: TranslationStructure = {
         backendsSubtitle: "Backends configurados y destinos de lanzamiento personalizados.",
       },
       enableInjection: {
-        title: "Instrucciones de ejecuciones de Happier",
-        subtitle: "Al desactivarlas, se eliminan el enrutamiento nativo primero y la mecánica de ejecuciones de Happier de los prompts del sistema del agente de código.",
+        title: "Instrucciones de ejecuciones de Kaiwu",
+        subtitle: "Al desactivarlas, se eliminan el enrutamiento nativo primero y la mecánica de ejecuciones de Kaiwu de los prompts del sistema del agente de código.",
       },
       characterBudget: {
         title: "Límite para reglas personalizadas",
@@ -1917,7 +1917,7 @@ export const es: TranslationStructure = {
     addYourPhoneSubtitle: "Muestra un código QR para iniciar sesión en tu teléfono",
     addMachine: "Agregar una máquina",
     machineSetupCurrentMachineTitle: "Esta computadora",
-    machineSetupCurrentMachineSubtitle: "Inicializa Happier directamente en este dispositivo",
+    machineSetupCurrentMachineSubtitle: "Inicializa Kaiwu directamente en este dispositivo",
     machineSetupAdoptExistingTitle: "Adoptar instalación existente",
     machineSetupAdoptExistingSubtitle: "Usa una configuración existente del daemon/servicio en esta computadora",
     machineSetupAdoptExistingProgressTitle: "Comprobando instalación existente",
@@ -1926,7 +1926,7 @@ export const es: TranslationStructure = {
     machineSetupSshMachineSubtitle: "Conecta un equipo de desarrollo, una VM o un servidor mediante SSH",
     machineSetupStagesTitle: "Qué ocurre",
     machineSetupStageConnect: "Conectar y validar el acceso",
-    machineSetupStageInstall: "Instalar Happier y emparejar la máquina",
+    machineSetupStageInstall: "Instalar Kaiwu y emparejar la máquina",
     machineSetupStageFinish: "Finalizar la configuración en la terminal integrada",
     machineSetupComingSoon: "La inicialización de máquinas llegará pronto.",
     machineSetupTaskWaitingForInput: "Esperando entrada",
@@ -1945,7 +1945,7 @@ export const es: TranslationStructure = {
     machineSetupRemoteRelaySwitchSubtitle: "Cambia ahora y continúa la configuración con el nuevo Relay.",
     machineSetupRemoteRelaySwitchConfirmTitle: "¿Cambiar de Relay?",
     machineSetupRemoteRelaySwitchConfirmBody: ({ relayUrl }: { relayUrl: string }) =>
-      `Cambiar Happier a ${relayUrl} y continuar la configuración?`,
+      `Cambiar Kaiwu a ${relayUrl} y continuar la configuración?`,
     machineSetupRemotePromptTrustAction: "Confiar en la clave del host",
     machineSetupRemotePromptReplaceAction: "Reemplazar la clave guardada",
     machineSetupRemotePromptApproveAction: "Aprobar emparejamiento",
@@ -2037,13 +2037,13 @@ export const es: TranslationStructure = {
     actionsSettingsAboutSubtitle:
       "Habilita o deshabilita acciones globalmente, por superficie (UI/voz/MCP) y por ubicación (dónde aparecen en la interfaz). Las acciones deshabilitadas se bloquean de forma segura en tiempo de ejecución.",
     aboutFooter:
-      "Happier Coder es un cliente móvil para Codex y Claude Code. Usa cifrado de extremo a extremo por defecto, con restauración de la cuenta en tus otros dispositivos. No está afiliado con Anthropic.",
+      "Kaiwu Coder es un cliente móvil para Codex y Claude Code. Usa cifrado de extremo a extremo por defecto, con restauración de la cuenta en tus otros dispositivos. No está afiliado con Anthropic.",
     whatsNew: "Novedades",
     whatsNewSubtitle: "Ve las últimas actualizaciones y mejoras",
     reportIssue: "Reportar un problema",
     privacyPolicy: "Política de privacidad",
     termsOfService: "Términos de servicio",
-    rateUs: "Califica Happier",
+    rateUs: "Califica Kaiwu",
     rateUsSubtitle: "Si te gusta la app, una calificación rápida nos ayuda mucho",
     eula: "EULA",
     supportUs: "Apóyanos",
@@ -2589,23 +2589,23 @@ export const es: TranslationStructure = {
             `The daemon could not verify ${agentId} resume state because required resume inputs were missing. Reported reason: ${reason}. Start fresh under the selected account or continue with the current account.`,
         metadata_update_failed: "La sesión no pudo guardar la nueva selección de autenticación. Vuelve a intentarlo cuando la sesión termine de sincronizar.",
         no_eligible_group_member: "Ninguna cuenta de este Pool es apta actualmente para respaldo. Revisa las cuentas conectadas y reconecta un perfil si es necesario.",
-        recovery_retry_scheduled: "Happier programó un reintento de recuperación del proveedor. Puedes reintentar ahora o revisar las cuentas conectadas.",
-        recovery_dead_lettered: "Happier agotó los reintentos automáticos de recuperación del proveedor. Revisa las cuentas conectadas o reconecta el perfil seleccionado.",
-        runtime_auth_recovery_superseded: "Este intento de recuperación del proveedor fue reemplazado por un estado más reciente del servicio conectado. Happier no seguirá reintentando la cuenta obsoleta.",
+        recovery_retry_scheduled: "Kaiwu programó un reintento de recuperación del proveedor. Puedes reintentar ahora o revisar las cuentas conectadas.",
+        recovery_dead_lettered: "Kaiwu agotó los reintentos automáticos de recuperación del proveedor. Revisa las cuentas conectadas o reconecta el perfil seleccionado.",
+        runtime_auth_recovery_superseded: "Este intento de recuperación del proveedor fue reemplazado por un estado más reciente del servicio conectado. Kaiwu no seguirá reintentando la cuenta obsoleta.",
         runtime_auth_generation_stale: "Este intento de recuperación del proveedor pertenece a una generación anterior del servicio conectado. Espera el último cambio o revisa las cuentas conectadas.",
-        hot_apply_unavailable: "Este proveedor no puede cambiar la autenticación de forma segura en la sesión en curso. Happier esperará un reinicio seguro o la siguiente ruta de recuperación elegible.",
+        hot_apply_unavailable: "Este proveedor no puede cambiar la autenticación de forma segura en la sesión en curso. Kaiwu esperará un reinicio seguro o la siguiente ruta de recuperación elegible.",
         app_server_unavailable: "El servidor de la app del proveedor no estaba disponible para verificar o aplicar el cambio de autenticación. Vuelve a intentarlo cuando la sesión esté lista.",
         provider_account_adoption_mismatch: "El proveedor permaneció en otra cuenta después del cambio. Revisa las cuentas conectadas o reintenta el cambio.",
-        provider_account_identity_unverified: "Happier no pudo comprobar la identidad de la cuenta activa del proveedor. Evitará distribuir al mismo tipo de cuenta hasta que haya una prueba más sólida.",
-        post_switch_verification_failed: "Happier no pudo verificar que el proveedor adoptara la cuenta seleccionada. Revisa las cuentas conectadas o reintenta el cambio.",
-        quota_snapshot_stale: "La última instantánea de cuota es demasiado antigua para impulsar un cambio proactivo. Happier seguirá usando recuperación reactiva hasta que haya una cuota actualizada.",
-        quota_fetch_disabled: "Las comprobaciones de cuota están desactivadas actualmente para este proveedor. Happier seguirá usando recuperación reactiva.",
-        quota_fetch_backoff: "Las comprobaciones de cuota están temporalmente en espera tras una respuesta del proveedor o de la red. Happier volverá a actualizar la cuota más tarde.",
-        auth_surface_weakly_verified: "Happier verificó que los archivos de autenticación seleccionados se reescribieron, pero este proveedor no expone la identidad exacta de la cuenta activa.",
-        connected_service_restart_requested: "Happier solicitó un reinicio seguro de la sesión para aplicar la cuenta conectada seleccionada.",
+        provider_account_identity_unverified: "Kaiwu no pudo comprobar la identidad de la cuenta activa del proveedor. Evitará distribuir al mismo tipo de cuenta hasta que haya una prueba más sólida.",
+        post_switch_verification_failed: "Kaiwu no pudo verificar que el proveedor adoptara la cuenta seleccionada. Revisa las cuentas conectadas o reintenta el cambio.",
+        quota_snapshot_stale: "La última instantánea de cuota es demasiado antigua para impulsar un cambio proactivo. Kaiwu seguirá usando recuperación reactiva hasta que haya una cuota actualizada.",
+        quota_fetch_disabled: "Las comprobaciones de cuota están desactivadas actualmente para este proveedor. Kaiwu seguirá usando recuperación reactiva.",
+        quota_fetch_backoff: "Las comprobaciones de cuota están temporalmente en espera tras una respuesta del proveedor o de la red. Kaiwu volverá a actualizar la cuota más tarde.",
+        auth_surface_weakly_verified: "Kaiwu verificó que los archivos de autenticación seleccionados se reescribieron, pero este proveedor no expone la identidad exacta de la cuenta activa.",
+        connected_service_restart_requested: "Kaiwu solicitó un reinicio seguro de la sesión para aplicar la cuenta conectada seleccionada.",
         connected_service_credential_reconnect_required: "La cuenta conectada seleccionada debe volver a conectarse antes de poder reanudar esta sesión. Vuelve a conectar el perfil y vuelve a intentarlo.",
         claude_subscription_missing_claude_code_scope: "Este perfil de Claude se conectó antes de que se concedieran los permisos de Claude Code. Vuelve a conectarlo y reintenta la sesión o el cambio de Pool.",
-        claude_subscription_native_auth_materialization_failed: "Happier no pudo crear el archivo de credenciales nativas de Claude Code para este perfil. Vuelve a conectar el perfil o elige otro miembro del Pool.",
+        claude_subscription_native_auth_materialization_failed: "Kaiwu no pudo crear el archivo de credenciales nativas de Claude Code para este perfil. Vuelve a conectar el perfil o elige otro miembro del Pool.",
         claude_subscription_setup_token_not_supported_for_unified: "El modo Claude Unified debe iniciar la CLI de Claude con credenciales OAuth nativas. Vuelve a conectar este perfil con OAuth en lugar de un token de configuración.",
       },
       actions: {
@@ -2737,7 +2737,7 @@ export const es: TranslationStructure = {
       invalidConfig: "Configuración de servicio conectado no válida.",
       connectWebGroupTitle: "Conectar (web)",
       connectWebDescription:
-        "Abre la URL de autorización, completa OAuth en tu navegador y luego copia/pega la URL final redirigida de vuelta en Happier.",
+        "Abre la URL de autorización, completa OAuth en tu navegador y luego copia/pega la URL final redirigida de vuelta en Kaiwu.",
       openAuthorizationUrl: "Abrir URL de autorización",
       opensInNewTab: "Se abre en una nueva pestaña",
       preparing: "Preparando…",
@@ -2841,7 +2841,7 @@ export const es: TranslationStructure = {
       connectAccessTokenTitle: "Conectar con token de acceso",
       connectAccessTokenSubtitle: "Pega un token de acceso personal de GitHub",
       openGithubTokenTemplateTitle: "Crear token de GitHub",
-      openGithubTokenTemplateSubtitle: "Abre GitHub con los permisos que Happier necesita ya rellenados",
+      openGithubTokenTemplateSubtitle: "Abre GitHub con los permisos que Kaiwu necesita ya rellenados",
       disconnectConfirmBody: ({ service, profileId }: { service: string; profileId: string }) =>
         `¿Desconectar ${service} (${profileId})?`,
       disconnectGroupCleanupConfirmBody: ({ service, profileId, groups }: { service: string; profileId: string; groups: string }) =>
@@ -3001,13 +3001,13 @@ export const es: TranslationStructure = {
         softSwitchThresholdTitle: "Umbral de cambio suave",
         softSwitchThresholdSubtitle: ({ percent }: { percent: string }) => `Cambiar por debajo del ${percent}% restante cuando este Pool tenga otro miembro con cuota utilizable más reciente.`,
         softSwitchThresholdPromptTitle: "Umbral de cambio suave",
-        softSwitchThresholdPromptBody: "Introduce el porcentaje restante en el que Happier debería preferir un miembro más seguro de este Pool con varias cuentas. Usa 0 para desactivar el cambio preventivo.",
+        softSwitchThresholdPromptBody: "Introduce el porcentaje restante en el que Kaiwu debería preferir un miembro más seguro de este Pool con varias cuentas. Usa 0 para desactivar el cambio preventivo.",
         invalidSoftSwitchThresholdTitle: "Umbral no válido",
         invalidSoftSwitchThresholdBody: "Introduce un número de 0 a 100.",
         staleProbeTitle: "Comprobar cuota antigua después de",
         staleProbeSubtitle: ({ minutes }: { minutes: string }) => `Volver a comprobar cuando los datos de cuota tengan más de ${minutes} min.`,
         staleProbePromptTitle: "Comprobar cuota antigua después de",
-        staleProbePromptBody: "Introduce cuántos minutos se pueden reutilizar los datos de cuota antes de que Happier vuelva a comprobar.",
+        staleProbePromptBody: "Introduce cuántos minutos se pueden reutilizar los datos de cuota antes de que Kaiwu vuelva a comprobar.",
         invalidStaleProbeTitle: "Intervalo de comprobación no válido",
         invalidStaleProbeBody: "Introduce al menos 1 minuto.",
         switchBudgetTitle: "Límites de cambio automático",
@@ -3128,7 +3128,7 @@ export const es: TranslationStructure = {
       groupUnknownSubtitle: "La disponibilidad aún se está sincronizando",
       groupUnsupportedSubtitle: "Este runtime no puede cambiar Pools de cuentas",
       connectedServicesTitle: "Usar servicios conectados",
-      connectedServicesSubtitle: "Obtener y materializar desde la nube de Happier",
+      connectedServicesSubtitle: "Obtener y materializar desde la nube de Kaiwu",
       notConnectedTitle: "No hay servicios conectados",
       notConnectedSubtitle: "Toca para abrir configuración",
       profileLabel: "Perfil",
@@ -3348,7 +3348,7 @@ export const es: TranslationStructure = {
               "Mejor renderizado de diffs en web/escritorio. Usa una canalización con worker y hace fallback de forma segura si no está disponible.",
           },
           happier: {
-            title: "Renderizador de diff: Happier",
+            title: "Renderizador de diff: Kaiwu",
             subtitle:
               "Renderizador de respaldo para compatibilidad y solución de problemas.",
           },
@@ -3426,7 +3426,7 @@ export const es: TranslationStructure = {
     title: 'Escritorio',
     footer: 'Controla las integraciones de escritorio de Tauri en este ordenador.',
     startOnLoginTitle: 'Iniciar al acceder',
-    startOnLoginSubtitle: 'Inicia Happier automáticamente cuando inicies sesión en este ordenador.',
+    startOnLoginSubtitle: 'Inicia Kaiwu automáticamente cuando inicies sesión en este ordenador.',
   },
 
   settingsPets: {
@@ -3446,7 +3446,7 @@ export const es: TranslationStructure = {
     deviceOverrideTitle: 'Usar en este dispositivo',
     deviceOverrideSubtitle: 'Reemplaza localmente el ajuste de mascota de la cuenta.',
     sourceTitle: 'Origen de la mascota',
-    builtInSubtitle: 'Incluido en Happier.',
+    builtInSubtitle: 'Incluido en Kaiwu.',
     builtInBlinkSubtitle: 'Convierte señales de sesión en pequeñas luces de estado tranquilas.',
     builtInFurySubtitle: 'Prueba flujos complicados antes de que lleguen a producción.',
     builtInMiloSubtitle: 'Mantiene la UI ordenada y duerme sobre tests fallidos.',
@@ -3455,7 +3455,7 @@ export const es: TranslationStructure = {
     localLibraryTitle: 'Este dispositivo',
     localLibraryFooter: 'Las mascotas locales permanecen en este dispositivo salvo que las importes a tu cuenta.',
     helpDocsTitle: 'Ayuda de mascotas',
-    helpDocsSubtitle: 'Abre la documentación de Happier para configuración y solución de problemas.',
+    helpDocsSubtitle: 'Abre la documentación de Kaiwu para configuración y solución de problemas.',
     detectCodexPetsTitle: 'Detectar mascotas de Codex',
     detectCodexPetsSubtitle: 'Busca mascotas compatibles en los Codex homes locales.',
     detectedCodexPetsTileSubtitle: 'Encontrada en Codex y lista para unirse a este dispositivo.',
@@ -3464,7 +3464,7 @@ export const es: TranslationStructure = {
     detectedCodexPetsErrorTitle: 'No se pudieron detectar mascotas de Codex',
     detectedCodexPetsErrorSubtitle: 'Comprueba que el daemon esté conectado e inténtalo de nuevo.',
     detectedCodexPetsNoTargetTitle: 'No hay ningún daemon disponible',
-    detectedCodexPetsNoTargetSubtitle: 'Inicia Happier en este ordenador y vuelve a detectar mascotas de Codex.',
+    detectedCodexPetsNoTargetSubtitle: 'Inicia Kaiwu en este ordenador y vuelve a detectar mascotas de Codex.',
     detectedCodexPetsDaemonMismatchTitle: 'Actualiza el daemon para detectar mascotas',
     detectedCodexPetsDaemonMismatchSubtitle: 'Este daemon aún no expone la detección de mascotas. Actualiza el stack e inténtalo de nuevo.',
     useOnThisDeviceTitle: 'Usar en este dispositivo',
@@ -3565,7 +3565,7 @@ export const es: TranslationStructure = {
       footer: "Controla las notificaciones de cambio de cuenta y recuperación de cuota.",
       accountSwitch: {
         title: "Cambios de cuenta",
-        subtitle: "Notificar cuando Happier cambie automáticamente un proveedor a otra cuenta conectada",
+        subtitle: "Notificar cuando Kaiwu cambie automáticamente un proveedor a otra cuenta conectada",
       },
       quotaBlocked: {
         title: "Cuota bloqueada",
@@ -3578,7 +3578,7 @@ export const es: TranslationStructure = {
     },
     pushPriming: {
         title: '¿Activar las notificaciones?',
-        body: 'Happier puede avisarte cuando un agente termina, necesita una decisión de permiso o está esperándote. Puedes cambiarlo cuando quieras en Ajustes.',
+        body: 'Kaiwu puede avisarte cuando un agente termina, necesita una decisión de permiso o está esperándote. Puedes cambiarlo cuando quieras en Ajustes.',
         accept: 'Activar',
         decline: 'Ahora no',
         blockedTitle: 'Las notificaciones están bloqueadas',
@@ -3826,7 +3826,7 @@ export const es: TranslationStructure = {
       cliSourcePreference: {
         title: "Preferencia del origen de la CLI",
         subtitle:
-          "Elige si Happier debe priorizar la CLI del sistema o la instalación gestionada cuando ambas existan.",
+          "Elige si Kaiwu debe priorizar la CLI del sistema o la instalación gestionada cuando ambas existan.",
         options: {
           systemFirst: {
             title: "Priorizar instalación del sistema",
@@ -3834,7 +3834,7 @@ export const es: TranslationStructure = {
           },
           managedFirst: {
             title: "Priorizar instalación gestionada",
-            subtitle: "Prioriza la CLI instalada por Happier para este proveedor.",
+            subtitle: "Prioriza la CLI instalada por Kaiwu para este proveedor.",
           },
         },
       },
@@ -3916,11 +3916,11 @@ export const es: TranslationStructure = {
                 sections: {
                     claudeUnifiedTerminal: {
                         title: "Runtime de terminal unificado",
-                        footer: "Cuando está activado, Happier envía los prompts a la misma sesión de terminal de Claude Code en lugar de iniciar un ejecutor Agent SDK separado."
+                        footer: "Cuando está activado, Kaiwu envía los prompts a la misma sesión de terminal de Claude Code en lugar de iniciar un ejecutor Agent SDK separado."
                     },
                     claudeCodeExperiments: {
                         title: "Experimentos de Claude Code",
-                        footer: "Estos ajustes se aplican tanto a Claude local (terminal) como a Claude remoto (Agent SDK) iniciados por Happier."
+                        footer: "Estos ajustes se aplican tanto a Claude local (terminal) como a Claude remoto (Agent SDK) iniciados por Kaiwu."
                     },
                     claudeRemoteSdk: {
                         title: "Runtime clásico (respaldo Agent SDK)",
@@ -3934,7 +3934,7 @@ export const es: TranslationStructure = {
                     },
                     claudeUnifiedTerminalHost: {
                         title: "Host de terminal",
-                        subtitle: "Elige cómo Happier aloja la sesión de terminal compartida de Claude.",
+                        subtitle: "Elige cómo Kaiwu aloja la sesión de terminal compartida de Claude.",
                         options: {
                             auto: {
                                 title: "Automático",
@@ -3946,13 +3946,13 @@ export const es: TranslationStructure = {
                             },
                             zellij: {
                                 title: "zellij",
-                                subtitle: "Usa el host zellij incluido con Happier."
+                                subtitle: "Usa el host zellij incluido con Kaiwu."
                             }
                         }
                     },
                     claudeUnifiedTerminalResumeChoice: {
                         title: "Reanudacion de sesiones grandes",
-                        subtitle: "Elige como responde Happier cuando Claude pregunta como reanudar una sesion grande.",
+                        subtitle: "Elige como responde Kaiwu cuando Claude pregunta como reanudar una sesion grande.",
                         options: {
                             ask_every_time: {
                                 title: "Preguntar cada vez",
@@ -3970,29 +3970,29 @@ export const es: TranslationStructure = {
                     },
                     claudeUnifiedTerminalWorkspaceTrust: {
                         title: "Confianza del espacio de trabajo",
-                        subtitle: "Elige cómo responde Happier cuando Claude pregunta si debe confiar en un espacio de trabajo.",
+                        subtitle: "Elige cómo responde Kaiwu cuando Claude pregunta si debe confiar en un espacio de trabajo.",
                         options: {
                             ask_every_time: {
                                 title: "Preguntar siempre",
                                 subtitle: "Muestra en la sesión la pregunta exacta sobre la confianza del espacio de trabajo."
                             },
                             always_trust_happier_workspaces: {
-                                title: "Confiar siempre en los espacios de trabajo de Happier",
-                                subtitle: "Confía en la solicitud actual de Claude recuperada para los espacios de trabajo abiertos por Happier."
+                                title: "Confiar siempre en los espacios de trabajo de Kaiwu",
+                                subtitle: "Confía en la solicitud actual de Claude recuperada para los espacios de trabajo abiertos por Kaiwu."
                             },
                             always_reject_happier_workspaces: {
-                                title: "Rechazar siempre los espacios de trabajo de Happier",
-                                subtitle: "Rechaza la solicitud actual de Claude recuperada para los espacios de trabajo abiertos por Happier."
+                                title: "Rechazar siempre los espacios de trabajo de Kaiwu",
+                                subtitle: "Rechaza la solicitud actual de Claude recuperada para los espacios de trabajo abiertos por Kaiwu."
                             }
                         }
                     },
                     claudeCodeExperimentalAgentTeamsEnabled: {
                         title: "Forzar activación de Agent Teams",
-                        subtitle: "Activa Agent Teams experimental de Claude Code (enjambre de agentes) en todas las sesiones de Claude iniciadas por Happier."
+                        subtitle: "Activa Agent Teams experimental de Claude Code (enjambre de agentes) en todas las sesiones de Claude iniciadas por Kaiwu."
                     },
                     claudeRemoteAgentSdkEnabled: {
                         title: "Usar respaldo Agent SDK",
-                        subtitle: "Cuando el runtime de terminal unificado está desactivado, enruta las sesiones de Claude controladas por Happier a través del Agent SDK."
+                        subtitle: "Cuando el runtime de terminal unificado está desactivado, enruta las sesiones de Claude controladas por Kaiwu a través del Agent SDK."
                     },
                     claudeRemoteDebugEnabled: {
                         title: "Modo debug",
@@ -4048,15 +4048,15 @@ export const es: TranslationStructure = {
                     },
                     claudeLocalPermissionBridgeEnabled: {
                         title: "Experimental: puente de permisos local",
-                        subtitle: "Reenvía las solicitudes de permiso del modo local de Claude a Happier para que puedas aprobarlas o denegarlas desde la interfaz."
+                        subtitle: "Reenvía las solicitudes de permiso del modo local de Claude a Kaiwu para que puedas aprobarlas o denegarlas desde la interfaz."
                     },
                     claudeLocalPermissionBridgeWaitIndefinitely: {
                         title: "Mantener solicitudes abiertas hasta responder",
-                        subtitle: "Cuando está activado, Happier mantiene las solicitudes de permiso local de Claude pendientes hasta que las apruebes o rechaces desde la interfaz."
+                        subtitle: "Cuando está activado, Kaiwu mantiene las solicitudes de permiso local de Claude pendientes hasta que las apruebes o rechaces desde la interfaz."
                     },
                     claudeLocalPermissionBridgeTimeoutSeconds: {
                         title: "Tiempo de espera opcional de permisos (segundos)",
-                        subtitle: "Solo se usa cuando la espera indefinida está desactivada. Tras este tiempo, Happier vuelve al prompt del terminal de Claude."
+                        subtitle: "Solo se usa cuando la espera indefinida está desactivada. Tras este tiempo, Kaiwu vuelve al prompt del terminal de Claude."
                     },
                     claudeRemoteEnableFileCheckpointing: {
                         title: "Checkpoints de archivos + /rewind",
@@ -4089,7 +4089,7 @@ export const es: TranslationStructure = {
                     },
                     server: {
                         title: "Conexión del servidor",
-                        footer: "Déjalo vacío para usar el ciclo de vida del servidor OpenCode gestionado por Happier. Define una URL http(s) absoluta para conectarte a un servidor OpenCode existente."
+                        footer: "Déjalo vacío para usar el ciclo de vida del servidor OpenCode gestionado por Kaiwu. Define una URL http(s) absoluta para conectarte a un servidor OpenCode existente."
                     }
                 },
                 fields: {
@@ -4124,7 +4124,7 @@ export const es: TranslationStructure = {
                 sections: {
                     cli: {
                         title: "CLI de Cursor",
-                        footer: "Usa un binario de Cursor específico cuando la detección automática no sea suficiente. Happier prefiere cursor-agent y puede usar agent como alternativa cuando esté activado."
+                        footer: "Usa un binario de Cursor específico cuando la detección automática no sea suficiente. Kaiwu prefiere cursor-agent y puede usar agent como alternativa cuando esté activado."
                     }
                 },
                 fields: {
@@ -4162,7 +4162,7 @@ export const es: TranslationStructure = {
                 fields: {
                     kimiAcpPythonSelector: {
                         title: "Selector de stdio de Python",
-                        subtitle: "Elige cómo inicia Happier el bucle stdio de Python de Kimi ACP.",
+                        subtitle: "Elige cómo inicia Kaiwu el bucle stdio de Python de Kimi ACP.",
                         options: {
                             auto: {
                                 title: "Automático",
@@ -4491,14 +4491,14 @@ export const es: TranslationStructure = {
       expConnectedServicesQuotasSubtitle:
         "Mostrar insignias de cuota y medidores de uso para servicios conectados",
       expChannelBridges: "Puentes de canal",
-      expChannelBridgesSubtitle: "Conecta Telegram y otros canales de chat a sesiones de Happier (experimental)",
+      expChannelBridgesSubtitle: "Conecta Telegram y otros canales de chat a sesiones de Kaiwu (experimental)",
       expMemorySearch: "Búsqueda de memoria",
       expMemorySearchSubtitle:
         "Habilitar pantallas y ajustes de búsqueda de memoria local",
     expSessionsDirect: "Sesiones directas",
     expSessionsDirectSubtitle: "Muestra y abre en la barra lateral sesiones directas respaldadas por el proveedor",
     expSessionsFolders: "Carpetas de sesiones",
-    expSessionsFoldersSubtitle: "Organiza las sesiones Happier de la barra lateral en carpetas de espacio de trabajo",
+    expSessionsFoldersSubtitle: "Organiza las sesiones Kaiwu de la barra lateral en carpetas de espacio de trabajo",
     expPetsCompanion: "Mascotas",
     expPetsCompanionSubtitle: "Activa las superficies de compañía de Blink y la selección local de mascotas",
     expFriends: "Amigos",
@@ -4544,7 +4544,7 @@ export const es: TranslationStructure = {
       "Organiza los chats inactivos por proyecto",
       environmentBadge: "Insignia de entorno",
       environmentBadgeSubtitle:
-        "Mostrar una pequeña insignia junto al título Happier indicando el entorno actual de la app",
+        "Mostrar una pequeña insignia junto al título Kaiwu indicando el entorno actual de la app",
     enhancedSessionWizard: "Asistente de sesión mejorado",
     enhancedSessionWizardEnabled: "Lanzador de sesión con perfil activo",
     enhancedSessionWizardDisabled: "Usando el lanzador de sesión estándar",
@@ -4579,7 +4579,7 @@ export const es: TranslationStructure = {
       failedToForkSession: "No se pudo bifurcar la sesión",
       daemonUnavailableTitle: "Daemon no disponible",
       daemonUnavailableBody:
-        "Happier no puede comunicarse con el daemon en esta máquina. Puede estar sin conexión, iniciándose o desconectado del servidor.",
+        "Kaiwu no puede comunicarse con el daemon en esta máquina. Puede estar sin conexión, iniciándose o desconectado del servidor.",
       tryAgain: "Intenta de nuevo",
       contactSupport: "Contacta soporte si el problema persiste",
       sessionNotFound: "Sesión no encontrada",
@@ -4597,7 +4597,7 @@ export const es: TranslationStructure = {
     tokenStorageFailed: "Falló al almacenar los tokens de autenticación",
     oauthStateMismatch: "Falló la validación de seguridad. Inténtalo de nuevo",
     providerAlreadyLinked: ({ provider }: { provider: string }) =>
-      `${provider} ya está vinculado a una cuenta de Happier existente. Para iniciar sesión en este dispositivo, vincúlalo desde un dispositivo que ya haya iniciado sesión.`,
+      `${provider} ya está vinculado a una cuenta de Kaiwu existente. Para iniciar sesión en este dispositivo, vincúlalo desde un dispositivo que ya haya iniciado sesión.`,
     tokenExchangeFailed: "Falló al intercambiar el código de autorización",
     oauthAuthorizationDenied: "La autorización fue denegada",
     webViewLoadFailed: "Falló al cargar la página de autenticación",
@@ -4660,7 +4660,7 @@ export const es: TranslationStructure = {
 
   deps: {
     installNotSupported:
-      "Actualiza Happier CLI para instalar esta dependencia.",
+      "Actualiza Kaiwu CLI para instalar esta dependencia.",
     installFailed: "Instalación fallida",
     installed: "Instalado",
     installLog: ({ path }: { path: string }) =>
@@ -4783,7 +4783,7 @@ export const es: TranslationStructure = {
       "Elige una sesión simple o una vinculada a un worktree de Git.",
     searchPathsPlaceholder: "Buscar rutas...",
     noMachinesFound:
-      "No se encontraron máquinas. Inicia una sesión de Happier en tu computadora primero.",
+      "No se encontraron máquinas. Inicia una sesión de Kaiwu en tu computadora primero.",
     allMachinesOffline: "Todas las máquinas están desconectadas",
     machineOfflineInlineTitle: "La máquina está sin conexión",
     machineOfflineInlineBody:
@@ -4811,12 +4811,12 @@ export const es: TranslationStructure = {
       "No conectado al servidor. Verifica tu conexión a internet.",
     daemonRpcUnavailableTitle: "Daemon no disponible",
     daemonRpcUnavailableBody:
-      "Happier no puede comunicarse con el daemon en esta máquina. Puede estar sin conexión, iniciándose o desconectado del servidor.",
+      "Kaiwu no puede comunicarse con el daemon en esta máquina. Puede estar sin conexión, iniciándose o desconectado del servidor.",
     launchStillPendingTitle: "El inicio sigue en curso",
     createdWithSetupIssueTitle: "Sesión creada",
     createdWithSetupIssueBody: "La sesión se creó, pero la configuración inicial no terminó. Puedes volver a intentarlo desde esta pantalla sin crear otra sesión.",
     launchStillPendingBody:
-      "Happier aún no ha confirmado la nueva sesión. La solicitud de inicio sigue guardada. Vuelve a intentarlo para continuar el mismo inicio sin crear una sesión duplicada.",
+      "Kaiwu aún no ha confirmado la nueva sesión. La solicitud de inicio sigue guardada. Vuelve a intentarlo para continuar el mismo inicio sin crear una sesión duplicada.",
     connectedServiceSwitchUnavailable: {
       title: "Cambio no disponible",
       body: ({ reason, agentId }: { reason: string; agentId: string }) =>
@@ -4956,7 +4956,7 @@ export const es: TranslationStructure = {
       helpText:
         "Puedes encontrar los IDs de sesión en la pantalla de información de sesión.",
       cannotApplyBody:
-        "Este ID de reanudación no se puede aplicar ahora. Happier iniciará una nueva sesión en su lugar.",
+        "Este ID de reanudación no se puede aplicar ahora. Kaiwu iniciará una nueva sesión en su lugar.",
     },
     codexResumeBanner: {
       title: "Servidor de reanudación de Codex",
@@ -5005,7 +5005,7 @@ export const es: TranslationStructure = {
       updateTitle: "¿Actualizar GitHub CLI?",
       reinstallTitle: "¿Reinstalar GitHub CLI?",
       description:
-        "Esto instala GitHub CLI para que Happier pueda usar tu autenticación local de GitHub en flujos de pull request.",
+        "Esto instala GitHub CLI para que Kaiwu pueda usar tu autenticación local de GitHub en flujos de pull request.",
     },
   },
 
@@ -5180,8 +5180,8 @@ export const es: TranslationStructure = {
           empty: "No se transfirió nada. No había conversación anterior que reproducir.",
           unavailableOperation: "Actualiza o reconecta la CLI en esta máquina para reconstruirlo.",
           notRebuildable: "Aquí se transfirió contexto, pero la transcripción de esta sesión ya no lo contiene, así que no se puede reconstruir.",
-          unavailableSource: "Happier no pudo leer la transcripción de esta sesión, así que no se puede reconstruir.",
-          unreachable: "Happier no pudo contactar con la máquina que aloja esta sesión.",
+          unavailableSource: "Kaiwu no pudo leer la transcripción de esta sesión, así que no se puede reconstruir.",
+          unreachable: "Kaiwu no pudo contactar con la máquina que aloja esta sesión.",
           retryAction: "Reintentar",
           jumpAction: "Ir al último mensaje incluido",
       },
@@ -5210,7 +5210,7 @@ export const es: TranslationStructure = {
         badgeLabel: 'Cambio de Agente',
         /** Delegates to the Session’s existing resume owner; never a second start path. */
         resumeAction: 'Reanudar sesión',
-        unknown: 'Happier no pudo confirmar qué ocurrió. Revisa esta sesión antes de volver a enviar.',
+        unknown: 'Kaiwu no pudo confirmar qué ocurrió. Revisa esta sesión antes de volver a enviar.',
       },
     },
     sourceContext: {
@@ -5223,7 +5223,7 @@ export const es: TranslationStructure = {
         removeAction: "Quitar",
         removeA11y: "Quitar la conversación de origen",
         keepAction: "Mantenerla",
-        serverMismatch: "Esa conversación está en otro servidor de Happier. Vuelve a él o quita la conversación de origen para empezar de cero.",
+        serverMismatch: "Esa conversación está en otro servidor de Kaiwu. Vuelve a él o quita la conversación de origen para empezar de cero.",
     },
     forking: {
       dividerTitle: "Bifurcado desde un contexto anterior",
@@ -5243,7 +5243,7 @@ export const es: TranslationStructure = {
           },
           replay: {
               title: "Bifurcación con Replay",
-              subtitle: "Happier reproduce la conversación hasta ahora como contexto de la nueva sesión.",
+              subtitle: "Kaiwu reproduce la conversación hasta ahora como contexto de la nueva sesión.",
           },
           configure: {
               title: "Configurar una sesión nueva",
@@ -5264,7 +5264,7 @@ export const es: TranslationStructure = {
               openAction: "Abrir bifurcación",
           },
           unknown: {
-              title: "Happier no pudo confirmar la bifurcación",
+              title: "Kaiwu no pudo confirmar la bifurcación",
               body: "La solicitud salió, así que puede que ya exista una bifurcación. Compruébalo en lugar de volver a bifurcar, porque un segundo intento podría crear un duplicado.",
               checkAction: "Buscar la bifurcación",
               checking: "Buscando tu bifurcación…",
@@ -5273,7 +5273,7 @@ export const es: TranslationStructure = {
           },
           failure: {
               updateRequired: "Actualiza o reconecta la CLI de esta máquina para bifurcar esta sesión.",
-              generic: "Happier no pudo crear la bifurcación.",
+              generic: "Kaiwu no pudo crear la bifurcación.",
           },
       },
 	    },
@@ -5301,13 +5301,13 @@ export const es: TranslationStructure = {
 	    },
 	    staleRunner: {
 	      title: "La sesión sigue ejecutándose con una CLI anterior",
-	      body: "Reinicia el runner de esta sesión para continuar con la CLI actualizada del daemon. La sesión de Happier se mantiene.",
+	      body: "Reinicia el runner de esta sesión para continuar con la CLI actualizada del daemon. La sesión de Kaiwu se mantiene.",
 	      busyBody: "El runner de la sesión está ocupado. Reintenta cuando termine la actividad actual.",
-	      failureBody: "Happier no pudo reiniciar este runner de sesión. Reintenta después de que la sesión se actualice.",
+	      failureBody: "Kaiwu no pudo reiniciar este runner de sesión. Reintenta después de que la sesión se actualice.",
 	      identityChangedBody: "El runner de la sesión cambió mientras se solicitaba el reinicio. Actualiza la sesión y reintenta.",
 	      ineligibleBody: "Este runner de sesión ya no es apto para un reinicio planificado.",
 	      unsupportedBody: "Este daemon todavía no expone la operación de reinicio del runner de sesión.",
-	      versionUnknownBody: "Happier todavía no puede confirmar qué versión de la CLI usa este runner.",
+	      versionUnknownBody: "Kaiwu todavía no puede confirmar qué versión de la CLI usa este runner.",
 	      restartAction: "Reiniciar runner",
 	      restartPendingAction: "Reiniciando...",
 	      statusBadge: "CLI anterior",
@@ -5319,7 +5319,7 @@ export const es: TranslationStructure = {
 	    mcpRestartRequired: {
 	        title: "Reinicia para aplicar los cambios de MCP",
 	        body: "Los servidores MCP se aplican al iniciar una sesión. Reinicia este ejecutor para usar la selección actualizada.",
-	        failureBody: "Happier no pudo reiniciar este ejecutor. Tu selección de MCP está guardada y se aplicará la próxima vez que se inicie.",
+	        failureBody: "Kaiwu no pudo reiniciar este ejecutor. Tu selección de MCP está guardada y se aplicará la próxima vez que se inicie.",
 	        restartAction: "Reiniciar sesión",
 	        restartPendingAction: "Reiniciando…",
 	        badgeLabel: "Cambios de MCP",
@@ -5331,9 +5331,9 @@ export const es: TranslationStructure = {
 	    invalidLinkTitle: "Enlace de sesión no válido",
 	    invalidLinkDescription: "Falta el enlace de la sesión o no es válido. Comprueba la URL y vuelve a intentarlo.",
 	    resumeSupportNoteChecking:
-	      "Nota: Happier todavía está comprobando si esta máquina puede reanudar la sesión del proveedor.",
+	      "Nota: Kaiwu todavía está comprobando si esta máquina puede reanudar la sesión del proveedor.",
 	    resumeSupportNoteUnverified:
-	      "Nota: Happier no pudo verificar la compatibilidad de reanudación para esta máquina.",
+	      "Nota: Kaiwu no pudo verificar la compatibilidad de reanudación para esta máquina.",
     resumeSupportDetails: {
       cliNotDetected: "No se detectó la CLI en la máquina.",
       capabilityProbeFailed: "Falló la comprobación de capacidades.",
@@ -5348,7 +5348,7 @@ export const es: TranslationStructure = {
       `Esta sesión terminó y no se puede reanudar porque ${provider} no admite restaurar su contexto aquí. Inicia una nueva sesión para continuar.`,
     machineOfflineNoticeTitle: "La máquina está sin conexión",
     machineOfflineNoticeBody: ({ machine }: { machine: string }) =>
-      `“${machine}” está sin conexión. Puedes poner un mensaje en cola ahora; Happier continuará cuando la máquina vuelva a conectarse.`,
+      `“${machine}” está sin conexión. Puedes poner un mensaje en cola ahora; Kaiwu continuará cuando la máquina vuelva a conectarse.`,
       machineOfflineCannotResume:
         "La máquina está sin conexión. Vuelve a conectarla para reanudar esta sesión.",
           openRuns: "Abrir ejecuciones de la sesión",
@@ -5674,15 +5674,15 @@ export const es: TranslationStructure = {
         },
         discardConfirm: {
           title: "¿Descartar mensaje pendiente?",
-          body: "Esto conserva una copia descartada e impide que Happier entregue este mensaje pendiente.",
+          body: "Esto conserva una copia descartada e impide que Kaiwu entregue este mensaje pendiente.",
         },
         markHandledConfirm: {
           title: "¿Marcar el mensaje pendiente como gestionado?",
-          body: "Úsalo solo si el proveedor ya gestionó el mensaje o ya no quieres que Happier lo entregue.",
+          body: "Úsalo solo si el proveedor ya gestionó el mensaje o ya no quieres que Kaiwu lo entregue.",
         },
         dismissDeliveryConfirm: {
           title: "¿Descartar la entrega incierta?",
-          body: "Esto archiva el mensaje original sin volver a enviarlo. Si el proveedor confirma la entrega más adelante, Happier aún puede añadir el mensaje original a la transcripción.",
+          body: "Esto archiva el mensaje original sin volver a enviarlo. Si el proveedor confirma la entrega más adelante, Kaiwu aún puede añadir el mensaje original a la transcripción.",
         },
         sendAsNewConfirm: {
           title: "¿Enviar este mensaje como nuevo?",
@@ -5720,7 +5720,7 @@ export const es: TranslationStructure = {
           retrySendFailed: 'No se pudo reintentar el envío del mensaje',
           markHandledFailed: "No se pudo marcar la entrega pendiente como gestionada",
           clearTerminalComposerFailed: "No se pudo borrar el compositor del terminal",
-          clearTerminalComposerUnsupported: "Esta sesión no permite borrar el compositor del terminal desde Happier.",
+          clearTerminalComposerUnsupported: "Esta sesión no permite borrar el compositor del terminal desde Kaiwu.",
           clearTerminalComposerUnsafe: "El compositor del terminal no se puede borrar con seguridad ahora mismo.",
         },
       },
@@ -5970,7 +5970,7 @@ export const es: TranslationStructure = {
     // Used by Server Configuration screen (app/(app)/server.tsx)
     serverConfiguration: "Configuración del Relay",
     enterServerUrl: "Ingresa una URL de Relay",
-    notValidHappyServer: "No es un Relay Happier válido",
+    notValidHappyServer: "No es un Relay Kaiwu válido",
     changeServer: "Cambiar Relay",
     continueWithServer: "¿Continuar con este Relay?",
     resetToDefault: "Restablecer por defecto",
@@ -6123,7 +6123,7 @@ export const es: TranslationStructure = {
   },
   sessionsList: {
     serverHeader: ({ server }: { server: string }) => `Servidor: ${server}`,
-    storagePersistedTab: "Happier",
+    storagePersistedTab: "Kaiwu",
     storageDirectTab: "Directas",
     renameWorkspace: 'Renombrar espacio de trabajo',
     renameWorkspacePromptTitle: 'Renombrar espacio de trabajo',
@@ -6274,7 +6274,7 @@ export const es: TranslationStructure = {
     killSessionConfirm: "¿Seguro que quieres terminar esta sesión?",
     stopSession: "Detener sesión",
     stopSessionConfirm: "¿Seguro que quieres detener esta sesión?",
-    stopSessionControlUnavailable: "Happier no pudo acceder a los controles de la sesión. Asegúrate de que la máquina de la sesión y el daemon estén conectados e inténtalo de nuevo.",
+    stopSessionControlUnavailable: "Kaiwu no pudo acceder a los controles de la sesión. Asegúrate de que la máquina de la sesión y el daemon estén conectados e inténtalo de nuevo.",
     archiveSession: "Archivar sesión",
     archiveSessionConfirm: "¿Seguro que quieres archivar esta sesión?",
     workspaceTitle: "Espacio de trabajo",
@@ -6287,9 +6287,9 @@ export const es: TranslationStructure = {
     createWorktreeSubtitle: "Inicia una nueva sesión que creará un worktree de Git en este espacio de trabajo vinculado.",
     locationLabel: "Ubicación",
     checkoutLabel: "Copia de trabajo",
-    happySessionIdCopied: "ID de sesión de Happier copiado al portapapeles",
-    failedToCopySessionId: "Falló al copiar ID de sesión de Happier",
-    happySessionId: "ID de sesión de Happier",
+    happySessionIdCopied: "ID de sesión de Kaiwu copiado al portapapeles",
+    failedToCopySessionId: "Falló al copiar ID de sesión de Kaiwu",
+    happySessionId: "ID de sesión de Kaiwu",
     claudeCodeSessionId: "ID de sesión de Claude Code",
     claudeCodeSessionIdCopied:
       "ID de sesión de Claude Code copiado al portapapeles",
@@ -6368,7 +6368,7 @@ export const es: TranslationStructure = {
     path: "Ruta",
     operatingSystem: "Sistema operativo",
     processId: "ID del proceso",
-    happyHome: "Directorio de Happier",
+    happyHome: "Directorio de Kaiwu",
     attachFromTerminal: "Adjuntar desde la terminal",
     tmuxTarget: "Destino de tmux",
     tmuxFallback: "Fallback de tmux",
@@ -6425,7 +6425,7 @@ export const es: TranslationStructure = {
     emptyMainScreen: {
       // Used by SessionGettingStartedGuidance component
       readyToCode: "¿Listo para programar?",
-      installCli: "Instale el Happier CLI",
+      installCli: "Instale el Kaiwu CLI",
       runIt: "Ejecútelo",
       scanQrCode: "Escanee el código QR",
       openCamera: "Abrir cámara",
@@ -6703,7 +6703,7 @@ export const es: TranslationStructure = {
   },
 
   sidebar: {
-    sessionsTitle: "Happier",
+    sessionsTitle: "Kaiwu",
   },
 
   toolView: {
@@ -6837,7 +6837,7 @@ export const es: TranslationStructure = {
     acpHistoryImport: {
       title: "¿Importar historial de la sesión?",
       defaultNote:
-        "Este historial de la sesión difiere de lo que ya está en Happier. Importarlo puede crear duplicados.",
+        "Este historial de la sesión difiere de lo que ya está en Kaiwu. Importarlo puede crear duplicados.",
       counts: {
         local: ({ count }: { count: number }) => `Local: ${count}`,
         remote: ({ count }: { count: number }) => `Remoto: ${count}`,
@@ -6924,7 +6924,7 @@ export const es: TranslationStructure = {
     askUserQuestion: {
         submit: "Enviar respuesta",
         submissionFailures: {
-            update: "Actualiza Happier CLI y vuelve a intentarlo.",
+            update: "Actualiza Kaiwu CLI y vuelve a intentarlo.",
             reconnect: "Vuelve a conectar esta sesión e inténtalo de nuevo.",
             retry: "No se pudo aceptar la respuesta. Revísala y vuelve a intentarlo.",
         },
@@ -7108,7 +7108,7 @@ export const es: TranslationStructure = {
       },
       indexLock: {
         title: "¿Eliminar bloqueo de Git obsoleto?",
-        body: "Git informó de un bloqueo del índice. Si no hay otro comando de Git ejecutándose, Happier puede eliminar el bloqueo obsoleto y reintentar.",
+        body: "Git informó de un bloqueo del índice. Si no hay otro comando de Git ejecutándose, Kaiwu puede eliminar el bloqueo obsoleto y reintentar.",
         confirm: "Eliminar bloqueo y reintentar",
         recoveryFailed: "No se pudo eliminar el bloqueo del índice de Git.",
       },
@@ -7249,7 +7249,7 @@ export const es: TranslationStructure = {
       frontmatterReadOnly: "Frontmatter (solo lectura)",
     },
       fileEditingUnsupported:
-        "La edición de archivos no es compatible con el daemon conectado. Actualiza Happier en la máquina para habilitar operaciones de escritura.",
+        "La edición de archivos no es compatible con el daemon conectado. Actualiza Kaiwu en la máquina para habilitar operaciones de escritura.",
       fileChangedExternally:
         "Este archivo cambió en disco mientras lo editabas. Tu borrador se mantuvo sin cambios; revisa el archivo más reciente antes de guardar.",
       selectionFailed: "No se pudo actualizar la selección",
@@ -7527,7 +7527,7 @@ export const es: TranslationStructure = {
           createFeatureBranch: "Crear rama de funcionalidad",
           createFeatureBranchAndOpen: "Crear rama y abrir PR",
           featureBranchPromptTitle: "Nombre de la rama de funcionalidad",
-          featureBranchPromptBody: "Happier cambiará a esta rama antes de continuar.",
+          featureBranchPromptBody: "Kaiwu cambiará a esta rama antes de continuar.",
           defaultBranchRequiresFeature: "Crea una rama de funcionalidad antes de abrir una pull request desde la rama predeterminada.",
           defaultBranchDenied: "No se pueden abrir pull requests directamente desde la rama predeterminada.",
           states: {
@@ -7621,7 +7621,7 @@ export const es: TranslationStructure = {
         crossSession: ({ sessionId }: { sessionId: string }) => `Iniciado desde la sesión ${sessionId}`,
         externalCli: "Iniciado externamente desde la CLI",
         externalMcp: "Iniciado externamente mediante MCP",
-        externalAction: "Iniciado externamente mediante una acción de Happier",
+        externalAction: "Iniciado externamente mediante una acción de Kaiwu",
         externalUnknown: "Iniciado externamente (origen desconocido)",
         legacyUnknown: "Origen de inicio desconocido",
       },
@@ -7673,7 +7673,7 @@ export const es: TranslationStructure = {
         },
         spawnPolicy: {
             title: 'Política de creación de sesiones de IA',
-            footer: 'Estos controles solo se aplican cuando un asistente dentro de una sesión de Happier crea otra sesión. La configuración heredada de la sesión padre sigue permitida; los elementos denegados rechazan sustituciones explícitas con un error claro.',
+            footer: 'Estos controles solo se aplican cuando un asistente dentro de una sesión de Kaiwu crea otra sesión. La configuración heredada de la sesión padre sigue permitida; los elementos denegados rechazan sustituciones explícitas con un error claro.',
             toggles: {
                 allowCustomDirectory: { title: 'Directorio personalizado', subtitle: 'Permite que el asistente elija otro directorio de trabajo.' },
                 allowCrossMachine: { title: 'Destinos entre máquinas', subtitle: 'Permite crear la sesión en otra máquina disponible.' },
@@ -7778,11 +7778,11 @@ export const es: TranslationStructure = {
             },
             session_agent: {
                 title: 'Sesión de IA',
-                subtitle: 'Controla las herramientas disponibles para el asistente que se ejecuta dentro de una sesión de Happier.',
+                subtitle: 'Controla las herramientas disponibles para el asistente que se ejecuta dentro de una sesión de Kaiwu.',
             },
             mcp: {
                 title: 'MCP',
-                subtitle: 'Controla los clientes MCP externos que usan el catálogo de acciones MCP de Happier.',
+                subtitle: 'Controla los clientes MCP externos que usan el catálogo de acciones MCP de Kaiwu.',
             },
             cli: {
                 title: 'CLI de control de sesión',
@@ -7993,7 +7993,7 @@ settingsSession: {
       },
       messageSending: {
         inactiveResumePolicyTitle: "Reanudación automática después de enviar",
-        inactiveResumePolicySubtitle: "Elige qué debe hacer Happier después de enviar a una sesión inactiva.",
+        inactiveResumePolicySubtitle: "Elige qué debe hacer Kaiwu después de enviar a una sesión inactiva.",
         inactiveResumePolicy: {
           whenAvailableTitle: "Ahora o cuando vuelva la máquina",
           whenAvailableSubtitle: "Reanudar de inmediato si está disponible; si no, procesar cuando el daemon se reconecte.",
@@ -8047,7 +8047,7 @@ settingsSession: {
             "Pon los mensajes primero en Pendientes; envíalos después con \"Dirigir ahora\".",
         },
         nonSteerablePromptTitle: 'Cuando un mensaje no puede dirigir el turno activo',
-        nonSteerablePromptFooter: 'Los cambios de modo de permisos y /clear o /compact no pueden aplicarse a mitad de turno. Elige qué hace Happier con esos mensajes mientras el agente está ocupado.',
+        nonSteerablePromptFooter: 'Los cambios de modo de permisos y /clear o /compact no pueden aplicarse a mitad de turno. Elige qué hace Kaiwu con esos mensajes mientras el agente está ocupado.',
         nonSteerablePrompt: {
           askTitle: 'Preguntar cada vez',
           askSubtitle: 'Ofrecer “Interrumpir y enviar ahora” o “Poner en cola para después del turno”.',
@@ -8060,7 +8060,7 @@ settingsSession: {
       usageLimitRecovery: {
         title: "Recuperación del límite de uso",
         footer:
-          "Elige qué hace Happier cuando un proveedor pide esperar antes de continuar.",
+          "Elige qué hace Kaiwu cuando un proveedor pide esperar antes de continuar.",
         modeTitle: "Cuando se alcanza un límite de uso",
         askTitle: "Preguntar cada vez",
         askSubtitle: "Muestra acciones de sesión antes de esperar o reintentar.",
@@ -8473,7 +8473,7 @@ settingsSession: {
           "Auto mantiene las secciones cortas como listas y cambia las largas a desplegables con búsqueda.",
         wizardPresentationAutoTitle: "Auto",
         wizardPresentationAutoSubtitle:
-          "Deja que Happier elija el mejor diseño según la cantidad de contenido.",
+          "Deja que Kaiwu elija el mejor diseño según la cantidad de contenido.",
         wizardPresentationListTitle: "Lista",
         wizardPresentationListSubtitle: "Muestra todas las filas directamente en el asistente.",
         wizardPresentationDropdownTitle: "Desplegable",
@@ -8481,7 +8481,7 @@ settingsSession: {
       },
           promptPersonalization: {
               title: 'Prompt personalization',
-              footer: 'Choose which built-in instructions Happier adds to new agent sessions. This does not hide options an agent already sends.',
+              footer: 'Choose which built-in instructions Kaiwu adds to new agent sessions. This does not hide options an agent already sends.',
               askAgentToRenameSessionsTitle: 'Session title updates',
               askAgentToRenameSessionsNeverTitle: 'Never',
               askAgentToRenameSessionsNeverSubtitle: 'Do not prompt agents to set session titles.',
@@ -8507,9 +8507,9 @@ settingsSession: {
       },
           defaultStorage: {
               title: 'Tipo de sesión predeterminado',
-              footer: 'Elige si las nuevas sesiones comienzan como sesiones de Happier o como sesiones directas respaldadas por el proveedor.',
+              footer: 'Elige si las nuevas sesiones comienzan como sesiones de Kaiwu o como sesiones directas respaldadas por el proveedor.',
               globalTitle: 'Predeterminado global',
-              persistedSubtitle: 'Guarda las nuevas sesiones en Happier y sincronízalas entre dispositivos de forma predeterminada.',
+              persistedSubtitle: 'Guarda las nuevas sesiones en Kaiwu y sincronízalas entre dispositivos de forma predeterminada.',
               directSubtitle: 'Inicia sesiones directas vinculadas a la máquina cuando el proveedor lo admita.',
               globalSubtitle: ({ label }: { label: string }) => `Predeterminado global: ${label}`,
               useGlobalDefault: 'Usar el predeterminado global',
@@ -8556,12 +8556,12 @@ settingsSession: {
     // Voice settings screen
     modeTitle: "Voz",
     modeDescription:
-      "Configura las funciones de voz. Puedes desactivar la voz por completo, usar Happier Voice (requiere suscripción) o usar tu propia cuenta de ElevenLabs.",
+      "Configura las funciones de voz. Puedes desactivar la voz por completo, usar Kaiwu Voice (requiere suscripción) o usar tu propia cuenta de ElevenLabs.",
     mode: {
       off: "Desactivado",
       offSubtitle: "Desactivar todas las funciones de voz",
-      happier: "Happier Voice",
-      happierSubtitle: "Usar Happier Voice (requiere suscripción)",
+      happier: "Kaiwu Voice",
+      happierSubtitle: "Usar Kaiwu Voice (requiere suscripción)",
       local: "Voz local OSS",
       localSubtitle: "Usar endpoints STT/TTS locales compatibles con OpenAI",
       byo: "Usar mi ElevenLabs",
@@ -8626,7 +8626,7 @@ settingsSession: {
     byo: {
       title: "Usar mi ElevenLabs",
 	      agentReuseDialog: {
-	        title: "El agente de Happier ya existe",
+	        title: "El agente de Kaiwu ya existe",
 	        messageWithId: ({ name, id }: { name: string; id: string }) =>
 	          `Encontramos un agente de ElevenLabs existente (“${name}”, id: ${id}).\n\n¿Quieres actualizarlo o crear uno nuevo?`,
 	        messageNoId: ({ name }: { name: string }) =>
@@ -8651,12 +8651,12 @@ settingsSession: {
       apiKeyHelpDialogTitle: "Crear una clave API de ElevenLabs",
       apiKeyHelpDialogBody:
         "Open ElevenLabs → Developers → API Keys → Create API key → Copy the key.",
-      autoprovCreate: "Crear agente Happier",
+      autoprovCreate: "Crear agente Kaiwu",
       autoprovCreateSubtitle:
-        "Crea y configura un agente Happier en tu cuenta de ElevenLabs usando tu clave API",
+        "Crea y configura un agente Kaiwu en tu cuenta de ElevenLabs usando tu clave API",
       autoprovUpdate: "Actualizar agente",
       autoprovUpdateSubtitle:
-        "Actualiza tu agente al último template de Happier",
+        "Actualiza tu agente al último template de Kaiwu",
       autoprovCreated: ({ agentId }: { agentId: string }) =>
         `Agente creado: ${agentId}`,
       autoprovUpdated: "Agente actualizado",
@@ -8904,7 +8904,7 @@ settingsSession: {
         manifest: {
           title: "Manifiesto del paquete de modelo",
           subtitle:
-            "Por defecto usa paquetes de modelos de Happier (se puede sobrescribir con EXPO_PUBLIC_HAPPIER_MODEL_PACK_MANIFESTS).",
+            "Por defecto usa paquetes de modelos de Kaiwu (se puede sobrescribir con EXPO_PUBLIC_HAPPIER_MODEL_PACK_MANIFESTS).",
           detailResolved: "Resuelto",
           detailMissing: "Falta",
         },
@@ -9097,7 +9097,7 @@ settingsSession: {
         },
         backend: {
           daemonSubtitle:
-            "Usa tu backend de Happier y admite reanudación del proveedor.",
+            "Usa tu backend de Kaiwu y admite reanudación del proveedor.",
           openAiSubtitle: "Conecta a endpoints HTTP compatibles con OpenAI.",
         },
         agentMachine: {
@@ -9173,7 +9173,7 @@ settingsSession: {
           providerResumeTitle: "Reanudación del proveedor",
           providerResumeSubtitle:
             "Reanuda usando el estado de la sesión del proveedor (si se admite).",
-          disabledVoiceAgent: "Requiere Happier Voice Agent.",
+          disabledVoiceAgent: "Requiere Kaiwu Voice Agent.",
           disabledDaemonBackend: "Requiere backend Daemon.",
           disabledAgentNoProviderResume:
             "El agente seleccionado no admite reanudación del proveedor.",
@@ -9226,7 +9226,7 @@ settingsSession: {
       },
       mediatorBackend: "Backend del mediador",
       mediatorBackendSubtitle:
-        "Daemon (usa tu backend de Happier) u OpenAI-compatible HTTP",
+        "Daemon (usa tu backend de Kaiwu) u OpenAI-compatible HTTP",
       mediatorBackendDaemon: "Demonio",
       mediatorBackendOpenAi: "HTTP compatible con OpenAI",
       mediatorAgentSource: "Fuente del agente del mediador",
@@ -9347,7 +9347,7 @@ settingsSession: {
       testTts: "Probar TTS",
       testTtsSubtitle:
         "Reproduce una muestra corta usando tu TTS local configurado (TTS del dispositivo o endpoint)",
-      testTtsSample: "Hola desde Happier. Esta es una prueba de tu TTS local.",
+      testTtsSample: "Hola desde Kaiwu. Esta es una prueba de tu TTS local.",
       testTtsMissingBaseUrl: "Primero configura una URL base de TTS.",
       testTtsFailed:
         "TTS test failed. Check your base URL, API key, model, and voice.",
@@ -9513,17 +9513,17 @@ settingsSession: {
     },
     defaultTitle: "Novedades",
     onboardingShowcase: {
-                "title": "Bienvenido a Happier",
+                "title": "Bienvenido a Kaiwu",
                 "subtitle": "Tus agentes de IA, dondequiera que trabajes.",
                 "cards": {
                     "welcome": {
-                        "title": "Bienvenido a Happier",
+                        "title": "Bienvenido a Kaiwu",
                         "everywhereTitle": "Tus agentes de IA, dondequiera que trabajes",
                         "everywhereBody": "Claude Code, Codex, OpenCode, Pi y mucho más: en tu teléfono, tablet, navegador o escritorio.",
                         "cockpitTitle": "Tu cockpit móvil",
                         "cockpitBody": "Chat, archivos, Git, editor, terminal. Todo lo que necesitas para crear y lanzar tu próximo proyecto, al alcance de la mano.",
                         "existingTitle": "Sesiones existentes, ya disponibles",
-                        "existingBody": "Cualquier sesión de Claude, Codex u OpenCode que se esté ejecutando en tu máquina, ábrela en Happier en directo.",
+                        "existingBody": "Cualquier sesión de Claude, Codex u OpenCode que se esté ejecutando en tu máquina, ábrela en Kaiwu en directo.",
                         "voiceTitle": "Un asistente de voz para pensar juntos",
                         "voiceBody": "Pregunta qué están haciendo tus agentes, aprueba solicitudes de permiso y envía mensajes. Sin manos.",
                         "reviewTitle": "Revisa diffs y deja comentarios",
@@ -9531,7 +9531,7 @@ settingsSession: {
                         "subagentsTitle": "Subagentes entre proveedores",
                         "subagentsBody": "Lanza subagentes de Codex desde una sesión de Claude. Divide el trabajo entre agentes. Enruta mensajes entre sesiones.",
                         "tuisTitle": "Usa tus TUI favoritas",
-                        "tuisBody": "Ejecuta Claude Code, Codex u OpenCode en su interfaz de terminal nativa. Happier lo captura y lo sincroniza con todos tus dispositivos.",
+                        "tuisBody": "Ejecuta Claude Code, Codex u OpenCode en su interfaz de terminal nativa. Kaiwu lo captura y lo sincroniza con todos tus dispositivos.",
                         "inboxTitle": "Una bandeja. Todas las sesiones.",
                         "inboxBody": "Todas las aprobaciones pendientes, solicitudes de permiso y actividad sin leer, de cada sesión y máquina, en un solo lugar.",
                         "mcpTitle": "Una configuración MCP. Todos los proveedores.",
@@ -9596,7 +9596,7 @@ settingsSession: {
                     "mcp": {
                         "title": "Una configuración. Todos los proveedores.",
                         "wideTitle": "Una configuración.\nTodos los proveedores.",
-                        "body": "Define MCPs una vez en Happier y funcionan en todos los backends, incluso los que no admiten MCP de forma nativa. Gestiona skills, prompts y más.",
+                        "body": "Define MCPs una vez en Kaiwu y funcionan en todos los backends, incluso los que no admiten MCP de forma nativa. Gestiona skills, prompts y más.",
                         "alt": "Abstract placeholder image for shared MCP configuration."
                     },
                     "queue": {
@@ -9641,7 +9641,7 @@ settingsSession: {
       "El enlace de conexión falta o es inválido. Verifica la URL e intenta nuevamente.",
     connectTerminal: "Conectar terminal",
     terminalRequestDescription:
-      "Un terminal está solicitando conectarse a tu cuenta de Happier Coder. Esto permitirá al terminal enviar y recibir mensajes de forma segura.",
+      "Un terminal está solicitando conectarse a tu cuenta de Kaiwu Coder. Esto permitirá al terminal enviar y recibir mensajes de forma segura.",
     connectionDetails: "Detalles de conexión",
     publicKey: "Clave pública",
     encryption: "Cifrado",
@@ -9705,9 +9705,9 @@ settingsSession: {
     invalidAuthUrl: "URL de autenticación inválida",
     microphoneAccessRequiredTitle: "Se requiere acceso al micrófono",
     microphoneAccessRequiredRequestPermission:
-      "Happier necesita acceso a tu micrófono para el chat de voz. Concede el permiso cuando se te solicite.",
+      "Kaiwu necesita acceso a tu micrófono para el chat de voz. Concede el permiso cuando se te solicite.",
     microphoneAccessRequiredEnableInSettings:
-      "Happier necesita acceso a tu micrófono para el chat de voz. Activa el acceso al micrófono en la configuración de tu dispositivo.",
+      "Kaiwu necesita acceso a tu micrófono para el chat de voz. Activa el acceso al micrófono en la configuración de tu dispositivo.",
     microphoneAccessRequiredBrowserInstructions:
       "Permite el acceso al micrófono en la configuración del navegador. Puede que debas hacer clic en el icono de candado en la barra de direcciones y habilitar el permiso del micrófono para este sitio.",
     openSettings: "Abrir configuración",
@@ -9788,12 +9788,12 @@ settingsSession: {
     // Unified onboarding redesign — welcome decision (right pane)
     welcomeQuestionTitle: "Te damos la bienvenida.",
     welcomeQuestionSubtitle: "¿Es tu primera vez aquí?",
-    welcomeQuestionBody: "Happier es el centro de control de tus agentes de codificación con IA. No hace falta correo electrónico. Tu cuenta es una clave privada que se genera en este dispositivo.",
+    welcomeQuestionBody: "Kaiwu es el centro de control de tus agentes de codificación con IA. No hace falta correo electrónico. Tu cuenta es una clave privada que se genera en este dispositivo.",
 
     welcomePrimaryButton: "Primera vez aquí — empecemos",
     welcomePrimarySubtitle: "Un toque. Sin formulario. Tu clave vive aquí.",
 
-    welcomeSecondaryButton: "Iniciar sesión — ya uso Happier",
+    welcomeSecondaryButton: "Iniciar sesión — ya uso Kaiwu",
     welcomeSecondarySubtitle: "Escanea un código QR o introduce tu clave secreta",
 
     // Unified onboarding redesign — returning-user copy variants.
@@ -9823,8 +9823,8 @@ settingsSession: {
     // Returning-user buttons. For returning users we invert the visual
     // hierarchy: Login becomes the filled primary action (probability of
     // intent is high), Start fresh becomes the bordered secondary action.
-    // "I already use Happier" is dropped from the login button title for
-    // returning users because — they obviously do already use Happier.
+    // "I already use Kaiwu" is dropped from the login button title for
+    // returning users because — they obviously do already use Kaiwu.
     welcomeReturningLoginButton: "Iniciar sesión — sigamos donde lo dejamos",
     welcomeReturningStartFreshButton: "Empieza de nuevo — crea una cuenta nueva",
     welcomeReturningStartFreshSubtitle: "Genera una clave nueva en este dispositivo.",
@@ -9833,7 +9833,7 @@ settingsSession: {
     welcomeFooterRelay: "¿Autoalojado?",
     welcomeFooterRelayAction: "Usa tu propio Relay",
     // Shown in place of welcomeFooterRelay when the active server is a
-    // custom (non-Happier-Cloud) relay. The action below the label is the
+    // custom (non-Kaiwu-Cloud) relay. The action below the label is the
     // relay's host (optionally with :port) followed by a small pencil
     // icon so the user can tap to edit. Long hostnames are truncated with
     // a tail-ellipsis to avoid colliding with the right-side Docs group.
@@ -9841,8 +9841,8 @@ settingsSession: {
     welcomeFooterRelayEditAccessibility: "Cambiar relay",
     welcomeFooterDocs: "¿Necesitas ayuda?",
     welcomeFooterDocsAction: "Documentación",
-    welcomeFooterGithubLabel: "Repositorio de GitHub",
-    welcomeFooterDiscordLabel: "Comunidad de Discord",
+    welcomeFooterGithubLabel: "Sitio web oficial",
+    welcomeFooterDiscordLabel: "Comunidad de WeChat",
 
     // Mobile brand hero CTA
     brandHeroGetStarted: "Empezar",
@@ -9937,7 +9937,7 @@ settingsSession: {
 
                   title: 'Instala el servicio en segundo plano (recomendado)',
 
-                  description: 'Mantiene Happier listo en segundo plano para inicios remotos.',
+                  description: 'Mantiene Kaiwu listo en segundo plano para inicios remotos.',
 
                   copyLabel: 'Instalación del daemon',
 
@@ -9990,7 +9990,7 @@ settingsSession: {
           webDesktopOnlyBody: 'Abre la app de escritorio para configurar este ordenador. La app web puede mostrar el estado, pero no puede instalar ni configurar el servicio en segundo plano.',
           preAuthTitle: 'Elige tu Relay antes de iniciar sesión',
           preAuthBody: 'Elige el Relay que quieres usar en este ordenador antes de crear, restaurar o iniciar sesión en una cuenta.',
-          preAuthContinueHint: 'Cuando continúes, Happier te devolverá a iniciar sesión contra el Relay seleccionado y luego volverá aquí para terminar la configuración.',
+          preAuthContinueHint: 'Cuando continúes, Kaiwu te devolverá a iniciar sesión contra el Relay seleccionado y luego volverá aquí para terminar la configuración.',
     currentRelayTitle: 'Relay seleccionado',
     currentRelayDescription: ({ relayUrl }: { relayUrl: string }) => `Relay seleccionado: ${relayUrl}`,
     savedRelaysTitle: 'Relays guardados',
@@ -10045,7 +10045,7 @@ settingsSession: {
       screenTitle: "Instalables",
       aboutGroupTitle: "Acerca de",
       aboutSubtitle:
-        "Gestiona las herramientas que Happier puede instalar y mantener actualizadas en esta máquina.",
+        "Gestiona las herramientas que Kaiwu puede instalar y mantener actualizadas en esta máquina.",
       experimentalGroupTitle: ({ title }: { title: string }) =>
         `${title} (experimental)`,
       autoInstallTitle: "Auto-instalar cuando sea necesario",
@@ -10054,7 +10054,7 @@ settingsSession: {
       autoUpdateTitle: "Auto-actualizar",
       autoUpdatePromptTitle: "Auto-actualizar",
       autoUpdatePromptBody:
-        "Elige cómo debe gestionar Happier las actualizaciones de este instalable.",
+        "Elige cómo debe gestionar Kaiwu las actualizaciones de este instalable.",
       autoUpdateModes: {
         off: "Desactivado",
         notify: "Notificar",
@@ -10224,23 +10224,23 @@ settingsSession: {
     switchToRemote: "Cambiar a remoto",
     detachLocalTerminal: "Desconectar terminal",
     directSessionTakeoverAvailable:
-      "Esta sesión directa está disponible en tu máquina. Tómala en Happier para controlarla aquí.",
+      "Esta sesión directa está disponible en tu máquina. Tómala en Kaiwu para controlarla aquí.",
     directSessionMachineOffline:
       "Esta sesión directa no está disponible en este momento porque la máquina está sin conexión.",
     switchingToDirectTakeover: "Tomando esta sesión directa…",
     switchingToPersistedTakeover: "Tomando el control e importando esta sesión…",
     takeOverDirect: "Tomar control",
     takeOverPersist: "Tomar control + importar",
-    directTakeoverDialogTitle: "¿Continuar esta sesión directa en Happier?",
-    directTakeoverDialogBody: "Elige cómo quieres que Happier tome el control. Directo sigue usando la transcripción del proveedor. Importar lleva la transcripción a Happier.",
+    directTakeoverDialogTitle: "¿Continuar esta sesión directa en Kaiwu?",
+    directTakeoverDialogBody: "Elige cómo quieres que Kaiwu tome el control. Directo sigue usando la transcripción del proveedor. Importar lleva la transcripción a Kaiwu.",
     directTakeoverDialogDirectTitle: "Tomar control",
-    directTakeoverDialogDirectBody: "Controla esta sesión en Happier sin importar la transcripción a Happier.",
+    directTakeoverDialogDirectBody: "Controla esta sesión en Kaiwu sin importar la transcripción a Kaiwu.",
     directTakeoverDialogPersistTitle: "Tomar control + importar",
-    directTakeoverDialogPersistBody: "Importa la transcripción a Happier y continúa con todas las funciones de una sesión Happier.",
+    directTakeoverDialogPersistBody: "Importa la transcripción a Kaiwu y continúa con todas las funciones de una sesión Kaiwu.",
     directTakeoverDialogForceStopTitle: "Intentar detener primero el proceso local",
-    directTakeoverDialogForceStopBody: "Happier encontró un proceso local de confianza para esta sesión. Activa esto si quieres que Happier lo detenga antes de tomar el control.",
+    directTakeoverDialogForceStopBody: "Kaiwu encontró un proceso local de confianza para esta sesión. Activa esto si quieres que Kaiwu lo detenga antes de tomar el control.",
     directTakeoverForceStopConfirmTitle: "¿Detener primero el proceso local?",
-    directTakeoverForceStopConfirmBody: "Happier encontró un proceso local de confianza para esta sesión directa. ¿Detenerlo antes de tomar el control aquí?",
+    directTakeoverForceStopConfirmBody: "Kaiwu encontró un proceso local de confianza para esta sesión directa. ¿Detenerlo antes de tomar el control aquí?",
     directTakeoverForceStopConfirmAction: "Detener y tomar control",
   },
 
@@ -10722,7 +10722,7 @@ settingsSession: {
     },
     defaultStorage: {
       title: 'Tipo de sesión predeterminado',
-      footer: 'Anula el tipo de sesión predeterminado Happier/directo de la cuenta para las nuevas sesiones cuando se selecciona este perfil.',
+      footer: 'Anula el tipo de sesión predeterminado Kaiwu/directo de la cuenta para las nuevas sesiones cuando se selecciona este perfil.',
       accountDefaultSubtitle: ({ label }: { label: string }) => `Predeterminado de la cuenta: ${label}`,
       useAccountDefault: 'Usar el valor predeterminado de la cuenta',
       currently: ({ label }: { label: string }) => `Actualmente: ${label}`,

@@ -12,12 +12,12 @@
  * fallback and bakes that into every prerendered page. Every share to Slack,
  * Discord, X or iMessage then renders a broken card.
  */
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://docs.happier.dev').replace(
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://kaiwu.chengqiyun.com/docs').replace(
   /\/+$/,
   '',
 );
 
-export const SITE_NAME = 'Happier Docs';
+export const SITE_NAME = '无极开物';
 
 /**
  * Used as the site-wide `<meta name="description">` and the fallback share
@@ -25,7 +25,7 @@ export const SITE_NAME = 'Happier Docs';
  * arrive here is searching for one of them plus "from my phone".
  */
 export const SITE_DESCRIPTION =
-  'Documentation for Happier — run Claude Code, Codex, Cursor, OpenCode and ten more coding agents on your own machines, and drive them from your phone, a browser, or anywhere else.';
+  '无极开物 (Kaiwu) · 出品 WUJI-Labs — run Claude Code, Codex, Cursor, OpenCode and ten more coding agents on your own machines, and drive them from your phone, a browser, or anywhere else.';
 
 /** Join the site origin with a fumadocs page url (`/`, `/code/git`). */
 export function absoluteUrl(pathname: string): string {

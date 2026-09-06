@@ -223,7 +223,7 @@ function renderRelayRuntimeEnv(config: RelayRuntimeConfig, existingEnvText: stri
 function buildRelayRuntimeServiceSpec(config: RelayRuntimeConfig, envText: string): ServiceSpec {
   return {
     label: config.serviceName,
-    description: `Happier Relay Runtime (${config.serviceName})`,
+    description: `Kaiwu Relay Runtime (${config.serviceName})`,
     programArgs: [config.serverBinaryPath],
     workingDirectory: config.currentPath,
     env: parseEnvText(envText),

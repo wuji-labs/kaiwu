@@ -1,9 +1,9 @@
 ---
 title: Qwen
-description: Configure Qwen in Happier via ACP-backed local runtime integration.
+description: Configure Qwen in Kaiwu via ACP-backed local runtime integration.
 ---
 
-Happier supports Qwen as a local CLI-backed provider.
+Kaiwu supports Qwen as a local CLI-backed provider.
 
 <Callout type="info">
   Qwen Code is an **experimental** integration. It works and people use it
@@ -19,7 +19,7 @@ Happier supports Qwen as a local CLI-backed provider.
 
 ## Install Qwen
 
-Happier can install it for you:
+Kaiwu can install it for you:
 
 ```bash
 happier install provider qwen
@@ -40,19 +40,19 @@ curl -fsSL -o %TEMP%\\install-qwen.bat https://qwen-code-assets.oss-cn-hangzhou.
 qwen --version
 ```
 
-## Local authentication in Happier
+## Local authentication in Kaiwu
 
 Qwen supports launching its native auth flow from:
 
 - **Settings → AI & Agents → AI backends → Qwen Code**
 
-Happier opens Qwen and sends `/auth` for you.
+Kaiwu opens Qwen and sends `/auth` for you.
 
-Auth-status detection for Qwen is currently conservative, so Happier may still show **Unknown** even though the login flow is available.
+Auth-status detection for Qwen is currently conservative, so Kaiwu may still show **Unknown** even though the login flow is available.
 
 For the shared user guide, see [Provider authentication](/agents/provider-authentication).
 
-## Start Qwen with Happier
+## Start Qwen with Kaiwu
 
 ```bash
 happier qwen
@@ -60,16 +60,16 @@ happier qwen
 
 ## Notes
 
-- Resume availability is session-specific in Happier and depends on valid resume metadata plus the current backend/settings.
+- Resume availability is session-specific in Kaiwu and depends on valid resume metadata plus the current backend/settings.
 - Model, mode, and permission behavior can still vary by installed Qwen runtime.
-- Tool calls are normalized to canonical Happier tool renderers.
+- Tool calls are normalized to canonical Kaiwu tool renderers.
 
 ## Troubleshooting
 
 If Qwen is not detected:
 
 1. Verify `qwen --version` works.
-2. Restart Happier.
+2. Restart Kaiwu.
 3. Set `HAPPIER_QWEN_PATH` if needed.
 
 ## Related

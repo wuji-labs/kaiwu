@@ -274,7 +274,7 @@ export function formatAttachIneligibilityFooter(hint: AttachSelectionFooterHint)
           ? 'on this computer'
           : '';
         return `${ineligible} ${sessionWord} on this machine were started outside tmux and can't be attached. `
-          + `Enable “Spawn Sessions in Tmux”${scope ? ` ${scope}` : ''} in the Happier app → Session Settings, then start a new session.`;
+          + `Enable “Spawn Sessions in Tmux”${scope ? ` ${scope}` : ''} in the Kaiwu app → Session Settings, then start a new session.`;
       }
       return `${ineligible} ${sessionWord} on this machine were started before "Spawn Sessions in Tmux" was enabled. `
         + `New sessions you start now will be attachable.`;
@@ -285,8 +285,8 @@ export function formatAttachIneligibilityFooter(hint: AttachSelectionFooterHint)
       return `${ineligible} hidden Windows ${sessionWord} can't be attached after start. `
         + `Restart ${ineligible === 1 ? 'it' : 'them'} with a visible terminal if you need to attach later.`;
     case 'machine_identity_mismatch':
-      return `${ineligible} ${sessionWord} ${beVerb} running on this computer under a different Happier machine identity, but no tmux target or local attachment marker is available. `
-        + `Use the same Happier app or daemon that started ${ineligible === 1 ? 'it' : 'them'}, or start a new tmux-backed session from this CLI profile.`;
+      return `${ineligible} ${sessionWord} ${beVerb} running on this computer under a different Kaiwu machine identity, but no tmux target or local attachment marker is available. `
+        + `Use the same Kaiwu app or daemon that started ${ineligible === 1 ? 'it' : 'them'}, or start a new tmux-backed session from this CLI profile.`;
     case 'remote_machine':
       return `${ineligible} ${sessionWord} ${beVerb} running on other machines. Use \`happier session list --active\` to see all running sessions.`;
     case 'no_local_state':

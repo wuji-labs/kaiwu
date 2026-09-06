@@ -1,20 +1,20 @@
 ---
 title: Proxmox VE
-description: Deploy Happier Server on Proxmox VE using community-scripts helper scripts.
+description: Deploy Kaiwu Server on Proxmox VE using community-scripts helper scripts.
 ---
 
-This guide explains how to deploy Happier on **Proxmox VE** using the community-maintained Proxmox VE Helper-Scripts project (LXC-based “one command” installs).
+This guide explains how to deploy Kaiwu on **Proxmox VE** using the community-maintained Proxmox VE Helper-Scripts project (LXC-based “one command” installs).
 
 ## What you get
 
-- A dedicated **Debian LXC container** running Happier Server with PGlite embedded database.
+- A dedicated **Debian LXC container** running Kaiwu Server with PGlite embedded database.
 - Optional **served web UI** from the same container.
 - Optional **autostart** via a systemd *system* service inside the container.
 - Optional **Tailscale** for remote access + HTTPS (recommended for phone access).
 
 ## Install (recommended)
 
-1. In a browser, open `helper-scripts.com` and search for **Happier**.
+1. In a browser, open `helper-scripts.com` and search for **Kaiwu**.
 2. Copy the install command from the script page.
 3. Paste it into the **Proxmox Shell** (host) and follow the prompts.
 
@@ -56,7 +56,7 @@ If you select **Tailscale** during install, the stack typically binds to `loopba
 
 ## After install: recommended onboarding flow
 
-Happier has two separate “things to connect”:
+Kaiwu has two separate “things to connect”:
 
 - Your **app/web UI** needs to be configured to talk to **your server**
 - Your **terminal/daemon** needs to be connected to **your account on that server**
@@ -65,7 +65,7 @@ The Proxmox installer **does not** automatically authenticate for you. It prints
 
 ### 1) Ensure you have a public HTTPS URL (remote access)
 
-If you only access Happier from your LAN, plain HTTP can work.
+If you only access Kaiwu from your LAN, plain HTTP can work.
 
 For remote access (phone / outside your LAN), the web UI requires **HTTPS** (secure context). Use one of:
 
@@ -158,7 +158,7 @@ If you want to add/switch servers manually in the app:
 If you chose **not** to serve the web UI from your Proxmox container, use:
 
 - the **mobile app** (recommended), or
-- the hosted web app at `https://app.happier.dev` and set the server there
+- the hosted web app at `https://kaiwu.chengqiyun.com` and set the server there
 
 ### 3) Connect the terminal/daemon
 
@@ -183,7 +183,7 @@ After login completes:
   - Otherwise (manual start), restart so the daemon can start with the new credentials:
     - `/home/happier/.happier-stack/bin/hstack start --restart`
 
-## Using Happier from another machine (common setup)
+## Using Kaiwu from another machine (common setup)
 
 If you installed **Server only** on Proxmox, you’ll typically run the **daemon/terminal** from your laptop/desktop and point it at your Proxmox server.
 
@@ -249,7 +249,7 @@ tailscale serve status
 
 ### HStack release channel
 
-By default, the Proxmox helper script installs Happier using the managed **Relay runtime** (`happier relay host` under the hood), which supports stable/preview/dev channels and in-place updates.
+By default, the Proxmox helper script installs Kaiwu using the managed **Relay runtime** (`happier relay host` under the hood), which supports stable/preview/dev channels and in-place updates.
 
 If you prefer an install that builds from source using `npx ... hstack setup-from-source` you can opt into it via an env var (see below).
 
@@ -261,7 +261,7 @@ Non-interactive overrides:
 
 ## HTTPS guidance (important)
 
-For remote usage, the Happier web UI needs **HTTPS** (secure context). Typical setups:
+For remote usage, the Kaiwu web UI needs **HTTPS** (secure context). Typical setups:
 
 - **Tailscale Serve** (easiest): gives you an HTTPS URL without opening ports.
 - **Reverse proxy**: terminate TLS on your network edge and proxy to `http://<container-ip>:3005` (ensure WebSockets are supported).
@@ -322,7 +322,7 @@ If you enabled Tailscale but skipped the key, enroll later:
 
 Recommended installers:
 
-- Use the Proxmox helper script “Update” action (it runs `happier relay host install` and also updates the Happier CLI if installed).
+- Use the Proxmox helper script “Update” action (it runs `happier relay host install` and also updates the Kaiwu CLI if installed).
 - Or update from inside the container:
   - `happier relay host install --mode system --channel stable|preview|dev`
   - `happier self update --channel stable|preview|dev` (Dev box only)

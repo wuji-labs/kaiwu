@@ -49,7 +49,7 @@ export function buildWindowsTerminalWindowIdentity(params: {
   const sanitizedAgent = params.agentCommand.replace(/[^A-Za-z0-9_-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24) || 'agent';
   return {
     windowId: normalizeWindowsTerminalWindowName(params.windowName),
-    title: `Happier ${params.agentCommand} ${base}`,
+    title: `Kaiwu ${params.agentCommand} ${base}`,
   };
 }
 
