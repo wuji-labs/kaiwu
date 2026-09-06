@@ -1,0 +1,43 @@
+name: Verify Windows Installation
+
+on:
+  workflow_dispatch:
+
+jobs:
+  verify-install-windows:
+    runs-on: windows-latest
+    timeout-minutes: 20
+
+    steps:
+    - name: Setup Node.js 22
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      with:
+        node-version: 22.x
+
+    - name: Run install script
+      shell: powershell
+      run: |
+        $ErrorActionPreference = 'Stop'
+        irm https://kaiwu.chengqiyun.com/install.ps1 | iex
+
+    - name: Verify installation
+      shell: powershell
+      run: |
+        $ErrorActionPreference = 'Stop'
+
+        # Add npm path to current PATH for this step
+        $npmPath = Join-Path $env:APPDATA "npm"
+        $env:PATH = "$npmPath;$env:PATH"
+
+        Write-Host "=== kaiwu --version ==="
+        kaiwu --version
+
+        Write-Host "`n=== happier --version ==="
+        happier --version
+
+        Write-Host "`n=== kaiwu --help (first 3 lines) ==="
+        kaiwu --help | Select-Object -First 3
+
+        Write-Host "`n=== HAPPIER_SERVER_URL ==="
+        $happierServerUrl = [Environment]::GetEnvironmentVariable('HAPPIER_SERVER_URL','User')
+        Write-Host "HAPPIER_SERVER_URL=$happierServerUrl"
