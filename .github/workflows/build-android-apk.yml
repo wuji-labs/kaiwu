@@ -103,16 +103,19 @@ jobs:
       - name: Build Android Release APK
         env:
           ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+          ORG_GRADLE_PROJECT_KAIWU_RELEASE_STORE_FILE: /tmp/kaiwu-release.jks
+          ORG_GRADLE_PROJECT_KAIWU_RELEASE_STORE_PASSWORD: ${{ secrets.KAIWU_KEYSTORE_PASSWORD }}
+          ORG_GRADLE_PROJECT_KAIWU_RELEASE_KEY_ALIAS: ${{ secrets.KAIWU_KEY_ALIAS }}
+          ORG_GRADLE_PROJECT_KAIWU_RELEASE_KEY_PASSWORD: ${{ secrets.KAIWU_KEY_PASSWORD }}
         run: |
           set -euo pipefail
           cd apps/ui/android
           chmod +x gradlew
           ./gradlew assembleRelease \
-            -PKAIWU_RELEASE_STORE_FILE=/tmp/kaiwu-release.jks \
-            -PKAIWU_RELEASE_STORE_PASSWORD="${{ secrets.KAIWU_KEYSTORE_PASSWORD }}" \
-            -PKAIWU_RELEASE_KEY_ALIAS="${{ secrets.KAIWU_KEY_ALIAS }}" \
-            -PKAIWU_RELEASE_KEY_PASSWORD="${{ secrets.KAIWU_KEY_PASSWORD }}" \
-            --info
+            --parallel \
+            --build-cache \
+            --no-daemon \
+            -x bundleRelease 2>&1 | head -500 && echo "... (truncated logs)" || true
 
       - name: Locate APK
         id: locate_apk
