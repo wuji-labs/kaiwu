@@ -65,7 +65,7 @@ import {
   notifyTerminalAttachmentRetiredThroughCatalog,
 } from '@/backends/catalog';
 import { CATALOG_AGENT_IDS } from '@/backends/types';
-import { readProcessInstanceFingerprintSync } from '@happier-dev/cli-common/processInstance';
+import { readProcessInstanceFingerprint } from '@happier-dev/cli-common/processInstance';
 import {
   writeDaemonStateIfLockOwned,
   writeConnectedServiceBrokerState,
@@ -2914,7 +2914,7 @@ export async function startDaemon(options: Readonly<{ takeover?: boolean }> = {}
           const existingSessionId = typeof params.existingSessionId === 'string'
             ? params.existingSessionId.trim()
             : '';
-          const processInstanceFingerprint = readProcessInstanceFingerprintSync(params.pid) ?? undefined;
+          const processInstanceFingerprint = (await readProcessInstanceFingerprint(params.pid)) ?? undefined;
           await writeSessionMarker({
             pid: params.pid,
             happySessionId: existingSessionId || `PID-${params.pid}`,

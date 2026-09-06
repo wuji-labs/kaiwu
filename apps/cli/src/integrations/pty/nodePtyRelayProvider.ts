@@ -66,6 +66,7 @@ function childToPtyProcess(child: ChildProcessWithoutNullStreams): PtyProcess {
   let killFallbackTimer: ReturnType<typeof setTimeout> | null = null;
   let zombieDetectionTimer: ReturnType<typeof setTimeout> | null = null;
   let hasExited = false;
+  let seenExitCode: number | null = null;
 
   const emitExit = (event: PtyExitEvent) => {
     if (completedExit) return;
@@ -116,7 +117,18 @@ function childToPtyProcess(child: ChildProcessWithoutNullStreams): PtyProcess {
   const recordExit = () => {
     if (hasExited) return;
     hasExited = true;
-    emitExit({ exitCode: typeof child.exitCode === 'number' ? child.exitCode : -1 });
+    relayInputClosed = true;
+    const exitCode = typeof seenExitCode === 'number'
+      ? seenExitCode
+      : (typeof child.exitCode === 'number' ? child.exitCode : -1);
+    emitExit({ exitCode });
+  };
+
+  const markExitSeen = (code: number | null, signal: NodeJS.Signals | null) => {
+    relayInputClosed = true;
+    if (typeof code === 'number') {
+      seenExitCode = code;
+    }
   };
 
   child.once('error', () => {
@@ -125,7 +137,7 @@ function childToPtyProcess(child: ChildProcessWithoutNullStreams): PtyProcess {
   child.stdin.on('error', () => {
     relayInputClosed = true;
   });
-  child.once('exit', recordExit);
+  child.once('exit', markExitSeen);
   child.once('close', (exitCode: number | null, signal: NodeJS.Signals | null) => {
     if (hasExited) return;
     const numericSignal = typeof signal === 'string' ? null : signal;

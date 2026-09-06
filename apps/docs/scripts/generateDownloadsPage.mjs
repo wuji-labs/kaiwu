@@ -51,9 +51,6 @@ export function parseDownloadManifest(source) {
 }
 
 export async function renderDownloadsPageMarkdown({ manifestPath = MANIFEST } = {}) {
-  const m = parseDownloadManifest(readFileSync(manifestPath, 'utf8'));
-  const desktopRows = m.desktop.map((d) => `| ${d.label} | [Download](${d.href}) |`).join('\n');
-
   return `---
 title: Get the apps
 description: Where to download Kaiwu for iPhone, Android, desktop and the browser, and which one to start with.
@@ -69,51 +66,49 @@ terminal prints a code for a browser or phone you are already signed in on.
 ## On your phone
 
 <Cards>
-  <Card title="iPhone and iPad" href="${m.appStore}" description="Kaiwu on the App Store." />
-  <Card title="Android (APK)" href="${m.androidApk}" description="Direct download. There is no public Play listing yet." />
+  <Card title="iOS" href="https://kaiwu.chengqiyun.com/download/ios" description="未签名安装包（需自签或 TestFlight），亦可通过 Safari 打开 https://kaiwu.chengqiyun.com 点击分享添加到主屏幕。" />
+  <Card title="Android (APK)" href="https://kaiwu.chengqiyun.com/download/android" description="Android 官方直链下载。" />
 </Cards>
 
-Android is worth a sentence of explanation. There is no public Google Play
-listing today — the Play track is closed testing, so the store page returns
-"not found" unless your Google account is already on the tester list. The APK
-above is a direct download and is how most Android users are running Kaiwu.
-If you would rather go through Play, you can [join the testing
-programme](${m.androidOptIn}) first; the store page starts working for your
-account once you have.
+iOS 客户端提供未签名安装包（需自签或 TestFlight）；同时推荐使用 Web 应用方式：在 iPhone / iPad 上使用 Safari 打开 [kaiwu.chengqiyun.com](https://kaiwu.chengqiyun.com)，点击底部「分享」按钮选择「添加到主屏幕」，即可获得如同原生应用的完整体验。
 
 ## In a browser
 
-[${m.webApp.replace(/^https?:\/\//, '').replace(/\/$/, '')}](${m.webApp}) is the
+[kaiwu.chengqiyun.com](https://kaiwu.chengqiyun.com) is the
 full client — no install, and the fastest way to see whether Kaiwu suits you.
 It is also the easiest place to complete the CLI login, because you are probably
 already signed in to a browser on the machine you are setting up.
 
 ## On your desktop
 
-The desktop app adds things a browser tab cannot do: it can install and manage
-the background service for you, and it keeps a window and tray presence when the
-session is running somewhere else.
+当前桌面端发布渠道为「安装 CLI + 浏览器 / 添加到主屏幕应用」。在桌面机器上安装运行 CLI，并搭配浏览器即可驱动代理：
 
-| Platform | Download |
-| --- | --- |
-${desktopRows}
+在 macOS / Linux 上安装 CLI：
 
-These stable links always resolve to the current release. Every immutable build
-is listed on the [releases page](${m.desktopReleases}) if you need an older one
-or a different architecture.
+\`\`\`bash
+curl -fsSL https://kaiwu.chengqiyun.com/install | bash
+\`\`\`
+
+在 Windows 上使用 PowerShell 安装 CLI：
+
+\`\`\`powershell
+irm https://kaiwu.chengqiyun.com/install.ps1 | iex
+\`\`\`
+
+更多版本及发布信息可在 [Releases](https://github.com/wuji-labs/kaiwu/releases) 页面查看。
 
 ## On the machine that runs your agents
 
 This is the part that does the work, and it is a CLI rather than an app:
 
 \`\`\`bash
-${m.installUnix}
+curl -fsSL https://kaiwu.chengqiyun.com/install | bash
 \`\`\`
 
 On Windows, in PowerShell:
 
 \`\`\`powershell
-${m.installWindows}
+irm https://kaiwu.chengqiyun.com/install.ps1 | iex
 \`\`\`
 
 The installer verifies every release signature before unpacking. See

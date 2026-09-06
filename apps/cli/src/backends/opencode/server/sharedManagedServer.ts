@@ -5,7 +5,7 @@ import { basename, dirname, join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import {
   processInstanceFingerprintMatches,
-  readProcessInstanceFingerprintSync,
+  readProcessInstanceFingerprint,
 } from '@happier-dev/cli-common/processInstance';
 import { isLoopbackHostname } from '@happier-dev/protocol';
 
@@ -610,7 +610,7 @@ async function hasTrustedManagedOpenCodeStateIdentityForTermination(
   const observedProcessInstanceFingerprint = readNonEmptyString(await Promise.resolve(
     deps.readProcessInstanceFingerprint
       ? deps.readProcessInstanceFingerprint(state.pid)
-      : readProcessInstanceFingerprintSync(state.pid),
+      : readProcessInstanceFingerprint(state.pid),
   ).catch(() => null));
   const decision = decideManagedOpenCodeStartupScanStateAction({
     state,
@@ -898,7 +898,7 @@ export async function resolveSharedManagedOpenCodeServerBaseUrl(
       const processInstanceFingerprint = readNonEmptyString(await Promise.resolve(
         deps.readProcessInstanceFingerprint
           ? deps.readProcessInstanceFingerprint(pid)
-          : readProcessInstanceFingerprintSync(pid),
+          : readProcessInstanceFingerprint(pid),
       ).catch(() => null));
       return {
         startTimeMs: Number.isFinite(observedStartTimeMs) && (observedStartTimeMs ?? 0) > 0
@@ -1124,7 +1124,7 @@ function createManagedOpenCodeBrokerActivationStateDeps(): ManagedOpenCodeBroker
     isPidAlive: isOpenCodeServerPidAlive,
     getProcessInfo: async (pid) => await getProcessInfoBestEffort(pid),
     readProcessStartTimeMs: async (pid) => await readProcessStartTimeMsBestEffort(pid),
-    readProcessInstanceFingerprint: async (pid) => readProcessInstanceFingerprintSync(pid),
+    readProcessInstanceFingerprint: async (pid) => await readProcessInstanceFingerprint(pid),
     currentActiveServerDir: configuration.activeServerDir,
     isCurrentBrokerStateUsable: async () =>
       await isConnectedServiceBrokerStateFileUsable(configuration.connectedServiceBrokerStateFile),
@@ -1194,7 +1194,7 @@ export async function releaseForAuthSwitchFromState(
     const observedProcessInstanceFingerprint = readNonEmptyString(await Promise.resolve(
       deps.readProcessInstanceFingerprint
         ? deps.readProcessInstanceFingerprint(state.pid)
-        : readProcessInstanceFingerprintSync(state.pid),
+        : readProcessInstanceFingerprint(state.pid),
     ).catch(() => null));
     if (decideManagedOpenCodeStartupScanStateAction({
       state,
@@ -1264,7 +1264,7 @@ export async function releaseForAuthSwitch(
     isPidAlive: isOpenCodeServerPidAlive,
     getProcessInfo: async (pid) => await getProcessInfoBestEffort(pid),
     readProcessStartTimeMs: async (pid) => await readProcessStartTimeMsBestEffort(pid),
-    readProcessInstanceFingerprint: async (pid) => readProcessInstanceFingerprintSync(pid),
+    readProcessInstanceFingerprint: async (pid) => await readProcessInstanceFingerprint(pid),
     killPid: async (pid, drainTimeoutMs) => {
       const killGraceMs = Math.max(250, Math.floor(drainTimeoutMs));
       return await terminateManagedOpenCodeServerPidBestEffortWithOptions(pid, {
@@ -1327,7 +1327,7 @@ export async function ensureSharedManagedOpenCodeServerBaseUrl(params: Readonly<
           ? await readProcessStartTimeMsBestEffort(state.pid).catch(() => null)
           : null;
         const observedProcessInstanceFingerprint = pidAlive
-          ? readProcessInstanceFingerprintSync(state.pid)
+          ? await readProcessInstanceFingerprint(state.pid)
           : null;
         const decision = decideManagedOpenCodeStartupScanStateAction({
           state,
@@ -1385,7 +1385,7 @@ export async function ensureSharedManagedOpenCodeServerBaseUrl(params: Readonly<
     currentBrokerLoadNonceRequired: params.requireBrokerLoadNonce === true,
     generateOwnerToken: () => randomUUID(),
     readProcessStartTimeMs: async (pid) => await readProcessStartTimeMsBestEffort(pid),
-    readProcessInstanceFingerprint: async (pid) => readProcessInstanceFingerprintSync(pid),
+    readProcessInstanceFingerprint: async (pid) => await readProcessInstanceFingerprint(pid),
     startServer: async (startParams) => {
       const started = await startManagedOpenCodeServer({
         ...(xdgRootDir ? { xdgRootDir } : {}),

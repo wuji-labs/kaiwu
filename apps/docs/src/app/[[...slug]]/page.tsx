@@ -16,9 +16,9 @@ export default async function Page(props: PageProps<'/[[...slug]]'>) {
   // link on every docs page a 404. The content path is apps/docs/content/docs,
   // not docs/content/docs.
   const gitConfig = {
-    user: 'happier-dev',
-    repo: 'happier',
-    branch: 'main',
+    user: 'wuji-labs',
+    repo: 'kaiwu',
+    branch: 'wuji/main',
     contentRoot: 'apps/docs/content/docs',
   };
 
@@ -41,7 +41,7 @@ export default async function Page(props: PageProps<'/[[...slug]]'>) {
           })}
         />
         <div className="mt-12 pt-6 border-t text-xs text-fd-muted-foreground">
-          基于开源项目 happier-dev/happier 二次开发 · MIT License
+          © 乾元执中（南京）科技有限公司 · WUJI-Labs
         </div>
       </DocsBody>
     </DocsPage>

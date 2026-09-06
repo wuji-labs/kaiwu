@@ -81,7 +81,7 @@ describe.skipIf(!shouldRunDaemonReattachIntegration())(
 
       const happyProcesses = await findAllHappyProcesses();
       const map = new Map<number, TrackedSession>();
-      const { adopted } = adoptSessionsFromMarkers({ markers, happyProcesses, pidToTrackedSession: map });
+      const { adopted } = await adoptSessionsFromMarkers({ markers, happyProcesses, pidToTrackedSession: map });
       expect(adopted).toBe(1);
       expect(map.get(p.pid)?.reattachedFromDiskMarker).toBe(true);
       expect(map.get(p.pid)?.processCommandHash).toBe(hashProcessCommand(proc.command));
@@ -110,7 +110,7 @@ describe.skipIf(!shouldRunDaemonReattachIntegration())(
       const markers = await listSessionMarkers();
       const happyProcesses = await findAllHappyProcesses();
       const map = new Map<number, TrackedSession>();
-      const { adopted } = adoptSessionsFromMarkers({ markers, happyProcesses, pidToTrackedSession: map });
+      const { adopted } = await adoptSessionsFromMarkers({ markers, happyProcesses, pidToTrackedSession: map });
       expect(adopted).toBe(0);
       expect(map.size).toBe(0);
     });

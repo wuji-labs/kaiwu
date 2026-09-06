@@ -2339,7 +2339,7 @@ localTailscale: {
     actionsSettingsAboutSubtitle:
       "アクションをグローバルに、サーフェス（UI/音声/MCP）別、配置（UI 内の表示場所）別に有効/無効にできます。無効化されたアクションは実行時に安全側（フェイルクローズ）でブロックされます。",
     aboutFooter:
-      "Kaiwu CoderはCodexとClaude Codeのモバイルクライアントです。デフォルトでエンドツーエンド暗号化され、他のデバイスでもアカウントを復元できます。Anthropicとは提携していません。",
+      "Kaiwu は WUJI-Labs が開発し、乾元執中（南京）科技有限公司が運営しています。デフォルトでエンドツーエンド暗号化され、他のデバイスでアカウントを復元できます。Anthropic、OpenAI などのモデル提供者とは提携関係にありません。Claude、Codex などは各所有者の商標です。",
     whatsNew: "新機能",
     whatsNewSubtitle: "最新のアップデートと改善を確認",
     reportIssue: "問題を報告",

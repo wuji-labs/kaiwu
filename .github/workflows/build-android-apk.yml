@@ -22,13 +22,13 @@ jobs:
           fetch-depth: 1
 
       - name: Setup Java 17
-        uses: actions/setup-java@f2cc9e09b3f45394de20e3c88e4c8a2c
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@00854ea68c0d41d76d2e15887c12cfa7fbf34eca
+        uses: android-actions/setup-android@v3
 
       - name: Setup Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020

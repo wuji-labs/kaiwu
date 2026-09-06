@@ -2374,7 +2374,7 @@ export const it: TranslationStructure = {
     actionsSettingsAboutSubtitle:
       "Abilita o disabilita le azioni globalmente, per superficie (UI/voce/MCP) e per posizionamento (dove compaiono nell’interfaccia). Le azioni disabilitate vengono bloccate in modo sicuro a runtime.",
     aboutFooter:
-      "Kaiwu Coder è un client mobile per Codex e Claude Code. Usa la crittografia end-to-end per impostazione predefinita, con ripristino dell'account sugli altri tuoi dispositivi. Non affiliato con Anthropic.",
+      "Kaiwu è sviluppato da WUJI-Labs e gestito da Qianyuan Zhizhong (Nanjing) Technology Co., Ltd. Crittografia end-to-end per impostazione predefinita, con ripristino dell'account sugli altri tuoi dispositivi. Nessuna affiliazione con Anthropic, OpenAI o altri fornitori di modelli; Claude, Codex e altri sono marchi dei rispettivi proprietari.",
     whatsNew: "Novità",
     whatsNewSubtitle: "Scopri gli ultimi aggiornamenti e miglioramenti",
     reportIssue: "Segnala un problema",

@@ -5,7 +5,7 @@ set -euo pipefail
 # 默认配置
 KAIWU_SERVER_URL="${HAPPIER_SERVER_URL:-https://kaiwu.chengqiyun.com}"
 LATEST_METADATA_URL="https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/latest.json"
-FALLBACK_TGZ_URL="https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/0.2.11/kaiwu-cli-0.2.11.tgz"
+FALLBACK_TGZ_URL="https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/0.2.12/kaiwu-cli-0.2.12.tgz"
 
 # 颜色输出
 if [[ -t 1 ]] && [[ "${TERM:-}" != "dumb" ]]; then
@@ -113,7 +113,7 @@ fi
 # 2. 获取发布包下载地址与版本
 info "获取最新开物 CLI 发布信息..."
 TGZ_URL="$FALLBACK_TGZ_URL"
-CLI_VERSION="0.2.11"
+CLI_VERSION="0.2.12"
 
 if command -v curl >/dev/null 2>&1; then
     LATEST_JSON=$(curl -fsSL "$LATEST_METADATA_URL" 2>/dev/null || true)

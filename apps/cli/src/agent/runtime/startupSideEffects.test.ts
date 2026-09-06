@@ -217,7 +217,7 @@ describe('startup side effects: daemon session reporting retry', () => {
   });
 
   it('uses a bounded HTTP timeout per daemon-report attempt', async () => {
-    const observedTimeouts: Array<number | undefined> = [];
+    const observedTimeouts: Array<number | null | undefined> = [];
 
     await reportSessionToDaemonIfRunning(
       { sessionId: 'session-3', metadata: metadataStub },
