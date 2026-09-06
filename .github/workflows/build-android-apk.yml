@@ -1,0 +1,136 @@
+name: BUILD — Android APK (Kaiwu)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-android-apk-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build_android_apk:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 1
+
+      - name: Setup Java 17
+        uses: actions/setup-java@f2cc9e09b3f45394de20e3c88e4c8a2c
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@00854ea68c0d41d76d2e15887c12cfa7fbf34eca
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.x
+          cache: yarn
+          cache-dependency-path: yarn.lock
+
+      - name: Enable Corepack (Yarn)
+        run: |
+          set -euo pipefail
+          corepack enable
+          corepack prepare yarn@1.22.22 --activate
+
+      - name: Install dependencies
+        env:
+          YARN_PRODUCTION: "false"
+          npm_config_production: "false"
+        run: |
+          set -euo pipefail
+          corepack yarn install --frozen-lockfile --network-concurrency 8 || corepack yarn install --network-concurrency 8
+
+      - name: Build internal packages
+        run: |
+          set -euo pipefail
+          corepack yarn build:packages
+
+      - name: Ensure UI workspace packages built
+        run: |
+          set -euo pipefail
+          cd apps/ui
+          corepack yarn -s ensure:workspace:built
+
+      - name: Decode Keystore
+        env:
+          KEYSTORE_B64: ${{ secrets.KAIWU_KEYSTORE_B64 }}
+        run: |
+          set -euo pipefail
+          echo "$KEYSTORE_B64" | base64 -d > /tmp/kaiwu-release.jks
+          ls -lh /tmp/kaiwu-release.jks
+
+      - name: Configure Gradle signing properties
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KAIWU_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KAIWU_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KAIWU_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.gradle
+          cat > ~/.gradle/gradle.properties << 'EOF'
+          org.gradle.jvmargs=-Xmx4096m -XX:+UseG1GC
+          android.useAndroidX=true
+          android.enableJetifier=true
+          KAIWU_RELEASE_STORE_FILE=/tmp/kaiwu-release.jks
+          EOF
+          cat >> ~/.gradle/gradle.properties << EOFPROPS
+          KAIWU_RELEASE_STORE_PASSWORD=${KEYSTORE_PASSWORD}
+          KAIWU_RELEASE_KEY_ALIAS=${KEY_ALIAS}
+          KAIWU_RELEASE_KEY_PASSWORD=${KEY_PASSWORD}
+          EOFPROPS
+
+      - name: Prebuild Android project
+        env:
+          APP_ENV: production
+          EXPO_UNSTABLE_WEB_MODAL: "1"
+          EXPO_USE_METRO_WORKSPACE_ROOT: "0"
+        run: |
+          set -euo pipefail
+          cd apps/ui
+          npx expo prebuild --platform android --no-install
+
+      - name: Build Android Release APK
+        env:
+          ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+        run: |
+          set -euo pipefail
+          cd apps/ui/android
+          chmod +x gradlew
+          ./gradlew assembleRelease \
+            -PKAIWU_RELEASE_STORE_FILE=/tmp/kaiwu-release.jks \
+            -PKAIWU_RELEASE_STORE_PASSWORD="${{ secrets.KAIWU_KEYSTORE_PASSWORD }}" \
+            -PKAIWU_RELEASE_KEY_ALIAS="${{ secrets.KAIWU_KEY_ALIAS }}" \
+            -PKAIWU_RELEASE_KEY_PASSWORD="${{ secrets.KAIWU_KEY_PASSWORD }}" \
+            --info
+
+      - name: Locate APK
+        id: locate_apk
+        run: |
+          set -euo pipefail
+          APK_PATH=$(find apps/ui/android -name "*.apk" -path "*/release/*" | head -n 1)
+          if [ -z "$APK_PATH" ]; then
+            echo "ERROR: No APK found in release build output" >&2
+            find apps/ui/android -name "*.apk" -o -name "*.aab" | head -20
+            exit 1
+          fi
+          echo "Found APK: $APK_PATH"
+          ls -lh "$APK_PATH"
+          echo "apk_path=$APK_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: kaiwu-android-apk
+          path: ${{ steps.locate_apk.outputs.apk_path }}
+          retention-days: 7
