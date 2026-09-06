@@ -1,7 +1,7 @@
 import { logger } from '@/ui/logger';
 import type { Credentials } from '@/persistence';
 import { parseOptionalBooleanEnv } from '@happier-dev/protocol';
-import { readProcessInstanceFingerprint, readProcessInstanceFingerprintSync } from '@happier-dev/cli-common/processInstance';
+import { readProcessInstanceFingerprint } from '@happier-dev/cli-common/processInstance';
 import {
   hasTerminalAttachmentControlDescriptorThroughCatalog,
   resolveCatalogAgentIdForCliSubcommand,
