@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Image, Linking, Pressable, View } from 'react-native';
+import { Linking, Pressable, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { Text } from '@/components/ui/text/Text';
@@ -9,10 +9,11 @@ import { HAPPIER_CLOUD_SERVER_URL } from '@/sync/domains/server/serverProfiles';
 import { createServerUrlComparableKey } from '@/sync/domains/server/url/serverUrlCanonical';
 import { t } from '@/text';
 import { Icon } from '@/components/ui/icons/Icon';
+import { Modal } from '@/modal';
+import { WechatQrModal } from './WechatQrModal';
 
 const DOCS_URL = 'https://kaiwu.chengqiyun.com/docs';
 const WEBSITE_URL = 'https://chengqiyun.com';
-const WECHAT_QR_IMAGE = require('@/assets/images/wechat-qr.png');
 
 const HAPPIER_CLOUD_COMPARABLE_KEY = createServerUrlComparableKey(HAPPIER_CLOUD_SERVER_URL);
 
@@ -56,11 +57,15 @@ export type WelcomeFooterLinksProps = Readonly<{
 export const WelcomeFooterLinks = React.memo(function WelcomeFooterLinks(props: WelcomeFooterLinksProps) {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const [showWechatQr, setShowWechatQr] = React.useState(false);
 
     const openDocs = React.useCallback(() => { void Linking.openURL(DOCS_URL); }, []);
     const openWebsite = React.useCallback(() => { void Linking.openURL(WEBSITE_URL); }, []);
-    const toggleWechatQr = React.useCallback(() => { setShowWechatQr((prev) => !prev); }, []);
+    const openWechatQr = React.useCallback(() => {
+        Modal.show({
+            component: WechatQrModal,
+            props: {},
+        });
+    }, []);
 
     const labelColor = { color: theme.colors.text.secondary };
     const actionColor = { color: theme.colors.text.primary };
@@ -157,9 +162,9 @@ export const WelcomeFooterLinks = React.memo(function WelcomeFooterLinks(props: 
                             <Icon name="link" size={16} color={iconColor} />
                         </Pressable>
                         <Pressable
-                            onPress={toggleWechatQr}
+                            onPress={openWechatQr}
                             accessibilityRole="button"
-                            accessibilityLabel="扫码添加好友"
+                            accessibilityLabel="微信交流二维码"
                             testID="welcome-footer-wechat-action"
                             hitSlop={6}
                             style={({ pressed }) => [styles.iconButton, pressed ? actionPressedStyle : null]}
@@ -178,24 +183,6 @@ export const WelcomeFooterLinks = React.memo(function WelcomeFooterLinks(props: 
                             )}
                         </Pressable>
                     </View>
-                    {showWechatQr && (
-                        <Pressable
-                            onPress={toggleWechatQr}
-                            style={styles.wechatQrOverlay}
-                            testID="welcome-footer-wechat-overlay"
-                        >
-                            <View style={styles.wechatQrContainer}>
-                                <Image
-                                    source={WECHAT_QR_IMAGE}
-                                    style={styles.wechatQrImage}
-                                    testID="welcome-footer-wechat-image"
-                                />
-                                <Text style={[styles.wechatQrLabel, labelColor]}>
-                                    扫码添加好友
-                                </Text>
-                            </View>
-                        </Pressable>
-                    )}
                 </View>
             </View>
         </View>
@@ -308,33 +295,5 @@ const stylesheet = StyleSheet.create(() => ({
     iconButton: {
         alignItems: 'center',
         justifyContent: 'center',
-    },
-    wechatQrOverlay: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-    },
-    wechatQrContainer: {
-        alignItems: 'center',
-        gap: 12,
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 16,
-        maxWidth: 300,
-    },
-    wechatQrImage: {
-        width: 200,
-        height: 200,
-    },
-    wechatQrLabel: {
-        ...Typography.default(),
-        fontSize: 13,
-        lineHeight: 18,
     },
 }));
