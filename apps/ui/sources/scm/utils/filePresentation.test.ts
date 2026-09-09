@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
 import { getFileLanguageFromPath } from '@/utils/code/fileLanguage';
-import { isBinaryContent, isKnownBinaryPath } from './filePresentation';
+import {
+    getLegacyOfficeKind,
+    getMediaKind,
+    getMediaMimeTypeFromPath,
+    isBinaryContent,
+    isKnownBinaryPath,
+} from './filePresentation';
 
 describe('getFileLanguageFromPath', () => {
     it('maps known file extensions to syntax highlighter languages', () => {
@@ -66,3 +72,82 @@ describe('isBinaryContent', () => {
         expect(isBinaryContent('line 1\nline 2\tline 3\r\n')).toBe(false);
     });
 });
+
+describe('getMediaKind', () => {
+    it('maps all required media extensions correctly', () => {
+        // PDF
+        expect(getMediaKind('doc.pdf')).toBe('pdf');
+        expect(getMediaKind('UPPERCASE.PDF')).toBe('pdf');
+        expect(getMediaKind('nested/path/to/file.pdf')).toBe('pdf');
+
+        // Office modern
+        expect(getMediaKind('document.docx')).toBe('docx');
+        expect(getMediaKind('sheet.xlsx')).toBe('xlsx');
+        expect(getMediaKind('slides.pptx')).toBe('pptx');
+
+        // Audio
+        expect(getMediaKind('track.mp3')).toBe('audio');
+        expect(getMediaKind('sound.wav')).toBe('audio');
+        expect(getMediaKind('song.m4a')).toBe('audio');
+        expect(getMediaKind('audio.aac')).toBe('audio');
+        expect(getMediaKind('lossless.flac')).toBe('audio');
+        expect(getMediaKind('recording.ogg')).toBe('audio');
+        expect(getMediaKind('voice.opus')).toBe('audio');
+
+        // Video
+        expect(getMediaKind('movie.mp4')).toBe('video');
+        expect(getMediaKind('clip.mov')).toBe('video');
+        expect(getMediaKind('stream.webm')).toBe('video');
+        expect(getMediaKind('capture.m4v')).toBe('video');
+    });
+
+    it('returns null for non-media files or legacy office formats or csv', () => {
+        // Legacy office (not handled by getMediaKind)
+        expect(getMediaKind('legacy.doc')).toBeNull();
+        expect(getMediaKind('legacy.xls')).toBeNull();
+        expect(getMediaKind('legacy.ppt')).toBeNull();
+
+        // CSV remains text
+        expect(getMediaKind('data.csv')).toBeNull();
+
+        // Code and plain text
+        expect(getMediaKind('index.ts')).toBeNull();
+        expect(getMediaKind('readme.md')).toBeNull();
+        expect(getMediaKind('package.json')).toBeNull();
+        expect(getMediaKind('file-without-extension')).toBeNull();
+    });
+});
+
+describe('getLegacyOfficeKind', () => {
+    it('identifies legacy office formats for guidance', () => {
+        expect(getLegacyOfficeKind('old.doc')).toBe('doc');
+        expect(getLegacyOfficeKind('PATH/TO/OLD.XLS')).toBe('xls');
+        expect(getLegacyOfficeKind('presentation.ppt')).toBe('ppt');
+    });
+
+    it('returns null for modern office or other files', () => {
+        expect(getLegacyOfficeKind('modern.docx')).toBeNull();
+        expect(getLegacyOfficeKind('modern.xlsx')).toBeNull();
+        expect(getLegacyOfficeKind('modern.pptx')).toBeNull();
+        expect(getLegacyOfficeKind('data.csv')).toBeNull();
+        expect(getLegacyOfficeKind('text.txt')).toBeNull();
+    });
+});
+
+describe('getMediaMimeTypeFromPath', () => {
+    it('returns correct mime types for media kinds', () => {
+        expect(getMediaMimeTypeFromPath('file.pdf')).toBe('application/pdf');
+        expect(getMediaMimeTypeFromPath('file.docx')).toBe('application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        expect(getMediaMimeTypeFromPath('file.xlsx')).toBe('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        expect(getMediaMimeTypeFromPath('file.pptx')).toBe('application/vnd.openxmlformats-officedocument.presentationml.presentation');
+        expect(getMediaMimeTypeFromPath('file.mp3')).toBe('audio/mpeg');
+        expect(getMediaMimeTypeFromPath('file.mp4')).toBe('video/mp4');
+    });
+
+    it('returns null for unknown extensions', () => {
+        expect(getMediaMimeTypeFromPath('file.txt')).toBeNull();
+        expect(getMediaMimeTypeFromPath('file.unknown')).toBeNull();
+    });
+});
+
+

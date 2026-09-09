@@ -2783,7 +2783,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         },
         serverProbe: {
             title: '伺服器診斷',
-            httpError: ({ status }: { status: number }) => `HTTP ${status}`,
+            httpError: ({ status }: { status: string }) => `HTTP ${status}`,
         },
         findings: {
             notRun: '執行診斷以查看結果',
@@ -5631,7 +5631,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
     tools: {
         common: {
             more: ({ count }: { count: number }) => `+${count} 更多`,
-            elapsedSeconds: ({ seconds }: { seconds: number }) => `${seconds}秒`,
+            elapsedSeconds: ({ seconds }: { seconds: string }) => `${seconds}秒`,
             unknownToolTitle: '工具',
         },
         taskOutputView: {
@@ -6147,6 +6147,17 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
           imageUnavailable: '圖片無法使用',
         },
         cannotDisplayBinary: '無法顯示二進位檔案內容',
+        mediaPreviewTooLarge: '媒體或文件檔案過大，無法在應用程式內預覽',
+        legacyOfficeFormat: '舊版 Office 格式暫不支援應用程式內預覽，請轉存為新版格式（.docx / .xlsx / .pptx）後再查看。',
+        pdfPreviewFailed: 'PDF 預覽載入失敗',
+        officePreviewFailed: 'Office 文件預覽載入失敗',
+        audioPlaybackFailed: '音訊播放失敗',
+        videoPlaybackFailed: '影片播放失敗',
+        play: '播放',
+        pause: '暫停',
+        pptxSlide: ({ current, total }: { current: number; total: number }) => `第 ${current} / ${total} 頁`,
+        pptxEmpty: '簡報中未找到可展示的內容',
+        xlsxSheet: ({ name }: { name: string }) => `工作表：${name}`,
         diff: '差異',
         file: '檔案',
         markdown: "Markdown",

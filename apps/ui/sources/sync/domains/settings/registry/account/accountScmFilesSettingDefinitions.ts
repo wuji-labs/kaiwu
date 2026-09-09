@@ -400,6 +400,13 @@ export const ACCOUNT_SCM_FILES_SETTING_DEFINITIONS = defineSettingDefinitions({
         storageScope: 'account',
         analytics: { trackCurrentState: true, trackChanges: true, valueKind: 'bucket', privacy: 'bucketed', identityScope: 'person', serializeCurrent: serializeBytesBucket(8 * 1024 * 1024, 16 * 1024 * 1024) },
     },
+    filesMediaPreviewMaxBytes: {
+        schema: z.number(),
+        default: 64 * 1024 * 1024,
+        description: 'Maximum raw file bytes for a single in-app media or document preview',
+        storageScope: 'account',
+        analytics: { trackCurrentState: true, trackChanges: true, valueKind: 'bucket', privacy: 'bucketed', identityScope: 'person', serializeCurrent: serializeBytesBucket(32 * 1024 * 1024, 64 * 1024 * 1024) },
+    },
     filesEditorAutoSave: {
         schema: z.boolean(),
         default: false,

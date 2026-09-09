@@ -47,6 +47,10 @@ import { useAppPaneScope } from '@/components/appShell/panes/hooks/useAppPaneSco
 import { useSessionFileDownloadAvailability } from '@/components/sessions/files/useSessionFileDownloadAvailability';
 import { useWorkspaceScopeForSession } from '@/sync/domains/session/resolveWorkspaceScopeForSession';
 import { useSessionImagePreview } from '@/components/sessions/files/content/imagePreview/useSessionImagePreview';
+import { useSessionMediaPreview } from '@/components/sessions/files/content/mediaPreview/useSessionMediaPreview';
+import { AudioPreviewPanel } from '@/components/sessions/files/content/mediaPreview/AudioPreviewPanel';
+import { PdfPreviewPanel } from '@/components/sessions/files/content/documentPreview/PdfPreviewPanel';
+import { getMediaKind, getLegacyOfficeKind } from '@/scm/utils/filePresentation';
 import { extractSelectedDiffLineKeysFromPatch } from '@/scm/scmPatchSelection';
 export type SessionFileDeepLinkAnchor = Readonly<{
     source: ReviewCommentSource;
@@ -503,11 +507,23 @@ export function SessionFileDetailsView(props: SessionFileDetailsViewProps) {
 
     const previewTooLarge = error === t('files.fileTooLargeToPreview');
     const fatalError = Boolean(error) && !previewTooLarge;
+    const mediaKind = React.useMemo(() => getMediaKind(filePath), [filePath]);
+    const legacyOfficeKind = React.useMemo(() => getLegacyOfficeKind(filePath), [filePath]);
+    const isMediaOrDoc = Boolean(mediaKind || legacyOfficeKind);
+
     const binaryImagePreview = useSessionImagePreview({
         sessionId,
         filePath,
         enabled: fileContent?.isBinary === true && typeof fileContent.binaryMime === 'string' && fileContent.binaryMime.startsWith('image/'),
         cacheKey: lineSelectionFingerprint,
+        mimeType: fileContent?.binaryMime ?? null,
+        sizeBytes: fileContent?.binarySizeBytes ?? null,
+    });
+
+    const binaryMediaPreview = useSessionMediaPreview({
+        sessionId,
+        filePath,
+        enabled: fileContent?.isBinary === true && isMediaOrDoc,
         mimeType: fileContent?.binaryMime ?? null,
         sizeBytes: fileContent?.binarySizeBytes ?? null,
     });
@@ -687,21 +703,94 @@ export function SessionFileDetailsView(props: SessionFileDetailsViewProps) {
                         bridgeMaxChunkBytes={typeof filesEditorBridgeMaxChunkBytes === 'number' ? filesEditorBridgeMaxChunkBytes : undefined}
                     />
                 ) : (displayMode === 'file' && isBinaryFile) ? (
-                    <ScrollView
-                        style={{ flex: 1, minHeight: 0 }}
-                        testID="file-details-scroll"
-                        onLayout={scrollFades.onViewportLayout}
-                        onContentSizeChange={scrollFades.onContentSizeChange}
-                        onScroll={scrollFades.onScroll}
-                        scrollEventThrottle={16}
-                    >
-                        <FileBinaryState
-                            theme={theme}
-                            filePath={filePath}
-                            imagePreviewUri={imagePreviewUri}
-                            imagePreviewSvgXml={imagePreviewSvgXml}
-                        />
-                    </ScrollView>
+                    legacyOfficeKind ? (
+                        <ScrollView
+                            style={{ flex: 1, minHeight: 0 }}
+                            testID="file-details-scroll"
+                            onLayout={scrollFades.onViewportLayout}
+                            onContentSizeChange={scrollFades.onContentSizeChange}
+                            onScroll={scrollFades.onScroll}
+                            scrollEventThrottle={16}
+                        >
+                            <FileBinaryState
+                                theme={theme}
+                                filePath={filePath}
+                                customMessage={t('files.legacyOfficeFormat')}
+                                actionButton={
+                                    <FileDownloadButton
+                                        testID="file-legacy-download"
+                                        sessionId={sessionId}
+                                        path={filePath}
+                                        asZip={false}
+                                    />
+                                }
+                            />
+                        </ScrollView>
+                    ) : mediaKind === 'audio' ? (
+                        binaryMediaPreview.status === 'loaded' ? (
+                            <AudioPreviewPanel
+                                uri={binaryMediaPreview.uri}
+                                theme={theme}
+                                fileName={fileName}
+                            />
+                        ) : binaryMediaPreview.status === 'loading' ? (
+                            <FileLoadingState theme={theme} filePath={filePath} />
+                        ) : (
+                            <FileBinaryState
+                                theme={theme}
+                                filePath={filePath}
+                                customMessage={binaryMediaPreview.error ?? t('files.audioPlaybackFailed')}
+                                actionButton={
+                                    <FileDownloadButton
+                                        testID="file-media-download"
+                                        sessionId={sessionId}
+                                        path={filePath}
+                                        asZip={false}
+                                    />
+                                }
+                            />
+                        )
+                    ) : mediaKind === 'pdf' ? (
+                        binaryMediaPreview.status === 'loaded' ? (
+                            <PdfPreviewPanel
+                                uri={binaryMediaPreview.uri}
+                                theme={theme}
+                                fileName={fileName}
+                            />
+                        ) : binaryMediaPreview.status === 'loading' ? (
+                            <FileLoadingState theme={theme} filePath={filePath} />
+                        ) : (
+                            <FileBinaryState
+                                theme={theme}
+                                filePath={filePath}
+                                customMessage={binaryMediaPreview.error ?? t('files.pdfPreviewFailed')}
+                                actionButton={
+                                    <FileDownloadButton
+                                        testID="file-media-download"
+                                        sessionId={sessionId}
+                                        path={filePath}
+                                        asZip={false}
+                                    />
+                                }
+                            />
+                        )
+                    ) : (
+                        <ScrollView
+                            style={{ flex: 1, minHeight: 0 }}
+                            testID="file-details-scroll"
+                            onLayout={scrollFades.onViewportLayout}
+                            onContentSizeChange={scrollFades.onContentSizeChange}
+                            onScroll={scrollFades.onScroll}
+                            scrollEventThrottle={16}
+                        >
+                            <FileBinaryState
+                                theme={theme}
+                                filePath={filePath}
+                                imagePreviewUri={imagePreviewUri}
+                                imagePreviewSvgXml={imagePreviewSvgXml}
+                            />
+                        </ScrollView>
+                    )
                 ) : (
                     <FileContentPanel
                         theme={theme}
