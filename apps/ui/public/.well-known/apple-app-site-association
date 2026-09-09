@@ -3,7 +3,7 @@
     "details": [
       {
         "appIDs": [
-          "TODO_APPLE_TEAM_ID.com.wujilabs.app"
+          "TODO_APPLE_TEAM_ID.com.wujilabs.kaiwu"
         ],
         "components": [
           {
@@ -16,7 +16,7 @@
   },
   "activitycontinuation": {
     "apps": [
-      "TODO_APPLE_TEAM_ID.com.wujilabs.app"
+      "TODO_APPLE_TEAM_ID.com.wujilabs.kaiwu"
     ]
   }
 }

@@ -103,7 +103,7 @@ const mcpServersUxTranslationExtension = {
   mcpServersDeliveryNativeTitle: '原生 MCP',
   mcpServersDeliveryNativeSubtitle: '此后端将无极开物工具作为原生 MCP 服务器接收。',
   mcpServersDeliveryShellBridgeTitle: '无极开物 Shell 桥接',
-  mcpServersDeliveryShellBridgeSubtitle: '此后端通过 `happier tools` 桥接调用无极开物工具。',
+  mcpServersDeliveryShellBridgeSubtitle: '此后端通过 `kaiwu tools` 桥接调用无极开物工具。',
   mcpServersDeliveryUnsupportedTitle: '不支持',
   mcpServersDeliveryUnsupportedSubtitle: '此后端当前不接收无极开物工具。',
 } as const;
@@ -210,7 +210,7 @@ const settingsAppearanceTranslationExtension = {
     previewSubtitle: "在此沙盒中实时预览底色、文本、控件、状态和语法高亮色彩。",
     previewButton: "主要操作",
     previewStatus: "就绪",
-    previewCode: "const theme = \"happier\";",
+    previewCode: "const theme = \"kaiwu\";",
     colorInputPlaceholder: "#RRGGBB, rgba(...), transparent",
     tokenSubtitle: "覆盖公共颜色变量",
     recentColors: "最近使用颜色",
@@ -1356,8 +1356,8 @@ export const zhHans: TranslationStructure = {
     generateNewQrCode: "生成新的二维码",
     pairingQrExpired: "此二维码已过期。请生成新的二维码。",
     openMachine: "打开机器",
-    terminalUrlPlaceholder: "happier://terminal?...",
-    accountUrlPlaceholder: "happier:///account?...",
+    terminalUrlPlaceholder: "kaiwu://terminal?...",
+    accountUrlPlaceholder: "kaiwu:///account?...",
     restoreQrInstructions: "在已登录的设备上前往 设置 → 账户 并扫描此二维码。",
     externalAuthVerifiedTitle: ({ provider }: { provider: string }) =>
       `${provider} 验证完成`,
@@ -1385,7 +1385,7 @@ export const zhHans: TranslationStructure = {
       runCommandInTerminal: "在终端中运行以下命令：",
       runCommandInTerminalWithCommand: ({ command }: { command: string }) =>
         `在终端中运行以下命令：\n\n${command}`,
-      command: ({ name }: { name: string }) => `happier connect ${name}`,
+      command: ({ name }: { name: string }) => `kaiwu connect ${name}`,
     },
   },
 
@@ -2302,7 +2302,7 @@ export const zhHans: TranslationStructure = {
       copyReportSubtitle: "复制已脱敏的 JSON 报告用于支持",
     },
     pasteDoctorJson: {
-      footer: "提示：在电脑上运行 `happier doctor --json` 并粘贴到这里。",
+      footer: "提示：在电脑上运行 `kaiwu doctor --json` 并粘贴到这里。",
       placeholder: "{ \"capturedAt\": \"...\", ... }",
       parse: "验证粘贴的 JSON",
       ok: "粘贴的 doctor JSON 看起来有效。",
@@ -3097,7 +3097,7 @@ export const zhHans: TranslationStructure = {
         promptMessage:
           "请输入工作区相对目录（不允许绝对路径，不允许 ..）。",
         invalidDirectoryTitle: "目录无效",
-        invalidDirectoryMessage: "请使用相对路径，例如 `.happier/uploads`。",
+        invalidDirectoryMessage: "请使用相对路径，例如 `.kaiwu/uploads`。",
       },
     },
     sourceControlIgnore: {
@@ -6140,7 +6140,7 @@ export const zhHans: TranslationStructure = {
         unpinSession: "取消置顶",
         pinLimitExceeded: ({ count }: { count: number }) => `最多可置顶 ${count.toLocaleString()} 个会话。请取消置顶另一个会话后重试。`,
     copyResumeCommand: "复制恢复命令",
-    resumeCommand: ({ sessionId }: { sessionId: string }) => `happier resume ${sessionId}`,
+    resumeCommand: ({ sessionId }: { sessionId: string }) => `kaiwu resume ${sessionId}`,
     viewMachine: "查看设备",
     viewMachineSubtitle: "查看设备详情和会话",
     killSessionSubtitle: "立即终止会话",
@@ -6185,7 +6185,7 @@ export const zhHans: TranslationStructure = {
       requiredVersion: string;
     }) =>
       `已安装版本 ${currentVersion}。请更新到 ${requiredVersion} 或更高版本`,
-    updateCliInstructions: "请运行 happier self update",
+    updateCliInstructions: "请运行 kaiwu self update",
     deleteSession: "删除会话",
     deleteSessionSubtitle: "永久删除此会话",
     deleteSessionConfirm: "永久删除会话？",
@@ -6216,7 +6216,7 @@ export const zhHans: TranslationStructure = {
       runIt: "运行它",
       scanQrCode: "扫描二维码",
       openCamera: "打开相机",
-      runCommand: "$ happier",
+      runCommand: "$ kaiwu",
     },
     emptyMessages: {
       noMessagesYet: "暂无消息",
@@ -7739,7 +7739,7 @@ settingsSession: {
         title: "Windows",
         defaultModeTitle: '默认 Windows 远程会话模式',
         windowNameTitle: 'Windows Terminal 窗口名称',
-        windowNamePlaceholder: "happier",
+        windowNamePlaceholder: "kaiwu",
         windowNameHint: '在 Windows Terminal 中打开的会话会使用这个命名窗口，因此新会话可以显示为标签页。',
       },
     advanced: {

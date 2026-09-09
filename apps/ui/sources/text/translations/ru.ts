@@ -98,7 +98,7 @@ const mcpServersUxTranslationExtension = {
   mcpServersDeliveryNativeTitle: 'Нативный MCP',
   mcpServersDeliveryNativeSubtitle: 'Этот бэкенд получает инструменты Kaiwu как нативные MCP-серверы.',
   mcpServersDeliveryShellBridgeTitle: 'Оболочечный мост Kaiwu',
-  mcpServersDeliveryShellBridgeSubtitle: 'Этот бэкенд вызывает инструменты Kaiwu через мост `happier tools`.',
+  mcpServersDeliveryShellBridgeSubtitle: 'Этот бэкенд вызывает инструменты Kaiwu через мост `kaiwu tools`.',
   mcpServersDeliveryUnsupportedTitle: 'Не поддерживается',
   mcpServersDeliveryUnsupportedSubtitle: 'Этот бэкенд пока не получает инструменты Kaiwu.',
 } as const;
@@ -205,7 +205,7 @@ const settingsAppearanceTranslationExtension = {
     previewSubtitle: 'A local sandbox preview of surfaces, text, controls, state, and syntax colors.',
     previewButton: 'Primary action',
     previewStatus: 'Ready',
-    previewCode: 'const theme = "happier";',
+    previewCode: 'const theme = "kaiwu";',
     colorInputPlaceholder: '#RRGGBB, rgba(...), transparent',
     tokenSubtitle: 'Public color token override',
     recentColors: 'Recent colors',
@@ -1337,8 +1337,8 @@ export const ru: TranslationStructure = {
     generateNewQrCode: "Сгенерировать новый QR‑код",
     pairingQrExpired: "Этот QR‑код истёк. Сгенерируйте новый.",
     openMachine: "Открыть машину",
-    terminalUrlPlaceholder: "happier://terminal?...",
-    accountUrlPlaceholder: "happier:///account?...",
+    terminalUrlPlaceholder: "kaiwu://terminal?...",
+    accountUrlPlaceholder: "kaiwu:///account?...",
     restoreQrInstructions:
       "На устройстве, где вы уже вошли в аккаунт, откройте Настройки → Аккаунт и отсканируйте этот QR‑код.",
     externalAuthVerifiedTitle: ({ provider }: { provider: string }) =>
@@ -1368,7 +1368,7 @@ export const ru: TranslationStructure = {
       runCommandInTerminal: "Выполните следующую команду в терминале:",
       runCommandInTerminalWithCommand: ({ command }: { command: string }) =>
         `Выполните следующую команду в терминале:\n\n${command}`,
-      command: ({ name }: { name: string }) => `happier connect ${name}`,
+      command: ({ name }: { name: string }) => `kaiwu connect ${name}`,
     },
   },
 
@@ -2330,7 +2330,7 @@ export const ru: TranslationStructure = {
       copyReportSubtitle: "Скопировать безопасный JSON‑отчёт для поддержки",
     },
     pasteDoctorJson: {
-      footer: "Совет: выполните `happier doctor --json` на компьютере и вставьте сюда.",
+      footer: "Совет: выполните `kaiwu doctor --json` на компьютере и вставьте сюда.",
       placeholder: "{ \"capturedAt\": \"...\", ... }",
       parse: "Проверить вставленный JSON",
       ok: "Вставленный doctor JSON выглядит корректным.",
@@ -5418,7 +5418,7 @@ export const ru: TranslationStructure = {
       runIt: "Запустите его",
       scanQrCode: "Отсканируйте QR-код",
       openCamera: "Открыть камеру",
-      runCommand: "$ happier",
+      runCommand: "$ kaiwu",
     },
     emptyMessages: {
       noMessagesYet: "Сообщений пока нет",
@@ -7962,7 +7962,7 @@ settingsSession: {
         title: 'Windows',
         defaultModeTitle: 'Режим удалённой сессии Windows по умолчанию',
         windowNameTitle: 'Имя окна Windows Terminal',
-        windowNamePlaceholder: 'happier',
+        windowNamePlaceholder: 'kaiwu',
         windowNameHint: 'Сессии, открытые в Windows Terminal, используют это именованное окно, чтобы новые сессии могли появляться как вкладки.',
     },
     advanced: {

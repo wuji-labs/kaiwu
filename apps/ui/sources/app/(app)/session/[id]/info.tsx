@@ -1069,7 +1069,7 @@ function SessionInfoContent({ session, sessionServerId, sourceMachineIdForHandof
                             subtitle={t('sessionInfo.updateCliInstructions')}
                             icon={<Icon name="warning" size={29} color={theme.colors.accent.orange} />}
                             showChevron={false}
-                            copy="happier self update"
+                            copy="kaiwu self update"
                         />
                     </ItemGroup>
                 )}

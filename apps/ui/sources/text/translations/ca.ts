@@ -96,7 +96,7 @@ const mcpServersUxTranslationExtension = {
   mcpServersDeliveryNativeTitle: 'MCP natiu',
   mcpServersDeliveryNativeSubtitle: 'Aquest backend rep les eines de Kaiwu com a servidors MCP natius.',
   mcpServersDeliveryShellBridgeTitle: 'Pont de shell de Kaiwu',
-  mcpServersDeliveryShellBridgeSubtitle: 'Aquest backend crida les eines de Kaiwu a través del pont `happier tools`.',
+  mcpServersDeliveryShellBridgeSubtitle: 'Aquest backend crida les eines de Kaiwu a través del pont `kaiwu tools`.',
   mcpServersDeliveryUnsupportedTitle: 'No compatible',
   mcpServersDeliveryUnsupportedSubtitle: 'Aquest backend encara no rep eines de Kaiwu.',
 } as const;
@@ -203,7 +203,7 @@ const settingsAppearanceTranslationExtension = {
     previewSubtitle: 'A local sandbox preview of surfaces, text, controls, state, and syntax colors.',
     previewButton: 'Primary action',
     previewStatus: 'Ready',
-    previewCode: 'const theme = "happier";',
+    previewCode: 'const theme = "kaiwu";',
     colorInputPlaceholder: '#RRGGBB, rgba(...), transparent',
     tokenSubtitle: 'Public color token override',
     recentColors: 'Recent colors',
@@ -1319,8 +1319,8 @@ export const ca: TranslationStructure = {
         generateNewQrCode: 'Generar un nou codi QR',
         pairingQrExpired: 'Aquest codi QR ha caducat. Genera\'n un de nou.',
         openMachine: 'Obrir màquina',
-        terminalUrlPlaceholder: 'happier://terminal?...',
-        accountUrlPlaceholder: 'happier:///account?...',
+        terminalUrlPlaceholder: 'kaiwu://terminal?...',
+        accountUrlPlaceholder: 'kaiwu:///account?...',
         restoreQrInstructions: 'En un dispositiu on ja hagis iniciat sessió, ves a Configuració → Compte i escaneja aquest codi QR.',
         externalAuthVerifiedTitle: ({ provider }: { provider: string }) => `${provider} verificat`,
         externalAuthVerifiedBody: ({ provider }: { provider: string }) =>
@@ -1346,7 +1346,7 @@ export const ca: TranslationStructure = {
             runCommandInTerminal: 'Executa l\'ordre següent al terminal:',
             runCommandInTerminalWithCommand: ({ command }: { command: string }) =>
                 `Executa l'ordre següent al terminal:\n\n${command}`,
-            command: ({ name }: { name: string }) => `happier connect ${name}`,
+            command: ({ name }: { name: string }) => `kaiwu connect ${name}`,
         },
     },
 
@@ -1374,7 +1374,7 @@ export const ca: TranslationStructure = {
                 disabledByServerSuffix: ' (desactivat pel servidor)',
                 pasteDoctorJson: {
                     title: 'JSON del doctor del CLI (opcional)',
-                    subtitle: 'Si la teva màquina no és accessible des de la UI, executa `happier doctor --json` a l’ordinador i enganxa’l aquí.',
+                    subtitle: 'Si la teva màquina no és accessible des de la UI, executa `kaiwu doctor --json` a l’ordinador i enganxa’l aquí.',
                     placeholder: '{ "capturedAt": "...", ... }',
                     invalid: ({ error }: { error: string }) => `JSON del doctor no vàlid: ${error}`,
                     valid: 'El JSON del doctor sembla vàlid i s’adjuntarà a l’informe.',
@@ -2241,7 +2241,7 @@ export const ca: TranslationStructure = {
             copyReportSubtitle: 'Copia un informe JSON redactat per a suport',
         },
         pasteDoctorJson: {
-            footer: 'Consell: executa `happier doctor --json` a l\'ordinador i enganxa\'l aquí.',
+            footer: 'Consell: executa `kaiwu doctor --json` a l\'ordinador i enganxa\'l aquí.',
             placeholder: '{ "capturedAt": "...", ... }',
             parse: 'Valida el JSON enganxat',
             ok: 'El JSON del doctor sembla vàlid.',
@@ -3027,7 +3027,7 @@ export const ca: TranslationStructure = {
                 promptTitle: 'Directori de pujades',
                 promptMessage: 'Introdueix un directori relatiu a l’espai de treball (sense camins absoluts, sense ..).',
                 invalidDirectoryTitle: 'Directori no vàlid',
-                invalidDirectoryMessage: 'Fes servir un camí relatiu com `.happier/uploads`.',
+                invalidDirectoryMessage: 'Fes servir un camí relatiu com `.kaiwu/uploads`.',
             },
         },
         sourceControlIgnore: {
@@ -5989,7 +5989,7 @@ deps: {
         unpinSession: 'Desfixar sessió',
         pinLimitExceeded: ({ count }: { count: number }) => `Pots fixar fins a ${count.toLocaleString()} sessions. Desfixa'n una altra i torna-ho a provar.`,
         copyResumeCommand: 'Copia l’ordre de reprendre',
-        resumeCommand: ({ sessionId }: { sessionId: string }) => `happier resume ${sessionId}`,
+        resumeCommand: ({ sessionId }: { sessionId: string }) => `kaiwu resume ${sessionId}`,
         viewMachine: 'Veure la màquina',
         viewMachineSubtitle: 'Veure detalls de la màquina i sessions',
         killSessionSubtitle: 'Finalitzar immediatament la sessió',
@@ -6028,7 +6028,7 @@ deps: {
         cliVersionOutdated: 'Actualització del CLI requerida',
         cliVersionOutdatedMessage: ({ currentVersion, requiredVersion }: { currentVersion: string; requiredVersion: string }) =>
             `Versió ${currentVersion} instal·lada. Actualitzeu a ${requiredVersion} o posterior`,
-        updateCliInstructions: 'Si us plau executeu happier self update',
+        updateCliInstructions: 'Si us plau executeu kaiwu self update',
         deleteSession: 'Elimina la sessió',
         deleteSessionSubtitle: 'Elimina permanentment aquesta sessió',
         deleteSessionConfirm: 'Eliminar la sessió permanentment?',
@@ -6059,7 +6059,7 @@ deps: {
             runIt: 'Executa\'l',
             scanQrCode: 'Escaneja el codi QR',
             openCamera: 'Obre la càmera',
-            runCommand: '$ happier',
+            runCommand: '$ kaiwu',
         },
         emptyMessages: {
             noMessagesYet: 'Encara no hi ha missatges',
@@ -7549,7 +7549,7 @@ settingsSession: {
                 title: 'Windows',
                 defaultModeTitle: 'Mode remot de Windows per defecte',
                 windowNameTitle: 'Nom de la finestra de Windows Terminal',
-                windowNamePlaceholder: 'happier',
+                windowNamePlaceholder: 'kaiwu',
                 windowNameHint: 'Les sessions obertes a Windows Terminal fan servir aquesta finestra amb nom perquè les sessions noves puguin aparèixer com a pestanyes.',
             },
             advanced: {
@@ -9319,7 +9319,7 @@ settingsSession: {
 
       machine: {
           offlineUnableToSpawn: 'El llançador està desactivat mentre la màquina està fora de línia',
-          offlineHelp: '• Assegura\'t que l\'ordinador estigui en línia\n• Executa `happier daemon status` per diagnosticar\n• Fas servir l\'última versió del CLI? Executa `happier self update`',
+          offlineHelp: '• Assegura\'t que l\'ordinador estigui en línia\n• Executa `kaiwu daemon status` per diagnosticar\n• Fas servir l\'última versió del CLI? Executa `kaiwu self update`',
           launchNewSessionInDirectory: 'Inicia una nova sessió al directori',
             customPathPlaceholder: 'Introdueix un camí personalitzat',
             tools: {
