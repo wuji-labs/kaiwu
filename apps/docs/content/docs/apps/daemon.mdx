@@ -1,77 +1,76 @@
 ---
-title: Daemon
-description: Run Kaiwu in the background (sessions, remote control, headless servers).
+title: 守护进程
+description: 在后台运行 Kaiwu（会话、远程控制、无头服务器）。
 ---
+## 什么是守护进程？
 
-## What is the daemon?
+Kaiwu **守护进程**（daemon）是一个轻量后台进程，用于确保 Kaiwu 在你的设备上始终处于可用状态。
 
-The Kaiwu **daemon** is a small background process that keeps Kaiwu “available” on your machine.
+实际上，正是在它的支持下，Kaiwu 才能**在未打开终端的情况下启动并管理会话**。对于**远程启动**（例如通过 App 或 Web 界面触发）等功能而言，守护进程尤为关键：它在你的计算机上接收该请求，并在本地拉起会话。
 
-In practice, it’s what enables Kaiwu to **start and manage sessions even when you don’t have a terminal open**. This is especially important for features like **remote start** (e.g. from the app/web UI): the daemon is the thing on your computer that can receive that request and launch the session locally.
+它还能协助 CLI 完成以下操作：
 
-It also helps the CLI:
+- 保持长时间运行的会话处于活跃状态
+- 重新连接并管理已有会话
+- 无需保持终端处于打开状态，即可支持远程控制与编排功能
 
-- keep long-running sessions alive
-- reconnect to and manage existing sessions
-- support remote control / orchestration features without requiring your terminal to stay open
+## 内置终端支持
 
-## Embedded terminal support
+App 内的内置终端同样依赖守护进程。
 
-The in-app embedded terminal also depends on the daemon.
+借助守护进程，Kaiwu 能够：
 
-That is what allows Kaiwu to:
+- 在你的设备上创建终端会话；
+- 在页面刷新或切换导航后，重新连接到原终端；
+- 将终端输出实时串流回 App 界面；
+- 在 App 中调整终端窗口大小或重启终端。
 
-- create the terminal session on your machine,
-- reconnect to that same terminal after refresh/navigation,
-- stream output back into the app UI,
-- resize and restart the terminal from the app.
+若守护进程未运行或设备无法连接，内置终端将无法工作。
 
-If the daemon is not running or the machine is unreachable, the embedded terminal cannot work.
+完整指南：[内置终端](/extras/embedded-terminal)。
 
-Full guide: [Embedded terminal](/extras/embedded-terminal).
+## 提供商认证支持
 
-## Provider authentication support
+提供商设置中的登录流程同样依赖守护进程，因为 Kaiwu 需要在目标设备上实际执行对应提供商的 CLI。
 
-Provider login flows in provider settings also depend on the daemon because Kaiwu runs the real provider CLI on the target machine.
+守护进程使 Kaiwu 可以：
 
-That is what allows Kaiwu to:
+- 在所选设备上执行提供商登录命令
+- 将提供商的终端输出实时串流回 App
+- 自动识别登录过程中输出的 URL
+- 在登录流程结束后，刷新设备本地的认证状态
 
-- launch provider login commands on the selected machine
-- stream the provider’s terminal output back into the app
-- detect URLs printed during login flows
-- refresh machine-local auth state after the login flow exits
+完整指南：[提供商认证](/agents/provider-authentication)。
 
-Full guide: [Provider authentication](/agents/provider-authentication).
+## 本地记忆检索支持
 
-## Local memory search support
+本地记忆检索功能也依赖守护进程。
 
-Local memory search also depends on the daemon.
+守护进程使 Kaiwu 能够：
 
-That is what allows Kaiwu to:
+- 构建设备本地的记忆索引
+- 在后台维护轻量或深度的会话记录索引
+- 在设备上运行可选的本地嵌入模型
+- 从 App 或 Web 界面查询本地索引
 
-- build the machine-local memory index
-- maintain light or deep transcript indexing in the background
-- run optional local embeddings models on the machine
-- query the local index from the app/web UI
+记忆索引保存在守护进程本地，因此检索范围仅限于运行该守护进程的具体设备。
 
-Because the index is daemon-local, memory search is scoped to the specific machine where the daemon runs.
+完整指南：[本地记忆检索](/organize/local-memory-search)。
 
-Full guide: [Local memory search](/organize/local-memory-search).
+## 守护进程何时运行？
 
-## When does it run?
+运行方式主要有两种：
 
-You can run it in two ways:
+- **按需运行**：需要时手动启动（部分 CLI 命令也会自动将其启动）。
+- **常驻运行（推荐）**：将其安装为**用户服务**，登录系统后自动启动并在后台持续运行。
 
-- **On-demand**: start it when you need it (some CLI commands may start it automatically).
-- **Always-on (recommended)**: install it as a **user service** so it starts automatically after login and keeps running in the background.
+为何推荐常驻运行：
 
-Why always-on is recommended:
+- 确保你的设备随时**准备好远程启动会话**。
+- 避免因守护进程未启动而导致“为什么无法启动会话”的困扰。
+- 在无头服务器（或需要远程控制的笔记本电脑）上可获得最顺畅的使用体验。
 
-- It makes your machine **ready to start sessions remotely** at any time.
-- It avoids “why can’t I start a session?” situations where the daemon simply isn’t running yet.
-- It’s the smoothest experience on headless servers (or laptops you want to control remotely).
-
-## Common commands
+## 常用命令
 
 ```bash
 happier daemon status
@@ -81,15 +80,15 @@ happier daemon list
 happier daemon logs
 ```
 
-## Release lanes
+## 发布通道
 
-The daemon follows the CLI/runtime lane you installed on that machine:
+守护进程会遵循该设备上安装的 CLI / 运行时通道：
 
-- `stable` CLI install -> stable daemon/runtime
-- `preview` CLI install -> preview daemon/runtime
-- `dev` CLI install -> dev daemon/runtime
+- `stable` CLI 安装 -> stable（稳定版）守护进程 / 运行时
+- `preview` CLI 安装 -> preview（预览版）守护进程 / 运行时
+- `dev` CLI 安装 -> dev（开发版）守护进程 / 运行时
 
-That means the public lane commands are:
+这意味着各公开通道对应的命令为：
 
 ```bash
 happier daemon install
@@ -97,7 +96,7 @@ hprev daemon install
 hdev daemon install
 ```
 
-Likewise, updater commands stay lane-specific:
+同样，更新命令也与通道一一对应：
 
 ```bash
 happier self update
@@ -105,14 +104,14 @@ hprev self update
 hdev self update
 ```
 
-There is no separate public daemon installer endpoint today; the daemon rides with the matching CLI lane on that machine.
+目前没有独立的公开守护进程安装入口，守护进程随设备上对应的 CLI 通道一同分发与安装。
 
-### Side-by-side installs (stable vs preview vs dev)
+### 多版本并行安装（stable / preview / dev）
 
-You can install all three public lanes side-by-side (`happier`, `hprev`, `hdev`) without them overwriting each other.
+你可以并行安装全部三个公开通道（`happier`、`hprev` 与 `hdev`），它们彼此独立，不会相互覆盖。
 
-Daemon runtime state is lane-scoped, and daemon services (LaunchAgent/systemd/Scheduled Task) use lane-scoped service identifiers.
-To inspect the exact service name/label/unit on your platform, run:
+守护进程的运行时状态以通道为隔离作用域，其系统服务（LaunchAgent / systemd / 计划任务）也使用通道专用的服务标识符。
+如需查看当前平台上具体对应的服务名称、标签或单元，请运行：
 
 ```bash
 happier daemon service paths
@@ -120,17 +119,17 @@ hprev daemon service paths
 hdev daemon service paths
 ```
 
-Recommendation: keep only one lane’s daemon service enabled for a given server profile unless you have a specific reason to run multiple daemons concurrently.
+建议：对于特定的服务器配置文件，除非有明确需要同时运行多个守护进程，否则建议仅启用单一通道的守护进程服务。
 
-## Always-on: install as a user service
+## 常驻运行：安装为用户服务
 
-Install for your current default server profile:
+为当前默认的服务器配置文件安装：
 
 ```bash
 happier daemon install
 ```
 
-Advanced lifecycle control (and dry-run planning):
+高级生命周期管理（及试运行预览）：
 
 ```bash
 happier daemon service status
@@ -138,42 +137,42 @@ happier daemon service install --dry-run
 happier daemon service restart
 ```
 
-Platform notes:
+各平台说明：
 
-- **macOS**: LaunchAgent
-- **Linux**: `systemd --user`
-- **Windows**: Scheduled Task (user-level)
+- **macOS**：LaunchAgent
+- **Linux**：`systemd --user`
+- **Windows**：计划任务（用户级别）
 
-To remove it:
+卸载服务：
 
 ```bash
 happier daemon uninstall
 ```
 
-On Windows, `happier daemon service paths` prints the Scheduled Task name and wrapper path.
+在 Windows 上，`happier daemon service paths` 会输出计划任务的名称以及包装脚本的路径。
 
-## Headless authentication (no TTY)
+## 无头环境认证（无 TTY）
 
-On headless servers (or anywhere you don’t have an interactive TTY), use:
+在无头服务器（或任何无法使用交互式 TTY 的环境）中，请运行：
 
 ```bash
 happier auth login --no-open --method web
 ```
 
-This prints an authorization URL and waits until you approve it in your browser (the request can expire; if it does, rerun the command).
+该命令会打印授权 URL，并等待你在浏览器中完成授权（授权请求可能会超时；若超时，请重新执行该命令）。
 
-### Recommended: remote pairing over SSH
+### 推荐做法：通过 SSH 进行远程配对
 
-If you have SSH access and want a fully automated experience (request + approval + credential write), run this from a machine where you're already authenticated:
+如果你拥有 SSH 访问权限，并希望获得端到端全自动体验（包含发起请求、授权审批以及凭据写入），可以在已通过认证的设备上运行：
 
 ```bash
 happier auth pair-remote --ssh user@host --json
 ```
 
-This is especially useful for provisioning headless servers because you can approve the connection from your already-signed-in machine and avoid copy/pasting URLs.
+这在配置无头服务器时尤为高效：直接在已登录的设备上完成连接授权，无需手动复制和粘贴 URL。
 
-## Troubleshooting
+## 故障排查
 
-- **Check status**: `happier daemon status`
-- **Find logs**: `happier daemon logs`
-- **Service paths**: `happier daemon service paths`
+- **查看状态**：`happier daemon status`
+- **查看日志**：`happier daemon logs`
+- **服务路径**：`happier daemon service paths`

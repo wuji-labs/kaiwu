@@ -1,226 +1,225 @@
 ---
 title: OpenCode
-description: Configure OpenCode in Kaiwu, including the default server-native backend, app ↔ terminal control switching, and attach behavior.
+description: 在 Kaiwu 中配置 OpenCode，包括默认的服务端原生后端、App ↔ 终端控制切换以及附加行为。
 ---
+本文档介绍 Kaiwu 如何集成 **OpenCode**，以及日常使用中的关键要点。
 
-This page documents how Kaiwu integrates with **OpenCode** and what matters for day-to-day use.
+## 环境要求
 
-## Requirements
+- 设备上已安装 OpenCode CLI。
+- 可执行文件位于 `PATH` 路径中（或已配置 `HAPPIER_OPENCODE_PATH`）。
 
-- OpenCode CLI installed on your machine.
-- Binary available on `PATH` (or set `HAPPIER_OPENCODE_PATH`).
+## 安装 OpenCode
 
-## Install OpenCode
-
-If you use Kaiwu's provider installer, you can install OpenCode from the CLI:
+如果使用 Kaiwu 的提供商安装程序，可通过 CLI 安装 OpenCode：
 
 ```bash
 happier install provider opencode
 opencode --version
 ```
 
-Or install manually:
+也可以手动安装：
 
 ```bash
 curl -fsSL https://opencode.ai/install | bash
 opencode --version
 ```
 
-On Windows, OpenCode also supports native installs such as:
+在 Windows 上，OpenCode 还支持原生安装方式，例如：
 
 ```bash
 npm install -g opencode-ai
 opencode --version
 ```
 
-If Kaiwu offers to run OpenCode’s vendor install recipe for you, it requires explicit confirmation before executing vendor install commands.
+如果 Kaiwu 提示由其代运行 OpenCode 官方安装脚本，在执行官方安装命令前需要您明确确认。
 
-## Local authentication in Kaiwu
+## 在 Kaiwu 中进行本地认证
 
-OpenCode supports machine-local auth management in:
+OpenCode 支持在以下路径管理设备本地认证：
 
-- **Settings → AI & Agents → AI backends → OpenCode**
+- **设置 → AI 与智能体 → AI 后端 → OpenCode**
 
-From there you can:
+在该页面中，您可以：
 
-- check whether OpenCode is authenticated on the selected machine
-- open `opencode auth login` directly inside Kaiwu
-- refresh the auth state with **Check now**
+- 检查所选设备上的 OpenCode 是否已完成认证
+- 直接在 Kaiwu 内打开 `opencode auth login`
+- 点击**立即检查**刷新认证状态
 
-Kaiwu reads OpenCode’s local auth state through the CLI’s own auth listing flow when available.
+在条件允许时，Kaiwu 会直接通过 CLI 自身的认证列表流程读取 OpenCode 的本地认证状态。
 
-For the shared user guide, see [Provider authentication](/agents/provider-authentication).
+通用使用指南请参阅[提供商认证](/agents/provider-authentication)。
 
-## How Kaiwu runs OpenCode
+## Kaiwu 运行 OpenCode 的机制
 
-OpenCode has two runtime paths in Kaiwu:
+OpenCode 在 Kaiwu 中有两种运行时路径：
 
-- **Server-native (default)**: Kaiwu talks to the OpenCode server/session APIs directly. This is the normal path for new OpenCode sessions in Kaiwu.
-- **ACP (legacy fallback)**: still available when you explicitly switch OpenCode to ACP mode.
+- **服务端原生（默认）**：Kaiwu 直接与 OpenCode 的服务端及会话 API 通信。这是 Kaiwu 创建 OpenCode 新会话的常规路径。
+- **ACP（旧版兜底）**：在显式将 OpenCode 切换至 ACP 模式时仍然可用。
 
-For most users, the important part is:
+对大多数用户而言，重点如下：
 
-- new OpenCode sessions default to the **server-native** backend,
-- Kaiwu can keep the same OpenCode session visible in both the app and the terminal,
-- attaching later should use `happier attach <session-id>`, not a raw vendor attach command.
+- 新建 OpenCode 会话默认使用**服务端原生**后端；
+- Kaiwu 可使同一 OpenCode 会话在 App 和终端中同时保持可见；
+- 后续接入时应使用 `happier attach ⟦K7⟧`，而非提供商原生的接入命令。
 
-By default, Kaiwu uses a **managed local OpenCode server** on the machine and reuses it across sessions. Advanced users can set an explicit OpenCode server URL in settings; when you do that, Kaiwu will keep using that explicit server for the session.
+默认情况下，Kaiwu 会在设备上使用一个**托管的本地 OpenCode 服务端**，并在多个会话间复用。高级用户可在设置中显式指定 OpenCode 服务端 URL；配置后，Kaiwu 将在会话中持续使用该指定服务端。
 
-## Start OpenCode from a terminal
+## 从终端启动 OpenCode
 
 ```bash
 happier opencode
 ```
 
-When you start OpenCode this way:
+通过此方式启动 OpenCode 时：
 
-- the session appears in Kaiwu as a normal session,
-- the terminal starts in **local/shared control**,
-- the Kaiwu app can still see the same transcript and send messages into the same OpenCode session,
-- messages typed directly into the OpenCode TUI also show up in Kaiwu.
+- 该会话会作为常规会话显示在 Kaiwu 中；
+- 终端以**本地/共享控制**模式启动；
+- Kaiwu App 仍可查看相同的会话记录，并向该 OpenCode 会话发送消息；
+- 直接在 OpenCode TUI 中输入的消息也会同步显示在 Kaiwu 中。
 
-This is useful when you want the provider TUI first, but still want the app to stay attached to the same session.
+这种方式非常适合习惯先使用提供商 TUI、同时希望 App 保持接入同一会话的场景。
 
-### Detach from the app
+### 从 App 断开连接
 
-If the session is locally attached, the session header in Kaiwu shows **Detach terminal**.
+如果会话处于本地接入状态，Kaiwu 的会话标题栏会显示**断开终端连接**。
 
-Using it:
+执行该操作后：
 
-- switches the session back to **remote** control,
-- keeps the same session id and transcript,
-- leaves the existing terminal open in a read-only/logs-only state until you attach again.
+- 会话切换回**远程**控制模式；
+- 保留原有的会话 ID 和会话记录；
+- 原有终端保持打开，并转为只读/纯日志状态，直至您再次接入。
 
-You can later run `happier attach <session-id>` from a terminal on the same machine to get back into the OpenCode TUI.
+后续您可在这台设备上的终端中运行 `happier attach ⟦K8⟧`，重新进入 OpenCode TUI。
 
-## Start OpenCode from the app
+## 从 App 启动 OpenCode
 
-If you start a new OpenCode session from the Kaiwu app:
+如果直接从 Kaiwu App 启动新的 OpenCode 会话：
 
-- Kaiwu starts it in **remote/server-only** mode in the background,
-- the app can use the session immediately,
-- no terminal needs to be open yet.
+- Kaiwu 会在后台以**纯远程/纯服务端**模式启动该会话；
+- App 可立即使用该会话；
+- 无需预先打开终端。
 
-Later, on the same machine, you can attach a terminal to that live session with:
-
-```bash
-happier attach <session-id>
-```
-
-After attaching:
-
-- the session switches into **local/shared control**,
-- the terminal shows the OpenCode TUI,
-- the app still stays connected to the same session and transcript.
-
-This is the main “start in the app, continue in the terminal” workflow for OpenCode.
-
-## Local vs remote control in OpenCode
-
-OpenCode uses **shared local control** in Kaiwu.
-
-That means:
-
-- **Remote mode**: Kaiwu drives OpenCode in the background and you use the app/web UI
-- **Local mode**: you use the OpenCode TUI in a terminal
-- the transcript stays shared in both modes
-- the session stays writable from the app even when a terminal is attached
-- app messages do not need the same exclusive pending-queue handoff used by Claude and Codex local control
-
-In practice, you can:
-
-- send a message from the app and watch it appear in the attached OpenCode TUI,
-- send a message from the OpenCode TUI and see it appear in Kaiwu,
-- detach and reattach without starting a new session.
-
-For the full switching workflow, see [Features → Attach to a running session](/sessions/attach-to-session).
-
-## Authentication (connected services)
-
-OpenCode can reuse connected services profiles when spawned by Kaiwu (for example):
-
-- `openai-codex` (subscription OAuth) or `openai` (API key) for OpenAI-backed usage
-- `claude-subscription` setup-token profiles or `anthropic` (API key) for Anthropic-backed usage
-
-If multiple compatible profiles exist, Kaiwu will let you pick one when starting a new session.
-
-OpenCode accepts `claude-subscription` only for setup-token profiles. Claude subscription OAuth profiles are shown as setup-token action rows and cannot be selected as an OpenCode session binding.
-
-See: [Connected services](/accounts/connected-services)
-
-## Session handoff
-
-OpenCode supports Kaiwu session handoff between machines.
-
-This is a natural fit for OpenCode because Kaiwu can move the same Kaiwu session while preserving OpenCode continuity on the new machine.
-
-Use it when you want to:
-
-- move a live OpenCode session from one machine to another
-- keep the same Kaiwu session id
-- continue the same work from the target machine
-
-Connected services can help here too, especially when the target machine should reuse account-managed credentials instead of depending only on a local machine login state.
-
-See:
-
-- [Session handoff](/sessions/session-handoff)
-- [Connected services](/accounts/connected-services)
-
-For the full user-facing MCP guide in Kaiwu, see:
-
-- [MCP servers](/extending/mcp-servers)
-
-## Permissions, modes, and models
-
-Kaiwu uses the same provider-agnostic permission picker for OpenCode as it does for other agents.
-
-Important OpenCode notes:
-
-- permission intent is chosen in Kaiwu,
-- Kaiwu maps that intent to the closest OpenCode session permission ruleset,
-- some OpenCode behavior still depends on the installed OpenCode runtime.
-
-OpenCode can also expose provider-native session modes and model choices. When those are available, Kaiwu surfaces them in the session UI.
-
-For the full user guide, see:
-
-- [Model and engine selection](/agents/model-and-engine-selection)
-- [Permissions](/sessions/permissions)
-
-## Notes
-
-- Resume availability is session-specific in Kaiwu: the session must have valid OpenCode resume metadata, and your current backend/settings must allow resume.
-- Attach availability is also session-specific: the session must have the metadata/context Kaiwu needs to reopen that OpenCode session locally.
-- Model, mode, and permission behavior can still vary by installed OpenCode runtime.
-- Tool events are normalized into Kaiwu’s canonical tool timeline.
-- For OpenCode reattach flows, the supported command is `happier attach <session-id>`.
-
-## Troubleshooting
-
-If OpenCode is not detected:
-
-1. Verify `opencode --version` works.
-2. Restart Kaiwu.
-3. Set `HAPPIER_OPENCODE_PATH` if your binary is not in PATH.
-
-### The session is visible in the app but I want the TUI again
-
-Use:
+后续若需接入，可在同一设备的终端中运行以下命令，接入该活跃会话：
 
 ```bash
 happier attach <session-id>
 ```
 
-Do this on the same machine and against the same Kaiwu account/server profile that owns the session.
+接入完成后：
 
-### The terminal is open but no longer accepts prompts
+- 会话切换至**本地/共享控制**模式；
+- 终端显示 OpenCode TUI；
+- App 依然保持与该会话及会话记录的连接。
 
-This usually means the session was detached back to remote mode from Kaiwu. Reattach with `happier attach <session-id>` from a terminal on the same machine.
+这就是 OpenCode 核心的“App 启动、终端接续”工作流。
 
-## Related
+## OpenCode 的本地控制与远程控制
 
-- [Agent capabilities](/agents/capabilities) — what this agent supports, generated from the manifest.
-- [Choosing an agent](/agents)
-- [Model and engine selection](/agents/model-and-engine-selection)
-- [Agent authentication](/agents/provider-authentication)
+OpenCode 在 Kaiwu 中采用**共享本地控制**模式。
+
+这意味着：
+
+- **远程模式**：Kaiwu 在后台驱动 OpenCode，您通过 App 或 Web 界面进行操作；
+- **本地模式**：您在终端中使用 OpenCode TUI；
+- 无论哪种模式，会话记录始终保持共享；
+- 即使已接入终端，依然可以从 App 向会话写入内容；
+- 来自 App 的消息无需像 Claude 和 Codex 本地控制那样走排他式的待处理队列交接。
+
+在实际使用中，您可以：
+
+- 从 App 发送消息，并在已接入的 OpenCode TUI 中实时查看；
+- 从 OpenCode TUI 发送消息，并在 Kaiwu 中实时同步；
+- 随时断开与重新接入，无需新建会话。
+
+完整的模式切换工作流请参阅[功能特性 → 接入运行中的会话](/sessions/attach-to-session)。
+
+## 认证（已连接服务）
+
+由 Kaiwu 启动时，OpenCode 可复用已连接服务的配置凭据，例如：
+
+- 使用 OpenAI 后端时，可使用 `openai-codex`（订阅 OAuth）或 `openai`（API 密钥）；
+- 使用 Anthropic 后端时，可使用 `claude-subscription` 设置令牌配置或 `anthropic`（API 密钥）。
+
+如果存在多个兼容的凭据配置，Kaiwu 会在新建会话时提示您选择。
+
+对于设置令牌配置，OpenCode 仅接受 `claude-subscription`。Claude 订阅 OAuth 配置会显示为设置令牌操作行，无法直接选为 OpenCode 会话绑定项。
+
+参阅：[已连接服务](/accounts/connected-services)
+
+## 会话交接
+
+OpenCode 支持在不同设备之间进行 Kaiwu 会话交接。
+
+这一特性与 OpenCode 高度契合：Kaiwu 能够在迁移会话的同时，在新设备上保持 OpenCode 的上下文连续性。
+
+适用场景包括：
+
+- 将运行中的 OpenCode 会话从一台设备迁移至另一台设备；
+- 保持 Kaiwu 会话 ID 不变；
+- 在目标设备上无缝接续先前的工作。
+
+已连接服务在此场景下同样能发挥作用，尤其当目标设备需要复用基于账号管理的凭据、而不完全依赖本地设备登录状态时。
+
+参阅：
+
+- [会话交接](/sessions/session-handoff)
+- [已连接服务](/accounts/connected-services)
+
+关于 Kaiwu 中面向用户的完整 MCP 指南，请参阅：
+
+- [MCP 服务器](/extending/mcp-servers)
+
+## 权限、模式与模型
+
+Kaiwu 为 OpenCode 提供了与其他智能体一致的通用权限选择器。
+
+OpenCode 的注意事项：
+
+- 权限意图在 Kaiwu 中完成选择；
+- Kaiwu 会将该意图映射至最匹配的 OpenCode 会话权限规则集；
+- 部分行为仍取决于本地安装的 OpenCode 运行时版本。
+
+OpenCode 还可暴露提供商原生的会话模式与模型选项。只要这些选项可用，Kaiwu 就会在会话界面中呈现。
+
+完整用户指南请参阅：
+
+- [模型与引擎选择](/agents/model-and-engine-selection)
+- [权限](/sessions/permissions)
+
+## 注意事项
+
+- 会话能否恢复取决于会话本身：会话必须包含有效的 OpenCode 恢复元数据，且当前后端与设置需允许恢复。
+- 会话能否接入同样取决于会话本身：会话必须包含 Kaiwu 在本地重新打开该 OpenCode 会话所需的元数据与上下文。
+- 模型、模式和权限的具体行为可能因所安装的 OpenCode 运行时而异。
+- 工具事件会统一规范化并入 Kaiwu 的标准工具时间线。
+- 对于 OpenCode 的重新接入流程，官方支持的命令为 `happier attach ⟦K9⟧`。
+
+## 故障排查
+
+如果系统未能检测到 OpenCode：
+
+1. 确认 `opencode --version` 可以正常运行。
+2. 重启 Kaiwu。
+3. 如果可执行文件不在 PATH 中，请配置 `HAPPIER_OPENCODE_PATH`。
+
+### 会话在 App 中可见，但希望重新打开 TUI
+
+请运行：
+
+```bash
+happier attach <session-id>
+```
+
+请确保在同一台设备上执行此操作，并使用持有该会话的同一 Kaiwu 账号或服务端配置。
+
+### 终端处于打开状态，但不再接收提示词
+
+这通常意味着该会话已在 Kaiwu 中被断开并切回远程模式。在同一设备的终端中运行 `happier attach ⟦K10⟧` 即可重新接入。
+
+## 相关内容
+
+- [智能体能力](/agents/capabilities) —— 该智能体支持的能力清单（基于清单文件生成）。
+- [选择智能体](/agents)
+- [模型与引擎选择](/agents/model-and-engine-selection)
+- [智能体认证](/agents/provider-authentication)

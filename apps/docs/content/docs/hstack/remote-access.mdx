@@ -1,49 +1,48 @@
 ---
-title: Remote access (Tailscale)
-description: Use HTTPS secure context on phones/laptops via Tailscale Serve.
+title: 远程访问 (Tailscale)
+description: 通过 Tailscale Serve 在手机/笔记本电脑上使用 HTTPS 安全上下文。
 ---
+Kaiwu 依赖浏览器的“安全上下文”（Secure Context）特性（如 WebCrypto）。浏览器会将 `http://localhost` 视为安全上下文，但**不会**将 `http://⟦K3⟧:⟦K4⟧` 或 `http://⟦K5⟧:⟦K6⟧` 视为安全上下文。
 
-Kaiwu relies on “secure context” browser features (WebCrypto). Browsers treat `http://localhost` as a secure context, but **not** `http://<lan-ip>:<port>` or `http://<tailscale-ip>:<port>`.
+如需远程访问（例如通过手机、另一台笔记本电脑等），应当使用 **HTTPS**。
 
-For remote access (phone, another laptop, etc) you should use **HTTPS**.
+推荐方案是使用 **Tailscale Serve**，它能为你的设备提供一个仅在 Tailnet 内可访问的 `https://*.ts.net` URL。
 
-The recommended approach is **Tailscale Serve**, which gives you an `https://*.ts.net` URL for your machine that is only accessible inside your tailnet.
+## 快速开始
 
-## Quickstart
+1) 在电脑上安装 Tailscale 并登录。
 
-1) Install Tailscale and sign in on your computer.
-
-2) Enable Serve:
+2) 启用 Serve：
 
 ```bash
 hstack tailscale enable
 hstack tailscale url
 ```
 
-3) Open the URL from `hstack tailscale url` on another device (also signed into Tailscale).
+3) 在另一台同样登录了 Tailscale 的设备上，打开来自 `hstack tailscale url` 的 URL。
 
-Tip: on iOS, you can “Add to Home Screen” from Safari to use it like an app.
+提示：在 iOS 上，可以通过 Safari 的“添加到主屏幕”功能将其当作 App 来使用。
 
-## Automation
+## 自动化配置
 
-If Serve is already configured, `hstack start` will automatically prefer the `https://*.ts.net` URL for canonical/share links unless you explicitly set `HAPPIER_STACK_SERVER_URL`.
+如果已经配置了 Serve，除非显式设置了 `HAPPIER_STACK_SERVER_URL`，否则 `hstack start` 会自动优先使用 `https://*.ts.net` URL 作为规范/分享链接。
 
-Tip: for self-hosted servers, also set `HAPPIER_PUBLIC_SERVER_URL` (usually to the same `https://*.ts.net` URL). That value is advertised by the server via `GET /v1/features` and is what clients embed in QR/deep links.
+提示：对于自托管服务器，建议同时设置 `HAPPIER_PUBLIC_SERVER_URL`（通常设为相同的 `https://*.ts.net` URL）。该值会由服务器通过 `GET /v1/features` 对外宣告，也是客户端嵌入二维码或深度链接中的地址。
 
-You can also ask hstack to enable Serve automatically at boot:
+你也可以让 hstack 在启动时自动启用 Serve：
 
 ```bash
 HAPPIER_STACK_TAILSCALE_SERVE=1 hstack start
 ```
 
-Useful knobs:
+常用调节选项：
 - `HAPPIER_STACK_TAILSCALE_WAIT_MS`
-- `HAPPIER_TAILSCALE_BIN` (preferred unified override)
-- `HAPPIER_STACK_TAILSCALE_BIN` (legacy stack-specific alias)
+- `HAPPIER_TAILSCALE_BIN`（推荐的统一覆盖项）
+- `HAPPIER_STACK_TAILSCALE_BIN`（旧版特定栈别名）
 
-## Using the native mobile app (optional)
+## 使用原生移动端 App（可选）
 
-The Kaiwu mobile app has an “API Endpoint” (or “Custom server URL”) setting in developer mode.
-Point it at the same HTTPS `*.ts.net` URL to use your local server.
+Kaiwu 移动端 App 的开发者模式中提供了“API Endpoint”（或“自定义服务器 URL”）设置项。
+将其指向相同的 HTTPS `*.ts.net` URL，即可连接你的本地服务器。
 
-However, the simplest option is usually the **served web UI** (no app updates needed).
+不过，通常最省心的方式还是直接使用 **Serve 提供的 Web UI**（无需更新 App）。

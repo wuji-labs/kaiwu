@@ -1,84 +1,80 @@
 ---
-title: Kilo (experimental)
-description: Configure Kilo in Kaiwu, including install, machine-local login, and current limitations.
+title: Kilo（实验性）
+description: 在 Kaiwu 中配置 Kilo，包括安装、设备本地登录和当前限制。
 ---
-
-Kaiwu supports **Kilo** as a local CLI-backed provider.
+Kaiwu 支持将 **Kilo** 作为由本地 CLI 驱动的提供商。
 
 <Callout type="info">
-  Kilo is an **experimental** integration. It works and people use it
-  daily, but its surface is younger than Claude, Codex or OpenCode and is
-  more likely to change. What it supports today is in
-  [Agent capabilities](/agents/capabilities).
+  Kilo 是一项**实验性**集成。它功能完备且已有人日常使用，但相比 Claude、Codex 或 OpenCode，其接口更新，未来也更可能发生变动。当前支持的功能详见[智能体能力清单](/agents/capabilities)。
 </Callout>
 
-## Requirements
+## 环境要求
 
-- Kilo CLI installed locally
-- binary available on `PATH` (or set `HAPPIER_KILO_PATH`)
+- 本地已安装 Kilo CLI
+- `PATH` 中包含其可执行文件（或设置 `HAPPIER_KILO_PATH`）
 
-## Install Kilo
+## 安装 Kilo
 
-Install Kilo on your machine, then restart Kaiwu:
+在你的设备上安装 Kilo，然后重启 Kaiwu：
 
 ```bash
 npm install -g @kilocode/cli@latest
 kilo --version
 ```
 
-Kaiwu can install it for you:
+Kaiwu 也可以为你自动安装：
 
 ```bash
 happier install provider kilo
 kilo --version
 ```
 
-## Local authentication in Kaiwu
+## 在 Kaiwu 中进行本地认证
 
-Kilo supports launching its native login flow from:
+Kilo 支持从以下路径调起其原生登录流程：
 
-- **Settings → AI & Agents → AI backends → Kilo**
+- **设置 → AI 与智能体 → AI 后端 → Kilo**
 
-From there you can:
+在此页面中，你可以：
 
-- open Kilo and start its `/connect` flow directly inside Kaiwu
-- use **Check now** to re-run auth detection on the selected machine
+- 直接在 Kaiwu 内打开 Kilo 并启动 `/connect` 流程
+- 点击**立即检测**，重新检测所选设备上的认证状态
 
-Auth-status detection for Kilo is currently conservative. Kaiwu can open the login flow, but may still show **Unknown** if Kilo does not expose a safe non-interactive local auth signal.
+当前对 Kilo 的认证状态检测策略偏保守。Kaiwu 可以打开登录流程；但若 Kilo 未暴露安全的非交互式本地认证信号，界面仍可能显示为**未知**。
 
-For the shared user guide, see [Provider authentication](/agents/provider-authentication).
+通用使用指南请参见[提供商认证](/agents/provider-authentication)。
 
-## Enable Kilo in Kaiwu (experimental)
+## 在 Kaiwu 中启用 Kilo（实验性）
 
-Kilo is behind Kaiwu’s experimental providers rollout.
+Kilo 目前属于 Kaiwu 的实验性提供商功能。
 
-In the app:
+在应用内：
 
-1. **Settings**
-2. **AI & Agents → AI backends**
-3. **Kilo (experimental)**
+1. **设置**
+2. **AI 与智能体 → AI 后端**
+3. **Kilo（实验性）**
 
-## Notes
+## 说明
 
-- Kilo runs locally on your machine through the real Kilo CLI.
-- Session capabilities such as resume, models, modes, and permissions remain capability-driven and can evolve with the installed runtime.
-- When in doubt, treat Kilo’s own CLI configuration as the source of truth for provider-native behavior.
+- Kilo 通过真实的 Kilo CLI 在你的设备本地运行。
+- 会话恢复、模型、模式和权限等会话能力均由能力机制动态驱动，并随所安装的运行时版本演进。
+- 如遇疑问，请以 Kilo 自身的 CLI 配置作为提供商原生行为的基准。
 
-## Troubleshooting
+## 故障排查
 
 ### “Kilo not found”
 
-- Confirm Kilo is installed: `kilo --version`
-- Restart Kaiwu after installing.
-- If Kilo isn’t on PATH, set `HAPPIER_KILO_PATH` to the absolute path of the `kilo` binary.
+- 确认已安装 Kilo：`kilo --version`
+- 安装完成后重启 Kaiwu。
+- 若 PATH 中未包含 Kilo，请将 `HAPPIER_KILO_PATH` 设置为 `kilo` 可执行文件的绝对路径。
 
 ### “Not authenticated”
 
-Use the Kilo provider settings page in Kaiwu or run Kilo’s normal local login flow in your terminal, then use **Check now**.
+前往 Kaiwu 中的 Kilo 提供商设置页面，或在终端运行 Kilo 常规的本地登录流程，随后点击**立即检测**。
 
-## Related
+## 相关文档
 
-- [Agent capabilities](/agents/capabilities) — what this agent supports, generated from the manifest.
-- [Choosing an agent](/agents)
-- [Model and engine selection](/agents/model-and-engine-selection)
-- [Agent authentication](/agents/provider-authentication)
+- [智能体能力清单](/agents/capabilities) — 该智能体支持的功能，基于清单配置生成。
+- [选择智能体](/agents)
+- [模型与引擎选择](/agents/model-and-engine-selection)
+- [智能体认证](/agents/provider-authentication)

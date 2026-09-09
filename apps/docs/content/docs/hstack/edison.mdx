@@ -1,267 +1,266 @@
 ---
-title: Edison (tasks, QA, validation)
-description: How we use Edison with hstack while keeping isolation via stacks + worktrees.
+title: Edison（任务、QA、验证）
+description: 我们如何结合 hstack 使用 Edison，同时通过栈与工作树保持隔离。
 ---
+## hstack 中的 Edison
 
-## Edison in hstack
+本文档介绍如何结合使用 **Edison** 与 **hstack** 进行任务管理、QA、凭证收集和验证，并通过“**栈 + 代码库工作树**”实施严格的环境隔离。
 
-This doc explains how we use **Edison** with **hstack** for task/QA/evidence/validation, while keeping isolation strictly enforced via **stacks + repo worktrees**.
+如果只记住一条核心原则：
 
-If you only remember one thing:
-
-- use `hstack edison ...` (wrapper), not `edison ...`
-- always run Edison actions in a named stack unless you have a very good reason not to
-
----
-
-## What Edison is (in one sentence)
-
-Edison is a **task + QA + evidence + validation workflow layer** with generated role prompts and trusted evidence capture.
-
-Edison is **not** responsible for isolation in this repo; isolation is provided by **hstack**.
+- 请使用 `hstack edison ...`（包装脚本），不要直接使用 `edison ...`
+- 除非有充分理由，否则务必在指定的具名栈中运行 Edison 操作
 
 ---
 
-## Isolation model in this repo
+## 一句话理解 Edison
 
-- **Repo worktrees** live under `<workspace>/{dev,pr,local,tmp}/...`
-- **Stacks** live under `~/.happier/stacks/<stack>/...` and each stack has its own ports/db/cli-home/etc.
-- Edison worktrees are **disabled** for this project (to avoid conflicting with hstack worktrees)
+Edison 是一个**任务 + QA + 凭证 + 验证工作流层**，具备角色提示词生成和可信凭证捕获能力。
 
-Practical implications:
-
-- Do **not** edit the stable checkout (typically `<workspace>/main`).
-- Do all implementation work in `<workspace>/dev` or a worktree under `<workspace>/{pr,local,tmp}/...`.
-- Run evidence/validation in the correct stack context.
+在当前代码库中，Edison **不**负责环境隔离；隔离完全由 **hstack** 提供。
 
 ---
 
-## The one correct entrypoint: `hstack edison`
+## 本代码库的隔离模型
 
-Do not run `edison ...` directly in this repo.
+- **代码库工作树**存放于 `⟦K16⟧/{dev,pr,local,tmp}/...` 下
+- **栈**存放于 `~/.happier/stacks/⟦K17⟧/...` 下，每个栈都拥有独立的端口、数据库、CLI 主目录等配置
+- 本项目**已禁用** Edison 的自带工作树（以避免与 hstack 工作树冲突）
 
-Use:
+实践建议：
 
-- `hstack edison -- <edison args...>`
-- `hstack edison --stack=<stack> -- <edison args...>` (recommended)
+- **切勿**直接修改稳定检出分支（通常为 `⟦K18⟧/main`）。
+- 所有具体开发工作均应在 `⟦K19⟧/dev` 或 `⟦K20⟧/{pr,local,tmp}/...` 下的工作树中进行。
+- 必须在正确的栈上下文中运行凭证捕获和验证。
 
-Why this wrapper is mandatory:
+---
 
-- Loads the correct stack env (`HAPPIER_STACK_STACK` + `HAPPIER_STACK_ENV_FILE`)
-- Enforces fail-closed guardrails (right stack + right repo worktree)
-- Makes evidence capture deterministic (fingerprints the actual repo checkout the stack uses)
+## 唯一正确的入口点：`hstack edison`
 
-Reference:
+切勿在此代码库中直接运行 `edison ...`。
+
+请使用：
+
+- `hstack edison -- ⟦K21⟧`
+- `hstack edison --stack=⟦K22⟧ -- ⟦K23⟧`（推荐）
+
+为什么必须使用该包装脚本：
+
+- 加载正确的栈环境变量（`HAPPIER_STACK_STACK` + `HAPPIER_STACK_ENV_FILE`）
+- 强制执行严格的故障闭锁（fail-closed）保护机制（确保匹配正确的栈和代码库工作树）
+- 保证凭证捕获的确定性（记录栈所使用实际代码库检出的指纹）
+
+参考文档：
 
 - `apps/stack/.edison/guidelines/**`
 
 ---
 
-## Sessions (important)
+## 会话（重点）
 
-Edison “sessions” still exist, but in this repo they are **not** tied to Edison-created git worktrees (hstack owns worktrees).
+Edison 的“会话”概念依然存在，但在本代码库中，会话**并未**绑定到由 Edison 创建的 Git 工作树（工作树由 hstack 统一管理）。
 
-Treat sessions as:
+请将会话视为：
 
-- ownership/coordination (“who is working on what right now”)
-- optional grouping for task/QA state
+- 归属与协同机制（“当前谁在处理什么任务”）
+- 任务与 QA 状态的可选分组方式
 
-When a command requires a session, pass it explicitly (or set the session env var for your shell).
+当命令需要会话时，请显式传入（或在当前 Shell 中设置对应的会话环境变量）。
 
-### Commands that typically require a session vs not
+### 通常需要 vs 不需要会话的命令
 
-This repo’s policy is that sessions are for **ownership**, not isolation.
+本代码库的规范是：会话用于管理**归属**，而非负责隔离。
 
-- Usually requires a session (ownership/lifecycle):
-  - `hstack edison -- task claim <task-id> --session <session-id>`
-  - `hstack edison -- task done <task-id> --session <session-id>`
-- Usually does not require a session:
-  - evidence capture: `hstack edison --stack=<stack> -- evidence capture <task-id>`
-  - validation: `hstack edison --stack=<stack> -- qa validate <task-id> --execute --preset <preset>`
+- 通常需要会话（涉及归属/生命周期）：
+  - `hstack edison -- task claim ⟦K24⟧ --session ⟦K25⟧`
+  - `hstack edison -- task done ⟦K26⟧ --session ⟦K27⟧`
+- 通常不需要会话：
+  - 凭证捕获：`hstack edison --stack=⟦K28⟧ -- evidence capture ⟦K29⟧`
+  - 验证操作：`hstack edison --stack=⟦K30⟧ -- qa validate ⟦K31⟧ --execute --preset ⟦K32⟧`
 
-Note: exact session semantics come from Edison itself; if you’re unsure, run `hstack edison -- --help`.
-
----
-
-## Task model (hstack)
-
-We keep a strict structure so stacks/worktrees are never “forgotten”.
-
-- **Parent task** (`hs_kind: parent`)
-  - planning umbrella (not claimable)
-- **Track task** (`hs_kind: track`)
-  - owns exactly one stack (`stack: <name>`)
-  - declares track (`track: upstream|fork|integration`) and scope (`components: [...]`)
-- **Component task** (`hs_kind: component`)
-  - child of a track task
-  - targets exactly one area (`component: ...`)
-
-Note: “component” here means a **service/package scope** in the monorepo (apps/ui, apps/server, packages/*), not a separate git repo.
+注：具体的会话语义由 Edison 本身定义；如有疑问，可运行 `hstack edison -- --help` 查看。
 
 ---
 
-## Planning a feature (recommended workflow)
+## 任务模型（hstack）
 
-### 1) Read the project “planning slash command”
+我们采用严格的任务层级结构，以确保栈与工作树始终井然有序、不会被遗漏或遗忘。
+
+- **父任务**（`hs_kind: parent`）
+  - 规划统筹项（不可认领）
+- **轨道任务**（`hs_kind: track`）
+  - 独占绑定一个栈（`stack: ⟦K33⟧`）
+  - 声明轨道（`track: upstream|fork|integration`）与作用域（`components: [...]`）
+- **组件任务**（`hs_kind: component`）
+  - 轨道任务的子任务
+  - 专门针对某一具体区域（`component: ...`）
+
+注：此处的“组件”指单一代码仓库（monorepo）中的**服务或包级作用域**（如 apps/ui、apps/server、packages/*），并非独立的 Git 仓库。
+
+---
+
+## 功能规划（推荐工作流）
+
+### 1) 查阅项目的“规划斜杠命令”
 
 ```bash
 hstack edison -- read START_PLAN_FEATURE --type start
 ```
 
-### 2) Create a parent task
+### 2) 创建父任务
 
 ```bash
 hstack edison -- task new --id <id> --slug <slug>
 ```
 
-Then edit the created file under `.project/tasks/...` and set the mandatory frontmatter:
+接着编辑 `.project/tasks/...` 下新创建的文件，设置必填的 frontmatter 元数据：
 
 - `hs_kind: parent`
 - `components: [...]`
 
-### 3) Scaffold everything (preferred)
+### 3) 自动搭建全部脚手架（推荐）
 
-Use the hstack wrapper scaffold helper:
+使用 hstack 包装脚本提供的脚手架辅助工具：
 
 ```bash
 hstack edison task:scaffold <parent-task-id> --mode=upstream|fork|both --yes
 ```
 
-This is intended to be idempotent and will best-effort:
+该操作具备幂等性，并会尽可能自动完成以下事项：
 
-- create track + component subtasks
-- create stacks for tracks
-- create repo worktrees
-- pin stacks to those worktrees
+- 创建轨道与组件子任务
+- 为各个轨道创建栈
+- 创建代码库工作树
+- 将栈固定到对应的代码库工作树
 
 ---
 
-## Recommended flow (implementation)
+## 推荐流程（开发实施）
 
-1) Create or choose a stack for the work:
+1) 为该项工作创建或选择一个栈：
 
 ```bash
 hstack stack new exp1
 hstack stack wt exp1 -- use dev
 ```
 
-2) Use the wrapper for Edison work:
+2) 使用包装脚本执行 Edison 相关操作：
 
 ```bash
 hstack edison --stack=exp1 -- <edison args...>
 ```
 
-3) Capture evidence and validate:
+3) 捕获凭证并执行验证：
 
 ```bash
 hstack edison --stack=exp1 -- evidence capture <task-id>
 hstack edison --stack=exp1 -- qa validate <task-id> --execute --preset <preset>
 ```
 
-Note: hstack may enforce a preset policy for `qa validate --execute`.
+注：hstack 可能会针对 `qa validate --execute` 强制执行预设策略。
 
 ---
 
-## Evidence and validation details
+## 凭证捕获与验证细节
 
-### Evidence capture
+### 凭证捕获
 
-Evidence should be captured via Edison (snapshot-based and staleness-aware):
+凭证应通过 Edison 捕获（基于快照机制，且能感知内容过期状态）：
 
 ```bash
 hstack edison --stack=<stack> -- evidence capture <task-id> --preset <preset>
 ```
 
-To inspect evidence:
+查看凭证详情：
 
 ```bash
 hstack edison --stack=<stack> -- evidence status <task-id> --preset <preset>
 hstack edison --stack=<stack> -- evidence show <task-id> --command <command-name>
 ```
 
-### Validation presets (policy)
+### 验证预设（策略要求）
 
-This repo typically requires an explicit preset when executing validations:
+本代码库在执行验证时，通常要求显式指定预设：
 
 ```bash
 hstack edison --stack=<stack> -- qa validate <task-id> --execute --preset <preset>
 ```
 
-Presets and policy live under `apps/stack/.edison/config/`.
+预设与策略规则位于 `apps/stack/.edison/config/` 下。
 
 ---
 
-## Where Edison stores things
+## Edison 存储路径说明
 
-In this repo, Edison config is shipped with hstack under:
+在本代码库中，Edison 配置随 hstack 一同提供，存放于：
 
 - `apps/stack/.edison/`
-  - `config/` (project config)
-  - `start/` (role prompts / slash commands)
-  - `templates/` (task/QA templates)
-  - `packs/` (project-specific logic)
-  - `validators/` (validator overlays/presets)
+  - `config/`（项目配置）
+  - `start/`（角色提示词 / 斜杠命令）
+  - `templates/`（任务/QA 模板）
+  - `packs/`（项目专属逻辑）
+  - `validators/`（验证器覆盖层/预设）
 
-Generated content (do not edit by hand):
+自动生成的内容（请勿手动编辑）：
 
 - `apps/stack/.edison/_generated/`
 
-Local task/QA state (gitignored):
+本地任务/QA 状态（已被 gitignore 忽略）：
 
 - `.project/**`
 
-Key directories under `.project/` (convention):
+`.project/` 下的关键约定目录：
 
 - `.project/tasks/{todo,wip,done,validated,blocked}/...`
 - `.project/qa/...`
 
 ---
 
-## Customization points (where to change behavior safely)
+## 自定义扩展点（如何安全修改行为）
 
-- Project configuration: `apps/stack/.edison/config/`
-- Project templates (task/QA scaffolding): `apps/stack/.edison/templates/`
-- Project pack logic (guards/policies): `apps/stack/.edison/packs/`
-- Guidelines and role prompts: `apps/stack/.edison/guidelines/` and `apps/stack/.edison/start/`
+- 项目配置：`apps/stack/.edison/config/`
+- 项目模板（任务/QA 脚手架）：`apps/stack/.edison/templates/`
+- 项目包逻辑（保护策略/规则）：`apps/stack/.edison/packs/`
+- 指南与角色提示词：`apps/stack/.edison/guidelines/` 与 `apps/stack/.edison/start/`
 
 ---
 
-## Evidence + validation (how to do it correctly)
+## 凭证与验证（正确操作指引）
 
-Recommended: always run Edison evidence/validation **stack-scoped**:
+推荐做法：始终在**限定栈作用域**下运行 Edison 凭证捕获与验证：
 
 ```bash
 hstack edison --stack=dev -- evidence capture <task-id>
 hstack edison --stack=dev -- qa validate <task-id> --execute
 ```
 
-This makes evidence deterministic because hstack pins the repo checkout used by the stack.
+由于 hstack 会将栈所使用的代码库检出路径固定下来，因此这种方式能确保凭证结果的确定性。
 
 ---
 
-## Operational commands you’ll use a lot
+## 高频运维命令
 
-- List stack state: `hstack stack list`, `hstack stack info <stack>`
-- Ensure the stack is pinned to the right checkout: `hstack stack wt <stack> -- use <spec>`
-- Open a task file quickly (editor): open `.project/tasks/.../<id>.md`
+- 列出栈状态：`hstack stack list`、`hstack stack info ⟦K34⟧`
+- 确保栈绑定到正确的代码检出路径：`hstack stack wt ⟦K35⟧ -- use ⟦K36⟧`
+- 在编辑器中快速打开任务文件：打开 `.project/tasks/.../⟦K37⟧.md`
 
 ---
 
-## Common failure modes (and what to do)
+## 常见故障模式与应对策略
 
-### “Wrong stack” / “wrong repo checkout”
+### “栈不匹配” / “代码库检出路径错误”
 
-Fix by pinning the stack to the intended checkout:
+解决方法：将栈重新绑定到目标检出分支：
 
 ```bash
 hstack stack wt <stack> -- use dev
 ```
 
-Then re-run the Edison command with `--stack=<stack>`.
+然后附带 `--stack=⟦K38⟧` 参数重新运行 Edison 命令。
 
-### “Validation refused (preset required)”
+### “验证被拒绝（必须指定预设）”
 
-Follow the printed message and rerun with an explicit preset:
+根据终端打印的提示信息，显式传入预设名称并重新运行：
 
 ```bash
 hstack edison --stack=<stack> -- qa validate <task-id> --execute --preset <preset>
@@ -269,22 +268,22 @@ hstack edison --stack=<stack> -- qa validate <task-id> --execute --preset <prese
 
 ---
 
-## Quick “start here” for an LLM
+## 大语言模型（LLM）极简上手指南
 
-1. Identify the stack you should use (never use `main` for risky work):
+1. 确认应使用的栈（高风险操作严禁使用 `main`）：
 
 ```bash
 hstack stack list
 hstack stack info dev
 ```
 
-2. Make sure the stack points at the correct checkout/worktree:
+2. 确保该栈指向正确的检出分支/工作树：
 
 ```bash
 hstack stack wt dev -- use dev
 ```
 
-3. Use the wrapper for any Edison work:
+3. 所有 Edison 相关操作均使用包装脚本执行：
 
 ```bash
 hstack edison --stack=dev -- <edison args...>

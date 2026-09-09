@@ -1,64 +1,62 @@
 ---
-title: Custom Auth Providers
-description: How to add custom login providers (including enterprise forks) without duplicating core auth logic.
+title: 自定义认证提供商
+description: 如何在不重复核心认证逻辑的情况下添加自定义登录提供商（包括企业定制分支）。
 ---
+Kaiwu 服务端支持**提供商模块注册表**，无需重写核心路由编排或 `/v1/features` 通告逻辑，即可扩展新的身份验证机制。
 
-Kaiwu’s server supports a **provider-module registry** so new authentication mechanisms can be added without rewriting core route wiring or `/v1/features` advertising.
+核心设计思路：
 
-Key idea:
+- 每种身份验证机制对应一个**验证方式**（auth method）。
+- 一种验证方式可支持多种**操作**（例如：`login`、`provision`、`connect`）。
+- 服务端通过 `capabilities.auth.methods[]` 统一对外通告支持的验证方式。
 
-- An auth mechanism is an **auth method**.
-- A method can support multiple **actions** (for example: `login`, `provision`, `connect`).
-- The server advertises methods centrally via `capabilities.auth.methods[]`.
+## 提供商模块（服务端）
 
-## Provider modules (server)
-
-Provider modules live under:
+提供商模块位于：
 
 - `apps/server/sources/app/auth/providers/*`
 
-The registry is assembled in:
+注册表组装于：
 
 - `apps/server/sources/app/auth/providers/providerModules.ts`
 
-Each module can contribute one or more **facets**:
+每个模块均可提供一个或多个**切面**（facet）：
 
-- `oauth`: OAuth redirect/callback flow wiring (e.g. GitHub/OIDC)
-- `identity`: identity linking + offboarding eligibility enforcement
-- `auth`: provider status/capabilities surfaced under `capabilities.auth.providers`
+- `oauth`：编排 OAuth 重定向与回调流程（例如 GitHub/OIDC）
+- `identity`：身份关联以及离职/注销资格校验
+- `auth`：在 `capabilities.auth.providers` 下公开提供商状态与支持的功能
 
-Non-OAuth auth methods (like mTLS) are registered separately via the **auth-method registry**:
+非 OAuth 验证方式（如 mTLS）则通过**验证方式注册表**单独注册：
 
 - `apps/server/sources/app/auth/methods/registry.ts`
 - `apps/server/sources/app/auth/methods/modules/*`
 
-## Adding a custom auth method (enterprise fork)
+## 添加自定义验证方式（企业定制分支）
 
-Auth methods are the right extension point for login mechanisms that are **not** the built-in key-challenge route and are **not** implemented via OAuth/OIDC config.
+若登录机制**既非**内置的密钥质询路由，**也未**通过 OAuth/OIDC 配置实现，那么“验证方式”就是理想的扩展点。
 
-1. Create a new auth-method module, for example:
+1. 新建验证方式模块，例如：
    - `apps/server/sources/app/auth/methods/modules/acmeAuthMethodModule.ts`
 
-2. Implement an `AuthMethodModule`:
-   - Types: `apps/server/sources/app/auth/methods/types.ts`
-   - Reference implementation (mTLS): `apps/server/sources/app/auth/methods/modules/mtlsAuthMethodModule.ts`
+2. 实现 `AuthMethodModule`：
+   - 类型定义：`apps/server/sources/app/auth/methods/types.ts`
+   - 参考实现（mTLS）：`apps/server/sources/app/auth/methods/modules/mtlsAuthMethodModule.ts`
 
-3. Register the module by adding it to `staticAuthMethodModules` in:
-   - `apps/server/sources/app/auth/methods/registry.ts`
+3. 将模块添加到 `apps/server/sources/app/auth/methods/registry.ts` 中的 `staticAuthMethodModules` 进行注册。
 
-After that:
+完成上述步骤后：
 
-- `authRoutes(...)` will register your login routes automatically.
-- Boot-time lockout prevention uses the advertised `capabilities.auth.methods[]` actions; ensure your method reports at least one enabled `login`/`provision` action when correctly configured.
-- `/v1/features` will advertise methods via `capabilities.auth.methods[]` so clients can render options without guessing.
+- `authRoutes(...)` 将自动注册你的登录路由。
+- 服务端在启动时会依据通告的 `capabilities.auth.methods[]` 操作执行防锁定检查；正确配置时，请确保该验证方式至少上报一个已启用的 `login`/`provision` 操作。
+- `/v1/features` 会通过 `capabilities.auth.methods[]` 通告这些验证方式，便于客户端明确获知并渲染对应选项。
 
-## UI considerations
+## UI 注意事项
 
-Adding a server login provider does not automatically add a UI login flow.
+在服务端添加登录提供商不会自动生成前端 UI 登录流程。
 
-The built-in mTLS flow is implemented as:
+内置的 mTLS 流程实现方式如下：
 
-- Web: `POST /v1/auth/mtls`
-- Mobile handoff: `/v1/auth/mtls/start` → `/v1/auth/mtls/complete` → `POST /v1/auth/mtls/claim`
+- Web 端：`POST /v1/auth/mtls`
+- 移动端交接：`/v1/auth/mtls/start` → `/v1/auth/mtls/complete` → `POST /v1/auth/mtls/claim`
 
-Enterprise forks can implement custom UI flows similarly, while still using the shared login-provider registration and feature advertising from core.
+企业分支可以参照此方式实现自定义 UI 流程，同时继续复用核心层提供的通用登录提供商注册与功能通告机制。

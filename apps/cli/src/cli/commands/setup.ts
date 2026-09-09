@@ -1,5 +1,5 @@
 /**
- * `happier setup` — the guided first run.
+ * `kaiwu setup` — the guided first run.
  *
  * Fresh interactive installs hand off here after the binary is ready. This asks
  * the one question the client cannot answer for itself: where the relay lives.
@@ -42,7 +42,7 @@ import {
  * What setup hands its children when nobody is watching.
  *
  * `isInteractiveTerminal()` answers from the controlling terminal, and a script
- * that runs `happier setup --yes` from a shell still has one — so a child left
+ * that runs `kaiwu setup --yes` from a shell still has one — so a child left
  * to decide for itself will happily prompt for a relay profile name nobody is
  * going to type. `HAPPIER_NONINTERACTIVE=1` is the signal the installers
  * already use to mean exactly this, and the CLI's one reader of it is
@@ -50,10 +50,10 @@ import {
  */
 const UNATTENDED_CHILD_ENV: NodeJS.ProcessEnv = { HAPPIER_NONINTERACTIVE: '1' };
 
-const HELP = `happier setup — connect this computer to your Kaiwu account
+const HELP = `kaiwu setup — connect this computer to your Kaiwu account
 
 Usage:
-  happier setup [options]
+  kaiwu setup [options]
 
 Options:
   --cloud                 Use Kaiwu Cloud without being asked
@@ -146,7 +146,7 @@ async function printRelayReachabilityNextSteps(reachability: SetupRelayReachabil
         console.log('nothing behind them. Start it and re-run the install to publish this relay:');
         console.log('');
         console.log('  tailscale up');
-        console.log('  happier relay host install');
+        console.log('  kaiwu relay host install');
         console.log('');
         return;
     }
@@ -154,13 +154,13 @@ async function printRelayReachabilityNextSteps(reachability: SetupRelayReachabil
         console.log('Tailscale is running, but the relay was not published on it. Re-run the');
         console.log('canonical install command to retry or review the Tailscale result:');
         console.log('');
-        console.log('  happier relay host install');
+        console.log('  kaiwu relay host install');
         console.log('');
         return;
     }
     console.log('If you already have an HTTPS address for it, point Kaiwu at that:');
     console.log('');
-    console.log('  happier server add --server-url https://relay.example.com --use');
+    console.log('  kaiwu server add --server-url https://relay.example.com --use');
     console.log('');
 }
 
@@ -197,7 +197,7 @@ async function offerTailscaleSetup(): Promise<void> {
     console.log('and select the address through the same checked path setup uses:');
     console.log('');
     console.log('  tailscale up');
-    console.log('  happier relay host install');
+    console.log('  kaiwu relay host install');
     console.log('');
 }
 
@@ -268,7 +268,7 @@ async function askWhereTheRelayLives(): Promise<SetupRelaySelection> {
     if (choice === 'thisComputer') return { kind: 'thisComputer' };
 
     const url = (await promptInput('Relay URL: ')).trim();
-    if (!url) throw new Error('A relay URL is required to continue. Re-run `happier setup` when you have it.');
+    if (!url) throw new Error('A relay URL is required to continue. Re-run `kaiwu setup` when you have it.');
     return { kind: 'existing', url };
 }
 
@@ -285,7 +285,7 @@ async function runStep(step: SetupStep, unattended: boolean): Promise<boolean> {
     switch (step.kind) {
         case 'alreadyConfigured':
             console.log(`This computer is already set up (relay: ${step.relayUrl}).`);
-            console.log('Run `happier status` to check everything, or `happier` to start a session.');
+            console.log('Run `kaiwu status` to check everything, or `kaiwu` to start a session.');
             return true;
         case 'explainRelayReachability':
             printRelayReachabilityIntro(step.reachability);
@@ -319,13 +319,13 @@ async function runStep(step: SetupStep, unattended: boolean): Promise<boolean> {
             console.log('No coding agent found on this computer.');
             console.log('');
             console.log("Kaiwu drives your coding agent; it does not ship one. Install at least");
-            console.log('one, then run `happier` again:');
+            console.log('one, then run `kaiwu` again:');
             console.log('');
             console.log('  Claude Code   curl -fsSL https://claude.ai/install.sh | bash');
-            console.log('  Codex         happier install provider codex');
-            console.log('  OpenCode      happier install provider opencode');
+            console.log('  Codex         kaiwu install provider codex');
+            console.log('  OpenCode      kaiwu install provider opencode');
             console.log('');
-            console.log('  See them all: happier install provider --help');
+            console.log('  See them all: kaiwu install provider --help');
             return true;
         default:
             return true;
@@ -344,7 +344,7 @@ export async function handleSetupCliCommand(context: CommandContext): Promise<vo
         // Silently ignoring an unknown or contradictory flag is how a misspelled
         // `--this-computer` became a Cloud account nobody asked for.
         console.error(parsed.message);
-        console.error('Run `happier setup --help` to see the options.');
+        console.error('Run `kaiwu setup --help` to see the options.');
         process.exitCode = 1;
         return;
     }
@@ -407,8 +407,8 @@ export async function handleSetupCliCommand(context: CommandContext): Promise<vo
         const ok = await runStep(step, unattended);
         if (!ok) {
             console.log('');
-            console.log('Setup stopped. Nothing was lost — run `happier setup` again to pick up where you left off,');
-            console.log('or `happier status` to see what is configured.');
+            console.log('Setup stopped. Nothing was lost — run `kaiwu setup` again to pick up where you left off,');
+            console.log('or `kaiwu status` to see what is configured.');
             // Exit non-zero so the installer reports setup as incomplete rather
             // than printing "you're ready". Installing the binary still
             // succeeded; finishing the guided setup did not.

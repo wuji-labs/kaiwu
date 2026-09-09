@@ -1,72 +1,63 @@
 ---
-title: Kaiwu MCP (external)
-description: Run Kaiwu as an external stdio MCP server so editors and agents can start/manage sessions and execute Kaiwu actions.
+title: Kaiwu MCP（外部）
+description: 将 Kaiwu 作为外部 stdio MCP 服务器运行，以便编辑器和智能体能够启动/管理会话并执行 Kaiwu 操作。
 ---
+MCP 包含两个交互方向，本文介绍其中之一：**由外部程序驱动 Kaiwu**。如果你希望为自己的 Agent 扩充更多工具，请参阅 [MCP servers](/extending/mcp-servers)。
 
-MCP points in two directions, and this page covers one of them: **something else
-driving Kaiwu**. If you are here to give your agent more tools, you want
-[MCP servers](/extending/mcp-servers) instead.
+Kaiwu 可以运行自身的**外部 MCP 服务**，方便其他 MCP 宿主（如编辑器、Agent、自动化工作流）控制 Kaiwu：
 
-Kaiwu can run its own **external MCP server** so other MCP hosts — editors,
-agents, automations — can control Kaiwu:
+- 列出并查看会话
+- 启动、停止或归档会话
+- 向会话发送消息
+- 修改会话标题、权限模式或模型
+- 启动执行任务（review / plan / delegate / voice agent）
+- 执行任何已启用的 Kaiwu 操作（以操作规范为事实来源）
 
-- list and inspect sessions
-- start/stop/archive sessions
-- send messages to sessions
-- change a session’s title / permission mode / model
-- start execution runs (review / plan / delegate / voice agent)
-- execute any enabled Kaiwu action (using the action spec as source of truth)
+这与**在 Kaiwu 内部管理的 MCP 服务**（如 Playwright、GitHub 等）不同，后者请参阅 [MCP servers](/extending/mcp-servers)。
 
-This is separate from **MCP servers you manage inside Kaiwu** (Playwright, GitHub, etc). Those are documented under [MCP servers](/extending/mcp-servers).
+外部 MCP 服务与桌面端 App、CLI、语音及会话 Agent 等各个界面共用同一个操作目录。每个操作可以：
 
-The external MCP server uses the same action catalog as the app, CLI, voice, and session-agent surfaces. An action can be:
+- 在特定界面上可用，
+- 通过 `action_spec_search` / `action_spec_get` 发现，
+- 直接公开为专属的命名 MCP 工具。
 
-- available on a surface,
-- discoverable through `action_spec_search` / `action_spec_get`,
-- exposed as its own direct named MCP tool.
+这些属于独立的控制项。出于兼容性考虑，外部 MCP 和 CLI 界面默认保留直接命名的工具；而会话内 Agent 默认采用更精简、优先通过发现机制调用的直接工具集。
 
-Those are separate controls. External MCP and CLI surfaces keep direct named tools by default for compatibility, while in-session agents default to a smaller discovery-first direct tool set.
+这种“直接公开 / 仅可发现”的暴露模型仅适用于 Kaiwu 原生操作支撑的工具。它不会把 Kaiwu 内部管理的 MCP 服务工具变成仅可发现；这些自定义工具仍由 **Settings → MCP servers** 进行控制。
 
-This direct/discoverable exposure model is for Kaiwu action-backed tools. It does not make tools from MCP servers managed inside Kaiwu discoverable-only; those custom tools remain controlled from **Settings → MCP servers**.
+## 授予的权限
 
-## What you are granting
+`happier mcp serve` 会使用 CLI 的已认证凭据，并以**与 MCP 宿主进程相同的本地权限**运行。配置宿主来生成该进程实质上是一次授权行为，而非单纯的连接设置。
 
-`happier mcp serve` runs with the **same local privileges as the MCP host
-process**, using your CLI's authenticated credentials. Configuring a host to
-spawn it is a privilege grant, not a connection setting.
-
-That host can execute enabled Kaiwu actions, request approvals — and execute
-immediately where the surface does not require one — and reach whatever sessions
-your account allows.
+该宿主可以执行已启用的 Kaiwu 操作，请求审批（对于无需审批的界面则立即执行），并访问当前账号权限内的所有会话。
 
 <Callout type="warn">
-  Treat an MCP host's server configuration the way you would treat a shell
-  profile: anything that can edit it can act as you.
+  请像对待 shell 配置文件一样对待 MCP 宿主的服务配置：任何能修改它的程序，都能以你的身份执行操作。
 </Callout>
 
-## Run the server
+## 运行服务
 
-The external MCP server is a **stdio MCP server** (meant to be spawned by an MCP host):
+外部 MCP 服务是一个 **stdio 模式的 MCP 服务**（设计上由 MCP 宿主负责启动）：
 
 ```bash
 happier mcp serve
 ```
 
-`happier mcp start` is accepted as a compatibility alias.
+`happier mcp start` 可作为兼顾兼容性的别名使用。
 
-If you are wiring up a new host, keep `serve` as the canonical command name in your config so the intent is obvious to the next person who reads it.
+如果正在接入新宿主，建议在配置中保留规范命令名 `serve`，以便后续协作者能一目了然地理解其意图。
 
-Optionally set a default session context for tools that can infer “current session”:
+针对支持推导“当前会话”的工具，你也可以选择设置默认的会话上下文：
 
 ```bash
 happier mcp serve --session <session-id>
 ```
 
-## Configure an MCP host
+## 配置 MCP 宿主
 
-Most MCP hosts let you configure a server by specifying a **command** and **args**.
+大多数 MCP 宿主允许通过指定 **command** 和 **args** 来配置服务。
 
-Example shape:
+配置示例如下：
 
 ```json
 {
@@ -79,16 +70,16 @@ Example shape:
 }
 ```
 
-Notes:
+注意事项：
 
-- Ensure `happier` is on `PATH`, or use an absolute path to the binary — many hosts do not run in the same shell environment as your terminal. `which happier` gives you the path to paste.
-- **Match the lane you actually use.** A preview or dev install is a different command: `happier` (stable), `hprev` (preview), `hdev` (dev). Configuring the host with a lane you do not use is a common cause of confusing behaviour.
-- The MCP host must run on a machine that is already authenticated to Kaiwu, or the server will fail with `not_authenticated`.
-- For security, `happier mcp serve` does **not** honor server-selection *environment variables* (like `HAPPIER_SERVER_URL`). To target a non-default server, pass the CLI server flags in `args` (see below) or switch the active server profile in the CLI home directory.
+- 请确保 `happier` 位于 `PATH` 中，或者直接使用二进制文件的绝对路径——许多宿主运行时的 shell 环境与终端并不一致。运行 `which happier` 即可获取可供粘贴的完整路径。
+- **务必与实际使用的版本通道保持一致。** 预览版或开发版的命令各不相同：`happier`（稳定版）、`hprev`（预览版）、`hdev`（开发版）。给宿主配置了未实际使用的通道，往往会导致各种令人困惑的问题。
+- MCP 宿主必须运行在已完成 Kaiwu 认证的设备上，否则服务启动会报错 `not_authenticated`。
+- 出于安全考虑，`happier mcp serve` **不会**读取用于指定服务器的*环境变量*（如 `HAPPIER_SERVER_URL`）。如需连接非默认服务器，请在 `args` 中传入 CLI 服务器标志（见下文），或者在 CLI 主目录中切换当前的服务器配置文件。
 
-### Target a specific server
+### 指定特定服务器
 
-If your MCP host supports it, include the normal CLI server selection flags in the configured `args`:
+如果 MCP 宿主支持，可以在配置的 `args` 中加入常规的 CLI 服务器选择标志：
 
 ```json
 {
@@ -101,7 +92,7 @@ If your MCP host supports it, include the normal CLI server selection flags in t
 }
 ```
 
-Or use ad-hoc URLs:
+或者使用临时的 URL：
 
 ```json
 {
@@ -114,15 +105,14 @@ Or use ad-hoc URLs:
 }
 ```
 
+## 快速冒烟测试
 
-## Quick smoke test
-
-If you want to verify the server is wired correctly, point any MCP host or inspector at:
+若要验证服务接入是否正常，可以使用任意 MCP 宿主或 Inspector 连接以下配置：
 
 - `command`: `happier`
 - `args`: `["mcp", "serve"]`
 
-Then try the session-control tools first:
+接着优先测试会话控制类工具：
 
 - `session_list`
 - `session_message_send`
@@ -130,34 +120,34 @@ Then try the session-control tools first:
 - `session_title_set`
 - `session_permission_mode_set`
 
-If those work, try the generic path next:
+若上述工具工作正常，再测试通用调用路径：
 
 - `action_spec_search`
 - `action_spec_get`
 - `action_execute`
 
-That gives you a quick end-to-end check that the server, account auth, action catalog, and approval routing are all connected.
+这样即可快速完成端到端校验，确认服务、账号认证、操作目录以及审批路由均已正常连通。
 
-## Tool call examples
+## 工具调用示例
 
-The exact JSON shape depends on your MCP host, but tool calls generally pass an **args** object that matches the tool’s input schema.
+具体的 JSON 结构取决于所使用的 MCP 宿主，但工具调用通常都会传入一个符合该工具输入模式（input schema）的 **args** 对象。
 
-If you’re unsure about a tool’s fields, use the discovery tools first:
+如果对工具包含哪些字段存疑，可以先使用发现类工具查询：
 
-- `action_spec_get` (to see `inputSchema`, `inputHints`, and examples)
-- `action_options_resolve` (to resolve valid options for a field)
+- `action_spec_get`（用于查看 `inputSchema`、`inputHints` 及示例）
+- `action_options_resolve`（用于解析某个字段的有效选项）
 
-### List sessions
+### 列出会话
 
-Call `session_list` with no args:
+不传参数直接调用 `session_list`：
 
 ```json
 {}
 ```
 
-### Send a message (and wait for idle)
+### 发送消息（并等待空闲）
 
-Call `session_message_send`:
+调用 `session_message_send`：
 
 ```json
 {
@@ -168,14 +158,14 @@ Call `session_message_send`:
 }
 ```
 
-Optional overrides (when supported by the backend):
+可选覆盖项（需后端支持）：
 
 - `permissionModeOverride`
-- `modelOverride` (use `null` to clear an override when applicable)
+- `modelOverride`（在适用情况下，可使用 `null` 清除覆盖配置）
 
-### Wait for a session to become idle (no message send)
+### 等待会话变为空闲（不发送消息）
 
-Call `session_wait_idle`:
+调用 `session_wait_idle`：
 
 ```json
 {
@@ -184,11 +174,11 @@ Call `session_wait_idle`:
 }
 ```
 
-### Rename a session
+### 重命名会话
 
-Rename the current/default session context:
+重命名当前或默认的会话上下文：
 
-Call `change_title`:
+调用 `change_title`：
 
 ```json
 {
@@ -196,9 +186,9 @@ Call `change_title`:
 }
 ```
 
-Rename a specific session by id/prefix:
+通过 ID 或前缀重命名特定会话：
 
-Call `session_title_set`:
+调用 `session_title_set`：
 
 ```json
 {
@@ -207,9 +197,9 @@ Call `session_title_set`:
 }
 ```
 
-### Change the permission mode for a session
+### 修改会话的权限模式
 
-Call `session_permission_mode_set`:
+调用 `session_permission_mode_set`：
 
 ```json
 {
@@ -218,11 +208,11 @@ Call `session_permission_mode_set`:
 }
 ```
 
-### Start an execution run (plan/review/delegate/voice agent)
+### 启动执行任务（plan/review/delegate/voice agent）
 
-Call `execution_run_start` to start a structured Kaiwu-managed run in a session. It requires an `intent` plus a backend target.
+调用 `execution_run_start` 可以在会话中启动一个受 Kaiwu 托管的结构化任务。该调用需要提供 `intent` 以及后端目标。
 
-Example:
+示例：
 
 ```json
 {
@@ -233,89 +223,89 @@ Example:
 }
 ```
 
-The backend target selects which provider/backend runs the execution run. It is not a capacity slot. If you choose multiple backend targets through an action that supports that shape, Kaiwu starts one managed run per selected provider/backend.
+后端目标决定由哪个提供商/后端来承载执行任务，它并非容量配额槽位。如果通过支持该结构的操作选择了多个后端目标，Kaiwu 会为每个选定的提供商/后端分别启动一个受管任务。
 
-## What tools you get
+## 包含的工具
 
-The external MCP surface is a blend of:
+外部 MCP 界面包含以下两类工具的组合：
 
-- **Kaiwu action tools** (generated from the action spec catalog)
-- a few **manual convenience tools** (for common control-plane behaviors)
+- **Kaiwu 操作工具**（基于操作规范目录自动生成）
+- 少量**预置便捷工具**（用于处理常用的控制平面操作）
 
-Common session control tool examples:
+常用会话控制工具示例：
 
 - `session_list`
 - `session_status_get`
 - `session_message_send`
 - `session_stop`
 - `session_archive` / `session_unarchive`
-- `change_title` (rename the current/default session)
+- `change_title`（重命名当前/默认会话）
 - `session_title_set`
 - `session_permission_mode_set`
 - `session_model_set`
 - `session_wait_idle`
 
-Action discovery tools:
+操作发现工具：
 
 - `action_spec_search`
 - `action_spec_get`
 - `action_options_resolve`
 
-Generic executor tool:
+通用执行工具：
 
-- `action_execute` (execute any enabled action by `actionId` with structured `input`)
+- `action_execute`（通过 `actionId` 传入结构化 `input` 来执行任意已启用的操作）
 
-Execution run tool:
+执行任务工具：
 
 - `execution_run_start`
 
-The exact set depends on what your account has enabled, which surfaces are enabled, and whether the action is configured as a direct tool or discoverable-only for that surface. See “Approvals, enablement, and exposure”.
+具体可用的工具集合取决于当前账号的启用状态、各界面的启用配置，以及操作在该界面中是被配置为直接工具还是仅可发现。详情请参阅“审批、启用与公开方式”。
 
-## Session context and tool variants
+## 会话上下文与工具变体
 
-Some tools operate on a **specific session**, and some operate on the **current/default session**.
+部分工具针对**特定会话**生效，而另一部分则作用于**当前或默认会话**。
 
-### Default session (`--session`) vs explicit `sessionId`
+### 默认会话（`--session`）与显式指定 `sessionId`
 
-- Many session control tools accept an explicit `sessionId` argument.
-- If a tool supports inferring the session and you do not pass `sessionId`, Kaiwu uses:
-  1) the `--session <session-id>` value passed at `happier mcp serve` startup (if any), otherwise
-  2) a global “no session selected” context (some tools will fail with `session_not_selected` in that case).
+- 许多会话控制工具都支持显式传入 `sessionId` 参数。
+- 如果工具支持自动推导会话，而你并未传入 `sessionId`，Kaiwu 会采用以下逻辑：
+  1) 优先使用在 `happier mcp serve` 启动时传入的 `--session ⟦K20⟧` 值（如果有）；
+  2) 否则使用全局“未选择会话”上下文（此时部分工具会报错 `session_not_selected`）。
 
-For deterministic automations, prefer passing an explicit `sessionId`.
+为了保证自动化流程的行为确定性，建议显式传入 `sessionId`。
 
-### Session ids and prefixes
+### 会话 ID 与前缀
 
-When a tool accepts `sessionId`, it generally accepts either:
+当工具接收 `sessionId` 时，通常支持以下两种形式：
 
-- a full session id, or
-- an **unambiguous prefix**.
+- 完整的会话 ID，或者
+- **无歧义的前缀**。
 
-If the prefix matches multiple sessions, the tool call fails and includes candidates.
-For saved MCP host configs (long-lived), prefer full ids.
+如果前缀匹配到了多个会话，工具调用将会失败，并返回候选会话列表。
+对于保存在 MCP 宿主配置中的持久设置，建议始终使用完整 ID。
 
-### Changing titles: `change_title` vs `session_title_set`
+### 修改标题：`change_title` 对比 `session_title_set`
 
-There are two common ways to rename a session:
+重命名会话有两种常见方式：
 
-- `change_title`: a convenience tool that takes only `{ "title": "..." }` and renames the current/default session context.
-- `session_title_set`: the action-backed tool for `session.title.set` that supports passing a `sessionId` when you want to rename a specific session.
+- `change_title`：便捷工具，仅接收 `{ "title": "..." }`，用于重命名当前或默认的会话上下文。
+- `session_title_set`：基于 `session.title.set` 操作的原生工具，支持传入 `sessionId` 来重命名指定会话。
 
-Both routes go through the same action catalog and the same per-surface policy (enablement + approvals).
+这两种方式都走同一个操作目录，并受制于同一套分界面策略（启用状态与审批配置）。
 
-## Generic action execution
+## 通用操作执行
 
-The external MCP server also exposes a generic tool:
+外部 MCP 服务还提供了一个通用工具：
 
 - `action_execute`
 
-Use it when:
+适用于以下场景：
 
-- you already know the exact `actionId`
-- you want to call an action that does not have a dedicated named tool
-- you want to manage approval artifacts programmatically
+- 你已知悉确切的 `actionId`
+- 想要调用的操作没有专属的命名工具
+- 需要以编程方式管理审批凭据
 
-Shape:
+调用格式：
 
 ```json
 {
@@ -327,49 +317,49 @@ Shape:
 }
 ```
 
-Notes:
+注意事项：
 
-- `actionId` is the canonical dotted id (example: `session.title.set`).
-- Tool names are typically `snake_case` (example: `session_title_set`) and map to the same underlying action.
+- `actionId` 为点分格式的标准 ID（例如：`session.title.set`）。
+- 工具名称通常采用 `snake_case` 形式（例如：`session_title_set`），二者映射至同一个底层操作。
 
-This is also the path to advanced approval actions such as:
+高级审批操作同样通过该路径调用，例如：
 
 - `approval.request.create`
 - `approval.request.decide`
 
-Those approval actions are available through the action catalog, but they are not advertised as separate named MCP tools. Use `action_execute` when you need them.
+这些审批操作虽已收录在操作目录中，但并未以独立的命名 MCP 工具形式公开。有使用需求时，请调用 `action_execute`。
 
-## Approvals, enablement, and exposure
+## 审批、启用与公开方式
 
-Kaiwu treats **actions** as a single catalog that can be enabled/disabled per “surface”, including:
+Kaiwu 将**操作**组织在一个统合目录中，可按不同的“界面”单独启用或禁用，涉及的界面包括：
 
-- session agents (in-session tools)
-- voice
+- 会话 Agent（会话内工具）
+- 语音
 - CLI
-- external MCP
+- 外部 MCP
 
-In the app, configure this under:
+在 App 内，可在如下位置进行配置：
 
 - **Settings → Actions**
 
-For each action + surface, you can:
+针对每个“操作 + 界面”组合，你可以：
 
-- enable/disable the action
-- optionally require approval (approval-gated execution)
-- choose direct tool exposure for eligible tool-backed surfaces
+- 启用或禁用该操作
+- 设定是否需要审批（门禁式审批执行）
+- 为支持工具调用的界面选择是否直接公开为工具
 
-If a tool is approval-gated, the MCP tool call returns an `approval_request_created` payload (with an `artifactId`).
-This applies both to generic `action_execute` calls and to built-in aliases such as `session_title_set`, because they share the same action + surface policy.
-Use the app's **Inbox** to approve/deny and view the final result:
+如果某个工具设置了审批门禁，MCP 工具调用将返回 `approval_request_created` 载荷（其中包含 `artifactId`）。
+这一规则对通用的 `action_execute` 调用和内置别名（如 `session_title_set`）同样适用，因为它们遵循相同的操作与界面策略。
+你可以在 App 的**收件箱**中进行批准或拒绝，并查看最终执行结果：
 
-- [Inbox and approvals](/sessions/inbox-and-approvals)
-- [Kaiwu tools & actions](/extending/happier-tools)
+- [收件箱与审批](/sessions/inbox-and-approvals)
+- [Kaiwu 工具与操作](/extending/happier-tools)
 
-### Programmatic approval decisions
+### 以编程方式处理审批决定
 
-If you want an MCP host to manage approvals directly, call `action_execute` with `approval.request.decide`.
+如果希望 MCP 宿主直接管理审批，可以传入 `approval.request.decide` 调用 `action_execute`。
 
-Example:
+示例：
 
 ```json
 {
@@ -381,51 +371,51 @@ Example:
 }
 ```
 
-That executes the same approval object you can review in the app Inbox. The same generic approval model works regardless of whether the request came from the CLI, an external MCP host, a session agent, or another Kaiwu surface.
+该调用执行的审批对象与 App 收件箱中审核的对象完全相同。无论请求来源于 CLI、外部 MCP 宿主、会话 Agent 还是 Kaiwu 的其他界面，都遵循这套通用的审批模型。
 
-### Direct tool exposure
+### 直接工具公开
 
-For eligible action-backed tools, **Settings → Actions** can set tool exposure per surface:
+对于适用的原生操作工具，可在 **Settings → Actions** 中按界面设置工具的公开方式：
 
-- **Use default** follows Kaiwu’s default for that action and surface.
-- **Discoverable only** keeps the action callable through `action_execute`, but removes the named direct tool from that surface.
-- **Direct tool** exposes the named tool when the action is otherwise enabled.
+- **Use default**：沿用 Kaiwu 对该操作及界面的默认配置。
+- **Discoverable only**：保留通过 `action_execute` 调用的能力，但从该界面移除专属命名的直接工具。
+- **Direct tool**：在操作已启用的前提下，直接将专属命名的工具公开出来。
 
-This is useful when you want a smaller direct tool list but still want the action available through discovery and generic execution.
+如果你希望精简直接暴露的工具列表，同时又想保留通过发现机制和通用执行来调用操作的能力，这一配置非常有用。
 
-## Troubleshooting
+## 故障排查
 
 ### `not_authenticated`
 
-Authenticate the CLI first:
+请先完成 CLI 认证：
 
 ```bash
 happier auth login
 ```
 
-If you’re targeting a self-hosted server, ensure the MCP host launches Kaiwu with the right server profile (or server URL flags). See [CLI → Server profiles](/apps/cli#server-profiles).
+如果要连接自托管服务器，请确保 MCP 宿主以正确的服务器配置文件（或服务器 URL 标志）启动 Kaiwu。详见 [CLI → Server profiles](/apps/cli#server-profiles)。
 
-### `No daemon running` / session create fails
+### `No daemon running` / 创建会话失败
 
-Starting and managing local provider processes (creating sessions, sending messages, attaching, etc.) generally requires a running Kaiwu daemon on that machine.
+在本地设备上启动并管理提供商进程（如创建会话、发送消息、附加连接等），通常需要该设备上正在运行 Kaiwu 守护进程。
 
-If a tool call fails with an error like `No daemon running` (or similar), run:
+如果工具调用失败并提示类似 `No daemon running` 的错误，请运行：
 
 ```bash
 happier daemon start
 ```
 
-For a smoother always-on setup (recommended), install it as a user service:
+若想获得更顺畅的常驻运行体验（推荐），可将其安装为用户服务：
 
 ```bash
 happier daemon install
 ```
 
-### A tool is missing
+### 工具未显示
 
-Tool visibility is driven by the action spec catalog and your account settings. Check:
+工具的可见性受操作规范目录及当前账号设置控制。请检查以下项目：
 
-- **Settings → Actions** (surface enablement, approvals, and direct/discoverable exposure)
-- **Settings → MCP servers** (if you expected a *custom MCP server* tool, not a Kaiwu action tool)
+- **Settings → Actions**（各界面的启用状态、审批设置以及“直接/仅可发现”公开方式）
+- **Settings → MCP servers**（如果你预期看到的是*自定义 MCP 服务*工具，而非 Kaiwu 原生操作工具）
 
-If an action is discoverable-only on the MCP surface, it will not appear as a named direct tool. Use `action_spec_search`, `action_spec_get`, and `action_execute`, or change the action’s MCP exposure setting to **Direct tool**.
+如果某个操作在 MCP 界面上被设置为“仅可发现”，它将不会作为命名的直接工具出现。此时可以使用 `action_spec_search`、`action_spec_get` 和 `action_execute` 进行调用，或者将该操作的 MCP 公开设置修改为 **Direct tool**。

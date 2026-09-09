@@ -1,123 +1,122 @@
 ---
-title: Desktop control panel
-description: Use the desktop app as the control panel for Relay, machine, daemon, and secure-access setup.
+title: 桌面端控制面板
+description: 使用桌面端应用作为中继、设备、守护进程及安全访问配置的控制面板。
 ---
+桌面端应用是配置 Kaiwu 与管理设备的核心控制台。
 
-The desktop app is the main control panel for Kaiwu setup and machine management.
+你可以借助它来协调以下四项内容：
 
-Use it to keep four things aligned:
+1. **选择中继**
+2. **登录账户**
+3. **配置守护进程与设备**
+4. **为自托管中继配置可选的安全访问**
 
-1. **Relay selection**
-2. **Account sign-in**
-3. **Daemon/machine setup**
-4. **Optional secure access for self-hosted Relays**
+## 推荐操作流程
 
-## Recommended flow
+### 1. 首先选择中继
 
-### 1. Choose your Relay first
+打开桌面端应用。在注册或登录账户之前，先选定要使用的中继。
 
-Open the desktop app and choose the Relay you want to use before creating or signing into an account.
+这样可以避免常见的配置脱节问题：
 
-This avoids the common mistake where:
+- 应用登录了一个中继
+- CLI 或守护进程却指向另一个中继
+- 账户明明有效，后续的终端或守护进程配置却看似“出现故障”
 
-- the app signs into one Relay
-- the CLI or daemon points at another Relay
-- terminal/daemon setup later looks “broken” even though the account is valid
+### 2. 在该中继上登录
 
-### 2. Sign in on that Relay
+选定中继后，在该中继上登录或注册账户。
 
-After selecting the Relay, sign in or create an account there.
+应用会将账户状态隔离在所选中继的作用域内，后续切换到其他中继也不会覆盖原先的中继配置。
 
-The app keeps account state scoped to the selected Relay, so switching to another Relay later does not overwrite the first one.
+### 3. 配置设备
 
-### 3. Set up a machine
+在桌面端应用中，你可以选择：
 
-From the desktop app, you can choose between:
+- **配置此电脑**：针对当前生效的中继配置本地守护进程与后台服务
+- **通过 SSH 添加设备**：直接在桌面端应用中配置远程设备
 
-- **Set up this computer** — configure the local daemon/background service against the active Relay
-- **Add machine over SSH** — set up a remote machine from the desktop app
+上述流程的主要入口是应用内的 `/setup` 页面。
 
-The primary entrypoint for these flows is the in-app `/setup` screen.
+若守护进程运行在你的笔记本或台式机上，推荐使用本地流程；若守护进程运行在远程服务器上，而你仍希望通过笔记本进行管理，推荐使用 SSH 流程。
 
-The local flow is best when the daemon should run on your laptop or desktop. The SSH flow is best when the daemon should run on a remote box but you still want to manage it from your laptop.
+## 控制台支持的管理功能
 
-## What the control panel can manage
+### 中继设置
 
-### Relay settings
+在“中继设置”页面中，你可以：
 
-Use the Relay settings screen to:
+- 添加并保存多个中继配置文件
+- 切换当前生效的中继
+- 检测守护进程是否连接到了其他中继
+- 直接在应用中修复中继漂移，无需手动重新配置
 
-- add and save multiple Relay profiles
-- switch the active Relay
-- see when the daemon is connected to a different Relay
-- repair Relay drift from the app instead of redoing setup manually
+### 设备
 
-### Machines
+在“设备”页面中，你可以：
 
-Use the Machines screen to:
+- 配置当前电脑
+- 通过 SSH 配置远程设备
+- 为刚刚就绪的目标设备继续配置提供商
 
-- set up the current computer
-- set up a remote machine over SSH
-- continue provider setup for the specific machine that was just prepared
+### 本地自托管中继运行时
 
-### Local self-hosted Relay runtime
+如果你在本地运行自托管中继，应用还可以管理本地中继运行时：
 
-If you are running a self-hosted Relay locally, the app can also manage the local Relay runtime:
+- 查看运行状态
+- 安装或更新运行时
+- 启动或停止运行时
+- 显示本地中继 URL
 
-- inspect status
-- install or update it
-- start or stop it
-- surface the local Relay URL
+### 供其他设备使用的私有访问
 
-### Private access for other devices
+针对本地或自托管中继，应用可引导你完成安全私有访问的配置，方便手机或其他电脑访问该中继，且无需将其暴露在公网中。
 
-For local or self-hosted Relays, the app can guide secure private access setup so phones or other computers can still reach the Relay without exposing it publicly.
+目前该功能以桌面端应用内的本地安全访问任务形式提供。
 
-Today this is surfaced as a local secure-access task from the desktop app.
+## 中继漂移
 
-## Relay drift
+中继漂移是指应用正在使用某一个中继，而守护进程或后台服务却配置在另一个中继上。
 
-Relay drift means the app is using one Relay while the daemon/background service is configured against another one.
+桌面端应用会明确提示此状态，并提供一键修复操作。
 
-The desktop app surfaces this explicitly and offers a repair action.
+这一功能非常关键，因为许多“为什么连不上守护进程、终端或设备”的问题，本质上都是中继不一致导致的，并非鉴权失败。
 
-This is important because many “why can’t I connect my daemon / terminal / machine?” issues are really Relay mismatches, not auth failures.
+## 常见架构方案
 
-## Common setups
+### 托管中继 + 本地守护进程
 
-### Hosted Relay + local daemon
+- 在应用中选择 Kaiwu Cloud
+- 登录账户
+- 使用**配置此电脑**
 
-- Choose Kaiwu Cloud in the app
-- Sign in
-- Use **Set up this computer**
+### 自托管中继 + 本地守护进程
 
-### Self-hosted Relay + local daemon
+- 在应用中添加或选择你的自托管中继
+- 在该中继上登录
+- 使用**配置此电脑**
+- （可选）为手机及其他设备开启私有访问
 
-- Add/select your self-hosted Relay in the app
-- Sign in there
-- Use **Set up this computer**
-- Optionally enable private access for phones and other devices
+### 自托管中继 + 远程守护进程
 
-### Self-hosted Relay + remote daemon
+- 在应用中添加或选择你的自托管中继
+- 在该中继上登录
+- 使用**通过 SSH 添加设备**
+- 为添加成功的设备继续配置提供商
 
-- Add/select your self-hosted Relay in the app
-- Sign in there
-- Use **Add machine over SSH**
-- Continue provider setup for the returned machine
+### 混合架构（远程中继 + 远程守护进程 + 笔记本控制台）
 
-### Mixed setup (remote Relay + remote daemon + laptop control panel)
+- 笔记本保留桌面端应用作为控制面板
+- 在一台设备上运行中继
+- 在另一台设备上运行守护进程与智能体
+- 通过桌面端应用统一管理两者
 
-- Keep the desktop app on your laptop as the control surface
-- Run the Relay on one machine
-- Run the daemon/agents on another machine
-- Manage both from the desktop app
+## CLI 备用方式
 
-## CLI fallback
+CLI 依然提供底层命令（`server`、`auth`、`daemon` 及相关子命令），但我们推荐的用户流程是：
 
-The CLI still exposes the underlying commands (`server`, `auth`, `daemon`, and related subcommands), but the recommended user flow is:
+- 在应用中选定中继
+- 在该中继上登录
+- 由桌面端应用引导完成设备配置
 
-- pick the Relay in the app
-- sign in there
-- let the desktop app drive machine setup actions
-
-That keeps Relay/account/machine state visible and reduces mismatches.
+这种方式能让中继、账户和设备的状态清晰可见，有效避免配置不一致。

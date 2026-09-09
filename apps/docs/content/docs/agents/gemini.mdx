@@ -1,97 +1,93 @@
 ---
 title: Gemini
-description: Configure Gemini in Kaiwu, including model selection and ACP-backed behavior.
+description: 在 Kaiwu 中配置 Gemini，包括模型选择以及基于 ACP 的行为。
 ---
-
-Kaiwu integrates Gemini through the local Gemini CLI/runtime and ACP-compatible messaging.
+Kaiwu 通过本地 Gemini CLI/运行时以及兼容 ACP 的消息机制集成 Gemini。
 
 <Callout type="info">
-  Gemini is an **experimental** integration. It works and people use it
-  daily, but its surface is younger than Claude, Codex or OpenCode and is
-  more likely to change. What it supports today is in
-  [Agent capabilities](/agents/capabilities).
+  Gemini 属于**实验性**集成。它功能完备，已有不少用户日常使用；但相比 Claude、Codex 或 OpenCode，它的接口面更年轻，后续变更的可能性也更高。目前支持的功能详见 [Agent 能力](/agents/capabilities)。
 </Callout>
 
-## Requirements
+## 环境要求
 
-- Gemini CLI installed on your machine.
-- CLI available on `PATH` (or set `HAPPIER_GEMINI_PATH` if needed).
+- 设备上已安装 Gemini CLI。
+- CLI 可在 `PATH` 中找到（必要时可设置 `HAPPIER_GEMINI_PATH`）。
 
-## Install Gemini
+## 安装 Gemini
 
-Kaiwu can install it for you:
+Kaiwu 可自动为你安装：
 
 ```bash
 happier install provider gemini
 gemini --version
 ```
 
-Or install manually:
+也可以手动安装：
 
 ```bash
 npm install -g @google/gemini-cli
 gemini --version
 ```
 
-## Local authentication in Kaiwu
+## 在 Kaiwu 中进行本地认证
 
-Gemini supports machine-local auth management in:
+Gemini 支持在设备本地管理认证，路径如下：
 
-- **Settings → AI & Agents → AI backends → Gemini**
+- **设置 → AI & Agents → AI 后端 → Gemini**
 
-From there you can:
+在此处你可以：
 
-- check Gemini’s local auth state on the selected machine
-- open Gemini’s native CLI auth flow directly inside Kaiwu
-- refresh the auth state with **Check now**
+- 查看所选设备上 Gemini 的本地认证状态
+- 直接在 Kaiwu 内唤起 Gemini 原生 CLI 的认证流程
+- 点击**立即检查**刷新认证状态
 
-Kaiwu can detect Gemini auth from environment variables, local Gemini auth/config files, and supported Google ADC files.
+Kaiwu 可以自动检测环境变量、本地 Gemini 认证/配置文件以及受支持的 Google ADC 文件中的 Gemini 认证信息。
 
-For the shared user guide, see [Provider authentication](/agents/provider-authentication).
+通用使用指南详见[提供商认证](/agents/provider-authentication)。
 
-## Start Gemini with Kaiwu
+## 在 Kaiwu 中启动 Gemini
 
 ```bash
 happier gemini
 ```
 
-## Authentication (connected services)
+## 认证（关联服务）
 
-Gemini auth is managed through Kaiwu connected services (`gemini`):
+Gemini 认证通过 Kaiwu 关联服务（`gemini`）进行管理：
 
-- Settings → Connected services → Gemini
-- Or CLI: `happier connect gemini`
+- 设置 → 关联服务 → Gemini
+- 或通过 CLI：`happier connect gemini`
 
-For paste/redirect flows, Kaiwu exchanges the OAuth code on the server and returns an encrypted bundle to the client (no Gemini OAuth secrets are bundled into the app UI).
+对于粘贴/重定向流程，Kaiwu 会在服务端换取 OAuth 代码，并将加密数据包返回给客户端（应用 UI 中不包含任何 Gemini OAuth 密钥）。
 
-Supported UI methods:
+支持的 UI 交互方式：
 
-- paste redirect URL
-- in-app browser on native
+- 粘贴重定向 URL
+- 原生端内置应用内浏览器
 
-On web, Kaiwu uses the paste flow.
+在 Web 端，Kaiwu 采用粘贴流程。
 
-If you are self-hosting and need to override OAuth client settings, see:
+如果你正在使用自托管服务且需要覆盖 OAuth 客户端配置，请参阅：
 
-- [Connected services](/accounts/connected-services)
+- [关联服务](/accounts/connected-services)
 
-## Model selection
+## 模型选择
 
-Model selection is capability-driven and can be set from:
+模型选择基于能力驱动，支持通过以下方式设置：
 
-- CLI start options
-- App session input settings (when exposed for the current runtime)
+- CLI 启动选项
+- 应用内的会话输入设置（若当前运行时已开放支持）
 
-For cross-provider model behavior, live model lists, and favorites, see [Model and engine selection](/agents/model-and-engine-selection).
+跨提供商模型行为、实时模型列表及收藏设置，请参阅[模型与引擎选择](/agents/model-and-engine-selection)。
 
-## Troubleshooting
+## 故障排查
 
-- If Gemini is not detected, verify CLI installation and restart Kaiwu.
-- If needed, point to binary explicitly with `HAPPIER_GEMINI_PATH`.
+- 若未检测到 Gemini，请确认 CLI 是否正确安装并重启 Kaiwu。
+- 必要时，可使用 `HAPPIER_GEMINI_PATH` 显式指定二进制文件路径。
 
-## Related
+## 相关内容
 
-- [Agent capabilities](/agents/capabilities) — what this agent supports, generated from the manifest.
-- [Choosing an agent](/agents)
-- [Model and engine selection](/agents/model-and-engine-selection)
-- [Agent authentication](/agents/provider-authentication)
+- [Agent 能力](/agents/capabilities) — 该 Agent 支持的功能特性，基于清单配置生成。
+- [选择 Agent](/agents)
+- [模型与引擎选择](/agents/model-and-engine-selection)
+- [Agent 认证](/agents/provider-authentication)

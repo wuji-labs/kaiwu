@@ -1,34 +1,25 @@
 ---
-title: Release Artifacts
-description: Binary artifacts, channels, checksums/signatures, and manifests.
+title: 发布产物
+description: 二进制产物、通道、校验和/签名及清单。
 ---
-
-## Channels
+## 通道
 
 - `stable`
 - `preview`
 - `dev`
 
-## Artifact naming
+## 制品命名
 
-- CLI binary archives: `happier-v{version}-{os}-{arch}.tar.gz`
-- hstack binary archives: `hstack-v{version}-{os}-{arch}.tar.gz`
-- Self-host server runtime archives: `happier-server-v{version}-{os}-{arch}.tar.gz`
-- Self-host UI web bundle archives: `happier-ui-web-v{version}-web-any.tar.gz`
-- Checksums: `checksums-{product}-v{version}.txt`
-- Checksums signature: `checksums-{product}-v{version}.txt.minisig`
+- CLI 二进制归档：`happier-v{version}-{os}-{arch}.tar.gz`
+- hstack 二进制归档：`hstack-v{version}-{os}-{arch}.tar.gz`
+- 自托管服务端运行时归档：`happier-server-v{version}-{os}-{arch}.tar.gz`
+- 自托管 Web UI 资源包归档：`happier-ui-web-v{version}-web-any.tar.gz`
+- 校验和：`checksums-{product}-v{version}.txt`
+- 校验和签名：`checksums-{product}-v{version}.txt.minisig`
 
-## Supported targets
+## 支持的目标平台
 
-CLI + hstack:
-
-- `linux-x64`
-- `linux-arm64`
-- `darwin-x64`
-- `darwin-arm64`
-- `windows-x64`
-
-Self-host server runtime:
+CLI + hstack：
 
 - `linux-x64`
 - `linux-arm64`
@@ -36,13 +27,21 @@ Self-host server runtime:
 - `darwin-arm64`
 - `windows-x64`
 
-Self-host UI web bundle:
+自托管服务端运行时：
+
+- `linux-x64`
+- `linux-arm64`
+- `darwin-x64`
+- `darwin-arm64`
+- `windows-x64`
+
+自托管 Web UI 资源包：
 
 - `web-any`
 
-## Manifest schema (`/v1`)
+## 清单结构（`/v1`）
 
-Each platform manifest includes:
+每个平台清单均包含：
 
 - `product`
 - `channel`
@@ -60,9 +59,9 @@ Each platform manifest includes:
 - `build.commitSha`
 - `build.workflowRunId`
 
-## Rollback policy
+## 回滚策略
 
-- CLI/hstack: rolling tags (`cli-stable` / `cli-preview` / `cli-dev`, `stack-stable` / `stack-preview` / `stack-dev`) + versioned tags.
-- Self-host runtime: rolling server release tags + versioned artifacts.
-- Self-host UI web bundle: rolling UI-web release tags + versioned artifacts.
-- `happier self update --to <version>` is a version-targeted rollback entry point.
+- CLI/hstack：滚动标签（`cli-stable` / `cli-preview` / `cli-dev`，`stack-stable` / `stack-preview` / `stack-dev`）与版本标签。
+- 自托管运行时：服务端滚动发布标签与带版本的制品。
+- 自托管 Web UI 资源包：Web UI 滚动发布标签与带版本的制品。
+- `happier self update --to ⟦K1⟧` 为指定版本回滚的入口点。

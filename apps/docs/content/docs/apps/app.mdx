@@ -1,297 +1,272 @@
 ---
-title: App
-description: Desktop, web, and mobile UI client.
+title: 应用
+description: 桌面端、Web 端和移动端 UI 客户端。
 ---
+无极开物 App 是一款交互式客户端，支持在桌面端、Web 端和移动端使用无极开物。
 
-The Kaiwu app is the interactive client for people using Kaiwu on desktop, web, and mobile.
+## 中继选择
 
-## Relay selection
+该客户端既支持直接接入无极开物云，也支持添加一个或多个自定义自托管中继。
 
-The app can use Kaiwu Cloud, or you can add one or more custom self-hosted Relays.
+### 已保存中继与快速切换
 
-### Saved Relays + switching
+- 支持保存多个中继配置文件，并在它们之间自由切换。
+- 凭据按**各个中继**独立存储，因此云端托管账户与自托管账户不会相互覆盖。
+- 跨不同中继时，即使使用同一登录提供商，账号体系也相互独立。
+- 在 Web 端，既可仅切换**当前标签页**的中继，也能将其**设为设备默认中继**。
+- 同一浏览器用户配置和域名下的各标签页，共享底层的浏览器存储空间。无极开物会在该存储中按中继和账户隔离本地记录；如果需要完全独立的本地存储，请使用不同的浏览器用户配置进行物理隔离。
 
-- You can save multiple Relay profiles and switch between them.
-- Credentials are stored **per Relay**, so a hosted account and a self-hosted account won’t overwrite each other.
-- On different Relays, accounts are independent even if you use the same login provider.
-- On web, you can switch the Relay **for this tab** or **make it the device default**.
-- Web tabs that use the same browser profile and origin share the same browser storage substrate. Kaiwu separates local records by Relay and account inside that storage, but separate browser profiles are the isolation boundary when you need fully separate local storage.
+### 一键配置服务器链接
 
-### Configure-server links (1-click)
+部分安装程序（例如 `hstack setup-from-source` 和 Proxmox）会在终端打印出一键配置链接或二维码，打开即可自动预填对应的中继 URL 并进入客户端/Web 界面。
 
-Some installers (for example `hstack setup-from-source` and Proxmox) print one-click links/QRs that open the app/web UI with the correct Relay URL prefilled.
+## 桌面端控制面板
 
-## Desktop control panel
+在桌面端，该应用旨在作为无极开物环境的核心控制面板：
 
-On desktop, the app is intended to be the main control panel for your Kaiwu setup:
+- 从应用内内置的 `/setup` 引导流程开始（仅限桌面端）
+- 登录前灵活选择所需的中继
+- 在选定中继上完成登录认证
+- 配置**当前计算机**
+- 通过 **SSH 添加远程设备**
+- 当守护进程指向其他中继时，一键修复中继漂移问题
+- 管理本地自托管中继的运行环境
+- 为本地/自托管中继开启私有网络访问
 
-- start from the in-app `/setup` flow (desktop-only)
-- choose your Relay before signing in
-- sign in on that Relay
-- set up **this computer**
-- add a **remote machine over SSH**
-- repair Relay drift when the daemon is pointed at a different Relay
-- manage the local self-hosted Relay runtime
-- enable private access for a local/self-hosted Relay
+这一设计将中继选择、账户上下文、守护进程状态和设备配置统一汇聚于一处，无需在多个独立的命令行步骤之间繁琐切换。
 
-This keeps Relay choice, account context, daemon state, and machine setup visible in one place instead of spreading the flow across separate CLI steps.
+## 多服务器工作流
 
-## Multi-server workflows
+关于中继配置文件、中继切换和多守护进程管理的详细指南，请参阅[功能特性 → 多服务器](/accounts/multi-server)。
 
-For detailed Relay profile, switching, and multi-daemon guidance, see [Features → Multi-server](/accounts/multi-server).
+## 通知
 
-## Notifications
+无极开物支持针对以下事件发送推送通知：
 
-Kaiwu supports push notifications for:
+- 对话轮次执行完毕（`Ready`）
+- 权限请求
+- 需要人工介入确认的操作请求
 
-- turn completion (`Ready`)
-- permission requests
-- action requests that need a human answer
+在 iOS 和 Android 端，权限请求和操作请求通知还可直接展示操作按钮，点击后能精准跳转回对应的会话，并无缝适配多服务器场景。
 
-On iOS and Android, permission/action-request notifications can also expose action buttons and route you back into the correct session, including multi-server flows.
+部署和自托管配置请参阅[通知系统](/extras/notifications-setup)，应用内具体交互逻辑请参阅[通知路由机制](/extras/notifications-routing)。
 
-See [Notifications](/extras/notifications-setup) for setup/self-hosting notes and [Notification routing](/extras/notifications-routing) for the exact in-app behavior.
+## 会话已读与未读状态
 
-## Session read and unread state
+应用内提供了四个修改会话已读状态的入口：会话条目的 **…** 菜单、移动端长按会话条目呼出的菜单、会话顶栏的操作菜单，以及会话详情中的快捷操作项。
 
-You can change read state from four places in the app: the session row's **…**
-menu, the row's long-press menu on mobile, the session header action menu, and
-Session info quick actions.
+若在会话内部将其标记为未读，当前视图会保留未读状态，不会立即自动回弹为已读——关闭后重新打开才会被视为新的查看行为。
 
-Marking a session unread while you are inside it sticks for that view rather
-than flipping straight back — closing and reopening counts as a new viewing
-intent.
+完整指南请参阅：[会话已读与未读状态](/organize/session-read-state)。
 
-Full guide: [Session read and unread state](/organize/session-read-state).
+## 内置终端
 
-## Embedded terminal
+终端的展示位置会根据屏幕可用空间自适应调整。在宽屏布局下，可将其置于**底部面板**、**侧边栏**或**详情面板**；在手机屏幕上，则以专注单视图呈现，避免在狭小屏幕上层叠桌面式的多面板。
 
-Where the terminal appears depends on the room available. On larger layouts you
-choose the **bottom panel**, **sidebar** or **details panel**; phone layouts use
-a single focused presentation rather than juggling desktop-style panels.
+终端正常运作的前提是目标设备已连接守护进程。若守护进程连接到了错误的中继，应用会明确提示并提供修复选项，避免流程在后续环节出现不可预期的异常。
 
-It needs a connected daemon for that machine. If the daemon is attached to the
-wrong relay, the app says so and offers a repair rather than failing later in
-the flow.
+完整指南请参阅：[内置终端](/extras/embedded-terminal)。
 
-Full guide: [Embedded terminal](/extras/embedded-terminal).
+## 本地记忆检索
 
-## Local memory search
+检索功能基于用户所选且已连接守护进程的设备索引运行。因此，接入多台设备时，需要先指定检索的目标设备。点击检索结果，即可直接打开对应会话并跳转至相关的对话节点。
 
-Search runs against an index held by whichever daemon-connected machine you
-select, so with several machines you pick which one to search. Results open the
-matching session at the relevant point in the conversation.
+完整指南请参阅：[本地记忆检索](/organize/local-memory-search)。
 
-Full guide: [Local memory search](/organize/local-memory-search).
+## 设置中的智能体认证
 
-## Agent authentication in settings
+无需打开系统终端，应用即可在本地设备上运行 CLI 登录命令——在宽屏布局中通过共享的底部面板运行，在小屏布局中则通过专注视图运行。若当前智能体支持，后端的设置页面还会直接展示认证状态、登录方式以及凭据刷新操作。
 
-The app can run a machine-local CLI login without you opening a terminal —
-through the shared bottom pane on larger layouts, or a focused presentation on
-smaller ones. The backend's settings page also shows auth status, method, and
-refresh actions where the agent supports them.
+完整指南请参阅：[智能体认证](/agents/provider-authentication)。
 
-Full guide: [Agent authentication](/agents/provider-authentication).
+## 引擎与模型选择器
 
-## Engine and model picker
+新建会话的选择器中列出了所有内置智能体以及已配置的自定义 ACP 后端，并将常用项置顶展示。具体展示实时模型列表、固定列表还是自由文本输入框，取决于所选智能体的能力特性——详情请参阅[智能体功能支持](/agents/capabilities)。
 
-The new-session picker offers built-in agents and any configured Custom ACP
-backends, with favourites pinned first. Whether you get a live model list, a
-fixed one, or a free-text field depends on the agent — see
-[Agent capabilities](/agents/capabilities).
+完整指南请参阅：[模型与引擎选择](/agents/model-and-engine-selection)。
 
-Full guide: [Model and engine selection](/agents/model-and-engine-selection).
+## 设备可安装组件
 
-## Machine installables
+前往**设备详情 → 可安装组件**，即可管理无极开物在特定设备上安装及保持更新的工具链，支持按设备独立配置**按需自动安装**和**自动更新**（`off`、`notify`、`auto`）。策略针对各设备单独生效，因此便携笔记本与远程服务器可以配置完全不同的更新规则。
 
-**Machine Details → Installables** manages tools Kaiwu can install and keep
-updated on that specific machine, with per-machine **Auto-install when needed**
-and **Auto-update** (`off`, `notify`, `auto`). Policies are per machine, so a
-laptop and a remote box can differ.
+完整指南请参阅：[可安装组件](/extending/installables)。
 
-Full guide: [Installables](/extending/installables).
+## 会话工作区界面
 
-## Session workspace surfaces
+每个会话都内嵌一个感知代码仓库的工作区。在宽屏布局下，工作区划分为右侧的**文件**与 **Git** 侧边栏，以及用于预览、编辑器、代码审查标签页、提交差异和暂存记录的详情面板。在手机端，这些界面则统一整合为[驾驶舱](#mobile-session-cockpit)标签页。
 
-Sessions carry a repository-aware workspace. On larger layouts it splits into a
-right sidebar for **Files** and **Git**, and a details pane for previews,
-editors, review tabs, commit diffs and stashes. On phones the same surfaces
-become [Cockpit](#mobile-session-cockpit) tabs.
+各项界面的具体操作指南请参阅：[文件与编辑器](/code/files-and-editor)、[代码差异与审查](/code/diffs)、[审查批注](/code/review-comments)以及 [Git 操作](/code/git)。
 
-What you can do with them: [Files and the editor](/code/files-and-editor),
-[Diffs and review](/code/diffs), [Review comments](/code/review-comments)
-and [Git](/code/git).
+### 移动端会话驾驶舱
 
-### Mobile session cockpit
+驾驶舱是手机端会话的默认交互布局。
 
-The cockpit is the default phone layout for sessions.
+底部的会话标签栏包含以下模块：
 
-The bottom session tab bar can include:
-
-- the current agent tab, named after the backend such as **Claude**, **Codex**, or **OpenCode**
-- **Files**
+- 当前智能体标签页，以所用后端命名，例如 **Claude**、**Codex** 或 **OpenCode**
+- **文件**
 - **Git**
-- **Navigation** for jumping between earlier turns and pinned messages
-- **Tabs** for file previews, editors, Review, commit/stash details, and other detail surfaces
-- **Terminal** when the embedded terminal is enabled and available for that session
+- **导航**：用于在上文各轮次和已置顶消息之间快速跳转
+- **多标签页**：用于文件预览、编辑器、代码审查、提交/暂存记录详情及其他细化视图
+- **终端**：当内置终端功能开启且当前会话可用时显示
 
-Switching cockpit tabs is treated as changing workspace surfaces, not as drilling deeper into browser/native history. Opening a file, Review, a commit, or a transcript file link opens the **Tabs** surface as a detail, so back can return to the list you came from.
+在驾驶舱各标签页之间切换属于切换工作区视图，不会向浏览器或系统原生导航栈中追加历史记录。打开文件、代码审查、某次提交或会话记录中的文件链接时，会在**多标签页**中作为详情层打开，随时可以通过返回按钮回到原列表。
 
-You can switch back to the legacy phone layout from **Settings → Session → Mobile session layout → Classic**.
+如需切回传统的手机端布局，可在**设置 → 会话 → 移动端会话布局 → 经典**中更改。
 
-### Swipe Teleport
+### 滑动穿梭（Swipe Teleport）
 
-In the cockpit, a horizontal swipe across the bottom band moves you to another session without going back to the list. Swipe left for the next session, right for the previous one.
+在驾驶舱模式下，横向滑动底部控制栏即可在不同会话之间穿梭，无需先退回会话列表。向左滑动切至下一个会话，向右滑动切至上一个会话。
 
-Keep the gesture going and you keep travelling: one continuous swipe can cross several sessions rather than one, and each is named as you pass it so you can stop on the one you wanted. A single gesture reaches up to 19 sessions from where you started.
+手指保持滑动即可连续穿梭：单次连续滑动手势能直接跃过多个会话；穿梭过程中会实时浮现经过的会话名称，便于精准停留在目标会话上。单次手势最远支持从起点连续跨越 19 个会话。
 
-The order is the session list order you last saw, so it follows whatever sorting, grouping, and filtering the list is currently using. Swiping walks the same sequence you would get by returning to the list and tapping the row above or below.
+穿梭顺序与最近一次浏览的会话列表顺序完全一致，严格遵循当前列表的排序、分组和筛选状态。滑动穿梭的会话流转，与退回会话列表依次点击相邻条目完全等价。
 
-Two things stay the same:
+该交互遵循以下两项规则：
 
-- back still returns to the session list, not to the session you just came from, so swiping does not stack up history
-- the gesture only reacts to clearly horizontal movement, so scrolling vertically from the bottom band still scrolls
+- 触发返回操作仍会直接退回会话列表，而不会回退到刚刚划过的会话，滑动穿梭绝不堆积历史记录栈
+- 手势仅对明确的水平滑动产生响应，在底部栏垂直滑动依然正常触发页面滚动
 
-This is a mobile app gesture. The web and desktop clients keep using the list and their own navigation, and there is no on-screen control for it in the app — it is a shortcut for moving through a few sessions quickly, not a replacement for the session list.
+该手势为移动端 App 独占体验。Web 端和桌面端依然沿用列表及各自的原生导航逻辑。App 界面上不设置该手势的显式按钮——它专为会话间的快速轻量穿梭而设计，并非为了取代会话列表。
 
-You can turn it off from **Settings → Session → Mobile session layout → Swipe between sessions**.
+如需关闭该功能，可前往**设置 → 会话 → 移动端会话布局 → 会话间滑动切换**进行配置。
 
-### Persistent tab/workspace state
+### 标签页与工作区状态持久化
 
-The details pane is designed for multi-step work:
+详情面板专为多步骤连续任务深度打造：
 
-- switching between details tabs keeps their local state
-- editor tabs preserve in-progress edits while you inspect other files
-- review/history tabs preserve scroll position when you come back
-- session workspace surfaces are intended to let you continue where you left off instead of rebuilding context each time
+- 在不同详情标签页之间切换时，各页面的本地状态均会完整保留
+- 查看其他文件时，编辑器标签页中未完成的代码修改绝不丢失
+- 重返代码审查或历史标签页时，滚动位置始终维持原状
+- 会话工作区界面旨在让用户随时接续此前中断的工作，无需反复重建上下文环境
 
-### Focused details mode
+### 专注详情模式
 
-When you need more room for a diff or file editor, the details surface can switch into a more focused layout instead of permanently compressing the main session area.
+当审查长篇代码差异或在文件编辑器中编写代码需要更宽阔的视野时，详情面板可切换至专注布局，避免长期挤压主会话区域。
 
-This is useful for:
+该模式非常适用于：
 
-- reviewing large diffs
-- editing while keeping Git open
-- working on a smaller laptop/browser window
+- 审查大篇幅代码差异
+- 在保持 Git 面板展开的同时编写代码
+- 在较小的笔记本屏幕或较窄的浏览器窗口中协同办公
 
-## Session composer
+## 会话输入框
 
-The session composer is where you write the next prompt, add context, and choose how the next turn should be sent.
+会话输入框是编写下一条提示词、补充上下文以及指定后续对话轮次发送方式的核心区域。
 
-It supports:
+它完整支持：
 
-- plain text prompts and longer multi-line instructions
-- message attachments from your device
-- linked project files from the current workspace
-- included review-comment drafts when review comments are available
-- provider, permission, model, profile, machine, path, and resume controls when those options apply to the current session
+- 纯文本提示词及较长篇幅的多行指令
+- 从本地设备添加消息附件
+- 关联当前工作区内已存在的项目文件
+- 在审查批注可用时，一并随附选中的批注草稿
+- 在当前会话适用时，自由配置提供商、权限、模型、配置文件、设备、路径和断点恢复等参数
 
-The composer adapts to the available width. On roomy layouts, common controls can stay visible as chips near the text box. On narrower layouts, chip rows can scroll horizontally or collapse less-used actions into the action menu so the text box remains usable.
+输入框宽度自适应伸缩。在宽屏布局中，常用操作项会作为标签按钮常驻在文本框旁；在较窄布局下，标签行支持水平横向滑动，或者将低频操作收拢至更多操作菜单中，确保文本框始终保有舒适的输入面积。
 
-### Keyboard behavior
+### 键盘交互逻辑
 
-By default, Enter inserts a new line and the send button sends the message.
+默认状态下，按 Enter 键插入换行，点击发送按钮即可投递消息。
 
-If you enable **Enter to Send** in [Session settings](/sessions/session-settings), Enter sends the current message when the composer has sendable content. On web, Shift+Enter inserts a new line. On iOS and iPadOS with a physical keyboard, Shift+Enter also continues to insert a new line while Enter sends.
+如果在[会话设置](/sessions/session-settings)中开启了 **Enter 发送**，当输入框内存在可发送内容时，敲击 Enter 键会直接发送消息。在 Web 端，使用 Shift+Enter 插入新行。在连接实体键盘的 iOS 和 iPadOS 设备上，同样支持 Shift+Enter 换行、Enter 发送。
 
-This lets you choose between a chat-style flow and a writing flow:
+这一机制允许在即时聊天模式与长文撰写模式之间自由取舍：
 
-- use **Enter to Send** for short back-and-forth prompts
-- leave it off when you often write paragraphs, code blocks, logs, or step-by-step instructions
+- 短平快的往复对话，推荐开启 **Enter 发送**
+- 频繁编写长段落、代码块、排查日志或多步骤指令时，建议保持关闭
 
-Messages can be sent with text, attachments, linked files, or included review comments. If the composer is empty or the current send action is disabled, pressing Enter does not send anything.
+无论是纯文本、附件、关联文件还是随附的审查批注，均可作为消息内容发出。如果输入框为空或当前发送操作处于禁用状态，按 Enter 键不会产生任何提交动作。
 
-### Composer actions
+### 输入框操作项
 
-Use the composer action chips to add context before sending:
+在发送消息前，可利用输入框的功能标签丰富上下文：
 
-- **Attachments** add files from your device, such as screenshots, logs, PDFs, and exported artifacts
-- **Link file** references files that already exist in the current workspace
-- **Review comments** includes selected review-comment drafts for the current workspace when that feature is available
+- **附件**：添加来自当前设备的文件，如屏幕截图、运行日志、PDF 文档以及导出的各类产物
+- **关联文件**：快速引用当前工作区中已存在的文件
+- **审查批注**：在该功能就绪时，一并随附当前工作区中选定的审查批注草稿
 
-Attachments and linked files solve different problems. Attachments bring external files into the session environment. Linked files point the agent at project files that are already in the workspace.
+附件与关联文件有着明确的分工：附件用于将外部文件注入会话环境；关联文件则直接将智能体引向工作区内部已有的工程文件。
 
-Review comments solve a more precise workflow: they attach your own line-specific instructions to file or diff lines, then send the selected comments with snippets and line anchors.
+审查批注则服务于更精细的工作流：支持在具体文件或代码差异的具体行上附注修改意见，随后将选中的批注连同代码片段和行锚点统一提交。
 
-## Linking project files into a prompt
+## 在提示词中关联项目文件
 
-The session composer includes file-linking helpers so you can send file context without manually typing paths.
+会话输入框内置了便捷的文件关联辅助工具，无需手动输入繁琐的文件路径即可轻松提交文件上下文。
 
-### Link file chip
+### 关联文件标签
 
-Use **Link file** in the composer to open a project-file picker for the current workspace.
+点击输入框中的**关联文件**，即可呼出针对当前工作区的项目文件选择器。
 
-This is useful when you want to say things like:
+这在处理如下场景时非常方便：
 
-- “Explain this file”
-- “Refactor the two files I linked”
-- “Compare these configs”
+- “解释一下这个文件”
+- “帮我重构关联的这两个文件”
+- “对比一下这些配置文件的差异”
 
-### `@`-style file search
+### `@` 风格文件搜索
 
-Where supported, you can also use `@`-style file search from the composer to quickly reference workspace files.
+在支持的环境下，还可以直接在输入框中使用类似 `@` 的文件搜索逻辑，快速定位并引用工作区文件。
 
-The goal of both surfaces is the same:
+两种交互入口的最终目标完全一致：
 
-- quickly find a file
-- attach it to your next message
-- keep your session grounded in the real workspace instead of hand-written path references
+- 快速定位目标文件
+- 将其作为上下文关联至下一条消息中
+- 始终以真实工作区文件为锚点展开会话，避免人工手敲路径产生偏误
 
-## Message attachments
+## 消息附件
 
-The app also supports **message attachments** for local files that are not already in the workspace.
+客户端支持针对尚未放入工作区的本地文件使用**消息附件**功能。
 
-This is a separate workflow from **Link file**:
+该操作与**关联文件**分属不同的工作流：
 
-- use **Link file** for files that already exist in the current workspace
-- use **Attachments** for files from your device, such as screenshots, exported logs, or documents
+- **关联文件**：专用于引用当前工作区内已有文件
+- **附件**：专用于上传当前设备中的文件，例如截图、导出的日志或本地文档
 
-Current user-facing behavior:
+当前面向用户的交互特性如下：
 
-- images show as thumbnails in the composer
-- clicking a thumbnail opens a larger preview before send
-- sent image attachments render inline in the transcript
-- clicking a sent transcript image opens the same preview modal
-- per-file upload progress is shown while files are uploading
-- if **Enter to Send** is enabled, Enter can send an attachment-only message once the attachments are ready
+- 图像添加后会在输入框中显示缩略图
+- 发送前点击缩略图可唤起大图预览
+- 成功发送的图像附件会直接内嵌渲染在会话记录中
+- 点击会话记录中的图像，同样会唤起大图预览弹窗
+- 文件上传期间会实时展示单个文件的上传进度
+- 若开启了 **Enter 发送**，当所有附件上传就绪后，敲击 Enter 键即可直接发送仅包含附件的消息
 
-Full guide: [Attachments & image previews](/apps/attachments).
+完整指南请参阅：[附件与图像预览](/apps/attachments)。
 
-## Updates
+## 更新
 
-- **Hosted web app**: updates land via deploys; refresh to pick up changes.
-- **Mobile app**: native updates come from the App Store / Play Store; OTA updates (when enabled) are fetched in-app and applied via an “Update available” banner (reload).
-- **Self-hosted UI**: if you’re serving the web UI from your own server (Docker/self-host runtime/runner), UI updates track your server/runtime update path.
+- **云端托管 Web 端**：更新跟随云端部署实时生效；刷新页面即可加载新版。
+- **移动端 App**：原生应用更新通过 App Store 或 Google Play 商店分发；开启热更新（OTA）时，应用会在后台拉取并在界面顶部显示“发现新版本”横幅，点击重新加载即可应用。
+- **自托管 Web 端**：若是自行部署 Web 界面（基于 Docker、自托管运行时或 Runner），Web 界面的更新进度与自建服务端及运行时的版本周期绑定。
 
-Public release names stay `stable`, `preview`, and `dev`, but actual availability is artifact-dependent. Check [Updates](/releases/updates) for the current desktop/mobile/web matrix instead of assuming every app shape ships every lane.
+公开版本命名保持为 `stable`、`preview` 和 `dev`，但各分发产物所包含的具体更新有所差异。请参考[更新指南](/releases/updates)查阅桌面端、移动端与 Web 端的最新发布支持矩阵，切勿假设每种客户端形态都会同步上线所有发布通道。
 
-Full matrix (all apps/assets): [Updates](/releases/updates).
+全量版本矩阵（覆盖所有应用与发布物）请参阅：[更新指南](/releases/updates)。
 
-## Authentication (keyed vs keyless)
+## 身份认证（设备密钥与免密钥）
 
-Kaiwu supports both:
+无极开物全面支持两种认证体系：
 
-- **Device-key accounts (default)**: end-to-end encrypted by default; users must **restore** access on new devices/browsers by using the account restore flow (for example **Add your phone** on a signed-in computer, or **Restore with Secret Key Instead**).
-- **Keyless accounts (enterprise)**: no device keys; sign-in can be **seamless across devices**, typically paired with plaintext storage mode.
+- **设备密钥账户（默认推荐）**：默认采用端到端加密；在新的设备或浏览器上登录时，用户必须使用账户恢复流程**找回**访问权限（例如在已登录的计算机上选择**添加手机**，或使用**改用私钥恢复**）。
+- **免密钥账户（企业环境）**：不生成设备密钥；支持**跨设备无缝登录**，通常与明文存储模式配合部署。
 
-The app discovers available login and signup options from your server via `GET /v1/features` and renders what the server advertises.
+客户端会通过 `GET /v1/features` 自动发现当前服务器支持的登录和注册方式，并动态渲染服务器所公开的选项。
 
-### Device linking, restore, and terminal QR flows
+### 设备关联、恢复与终端二维码流程
 
-In the app, these are different flows:
+在应用内部，以下几类流程各自承担不同的职责：
 
-- **Add your phone** shows a QR code on a signed-in desktop/web app so a phone can join the same account
-- **Restore account** is the logged-out flow for joining an existing account on a new device
-- **Scan QR to connect terminal** approves a CLI/daemon connection and does not sign a new phone/browser into the UI
-- **Enter URL manually** is the fallback when you cannot scan
+- **添加手机**：在已登录的桌面端或 Web 端展示二维码，供手机扫码后无缝加入同一账户
+- **恢复账户**：在未登录状态下，将已有账户导入新设备的操作流程
+- **扫码连接终端**：用于授权命令行或守护进程接入，绝不会将新的手机或浏览器直接登录到图形化界面中
+- **手动输入 URL**：无法通过摄像头扫码时的兜底方案
 
-On phones and mobile-sized web browsers with camera support, Kaiwu opens the account-restore scanner first. On larger web/desktop layouts, Kaiwu shows a QR code that another signed-in device can scan instead.
+在支持摄像头的手机及移动端浏览器环境下，无极开物会优先唤起账户恢复扫码界面。在宽屏 Web 端或桌面端，无极开物则会展示二维码，供其他已登录设备扫描。
 
-If you self-host and your current server is `localhost`, Kaiwu may intentionally omit the server URL from mobile QR/deep links. In that case, first configure the phone to a reachable server URL (LAN IP, Tailscale, or a public domain), then retry.
+如果采用自托管方案，且当前服务器配置为 `localhost`，无极开物在生成移动端二维码或深层链接时可能会特意省去服务器 URL。遇到此类情况，请先为手机端手动配置可访问的服务器地址（如局域网 IP、Tailscale 虚拟内网地址或公网域名），然后再行尝试。
 
-User guide: [Features → Device linking & restore](/accounts/device-linking-and-restore)
+用户指南请参阅：[功能特性 → 设备关联与恢复](/accounts/device-linking-and-restore)
 
-For operator configuration, see:
-- [Server Auth](/self-hosting/auth)
-- [Encryption & plaintext storage](/self-hosting/encryption)
+运维管理配置请参阅：
+- [服务器认证配置](/self-hosting/auth)
+- [加密与明文存储](/self-hosting/encryption)

@@ -26,8 +26,10 @@ function isWindowsClient(): boolean {
     return false;
 }
 
-export function buildHappierCliCommandName(input: Readonly<{ appVariant: AppVariant; distTagOverride?: unknown }>): 'happier' | 'hprev' {
-    return resolveInstallChannel(input) === 'preview' ? 'hprev' : 'happier';
+export type CliCommandName = 'kaiwu' | 'happier' | 'hprev';
+
+export function buildHappierCliCommandName(input: Readonly<{ appVariant: AppVariant; distTagOverride?: unknown }>): CliCommandName {
+    return resolveInstallChannel(input) === 'preview' ? 'hprev' : 'kaiwu';
 }
 
 export function buildHappierCliInstallCommand(input: Readonly<{

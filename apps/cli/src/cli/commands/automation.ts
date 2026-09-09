@@ -22,10 +22,10 @@ const DEFAULT_DEPS: AutomationCommandDeps = {
 
 function showAutomationHelp(): void {
   console.log(`
-${chalk.bold('happier automation')} - Manage automations
+${chalk.bold('kaiwu automation')} - Manage automations
 
 ${chalk.bold('Usage:')}
-  happier automation run <automation-id> [--idempotency-key <key>] [--json]
+  kaiwu automation run <automation-id> [--idempotency-key <key>] [--json]
 
 ${chalk.bold('Commands:')}
   run    Queue an immediate run through the automation's existing assignments
@@ -67,7 +67,7 @@ function parseRunArgs(args: readonly string[]): Readonly<{
   }
 
   if (positionals.length !== 1 || !positionals[0]) {
-    throw new Error('Usage: happier automation run <automation-id> [--idempotency-key <key>] [--json]');
+    throw new Error('Usage: kaiwu automation run <automation-id> [--idempotency-key <key>] [--json]');
   }
   if (idempotencyKey && idempotencyKey.length > 191) {
     throw new Error('--idempotency-key must be at most 191 characters');
@@ -91,7 +91,7 @@ export async function handleAutomationCommand(
   const parsed = parseRunArgs(args);
   const credentials = await deps.readCredentialsFn();
   if (!credentials) {
-    const error = new Error('Not authenticated. Run "happier auth login" first.');
+    const error = new Error('Not authenticated. Run "kaiwu auth login" first.');
     (error as Error & { code?: string }).code = 'not_authenticated';
     throw error;
   }

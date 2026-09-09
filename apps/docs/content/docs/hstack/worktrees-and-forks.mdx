@@ -1,58 +1,57 @@
 ---
-title: Worktrees and forks
-description: Create clean upstream PR worktrees while keeping fork-only patches isolated.
+title: 工作树与 fork
+description: 创建干净的上游 PR 工作树，同时隔离仅用于 fork 的补丁。
 ---
+本仓库旨在本地运行 **Kaiwu** 栈，同时方便你：
 
-This repo is designed to run the **Kaiwu** stack locally, while still making it easy to:
+- 在日常开发中继续使用**自己的 Fork**
+- 快速创建**干净的上游 PR 分支**（不夹带仅属于 Fork 的补丁）
 
-- keep using **your fork** day-to-day
-- create **clean upstream PR branches** quickly (without carrying fork-only patches)
-
-hstack is monorepo-first: UI/CLI/server all live in the same Kaiwu git repo.
-
----
-
-## Key idea: keep stable checkouts stable
-
-- Keep a stable checkout at `<workspace>/main` (treat as read-only).
-- Do all development work in `<workspace>/dev` or worktrees under `<workspace>/{pr,local,tmp}/...`.
-- Point stacks at a repo checkout via **`HAPPIER_STACK_REPO_DIR`**.
-  - Managed by `hstack wt use ...` and `hstack stack wt ...`.
+hstack 优先支持单一代码库（Monorepo）：UI、CLI 与服务端均位于同一个 Kaiwu Git 仓库中。
 
 ---
 
-## Workspace layout
+## 核心思路：保持稳定检出目录不变
 
-Default paths (see `hstack where` for your actual values):
-
-- Stable checkout: `<workspace>/main`
-- Dev checkout: `<workspace>/dev` (created by `hstack setup-from-source --profile=dev`)
-- Worktrees:
-  - PRs: `<workspace>/pr/...`
-  - locals: `<workspace>/local/<owner>/...`
-  - tmp: `<workspace>/tmp/<owner>/...`
-
-Inside the monorepo:
-
-- `apps/ui` (UI)
-- `apps/cli` (CLI + daemon)
-- `apps/server` (server; light/full flavors)
+- 在 `⟦K25⟧/main` 保留一份稳定的检出副本（视为只读）。
+- 所有开发工作均在 `⟦K26⟧/dev` 或 `⟦K27⟧/{pr,local,tmp}/...` 下的工作树中进行。
+- 通过 **`HAPPIER_STACK_REPO_DIR`** 将栈指向对应的仓库检出目录。
+  - 由 `hstack wt use ...` 与 `hstack stack wt ...` 统一管理。
 
 ---
 
-## Spec grammar (what you can pass to `--repo` / `wt use`)
+## 工作区目录结构
 
-These tokens/specs are accepted anywhere a “repo/worktree” is expected:
+默认路径（实际取值请参见 `hstack where`）：
 
-- `main` / `default` → `<workspace>/main`
-- `dev` → `<workspace>/dev`
-- `active` → current active repo (your shell env / env.local)
-- `pr/<...>` → `<workspace>/pr/<...>`
-- `local/<...>` → `<workspace>/local/<owner>/<...>` (owner is your local username)
-- `tmp/<...>` → `<workspace>/tmp/<owner>/<...>`
-- absolute path to a Kaiwu monorepo checkout/worktree
+- 稳定检出目录：`⟦K28⟧/main`
+- 开发检出目录：`⟦K29⟧/dev`（由 `hstack setup-from-source --profile=dev` 创建）
+- 工作树：
+  - PR：`⟦K30⟧/pr/...`
+  - 本地：`⟦K31⟧/local/⟦K32⟧/...`
+  - 临时：`⟦K33⟧/tmp/⟦K34⟧/...`
 
-Examples:
+单一代码库内部结构：
+
+- `apps/ui`（UI）
+- `apps/cli`（CLI + 守护进程）
+- `apps/server`（服务端；轻量版/完整版）
+
+---
+
+## 规范语法（可传给 `--repo` / `wt use` 的参数）
+
+凡是需要指定“仓库/工作树”的位置，均支持以下标识符/规范：
+
+- `main` / `default` → `⟦K35⟧/main`
+- `dev` → `⟦K36⟧/dev`
+- `active` → 当前活跃仓库（你的 Shell 环境变量 / env.local）
+- `pr/<...>` → `⟦K37⟧/pr/<...>`
+- `local/<...>` → `⟦K38⟧/local/⟦K39⟧/<...>`（所有者为你的本地用户名）
+- `tmp/<...>` → `⟦K40⟧/tmp/⟦K41⟧/<...>`
+- Kaiwu 单一代码库检出目录或工作树的绝对路径
+
+示例：
 
 ```bash
 hstack wt use dev
@@ -63,28 +62,28 @@ hstack stack typecheck exp1 --repo=/abs/path/to/checkout
 
 ---
 
-## Fork workflow (upstream vs origin)
+## Fork 工作流（upstream 对比 origin）
 
-Conventions:
+惯例约定：
 
-- `upstream`: the canonical Kaiwu repo (`wuji-labs/kaiwu`)
-- `origin`: your fork (where you push branches)
+- `upstream`：Kaiwu 官方权威仓库（`wuji-labs/kaiwu`）
+- `origin`：你的 Fork（用于推送分支）
 
-The “upstream-first” flow is:
+“上游优先”的工作流程如下：
 
-1. Create a worktree based on upstream (clean history)
-2. Push your feature branch to origin
-3. Open a PR into upstream/dev
+1. 基于 upstream 创建工作树（保持提交历史干净）
+2. 将特性分支推送到 origin
+3. 向 upstream/dev 提交 PR
 
 ---
 
-## Choosing which checkout hstack runs
+## 选择 hstack 运行的检出目录
 
-hstack selects the active repo checkout using:
+hstack 通过以下变量选择当前活跃的仓库检出目录：
 
-- `HAPPIER_STACK_REPO_DIR` (absolute path to the monorepo root)
+- `HAPPIER_STACK_REPO_DIR`（单一代码库根目录的绝对路径）
 
-Recommended ways to set it:
+推荐的设置方式：
 
 ```bash
 # Switch the active checkout for non-stack commands:
@@ -94,7 +93,7 @@ hstack wt use dev
 hstack stack wt exp1 -- use dev
 ```
 
-One-shot overrides (does not edit any env files):
+单次覆盖（不修改任何环境配置文件）：
 
 ```bash
 hstack stack typecheck exp1 --repo=pr/123-fix-thing
@@ -103,36 +102,36 @@ hstack stack build exp1 --repo=/absolute/path/to/checkout
 
 ---
 
-## Creating worktrees (`wt new`)
+## 创建工作树（`wt new`）
 
-Create a new worktree (defaults to local category, based on upstream):
+创建新的工作树（默认归入 local 分类，基于 upstream 分支）：
 
 ```bash
 hstack wt new local/my-feature --use
 ```
 
-Throwaway worktree:
+临时工作树：
 
 ```bash
 hstack wt new tmp/scratch --use
 ```
 
-Push the active worktree branch to your fork:
+将当前活跃工作树的分支推送到你的 Fork：
 
 ```bash
 hstack wt push active --remote=origin
 ```
 
-Notes:
+说明：
 
-- `--from=upstream|origin` controls which remote is used as the base.
-- The default base branch is `dev` (configurable via `HAPPIER_STACK_DEV_BRANCH`).
+- `--from=upstream|origin` 用于控制使用哪个远程仓库作为基准。
+- 默认基准分支为 `dev`（可通过 `HAPPIER_STACK_DEV_BRANCH` 配置）。
 
 ---
 
-## Testing a GitHub PR locally (`wt pr`)
+## 在本地测试 GitHub PR（`wt pr`）
 
-Create a worktree at the PR head ref:
+在 PR 的 HEAD 引用处创建工作树：
 
 ```bash
 hstack wt pr https://github.com/wuji-labs/kaiwu/pull/123 --use
@@ -141,20 +140,20 @@ hstack wt pr https://github.com/wuji-labs/kaiwu/pull/123 --use
 hstack wt pr 123 --use
 ```
 
-Update when the PR changes:
+PR 发生变动时进行更新：
 
 ```bash
 hstack wt pr 123 --update --stash
 ```
 
-Notes:
+说明：
 
-- `--update` fails closed if the PR was force-pushed and the update is not a fast-forward; re-run with `--force`.
-- `--stash` keeps your uncommitted changes safe during updates.
+- 若 PR 发生过强制推送导致更新无法快进（fast-forward），`--update` 会采取关闭式失败策略；此时可追加 `--force` 重新运行。
+- `--stash` 会在更新过程中妥善保存你尚未提交的修改。
 
-### Testing a PR inside a stack (recommended)
+### 在栈中测试 PR（推荐）
 
-Prefer `hstack stack pr` for maintainable PR stacks:
+若想保持 PR 栈易于维护，推荐使用 `hstack stack pr`：
 
 ```bash
 hstack stack pr pr123 --repo=123 --dev --reuse
@@ -162,7 +161,7 @@ hstack stack pr pr123 --repo=123 --dev --reuse
 
 ---
 
-## Workflow helpers
+## 工作流辅助命令
 
 ### `wt status`
 
@@ -177,11 +176,11 @@ hstack wt status dev
 hstack wt list
 ```
 
-This includes `main/`, `dev/`, and any categorized worktrees under `pr/`, `local/`, `tmp/`.
+包含 `main/`、`dev/` 以及 `pr/`、`local/`、`tmp/` 下的所有分类工作树。
 
 ### `wt sync` / `wt sync-all`
 
-Sync remote refs into local mirror branches (useful before creating new worktrees):
+将远程引用同步到本地镜像分支（在创建新工作树前非常实用）：
 
 ```bash
 hstack wt sync --remote=upstream
@@ -190,7 +189,7 @@ hstack wt sync-all --remote=upstream
 
 ### `wt update`
 
-Update a worktree from its base (fails closed on conflicts unless you opt into `--force`):
+从基准分支更新工作树（发生冲突时默认采取关闭式失败，除非显式开启 `--force`）：
 
 ```bash
 hstack wt update pr/123-fix-thing
@@ -198,10 +197,10 @@ hstack wt update pr/123-fix-thing --stash
 hstack wt update pr/123-fix-thing --force
 ```
 
-Stash behavior:
+暂存区（Stash）行为：
 
-- `--stash`: auto-stash then pop back if the update was clean
-- `--stash-keep`: auto-stash but keep it (you apply it manually later)
+- `--stash`：自动暂存；若更新过程干净无冲突，则自动弹出恢复
+- `--stash-keep`：自动暂存但保留在暂存区（后续由你手动应用）
 
 ### `wt update-all`
 
@@ -209,7 +208,7 @@ Stash behavior:
 hstack wt update-all
 ```
 
-Dry-run:
+试运行（Dry-run）：
 
 ```bash
 hstack wt update-all --dry-run
@@ -217,7 +216,7 @@ hstack wt update-all --dry-run
 
 ### `wt git`
 
-Run git in a resolved worktree:
+在解析后的工作树中执行 Git 命令：
 
 ```bash
 hstack wt git pr/123-fix-thing -- status
@@ -226,13 +225,13 @@ hstack wt git dev -- checkout -b feature/foo
 
 ### `wt shell`
 
-Open a “real” interactive shell in a worktree:
+在工作树中打开一个“真实”的交互式 Shell：
 
 ```bash
 hstack wt shell dev
 ```
 
-### Editors (`wt code` / `wt cursor`)
+### 编辑器（`wt code` / `wt cursor`）
 
 ```bash
 hstack wt cursor dev
@@ -241,7 +240,7 @@ hstack wt code pr/123-fix-thing
 
 ### `wt duplicate`
 
-Duplicate a worktree (useful for “same base, different experiment”):
+复制工作树（适用于“基于相同基准开展不同实验”的场景）：
 
 ```bash
 hstack wt duplicate active tmp/try-alt --use
@@ -249,25 +248,25 @@ hstack wt duplicate active tmp/try-alt --use
 
 ### `wt archive`
 
-Archive and remove a worktree directory (and optionally delete the branch):
+归档并移除工作树目录（可选同时删除分支）：
 
 ```bash
 hstack wt archive pr/123-fix-thing --dry-run
 hstack wt archive pr/123-fix-thing
 ```
 
-Use `--detach-stacks` to unpin stacks that were pointing at that worktree.
+若有栈固定指向该工作树，可使用 `--detach-stacks` 解除绑定。
 
 ---
 
-## Interactive and JSON modes
+## 交互模式与 JSON 模式
 
-Most commands support:
+大多数命令均支持：
 
-- `--interactive` / `-i` (TTY-only wizards where supported)
-- `--json` (machine-readable output)
+- `--interactive` / `-i`（仅限 TTY 终端的引导向导）
+- `--json`（机器可读输出）
 
-Examples:
+示例：
 
 ```bash
 hstack wt use --interactive
@@ -277,9 +276,9 @@ hstack wt list --json
 
 ---
 
-## Switching server flavor (light vs full)
+## 切换服务端版本（轻量版对比完整版）
 
-Choose which backend flavor a stack runs with:
+选择栈运行时所使用的后端版本：
 
 ```bash
 hstack srv status
@@ -288,34 +287,34 @@ hstack srv use happier-server
 hstack srv use --interactive
 ```
 
-Notes:
+说明：
 
-- This selects a runtime flavor (light/full). It does **not** select a different git repo.
-- Both flavors come from the same monorepo server code (`apps/server`).
+- 此操作仅选择运行时版本（轻量版/完整版），**不会**切换到其他 Git 仓库。
+- 两个版本均来自同一代码库中的同一套服务端代码（`apps/server`）。
 
 ---
 
-## Fork setup (contributors)
+## Fork 配置（针对贡献者）
 
-For contributor workflows, hstack expects:
+在贡献者工作流中，hstack 要求如下设置：
 
-- `upstream` → the canonical repo you PR into
-- `origin` → your fork (where you push branches)
+- `upstream` → 提交 PR 的权威仓库
+- `origin` → 你的 Fork（用于推送分支）
 
-If you run `hstack setup-from-source --profile=dev` and `origin` still points to `upstream` (and you can’t push there), setup will guide you to configure a fork URL for `origin`.
+如果运行 `hstack setup-from-source --profile=dev` 时 `origin` 仍指向 `upstream`（且你对其没有推送权限），设置向导会引导你为 `origin` 配置 Fork URL。
 
-Non-interactive option:
+非交互式选项：
 
 ```bash
 export HAPPIER_STACK_FORK_URL="https://github.com/<you>/happier.git"
 hstack setup-from-source --profile=dev
 ```
 
-Once configured, a common PR flow is:
+配置完成后，常见的 PR 流程如下：
 
 ```bash
 hstack wt new local/my-feature --from=upstream --use
 hstack wt push active --remote=origin
 ```
 
-If you prefer working in the long-lived `dev/` checkout, use `hstack contrib extract` to create feature branches cleanly. See [Development workflow](/hstack/development).
+如果你更倾向于在长期保留的 `dev/` 检出目录中工作，可以使用 `hstack contrib extract` 干净地创建特性分支。详情请参阅[开发工作流](/hstack/development)。

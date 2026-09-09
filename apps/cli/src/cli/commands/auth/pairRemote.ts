@@ -283,7 +283,7 @@ export async function handleAuthPairRemote(argsRaw: string[], deps: Partial<Pair
     json,
     deps: effectiveDeps,
   });
-  const remoteExecutable = remoteCommand.value?.trim() || 'happier';
+  const remoteExecutable = remoteCommand.value?.trim() || 'kaiwu';
   const remoteServerArgs = buildRemoteServerArgs(remoteSelection);
 
   if (!json) {
@@ -296,7 +296,7 @@ export async function handleAuthPairRemote(argsRaw: string[], deps: Partial<Pair
   assertRemoteRequestUsedExpectedRelay(request, remoteSelection);
   const publicKey = typeof request?.publicKey === 'string' ? request.publicKey : '';
   if (!publicKey) {
-    console.error('Remote `happier auth request --json` output did not include "publicKey".');
+    console.error('Remote `kaiwu auth request --json` output did not include "publicKey".');
     process.exit(1);
   }
 

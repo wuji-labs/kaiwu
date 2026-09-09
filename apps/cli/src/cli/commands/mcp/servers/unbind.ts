@@ -19,13 +19,13 @@ export async function cmdMcpServersUnbind(
       await printJsonEnvelope({ ok: false, kind: 'mcp_servers_unbind', error: { code: 'not_authenticated' } }, { exitCode: 1 });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "happier auth login" first.');
+    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
     process.exitCode = 1;
     return;
   }
 
   const bindingId = readFlagValue(argv, '--binding-id');
-  if (!bindingId) throw new Error('Usage: happier mcp servers unbind --binding-id <id> [--json]');
+  if (!bindingId) throw new Error('Usage: kaiwu mcp servers unbind --binding-id <id> [--json]');
 
   await deps.updateAccountSettingsV2WithRetry({
     credentials,

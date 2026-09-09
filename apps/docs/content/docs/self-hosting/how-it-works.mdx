@@ -1,69 +1,42 @@
 ---
-title: How Kaiwu fits together
-description: The three moving parts, what actually travels over the socket, and what that means if you are putting a proxy in front of it.
+title: Kaiwu 各组件如何协同运作
+description: 三大核心组件、套接字上实际传输的内容，以及在其前端配置代理时这意味着什么。
 ---
+Kaiwu 由三部分组成，其形态源于实际工作的运行位置：**在你的设备上，而非服务器上**。
 
-Kaiwu is three pieces, and its shape follows from where the work happens:
-**on your machine, not on a server**.
+- **CLI 及其守护进程**运行在你掌控的计算机上。你的代码仓库与 Agent 凭据都在这里，编码 Agent 也在此实际执行。
+- **中继**负责存储加密有效负载以及路由所需的同步元数据。中继不运行 Agent，且在默认存储策略下无法读取其内容。
+- **客户端**包括移动端、网页端与桌面端，供你观察状态并进行操控。
 
-- **The CLI and its daemon** run on a computer you control. This is where your
-  coding agent actually executes, with your repository and the agent's own
-  credentials.
-- **The relay** stores encrypted payloads and the sync metadata needed to route
-  them. It does not run agents, and under the default storage policy it cannot
-  read their content.
-- **The clients** — mobile, web and desktop — are how you watch and steer.
+会话通过中继实现同步，因此手机和笔记本电脑能看到完全一致的对话内容。这就是中继的全部职责：在你的各端设备与负责执行任务的设备之间传递密文。
 
-Sessions sync through the relay so a phone and a laptop see the same
-conversation. That is the relay's whole job: moving ciphertext between your
-devices and the machine doing the work.
+## Socket 中传输的内容
 
-## What travels over the socket
+这一点比听上去更加关键，因为在自托管中继前配置反向代理时，人们最容易在这里踩坑。
 
-This matters more than it sounds, because it is the part people get wrong when
-putting a reverse proxy in front of a self-hosted relay.
+**双向 WebSocket 是主数据通路。** 它并非只是用来通知客户端去通过 HTTP 获取内容的通知通道。
 
-**The WebSocket is the primary data path, in both directions.** It is not a
-notification channel that tells clients to go fetch something over HTTP.
+- **下行方向**，`new-message` 承载了完整消息（`{ id, seq, content, … }`），而非仅仅是“有内容更新”的 ping 探测信号。
+- **上行方向**，客户端通过同一个 Socket 发起写入：`message`、`update-metadata` 与 `update-state` 均为客户端到服务器的事件。
 
-- **Downstream**, `new-message` carries the whole message —
-  `{ id, seq, content, … }` — not a "something changed" ping.
-- **Upstream**, clients write over the same socket: `message`,
-  `update-metadata` and `update-state` are all client-to-server events.
+写入操作采用乐观并发控制。带版本的字段——元数据、Agent 状态、产物分片、访问密钥、KV 等——都会携带 `expectedVersion`。若写入过期，系统不会静默覆盖，而是会返回带有当前版本的 `version-mismatch`。冲突解决逻辑交由客户端处理，这使得两台设备无需加锁即可协同处理同一个会话。
 
-Writes use optimistic concurrency. Versioned fields — metadata, agent state,
-artifact parts, access keys, KV — carry an `expectedVersion`, and a stale write
-comes back as `version-mismatch` with the current version attached rather than
-silently overwriting. Conflict resolution stays with the client, which is what
-lets two devices work on the same session without a lock.
-
-HTTP handles what a long-lived socket is bad at: bulk catch-up after a
-disconnect, and transfers that do not belong in a message stream.
+长连接 Socket 不擅长处理的场景则由 HTTP 接管：例如断连后的大批量数据补录，以及不属于消息流范畴的传输。
 
 <Callout type="warn">
-  Self-hosting: size your reverse proxy for a long-lived, chatty WebSocket
-  rather than request/response traffic. The most common self-hosting failure is
-  an idle timeout shorter than the server's own heartbeat, which silently drops
-  machines offline. [Environment variables](/self-hosting/env) has the exact
-  figure.
+  自托管：请根据长连接且通信频繁的 WebSocket 流量来配置反向代理的规格，而非仅按传统的请求/响应流量评估。自托管中最常见的故障，是空闲超时时间短于服务器自身的心跳间隔，导致设备被静默断连。[环境变量](/self-hosting/env)中提供了具体的数值参考。
 </Callout>
 
-## Reconnecting
+## 重新连接
 
-Clients are expected to lose the socket and recover: reconnect, fetch what they
-missed, reconcile deterministically. A device asleep for a day should end up in
-the same state as one that stayed connected, which is why messages carry a
-monotonic `seq` rather than relying on arrival order.
+客户端在设计上就考虑到了 Socket 断开与恢复机制：重新连接、拉取遗漏数据、执行确定性的状态对齐。休眠一整天的设备唤醒后，其最终状态应当与始终在线的设备保持一致。正因如此，消息依赖单调递增的 `seq`，而非到达先后来确定顺序。
 
-## Where the encryption sits
+## 加密机制的位置
 
-Content is encrypted on your device before it reaches the relay, and the keys
-stay with your account rather than the server. What that guarantees — and the
-storage policies under which it does not — is covered in
-[Security](/security) and the [Encryption model](/security/encryption).
+数据内容在离开设备、到达中继之前便已完成加密，密钥由你的账户保管而非存放在服务器端。这一机制能提供哪些保障，以及在哪些存储策略下不适用，详见[安全性](/security)与[加密模型](/security/encryption)。
 
-## Related
+## 相关内容
 
-- [Protocol](/self-hosting/protocol) — the event-level contract.
-- [Security](/security) — what the relay can and cannot read.
-- [Run your own relay](/self-hosting)
+- [协议](/self-hosting/protocol)——事件级契约。
+- [安全性](/security)——中继可以读取与无法读取的内容。
+- [运行你自己的中继](/self-hosting)

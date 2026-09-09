@@ -1,88 +1,87 @@
 ---
-title: Custom mobile build (optional)
-description: Build and install your own Kaiwu app build for a self-hosted server (without publishing to app stores).
+title: 自定义移动端构建（可选）
+description: 为自托管服务器构建并安装你自己的 Kaiwu 应用构建（无需发布至应用商店）。
 ---
+对绝大多数自托管用户而言，**无需**自行构建定制版 App。推荐配置方案如下：
 
-Most self-hosters should **not** build a custom app. The recommended setup is:
+1. 自托管服务端
+2. 使用 Kaiwu 客户端，并将 **Server URL** 指向你的实例
 
-1. Self-host the server
-2. Use the Kaiwu app and set its **Server URL** to your instance
+本文面向进阶用户，适用于希望在手机上安装**专属**构建版本的场景（例如使用不同的 Bundle ID/包名、独立的 Expo 项目，或维护私有 Fork）。
 
-This page is for advanced users who want to install their **own** build on their phone (for example: different bundle id/package name, different Expo project, or a private fork).
+本文重点介绍面向个人设备或团队内部的**本地/内部安装**流程。**发布至应用商店不在本文讨论范围内。**
 
-This page focuses on **local / internal installs** for your own devices or team. **Publishing to app stores is out of scope.**
+## 通知工作原理（架构）
 
-## How notifications work (architecture)
+- 客户端注册 **Expo 推送令牌**并将其保存到服务端（`/v1/push-tokens`）。
+- CLI 从服务端拉取保存的令牌，再通过 Expo 的推送 API 发送通知。
+- 在当前设计中，服务端仅负责存储令牌，**并不**直接发送推送载荷。
 
-- The app registers an **Expo push token** and saves it to the server (`/v1/push-tokens`).
-- The CLI fetches saved tokens from the server and sends notifications via Expo’s push API.
-- The server stores tokens, but does **not** send push payloads in the current design.
-
-## Requirements for a custom build
+## 自定义构建前置要求
 
 ### 1) iOS (APNs)
 
-Your custom app build needs valid APNs credentials configured for your Expo/EAS project.
+自定义构建需要在你的 Expo/EAS 项目中配置有效的 APNs 凭据。
 
 ### 2) Android (FCM + `google-services.json`)
 
-Your custom app build needs FCM configured and must include a valid Firebase Android config file (`google-services.json`) at build time.
+自定义构建需要配置 FCM，且构建时必须包含有效的 Firebase Android 配置文件（`google-services.json`）。
 
-In this repo, the Expo config expects:
+在本代码库中，Expo 配置要求如下：
 
 - `apps/ui/app.config.js` → `android.googleServicesFile: "./google-services.json"`
 
-### 3) Server URL
+### 3) 服务端 URL
 
-Your custom build must point to your self-hosted server URL (either via in-app settings or a baked default).
+自定义构建必须指向你的自托管服务端 URL（可通过应用内设置配置，或直接打包预置为默认值）。
 
-## Installing on a phone (no app stores)
+## 在手机上安装（无需应用商店）
 
-### iOS (recommended: hstack helpers)
+### iOS（推荐方案：hstack 辅助工具）
 
-If you’re working in a local stack, `hstack` includes helpers to build and install on an iPhone over USB:
+如果你在本地栈环境中开发，`hstack` 提供了辅助工具，支持通过 USB 连接在 iPhone 上构建并安装：
 
-- **Install the shared dev-client (once)**:
+- **安装共享 dev-client（仅需一次）**：
 
 ```bash
 hstack mobile-dev-client --install
 ```
 
-- **Install an isolated per-stack app** (separate home screen app per stack):
+- **安装各栈独立的 App**（每个栈在主屏幕生成独立的应用图标）：
 
 ```bash
 hstack stack mobile:install <stack>
 ```
 
-See [hstack → Mobile (iOS)](/hstack/mobile-ios) for the full workflow and troubleshooting.
+完整工作流及故障排查方法，请参阅 [hstack → Mobile (iOS)](/hstack/mobile-ios)。
 
 ### Android
 
-For Android, use EAS internal distribution or a local Android build flow for your Expo project. Ensure your app is configured with the correct `google-services.json` for the Android package you’re installing.
+对于 Android，可使用 EAS 内部发布通道，或采用针对当前 Expo 项目的本地 Android 构建流程。请确保应用配置了正确的 `google-services.json`，并与所安装的 Android 包名保持一致。
 
-## API key restrictions (Android / Firebase)
+## API 密钥访问限制（Android / Firebase）
 
-`google-services.json` contains a client-side API key. Security comes from **restrictions**, not secrecy.
+`google-services.json` 包含客户端 API 密钥。保障其安全靠的是**访问限制**，而非保密防泄露。
 
-### Application restrictions (recommended)
+### 应用限制（推荐）
 
-Restrict the key to:
+将密钥的使用范围限制为：
 
-- **Android apps**
-- Your app’s **package name(s)**
-- Your signing certificate **SHA-1** fingerprint(s)
+- **Android 应用**
+- 对应应用的**包名**
+- 签名证书的 **SHA-1** 指纹
 
-For EAS builds, the SHA-1 is stable as long as you keep using the same Android keystore.
+对于 EAS 构建，只要持续沿用相同的 Android keystore，SHA-1 就会保持固定。
 
-If you distribute via the Play Store, installs from Google Play are signed with the **Play App Signing** key (which is different from your upload key). Add that SHA-1 too, otherwise Firebase/FCM can break for store-installed builds.
+如果你通过 Play 商店分发，用户从 Google Play 安装的版本会改由 **Play 应用签名**密钥重新签名（该密钥与你的上传密钥不同）。请一并将该密钥的 SHA-1 添加进来，否则商店安装版可能会出现 Firebase/FCM 功能失效的问题。
 
-### API restrictions (recommended minimal allowlist for Cloud Messaging)
+### API 限制（Cloud Messaging 推荐最小许可名单）
 
-If you only use Firebase Cloud Messaging, restrict the key to these APIs:
+如果仅使用 Firebase Cloud Messaging，建议将密钥限制在以下 API 范围内：
 
 - **Firebase Management API** (`firebase.googleapis.com`)
 - **Cloud Logging API** (`logging.googleapis.com`)
 - **Firebase Installations API** (`firebaseinstallations.googleapis.com`)
 - **FCM Registration API** (`fcmregistrations.googleapis.com`)
 
-If you enable additional Firebase products (Firestore/Storage/Auth/etc), expand the allowlist accordingly.
+若启用了其他 Firebase 产品（如 Firestore、Storage、Auth 等），请同步在许可名单中追加对应项。

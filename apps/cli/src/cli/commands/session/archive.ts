@@ -14,7 +14,7 @@ export async function cmdSessionArchive(
   const json = wantsJson(argv);
   const [idOrPrefix = ''] = readCommandPositionals(argv, { startIndex: 1 });
   if (!idOrPrefix) {
-    throw new Error('Usage: happier session archive <session-id-or-prefix> [--json]');
+    throw new Error('Usage: kaiwu session archive <session-id-or-prefix> [--json]');
   }
 
   const credentials = await deps.readCredentialsFn();
@@ -23,7 +23,7 @@ export async function cmdSessionArchive(
       await printJsonEnvelope({ ok: false, kind: 'session_archive', error: { code: 'not_authenticated' } });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "happier auth login" first.');
+    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
     process.exit(1);
   }
 

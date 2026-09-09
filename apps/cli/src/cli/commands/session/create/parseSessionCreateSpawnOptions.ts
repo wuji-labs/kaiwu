@@ -30,7 +30,7 @@ export type ParsedSessionCreateSpawnOptions = Readonly<{
 }>;
 
 export const SESSION_CREATE_USAGE = [
-  'happier session create [options]',
+  'kaiwu session create [options]',
   '',
   'Options:',
   '  [--path <path>] [--backend <backend-target>]',

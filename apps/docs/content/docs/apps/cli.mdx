@@ -1,110 +1,122 @@
 ---
 title: CLI
-description: Install, authenticate, control sessions, and run the external MCP server from the CLI.
+description: 通过 CLI 安装、认证、控制会话并运行外部 MCP 服务器。
 ---
+Kaiwu CLI 是面向高级用户的客户端，可用于：
 
-The Kaiwu CLI is the power-user client for:
+- 安装与更新 Kaiwu
+- 针对单台或多台服务器进行身份认证
+- 选择默认服务器配置，或单次指定目标服务器执行命令
+- 创建、查看、恢复、附加和管理会话
+- 运行外部 Kaiwu MCP 服务器
+- 检查 Kaiwu 工具以及动作驱动的工作流
 
-- installing and updating Kaiwu
-- authenticating to one or more servers
-- selecting a default server profile or targeting one command
-- creating, listing, resuming, attaching to, and managing sessions
-- running the external Kaiwu MCP server
-- inspecting Kaiwu tools and action-driven workflows
+## 安装
 
-## Install
 
 ```bash
 curl -fsSL https://kaiwu.chengqiyun.com/install | bash
 ```
 
-Public installer lanes:
+
+公共安装通道：
 
 - `stable`: `curl -fsSL https://kaiwu.chengqiyun.com/install | bash` -> `happier`
 - `preview`: `curl -fsSL https://kaiwu.chengqiyun.com/install-preview | bash` -> `hprev`
 - `dev`: `curl -fsSL https://kaiwu.chengqiyun.com/install-dev | bash` -> `hdev`
 
-Windows (PowerShell):
+Windows（PowerShell）：
+
 
 ```powershell
 irm https://kaiwu.chengqiyun.com/install.ps1 | iex
 ```
 
-npm fallback (power-user / Node workflow):
+
+npm 备用方案（面向高级用户 / Node 工作流）：
+
 
 ```bash
 npm install -g @happier-dev/cli
 ```
 
-Important:
 
-- npm installs expose the npm dist-tags (`@latest` and `@next`).
-- The rolling `dev` lane is installer-managed (`install-dev` / `hdev`), not a separate npm dist-tag.
+重要提示：
 
-## Updates
+- 通过 npm 安装会直接使用 npm dist-tag（`@latest` 和 `@next`）。
+- 滚动更新通道 `dev` 由安装程序统一管理（`install-dev` / `hdev`），并非独立的 npm dist-tag。
 
-How you update depends on how you installed the CLI:
+## 更新
 
-- **Installer install**: run the lane-specific command (`happier`, `hprev`, or `hdev`) with `self check` / `self update` (or rerun the matching installer endpoint). Installer installs keep the full CLI payload under `~/.happier/cli/current` and refresh the selected lane shim for you.
-- Stable is `~/.happier/cli/current`; preview/dev use `~/.happier/cli-preview/current` and `~/.happier/cli-dev/current`.
-- **npm install**: `npm install -g @happier-dev/cli@latest` (or `@next` for preview). npm does not currently expose a separate public `dev` dist-tag.
+更新方式取决于 CLI 的安装途径：
 
-The CLI can also show periodic update notices in TTY sessions; disable with:
+- **安装脚本安装**：运行对应通道的命令（`happier`、`hprev` 或 `hdev`）并附带 `self check` / `self update`（或者重新运行对应的安装脚本端点）。此类安装会将完整的 CLI 内容保存在 `~/.happier/cli/current` 下，并自动为你刷新对应通道的 shim。
+- 稳定版为 `~/.happier/cli/current`；预览版/开发版分别使用 `~/.happier/cli-preview/current` 与 `~/.happier/cli-dev/current`。
+- **npm 安装**：`npm install -g @happier-dev/cli@latest`（预览版使用 `@next`）。npm 目前未提供单独的公开 `dev` dist-tag。
+
+CLI 还可以在 TTY 会话中定期显示更新提示；可通过如下命令禁用：
+
 
 ```bash
 HAPPIER_CLI_UPDATE_CHECK=0
 ```
 
-Full matrix (all apps/assets): [Updates](/releases/updates).
 
-## Authenticate
+完整版本支持列表（所有应用/资产）：[更新](/releases/updates)。
+
+## 身份认证
+
 
 ```bash
 happier auth login
 ```
 
-`happier auth login` prints both web and mobile connection options (URLs).
-By default it prints a single QR code for the mobile deep link, plus the web URL as a fallback.
-When using self-hosted servers, run login against the correct server profile (see below).
 
-Recommended first-run flow:
+`happier auth login` 会同时输出网页端与移动端的连接选项（URL）。
+默认情况下，它会打印一个移动端深度链接二维码，并附带网页端 URL 作为备选方案。
+使用自托管服务器时，请针对正确的服务器配置文件运行登录命令（详见下文）。
 
-- Use the mobile app path first (QR/deep link) to sign in/create account and approve terminal connection.
-- If you already use Kaiwu on another device, sign in with that same account.
-- If you open a terminal-connect link while logged out, Kaiwu routes you through sign in and then returns you to terminal approval automatically.
+首次运行推荐流程：
 
-Notes:
-- The CLI never needs your secret key directly. For device-key accounts, restore happens in the app (mobile/web UI).
-- On enterprise/keyless deployments (mTLS or keyless OAuth), the same `happier auth login` flow works; the browser/app will use whatever the server advertises via `GET /v1/features`.
-- **Terminal connect is separate from account restore.** In the app, use **Scan QR to connect terminal** only for terminal/daemon approval. To sign a phone into the same account, use **Add your phone** on an already-signed-in desktop/web app and **Restore account** on the phone.
-- If the mobile QR/deep link does not include a server URL, your current server is probably loopback-only (`localhost` / `127.0.0.1`). Configure the phone to a reachable server URL first, then retry.
+- 优先使用移动端 App 方式（扫描二维码或打开深度链接）登录/创建账号，并批准终端连接。
+- 如果你已在其他设备上使用 Kaiwu，请直接登录同一账号。
+- 若在未登录状态下打开终端连接链接，Kaiwu 会先引导你完成登录，随后自动返回终端批准页面。
 
-Advanced:
-- To also print optional “configure server” links (rarely needed): `happier auth login --print-configure-links`
-- To stop waiting for approval after a fixed time instead of waiting indefinitely: `happier auth login --wait-timeout <seconds>`. The sign-in request stays approvable — rerun `happier auth login` to finish it. Guided setup uses this so it can hand the terminal back.
+注意事项：
+- CLI 绝不会直接索取你的私钥。对于基于设备密钥的账号，账号恢复均在 App（移动端/网页端界面）中完成。
+- 在企业级或无密钥部署环境（mTLS 或无密钥 OAuth）下，`happier auth login` 流程同样适用；浏览器或 App 会直接使用服务器通过 `GET /v1/features` 公布的认证方式。
+- **终端连接与账号恢复是两个独立的过程。** 在 App 中，**扫码连接终端**仅用于批准终端/守护进程连接。若要让手机登录同一账号，请在已登录的桌面端或网页端 App 中选择**添加手机**，并在手机上操作**恢复账号**。
+- 如果移动端二维码或深度链接中未包含服务器 URL，说明你当前服务器可能仅监听了本地环回地址（`localhost` / `127.0.0.1`）。请先在手机上配置可访问的服务器 URL，然后再重试。
 
-User guide: [Features → Device linking & restore](/accounts/device-linking-and-restore)
+进阶操作：
+- 若需同时打印可选的“配置服务器”链接（极少用到）：`happier auth login --print-configure-links`
+- 若希望在固定时间后停止等待批准，而非无限期等待：`happier auth login --wait-timeout ⟦K35⟧`。此时登录请求仍然保持可批准状态——重新运行 `happier auth login` 即可完成流程。引导式配置即利用了这一机制，以便及时交还终端控制权。
 
-### Remote machine pairing (SSH, automated)
+用户指南：[功能特性 → 设备关联与恢复](/accounts/device-linking-and-restore)
 
-If you want to run Kaiwu on a **remote machine** (VPS, home server, dev box) but approve/authenticate it from a machine where you're already signed in:
+### 远程设备配对（SSH，自动化）
+
+如果你想在**远程设备**（VPS、家用服务器、开发机）上运行 Kaiwu，并从一台已登录的设备上完成审批或认证：
+
 
 ```bash
 happier auth pair-remote --ssh user@host
 ```
 
-Notes:
 
-- This orchestrates a claim-gated pairing flow over SSH (remote request → local approve → remote wait).
-- Add `--json` for machine-readable output.
-- Add `--server ...` or `--server-url/--webapp-url` to choose the local relay profile/account used for approval.
-- If your selected relay is local-only (`localhost` / `127.0.0.1`), interactive mode offers reachable addresses for this computer (Tailscale Serve, direct Tailscale IP, LAN IP) plus Custom. In scripts, pass the address the remote machine should use to reach this computer's relay: `happier auth pair-remote --ssh user@host --server-url-for-remote https://relay.example.com`.
-- `--remote-server-url` remains available as a legacy alias for `--server-url-for-remote`.
-- For remote Windows hosts, make sure the Kaiwu CLI command is available in the SSH session. If the command is not named `happier`, pass `--remote-command hdev` or the installed command name.
+说明：
 
-### Pairing (JSON, manual / scripting)
+- 该命令会通过 SSH 编排一套基于认领机制的配对流程（远程请求 → 本地审批 → 远程等待）。
+- 添加 `--json` 可输出机器可读内容。
+- 添加 `--server ...` 或 `--server-url/--webapp-url` 可选择用于审批的本地中继配置文件或账号。
+- 若所选中继仅限本地访问（`localhost` / `127.0.0.1`），交互模式会提供当前电脑的可达地址（Tailscale Serve、Tailscale 直连 IP、局域网 IP）以及自定义选项。在脚本中使用时，请传入远程设备访问当前电脑中继所用的地址：`happier auth pair-remote --ssh user@host --server-url-for-remote https://relay.example.com`。
+- `--remote-server-url` 仍可作为 `--server-url-for-remote` 的兼容别名继续使用。
+- 若目标是远程 Windows 主机，请确保 SSH 会话中能够调用 Kaiwu CLI 命令。如果命令名称不是 `happier`，请传入 `--remote-command hdev` 或实际安装的命令名称。
 
-Split the flow when you want full control (automation, custom SSH, etc):
+### 配对（JSON，手动 / 脚本）
+
+若需完全掌控流程（如自动化、自定义 SSH 等场景），可拆分执行：
+
 
 ```bash
 # On the remote host (prints a request + publicKey)
@@ -117,128 +129,80 @@ happier auth approve --public-key <publicKey> --json
 happier auth wait --public-key <publicKey> --json
 ```
 
-This is terminal/CLI pairing, not the same flow as device restore inside the app.
 
-## Guided first run
+此流程为终端 / CLI 配对，与 App 内的设备恢复流程不同。
+
+## 引导式首次运行
+
 
 ```bash
 happier setup
 ```
 
-On a fresh interactive install, the installer continues directly into
-`happier setup`. Run it yourself when the installer was unattended, you skipped
-the guided step, or sign-in did not finish. Setup asks where your relay lives,
-points this computer at it, and runs the sign-in. It leaves an already-finished
-computer alone only when a relay is selected, the relay still accepts the stored
-sign-in, and this machine is registered against it. Credentials the relay has
-since rejected, or credentials with no registered machine behind them, are what
-setup exists to repair, so they do not count as configured. When the selected
-relay does not answer, nothing can be verified: setup keeps your relay choice
-and stored sign-in exactly as they are, says it could not check them, and offers
-retry or explicitly choosing another relay — an unreachable relay is never
-treated as a rejected sign-in or a reason to sign in somewhere else.
 
-The installer's automatic handoff to setup is best-effort: declining it or
-leaving setup incomplete does not turn a successful binary installation into a
-failed installation. An explicitly requested installer action, such as
-`--run setup`, is different: that action is part of the command you asked for,
-so its exit status is propagated. A non-zero result means the CLI was installed
-but the requested setup action did not finish.
+在全新交互式安装中，安装程序会直接进入 `happier setup`。如果安装过程采用无人值守模式、你跳过了引导步骤，或者登录未能完成，可以手动运行该命令。设置向导会询问你的中继位置，将当前电脑指向该中继，并执行登录。只有当满足以下全部条件时，向导才会跳过这台电脑并不作变动：已选定中继、该中继依然认可保存的登录凭据，且当前设备已在该中继上完成注册。若凭据已被中继拒绝，或凭据未关联已注册设备，这正是设置向导要修复的情况，因此不会视为配置完成。若所选中继没有响应，则无法进行任何验证：向导会原样保留所选中继与已保存的登录凭据，提示无法校验，并允许重试或明确选择其他中继——中继不可达绝不会被视为凭据被拒，也不是改用其他中继登录的理由。
 
-| Flag | Effect |
+安装程序自动交接给设置向导遵循尽力而为原则：拒绝交接或未完成设置，并不会导致原本成功的二进制安装被判定为失败。但明确指定的安装程序操作（例如 `--run setup`）则不同：该操作属于你主动执行的命令的一部分，因此会传递其退出状态码。非零结果表示 CLI 已安装完毕，但请求的设置操作未能完成。
+
+| 参数标志 | 效果 |
 | --- | --- |
-| `--cloud` | Use Kaiwu Cloud without being asked |
-| `--relay <url>` | Use a relay you already run |
-| `--this-computer` | Install a relay on this computer and use it |
-| `--yes` | Ask nothing, do everything that needs no answer, stop at the sign-in |
-| `--non-interactive` | Change nothing, and say what would be needed |
+| `--cloud` | 直接使用 Kaiwu Cloud，无需确认 |
+| `--relay ⟦K36⟧` | 使用已在运行的中继 |
+| `--this-computer` | 在当前电脑上安装并使用中继 |
+| `--yes` | 不做任何询问，执行所有无需交互的操作，停在登录环节 |
+| `--non-interactive` | 不做任何更改，仅列出需要执行的操作 |
 
-`--yes` and `--non-interactive` ask for opposite things, so they cannot be
-combined.
+`--yes` 与 `--non-interactive` 的行为互斥，无法组合使用。`--yes` 会执行已有预设答案的步骤：将本机指向你指定的中继；若指定了 `--this-computer`，还会将中继安装在本地。随后流程会暂停，因为登录必须在手机端或浏览器中确认，命令行无法代你完成授权。安装向导会提示 `happier auth login` 并以非零状态退出——这意味着二进制文件已安装，但引导配置尚未完成。它需要 `--cloud`、`--relay ⟦K37⟧` 或 `--this-computer` 之一：由于你的账户存储在所选的中继上，安装向导不会擅自代你做出选择。
 
-`--yes` runs the steps that have an answer already: it points this computer at
-the relay you named and, for `--this-computer`, installs the relay here. It then
-stops, because signing in has to be approved on your phone or in a browser and
-nothing on the command line can approve it for you. Setup names
-`happier auth login` and exits non-zero — the binary installed, the guided setup
-did not finish. It needs one of `--cloud`, `--relay <url>` or `--this-computer`:
-your account lives on whichever relay is chosen, so setup will not choose one.
+`--non-interactive` 不会写入任何内容。在检测到 `HAPPIER_NONINTERACTIVE=1` 以及无终端运行环境时，安装向导的处理方式也是如此，而这正是安装程序和 CI 在整个运行期间所采用的设置——对于仅用于中转的设备，系统不会在上面创建账户。如需执行实际操作，请通过 `--yes` 显式声明。
 
-`--non-interactive` writes nothing at all. It is also how setup reads
-`HAPPIER_NONINTERACTIVE=1` and a run with no terminal, which is what installers
-and CI set for a whole run — a machine that is only passing through does not
-get an account created on it. Ask for the work explicitly with `--yes`.
+选择在本机托管中继会在安装前后各增加一个连通性检查步骤：安装向导会说明本机上的 Tailscale 是正在运行、已安装但已停止，还是根本未安装，以及这对你的手机意味着什么。否则，中继无法被手机访问的问题往往要到之后在其他地方才会发现。若未安装 Tailscale，安装向当中继最终只能从这台电脑访问时（例如未配置 Tailscale，或是使用了回环地址），登录步骤会提示该状态，并通过当前电脑的浏览器完成登录，而不再提供 App 选项。终端链接会刻意过滤掉其他设备无法访问的地址，因此手机仍会保持指向原有的中继。只有真正发起新请求的登录才会触发这一逻辑：无论如何，设置流程都会运行 `happier auth login`；若之前保存的登录状态依然有效，它只会在不打开浏览器的情况下修复设备注册。一旦中继拥有了手机可访问的地址，`happier auth login` 便会重新同时提供这两种途径。
 
-Choosing to host the relay on this computer adds a reachability step, before and
-after the install: setup says whether Tailscale is running here, installed but
-stopped, or not installed at all, and what that means for your phone. A relay
-your phone cannot reach is otherwise only discovered later, and from somewhere
-else. When Tailscale is absent, setup offers to set it up — opt-in, defaulting to
-no. On macOS and Windows it opens the download page; on Linux it prints the
-install docs and moves on.
+设置的最后一步是检查是否已安装编程智能体。未检测到仅作为警告处理，不算失败——你可以先完成设置，稍后再行安装。
 
-That install also creates a master secret in the relay's data directory the
-first time the relay starts, and says so once, there. It encrypts what the relay
-stores, is saved nowhere else, and cannot be regenerated — keep it with your
-backup of the relay's database.
+## 检查与修复本设备
 
-When the relay ends up reachable from this computer only — no Tailscale, or a
-loopback address — the sign-in step says so and signs in through this computer's
-browser rather than offering the app. Terminal links deliberately drop an
-address no other device can reach, so the phone would be left pointing at
-whichever relay it already had. Only a sign-in that actually starts a new
-request makes that choice: setup runs `happier auth login` either way, and when
-your stored sign-in is still accepted it just repairs the machine registration
-without opening a browser. Once the relay has an address your phone can reach,
-`happier auth login` offers both routes again.
+`happier status` 会读取你与可用会话之间的整条链路——涵盖账号、中继注册、开机自启及 CLI 通道，且不做任何更改。`happier doctor repair` 则会尽力修复其中的问题。两者的用法均在[检查配置](/getting-started/check-your-setup)中有详细介绍，该章节还一并介绍了用于管理开机自启的 `happier service` 命令。
 
-Setup finishes by checking for an installed coding agent. Finding none is a
-warning, not a failure — you can finish setup and install one afterwards.
+## 通过脚本发送通知
 
-## Check and repair this machine
+在任何能运行 Shell 的地方向自己的设备发送通知——例如漫长的构建结束时、定时任务执行时，或是部署流程中：
 
-`happier status` reads the whole chain between you and a working session —
-account, relay registration, automatic startup, CLI channel — and changes
-nothing. `happier doctor repair` fixes what it can. Both are covered in
-[Check your setup](/getting-started/check-your-setup), along with the
-`happier service` commands that manage automatic startup.
-
-## Notifications from a script
-
-Send a notification to your own devices from anywhere a shell runs — the end of
-a long build, a cron job, a deploy:
 
 ```bash
 happier notify -p "Deployment complete!"
 happier notify -p "Database connection restored" -t "Alert"
 ```
 
-`-p` is the message and `-t` an optional title.
 
-## Automations
+`-p` 为消息内容，`-t` 为可选标题。
 
-Trigger a saved automation without opening the app:
+## 自动化
+
+无需打开 App 即可触发已保存的自动化：
+
 
 ```bash
 happier automation run <automation-id> [--idempotency-key <key>] [--json]
 ```
 
-Pass `--idempotency-key` when the caller might retry — a repeated key will not
-run the automation twice.
 
-## Plugins
+若调用方可能会重试，请传入 `--idempotency-key`——重复的 key 不会重复运行该自动化。
+
+## 插件
+
 
 ```bash
 happier plugins list [--json]
 ```
 
-This version of Kaiwu does not support installing plugins; the command exists
-so that tooling asking about plugins gets a clean, empty answer rather than an
-unrecognised-command error. It always lists nothing.
 
-## Server profiles
+当前版本的 Kaiwu 不支持安装插件。提供此命令是为了让查询插件的工具收到正常的空响应，而不是报错提示命令无法识别。该命令列出的内容始终为空。
 
-### Save and switch servers
+## 服务器配置
+
+### 保存并切换服务器
+
 
 ```bash
 happier server list
@@ -247,109 +211,122 @@ happier server add --name company --server-url https://api.company.example --web
 happier server use company
 ```
 
-`--use` (and `happier server use ...`) sets the **default server** for future commands, so you can usually omit `--server ...` once it’s selected.
 
-### Target a server for one command
+`--use`（以及 `happier server use ...`）会为后续命令设置**默认服务器**，选定后通常可以省略 `--server ...`。
 
-Use per-invocation targeting when you do not want to switch the default:
+### 针对单条命令指定服务器
+
+如果不想切换默认服务器，可以在单次执行命令时单独指定：
+
 
 ```bash
 happier --server company auth login
 happier --server personal daemon status
 ```
 
-You can also use URL flags:
+
+也可以使用 URL 参数：
+
 
 ```bash
 happier --server-url https://api.company.example --webapp-url https://app.company.example auth login
 happier --server-url https://api.company.example --webapp-url https://app.company.example auth pair-remote --ssh user@host --json
 ```
 
+
 <Callout type="warn">
-  `happier logout` is deprecated and prints a notice saying so. Use
-  `happier auth logout`.
+  `happier logout` 已弃用并会输出提示信息。请改用 `happier auth logout`。
 </Callout>
 
-## Daemon (background mode)
+## 守护进程（后台模式）
 
-For always-on background sessions, remote control, and headless servers, see [Daemon](/apps/daemon).
+如需使用常驻后台会话、远程控制和无头服务器，请参阅[守护进程](/apps/daemon)。
 
-## Attach to an existing session
+## 接入现有会话
 
-If a supported session is already running, you can reattach to that same live session from a terminal:
+如果支持的会话已在运行，你可以从终端重新接入该实时会话：
+
 
 ```bash
 happier attach
 happier attach <session-id>
 ```
 
-This is the main “start in the app, continue in the terminal” workflow. In a supported TTY, `happier attach` opens an interactive picker of active sessions:
 
-- **local attachable sessions** are selectable immediately
-- **active but non-attachable sessions** stay visible but disabled with a reason
-- **remote-capable provider sessions** are marked as remote; press `P` in the picker to run a reachability check before attaching
+这是“App 内发起，终端中继续”的核心工作流。在受支持的 TTY 环境中，`happier attach` 会打开活动会话的交互式选择器：
 
-If the session is stopped, use `happier resume` instead.
+- **本地可接入会话**可直接选择
+- **处于活动状态但不可接入的会话**保持可见，但会被禁用并显示原因
+- **支持远程的提供商会话**会标记为远程；在选择器中按 `P` 可在接入前运行连通性检查
 
-Important notes:
+若会话已停止，请改用 `happier resume`。
 
-- tmux and other terminal-host attach flows work only for sessions that are still owned by the current machine.
-- You must target the same Kaiwu account/server profile that owns the session.
+注意事项：
 
-Attach strategy depends on the provider:
+- tmux 及其他终端宿主接入流程，仅适用于仍归当前设备所有的会话。
+- 你必须指向拥有该会话的同一 Kaiwu 账号/服务器配置文件。
 
-- Some providers use Kaiwu's `tmux`-backed attach flow.
-- OpenCode uses a provider-native attach flow for server-backed sessions.
+接入策略取决于具体的提供商：
 
-For OpenCode, the supported reattach command is still `happier attach <session-id>`. Do not rely on a raw vendor `opencode attach ...` command as your normal Kaiwu workflow.
+- 部分提供商使用基于 Kaiwu `tmux` 的接入流程。
+- 对于基于服务器的会话，OpenCode 使用提供商原生接入流程。
 
-Supported attach styles include:
+对于 OpenCode，受支持的重新接入命令仍为 `happier attach ⟦K40⟧`。在 Kaiwu 的常规工作流中，请勿直接依赖厂商底层的 `opencode attach ...` 命令。
 
-- **tmux-backed sessions** on machines where tmux is enabled
-- **Windows Terminal** or **Console** hosted sessions on Windows
-- **provider-native attach** for supported provider sessions such as OpenCode
+受支持的接入方式包括：
 
-For the full workflow, see [Features → Attach to a running session](/sessions/attach-to-session).
+- 在已启用 tmux 的设备上**基于 tmux 的会话**
+- Windows 上由 **Windows Terminal** 或 **控制台** 托管的会话
+- 针对 OpenCode 等受支持提供商会话的**提供商原生接入**
 
-## Resume an inactive session
+完整工作流请参见 [功能 → 接入正在运行的会话](/sessions/attach-to-session)。
 
-If a Kaiwu session is inactive but still vendor-resumable, you can resume it directly from the CLI.
+## 恢复非活跃会话
 
-### Interactive selector
+若 Kaiwu 会话处于非活跃状态，但提供商仍支持恢复，你可以直接通过 CLI 将其恢复。
+
+### 交互式选择器
+
 
 ```bash
 happier resume
 ```
 
-In a supported TTY, Kaiwu shows an interactive picker of resumable inactive sessions.
 
-### Resume by id
+在受支持的 TTY 环境中，Kaiwu 会显示一个交互式选择器，列出可恢复的非活跃会话。
+
+### 通过 ID 恢复
+
 
 ```bash
 happier resume <session-id>
 ```
 
-You can use a full session id or an unambiguous prefix.
 
-Important behavior:
+你可以使用完整的会话 ID，也可以使用无歧义的前缀。
 
-- resume is strict: if the provider resume fails, Kaiwu errors instead of starting a fresh session
-- archived or already-active sessions cannot be resumed
-- the command restores the session working directory before launching the provider again
+重要行为：
 
-For the full user guide and the meaning of “resumable”, see [Features → Resume inactive sessions](/sessions/session-resume).
+- 严格恢复机制：若提供商恢复失败，Kaiwu 会直接报错，而不会启动全新的会话
+- 已归档或已处于活跃状态的会话无法恢复
+- 该命令会在重新启动提供商之前，先恢复会话的工作目录
 
-## List sessions
+如需查看完整的用户指南以及“可恢复”的具体含义，请参阅 [功能 → 恢复非活动会话](/sessions/session-resume)。
 
-Use:
+## 列出会话
+
+运行以下命令：
+
 
 ```bash
 happier session list
 ```
 
-The default output is a table that includes session id, agent, recent activity, active state, resume state, title, and path.
 
-Useful variants:
+默认输出为一个表格，包含会话 ID、智能体、最近活动、活跃状态、恢复状态、标题及路径。
+
+常用变体：
+
 
 ```bash
 happier session list --resumable
@@ -357,29 +334,35 @@ happier session list --plain
 happier session list --json
 ```
 
-- `--resumable` filters to sessions that can currently be resumed
-- `--plain` restores the older one-line output
-- `--json` is for scripting
 
-## Session control (non-interactive)
+- `--resumable` 仅筛选当前可恢复的会话
+- `--plain` 恢复旧版单行输出格式
+- `--json` 适用于脚本调用
 
-The `happier session ...` command group is the non-interactive surface for creating and controlling sessions.
+## 会话控制（非交互式）
 
-Deep reference: [CLI sessions](/apps/cli-sessions).
+`happier session ...` 命令组是非交互式创建与控制会话的接口。
 
-### Create a session (scriptable)
+详细参考：[CLI 会话](/apps/cli-sessions)。
+
+### 创建会话（可脚本化）
+
 
 ```bash
 happier session create --title "My session" --message "Hello"
 ```
 
-Optional targeting:
+
+指定目标（可选）：
+
 
 ```bash
 happier session create --path /path/to/repo --backend <backend-target-key> --tag <tag>
 ```
 
-`--backend` expects a **backend target key** (not a short name). Common forms:
+
+`--backend` 需要传入**后端目标键**（而非简写名称）。常见形式如下：
+
 
 ```bash
 # Built-in catalog agent
@@ -388,20 +371,26 @@ happier session create --backend "agent:<agent-id>"
 # ACP backend target (e.g. opencode, gemini, etc)
 happier session create --backend "acpBackend:<backend-id>"
 ```
+#
 
-### Send messages
+## 发送消息
+
 
 ```bash
 happier session send <session-id> "ping"
 ```
 
-Wait for an agent response (useful for scripts; can time out if the agent is busy/offline):
+
+等待 Agent 响应（适用于脚本；若 Agent 处于繁忙或离线状态可能会超时）：
+
 
 ```bash
 happier session send <session-id> "ping" --wait --timeout 60
 ```
+#
 
-### Status, stop, archive
+## 状态、停止与归档
+
 
 ```bash
 happier session status <session-id>
@@ -411,8 +400,10 @@ happier session stop <session-id>
 happier session archive <session-id>
 happier session unarchive <session-id>
 ```
+#
 
-### Set title / model / permission mode
+## 设置标题 / 模型 / 权限模式
+
 
 ```bash
 happier session set-title <session-id> "New title"
@@ -420,43 +411,48 @@ happier session set-model <session-id> <model-id>
 happier session set-permission-mode <session-id> <mode>
 ```
 
-`<mode>` accepts common aliases (for example `ask`, `default`, `yolo`). Use `--json` to script and see the normalized `permissionMode` value.
 
-### Session id prefixes
+`⟦K41⟧` 支持常用别名（例如 `ask`、`default`、`yolo`）。可以通过 `--json` 编写脚本并查看规范化后的 `permissionMode` 值。
 
-Commands that accept `<session-id-or-prefix>` allow an **unambiguous prefix** of a full session id.
+### 会话 ID 前缀
 
-If the prefix matches multiple sessions, the command fails with candidates.
+接受 `⟦K42⟧` 的命令支持使用完整会话 ID 的**无歧义前缀**。
 
-### Approvals from CLI commands
+若前缀匹配到多个会话，命令将执行失败并列出候选会话。
 
-Some actions can be configured as **approval-gated** on the CLI surface.
+### 来自 CLI 命令的审批
 
-In that case, the CLI command does not execute immediately; it creates an approval request instead.
-Use the app’s **Inbox** to review/approve/deny and see the final execution result:
+部分动作可在 CLI 操作端配置为**需审批门禁**。
 
-- [Inbox and approvals](/sessions/inbox-and-approvals)
-- [Kaiwu tools & actions](/extending/happier-tools)
+此时，CLI 命令不会立即执行，而是会创建一条审批请求。你可以使用 App 的**收件箱**来审核、批准或拒绝，并查看最终的执行结果：
 
-For advanced automation, approvals can also be decided through the generic action executor:
+- [收件箱与审批](/sessions/inbox-and-approvals)
+- [Kaiwu 工具与动作](/extending/happier-tools)
+
+对于高级自动化场景，审批也可以通过通用动作执行器进行判定：
+
 
 ```bash
 happier session actions execute <session-id> approval.request.decide --input-json '{"artifactId":"<id>","decision":"approve"}' --json
 ```
+#
 
-### Action catalog from the CLI
+## 通过 CLI 查看动作目录
 
-You can inspect and execute Kaiwu actions directly:
+你可以直接查看并执行 Kaiwu 动作：
+
 
 ```bash
 happier session actions list
 happier session actions describe <action-id>
 happier session actions execute <session-id> <action-id> --input-json '<json>'
 ```
+#
 
-### Execution runs (review / plan / delegate / voice agent)
+## 执行运行（review / plan / delegate / voice agent）
 
-Execution runs are the structured “run” layer for multi-step flows in a session (for example: start a review run, then send follow-up messages, then stop).
+执行运行是会话中多步骤流程的结构化“运行”层（例如：先启动一次 review 运行，再发送跟进消息，最后停止）。
+
 
 ```bash
 happier session run list <session-id>
@@ -464,22 +460,24 @@ happier session run start <session-id> --intent <intent> --backend <backend-targ
 happier session run send <session-id> <run-id> "message"
 happier session run stop <session-id> <run-id>
 ```
+## 外部 MCP 控制面
 
-## External MCP control surface
+若要通过 MCP 宿主（编辑器/智能体）控制 Kaiwu 会话和操作，请运行外部 MCP 服务器：
 
-If you want an MCP host (editor/agent) to control Kaiwu sessions and actions, run the external MCP server:
 
 ```bash
 happier mcp serve
 ```
 
-`happier mcp start` is accepted as a compatibility alias, but `serve` is the canonical command name in the docs and CLI help.
 
-Guide: [Kaiwu MCP (external)](/extending/happier-as-mcp-server)
+`happier mcp start` 可作为兼容别名使用，但文档和 CLI 帮助中的规范命令名称为 `serve`。
 
-## Backend profiles
+指南：[Kaiwu MCP（外部）](/extending/happier-as-mcp-server)
 
-The CLI supports backend profiles for session starts and profile discovery:
+## 后端配置
+
+CLI 支持后端配置，可用于启动会话及配置发现：
+
 
 ```bash
 happier profiles list
@@ -487,44 +485,51 @@ happier claude --profile deepseek
 happier codex --profile openai
 ```
 
-For the full guide, see [Features → Profiles](/agents/profiles).
 
-## Kaiwu tools
+完整指南请参阅[功能 → 配置](/agents/profiles)。
 
-The CLI also exposes the unified **Kaiwu tools** surface directly.
+## Kaiwu 工具
 
-Use it when you want to:
+CLI 还直接提供了统一的 **Kaiwu 工具**接口。
 
-- inspect which built-in Kaiwu tools are currently available
-- inspect which custom MCP tools resolve in the current machine/workspace context
-- call one of those tools directly from the terminal
+适用于以下场景：
 
-### List tools
+- 查看当前有哪些内置 Kaiwu 工具可用
+- 查看在当前设备/工作区上下文中解析出了哪些自定义 MCP 工具
+- 直接在终端中调用其中某个工具
+
+### 列出工具
+
 
 ```bash
 happier tools list
 ```
 
-Optional:
+
+可选参数：
+
 
 ```bash
 happier tools list --directory /path/to/project
 ```
 
-This lists:
 
-- built-in Kaiwu tools
-- custom MCP tools that resolve for the selected directory and machine
+此操作会列出：
 
-`list` does **not** require a session id.
+- Kaiwu 内置工具
+- 针对所选目录和设备解析出的自定义 MCP 工具
 
-### Call a tool
+`list` **不需要**会话 ID。
+
+### 调用工具
+
 
 ```bash
 happier tools call --session-id <session-id> --source happier --tool action_spec_search --args-json '{"query":"plan mode","limit":5}'
 ```
 
-Examples:
+
+示例：
 
 - `--source happier --tool review_start`
 - `--source happier --tool subagents_plan_start`
@@ -532,10 +537,10 @@ Examples:
 - `--source happier --tool action_options_resolve`
 - `--source playwright --tool browser_navigate`
 
-Use the Kaiwu built-in discovery tools when you do not know the exact action id or valid option values yet.
+若尚不确定确切的 action id 或合法的选项值，可以使用 Kaiwu 内置的发现工具。
 
-For the broader product model, see [Kaiwu tools & actions](/extending/happier-tools).
+若要了解更全面的产品模型，请参阅 [Kaiwu 工具与操作](/extending/happier-tools)。
 
-## Multi-server reference
+## 多服务器参考
 
-For full multi-server and multi-daemon guidance, see [Features → Multi-server](/accounts/multi-server).
+有关多服务器与多守护进程的完整指南，请参见 [功能 → 多服务器](/accounts/multi-server)。

@@ -1,75 +1,71 @@
 ---
 title: GitHub Copilot
-description: Configure GitHub Copilot in Kaiwu, including local CLI login, auth detection, and machine-specific setup.
+description: 在 Kaiwu 中配置 GitHub Copilot，包括本地 CLI 登录、认证检测以及设备专属设置。
 ---
-
-Kaiwu can run **GitHub Copilot CLI** through the local `copilot` binary on your machine.
+Kaiwu 可以通过设备上的本地 `copilot` 二进制文件运行 **GitHub Copilot CLI**。
 
 <Callout type="info">
-  Copilot is an **experimental** integration. It works and people use it
-  daily, but its surface is younger than Claude, Codex or OpenCode and is
-  more likely to change. What it supports today is in
-  [Agent capabilities](/agents/capabilities).
+  Copilot 目前属于**实验性**集成。该功能完全可用且已有日常使用，但相比 Claude、Codex 或 OpenCode，其接口更新，也更容易发生变动。目前支持的能力请参见 [Agent 能力](/agents/capabilities)。
 </Callout>
 
-## Requirements
+## 前置要求
 
-- Copilot CLI installed locally
-- binary available on `PATH` (or configured through Kaiwu’s CLI path settings)
+- 本地已安装 Copilot CLI
+- 二进制文件位于 `PATH` 中（或已在 Kaiwu 的 CLI 路径设置中完成配置）
 
-## Install Copilot
+## 安装 Copilot
 
-Kaiwu can install it for you:
+Kaiwu 支持自动安装：
 
 ```bash
 happier install provider copilot
 copilot --version
 ```
 
-Or install manually:
+也可以手动安装：
 
 ```bash
 npm install -g @github/copilot
 copilot --version
 ```
 
-## Local authentication in Kaiwu
+## 在 Kaiwu 中进行本地认证
 
-Kaiwu shows Copilot’s machine-local auth state in:
+Kaiwu 会在此路径下显示 Copilot 在设备本地的认证状态：
 
-- **Settings → AI & Agents → AI backends → Copilot**
+- **设置 → AI 与 Agent → AI 后端 → Copilot**
 
-From there you can:
+在此页面中，你可以：
 
-- check whether Copilot is authenticated on the selected machine
-- open the native `copilot login` flow directly inside Kaiwu
-- refresh the auth status with **Check now**
+- 检查 Copilot 是否已在所选设备上完成认证
+- 直接在 Kaiwu 内调起原生的 `copilot login` 流程
+- 点击**立即检查**刷新认证状态
 
-Kaiwu currently detects Copilot auth from:
+Kaiwu 目前会从以下途径检测 Copilot 认证状态：
 
 - `COPILOT_GITHUB_TOKEN`
 - `GH_TOKEN`
 - `GITHUB_TOKEN`
-- the local GitHub CLI auth state when available
+- 本地 GitHub CLI 的认证状态（若可用）
 
-For the shared user guide, see [Provider authentication](/agents/provider-authentication).
+通用用户指南请参见[提供商认证](/agents/provider-authentication)。
 
-## Notes
+## 注意事项
 
-- Copilot auth in Kaiwu is machine-local. If you log in on one machine, another machine still needs its own local login.
-- If you prefer token-based auth, Kaiwu can detect that and show it as an environment-backed method.
+- Kaiwu 中的 Copilot 认证仅针对当前设备生效。你在某台设备上登录后，其他设备仍需各自在本地完成登录。
+- 如果你倾向于使用基于 Token 的认证，Kaiwu 也能自动检测，并显示为由环境变量支持的认证方式。
 
-## Troubleshooting
+## 故障排查
 
-If Copilot is not detected:
+若未检测到 Copilot：
 
-1. Verify `copilot --version` works.
-2. Restart Kaiwu.
-3. Re-open the provider settings page and use **Check now**.
+1. 确认 `copilot --version` 可以正常运行。
+2. 重启 Kaiwu。
+3. 重新打开提供商设置页面，并点击**立即检查**。
 
-## Related
+## 相关内容
 
-- [Agent capabilities](/agents/capabilities) — what this agent supports, generated from the manifest.
-- [Choosing an agent](/agents)
-- [Model and engine selection](/agents/model-and-engine-selection)
-- [Agent authentication](/agents/provider-authentication)
+- [Agent 能力](/agents/capabilities) — 该 Agent 支持的功能列表，根据 Manifest 自动生成。
+- [选择 Agent](/agents)
+- [模型与引擎选择](/agents/model-and-engine-selection)
+- [Agent 认证](/agents/provider-authentication)

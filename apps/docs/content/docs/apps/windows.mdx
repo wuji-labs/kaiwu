@@ -1,99 +1,98 @@
 ---
 title: Windows
-description: Windows-specific behavior and troubleshooting.
+description: Windows 特有行为与故障排查。
 ---
+## Windows 上的远程会话
 
-## Remote sessions on Windows
+从 Kaiwu App 在 Windows 设备上启动会话时，你可以选择该会话在 Windows 本地的承载方式。
 
-When you start a session on a Windows machine from the Kaiwu app, you can choose how that session should be hosted locally on Windows.
+主要选项包括：
 
-The main options are:
+- **Hidden** —— 无可见终端窗口，最适合纯 App 远程操作
+- **Windows Terminal** —— 在独立的 Windows Terminal 窗口中启动会话
+- **Console** —— 在常规的可见控制台窗口中启动会话
 
-- **Hidden** — no visible terminal host; best for purely remote app usage
-- **Windows Terminal** — start the session in a dedicated Windows Terminal host
-- **Console** — start the session in a regular visible console host
+这一设计取代了早期“显示可见控制台窗口”的思路，提供了更清晰的模式化管理方案。
 
-This replaces the older “show a visible console window” idea with a clearer mode-based model.
-
-## Which mode should I choose?
+## 该选择哪种模式？
 
 ### Hidden
 
-Choose **Hidden** when you mostly want to control the session from the Kaiwu app and do not plan to come back later to a local Windows terminal host.
+如果你主要通过 Kaiwu App 控制会话，后续不打算切回 Windows 本地终端，请选择 **Hidden**。
 
-This is the least distracting mode because it avoids opening a visible terminal window.
+这种模式不会弹出可见的终端窗口，受到的干扰最小。
 
 ### Windows Terminal
 
-Choose **Windows Terminal** when you want the most Windows-native “start remotely, continue locally later” workflow.
+如果你希望获得贴近 Windows 原生的“远程启动，稍后在本地继续”的工作流，请选择 **Windows Terminal**。
 
-This is usually the best choice when:
+通常在以下场景中这是最佳选择：
 
-- you use Windows Terminal already,
-- you want app-started sessions to later continue in a Windows Terminal window,
-- you expect to use `happier attach <session-id>` to bring that host back into focus.
+- 你平时就使用 Windows Terminal；
+- 你希望 App 启动的会话后续能在 Windows Terminal 窗口中继续运行；
+- 你打算使用 `happier attach ⟦K1⟧` 重新唤起该窗口并置顶聚焦。
 
 ### Console
 
-Choose **Console** when you want a visible local terminal host but do not want to rely on Windows Terminal being installed or detected.
+如果你需要可见的本地终端窗口，但不想依赖系统是否安装或识别到 Windows Terminal，请选择 **Console**。
 
-This is a good fallback when:
+在以下情况下，该模式是理想的备选方案：
 
-- Windows Terminal is unavailable,
-- you prefer a plain console host,
-- you still want a visible local session you can come back to later.
+- Windows Terminal 不可用；
+- 你更偏好普通的控制台窗口；
+- 你仍希望保留一个可见的本地会话，以便后续切回操作。
 
-## Where to configure it
+## 如何配置
 
-### Global default
+### 全局默认设置
 
-Open:
+依次打开：
 
 1. **Settings**
 2. **Session**
-3. Find the **Windows** section
+3. 找到 **Windows** 区域
 
-There you can choose the default Windows remote session mode for new app-started sessions on Windows machines.
+你可以在此处为 Windows 设备上由 App 启动的新会话选择默认的远程会话模式。
 
-### Per-machine override
+### 单设备覆盖设置
 
-On a Windows machine details page, you can override the global default for that specific machine.
+在 Windows 设备的详情页中，你可以针对该特定设备覆盖全局默认设置。
 
-Use this when, for example:
+适用于以下场景：
 
-- your laptop should default to **Windows Terminal**,
-- a remote build box should stay **Hidden**,
-- a machine without Windows Terminal should always use **Console**.
+- 笔记本电脑默认使用 **Windows Terminal**；
+- 远程构建机保持 **Hidden**；
+- 未安装 Windows Terminal 的设备始终使用 **Console**。
 
-### Per-session override
+### 单会话覆盖设置
 
-When the selected machine is Windows, the new-session flow shows a Windows mode chip. That chip lets you override the mode for just that one new session.
+当所选设备为 Windows 时，新建会话流程中会显示一个 Windows 模式标签。你可以通过该标签针对当前新建的单次会话单独覆盖模式。
 
-Precedence is:
+优先级顺序为：
 
-1. per-session choice
-2. machine override
-3. global Session setting
+1. 单会话选择
+2. 设备覆盖设置
+3. 全局会话设置
 
-## Attach behavior on Windows
+## Windows 上的 Attach 行为
 
-If the session was started in an attachable Windows mode:
+若会话是在支持 Attach 的 Windows 模式下启动的：
 
-- **Windows Terminal** sessions can be reopened or focused with `happier attach <session-id>`
-- **Console** sessions can be brought back to the foreground with `happier attach <session-id>`
+- **Windows Terminal** 会话可通过 `happier attach ⟦K2⟧` 重新打开或聚焦
+- **Console** 会话可通过 `happier attach ⟦K3⟧` 切回前台
 
-If the session was started in **Hidden** mode, it is intended for remote app usage and is not designed for later local terminal attachment.
+若会话是在 **Hidden** 模式下启动的，其设计初衷是供 App 远程使用，不支持后续在本地终端中 Attach。
 
-## Notes and limitations
+## 注意事项与限制
 
-- This setting only applies to **Windows** machines.
-- Native Windows workflows usually use **Windows Terminal** or **Console** mode instead of tmux.
-- If you use WSL or another POSIX environment with tmux, you can still use tmux-backed attach workflows there.
+- 此设置仅适用于 **Windows** 设备。
+- Windows 原生工作流通常使用 **Windows Terminal** 或 **Console** 模式，而非 tmux。
+- 如果在 WSL 或其他包含 tmux 的 POSIX 环境中工作，依然可以使用基于 tmux 的 Attach 工作流。
 
-## Environment variables (advanced)
+## 环境变量（进阶）
 
-You can also set a default Windows remote session mode via environment variables when operating the daemon/CLI directly.
+直接通过守护进程或 CLI 操作时，你也可以通过环境变量来设置默认的 Windows 远程会话模式。
 
-Older values such as `HAPPIER_WINDOWS_REMOTE_SESSION_CONSOLE=visible` are treated as the modern **Console** mode.
+旧版取值（如 `HAPPIER_WINDOWS_REMOTE_SESSION_CONSOLE=visible`）会被直接兼容处理为现代的 **Console** 模式。
 
-User-facing app settings still take precedence for app-started sessions.
+对于从 App 启动的会话，App 内的用户设置优先级依然更高。

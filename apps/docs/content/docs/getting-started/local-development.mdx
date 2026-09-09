@@ -1,33 +1,31 @@
 ---
-title: Local development
-description: Run server + UI locally while iterating.
+title: 本地开发
+description: 在迭代时于本地运行服务端与 UI。
 ---
+## 首选方案：`hstack`（推荐）
 
-## Preferred: `hstack` (recommended)
+在当前 monorepo 中开发 Kaiwu 时，官方推荐的工作流是通过 `hstack` 运行所有组件。这种方式能够按栈严格隔离端口、身份认证、数据库、缓存及运行时状态。
 
-If you’re developing Kaiwu in this monorepo, the supported workflow is to run everything via `hstack`
-so ports, auth, DB, caches, and runtime state are isolated per stack.
+推荐阅读：
 
-Start with:
+- [环境搭建](/hstack/setup)
+- [开发工作流](/hstack/development)
+- [快速入门](/hstack/quickstarts)
 
-- [Setup](/hstack/setup)
-- [Development workflow](/hstack/development)
-- [Quickstarts](/hstack/quickstarts)
-
-### One-time setup
+### 首次配置
 
 ```bash
 hstack setup-from-source --profile=dev
 ```
 
-### Run a dev stack (pinned to the canonical `dev/` checkout)
+### 运行开发栈（绑定至标准 `dev/` 检出）
 
 ```bash
 hstack stack new dev
 hstack stack wt dev -- use dev
 ```
 
-Interactive development (preferred):
+交互式开发（首选）：
 
 ```bash
 hstack tui stack dev dev
@@ -35,42 +33,41 @@ hstack tui stack dev dev
 hstack tui stack dev dev --mobile
 ```
 
-If you can’t use the TUI (non-interactive terminals / CI), run:
+若无法使用 TUI（例如在非交互式终端或 CI 环境中），请运行：
 
 ```bash
 hstack stack dev dev
 ```
 
-## Legacy/manual (not stack-scoped)
+## 传统 / 手动方式（未按栈隔离）
 
-If you’re not using `hstack`, these commands can be useful, but they are **not stack-scoped**
-(they share ports/auth/caches with your machine and can be harder to run in parallel).
+如果不使用 `hstack`，可以使用下列命令。但需要注意，这些命令**未按栈进行作用域隔离**（会与你的设备共用端口、身份认证和缓存，较难并行运行）。
 
 ```bash
 yarn install
 ```
 
-Then run the server:
+随后启动服务器：
 
-- Full flavor:
+- 完整版：
 ```bash
 yarn --cwd apps/server dev
 ```
 
-- Light flavor:
+- 轻量版：
 ```bash
 yarn --cwd apps/server dev:light
 ```
 
-## App (web UI)
+## App（Web UI）
 
-The app can run as Expo web locally:
+App 支持在本地以 Expo Web 形式运行：
 
 ```bash
 yarn --cwd apps/ui web
 ```
 
-## Website
+## 官方网站
 
 ```bash
 yarn --cwd apps/website dev

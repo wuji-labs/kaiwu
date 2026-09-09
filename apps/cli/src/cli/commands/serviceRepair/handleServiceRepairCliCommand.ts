@@ -48,7 +48,7 @@ function parseRepairInvocation(argv: readonly string[]): Readonly<{
    * `--server <selector>` / `--server=<selector>`: scope all findings to a
    * specific server profile. The selector is resolved using the same profile
    * lookup as other CLI server selectors (id, name, or relay URL). When set,
-   * the report behaves as if the user had `happier server use <id>` first —
+   * the report behaves as if the user had `kaiwu server use <id>` first —
    * without mutating settings — so the absence of a profile, auth, machine
    * registration, automatic startup, or running daemon for that server all
    * surface as findings.
@@ -337,13 +337,13 @@ export async function handleServiceRepairCliCommand(params: Readonly<{
   // need the user to be prompted but couldn't be (because --yes applies
   // only `autoApplyWithoutPrompt=true` findings). In interactive mode the
   // user just walked through every finding via the guided walk, so this
-  // message would lie ("run `happier doctor repair`" — they just did).
+  // message would lie ("run `kaiwu doctor repair`" — they just did).
   if (parsed.execute) {
     const unappliedFindings = report.findings.filter((f) => f.autoApplyWithoutPrompt === false);
     if (unappliedFindings.length > 0) {
       console.log('');
       const noun = unappliedFindings.length === 1 ? 'finding needs' : 'findings need';
-      console.log(chalk.yellow(`${unappliedFindings.length} ${noun} interactive confirmation — run \`happier doctor repair\` to address ${unappliedFindings.length === 1 ? 'it' : 'them'}.`));
+      console.log(chalk.yellow(`${unappliedFindings.length} ${noun} interactive confirmation — run \`kaiwu doctor repair\` to address ${unappliedFindings.length === 1 ? 'it' : 'them'}.`));
     }
   }
 }

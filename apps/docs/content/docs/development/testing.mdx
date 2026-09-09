@@ -1,23 +1,22 @@
 ---
-title: Testing & CI
-description: Test tiers, how to run them locally, and how they are gated in CI/releases.
+title: 测试与 CI
+description: 测试层级、如何在本地运行，以及它们在 CI/发布流程中如何进行门禁把关。
 ---
+## 测试分级（全仓库模型）
 
-## Test tiers (repo-wide model)
+我们在脚本和 GitHub Actions 中始终统一使用这些测试流水线。
 
-We use these lanes consistently across scripts and GitHub Actions.
+### 1) 单元测试
 
-### 1) Unit
+用于验证纯逻辑与组件行为的高速确定性测试。
 
-Fast deterministic tests for pure logic/component behavior.
-
-**Root command:**
+**根目录命令：**
 ```bash
 yarn test
 yarn test:import-cycles
 ```
 
-This runs:
+该命令将运行：
 - `yarn workspace @happier-dev/self-hosting/protocol test`
 - `yarn workspace @happier-dev/transfers test`
 - `yarn workspace @happier-dev/agents test`
@@ -29,53 +28,53 @@ This runs:
 - `yarn --cwd packages/relay-server test`
 - `yarn --cwd apps/stack test:unit`
 
-The CLI unit lane also runs the CLI runtime import-cycle guard. To run only that guard:
+CLI 单元测试流水线还会运行 CLI 运行时循环导入防护检查。若仅运行该检查：
 
 ```bash
 yarn test:import-cycles
 ```
 
-Note: the UI workspace package name is `@happier-dev/app` and its directory is `apps/ui`.
+注意：UI 工作区包名为 `@happier-dev/app`，所在目录为 `apps/ui`。
 
-### 2) Integration
+### 2) 集成测试
 
-Real process/filesystem/network orchestration tests at app level.
+应用级别的真实进程、文件系统与网络编排测试。
 
-**Naming convention:**
+**命名规范：**
 - `*.integration.test.*`
 - `*.integration.spec.*`
 - `*.real.integration.test.*`
 
-**Root command:**
+**根目录命令：**
 ```bash
 yarn test:integration
 ```
 
-This runs:
+该命令将运行：
 - `yarn workspace @happier-dev/app test:integration`
 - `yarn workspace @happier-dev/cli test:integration`
 - `yarn --cwd apps/server test:integration`
 - `yarn --cwd apps/stack test:integration`
 
-### 3) Server DB contract
+### 3) 服务端数据库契约测试
 
-Server-only contract suite against explicit DB providers (Postgres/MySQL in Docker lanes).
+仅针对服务端的契约测试套件，面向明确的数据库提供商运行（Docker 流水线中的 Postgres/MySQL）。
 
-**Root command:**
+**根目录命令：**
 ```bash
 yarn test:db-contract:docker
 ```
 
-**Package-local command:**
+**包内命令：**
 ```bash
 yarn --cwd apps/server test:db-contract
 ```
 
-### 4) Core E2E
+### 4) 核心端到端测试
 
-End-to-end suites in `packages/tests` against real server/socket contracts.
+位于 `packages/tests` 的端到端测试套件，针对真实的服务端/Socket 契约运行。
 
-**Root commands:**
+**根目录命令：**
 ```bash
 yarn test:e2e
 yarn test:e2e:core:fast
@@ -83,82 +82,82 @@ yarn test:e2e:core:slow
 yarn test:e2e:core:embedded
 ```
 
-Lane intent:
-- `test:e2e` / `test:e2e:core` = full core gate.
-- `test:e2e:core:fast` = default local loop (excludes the longest process-orchestration scenarios).
-- `test:e2e:core:slow` = long-running scenarios (switching/materialization/mode orchestration).
+流水线定位：
+- `test:e2e` / `test:e2e:core` = 核心测试全量门限。
+- `test:e2e:core:fast` = 默认本地闭环测试（排除了耗时最长的进程编排场景）。
+- `test:e2e:core:slow` = 耗时较长的场景（切换/物化/模式编排）。
 
-Core E2E slow naming convention:
-- `*.slow.e2e.test.ts` files run only in `test:e2e:core:slow`.
-- All other `suites/core-e2e/**/*.test.ts` files run in `test:e2e:core:fast`.
-- `test:e2e` still runs the full core suite (fast + slow together).
+核心端到端慢速测试命名规范：
+- `*.slow.e2e.test.ts` 文件仅在 `test:e2e:core:slow` 中运行。
+- 其他所有 `suites/core-e2e/**/*.test.ts` 文件均在 `test:e2e:core:fast` 中运行。
+- `test:e2e` 仍会运行全量核心套件（包含快速和慢速测试）。
 
-### 4b) UI E2E (Playwright)
+### 4b) UI 端到端测试（Playwright）
 
-Browser-driven end-to-end tests against the Expo web UI, using the same server-light + daemon harness used by core E2E.
+基于浏览器的端到端测试，面向 Expo Web UI 运行，复用了与核心端到端测试相同的 server-light + 守护进程测试套具。
 
-**Root command:**
+**根目录命令：**
 ```bash
 yarn test:e2e:ui
 ```
 
-Notes:
-- These tests run Playwright against `expo start --web` and require Playwright browsers to be installed (see Playwright install docs).
-- UI E2E should stay small and focus on flows that are uniquely UI-driven (auth/login/connect, navigation, and key cross-app wiring). Lower-level server/daemon invariants belong in core E2E.
-- If you suspect stale Metro transforms, you can opt into clearing the Expo/Metro cache with `HAPPIER_E2E_EXPO_CLEAR=1` (default is off because `--clear` can occasionally crash Metro).
-- Manual QA tip: if concurrent code changes cause the UI to keep reloading, you can disable Expo web Fast Refresh/HMR **per browser tab** by opening the UI with `?happier_hmr=0` (re-enable with `?happier_hmr=1`). This is web-only + dev-only.
+注意事项：
+- 这些测试通过 Playwright 针对 `expo start --web` 运行，需要先安装 Playwright 浏览器环境（参见 Playwright 安装文档）。
+- UI 端到端测试规模应尽量精简，聚焦于必须由 UI 驱动的流程（鉴权/登录/连接、页面导航以及核心跨应用联动）。更底层的服务端/守护进程不变量测试应归入核心端到端测试。
+- 如果怀疑 Metro 转译结果陈旧，可通过 `HAPPIER_E2E_EXPO_CLEAR=1` 选择清理 Expo/Metro 缓存（默认关闭，因为 `--clear` 偶发会导致 Metro 崩溃）。
+- 人工 QA 提示：如果并发代码变更导致 UI 不断重新加载，可以在打开 UI 时附加 `?happier_hmr=0` 参数，**按浏览器标签页**禁用 Expo Web 的快速刷新（Fast Refresh/HMR），重新启用请使用 `?happier_hmr=1`。此功能仅限 Web 且仅限开发环境。
 
-### 4c) Native E2E (Maestro) (iOS/Android)
+### 4c) 原生端到端测试（Maestro）（iOS/Android）
 
-Native end-to-end tests using **Maestro**. These are intended to cover mobile-specific regressions (touch/keyboard/back/gesture/popup rendering).
+基于 **Maestro** 的原生端到端测试，用于覆盖移动端特有的回归问题（触摸、键盘、返回键、手势及弹窗渲染）。
 
-**Root commands:**
+**根目录命令：**
 ```bash
 yarn test:e2e:mobile
 yarn test:e2e:mobile:android
 yarn test:e2e:mobile:ios
 ```
 
-Notes:
-- These lanes are **not** PR checks by default; they’re intended for manual dispatch / release validation while we stabilize CI emulator runs.
-- You need Java 17+ and an iOS simulator / Android emulator.
-- Start Metro for the Expo Dev Client (Maestro targets React Native `testID` via native view identifiers).
-- Set the target server URL (host): `HAPPIER_E2E_SERVER_URL=http://127.0.0.1:<port>`.
-  - Android emulator runs automatically map `127.0.0.1`/`localhost` to `10.0.2.2` for device-visible networking.
-- If the server/Metro run on your host machine, enable `adb reverse` so Android can reach them: `HAPPIER_E2E_ANDROID_ADB_REVERSE=1`.
-- Artifacts are written under `packages/tests/.project/logs/e2e/mobile-maestro/`.
-- Override Maestro binary (if needed): `HAPPIER_E2E_MAESTRO_BIN=/path/to/maestro`.
+注意事项：
+- 这些流水线默认**不作为** PR 检查项；在我们稳定 CI 模拟器运行之前，主要用于手动触发或发布验证。
+- 需要 Java 17+ 以及 iOS 模拟器或 Android 模拟器。
+- 为 Expo Dev Client 启动 Metro（Maestro 通过原生视图标识符定位 React Native `testID`）。
+- 设置目标服务器 URL（主机）：`HAPPIER_E2E_SERVER_URL=http://127.0.0.1:⟦K20⟧`。
+  - Android 模拟器运行时会自动将 `127.0.0.1`/`localhost` 映射到 `10.0.2.2`，以确保设备网络可见。
+- 如果服务器或 Metro 运行在宿主设备上，请开启 `adb reverse`，以便 Android 能够访问它们：`HAPPIER_E2E_ANDROID_ADB_REVERSE=1`。
+- 构建产物将写入 `packages/tests/.project/logs/e2e/mobile-maestro/` 目录下。
+- 覆盖 Maestro 二进制文件路径（如有需要）：`HAPPIER_E2E_MAESTRO_BIN=/path/to/maestro`。
 
-### 4d) WSREPL Lima matrix (macOS/Linux hosts)
+### 4d) WSREPL Lima 矩阵测试（macOS/Linux 宿主设备）
 
-The Lima host↔guest WSREPL matrix is exposed as an opt-in tests-owned lane.
+Lima 宿主↔客户机 WSREPL 矩阵作为由测试模块自主维护的自选流水线对外提供。
 
-**Root command:**
+**根目录命令：**
 ```bash
 yarn test:e2e:ui:wsrepl:lima -- happier-wsrepl-qa
 ```
 
-**Package-local command:**
+**包内命令：**
 ```bash
 yarn workspace @happier-dev/tests test:ui:e2e:wsrepl:lima -- happier-wsrepl-qa
 ```
 
-**Harness self-tests:**
+**测试套具自测：**
 ```bash
 yarn test:e2e:ui:wsrepl:lima:self
 ```
 
-Notes:
-- This lane is intentionally not part of the default GitHub-hosted PR matrix yet. Use it locally or on a self-hosted runner with Lima available.
-- The tests workspace now owns the lane entrypoint, the raw WSREPL Lima harness, and the Lima bootstrap helper: `packages/tests/scripts/run-wsrepl-lima-matrix.mjs`, `packages/tests/scripts/wsrepl-lima-matrix.sh`, `packages/tests/scripts/lima-vm.sh`.
-- The stack copies under `apps/stack/scripts/provision/` are compatibility shims only and are excluded from the published stack package.
-- Pass VM names and existing WSREPL env overrides after `--`. The wrapper always runs the underlying harness from `apps/stack/`, so existing report paths and relative script calls remain stable.
+注意事项：
+- 该流水线目前特意未纳入 GitHub 托管的默认 PR 矩阵。可在本地或已安装 Lima 的自托管 Runner 上使用。
+- tests 工作区现已接管该流水线的入口点、原始 WSREPL Lima 测试套具以及 Lima 引导助手：`packages/tests/scripts/run-wsrepl-lima-matrix.mjs`、`packages/tests/scripts/wsrepl-lima-matrix.sh`、`packages/tests/scripts/lima-vm.sh`。
+- 位于 `apps/stack/scripts/provision/` 下的栈副本仅作为兼容垫片，不包含在发布的栈包中。
+- 请在 `--` 之后传递虚拟机名称及现有的 WSREPL 环境变量覆盖项。包装脚本始终从 `apps/stack/` 运行底层测试套具，因此现有的报告路径和相对脚本调用均保持稳定。
 
-### 5) Providers
+### 5) 提供商测试
 
-Provider contract/baseline suites in `packages/tests` (real provider CLIs).
+位于 `packages/tests` 的提供商契约/基线测试套件（调用真实的提供商 CLI）。
 
-**Root commands:**
+**根目录命令：**
 ```bash
 yarn test:providers
 yarn test:providers:all:smoke
@@ -167,20 +166,20 @@ yarn test:providers:codex:smoke
 yarn test:providers:opencode:extended
 ```
 
-### 6) Stress
+### 6) 压力测试
 
-Repeat/chaos reliability suites in `packages/tests`.
+位于 `packages/tests` 的重复/混沌可靠性测试套件。
 
-**Root command:**
+**根目录命令：**
 ```bash
 yarn test:stress
 ```
 
-### 7) Test governance
+### 7) 测试规范治理
 
-Repo-level governance checks for test file naming/lane placement and feature-tag validity.
+仓库级别的治理检查，用于验证测试文件命名、流水线归属及特性标签的有效性。
 
-**Root commands:**
+**根目录命令：**
 ```bash
 yarn test:import-cycles
 yarn test:wiring:self
@@ -191,214 +190,214 @@ yarn test:inventory
 yarn test:migration:inventory
 ```
 
-Notes:
-- `test:import-cycles` runs the CLI runtime import-cycle guard directly; `yarn workspace @happier-dev/cli test:unit` also runs it, so the root unit lane and CI CLI unit job enforce the guard.
-- `test:wiring:self` and `test:policy:self` are fast governance self-tests for the validators themselves.
-- `test:wiring` fails on invalid feature tags, obvious lane naming mistakes, and root-script/workflow/docs parity drift.
-- `test:policy` enforces only the low-noise rules that are safe today; noisier rules stay report-only until the repo cleanup catches up.
-- `test:inventory` and `test:migration:inventory` are report-only. They print lane/package-local coverage and write governance inventory artifacts under `.project/testing/reports/governance/`.
-- The current rollout is:
-  - `enforce`: `.only`, forbidden runtime imports from `@happier-dev/tests` internals, root-script/workflow/docs parity
-  - `report-only`: direct test `console.*`, direct `.skip/.todo`, hidden skip aliases, deprecated helper imports, duplicate-pattern inventory
+注意事项：
+- `test:import-cycles` 直接运行 CLI 运行时循环导入防护检查；`yarn workspace @happier-dev/cli test:unit` 也会运行该检查，因此根单元测试流水线与 CI 中的 CLI 单元测试任务都会强制执行该防护。
+- `test:wiring:self` 和 `test:policy:self` 是针对校验器本身的快速治理自测试。
+- 当存在无效的特性标签、明显的流水线命名错误以及根脚本/工作流/文档之间的一致性偏差时，`test:wiring` 将报错失败。
+- `test:policy` 当前仅强制执行安全、低误报的规则；其余可能产生较多噪音的规则仅生成报告，待仓库清理跟进后再行启用。
+- `test:inventory` 和 `test:migration:inventory` 仅用于生成报告。它们会输出流水线/包内覆盖率，并将治理清单产物写入 `.project/testing/reports/governance/` 目录下。
+- 当前的分阶段落地计划如下：
+  - `enforce`：`.only`、禁止从 `@happier-dev/tests` 内部进行运行时导入、根脚本/工作流/文档一致性
+  - `report-only`：直接测试 `console.*`、直接 `.skip/.todo`、隐式跳过别名、已废弃的辅助函数导入、重复模式清单
 
-### 7b) Package-local-only lanes
+### 7b) 仅包内提供的流水线
 
-These lanes are intentionally not exposed as canonical root scripts:
-- CLI slow lane: `yarn --cwd apps/cli test:slow`
-- Website tests: package-local only under `apps/website`
-- Release runtime tests: `yarn --cwd packages/release-runtime test`
-- Stack unit/integration/native real-integration lanes: `yarn --cwd apps/stack test:unit`, `yarn --cwd apps/stack test:integration`, and the guarded real-integration files in `apps/stack`
+以下流水线特意未作为规范的根脚本暴露：
+- CLI 慢速流水线：`yarn --cwd apps/cli test:slow`
+- 网站测试：仅在 `apps/website` 下作为包内测试提供
+- 发布运行时测试：`yarn --cwd packages/release-runtime test`
+- 栈单元测试/集成测试/原生真实集成流水线：`yarn --cwd apps/stack test:unit`、`yarn --cwd apps/stack test:integration` 以及 `apps/stack` 中受防护的真实集成文件
 
-### 8) Typecheck
+### 8) 类型检查
 
-TypeScript typechecking for the main runtime packages (UI/CLI/server).
+针对主要运行时包（UI/CLI/服务端）的 TypeScript 类型检查。
 
-**Root command:**
+**根目录命令：**
 ```bash
 yarn typecheck
 ```
 
-### TypeScript compiler ownership
+### TypeScript 编译器归属
 
-Kaiwu uses the native TypeScript 7 compiler for first-party typecheck and package-build lanes. The `typescript` package remains on the API-compatible 5.9 line for AST-based tools and integrations that do not yet support TypeScript 7's native API.
+Kaiwu 的第一方类型检查与包构建流水线采用原生 TypeScript 7 编译器。针对尚不支持 TypeScript 7 原生 API 的 AST 工具及集成，`typescript` 包仍保留在 API 兼容的 5.9 版本线上。
 
-Compiler selection is centralized in `scripts/workspaces/typescriptCommand.mjs`. Package scripts use the shared workspace runners rather than a bare `tsc` executable, so dependency hoisting or package-manager bin-link order cannot silently select the API package's older compiler.
+编译器的选用统一收敛在 `scripts/workspaces/typescriptCommand.mjs` 中。各子包脚本均使用共享工作区运行器，而非裸 `tsc` 可执行文件，从而避免因依赖提升或包管理器 bin 链接顺序而隐式选中使用旧版编译器的 API 包。
 
-For convenience, `yarn tsc ...` is defined at the repository root and in every TypeScript-owning workspace. It delegates to the same native runner and therefore uses TypeScript 7; direct `tsc`, `npx tsc`, and `typescript/bin/tsc` invocations remain unsupported.
+为便于使用，仓库根目录以及每个包含 TypeScript 的工作区均定义了 `yarn tsc ...`。它会委托给同一个原生运行器，因而使用的是 TypeScript 7；系统仍不支持直接调用 `tsc`、`npx tsc` 和 `typescript/bin/tsc`。
 
-### 9) Release contracts
+### 9) 发布契约
 
-Security/release-pipeline contract checks for workflow/install/signing invariants.
+针对工作流/安装/签名不变量的安全与发布流水线契约检查。
 
-**Root command:**
+**根目录命令：**
 ```bash
 yarn test:release:contracts
 ```
 
-This runs:
+该命令将运行：
 - `scripts/release/*.test.mjs`
-- including installer sync/security/publication invariants
-- and workflow policy guards like the production Tauri signing/notarization fail gate
+- 包括安装程序同步、安全与发布不变量
+- 以及工作流策略防护，例如生产环境 Tauri 签名/公证失败熔断门限
 
-### 10) Extended DB matrix (Postgres/MySQL)
+### 10) 扩展数据库矩阵（Postgres/MySQL）
 
-Optional validation that core E2E and DB contract tests behave on non-embedded engines.
-In CI this runs via a dedicated workflow using service containers.
+用于验证核心端到端测试与数据库契约测试在非嵌入式引擎上行为符合预期的可选检查。
+在 CI 中，该检查通过包含服务容器的专用工作流运行。
 
-**Local commands:**
+**本地命令：**
 ```bash
 yarn test:e2e:core:docker
 yarn test:db-contract:docker
 ```
 
-## Package-level lane scripts
+## 子包级流水线脚本
 
-### UI (`apps/ui`, workspace `@happier-dev/app`)
-- Unit: `yarn --cwd apps/ui test:unit`
-- Integration: `yarn --cwd apps/ui test:integration`
+### UI（`apps/ui`，工作区 `@happier-dev/app`）
+- 单元测试：`yarn --cwd apps/ui test:unit`
+- 集成测试：`yarn --cwd apps/ui test:integration`
 
-### CLI (`apps/cli`)
-- Unit: `yarn --cwd apps/cli test:unit`
-- Integration: `yarn --cwd apps/cli test:integration`
-- Slow-only lane: `yarn --cwd apps/cli test:slow`
+### CLI（`apps/cli`）
+- 单元测试：`yarn --cwd apps/cli test:unit`
+- 集成测试：`yarn --cwd apps/cli test:integration`
+- 仅慢速测试流水线：`yarn --cwd apps/cli test:slow`
 
-### Server (`apps/server`)
-- Unit: `yarn --cwd apps/server test:unit`
-- Integration: `yarn --cwd apps/server test:integration`
-- DB contract: `yarn --cwd apps/server test:db-contract`
+### 服务端（`apps/server`）
+- 单元测试：`yarn --cwd apps/server test:unit`
+- 集成测试：`yarn --cwd apps/server test:integration`
+- 数据库契约测试：`yarn --cwd apps/server test:db-contract`
 
-### Stack (`apps/stack`)
-- Unit: `yarn --cwd apps/stack test:unit`
-- Integration: `yarn --cwd apps/stack test:integration`
+### 栈（`apps/stack`）
+- 单元测试：`yarn --cwd apps/stack test:unit`
+- 集成测试：`yarn --cwd apps/stack test:integration`
 
-### E2E workspace (`packages/tests`, workspace `@happier-dev/tests`)
-- Core (full): `yarn workspace @happier-dev/tests test`
-- Core fast: `yarn workspace @happier-dev/tests test:core:fast`
-- Core slow: `yarn workspace @happier-dev/tests test:core:slow`
-- UI WSREPL Lima matrix (macOS/Linux host): `yarn workspace @happier-dev/tests test:ui:e2e:wsrepl:lima -- happier-wsrepl-qa`
-- Providers: `yarn workspace @happier-dev/tests test:providers`
-- Stress: `yarn workspace @happier-dev/tests test:stress`
+### 端到端工作区（`packages/tests`，工作区 `@happier-dev/tests`）
+- 核心（全量）：`yarn workspace @happier-dev/tests test`
+- 核心快速：`yarn workspace @happier-dev/tests test:core:fast`
+- 核心慢速：`yarn workspace @happier-dev/tests test:core:slow`
+- UI WSREPL Lima 矩阵（macOS/Linux 宿主设备）：`yarn workspace @happier-dev/tests test:ui:e2e:wsrepl:lima -- happier-wsrepl-qa`
+- 提供商：`yarn workspace @happier-dev/tests test:providers`
+- 压力测试：`yarn workspace @happier-dev/tests test:stress`
 
-## Env-gated integration suites
+## 环境变量受控的集成测试套件
 
-Some integration suites intentionally require explicit environment flags:
-- CLI daemon reattach/pid safety: `HAPPIER_CLI_DAEMON_REATTACH_INTEGRATION=1`
-- CLI tmux integration paths in CI: `HAPPIER_CLI_TMUX_INTEGRATION=1`
+部分集成测试套件特意要求显式设置环境变量：
+- CLI 守护进程重新挂载/PID 安全性：`HAPPIER_CLI_DAEMON_REATTACH_INTEGRATION=1`
+- CI 中的 CLI tmux 集成路径：`HAPPIER_CLI_TMUX_INTEGRATION=1`
 
-CI sets these for relevant jobs. Local runs can set them manually when you need those suites.
+CI 会为相关任务自动配置这些变量。本地运行若需执行这些套件，可手动进行设置。
 
-## Prerequisites matrix
+## 前置依赖矩阵
 
-### Unit (`yarn test`)
-- Requires: Node + Yarn only.
-- Should not require tmux, Docker, provider CLIs, or API keys.
+### 单元测试（`yarn test`）
+- 依赖：仅需 Node + Yarn。
+- 不应依赖 tmux、Docker、提供商 CLI 或 API 密钥。
 
-### Integration (`yarn test:integration`)
-- UI integration:
-  - Requires: Node + Yarn.
-- CLI integration:
-  - Requires: Node + Yarn.
-  - Optional gated suites:
-    - `HAPPIER_CLI_TMUX_INTEGRATION=1` and `tmux` installed for `*.real.integration.test.ts` tmux coverage.
-    - `HAPPIER_CLI_DAEMON_REATTACH_INTEGRATION=1` for real PID/reattach process inspection suites.
-- Server integration:
-  - Requires: Node + Yarn.
-  - Does not require Docker for regular integration lane.
-- Stack integration:
-  - Requires: Node + Yarn + `git` available in PATH.
-  - Spawns real child processes and validates process ownership/sweep behavior.
+### 集成测试（`yarn test:integration`）
+- UI 集成测试：
+  - 依赖：Node + Yarn。
+- CLI 集成测试：
+  - 依赖：Node + Yarn。
+  - 可选的受控套件：
+    - 需安装 `HAPPIER_CLI_TMUX_INTEGRATION=1` 和 `tmux` 以支持 `*.real.integration.test.ts` tmux 覆盖。
+    - 需设置 `HAPPIER_CLI_DAEMON_REATTACH_INTEGRATION=1` 以运行真实 PID/重新挂载进程检查套件。
+- 服务端集成测试：
+  - 依赖：Node + Yarn。
+  - 常规集成测试流水线无需 Docker。
+- 栈集成测试：
+  - 依赖：Node + Yarn，且 PATH 中必须包含 `git`。
+  - 会启动真实的子进程，并验证进程归属与清理回收行为。
 
-### DB contract (`yarn --cwd apps/server test:db-contract`)
-- Requires: DB provider runtime (`postgres`/`mysql`) and matching connection env.
-- Docker-backed helper commands:
+### 数据库契约测试（`yarn --cwd apps/server test:db-contract`）
+- 依赖：数据库提供商运行时（`postgres`/`mysql`）及相应的连接环境变量。
+- 基于 Docker 的辅助命令：
   - `yarn test:db-contract:docker`
 
-### Core E2E (`yarn test:e2e`, `yarn test:e2e:core:embedded`)
-- Requires: Node + Yarn.
-- Uses real server/socket/runtime contracts via `packages/tests`.
-- Does not require provider API keys.
-- Recommended local loop:
-  - `yarn test:e2e:core:fast` during iteration.
-  - `yarn test:e2e:core:slow` before handoff for orchestration-heavy changes.
-  - `yarn test:e2e` for the full core gate.
+### 核心端到端测试（`yarn test:e2e`、`yarn test:e2e:core:embedded`）
+- 依赖：Node + Yarn。
+- 通过 `packages/tests` 使用真实的服务端/Socket/运行时契约。
+- 不需要提供商 API 密钥。
+- 推荐的本地闭环流程：
+  - 迭代开发期间运行 `yarn test:e2e:core:fast`。
+  - 涉及较多编排逻辑变更时，在交接前运行 `yarn test:e2e:core:slow`。
+  - 运行 `yarn test:e2e` 作为核心测试全量门限。
 
-### Provider suites (`yarn test:providers`, `yarn test:providers:*`)
-- `yarn test:providers` by itself runs provider-suite checks with provider execution disabled by default (`HAPPIER_E2E_PROVIDERS` unset), so it does not require provider CLIs or API keys.
-- `yarn test:providers:all:smoke` / `yarn test:providers:claude:extended` (and similar wrappers) enable real provider execution and then require provider CLIs/binaries for selected providers.
-- Direct workspace command (advanced): `yarn workspace @happier-dev/tests providers:run <preset> <lane>`.
-- Auth mode is provider-spec driven:
-  - `host` mode: uses existing local provider CLI login/session (can run without API keys).
-  - `env` mode: requires provider keys/secrets declared by provider spec.
-- Practical guidance:
-  - `smoke`: minimal scenario tier, but still real provider execution when run via `test:providers:*` wrappers or `providers:run`.
-  - `extended`: broader scenario tier with more scenarios; in CI this typically runs with env-key/secrets overlays.
+### 提供商测试套件（`yarn test:providers`、`yarn test:providers:*`）
+- 默认情况下，`yarn test:providers` 单独运行时会禁用提供商执行（未设置 `HAPPIER_E2E_PROVIDERS`），因此不需要提供商 CLI 或 API 密钥。
+- `yarn test:providers:all:smoke` / `yarn test:providers:claude:extended`（及类似的包装脚本）会启用真实的提供商执行，此时需要对应提供商的 CLI 或二进制文件。
+- 直接调用工作区命令（高级）：`yarn workspace @happier-dev/tests providers:run ⟦K21⟧ ⟦K22⟧`。
+- 鉴权模式由提供商规范驱动：
+  - `host` 模式：使用本地已有的提供商 CLI 登录状态/会话（无需 API 密钥即可运行）。
+  - `env` 模式：需要提供商规范声明的提供商密钥/凭据。
+- 实践指南：
+  - `smoke`：最小场景级别，但通过 `test:providers:*` 包装脚本或 `providers:run` 运行时仍会执行真实的提供商调用。
+  - `extended`：覆盖更多场景的更完整层级；在 CI 中通常会叠加环境变量密钥或 Secrets 运行。
 
-#### Real Claude Agent Teams probe (opt-in)
+#### 真实的 Claude Agent Teams 探测（自选）
 
-Kaiwu includes a small opt-in probe that runs your locally installed `claude` CLI to discover the exact Agent Teams tool names and capture representative payload shapes:
+Kaiwu 内置了一个轻量级的自选探测程序，可通过运行本地安装的 `claude` CLI 来发现具体的 Agent Teams 工具名称并捕获典型载荷结构：
 
-- Test file: `packages/tests/suites/providers/claude.agentTeams.toolNames.realProbe.test.ts`
+- 测试文件：`packages/tests/suites/providers/claude.agentTeams.toolNames.realProbe.test.ts`
 
-Run it locally (requires Claude Code installed and already authenticated on the host):
+本地运行方式（要求宿主设备已安装 Claude Code 并完成身份认证）：
 
 ```bash
 HAPPIER_TEST_REAL_CLAUDE=1 yarn -s workspace @happier-dev/tests test:providers claude.agentTeams.toolNames.realProbe.test.ts
 ```
 
-Extended signal (spawns teammates and sends messages; may take longer):
+扩展信号测试（会生成团队成员并发送消息，耗时可能更长）：
 
 ```bash
 HAPPIER_TEST_REAL_CLAUDE=1 HAPPIER_TEST_REAL_CLAUDE_FULL=1 yarn -s workspace @happier-dev/tests test:providers claude.agentTeams.toolNames.realProbe.test.ts
 ```
 
-### Stress (`yarn test:stress`)
-- Requires: Node + Yarn.
-- Longer-running reliability loops; keep out of PR default local loop.
+### 压力测试（`yarn test:stress`）
+- 依赖：Node + Yarn。
+- 属于耗时较长的可靠性循环测试，请勿纳入 PR 默认本地闭环流程。
 
-## Artifacts
+## 产物
 
-Core E2E / Providers / Stress write per-test logs under:
+核心端到端测试 / 提供商测试 / 压力测试会将每个测试的日志写入：
 - `.project/logs/e2e/...`
 
-CI uploads this directory as an artifact on failure.
+测试失败时，CI 会将此目录作为构建产物上传。
 
-## GitHub Actions (what runs where)
+## GitHub Actions（各任务运行分布）
 
-### Default PR/push gate
+### 默认 PR/推送门限
 
-Workflow: `CI — Tests` (`.github/workflows/tests.yml`)
+工作流：`CI — Tests` (`.github/workflows/tests.yml`)
 
-Default gate includes:
-- Unit (shared workspace packages + app/unit lanes)
-- Integration (UI/CLI/Server/Stack app lanes)
-- Governance validators (`test:wiring`, `test:policy`, plus report-only inventory commands)
-- Typecheck
-- Release contracts (release/workflow/install/signing guards)
-- Daemon integration E2E (`CLI + Server (light/sqlite) E2E`)
-- Core E2E fast (sqlite)
+默认门限包含：
+- 单元测试（共享工作区包 + 应用/单元测试流水线）
+- 集成测试（UI/CLI/服务端/栈应用流水线）
+- 治理校验器（`test:wiring`、`test:policy`，以及仅生成报告的清单命令）
+- 类型检查
+- 发布契约（发布/工作流/安装/签名防护）
+- 守护进程集成端到端测试（`CLI + Server (light/sqlite) E2E`）
+- 核心端到端快速测试（sqlite）
 
-The daemon integration E2E job is intentionally separate from app unit/integration lanes because it verifies cross-package boot/auth/daemon behavior against a real light server process.
+守护进程集成端到端测试任务特意与应用单元测试/集成测试流水线分离开来，因为它需要针对真实轻量级服务端进程验证跨包启动、鉴权与守护进程行为。
 
-### On-demand provider contracts
+### 按需提供商契约测试
 
-Workflow: `CI — Provider Contracts` (`.github/workflows/providers-contracts.yml`)
+工作流：`CI — Provider Contracts` (`.github/workflows/providers-contracts.yml`)
 
-**Required secrets:**
-- `OPENAI_API_KEY` (required for `codex` and `opencode`)
-- `ANTHROPIC_API_KEY` (required for `claude`)
-- `CODEX_API_KEY` (optional alternative to `OPENAI_API_KEY` for Codex)
+**所需密钥（Secrets）：**
+- `OPENAI_API_KEY`（`codex` 和 `opencode` 所需）
+- `ANTHROPIC_API_KEY`（`claude` 所需）
+- `CODEX_API_KEY`（Codex 可选替代密钥，替代 `OPENAI_API_KEY`）
 
-### Nightly stress
+### 每夜压力测试
 
-Workflow: `CI — Stress Tests` (`.github/workflows/stress-tests.yml`)
+工作流：`CI — Stress Tests` (`.github/workflows/stress-tests.yml`)
 
-### Nightly extended DB matrix
+### 每夜扩展数据库矩阵测试
 
-Workflow: `CI — Extended DB Matrix` (`.github/workflows/extended-db-tests.yml`)
+工作流：`CI — Extended DB Matrix` (`.github/workflows/extended-db-tests.yml`)
 
-## Contributor guidance
+## 贡献者指南
 
-1. Default local loop: run the smallest unit target first.
-2. If your test needs real process/filesystem/network orchestration, name it as integration and keep it out of unit lane.
-3. Before handoff, run the relevant app/unit and app/integration lanes for touched areas.
-4. For protocol/runtime/socket/database contract changes, also run core E2E.
+1. 默认本地闭环流程：优先运行最小粒度的单元测试目标。
+2. 若测试需要真实的进程、文件系统或网络编排，应将其命名为集成测试，切勿放入单元测试流水线。
+3. 在交接前，针对所改动区域运行对应的应用/单元测试及应用/集成测试流水线。
+4. 若涉及协议、运行时、Socket 或数据库契约的变更，还需运行核心端到端测试。

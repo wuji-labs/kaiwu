@@ -45,6 +45,7 @@ apps/stack/resume-invocations.log
 apps/stack/*.tgz
 packages/relay-server/*.tgz
 apps/server/output/
+/logs/
 
 # Local browser QA authentication state
 /apps/ui/p2-auth.json

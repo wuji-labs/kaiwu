@@ -1,40 +1,39 @@
 ---
-title: Pets
-description: Enable Kaiwu pet companions, choose built-in or Codex-compatible pets, and understand how they appear across app surfaces.
+title: 宠物
+description: 启用 Kaiwu 宠物伴侣，选择内置或兼容 Codex 的宠物，并了解它们在应用各界面中的展示方式。
 ---
+Kaiwu 宠物是登录应用后可启用的动态伴侣。它们可以常驻在 Web 应用外壳、移动端应用外壳中；在桌面端，还能以独立原生浮窗的形式驻留在主窗口之外。
 
-Kaiwu pets are optional animated companions for the authenticated app experience. They can sit in the web app shell, in the mobile app shell, and on desktop in a small native overlay that can stay outside the main window.
+宠物功能默认由用户自主选择开启。即使服务端启用了该功能，用户也依然保持禁用状态，直到主动在**设置 -> 宠物**中将其开启。
 
-Pets are a user opt-in feature. A server can allow the feature while each person still keeps pets disabled until they turn them on from **Settings -> Pets**.
+## 宠物功能介绍
 
-## What pets do
+宠物能以轻量可视化方式呈现会话动态，且不会干扰常规通知或收件箱工作流。
 
-Pets give session activity a small visual presence without replacing normal notifications or inbox flows.
+- 无需关注时，宠物会安静待机。
+- 点击或轻触时，它们会轻巧跳跃回应。
+- 宠物不会持续循环播放动画，而是在待机时偶尔做出一些微动作。
+- 当会话处于运行中、等待操作、失败或待评审等状态时，宠物会切换对应的动画状态。
+- 在桌面端，遇到活跃或需要关注的会话时，宠物头顶会显示紧凑的会话气泡。
 
-- They idle quietly when nothing needs attention.
-- They react to clicks or taps with a short jump.
-- They occasionally perform small idle actions instead of animating constantly.
-- They switch animation state when a session is running, waiting for you, failed, or ready for review.
-- On desktop, they can show compact session bubbles above the pet for active or attention-worthy sessions.
+宠物绝不会自行审批权限或发送消息。它们仅用于打开对应界面；只有在用户输入并提交内容后，才会发送快捷回复。
 
-Pets never approve permissions or send messages by themselves. They only open the relevant UI or send a quick reply after you type and submit it.
+## 启用宠物
 
-## Enable pets
+打开**设置 -> 宠物**。
 
-Open **Settings -> Pets**.
+1. 为当前账号开启**启用宠物**。
+2. 选择内置宠物，或从已连接的设备导入宠物。
+3. 若需调整宠物大小，可设置**伴侣尺寸**。
+4. 在桌面端，若想让宠物常驻主窗口之外，可配置桌面浮窗。
 
-1. Turn on **Enable pets** for your account.
-2. Choose a built-in pet or import one from a connected machine.
-3. Adjust **Companion size** if you want the pet smaller or larger.
-4. On desktop, configure the desktop overlay if you want the pet outside the main window.
+该账号级设置默认处于关闭状态。设备级覆盖配置允许单台设备继承、强制启用或强制禁用宠物，而无需更改账号首选项。
 
-The account setting is off by default. Device overrides let one device inherit, force-enable, or force-disable pets without changing the account preference.
+宠物仅在已登录的应用界面中渲染，不会出现在登录页、新手引导或其他公共路由页面。
 
-Pets only render inside signed-in app surfaces. They do not appear on sign-in, onboarding, or other public routes.
+## 内置宠物
 
-## Built-in pets
-
-Kaiwu ships with built-in pets that are available without importing anything:
+Kaiwu 自带多种内置宠物，无需导入即可直接使用：
 
 - Blink
 - Fury
@@ -42,37 +41,37 @@ Kaiwu ships with built-in pets that are available without importing anything:
 - Oli
 - Titi
 
-The built-in pets appear as selectable tiles in **Settings -> Pets**. Selecting one updates the current account default unless the device is using a local-only override.
+内置宠物在**设置 -> 宠物**中以卡片形式展示，可供点选。选中某只宠物后，当前账号的默认配置即会同步更新，除非该设备设置了仅限本地生效的覆盖项。
 
-## Companion size
+## 伴侣尺寸
 
-The **Companion size** slider is device-local and applies to every pet surface on that device:
+**伴侣尺寸**滑块属于设备本地设置，对该设备上的所有宠物展示界面均生效：
 
-- web app-shell companion
-- mobile app-shell companion
-- desktop native overlay
-- pet previews in settings
+- Web 应用外壳中的伴侣
+- 移动端应用外壳中的伴侣
+- 桌面端原生浮窗
+- 设置界面中的宠物预览
 
-The available range is 75% to 150%. The pet keeps the Codex-compatible sprite aspect ratio while resizing.
+可调范围为 75% 至 150%。缩放时宠物会保持与 Codex 兼容的精灵图宽高比。
 
-## Import Codex-compatible pets
+## 导入兼容 Codex 的宠物
 
-Kaiwu can detect Codex-compatible pet packages from connected machines.
+Kaiwu 可以检测已连接设备中与 Codex 兼容的宠物包。
 
-Use **Detect Codex pets** in **Settings -> Pets** to scan the active daemon machine. Detection is explicit: Kaiwu does not scan local Codex homes until you request it or trigger the refresh command.
+在**设置 -> 宠物**中使用**检测 Codex 宠物**即可扫描当前处于活跃状态的守护进程设备。检测流程需要显式触发：在用户发起请求或执行刷新命令前，Kaiwu 不会主动扫描本地 Codex 目录。
 
-Detected pets can be:
+检测到的宠物支持以下操作：
 
-- used from the detected Codex home,
-- imported into Kaiwu as a managed local pet,
-- imported into the account library when pet sync is enabled,
-- removed from the device list later.
+- 直接使用检测目录中的 Codex 宠物；
+- 作为托管的本地宠物导入 Kaiwu；
+- 在启用宠物同步时，导入至账号库中；
+- 后续从设备列表中移除。
 
-Local pets stay on the current machine unless you explicitly import them into the account library.
+除非显式导入至账号库，否则本地宠物仅保存在当前设备中。
 
-## Package format
+## 宠物包格式
 
-A pet package is a directory with this shape:
+宠物包是一个包含如下结构的目录：
 
 ```text
 <pet-id>/
@@ -80,9 +79,9 @@ A pet package is a directory with this shape:
   spritesheet.webp
 ```
 
-`spritesheet.png` is also accepted. The manifest must use one of those literal file names.
+系统也支持 `spritesheet.png`。清单必须使用这两个确切文件名之一。
 
-`pet.json` has this format:
+`pet.json` 的格式如下：
 
 ```json
 {
@@ -93,18 +92,18 @@ A pet package is a directory with this shape:
 }
 ```
 
-The V1 spritesheet is Codex-compatible:
+V1 精灵图与 Codex 兼容：
 
-| Property | Value |
+| 属性 | 取值 |
 | --- | --- |
-| Size | `1536x1872` |
-| Grid | 8 columns by 9 rows |
-| Frame size | `192x208` |
-| Supported formats | `image/webp`, `image/png` |
+| 尺寸 | `1536x1872` |
+| 网格 | 8 列 9 行 |
+| 单帧尺寸 | `192x208` |
+| 支持格式 | `image/webp`、`image/png` |
 
-Rows map to these states:
+各行对应的状态如下：
 
-| Row | State |
+| 行号 | 状态 |
 | --- | --- |
 | 0 | `idle` |
 | 1 | `running-right` |
@@ -116,124 +115,124 @@ Rows map to these states:
 | 7 | `running` |
 | 8 | `review` |
 
-Kaiwu validates the manifest, media type, dimensions, package size, and path safety before importing or syncing a custom pet.
+在导入或同步自定义宠物之前，Kaiwu 会校验清单、媒体类型、尺寸规格、包体大小以及路径安全性。
 
-## Desktop overlay
+## 桌面端浮窗
 
-On Tauri desktop builds, the pet can live in its own native overlay window.
+在基于 Tauri 的桌面构建版本中，宠物可以显示在独立的原生浮窗中。
 
-The desktop overlay:
+桌面端浮窗具备以下特性：
 
-- stays outside the main app window,
-- avoids rendering a duplicate in-app pet while the overlay owns the companion,
-- grows when session bubbles are shown and shrinks back to the mascot when they are hidden,
-- can be dragged by grabbing the mascot,
-- keeps tray buttons, reply fields, and other controls as non-drag regions,
-- can be reset to the default bottom-right position from **Settings -> Pets**.
+- 保持在主应用窗口之外；
+- 当浮窗接管伴侣展示时，避免在应用内重复渲染宠物；
+- 出现会话气泡时自动展开，气泡隐藏后恢复为仅显示宠物形象；
+- 拖拽宠物形象即可移动浮窗；
+- 托盘按钮、回复输入框等控件区域设为不可拖拽区域；
+- 可在**设置 -> 宠物**中重置回右下角默认位置。
 
-Desktop overlay settings include:
+桌面端浮窗设置包含：
 
-- account default on/off,
-- per-device inherit / enabled / disabled override,
-- visibility mode,
-- reset position.
+- 账号默认开启/关闭状态；
+- 单设备维度的继承 / 强制启用 / 强制禁用覆盖项；
+- 可见性模式；
+- 重置位置。
 
-Visibility modes:
+可见性模式说明：
 
-| Mode | Behavior |
+| 模式 | 行为 |
 | --- | --- |
-| Always when enabled | Show the pet whenever pets and the overlay are enabled. |
-| Attention or active | Show when a session is active, running, or needs attention. |
-| Attention only | Show only for waiting, failed, or review activity. |
+| 启用时始终显示 | 只要启用了宠物及浮窗功能，就始终显示宠物。 |
+| 需关注或活跃时 | 会话处于活跃、运行中或需要关注时显示。 |
+| 仅需关注时 | 仅在会话等待操作、失败或待评审时显示。 |
 
-Clicking the mascot brings the main Kaiwu window forward. Right-clicking the mascot opens the pet context menu so you can tuck it away.
+单击宠物形象可将 Kaiwu 主窗口置顶前台。右键单击宠物形象则会弹出快捷菜单，方便将其收起。
 
-## Session bubbles
+## 会话气泡
 
-When the desktop overlay has activity to show, compact bubbles appear above the pet. They use the session title and latest relevant message so you can recognize the session quickly.
+当桌面浮窗有动态需要呈现时，宠物头顶会弹出紧凑气泡。气泡会显示会话标题与最新的相关消息，便于用户快速辨认会话。
 
-Bubble states are prioritized as:
+气泡状态优先级如下：
 
-1. waiting for you
-2. failed
-3. ready for review
-4. running
-5. idle
+1. 等待操作
+2. 失败
+3. 待评审
+4. 运行中
+5. 待机
 
-The bubbles can open the session in the main app, be dismissed, or expand a quick-reply field. Quick replies are sent to the targeted session only after you submit them.
+气泡支持在主应用中打开会话、直接关闭，或展开快捷回复输入框。只有在用户提交后，快捷回复才会发送给目标会话。
 
-## Mobile app companion
+## 移动端伴侣
 
-On mobile, the companion is rendered in the app shell after you enable pets.
+在移动端，开启宠物功能后，伴侣将在应用外壳中渲染。
 
-The mobile companion:
+移动端伴侣具备以下特性：
 
-- respects safe areas, keyboard space, and app foreground/background state,
-- can be dragged with a native pan gesture,
-- stores position as normalized screen coordinates so it adapts to screen size changes,
-- uses nearest-neighbor rendering for crisp pixel art,
-- gives light haptic feedback on tap when the platform allows it.
+- 自动适配安全区域、键盘占位以及应用的前后台切换状态；
+- 支持原生拖拽手势随意移动；
+- 将位置保存为归一化屏幕坐标，自适应不同屏幕尺寸变化；
+- 采用最近邻渲染，呈现清晰锐利的像素画风；
+- 在平台支持的情况下，点击时提供轻微触觉反馈。
 
-Reduced-motion preferences are respected by freezing animated playback.
+系统启用“减弱动态效果”偏好设置时，将暂停动画播放以作适配。
 
-## Sync and privacy
+## 同步与隐私
 
-Pet companion display and pet account sync are separate server features.
+宠物伴侣展示与宠物账号同步属于两个独立的服务端功能特性。
 
-- `pets.companion` controls whether the pet companion feature is available at all.
-- `pets.sync` controls account pet library sync.
+- `pets.companion` 控制宠物伴侣功能整体是否可用。
+- `pets.sync` 控制账号宠物库的同步。
 
-The server allows `pets.companion` by default so users can see the setting, but the account-level pet setting is off by default. `pets.sync` is off by default unless the server enables it.
+服务端默认允许 `pets.companion`，以便用户查看该设置项，但账号级宠物设置默认处于关闭状态。除非服务端显式启用，否则 `pets.sync` 默认关闭。
 
-When sync is disabled, built-in and local managed pets still work on the device that owns them. Account-library pet import and account pet selection require `pets.sync`.
+同步功能被禁用时，内置宠物与受管本地宠物仍可在其所在设备上正常使用。导入到账号库以及同步账号选中的宠物，则依赖于 `pets.sync`。
 
-Synced settings and pet records store sanitized references, metadata, digests, and size information. They do not store raw `data:` URIs, local filesystem paths, private object keys supplied by a client, or spritesheet bytes in settings.
+同步设置与宠物记录仅存储脱敏引用、元数据、摘要及大小信息。设置中绝不会保存原始 `data:` URI、本地文件系统路径、客户端提供的私有对象键或精灵图原始字节。
 
-## Server administration
+## 服务端管理
 
-Self-hosted and managed deployments can disable pet features through server feature flags.
+自托管和托管部署均可通过服务端特性标识禁用宠物功能。
 
 ```bash
 HAPPIER_FEATURE_PETS_COMPANION__ENABLED=0
 HAPPIER_FEATURE_PETS_SYNC__ENABLED=0
 ```
 
-When `pets.companion` is disabled by the server:
+当服务端禁用 `pets.companion` 时：
 
-- clients hide or disable the pet companion surfaces,
-- **Settings -> Pets** shows a disabled notice instead of the pet library,
-- daemon pet RPCs return a stable feature-disabled response,
-- custom pet import, discovery, preview, and removal actions are blocked.
+- 客户端会隐藏或禁用宠物伴侣展示界面；
+- **设置 -> 宠物**中将显示禁用提示，而非宠物库；
+- 守护进程的宠物 RPC 将统一返回功能已禁用的响应；
+- 自定义宠物的导入、发现、预览及移除操作均被拦截。
 
-When only `pets.sync` is disabled:
+当仅禁用 `pets.sync` 时：
 
-- local and built-in pets still work,
-- account-library import and synced account pet selection are unavailable.
+- 本地及内置宠物仍可正常工作；
+- 账号库导入与同步账号宠物选择功能将不可用。
 
-## Troubleshooting
+## 故障排查
 
-### The pet does not appear
+### 宠物未显示
 
-Check these in order:
+请按以下顺序排查：
 
-1. You are signed in and inside the app shell.
-2. The selected server allows `pets.companion`.
-3. **Settings -> Pets -> Enable pets** is on.
-4. This device has not forced the pet setting to **Disabled**.
-5. On desktop, the overlay is enabled or the app-shell pet is allowed to render.
+1. 已登录并位于应用外壳内。
+2. 所选服务端允许 `pets.companion`。
+3. 已开启**设置 -> 宠物 -> 启用宠物**。
+4. 当前设备未将宠物设置强制覆盖为**禁用**。
+5. 在桌面端，浮窗已启用，或应用外壳宠物获准渲染。
 
-### Codex pets are not detected
+### 未检测到 Codex 宠物
 
-Make sure the active daemon machine is online, then press **Detect Codex pets** again. Detection scans the active machine and can use a short discovery cache, so newly created packages may need another refresh after a few seconds.
+请确保处于活跃状态的守护进程设备在线，然后再次点击**检测 Codex 宠物**。检测会扫描当前活跃设备，且可能存在简短的发现缓存，因此新建的包可能需要在数秒后再次刷新。
 
-The package must contain a valid `pet.json` and a literal `spritesheet.webp` or `spritesheet.png` file inside the package directory.
+宠物包目录内必须包含有效的 `pet.json`，以及名为 `spritesheet.webp` 或 `spritesheet.png` 的确切文件。
 
-### Imported local pets disappear on another device
+### 导入的本地宠物在其他设备上不可见
 
-Local imports are intentionally device-local. Import the pet into the account library if your server enables `pets.sync` and you want to use it across devices.
+本地导入的宠物按设计仅保存在单台设备上。若服务端启用了 `pets.sync` 且您希望在多设备间通用，请将宠物导入账号库中。
 
-## Related pages
+## 相关页面
 
-- [Server feature flags](/extras/feature-flags)
-- [Notifications](/extras/notifications-setup)
-- [Codex provider](/agents/codex)
+- [服务端特性标识](/extras/feature-flags)
+- [通知](/extras/notifications-setup)
+- [Codex 提供商](/agents/codex)

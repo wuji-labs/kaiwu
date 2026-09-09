@@ -71,7 +71,7 @@ export async function runCliAction(args: string[]): Promise<void> {
     child.on('error', reject);
     child.on('close', (code) => {
       if (code === 0) resolve();
-      else reject(new Error(`Command failed (exit ${code ?? 1}): happier ${args.join(' ')}`));
+      else reject(new Error(`Command failed (exit ${code ?? 1}): kaiwu ${args.join(' ')}`));
     });
   });
 }

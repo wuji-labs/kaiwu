@@ -1,97 +1,93 @@
 ---
-title: Grok Build (experimental)
-description: Configure the Grok Build CLI in Kaiwu, including authentication, steering, resume, activity, and current ACP limitations.
+title: Grok Build（实验性）
+description: 在 Kaiwu 中配置 Grok Build CLI，包括身份验证、引导、恢复、活动以及当前的 ACP 限制。
 ---
-
-Kaiwu can run **Grok Build** through the local `grok` CLI using the Agent Client Protocol (ACP).
+Kaiwu 支持通过 Agent Client Protocol（ACP），在本地 `grok` CLI 中运行 **Grok Build**。
 
 <Callout type="info">
-  Grok is an **experimental** integration. It works and people use it
-  daily, but its surface is younger than Claude, Codex or OpenCode and is
-  more likely to change. What it supports today is in
-  [Agent capabilities](/agents/capabilities).
+  Grok 目前属于**实验性**集成。该功能可用且已有日常使用验证，但相比 Claude、Codex 或 OpenCode，其接口更年轻，后续调整的可能性也更高。当前支持的功能详见[智能体能力](/agents/capabilities)。
 </Callout>
 
-## Install Grok Build
+## 安装 Grok Build
 
-In Kaiwu, open **Settings → AI & Agents → AI backends → Grok** to check whether the CLI is available on the selected machine and run its vendor installer.
+在 Kaiwu 中打开 **Settings → AI & Agents → AI backends → Grok**，即可检查所选设备上是否存在该 CLI，并运行厂商安装程序。
 
-For a manual installation, use xAI's current Grok Build CLI instructions, then verify:
+如需手动安装，请参考 xAI 当前的 Grok Build CLI 安装说明，然后执行验证：
 
 ```bash
 grok --version
 ```
 
-Kaiwu checks `PATH` and common installation locations, including `~/.grok/bin`. If needed, set `HAPPIER_GROK_PATH` to the absolute path of the `grok` executable.
+Kaiwu 会检查 `PATH` 以及包括 `~/.grok/bin` 在内的常见安装路径。如有需要，可将 `HAPPIER_GROK_PATH` 设置为 `grok` 可执行文件的绝对路径。
 
-Kaiwu launches the provider in update-safe ACP mode, equivalent to:
+Kaiwu 会以支持安全更新的 ACP 模式启动该提供商，等同于执行：
 
 ```bash
 grok --no-auto-update agent stdio
 ```
 
-## Authenticate
+## 身份验证
 
-Grok Build supports either an xAI API key or its native cached login.
+Grok Build 支持使用 xAI API 密钥，也支持使用其原生的缓存登录凭据。
 
-### API key
+### API 密钥
 
-Set `XAI_API_KEY` in the environment used by the Kaiwu CLI or daemon. Kaiwu detects that variable without copying its value into session metadata or logs.
+在 Kaiwu CLI 或守护进程使用的环境中设置 `XAI_API_KEY`。Kaiwu 会读取该变量，但不会将其值写入会话元数据或日志。
 
-### Native login
+### 原生登录
 
-From **Settings → AI & Agents → AI backends → Grok**, start the normal login flow or the device-code flow for a headless or remote machine. The equivalent terminal commands are:
+在 **Settings → AI & Agents → AI backends → Grok** 中，可以发起常规登录流程；针对无头或远程设备，则可发起设备码流程。对应的终端命令如下：
 
 ```bash
 grok login
 grok login --device-auth
 ```
 
-Grok Build does not currently provide Kaiwu with a reliable non-interactive cached-login status check. The settings page therefore continues to show **Unknown** for cached login, while ACP startup independently validates that account for each session; **Unknown** does not by itself mean that you are logged out.
+Grok Build 目前尚未向 Kaiwu 提供可靠的非交互式缓存登录状态检查机制。因此，设置页中的缓存登录状态会持续显示为 **Unknown**，而 ACP 在启动时会为每个会话独立验证该账户；显示 **Unknown** 本身并不意味着当前处于未登录状态。
 
-## Sessions and questions
+## 会话与交互式提问
 
-- Kaiwu stores the Grok session identity and can request an experimental resume after the provider process restarts.
-- While a Grok turn is active, an ordinary follow-up can steer it through Grok's `x.ai/interject` ACP extension. **Send now** remains a separate cancel-and-successor action, so it does not depend on steering support.
-- Grok's structured questions use Kaiwu's native structured-question UI. Zero-option questions accept freeform text, and questions with advertised choices can accept an additional freeform answer; Kaiwu preserves commas and newlines and maps freeform text to Grok's `Other` answer with its notes annotation.
-- Cancellation uses the shared ACP lifecycle, so a cancelled prompt should not prevent a later prompt in the same Kaiwu session.
-- Grok workflow, goal, and subagent notifications appear through Kaiwu's existing workflow activity, work-state, and subagent surfaces. Live and replay notification names are accepted, including the nested form used when a session resumes.
+- Kaiwu 会存储 Grok 的会话标识，并在提供商进程重启后尝试请求实验性的会话恢复。
+- 在 Grok 的某个轮次处于活动状态时，发送常规跟进消息可以通过 Grok 的 `x.ai/interject` ACP 扩展对其进行动态调整。**Send now** 仍属于独立的取消并衔接后续操作，因此不依赖动态调整支持。
+- Grok 的结构化提问复用了 Kaiwu 的原生结构化提问界面。无预置选项的问题支持自由文本输入，带有候选项的问题也支持补充自由文本回答；Kaiwu 会保留逗号与换行符，并将自由文本映射为 Grok 的 `Other` 回复及其附带的 notes 注解。
+- 取消操作遵循通用的 ACP 生命周期规范，因此在同一个 Kaiwu 会话中，取消某个提示词不会影响后续提示词的执行。
+- Grok 的工作流、目标及子智能体通知，均会呈现在 Kaiwu 现有的工作流活动、工作状态以及子智能体界面中。系统支持实时通知与重放通知名称，也包括会话恢复时所采用的嵌套格式。
 
-Resume and structured-question behavior depend on the installed Grok Build version. Use a current CLI release: Kaiwu requires an authentication method advertised by Grok and separately validates every structured-question payload at the provider boundary.
+会话恢复与结构化提问的具体表现取决于所安装的 Grok Build 版本。建议使用最新版本的 CLI：Kaiwu 要求使用 Grok 声明的认证方式，并在提供商边界对每个结构化提问的载荷进行独立验证。
 
-## Current capability limits
+## 当前能力限制
 
-- **Models:** Kaiwu renders only the models advertised by the active Grok ACP session and applies a selected model through the standard live model-switch request. Each model shows a reasoning-effort control only when that model advertises supported effort values. When Grok does not advertise a selectable model inventory, Kaiwu leaves model choice to the CLI instead of inventing a fallback model ID.
-- **Model switch failures:** Grok switch errors are surfaced to the session instead of being treated as success, and the last provider-confirmed model remains authoritative.
-- **Usage:** Kaiwu reads Grok's ACP usage metadata, including cached and reasoning detail, without double-counting token classes that Grok already includes in input or output. Provider-reported cost is shown only when Grok marks it complete.
-- **Tool progress:** rapid in-progress updates are coalesced and cumulative text is bounded, while final completed, failed, or cancelled updates are always retained.
-- **MCP tools:** native MCP delivery is experimental.
-- **Images and session media:** trusted prompt images are projected through Kaiwu's shared ACP media path. Output media and general session-media extraction remain unsupported unless the provider advertises and the shared runtime proves those separate contracts.
-- **Prompt completion compatibility:** standard ACP completion remains primary. Kaiwu also accepts correlated `x.ai/session/prompt_complete` and observed `_x.ai/session/prompt_complete` terminal evidence only for the current open, non-cancelled session turn; missing or stale extension notifications never delay or settle another turn.
-- **Session listing, forking, rollback, and vendor-state handoff:** not currently supported.
-- **Platforms:** the integration includes macOS, Linux, and Windows install/detection paths, but platform behavior still depends on the installed xAI CLI release.
+- **模型支持：** Kaiwu 仅展示当前活跃 Grok ACP 会话所声明的模型，并通过标准的实时模型切换请求应用所选模型。仅当模型声明支持推理深度时，界面才会显示对应的调节控件。若 Grok 未声明可选模型列表，Kaiwu 会将模型选择权交由 CLI 处理，而不会指定回退模型 ID。
+- **模型切换失败：** Grok 的切换错误会直接上报至会话，而不会被当作成功处理；模型状态始终以提供商最后一次确认的结果为准。
+- **用量统计：** Kaiwu 会读取 Grok 的 ACP 用量元数据（含缓存与推理明细），且不会对 Grok 已计入输入或输出的 Token 类别进行重复计算。仅在 Grok 标记费用统计完成时，界面才会展示提供商报告的成本。
+- **工具进度：** 针对高频的运行中更新，系统会进行合流节流，并限制累积文本长度；最终的完成、失败或取消状态更新则始终完整保留。
+- **MCP 工具：** 原生 MCP 投递仍处于实验阶段。
+- **图片与会话媒体：** 经过校验的提示词图片会通过 Kaiwu 共享的 ACP 媒体通道传递。除非提供商明确声明并经由共享运行时验证了相应接口契约，否则暂不支持输出媒体以及通用的会话媒体提取。
+- **提示词完成兼容性：** 系统以标准的 ACP 完成机制为主。仅针对当前处于打开且未取消状态的会话轮次，Kaiwu 才会结合关联的 `x.ai/session/prompt_complete` 以及观测到的 `_x.ai/session/prompt_complete` 终端凭据进行判断；扩展通知的缺失或过期绝不会阻塞或决断其他轮次。
+- **会话列表、分叉、回滚与厂商状态交接：** 暂不支持。
+- **平台支持：** 本集成包含针对 macOS、Linux 和 Windows 的安装与检测逻辑，但具体跨平台表现仍取决于所安装的 xAI CLI 版本。
 
-These limits are intentional capability declarations. Kaiwu does not emulate unadvertised provider behavior or use private completion methods as a fallback.
+上述限制属于明确界定的能力边界。Kaiwu 不会模拟提供商未声明的行为，也不会使用私有完成机制作为兜底方案。
 
-## Troubleshooting
+## 故障排查
 
 ### “Grok Build not found”
 
-1. Verify `grok --version` works on the selected machine.
-2. Restart Kaiwu after installing the CLI.
-3. If the binary is outside the usual locations, set `HAPPIER_GROK_PATH` to its absolute path.
+1. 确认 `grok --version` 在所选设备上能正常运行。
+2. 安装 CLI 后重启 Kaiwu。
+3. 若二进制文件未安装在常规路径下，请将 `HAPPIER_GROK_PATH` 设置为其绝对路径。
 
-### Authentication is unavailable
+### 身份验证不可用
 
-1. Confirm `XAI_API_KEY` is present in the Kaiwu CLI or daemon environment, or run one of the native login commands above.
-2. Retry the session so Kaiwu can re-run ACP initialization and select one of the authentication methods advertised by the CLI.
-3. If an older CLI silently drops ACP requests, update Grok Build and retry.
+1. 确认 Kaiwu CLI 或守护进程环境中包含 `XAI_API_KEY`，或运行上方列出的原生登录命令之一。
+2. 重试会话，以便 Kaiwu 重新执行 ACP 初始化，并选用该 CLI 声明的某种认证方式。
+3. 若旧版 CLI 静默丢弃 ACP 请求，请更新 Grok Build 后重试。
 
-For the shared authentication flow, see [Provider authentication](/agents/provider-authentication).
+有关通用的身份验证流程，请参阅[提供商身份验证](/agents/provider-authentication)。
 
-## Related
+## 相关内容
 
-- [Agent capabilities](/agents/capabilities) — what this agent supports, generated from the manifest.
-- [Choosing an agent](/agents)
-- [Model and engine selection](/agents/model-and-engine-selection)
-- [Agent authentication](/agents/provider-authentication)
+- [智能体能力](/agents/capabilities) — 该智能体支持的功能，基于清单文件生成。
+- [选择智能体](/agents)
+- [模型与引擎选择](/agents/model-and-engine-selection)
+- [智能体身份验证](/agents/provider-authentication)

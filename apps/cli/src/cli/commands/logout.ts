@@ -5,7 +5,7 @@ import { handleAuthCommand } from '@/cli/commands/auth';
 import type { CommandContext } from '@/cli/commandRegistry';
 
 export async function handleLogoutCliCommand(_context: CommandContext): Promise<void> {
-  console.log(chalk.yellow('Note: "happier logout" is deprecated. Use "happier auth logout" instead.\n'));
+  console.log(chalk.yellow('Note: "kaiwu logout" is deprecated. Use "kaiwu auth logout" instead.\n'));
   try {
     await handleAuthCommand(['logout']);
   } catch (error) {

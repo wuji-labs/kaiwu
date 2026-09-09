@@ -23,7 +23,7 @@ export async function cmdSessionRunStreamRead(
 
   if (!idOrPrefix || !runId || !streamId || cursor === null) {
     throw new Error(
-      'Usage: happier session run stream-read <session-id-or-prefix> <run-id> <stream-id> --cursor <n> [--max-events <n>] [--json]',
+      'Usage: kaiwu session run stream-read <session-id-or-prefix> <run-id> <stream-id> --cursor <n> [--max-events <n>] [--json]',
     );
   }
 
@@ -33,7 +33,7 @@ export async function cmdSessionRunStreamRead(
       await printJsonEnvelope({ ok: false, kind: 'session_run_stream_read', error: { code: 'not_authenticated' } });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "happier auth login" first.');
+    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
     process.exit(1);
   }
 

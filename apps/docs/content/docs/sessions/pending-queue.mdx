@@ -1,140 +1,139 @@
 ---
-title: Pending queue
-description: Queue messages while the agent is busy, offline, or not ready yet — and edit/reorder them before they run.
+title: 待处理队列
+description: 在智能体繁忙、离线或尚未就绪时将消息排入队列——并在执行前对其进行编辑或重新排序。
 ---
+## 什么是待处理队列？
 
-## What is the pending queue?
+待处理队列支持**暂存当前会话的消息**，而无需立即发送给智能体。
 
-The pending queue lets you **store messages for a session** without sending them to the agent immediately.
+待处理消息具备以下特性：
 
-Pending messages are:
+- **会话级共享**：凡对共享会话拥有编辑权限的成员，均可查看和管理这些消息。
+- **有序排列**：你可以自主控制消息的处理顺序。
+- **支持编辑**：在消息执行前，你可以随时编辑、删除或调整其顺序。
+- **随会话一同存储**：待处理内容采用与会话记录相同的存储模式（默认加密；在采用明文存储的部署环境中则为明文）。
 
-- **Session-wide**: anyone with edit access to a shared session can see and manage them.
-- **Ordered**: you control the order they will be processed.
-- **Editable**: you can edit, remove, or reorder them before they run.
-- **Stored with the session**: pending content uses the same storage mode as the session transcript (encrypted by default, plaintext on deployments that use plaintext storage).
-
-Pending messages **do not affect “unread”** indicators. Instead, you’ll see a separate **pending count badge**.
+待处理消息**不会影响“未读”**状态指示，而是会显示一个独立的**待处理计数角标**。
 
 <Callout type="info">
-  Offline composer activation is currently available in development builds and is not yet a released contract.
+  离线输入框激活功能目前仅在开发版本中可用，尚未作为正式契约发布。
 </Callout>
 
-## Where you’ll see it
+## 功能展示位置
 
-### Session list badge
+### 会话列表角标
 
-In the session list, sessions with pending messages show a **pending count** badge (for example `3` or `99+`).
+在会话列表中，包含待处理消息的会话会显示**待处理计数**角标（例如 `3` 或 `99+`）。
 
-### In the session view
+### 会话视图
 
-When a session has pending messages, a **“Pending (N)”** indicator appears in the session view. Tap it to open the **Pending messages** sheet.
+当会话中存在待处理消息时，会话视图中会显示 **“Pending (N)”**（待处理 N 项）指示器。点击即可打开**待处理消息**面板。
 
-For a resumable inactive session, the composer stays available even when its machine is offline. Sending stores the message durably in this queue instead of pretending the session is online. A composer banner then shows the recovery state:
+对于可恢复的非活跃会话，即使其对应设备处于离线状态，输入框仍保持可用。发送消息后，系统会将其持久化保存在该队列中，而不会假装会话在线。随后，输入框横幅会展示具体的恢复状态：
 
-- waiting for the machine to reconnect under the selected automatic-resume policy,
-- reachable and waiting for the daemon to start the session,
-- kept queued for manual resume, or
-- unable to start, with an explicit retry action.
+- 正在按所选的自动恢复策略等待设备重新连接；
+- 设备可访问，正在等待守护进程启动会话；
+- 保持排队状态以待手动恢复；或
+- 启动失败，并提供明确的重试操作。
 
-For a manually queued offline message, **Process when online** authorizes automatic processing for that exact message without changing the account setting. The banner also lets you keep the exact message queued or open **Auto-resume options**. A start failure is not retried indefinitely; reconnecting alone does not restart a failed request.
+对于手动排队的离线消息，点击**上线时处理**即可在不更改账户设置的情况下，授权自动处理该条特定消息。通过横幅，你也可以让该消息继续排队，或打开**自动恢复选项**。启动失败不会无限重试；仅凭设备重新连接并不会重新发起已失败的请求。
 
-## Managing pending messages (UI)
+## 管理待处理消息（界面操作）
 
-Open **Pending messages** from the session view indicator.
+点击会话视图中的指示器，打开**待处理消息**面板。
 
-### Pending messages actions
+### 待处理消息操作
 
-For each pending message you can:
+针对每条待处理消息，你可以执行以下操作：
 
-- **Move up / Move down**: changes the order the agent will process messages.
-- **Edit**: update the message text before it runs.
-- **Remove**: deletes the pending message (it won’t be processed).
-- **Send now**: stops the current turn and sends the message immediately.
+- **上移 / 下移**：调整智能体处理消息的先后顺序。
+- **编辑**：在消息执行前修改其文本内容。
+- **移除**：删除待处理消息（后续将不再处理）。
+- **立即发送**：中止当前轮次并立即发送该消息。
 
-### Discarded messages
+### 已舍弃消息
 
-Sometimes messages end up in the **Discarded messages** section (for example, when switching a session from remote to local and the pending queue must not be processed).
+在某些情况下，消息会被归入**已舍弃消息**区域（例如，当会话从远程切换至本地、且待处理队列不可继续执行时）。
 
-From Discarded messages you can:
+在“已舍弃消息”中，你可以执行以下操作：
 
-- **Re-queue**: move the message back into the pending queue.
-- **Remove**: permanently delete it.
-- **Send now**: send it immediately.
+- **重新排队**：将消息放回待处理队列。
+- **移除**：永久删除该消息。
+- **立即发送**：立即发送该消息。
 
-## Message sending settings
+## 消息发送设置
 
-Go to **Settings → Session → Message sending**.
+前往**设置 → 会话 → 消息发送**。
 
-### Automatic resume after sending
+### 发送后自动恢复
 
-This setting applies when you send to a resumable inactive session:
+向可恢复的非活跃会话发送消息时，该设置项生效：
 
-- **Now or when machine returns:** Kaiwu queues the message and authorizes the owning daemon to resume that session. If the machine is offline, the request remains parked until its daemon reconnects.
-- **Only if machine is online (default):** Kaiwu makes one resume attempt when you send and only if the exact machine is currently reachable. If the machine is unavailable or the attempt races with a disconnect, the message stays queued and does not authorize a later automatic start.
-- **Never automatically:** Kaiwu queues the message without requesting a session start. You can resume it explicitly from the composer banner later.
+- **立即或待设备重新上线时恢复**：Kaiwu 会将消息加入队列，并授权所属守护进程恢复该会话。若设备处于离线状态，请求将挂起等待，直至其守护进程重新连接。
+- **仅在设备在线时恢复（默认）**：仅在目标设备当前可访问的前提下，Kaiwu 会在发送时尝试恢复一次。若设备不可用，或恢复尝试因设备断连而产生竞态冲突，消息将保持排队状态，且不会授权后续自动启动。
+- **从不自动恢复**：Kaiwu 仅将消息加入队列，不会请求启动会话。后续你可以在输入框横幅中手动恢复。
 
-Changing the setting affects future sends only. It does not silently cancel or create a start request for messages already queued. The banner’s **Process when online** action applies only to the exact queued message shown.
+修改此设置仅对后续发送生效，既不会静默取消已有队列消息的启动请求，也不会为它们追加请求。横幅中的**上线时处理**操作仅对当前展示的那条排队消息有效。
 
-### Queue in agent (current)
+### 在智能体中排队（当前）
 
-Default behavior when everything is online:
+各项服务均在线时的默认行为：
 
-- your message is written to the transcript immediately
-- the agent processes it when ready
+- 消息会立即写入会话记录
+- 智能体就绪后便会进行处理
 
-Safety fallback:
+安全回退机制：
 
-- if the session is **offline**, **resuming**, or the agent is **not ready yet**, Kaiwu may store the message in the **pending queue first** to avoid losing it.
-- if the session is currently under **local control** during an attach/local-control flow, Kaiwu queues the message until the session is ready to resume remote processing.
+- 若会话处于**离线**、**恢复中**，或智能体**尚未就绪**，Kaiwu 可能会将消息**先暂存至待处理队列**，以防丢失。
+- 在附加/本地控制流程中，若会话当前正处于**本地控制**状态，Kaiwu 会将消息排队挂起，直至会话准备好恢复远程处理。
 
-### Interrupt & send
+### 打断并发送
 
-Aborts the current turn (if any), then sends your message immediately.
+中止当前轮次（若有），随后立即发送你的消息。
 
-If the session needs to resume (or is offline), Kaiwu may store the message in the **pending queue first** and then deliver it once the agent is ready.
+若会话需要恢复（或处于离线状态），Kaiwu 可能会将消息**先暂存至待处理队列**，待智能体就绪后再行投递。
 
-### Pending until ready
+### 排队等待就绪
 
-Stores your message in the session’s pending queue and lets the agent pull it when ready.
+将消息暂存至会话的待处理队列，待智能体就绪后自行拉取处理。
 
-This is the best option when you want to:
+在以下场景中，推荐使用此选项：
 
-- queue up multiple messages and control their order,
-- keep messages editable until the agent starts processing them,
-- avoid losing a message when the agent is offline or not ready yet.
+- 需要排队发送多条消息并控制其处理顺序；
+- 希望在智能体开始处理前保留消息的可编辑状态；
+- 避免在智能体离线或尚未就绪时遗失消息。
 
-## Local-control sessions
+## 本地控制会话
 
-Local control means the provider TUI is active in your terminal. Remote control means Kaiwu is driving the same provider session in the background for the app.
+本地控制意味着提供商 TUI 正在终端中处于活跃状态。远程控制则意味着 Kaiwu 正在后台为应用驱动同一个提供商会话。
 
-For **Claude** and **Codex**, local control is exclusive. While the provider TUI owns the session, Kaiwu does not inject app messages directly into that terminal process. Instead:
+对于 **Claude** 和 **Codex**，本地控制是互斥排他的。当提供商 TUI 独占会话时，Kaiwu 不会将应用端的消息直接注入到该终端进程中。而是采取以下处理方式：
 
-- the app stores the message in the session pending queue,
-- the local Kaiwu process watches for pending messages,
-- if no local turn is running, Kaiwu can switch the session back to remote processing and deliver the queued message,
-- if a local turn is still running, Kaiwu waits for that turn to finish, abort, or exit before switching back to remote.
+- 应用将消息保存在会话待处理队列中；
+- 本地 Kaiwu 进程监听待处理消息；
+- 若当前没有正在运行的本地轮次，Kaiwu 可将该会话切回远程处理模式，并投递排队的消息；
+- 若本地轮次仍在运行，Kaiwu 会等待该轮次完成、中止或退出后，再切换回远程模式。
 
-This avoids interrupting an in-progress local Claude or Codex turn. Without this wait, sending an app message into a busy terminal TUI could cancel or corrupt the current provider turn.
+这种机制避免了打断正在进行的 Claude 或 Codex 本地轮次。若不经过等待便直接向繁忙的终端 TUI 发送应用消息，可能会导致当前的提供商轮次被取消或异常损坏。
 
-For **OpenCode**, local control is shared. The OpenCode TUI and Kaiwu app can both stay connected to the same OpenCode session, so app messages do not need the same exclusive-control handoff path.
+对于 **OpenCode**，本地控制则是共享模式。OpenCode TUI 与 Kaiwu 应用可以同时连接到同一个 OpenCode 会话，因此应用消息不需要走这种排他性控制的交接链路。
 
-You can always review queued messages from the **Pending messages** sheet before they run.
+在消息执行前，你随时可以在**待处理消息**面板中检查排队的消息。
 
-## Mixed-version behavior (server / agent compatibility)
+## 混合版本行为（服务端 / 智能体兼容性）
 
-The pending queue feature requires support from both:
+待处理队列功能需要以下两端的协同支持：
 
-- the **server** (pending queue endpoints + updates), and
-- the **agent/CLI** that processes sessions (must know how to materialize pending into the transcript).
+- **服务端**（提供待处理队列端点及更新支持）；
+- 负责处理会话的**智能体/CLI**（必须具备将待处理内容具体写入会话记录的能力）。
 
-If your setup doesn’t support pending queues, the app will fall back to the normal message sending behavior and you won’t be able to rely on pending queue actions.
+若你的环境不支持待处理队列，应用将回退至常规的消息发送行为，且无法使用待处理队列的相关操作。
 
-Automatic reconnect resume additionally requires a current server and the daemon on the session's exact owning machine. With an older server or daemon, Kaiwu keeps the existing direct-resume compatibility behavior instead of assuming that unattended activation is available.
+重新连接后的自动恢复功能，还额外依赖最新版本的服务端以及会话所属特定设备上的守护进程。若服务端或守护进程版本较旧，Kaiwu 会保持原有的直接恢复兼容逻辑，而不会默认支持无人值守激活。
 
-## Tips
+## 使用技巧
 
-- If you’re queuing multiple thoughts, use **Move up / Move down** to ensure the agent processes them in the intended order.
-- If you decide something is no longer relevant, **Remove** it before it runs.
-- If you need something handled immediately, **Send now** is the fastest path.
-- During local to remote switching, a short queued or waiting state is normal and helps avoid losing messages or interrupting an active local turn.
+- 如果连续排队了多个想法，可使用**上移 / 下移**来确保智能体按你的预期顺序进行处理。
+- 如果发现某条内容不再相关，可在其执行前点击**移除**。
+- 如果需要立刻处理某项事务，**立即发送**是最快的途径。
+- 从本地切换至远程的过程中，出现短暂的排队或等待状态属于正常现象，这有助于防止消息丢失或打断正在运行的本地轮次。

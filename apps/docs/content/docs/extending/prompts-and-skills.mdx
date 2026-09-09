@@ -1,85 +1,84 @@
 ---
-title: Prompts, skills, templates, and registries
-description: Manage reusable prompt content in Kaiwu, attach it to agents and profiles, and install or export it to provider-native locations on your machines.
+title: 提示词、技能、模板与注册表
+description: 在 Kaiwu 中管理可复用的提示词内容，将其附加至智能体与配置文件，并安装或导出到您设备上的提供商原生位置。
 ---
+Kaiwu 将可复用的 AI 指令整合到同一个功能区中。你可以在这里使用单一的标准库，并通过多种方式应用或导出库中保存的内容。
 
-Kaiwu groups reusable AI instructions into one product area with a single canonical library and several ways to apply or export what you save there.
+从用户视角来看，它包含五个相互关联的模块：
 
-From a user perspective, there are five related pieces:
+1. **库（Library）**——用于同步你的提示词文档和技能包
+2. **模板（Templates）**——可复用的斜杠快捷指令，用于快速插入已保存的提示词
+3. **系统提示词追加项（System prompt additions）**——挂载到编程、语音以及配置文件等不同使用场景下的有序指令
+4. **外部资产（External assets）**——存在于特定设备或项目中的提示词与技能
+5. **注册中心（Registries）**——可安装的技能目录，例如 `skills.sh` 或 Git 源
 
-1. **Library** — your synced prompt docs and skill bundles
-2. **Templates** — reusable slash shortcuts that insert saved prompts
-3. **System prompt additions** — ordered instructions attached to coding, voice, and profile surfaces
-4. **External assets** — prompts/skills that exist on a machine or inside a project
-5. **Registries** — installable skill catalogs such as `skills.sh` or Git sources
+核心原则如下：
 
-The core rule is:
+- **以 Kaiwu 库为唯一可信源**
+- 外部文件仅作为可选的导入、安装与导出对象
+- Kaiwu 会记录明确的关联关系，从而主动检测配置漂移，避免静默覆盖文件
 
-- **Kaiwu library is the source of truth**
-- external files are optional imports, installs, and exports
-- Kaiwu tracks explicit links so it can detect drift instead of silently overwriting files
+## 库
 
-## The library
+打开 **Settings → Prompts & Skills** 即可管理可复用内容。
 
-Open **Settings → Prompts & Skills** to manage your reusable content.
+库目前支持两种条目类型：
 
-The library currently supports two item types:
+- **提示词（Prompts）**——Markdown 格式的文本块
+- **技能（Skills）**——包含 `SKILL.md` 的打包集合，可附带配套支持文件
 
-- **Prompts** — markdown text blocks
-- **Skills** — a `SKILL.md` bundle, optionally with supporting files
+如果你只需要纯文本形式的可复用指令或模板，请使用提示词；如果你需要一个便携的指令集合，并希望将其完整导出为真实的技能目录，请使用技能。
 
-Use prompts when you want plain reusable instructions or templates. Use skills when you want a portable bundle that should export as a real skill directory.
+### 提示词
 
-### Prompts
+提示词非常适合以下场景：
 
-Prompts are best for:
+- 插入到输入框中的可复用指令
+- 可复用的系统提示词追加项
+- 面向特定配置文件或 Agent 的专项指引
+- 需要跨设备同步的个人提示词片段
 
-- reusable instructions you want to insert into the composer
-- reusable system prompt additions
-- profile-specific or agent-specific guidance
-- personal prompt snippets that should sync across devices
+每个提示词都可以包含：
 
-Each prompt can have:
+- 标题
+- Markdown 内容
+- 所属文件夹（可选）
+- 标签（可选）
 
-- a title
-- markdown content
-- an optional folder
-- optional tags
+### 技能
 
-### Skills
+技能非常适合以下场景：
 
-Skills are best for:
+- 需要以独立技能包形式分发的可复用任务指令
+- 需要附带模板或参考代码等配套文件的提示词内容
+- 需要安装到 `.agents/skills`、`.claude/skills`、`.opencode/skills` 或其他特定提供商目录下的资产
 
-- reusable task instructions that should travel as a real skill bundle
-- prompt content that needs supporting files such as templates or reference snippets
-- assets you want to install into `.agents/skills`, `.claude/skills`, `.opencode/skills`, or other provider-specific locations
+每个技能都可以包含：
 
-Each skill can have:
+- 标题
+- `SKILL.md` 内容
+- 存放在同一技能包内的配套文件
+- 所属文件夹（可选）
+- 标签（可选）
 
-- a title
-- `SKILL.md` content
-- supporting files stored inside the same bundle
-- an optional folder
-- optional tags
+配套文件常用于存放：
 
-Supporting files are useful for:
+- `SKILL.md` 中引用的模板
+- 补充的 Markdown 指令
+- 配置代码片段
+- 其他随技能包导出的文件
 
-- templates referenced from `SKILL.md`
-- additional markdown instructions
-- configuration snippets
-- other exported bundle files
+## 文件夹与标签
 
-## Folders and tags
+使用**文件夹**可以在不重复创建提示词的前提下，实现轻量化的分类管理。
 
-Use **Folders** when you want lightweight organization without duplicating prompts.
+推荐实践：
 
-Recommended patterns:
+- 按团队或工作流划分文件夹
+- 按提供商或后端配置划分文件夹
+- 分别建立用于存放“模板”与“系统提示词追加项”的文件夹
 
-- one folder per team or workstream
-- one folder per provider or backend setup
-- one folder for templates vs another for system additions
-
-Tags are lighter-weight than folders and work well for:
+标签比文件夹更加轻量，适合标记：
 
 - `coding`
 - `voice`
@@ -87,279 +86,279 @@ Tags are lighter-weight than folders and work well for:
 - `research`
 - `profile`
 
-## Templates (slash commands inside Kaiwu)
+## 模板（Kaiwu 内置斜杠指令）
 
-Templates are Kaiwu-native slash shortcuts built from saved prompts.
+模板是基于已保存提示词构建的 Kaiwu 原生斜杠快捷指令。
 
-Open **Settings → Prompts & Skills → Templates** to create them.
+打开 **Settings → Prompts & Skills → Templates** 即可创建。
 
-Each template maps:
+每个模板都会将：
 
-- a **slash token** such as `/review` or `/ship-check`
-- to a **target prompt** from your library
-- with a behavior:
-  - **Insert**
-  - **Insert and send**
+- 一个**斜杠指令 Token**（如 `/review` 或 `/ship-check`）
+- 映射到库中的某个**目标提示词**
+- 并指定其触发行为：
+  - **插入（Insert）**
+  - **插入并发送（Insert and send）**
 
-Use templates when you want a fast reusable composer shortcut without turning the prompt into a system rule.
+当你需要快速向输入框填入内容，又不想将其固定为系统级规则时，模板是最高效的选择。
 
-### Template behavior
+### 模板的工作机制
 
-When you type a saved token in the composer:
+在输入框中键入已保存的 Token 时：
 
-- Kaiwu resolves the linked prompt
-- inserts the prompt content into the composer
-- optionally sends immediately if the template is configured that way
+- Kaiwu 会解析其关联的提示词
+- 将提示词内容填入输入框
+- 若配置了立即发送，则会自动提交内容
 
-Kaiwu blocks collisions with built-in action commands, so a template token cannot silently override a core slash action.
+Kaiwu 会主动拦截与内置操作指令的冲突，因此模板 Token 不会静默覆盖核心的斜杠操作。
 
-## System prompt additions
+## 系统提示词追加项
 
-This is the user-facing name for what the implementation internally stores as ordered prompt stacks.
+这是面向用户的统一称谓，在底层实现中，它们被存储为有序的提示词栈。
 
-Open:
+打开路径：
 
 - **Settings → Prompts & Skills → System prompt additions**
 
-You can attach prompts or skills to:
+你可以将提示词或技能挂载到：
 
-- the **Coding agent**
-- the **Voice agent**
-- any saved **Profile**
+- **编程 Agent（Coding agent）**
+- **语音 Agent（Voice agent）**
+- 任意已保存的**配置文件（Profile）**
 
-### How it works
+### 运行机制
 
-System prompt additions are:
+系统提示词追加项具备以下特点：
 
-- ordered
-- individually enabled or disabled
-- reusable across multiple surfaces
+- 严格保序
+- 支持单独启用或禁用
+- 可在多个交互场景间复用
 
-Kaiwu resolves them into the session’s append/system prompt in a shared way across UI and CLI.
+无论是图形界面还是命令行，Kaiwu 都会采用相同的逻辑，将它们解析并追加到当前会话的系统提示词中。
 
-That means:
+这意味着：
 
-- starting a session from the app and from the CLI uses the same prompt-building logic
-- profile-linked additions and surface-linked additions compose consistently
+- 无论从 App 还是 CLI 启动会话，提示词的构建逻辑完全一致
+- 配置文件级与场景级的追加项能够稳定有序地组合叠加
 
-### Recommended usage
+### 推荐用法
 
-Use coding additions for:
+编程追加项适合：
 
-- code-review rules
-- repo-specific style constraints
-- output format expectations
+- 代码审查规范
+- 针对特定代码仓库的代码风格约束
+- 输出格式要求
 
-Use voice additions for:
+语音追加项适合：
 
-- shorter conversational style
-- speech-friendly formatting
-- dictation or accessibility preferences
+- 偏口语化的简练表达
+- 适合语音朗读的文本格式
+- 语音听写或无障碍辅助偏好
 
-Use profile additions for:
+配置文件追加项适合：
 
-- environment- or endpoint-specific rules
-- reusable “work profile” or “research profile” instructions
+- 针对特定环境或接口端点的规则
+- 可复用的“工作环境”或“研究场景”专属指令
 
-## External assets
+## 外部资产
 
-Open **Settings → Prompts & Skills → External Assets** when you want to inspect or manage prompt-related files that live on a real machine.
+如需查看或管理存储在实际设备上的提示词相关文件，请打开 **Settings → Prompts & Skills → External Assets**。
 
-This screen is machine-aware and, for project-scoped assets, workspace-aware.
+该界面能够自动识别当前设备；对于项目级资产，它还能识别当前的工作区。
 
-Examples include:
+涵盖的资产类型包括：
 
-- portable **Agent skills (`.agents/skills`)**
-- provider-native skill locations such as `.claude/skills` or `.opencode/skills`
-- provider-native command locations such as `.claude/commands`
+- 通用的 **Agent 技能（`.agents/skills`）**
+- 提供商原生的技能存放目录，如 `.claude/skills` 或 `.opencode/skills`
+- 提供商原生的指令存放目录，如 `.claude/commands`
 
-### What you can do there
+### 支持的操作
 
-- discover supported external assets on a selected machine
-- inspect what Kaiwu can read from that machine or project
-- import external assets into the library
+- 发现指定设备上支持的外部资产
+- 查看 Kaiwu 能从该设备或项目中读取到的内容
+- 将外部资产导入到库中
 
-### What “managed by Kaiwu” means
+### 何为“由 Kaiwu 托管”
 
-When you export or install a library item to a machine target, Kaiwu stores an explicit **external link**.
+当你把库中的条目导出或安装到某个设备目标时，Kaiwu 会建立一条明确的**外部关联（external link）**记录。
 
-That link records:
+该记录包含：
 
-- which library item it came from
-- which machine and scope it targets
-- the external reference/path identity
-- digests used for drift detection
+- 该条目来源于库中的哪一项
+- 目标设备与生效范围
+- 外部引用标识与路径
+- 用于漂移检测的摘要哈希（Digest）
 
-This is what lets Kaiwu show whether an external copy is still in sync.
+正因如此，Kaiwu 才能准确判断本地副本是否依然与库保持同步。
 
-## Exporting library items to machines
+## 将库中条目导出到设备
 
-Prompts and skills can be exported from their editor screens to external targets.
+你可以在提示词和技能的编辑页面，将它们导出到外部目标路径。
 
-Use this when you want:
+适用于以下场景：
 
-- a real provider-native file on disk
-- a real skill directory in a repo
-- compatibility with other tools that read those files directly
+- 需要在磁盘上生成特定提供商原生格式的文件
+- 需要在代码仓库中生成真实的技能目录
+- 需要兼容其他直接读取本地文件的工具
 
-### Install method: copy vs symlink
+### 安装方式：复制 vs 符号链接
 
-For bundle-based targets such as skills, Kaiwu supports:
+对于技能等基于文件包的目标，Kaiwu 支持两种方式：
 
-- **Copy** — writes an independent copy into the selected target
-- **Symlink** — writes a Kaiwu-managed materialized copy and links the target to it
+- **复制（Copy）**——在目标位置写入一份独立的副本
+- **符号链接（Symlink）**——写入一份由 Kaiwu 托管的实体副本，并将目标路径软链至该副本
 
-Use **symlink** when you want easier updates and a single managed copy per install target. Use **copy** when you need a completely standalone on-disk copy.
+如果你希望后续更新更省心、每个安装目标只保留一份托管实体，请选择**符号链接**；如果你需要完全独立、脱离依赖的本地文件，请选择**复制**。
 
-### Drift safety
+### 漂移防护
 
-Kaiwu does not silently overwrite changed external assets.
+对于被修改过的外部资产，Kaiwu 绝不会执行静默覆盖。
 
-If a linked external file or directory changes on disk after export:
+如果导出的关联文件或目录在本地磁盘被修改：
 
-- Kaiwu detects the digest mismatch
-- export, install, or delete actions fail with a conflict instead of overwriting
+- Kaiwu 会检测到摘要哈希不匹配
+- 此时执行导出、安装或删除操作均会提示冲突并终止，而不会直接覆盖
 
-This is deliberate. The library and the machine copy are related, but Kaiwu still treats local disk mutations as real changes that need review.
+这是有意为之的设计。虽然库与本地副本互相关联，但 Kaiwu 始终将磁盘上的改动视为严肃的外部变更，必须经过人工确认。
 
-## Registries
+## 注册中心
 
-Open **Settings → Prompts & Skills → Registries** to browse installable skill catalogs.
+打开 **Settings → Prompts & Skills → Registries** 即可浏览可安装的技能目录。
 
-Current registry concepts:
+目前支持的注册中心形态：
 
-- built-in **`skills.sh`**
-- configurable **Git sources**
-- adapter-driven future registry types
+- 内置的 **`skills.sh`**
+- 可灵活配置的 **Git 源**
+- 基于适配器扩展的未来注册中心类型
 
 ### `skills.sh`
 
-Kaiwu integrates with the actual public `skills.sh` registry surface instead of only scanning the CLI repo.
+Kaiwu 直接对接了公开的 `skills.sh` 注册中心服务，而非仅仅检索 CLI 代码仓库。
 
-In practice:
+在实际使用中：
 
-- browsing the built-in `skills.sh` source shows real public skills
-- searching uses the upstream `skills.sh` search API
-- opening an item shows details before you import or install it
+- 浏览内置的 `skills.sh` 源即可查看真实的公开技能
+- 搜索功能直接调用上游 `skills.sh` 的搜索 API
+- 导入或安装前，可先打开条目查看详细信息
 
-### Git sources
+### Git 源
 
-Git sources let you add:
+你可以通过以下方式添加 Git 源：
 
-- a repository URL, or
-- a local checkout path
+- 代码仓库 URL
+- 本地检出目录的路径
 
-Kaiwu scans those sources for skill bundles and exposes them through the same registry UI as built-in sources.
+Kaiwu 会扫描这些源中的技能包，并在同一注册中心界面中呈现，体验与内置源无异。
 
-This is useful for:
+这非常适用于：
 
-- private team skill repos
-- local experiments
-- curated internal catalogs
+- 团队私有的技能代码库
+- 本地实验性项目
+- 经过筛选的内部技能目录
 
-## Import vs install vs export
+## 导入、安装与导出的区别
 
-These terms mean different things in Kaiwu:
+这三个术语在 Kaiwu 中含义各异：
 
-### Import
+### 导入（Import）
 
-Bring something **into the Kaiwu library**.
+将内容**引入到 Kaiwu 库中**。
 
-Examples:
+例如：
 
-- import a skill from `skills.sh`
-- import an existing `.agents/skills/foo` directory from a machine
+- 从 `skills.sh` 导入某个技能
+- 从本地设备导入已有的 `.agents/skills/foo` 目录
 
-### Install
+### 安装（Install）
 
-Take a registry item, import it into the library, and also install it to a selected external machine target.
+从注册中心选取条目，在将其导入到库中的同时，一并安装到选定的外部设备目标中。
 
-Result:
+执行结果：
 
-- synced library item
-- external machine install
-- explicit external link recorded by Kaiwu
+- 库中新增同步条目
+- 外部设备完成安装
+- Kaiwu 记录明确的外部关联
 
-### Export
+### 导出（Export）
 
-Take an existing library item and write it to an external machine target.
+选取库中已有的条目，将其写入外部设备的目标路径中。
 
-Result:
+执行结果：
 
-- external machine copy or install created from a library item you already had
+- 基于库中现有条目，在外部设备上生成一份副本或完成安装
 
-## Provider support
+## 提供商支持
 
-Kaiwu keeps the library model provider-agnostic, but external asset support depends on each provider’s file conventions.
+Kaiwu 的库模型完全独立于特定提供商，但外部资产的支持情况则取决于各提供商自身的文件组织规范。
 
-Current examples include:
+目前的兼容情况包括：
 
-- **Agent skills (`.agents`)** — portable skill standard
-- **Claude** — commands and skills where supported by the local file layout
-- **OpenCode** — commands and skills where supported by the local file layout
-- **Gemini** — skill locations where supported
-- **Copilot** — skill locations where supported
+- **Agent 技能（`.agents`）**——通用的技能标准
+- **Claude**——支持本地目录规范下的指令与技能
+- **OpenCode**——支持本地目录规范下的指令与技能
+- **Gemini**——支持其规范下的技能存放目录
+- **Copilot**——支持其规范下的技能存放目录
 
-The library itself still works even when a provider has no stable external asset format.
+即使某些提供商没有稳定的外部资产格式，Kaiwu 库本身的功能也不会受到任何影响。
 
-## Common workflows
+## 常用工作流
 
-### Build a reusable coding instruction
+### 构建可复用的编程指令
 
-1. Create a **Prompt**
-2. Put it in a folder if useful
-3. Add it to **Coding agent system prompt additions**
-4. Optionally attach it to a specific **Profile**
+1. 创建一条**提示词**
+2. 按需将其归入某个文件夹
+3. 将其添加到**编程 Agent 系统提示词追加项**中
+4. （可选）将其绑定至特定**配置文件**
 
-### Create a reusable slash shortcut
+### 创建可复用的斜杠快捷指令
 
-1. Create a **Prompt**
-2. Open **Templates**
-3. Map a token like `/review` to that prompt
-4. Use **Insert** or **Insert and send**
+1. 创建一条**提示词**
+2. 打开**模板**
+3. 将类似 `/review` 的 Token 映射到该提示词
+4. 选择**插入**或**插入并发送**
 
-### Install a skill from `skills.sh`
+### 从 `skills.sh` 安装技能
 
-1. Open **Registries**
-2. Select **`skills.sh`**
-3. Search or browse
-4. Open item details
-5. Choose:
-   - **Import** to library only, or
-   - **Install** to import + install on a machine target
+1. 打开**注册中心**
+2. 选择 **`skills.sh`**
+3. 搜索或浏览所需技能
+4. 查看详情
+5. 选择操作：
+   - 仅**导入**到库
+   - **安装**（导入到库并安装到指定设备目标）
 
-### Export a skill to a project
+### 将技能导出至项目
 
-1. Open the skill in the library
-2. Choose **Manage external assets**
-3. Pick machine, scope, target type, and install method
-4. Confirm the preview
+1. 在库中打开该技能
+2. 选择**管理外部资产**
+3. 选定设备、生效范围、目标类型及安装方式
+4. 确认预览无误后提交
 
-## Important things to understand
+## 核心认知
 
-### Library first
+### 库优先原则
 
-Kaiwu is designed so you can reason about prompt content from one place first, then connect it to machines and providers as needed.
+Kaiwu 的核心设计理念是：先在统一的中心管理好提示词内容，再根据需要将其分发、连接至具体的设备和提供商。
 
-### External files are real
+### 尊重外部物理文件
 
-If you or another tool edits an exported asset on disk, Kaiwu treats that as a real external change and refuses silent overwrite.
+无论是你手动修改，还是其他工具改动了磁盘上的导出资产，Kaiwu 都会将其视为有效的外部变更，杜绝静默覆盖。
 
-### Templates are different from system prompt additions
+### 模板不等于系统提示词追加项
 
-- **Templates** affect what you insert or send in the composer
-- **System prompt additions** affect the session’s system/append prompt
+- **模板**影响的是在输入框中填入或发送的内容
+- **系统提示词追加项**影响的是当前会话底层的系统/追加提示词
 
-### Skills are bundles, not just text
+### 技能是功能包，而非纯文本
 
-If you need supporting files, use a skill bundle rather than a plain prompt.
+如果你的指令需要依赖其他辅助文件，请使用技能包，而不是纯文本提示词。
 
-## Related docs
+## 相关文档
 
-- [Profiles](/agents/profiles)
-- [Permissions](/sessions/permissions)
-- [Friends](/accounts/friends)
-- [Provider integrations](/agents/provider-integrations)
+- [配置文件](/agents/profiles)
+- [权限](/sessions/permissions)
+- [好友](/accounts/friends)
+- [提供商集成](/agents/provider-integrations)
 - [OpenCode](/agents/opencode)
 - [Claude](/agents/claude)
 - [Codex](/agents/codex)

@@ -1,367 +1,359 @@
 ---
-title: Delegated work
-description: Launch and follow subagents, Claude teams and provider-backed agent threads from one surface inside a session.
+title: 委派工作
+description: 在会话内的统一界面中，启动并跟踪子智能体、Claude 团队及由提供商支持的智能体线程。
 ---
-
-A session does not have to be one agent doing one thing. Work can be delegated —
-to a review or plan run Kaiwu manages, to teammates inside a Claude team, or
-to task threads a provider spawns on its own — and the **Agents** surface is
-where all of that becomes visible in one place.
+一个会话不必局限于单个 Agent 执行单一任务。工作完全可以分发出去——交给 Kaiwu 管理的评审或规划运行、Claude 团队中的队友，或是提供商自主派生的任务线程——而 **Agents** 界面就是将这一切集中呈现的地方。
 
 <Callout type="warn">
-  This is behind two switches, not one. Subagents are experimental and **off by
-  default**, and experimental toggles are themselves hidden until the
-  experiments switch at the top of **Settings → Features** is on. If you have
-  turned Subagents on and still see nothing, the master switch is almost always
-  why. See [Feature flags](/extras/feature-flags) for `execution.runs`.
+  该功能受两个开关控制，而非一个。Subagents 目前处于实验阶段，**默认处于关闭状态**；并且只有打开 **Settings → Features** 顶部的实验开关，各项实验特性的独立开关才会显示出来。如果你已开启 Subagents 却仍未看到任何内容，通常是因为总开关尚未打开。详情参见 [Feature flags](/extras/feature-flags) 中的 `execution.runs`。
 </Callout>
 
-In one session, you can have:
+在一个会话中，你可以包含：
 
-- **Kaiwu-managed Subagents**: review, plan, and delegate runs started by Kaiwu
-- **Claude team agents**: Claude teammates created inside a Claude team
-- **Provider-backed agent threads**: monitor-only task/agent sidechains emitted by providers
+- **Kaiwu 托管的 Subagent**：由 Kaiwu 启动的评审（review）、规划（plan）和分发（delegate）运行
+- **Claude 团队 Agent**：在 Claude 团队内部创建的 Claude 队友
+- **提供商支持的 Agent 线程**：由提供商派生、仅供监控的任务/Agent 侧链
 
-The **Agents** surface is the place to launch them, watch their status, reopen their transcript, and take actions when the runtime supports them.
+通过 **Agents** 界面，你可以启动这些 Agent、查看其状态、重新打开其会话记录；在运行时支持的情况下，还能对它们执行操作。
 
-There are three distinct ways to start more agent work:
+启动更多 Agent 工作的方式有三种：
 
-- **Provider-native subagents** use the current Agent's own delegation or parallel-agent facility. They are the default for an ordinary request to delegate work when the Agent supports them.
-- **Kaiwu-managed execution runs and subagents** include review, plan, and delegate runs that Kaiwu can list, route, approve, reopen, and control.
-- **Independent Kaiwu sessions** are separate top-level sessions. Creating one is not routine delegation.
+- **提供商原生子 Agent**：使用当前 Agent 自带的分发或并行 Agent 功能。在当前 Agent 支持该功能的情况下，常规的分发工作请求默认采用这种方式。
+- **Kaiwu 托管的执行运行与子 Agent**：包括评审、规划和分发运行，Kaiwu 可对其进行枚举、路由、审批、重新打开与控制。
+- **独立的 Kaiwu 会话**：属于独立的顶层会话。创建独立会话不属于常规的分发操作。
 
-Use a Kaiwu-managed run when the user explicitly asks for a Kaiwu-managed run, Kaiwu delegation run, or Kaiwu subagent; asks for another Agent backend, model provider, model, account, or service that the native facility cannot satisfy; or has enabled a custom rule that requires Kaiwu. The presence of a discoverable Kaiwu action does not by itself choose this route.
+满足以下条件之一时，请使用 Kaiwu 托管的运行：用户明确要求使用 Kaiwu 托管运行、Kaiwu 分发运行或 Kaiwu 子 Agent；用户要求的其他 Agent 后端、模型提供商、模型、账号或服务无法通过原生功能满足；或者用户启用了强制要求 Kaiwu 的自定义规则。仅存在可发现的 Kaiwu 操作本身，并不意味着会自动选择此路径。
 
-## Plan run vs plan mode
+## 规划运行 vs 规划模式
 
-These are two different things that sound alike:
+这两者名称相近，实则是完全不同的两回事：
 
-- a **plan run** started from the Agents surface, and
-- a **session mode** such as `plan` on the current provider session
+- 从 Agents 界面启动的**规划运行**（plan run）
+- 当前提供商会话中的**会话模式**（session mode），例如 `plan`
 
-Use **Start plan run** when you want a separate planner or planning-style subagent working in parallel.
+当你需要一个独立的规划器或规划风格的子 Agent 并行工作时，请使用 **Start plan run**。
 
-Use the session **Mode** picker when you want the current session itself to switch into a provider-supported mode.
+当你希望当前会话本身切换到提供商支持的某种模式时，请使用会话的 **Mode** 选择器。
 
-These are different workflows:
+两者的工作流截然不同：
 
-- a plan run creates a separate agent row in the Agents surface
-- a session mode changes how the current session behaves
+- 规划运行会在 Agents 界面中创建一行独立的 Agent 记录
+- 会话模式则会改变当前会话本身的行为方式
 
-If a provider does not support session modes, Kaiwu simply does not offer the mode control for that session.
+如果提供商不支持会话模式，Kaiwu 便不会为该会话提供模式控件。
 
-## Where to find agents in a session
+## 如何在会话中找到 Agent
 
-There are two primary entry points:
+主要有两个入口：
 
-1. **Session header**
-   - Use the Agents button in the session header to open the Agents surface quickly.
-   - The badge shows how many agents are currently active in the session.
-2. **Right sidebar → Agents**
-   - The right sidebar has a dedicated **Agents** tab.
-   - This is the main control surface for agent launch, monitoring, and quick actions.
+1. **会话标头**
+   - 使用会话标头中的 Agents 按钮可快速打开 Agents 界面。
+   - 徽标会显示当前会话中处于活跃状态的 Agent 数量。
+2. **右侧边栏 → Agents**
+   - 右侧边栏设有专门的 **Agents** 选项卡。
+   - 这是用于启动 Agent、监控状态和执行快捷操作的主控界面。
 
-The session transcript still keeps the original tool cards where an agent was launched.
-The Agents tab does **not** replace that history. It gives you a live roster so you do not need to scroll back to find a running agent.
+启动 Agent 的原始工具卡片仍会保留在会话记录中。
+Agents 选项卡并**不会**替代该历史记录，而是为你提供一份实时花名册，省去回滚查找运行中 Agent 的麻烦。
 
-## What appears in the Agents tab
+## Agents 选项卡包含的内容
 
-The tab is organized into:
+该选项卡分为以下几个区块：
 
-- **LAUNCH**: actions for starting new agent work from the current session
-- **ACTIVE**: agents that are currently running
-- **RECENT**: agents that finished, failed, or were terminated
+- **LAUNCH**：从当前会话启动新 Agent 任务的操作
+- **ACTIVE**：当前正在运行的 Agent
+- **RECENT**：已完成、失败或被终止的 Agent
 
-Each row shows the most important facts for that agent:
+每一行都会展示对应 Agent 的核心信息：
 
-- name
-- status
-- type
-- provider
-- intent, when relevant
-- latest activity preview, when Kaiwu has loaded that transcript
+- 名称
+- 状态
+- 类型
+- 提供商
+- 意图（若适用）
+- 最新活动预览（在 Kaiwu 已加载该会话记录时显示）
 
-Clicking a row opens the agent in the **details pane** first, so you can inspect the transcript without leaving the session.
+点击某一行会优先在**详情面板**中打开该 Agent，方便你在不离开当前会话的情况下查看会话记录。
 
-The same agent/run should also stay reachable from its original transcript entry, so you can open details either from the roster or from the place where it first appeared in the conversation.
+同样的 Agent 或运行在原本的会话记录条目中也保持可访问，因此你既可以从花名册打开详情，也可以从它最初出现在对话中的位置打开。
 
-## Agent types in Kaiwu
+## Kaiwu 中的 Agent 类型
 
-### Subagents
+### Subagent
 
-These are subagents started by Kaiwu itself.
+这类子 Agent 由 Kaiwu 自身启动。
 
-Current presets are:
+当前预设包括：
 
-- **Review**
-- **Plan**
-- **Delegate**
+- **Review**（评审）
+- **Plan**（规划）
+- **Delegate**（分发）
 
-Use them when one of the Kaiwu-routing conditions above applies and you want a bounded or long-lived run associated with a Kaiwu session.
+当满足上述 Kaiwu 路由条件之一，且你希望发起与 Kaiwu 会话关联的有界或长期运行时，可以使用它们。
 
-What each one is for:
+各项预设的用途：
 
-- **Review**: parallel review of the current worktree or change set
-- **Plan**: separate planner-style reasoning without changing the current session mode
-- **Delegate**: a helper run that you can steer while it executes work in parallel
+- **Review**：并行评审当前工作树或变更集
+- **Plan**：在不改变当前会话模式的前提下，进行独立的规划式推理
+- **Delegate**：在并行执行工作的同时，支持你进行干预指导的辅助运行
 
-User-facing behavior:
+面向用户的操作行为：
 
-- launch from the **Launch Subagents** card
-- reopen from the Agents list
-- send steering/follow-up messages while the run is still running
-- stop/cancel the run from the Agents list or details view
-- open advanced run details when you need lower-level execution-run metadata
+- 从 **Launch Subagents** 卡片启动
+- 从 Agents 列表中重新打开
+- 在运行期间发送转向/后续指令消息
+- 从 Agents 列表或详情视图中停止/取消运行
+- 在需要底层执行运行元数据时，打开高级运行详情
 
-### Claude team agents
+### Claude 团队 Agent
 
-In Claude sessions, Kaiwu can also surface Claude’s team-style subagents as first-class agents.
+在 Claude 会话中，Kaiwu 还可以将 Claude 的团队风格子 Agent 作为一等 Agent 呈现。
 
-You can:
+你可以：
 
-- create a Claude team
-- launch a new teammate
-- launch additional teammates into an existing team
-- message a teammate directly
-- broadcast to the team
-- terminate a teammate
-- delete a whole team
+- 创建 Claude 团队
+- 启动新队友
+- 向现有团队中增派队友
+- 直接向某位队友发送消息
+- 向全队广播消息
+- 终止某位队友
+- 删除整个团队
 
-Claude team agents appear in the same Agents roster as Subagents, but their controls are Claude-specific.
+Claude 团队 Agent 与 Subagent 显示在同一个 Agents 花名册中，但其控制操作为 Claude 所特有。
 
-### Provider-backed task sidechains
+### 提供商支持的任务侧链
 
-Some providers emit task/agent sidechains that Kaiwu can normalize into agent rows.
+部分提供商会派生任务/Agent 侧链，Kaiwu 可将其规范化为 Agent 行。
 
-These rows are mainly for:
+这些行主要用于：
 
-- monitoring
-- reopening the transcript
-- understanding what a provider-created side thread is doing
+- 监控
+- 重新打开会话记录
+- 了解提供商创建的辅助线程正在执行什么操作
 
-They are **monitor-only** unless the provider/runtime exposes a supported control plane.
+除非提供商/运行时开放了支持的控制平面，否则它们**仅供监控**。
 
-That means they may not offer send/stop/delete actions even though they still show up as first-class rows in the Agents surface.
+这意味着，即使它们作为一等行显示在 Agents 界面中，也可能不提供发送、停止或删除等操作。
 
-## Where subagent transcripts appear
+## 子 Agent 会话记录的显示位置
 
-For supported agents and runs, Kaiwu keeps transcript access available from both places:
+对于受支持的 Agent 和运行，Kaiwu 支持从两个位置访问会话记录：
 
-- the **Agents** surface,
-- the original **tool entry** in the main session transcript.
+- **Agents** 界面
+- 主会话记录中原本的**工具条目**
 
-This applies to:
+这适用于：
 
-- Kaiwu-managed execution runs such as review / plan / delegate,
-- Claude teammates surfaced from Claude Agent Teams,
-- provider-backed task sidechains that Kaiwu can normalize into agent rows.
+- Kaiwu 托管的执行运行（如 review / plan / delegate）
+- 从 Claude Agent Teams 中呈现的 Claude 队友
+- Kaiwu 可规范化为 Agent 行的提供商任务侧链
 
-If a row is controllable, opening either entry point should land you on the same underlying transcript/details surface.
+只要该行可控，无论从哪个入口打开，都会进入相同的底层会话记录/详情界面。
 
-## Launching new agent work
+## 启动新的 Agent 工作
 
-### Launch Subagents
+### 启动 Subagent（Launch Subagents）
 
-Use **Launch Subagents** when you want Kaiwu to start a review, plan, or delegate run.
+当你希望 Kaiwu 启动评审、规划或分发运行，请使用 **Launch Subagents**。
 
-The launcher supports:
+启动器支持：
 
-- preset intents for quick starts
-- backend selection
-- permission mode selection
-- instructions
-- an **Advanced…** path when you need the full launcher/details flow
+- 快速启动的预设意图
+- 后端选择
+- 权限模式选择
+- 指令输入
+- 需要完整启动器/详情流程时的 **Advanced…** 入口
 
-Backend selection uses the same current Agent catalog and launch options as the rest of Kaiwu. Inspect the action spec and resolve its options at launch time for the accepted targets, models, configuration, accounts, connected services, and field names. Do not rely on a fixed provider/model recipe from documentation.
+后端选择使用的是 Kaiwu 其他模块通用的当前 Agent 目录和启动选项。请在启动时检查操作规范（action spec）并解析其选项，以确认可接受的目标、模型、配置、账号、已连接服务及字段名称。切勿依赖文档中固定的提供商/模型方案。
 
-For an in-session agent or action start, omit `sessionId` to host the run in the invoking session. An explicit `sessionId` remains supported when you deliberately target another authorized session. To create a separate top-level session instead, use `session.spawn_new`; that is an independent workflow, not routine delegation.
+对于会话内 Agent 或操作启动，省略 `sessionId` 即可将运行托管在调用方会话中。若有意针对其他已授权的会话，仍支持显式指定 `sessionId`。若要创建独立的顶层会话，请使用 `session.spawn_new`；这属于独立的工作流，而非例行的分发操作。
 
-You can observe a run with a bounded wait. A wait timeout is nonterminal: the run may still be active, and the timeout does not stop or fail it. Retry a start only when the returned provider evidence marks the cause as retryable, such as a typed transient rate limit; other backend failures need their reported remedy rather than an assumed retry or backend switch.
+你可以设置有界等待来观察运行状态。等待超时并非终态：运行可能仍在进行，超时既不会停止它，也不会判定其失败。仅当提供商返回的凭据明确标明原因是可重试的（例如特定类型的暂时性速率限制）时，才应重试启动；对于其他后端故障，应根据其上报的解决方案进行处理，而不是盲目重试或切换后端。
 
-If the session already has agents, the launch section stays collapsed by default so the roster remains visible first.
+如果会话中已有 Agent，启动区块默认会保持折叠状态，以便优先展示花名册。
 
-### Launch Claude teams and teammates
+### 启动 Claude 团队与队友
 
-In Claude sessions, the sidebar also shows Claude-specific launch actions.
+在 Claude 会话中，侧边栏还会显示 Claude 专属的启动操作。
 
-Use them to:
+你可以用它们来：
 
-- **Create team**
-- **Launch teammate**
+- **Create team**（创建团队）
+- **Launch teammate**（启动队友）
 
-When a Claude team already exists in the session, the team group in the Agents roster also exposes a direct **Launch teammate** action for that existing team.
+当会话中已存在 Claude 团队时，Agents 花名册中的团队分组还会提供针对该现有团队的 **Launch teammate** 直接操作。
 
-This avoids forcing you back through a generic global launcher when you already know which team you want to extend.
+这样一来，当你明确知道要扩展哪个团队时，就不必再退回通用的全局启动器中操作。
 
-## Opening an agent
+## 打开 Agent
 
-When you click an agent row in the Agents list:
+在 Agents 列表中点击某个 Agent 行时：
 
-- Kaiwu opens the **details pane** first
-- the transcript is shown using the **same transcript rendering stack** used elsewhere in the app
-- the top of the view shows a compact summary card with agent metadata
+- Kaiwu 会首先打开**详情面板**
+- 会话记录将使用与应用内其他位置**相同的会话记录渲染栈**进行展示
+- 视图顶部会显示一张紧凑的摘要卡片，列出 Agent 的元数据
 
-This is important for consistency:
+这种一致性设计非常关键：
 
-- tool-backed agent transcripts use the same transcript components as normal focused tool details
-- Subagent transcripts stream and update through the same session data flow
-- full-page open is still available when you want more space
+- 基于工具的 Agent 会话记录与普通的聚焦工具详情采用相同的会话记录组件
+- Subagent 的会话记录通过相同的会话数据流进行流式传输与更新
+- 如果你需要更大的空间，依然可以切换为全屏页面打开
 
-## Sending messages to agents
+## 向 Agent 发送消息
 
-### Subagents
+### Subagent
 
-While a Subagent is running, you can send follow-up instructions from:
+当 Subagent 正在运行时，你可以通过以下位置发送后续指令：
 
-- the main composer, when the agent is selected as the recipient
-- the agent details pane
-- the full details route
+- 主输入框（composer），此时将该 Agent 选为接收人
+- Agent 详情面板
+- 完整详情页面
 
-Depending on the run type, Kaiwu uses the appropriate execution-run delivery mode under the hood.
+Kaiwu 会在底层根据运行类型采用对应的执行运行投递模式。
 
-Running execution runs can also appear as recipients in the main session composer, so you do not always need to open the details pane first.
+正在执行的运行也可以作为接收人出现在主会话输入框中，因此你不一定非要先打开详情面板。
 
-See:
+参见：
 
 - [Participant routing & live run messaging](/accounts/participant-routing)
 
-### Claude teammates
+### Claude 队友
 
-For Claude team agents, Kaiwu supports routed messages through the session composer.
+对于 Claude 团队 Agent，Kaiwu 支持通过会话输入框发送路由消息。
 
-The recipient chip lets you send to:
+你可以通过接收人标签将其发送给：
 
-- **Lead**
-- a specific teammate
-- **Broadcast**
+- **Lead**（负责人）
+- 指定队友
+- **Broadcast**（广播）
 
-Important current limitation:
+当前的重要限制：
 
-- routed Claude teammate messages do **not** support attachments
-- routed Claude teammate messages do **not** support review comment drafts
+- 发送给 Claude 队友的路由消息**不支持**附件
+- 发送给 Claude 队友的路由消息**不支持**评审批注草稿
 
-Use a normal lead message when you need those.
+当你需要这些功能时，请发送常规的 Lead 消息。
 
-Regular non-routed session messages still support Kaiwu attachments as usual.
+常规的非路由会话消息依然照常支持 Kaiwu 附件。
 
-See:
+参见：
 
 - [Attachments & image previews](/apps/attachments)
 - [Custom ACP](/agents/custom-acp)
 
-## When agents disappear from the roster
+## Agent 从花名册中消失的场景
 
-The Agents roster follows the live control state, not just historical transcript entries.
+Agents 花名册遵循实时控制状态，而不仅取决于历史会话记录条目。
 
-Examples:
+例如：
 
-- a running execution run appears while it can still be controlled,
-- after stop/cancel or completion, it moves out of the active recipient lifecycle,
-- a Claude teammate that has been terminated is removed from the active recipient list.
+- 正在运行的执行运行在其仍可被控制期间会持续显示；
+- 停止、取消或完成后，它会移出活跃接收人生命周期；
+- 被终止的 Claude 队友会从活跃接收人列表中移除。
 
-Historical transcript entries remain available, but the recipient picker only shows targets that are still valid to message.
+历史会话记录条目依然保留，但接收人选择器只显示当前仍可发送消息的有效目标。
 
-### Monitor-only provider sidechains
+### 仅供监控的提供商侧链
 
-If the row is a provider-backed monitor-only agent, Kaiwu shows the transcript but does not expose send controls.
+如果某一行属于提供商支持的仅监控 Agent，Kaiwu 会显示其会话记录，但不会提供发送控件。
 
-This is intentional: the row exists for visibility, not for fake control that the provider/runtime cannot actually honor.
+这是有意为之：保留该行是为了提供可观察性，而不是提供提供商/运行时实际上无法响应的虚假控制选项。
 
-## Agent lifecycle in the UI
+## UI 中的 Agent 生命周期
 
-### Active vs Recent
+### 活跃（Active）vs 近期（Recent）
 
-- **ACTIVE** shows work that is currently running
-- **RECENT** shows completed, failed, cancelled, or terminated agents
+- **ACTIVE** 显示当前正在运行的任务
+- **RECENT** 显示已完成、失败、已取消或被终止的 Agent
 
-This makes long sessions much easier to reason about because you can separate “what still needs attention” from “what already finished”.
+这让长时间运行的会话条理更加清晰，方便你把“仍需关注的内容”与“已经结束的内容”区分开来。
 
-### Claude teammate termination
+### Claude 队友终止
 
-When a Claude teammate is terminated:
+当 Claude 队友被终止时：
 
-- it is removed from active/sendable targets
-- it remains visible in **RECENT** for history and traceability
+- 它会从活跃/可发送消息的目标中移除
+- 它依然保留在 **RECENT** 中，以供追溯历史
 
-This avoids the confusing state where an agent looks available even though Claude has already shut it down.
+这就避免了混淆——防止出现 Claude 已经关闭了该 Agent，而界面上看起来却依然可用的情况。
 
-### Running transcript visibility
+### 运行中会话记录的可观察性
 
-You do not need to scroll back to the launch point to monitor a running agent.
+你无需回滚到启动位置去监控正在运行的 Agent。
 
-The Agents tab is the canonical live roster for:
+Agents 选项卡是权威的实时花名册，用于查看：
 
-- what is running now
-- what recently finished
-- how to reopen the relevant transcript
+- 当前正在运行的内容
+- 近期已完成的内容
+- 如何重新打开对应的会话记录
 
-## Direct sessions, inactive sessions, and resumable sessions
+## 直连会话、非活跃会话与可恢复会话
 
-Agent control depends on what kind of session you are in.
+Agent 控制能力取决于你当前处于哪种会话中。
 
-### Synced active sessions
+### 已同步的活跃会话
 
-These support the full agent control surface.
+这类会话支持完整的 Agent 控制界面。
 
-### Inactive but resumable sessions
+### 非活跃但可恢复的会话
 
-If the session is inactive **but resumable** and the machine is reachable:
+如果会话处于非活跃状态**但可恢复**，且设备可访问：
 
-- Kaiwu can still surface the Kaiwu-subagent launcher
-- starting a Subagent resumes the session first, then launches the subagent
+- Kaiwu 依然可以展示 Kaiwu-subagent 启动器
+- 启动 Subagent 时会先恢复该会话，随后再启动子 Agent
 
-That keeps the UI honest: if Kaiwu offers the launcher, the start flow should work.
+这保证了 UI 的行为真实可靠：只要 Kaiwu 提供了启动器，启动流程就应当能够跑通。
 
-### Linked direct sessions
+### 已关联的直连会话
 
-Linked direct sessions are different.
+已关联的直连会话则有所不同。
 
-If the direct session is only being observed and the local runner is **not** active yet:
+如果直连会话仅处于被观察状态，且本地 runner **尚未**激活：
 
-- Kaiwu treats it as **observe-only** for Subagents
-- no Kaiwu-subagent launch
-- no execution-run send/stop controls
-- no execution-run recipient targeting
+- 对 Subagent 而言，Kaiwu 会将其视为**仅可观察**
+- 无法启动 Kaiwu-subagent
+- 不提供执行运行的发送/停止控件
+- 无法将执行运行选为接收人
 
-Once the direct session is locally controlled again, those controls become available.
+一旦直连会话重新受本地控制，这些控制功能便会恢复可用。
 
-## Recommended workflows
+## 推荐工作流
 
-### I want a Kaiwu-managed parallel review from the current session
+### 我希望从当前会话发起 Kaiwu 托管的并行评审
 
-Open **Agents** → **Launch Subagents** → **Review**.
+打开 **Agents** → **Launch Subagents** → **Review**。
 
-Use this when you want a bounded review pass without losing the main session context.
+当你希望在不丢失主会话上下文的前提下进行有界的评审流程时，请使用该方式。
 
-### I want a Kaiwu-managed helper that I can steer
+### 我需要一个支持干预指导的 Kaiwu 托管辅助 Agent
 
-Start a delegate-style Subagent, then keep using the row or details pane to steer it while it runs.
+启动分发（delegate）风格的 Subagent，随后在该行或详情面板中对其运行过程进行持续引导。
 
-### I want Claude teammates working in parallel
+### 我希望 Claude 队友并行协同工作
 
-In a Claude session:
+在 Claude 会话中：
 
-1. create a team
-2. launch one or more teammates
-3. send teammate-specific messages or broadcast from the main composer
+1. 创建团队
+2. 启动一名或多名队友
+3. 从主输入框向特定队友发送消息或进行广播
 
-### I only want to monitor provider-created side work
+### 我仅希望监控提供商创建的辅助工作
 
-Use the Agents tab as a read-only roster for provider-backed task sidechains.
+将 Agents 选项卡用作提供商任务侧链的只读花名册。
 
-This is useful when the provider emits side threads but does not expose a supported control surface through Kaiwu.
+当提供商派生了辅助线程、却未通过 Kaiwu 暴露受支持的控制界面时，这种方式非常有用。
 
-## Mental model
+## 心智模型
 
-The simplest way to reason about the feature is:
+理解该功能最简单的方式是：
 
-- the **transcript** keeps the causal history of how an agent was launched
-- the **Agents tab** is the live roster of what exists now
-- the **details pane** is the fastest way to reopen and interact with that agent
+- **会话记录**（transcript）保留了 Agent 启动过程的因果历史
+- **Agents 选项卡**是当前所有 Agent 的实时花名册
+- **详情面板**是重新打开并与对应 Agent 交互的最快途径
 
-If you keep those three roles separate, the UI becomes predictable even in long sessions with many agents.
+只要理清这三者的分工，即便在包含大量 Agent 的长会话中，界面的交互逻辑依然清晰可控。
 
-## Related pages
+## 相关页面
 
 - [Claude](/agents/claude)
 - [Continuing a session](/sessions/continuing-a-session)

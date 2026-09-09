@@ -26,7 +26,7 @@ export async function cmdSessionSetPermissionMode(
   const json = wantsJson(argv);
   const [idOrPrefix = '', rawMode = ''] = readCommandPositionals(argv, { startIndex: 1 });
   if (!idOrPrefix || !rawMode) {
-    throw new Error('Usage: happier session set-permission-mode <session-id-or-prefix> <mode> [--json]');
+    throw new Error('Usage: kaiwu session set-permission-mode <session-id-or-prefix> <mode> [--json]');
   }
 
   const intent = parseIntentOrThrow(rawMode);
@@ -37,7 +37,7 @@ export async function cmdSessionSetPermissionMode(
       await printJsonEnvelope({ ok: false, kind: 'session_set_permission_mode', error: { code: 'not_authenticated' } });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "happier auth login" first.');
+    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
     process.exit(1);
   }
 

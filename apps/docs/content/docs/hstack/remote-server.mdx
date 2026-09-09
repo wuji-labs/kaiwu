@@ -1,29 +1,28 @@
 ---
-title: Remote server setup (SSH)
-description: Install Kaiwu Self-Host Server on a remote host over SSH, with optional env overrides.
+title: 远程服务器配置 (SSH)
+description: 通过 SSH 在远程主机上安装 Kaiwu 自托管服务器，支持可选的环境变量覆盖。
 ---
+本文档介绍 `hstack remote server setup`，该工作流用于通过 SSH 配置**远程设备**（如 VPS、家庭服务器、开发机）：
 
-This page documents `hstack remote server setup`, a workflow to provision a **remote machine** (VPS, home server, dev box) over SSH:
+- 在远程主机上安装 `hstack` 工具链（通过标准安装程序）
+- 运行现有的引导式安装程序：`hstack self-host install`
+- 将服务端运行时安装为托管服务（默认：**user** 模式）
 
-- installs the `hstack` toolchain on the remote host (via the standard installer)
-- runs the existing guided installer: `hstack self-host install`
-- installs the server runtime as a managed service (default: **user** mode)
+如果你希望为 **CLI + 守护进程**场景配置远程设备（包含配对/身份验证），请参阅：[远程守护进程配置 (SSH)](/hstack/remote-daemon)。
 
-If you want to provision a remote machine for **CLI + daemon** usage (pairing/auth included), see: [Remote daemon setup (SSH)](/hstack/remote-daemon).
-
-## Quickstart
+## 快速上手
 
 ```bash
 hstack remote server setup --ssh user@host
 ```
 
-Default behavior:
+默认行为：
 
-- uses the **stable** channel (set `--channel preview` or `--channel dev` when you want newer public binaries)
-- installs the self-host service in **user** mode
-- uses the self-host defaults (SQLite, local files, `PORT=3005`)
+- 使用 **stable** 通道（如需更新的公开发布版本，请设置 `--channel preview` 或 `--channel dev`）
+- 以 **user** 模式安装自托管服务
+- 使用自托管默认配置（SQLite、本地文件、`PORT=3005`）
 
-## Release channel
+## 发布通道
 
 ```bash
 hstack remote server setup --ssh user@host --channel preview
@@ -33,7 +32,7 @@ hstack remote server setup --ssh user@host --channel preview
 hstack remote server setup --ssh user@host --channel dev
 ```
 
-Equivalent shortcuts:
+等效快捷方式：
 
 ```bash
 hstack remote server setup --ssh user@host --preview
@@ -41,37 +40,37 @@ hstack remote server setup --ssh user@host --dev
 hstack remote server setup --ssh user@host --stable
 ```
 
-## User vs system service
+## 用户服务与系统服务
 
-User service (default):
+用户服务（默认）：
 
 ```bash
 hstack remote server setup --ssh user@host --mode user
 ```
 
-System service:
+系统服务：
 
 ```bash
 hstack remote server setup --ssh user@host --mode system
 ```
 
-Notes:
+说明：
 
-- `--mode system` runs the remote install with `sudo -E` and may prompt for a password, depending on the host’s sudo policy.
-- User mode is recommended unless you specifically need system-wide service semantics.
+- `--mode system` 会使用 `sudo -E` 执行远程安装，根据主机的 sudo 策略，可能需要提示输入密码。
+- 除非明确需要系统级服务语义，否则推荐使用用户模式。
 
-## Override server configuration (env)
+## 覆盖服务端配置（环境变量）
 
-You can pass repeated `--env KEY=VALUE` flags. These become overrides in the generated `server.env` on the remote host.
+你可以多次传入 `--env KEY=VALUE` 参数。这些参数会覆盖远程主机上生成的 `server.env` 配置。
 
-Example: change the listen port:
+示例：更改监听端口：
 
 ```bash
 hstack remote server setup --ssh user@host \
   --env PORT=3999
 ```
 
-Example: use Postgres instead of SQLite:
+示例：使用 Postgres 代替 SQLite：
 
 ```bash
 hstack remote server setup --ssh user@host \
@@ -79,20 +78,20 @@ hstack remote server setup --ssh user@host \
   --env DATABASE_URL=postgresql://user:pass@db:5432/happier
 ```
 
-Tip: for the full server env surface, see [Environment variables](/self-hosting/env).
+提示：有关服务端环境变量的完整配置项，请参阅[环境变量](/self-hosting/env)。
 
-## Auto-update scheduling (daily window)
+## 自动更新调度（每日时间窗口）
 
-Auto-update is opt-in. Remote server setup does not pick a schedule by default.
+自动更新为可选功能。远程服务端配置默认不会设置计划任务。
 
-After provisioning, you can configure the remote host’s update window by running:
+完成配置后，可以通过运行以下命令来设置远程主机的更新时间窗口：
 
 ```bash
 ssh user@host "~/.happier/bin/hstack self-host config set --auto-update --auto-update-at=03:15"
 ```
 
-## Requirements
+## 环境要求
 
-- SSH access to the remote host (`ssh user@host`)
-- Remote host has `bash` and `curl`
-- Remote host must be a Unix-like OS (Linux/macOS). Windows hosts are not supported for this SSH flow.
+- 具备对远程主机的 SSH 访问权限（`ssh user@host`）
+- 远程主机已安装 `bash` 和 `curl`
+- 远程主机必须是类 Unix 操作系统（Linux/macOS）。该 SSH 配置流程不支持 Windows 主机。

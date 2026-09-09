@@ -249,7 +249,7 @@ function buildCliInstallCommand(options?: Readonly<{ suppressAutomaticSetup?: bo
     });
 }
 
-function buildCliCommandName(): 'happier' | 'hprev' {
+function buildCliCommandName(): 'kaiwu' | 'happier' | 'hprev' {
     return buildHappierCliCommandName({
         appVariant: resolveAppVariantForCliInstall(),
         distTagOverride: config.cliNpmDistTag,

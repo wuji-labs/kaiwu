@@ -1,130 +1,129 @@
 ---
-title: Session read and unread state
-description: Understand unread session badges, Mark as unread, Mark as read, keeping a session in Needs attention, and what happens when the session is already open.
+title: 会话已读与未读状态
+description: 了解未读会话角标、“标记为未读”、“标记为已读”、将会话保留在“需关注”状态，以及会话已处于打开状态时的具体行为。
 ---
+Kaiwu 会跟踪每个会话中是否有你尚未查看的会话记录动态。
 
-Kaiwu tracks whether each session has transcript activity you have not viewed yet.
+未读状态的设计非常简洁直观：
 
-Unread state is intentionally simple:
+- 如果会话中最近提交的会话记录动态位于你上次查看的位置之后，即为**未读**
+- 如果你上次查看的位置已是最新，即为**已读**
+- 空会话不会显示手动更改已读状态的选项
 
-- if a session has committed transcript activity after your last viewed position, it is **unread**
-- if your last viewed position is current, it is **read**
-- empty sessions do not show manual read-state actions
+该状态用于驱动未读标记徽标、未读会话筛选，以及应用中的**标记为未读**和**标记为已读**操作。
 
-This state drives unread badges, unread session filtering, and the **Mark as unread** / **Mark as read** actions in the app.
+## 功能入口
 
-## Where to find the actions
+你可以在管理其他会话操作的位置更改会话的已读状态：
 
-You can change a session's read state from the same places you manage other session actions:
+- 会话列表中该会话行的 **...** 菜单
+- 移动端上长按会话行弹出的上下文菜单
+- 会话顶栏的操作菜单
+- 会话详情页面的快捷操作
 
-- the session row **...** menu in the session list
-- the session row long-press/context menu on mobile
-- the session header action menu
-- the Session info screen quick actions
+当会话当前为已读时，Kaiwu 会显示**标记为未读**。
 
-When the session is currently read, Kaiwu shows **Mark as unread**.
+当会话当前为未读时，Kaiwu 会显示**标记为已读**。
 
-When the session is currently unread, Kaiwu shows **Mark as read**.
+## “标记为未读”的作用
 
-## What Mark as unread does
+如果会话中仍有你尚未真正查阅的内容，可以使用**标记为未读**。
 
-Use **Mark as unread** when the session still holds activity you have not actually taken in.
+例如：
 
-For example:
+- 你不小心点开了一个会话，想让它重新显示为新会话
+- 你只是粗略浏览了最后一轮对话，打算稍后再仔细阅读
 
-- you opened a session by accident and want it to count as new again
-- you skimmed the last turn and want to read it properly later
+将某会话标记为未读时，Kaiwu 会将你的已读位置移至最新提交的会话记录动态之前。会话记录本身不会发生改变，也不会创建或删除任何消息。
 
-When you mark a session unread, Kaiwu moves your read position to just before the latest committed transcript activity. The transcript does not change, and no message is created or deleted.
+如果你已经读完了某个会话，仅想让它一直停留在显眼位置，那么将其标记为未读并不是个好办法，因为再次打开该会话就会清除未读状态，它依然会沉到列表下方。这种情况请使用[保留在“需要关注”中](#keeping-a-session-in-needs-attention)。
 
-Marking a session unread is not a good way to keep a session in front of you after you have read it, because opening it again clears the unread state and the session drops back down the list. Use [Keep in Needs attention](#keeping-a-session-in-needs-attention) for that.
+## “标记为已读”的作用
 
-## What Mark as read does
+当该会话不再需要以未读形式提示你时，可以使用**标记为已读**。
 
-Use **Mark as read** when the session no longer needs unread attention.
+Kaiwu 会将你的已读位置同步至最新提交的会话记录动态。随后该会话的未读标记会被清除，除非之后又有新的动态产生。
 
-Kaiwu moves your read position to the latest committed transcript activity. The unread badge clears for that session unless newer activity arrives afterwards.
+## 将会话保留在“需要关注”中
 
-## Keeping a session in Needs attention
+已读状态记录的是你是否查看过该会话。若某个会话你已读完但仍想置顶显示，依赖已读状态并不合适，因为阅读行为本身就会消除这一未读信号。
 
-Read state tracks whether you have seen a session yet. It is a poor fit for a session you have already read and still want near the top, because reading it is exactly what clears the signal.
+**保留在“需要关注”中**正是为了解决这一场景。无论会话处于何种已读状态，只要你将其保留，它就会一直停留在会话列表的关注区，直到你主动移除。
 
-**Keep in Needs attention** covers that case directly. A session you keep stays in the attention area of the session list whatever its read state, until you remove it.
+- **保留在“需要关注”中**可在你阅读该会话后，仍将其固定在关注区。
+- **从“需要关注”中移除**则允许它重新随列表自然下移。
 
-- **Keep in Needs attention** holds the session there after you read it.
-- **Remove from Needs attention** lets it move back down the list again.
+你可以在其他会话操作中找到该选项，它与**标记为未读**并列显示。在会话列表中多选时，也可以对多个会话同时执行此操作。
 
-You will find it with the other session actions, alongside **Mark as unread**. Session-list multi-select offers the same choice for several sessions at once.
+被保留的会话会在状态栏显示**已保留在关注区**，以便与因未读、就绪或等待你操作而处于关注区的会话区分开来。此外，保留的会话排在这些会话之后，确保真正需要你处理的会话始终排在最前面。
 
-A kept session shows **Kept in attention** as its status line, so it stays distinguishable from a session that is in the attention area because it is unread, ready, or waiting on you. Kept sessions also sort after those, so a session that genuinely needs you still comes first.
+你的选择会按会话存储在服务器端，同一账号在不同设备和浏览器窗口间均会保持同步。
 
-Your choice is stored per session on the server, so it follows you across devices and browser windows for the same account.
+### 开启关注区
 
-### Turning the attention area on
+关注区本身由 **Settings → Session → Sessions needing attention** 控制，默认设置为 **Leave in normal position**。你需要先将其改为 **Group at top** 或 **Move to top of current group**；否则内容不会提升显示，保留会话也就没有可供固定的区域。
 
-The attention area itself comes from **Settings → Session → Sessions needing attention**, which is **Leave in normal position** by default. Set it to **Group at top** or **Move to top of current group** first; until then nothing is promoted and keeping a session has nothing to hold it in.
+### 选择默认行为
 
-### Choosing the default
+**Settings → Session → Keep sessions in Needs attention** 决定了未做过单独设置的会话该如何处理：
 
-**Settings → Session → Keep sessions in Needs attention** decides what happens to sessions you have not made a choice about:
+- **关**（默认）：会话一旦不再需要你关注就会立刻移出关注区，你可以在需要时逐个手动保留
+- **开**：所有会话都会一直停留在关注区，直到你手动移除，此时关注区就变成了一个需要手动清空的待办列表
 
-- **off** (the default): sessions leave the attention area as soon as they no longer need you, and you keep the ones you care about one at a time
-- **on**: every session stays in the attention area until you remove it, which turns the area into a list you clear by hand
+针对单个会话的手动选择始终优先于全局默认设置，两种方向皆是如此：即便默认设置为开启，你手动移除的会话也依然不会出现在关注区。
 
-A per-session choice always wins over the default, in both directions: a session you removed stays out of the attention area even when the default is on.
+## 当前会话已打开时的行为
 
-## When the session is already open
+打开会话通常会将其标记为已读，因为查看会话记录被视为已读意图。
 
-Opening a session normally marks it read because viewing the transcript is treated as read intent.
+但手动执行**标记为未读**有所不同。如果你在当前会话内部将其标记为未读，Kaiwu 会在当前视图中保持其未读状态，而不会立刻重新将其标为已读。
 
-Manual **Mark as unread** is different. If you mark the session unread while you are already inside it, Kaiwu keeps it unread for that current view instead of immediately marking it read again.
+这意味着以下流程完全符合预期：
 
-That means this flow works as expected:
+1. 打开一个会话。
+2. 从顶栏或列表操作中选择**标记为未读**。
+3. 停留在该会话页面。
+4. 该会话将保持未读状态，直到你明确将其标记为已读、离开后重新打开，或由其他活跃视图将其标记为已读。
 
-1. Open a session.
-2. Choose **Mark as unread** from the header or list action.
-3. Stay on that session.
-4. The session remains unread until you explicitly mark it read, leave/reopen it, or another active view marks it read.
+这就避免了常见的一个尴尬问题：将当前项目标为未读后，因为页面仍处于可见状态而又被立刻撤销。
 
-This avoids the common problem where marking the current item unread is instantly undone by the fact that it is still visible.
+## 关闭并重新打开会话
 
-## Closing and reopening a session
+关闭会话视图即代表结束了本次查看行为。
 
-Closing the session view ends that viewing activation.
+如果之后你通过直接点击、深层链接、通知、浏览器刷新或从会话列表中重新打开同一个会话，Kaiwu 会将其视为一次全新的查看行为。若会话处于可见且聚焦状态，它便会被再次标记为已读。
 
-If you later reopen the same session directly, by deep link, notification, browser refresh, or from the session list, Kaiwu treats that as a new viewing activation. If the session is visible and focused, it can be marked read again.
+这种设计符合直觉：重新打开会话代表了新的阅读意图。
 
-This is deliberate: reopening a session is a new read intent.
+## 标记未读后产生的新动态
 
-## New activity after marking unread
+未读状态是以已提交的会话记录动态为基准的。
 
-Unread state is based on committed transcript activity.
+如果在你将某会话标记为未读后，又产生了新的会话记录动态，该会话仍会保持未读。后续将其标记为已读时，已读位置会直接推进到届时最新提交的会话记录动态处。
 
-If new transcript activity arrives after you marked a session unread, the session remains unread. Marking it read later advances to the newest committed transcript activity at that time.
+正在排队等待处理的消息本身不会使会话变为未读。未读标记仅取决于是否已有真正提交到该会话中的动态。
 
-Pending queued messages do not by themselves make a session unread. The unread badge is about transcript activity that has actually been committed to the session.
+## 多设备与多窗口行为
 
-## Multi-device and multi-window behavior
+已读状态保存在服务器端的会话数据中，同一账号下的各台设备和多个浏览器窗口之间会自动同步。
 
-Read state belongs to the session on the server, so it syncs across your devices and browser windows for the same account.
+如果你在某台设备上将某个会话标记为未读，其他处于连接状态的视图都会收到这一更新。若随后有另一台处于活动状态的设备打开或查看了该会话，由于已读状态属于整个会话、而非局限于单台设备或单个窗格，该设备可能会重新将会话标记为已读。
 
-If you mark a session unread on one device, other connected views receive that update. If another active device then opens or views the same session, that device may mark the session read again because read state is session-wide, not per-device or per-pane.
+在分屏视图下，每个可见窗格都有各自独立的查看行为，但最终的已读状态在会话级别仍然是全局生效的。聚焦于同一会话的另一个窗格同样有权将其标记为已读。
 
-For split views, each visible pane has its own viewing activation, but the final read state is still global for the session. A different focused pane can legitimately mark the same session read.
+## 操作被隐藏的会话类型
 
-## Sessions where the action is hidden
+在某些不合理或权限不足的情况下，Kaiwu 会隐藏手动更改已读状态的操作：
 
-Kaiwu hides manual read-state actions when they would not make sense or when you do not have the right access:
+- 空会话
+- 已归档会话
+- 仅有查看权限的共享会话
 
-- empty sessions
-- archived sessions
-- view-only shared sessions
+已归档会话不计入正常的未读动态标记，因此在此类会话中显示已读状态操作会产生误导。
 
-Archived sessions do not contribute to the normal unread activity badge, so showing read-state actions there would be misleading.
+对于共享会话，只有具备编辑或管理员级别权限的用户才能更改已读状态。仅有查看权限的用户可以阅读会话记录，但无法更改该会话的已读光标位置。
 
-For shared sessions, only people with edit/admin-style access can change the read state. View-only access can read the transcript but cannot change the session's read cursor.
-
-## Related guides
+## 相关指南
 
 - [App](/apps/app)
 - [Notifications](/extras/notifications-setup)

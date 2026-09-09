@@ -1,22 +1,21 @@
 ---
-title: Server flavors
-description: Choose between happier-server-light (SQLite by default; optional PGlite) and happier-server (Docker-managed infra).
+title: 服务器版本
+description: 在 happier-server-light（默认使用 SQLite；可选 PGlite）与 happier-server（Docker 管理的基础设施）之间进行选择。
 ---
+hstack 支持两种服务端“形态”。你可以全局切换（作用于主栈），也可以按单个栈分别配置。
 
-hstack supports two server “flavors”. You can switch between them globally (main stack) or per stack.
+## 二者有何区别？
 
-## What’s the difference?
+两种形态使用**同一套服务端代码库**（即 monorepo 中的 server 包，通常为 `apps/server`），但运行时的后端和存储方案有所不同。
 
-Both flavors use the **same server codebase** (the monorepo server package, typically `apps/server`), but run with different backends and storage assumptions.
+### `happier-server-light`（推荐默认项）
 
-### `happier-server-light` (recommended default)
+- **无需 Docker**
+- **默认使用 SQLite**（栈本地文件），支持通过 PGlite 选用内嵌版 Postgres
+- 本地公开文件直接保存在栈目录下
+- 适合用作稳定的“主”栈，也最适合快速进行本地安装
 
-- **No Docker required**
-- Uses **SQLite by default** (stack-local file), with optional embedded Postgres via PGlite
-- Stores local public files under the stack directory
-- Best choice for a stable “main” stack and quick local installs
-
-Light stacks are isolated by default:
+轻量栈默认彼此隔离：
 
 ```
 ~/.happier/stacks/<stack>/server-light/files
@@ -24,34 +23,34 @@ Light stacks are isolated by default:
 ~/.happier/stacks/<stack>/server-light/happier-server-light.sqlite
 ```
 
-Key env vars (stored in the stack env file):
+核心环境变量（保存在栈环境文件中）：
 
 - `HAPPIER_SERVER_LIGHT_DATA_DIR`
 - `HAPPIER_SERVER_LIGHT_FILES_DIR`
 - `HAPPIER_SERVER_LIGHT_DB_DIR`
-- `HAPPIER_DB_PROVIDER` (optional; defaults to `sqlite` for light stacks)
+- `HAPPIER_DB_PROVIDER`（可选；轻量栈默认为 `sqlite`）
 
-Optional DB providers (light):
+可选的数据库提供商（轻量版）：
 
-- `sqlite` (default)
-- `pglite` (optional)
+- `sqlite`（默认）
+- `pglite`（可选）
 
-Note: `HAPPIER_SERVER_LIGHT_DB_DIR` defaults to `.../server-light/pglite` for historical reasons, even when using SQLite.
+注意：出于历史兼容原因，即使使用 SQLite，`HAPPIER_SERVER_LIGHT_DB_DIR` 的默认值也是 `.../server-light/pglite`。
 
-### `happier-server` (full server)
+### `happier-server`（完整服务端）
 
-- Docker-managed infra per stack (Postgres + Redis + Minio/S3)
-- Closer to “production-like” behavior
-- Useful when you need Redis/S3 semantics or want to reproduce full-server-only issues
+- 由 Docker 管理各栈的基础设施（Postgres + Redis + Minio/S3）
+- 行为更贴近“生产环境”
+- 适合需要 Redis/S3 语义，或需要复现仅在完整服务端下出现的问题时使用
 
-Optional DB providers (full):
+可选的数据库提供商（完整版）：
 
-- `postgres` (default; Docker-managed per stack)
-- `mysql` (supported, but requires an explicit `DATABASE_URL`; hstack does not provision MySQL)
+- `postgres`（默认；由 Docker 按栈管理）
+- `mysql`（支持，但需要显式指定 `DATABASE_URL`；hstack 不会自动置备 MySQL）
 
-## Choosing a DB provider (power users)
+## 选择数据库提供商（高级用户）
 
-You can select a DB provider **without changing the interactive wizard**:
+你可以**直接指定数据库提供商，无需通过交互式向导**：
 
 ```bash
 # Light stacks (default is sqlite)
@@ -65,83 +64,83 @@ hstack stack new exp-full --server=happier-server --db-provider=postgres
 hstack stack new exp-mysql --server=happier-server --db-provider=mysql --database-url=mysql://user:pass@127.0.0.1:3306/happier
 ```
 
-Under the hood, this sets `HAPPIER_DB_PROVIDER` in the stack env file. For `mysql`, you must also provide `DATABASE_URL`.
+该命令底层会在栈环境文件中写入 `HAPPIER_DB_PROVIDER`。若选用 `mysql`，还必须提供 `DATABASE_URL`。
 
-## Full server infra (no AWS required)
+## 完整服务端基础设施（无需 AWS）
 
-`happier-server` requires:
+`happier-server` 需要依赖：
 
-- Postgres (`DATABASE_URL`)
-- Redis (`REDIS_URL`)
-- S3-compatible object storage (`S3_*`)
+- Postgres（`DATABASE_URL`）
+- Redis（`REDIS_URL`）
+- S3 兼容的对象存储（`S3_*`）
 
-hstack can **manage this for you automatically per stack** using Docker Compose (Postgres + Redis + Minio),
-so you **do not need AWS S3**.
+hstack 可以借助 Docker Compose（Postgres + Redis + Minio）**按栈自动管理这套基础组件**，
+因此你**无需开通 AWS S3**。
 
-This happens automatically when you run `hstack start/dev --server=happier-server` (or when a stack uses `happier-server`),
-unless you disable it with:
+运行 `hstack start/dev --server=happier-server` 时（或栈使用 `happier-server` 时），该流程会自动执行。
+除非通过以下命令显式禁用：
 
 ```bash
 export HAPPIER_STACK_MANAGED_INFRA=0
 ```
 
-If disabled, you must provide `DATABASE_URL`, `REDIS_URL`, and `S3_*` yourself.
+若禁用此功能，你必须自行提供 `DATABASE_URL`、`REDIS_URL` 和 `S3_*`。
 
-## UI serving with `happier-server`
+## 搭配 `happier-server` 托管 UI
 
-The upstream `happier-server` does not serve the built UI itself.
+上游 `happier-server` 本身不托管构建好的前端 UI。
 
-For a “one URL” UX (especially with Tailscale), hstack starts a lightweight **UI gateway** that:
+为了提供“单一 URL”的访问体验（尤其搭配 Tailscale 时），hstack 会启动一个轻量的 **UI 网关**，用于：
 
-- serves the built UI at `/` (if a build exists)
-- reverse-proxies API calls to the backend server
-- reverse-proxies realtime websocket upgrades (`/v1/updates`)
-- reverse-proxies public files (to local Minio)
+- 在 `/` 托管构建好的 UI（若构建产物存在）
+- 将 API 请求反向代理至后端服务器
+- 将实时 WebSocket 协议升级（`/v1/updates`）反向代理至后端
+- 反向代理公开文件（转发至本地 Minio）
 
-This means `hstack start --server=happier-server` can still work end-to-end without requiring AWS S3 or a separate nginx setup.
+这意味着即使没有 AWS S3 或独立的 nginx 配置，`hstack start --server=happier-server` 依然可以开箱即用、完整运行。
 
-### Realtime networking note (polling fallback)
+### 实时网络说明（轮询降级策略）
 
-By default, Kaiwu clients use Socket.IO / Engine.IO defaults (HTTP long-polling, then upgrade to WebSocket when possible). This is the most compatible option for restrictive networks and corporate proxies.
+默认情况下，Kaiwu 客户端采用 Socket.IO / Engine.IO 的默认机制（先使用 HTTP 长轮询，条件允许时升级为 WebSocket）。在受限网络和企业代理环境下，这种方式兼容性最好。
 
-If you need to force WebSocket-only (rare), set:
+如果你需要强制仅使用 WebSocket（极少需要），可设置：
 
-- UI (Expo): `EXPO_PUBLIC_HAPPIER_SOCKET_FORCE_WEBSOCKET=1`
-- CLI/daemon: `HAPPIER_SOCKET_FORCE_WEBSOCKET=1`
+- UI (Expo)：`EXPO_PUBLIC_HAPPIER_SOCKET_FORCE_WEBSOCKET=1`
+- CLI/守护进程：`HAPPIER_SOCKET_FORCE_WEBSOCKET=1`
 
-## Migrating between flavors (light ⇢ full)
+## 跨形态迁移（轻量版 ⇢ 完整版）
 
-hstack includes an **experimental** migration helper that can copy core chat data from a
-`happier-server-light` stack into a `happier-server` stack (Docker Postgres):
+hstack 内置了一个**实验性**迁移辅助工具，能够将核心聊天数据从
+`happier-server-light` 栈复制到 `happier-server` 栈（Docker Postgres）：
 
 ```bash
 hstack migrate light-to-server --from-stack=main --to-stack=full1
 ```
 
-Optional: include local public files (server-light `files/`) by mirroring them into Minio:
+可选操作：将本地公开文件（server-light 的 `files/`）同步到 Minio：
 
 ```bash
 hstack migrate light-to-server --from-stack=main --to-stack=full1 --include-files
 ```
 
-Notes:
-- This preserves IDs (session URLs remain valid on the target server).
-- It also copies the `HANDY_MASTER_SECRET` from the source stack into the target stack’s secret file so auth tokens remain valid.
-- Current limitation: the migration tool expects the source light stack to be `--db-provider=pglite` (SQLite light stacks are not supported yet).
+说明：
+- 迁移会保留原有 ID（目标服务器上的会话 URL 依然有效）。
+- 同时会将源栈的 `HANDY_MASTER_SECRET` 复制到目标栈的密钥文件中，确保认证 Token 持续有效。
+- 当前限制：该迁移工具要求源轻量栈必须使用 `--db-provider=pglite`（暂不支持基于 SQLite 的轻量栈）。
 
-## Prisma behavior (why start is safer under LaunchAgents)
+## Prisma 行为机制（为何在 LaunchAgents 下 start 更安全）
 
-- **`hstack start`** is “production-like”. It avoids running heavyweight schema sync loops under launchd KeepAlive.
-- **`hstack dev`** is for rapid iteration:
-  - for `happier-server`: hstack runs `prisma migrate deploy` by default (configurable via `HAPPIER_STACK_PRISMA_MIGRATE`).
-  - for `happier-server-light`:
-    - hstack runs provider-specific light migrations (`migrate:sqlite:deploy` for SQLite by default, or `migrate:light:deploy` for PGlite when configured).
+- **`hstack start`** 更贴近“生产环境”。它可以避免在 launchd KeepAlive 机制下陷入高开销的 schema 同步死循环。
+- **`hstack dev`** 专为快速迭代设计：
+  - 针对 `happier-server`：hstack 默认运行 `prisma migrate deploy`（可通过 `HAPPIER_STACK_PRISMA_MIGRATE` 配置）。
+  - 针对 `happier-server-light`：
+    - hstack 会运行对应提供商的轻量迁移（默认对 SQLite 执行 `migrate:sqlite:deploy`；若配置为 PGlite 则执行 `migrate:light:deploy`）。
 
-Important: for a given run (`hstack start` / `hstack dev`) you choose **one** flavor.
+注意：对于某次具体的运行（`hstack start` / `hstack dev`），你只能选择**一种**形态。
 
-## How to switch (main stack)
+## 如何切换（主栈）
 
-Use the `srv` helper (persisted in `~/.happier/stacks/main/env` by default, or in your stack env file when using `hstack stack ...`):
+使用 `srv` 辅助命令（配置默认持久化在 `~/.happier/stacks/main/env` 中；使用 `hstack stack ...` 时则持久化在栈环境文件中）：
 
 ```bash
 hstack srv status
@@ -150,11 +149,11 @@ hstack srv use happier-server
 hstack srv use --interactive
 ```
 
-This persists `HAPPIER_STACK_SERVER_COMPONENT`.
+该命令会持久化保存 `HAPPIER_STACK_SERVER_COMPONENT`。
 
-## How to switch for a specific stack
+## 如何切换指定栈的形态
 
-Use the stack wrapper:
+使用 stack 包装命令：
 
 ```bash
 hstack stack srv exp1 -- status
@@ -163,11 +162,11 @@ hstack stack srv exp1 -- use happier-server
 hstack stack srv exp1 -- use --interactive
 ```
 
-This updates the stack env file (typically `~/.happier/stacks/<name>/env`).
+这会更新对应的栈环境文件（通常为 `~/.happier/stacks/⟦K9⟧/env`）。
 
-## One-off overrides (do not persist)
+## 一次性临时覆盖（不持久化）
 
-You can override the server flavor for a single run:
+你可以仅为单次运行临时覆盖服务端形态：
 
 ```bash
 hstack start --server=happier-server-light
@@ -177,15 +176,15 @@ hstack dev --server=happier-server-light
 hstack dev --server=happier-server
 ```
 
-## Flavor vs repo selection
+## 形态选择 vs 代码仓选择
 
-There are two separate concepts:
+这是两个独立的概念：
 
-- **Flavor selection**: which server flavor hstack runs
-  - controlled by `HAPPIER_STACK_SERVER_COMPONENT` (via `hstack srv use ...`)
-- **Repo selection**: which monorepo checkout/worktree the stack runs from
-  - controlled by `HAPPIER_STACK_REPO_DIR` (via `hstack wt use ...` / `hstack stack wt <stack> -- use ...`)
+- **形态选择**：决定 hstack 运行哪种服务端形态
+  - 由 `HAPPIER_STACK_SERVER_COMPONENT` 控制（通过 `hstack srv use ...`）
+- **代码仓选择**：决定栈运行在哪个 monorepo 检出版本/工作树上
+  - 由 `HAPPIER_STACK_REPO_DIR` 控制（通过 `hstack wt use ...` / `hstack stack wt ⟦K10⟧ -- use ...`）
 
-## SQLite note
+## SQLite 说明
 
-SQLite is the **default** DB provider for `happier-server-light`. If you want embedded Postgres instead, create a light stack with `--db-provider=pglite`.
+SQLite 是 `happier-server-light` 的**默认**数据库提供商。如果你希望使用内嵌版 Postgres，创建轻量栈时请指定 `--db-provider=pglite`。

@@ -1,124 +1,123 @@
 ---
-title: Notification routing
-description: How Kaiwu opens the correct session (and server) from notifications.
+title: 通知路由
+description: Kaiwu 如何通过通知打开正确的会话（和服务器）。
 ---
+Kaiwu 的通知具备会话感知与多服务器感知能力。
 
-Kaiwu notifications are session-aware and multi-server-aware.
+与通知交互时，Kaiwu 会尽量带你直达需要处理的具体位置：
 
-When you interact with a notification, Kaiwu tries to land you in the exact place that needs attention:
+- 目标**会话**
+- 正确的**服务器配置**
+- 对**权限操作**采取最安全的操作机制
 
-- the targeted **session**
-- on the correct **server profile**
-- with the safest possible behavior for **permission actions**
+这样可以避免进入错误的服务器，或在非预期的服务器上静默批准请求。
 
-This avoids landing on the wrong server or silently approving a request on an unexpected server.
+## 常见通知类型
 
-## Typical notifications
+- 轮次完成 / “已就绪”
+- 权限操作
+- 动作请求
+- 共享/协作事件
 
-- turn completion / "it's ready"
-- permission actions
-- action requests
-- share/collaboration events
+## 点击通知会发生什么
 
-## What happens when you tap a notification
+若通知包含会话路由，Kaiwu 会打开对应会话。
 
-If the notification contains a session route, Kaiwu opens that session.
+若通知所属的已保存服务器与当前活跃的服务器不同：
 
-If the notification belongs to a different saved server than the one currently active:
+- Kaiwu 会先切换到该已保存服务器
+- 随后打开对应会话
 
-- Kaiwu switches to that saved server first
-- then it opens the session
+普通通知点击以及动作请求通知中的 `Answer` 操作，均默认采用该行为。
 
-This is the default behavior for normal notification taps and for the `Answer` action used by action-request notifications.
+## 点击通知操作按钮会发生什么
 
-## What happens when you press a notification action
+在移动端 App 上，当前可交互的通知操作包括：
 
-On the mobile app, current interactive notification actions are:
+- **权限请求**：`Allow`、`Deny`
+- **用户动作请求**：`Answer`
 
-- **Permission requests**: `Allow`, `Deny`
-- **User-action requests**: `Answer`
+两者的行为设计特意有所区分：
 
-Their behavior is intentionally different:
+- `Allow` 与 `Deny` 会打开 App，在确保安全的前提下发送权限响应，随后打开对应会话
+- `Answer` 会直接打开 App 并定位到对应会话，方便你结合上下文作答
 
-- `Allow` and `Deny` open the app, send the permission response when it is safe to do so, and then open the session
-- `Answer` opens the app directly on the session so you can answer in context
-
-User-action requests include cases such as:
+用户动作请求包含如下场景：
 
 - **AskUserQuestion**
 - **Exit Plan Mode**
 
-Kaiwu does **not** currently try to send freeform or multiple-choice answers directly from the notification itself. The action button is a fast path back into the correct session.
+目前，Kaiwu **不会**尝试直接在通知栏中发送自由文本或多选回答。操作按钮的作用是提供一条快速通道，带你返回正确的会话。
 
-## Server-aware safety rules
+## 服务器感知安全规则
 
-### 1) Server is already active
+### 1) 服务器已处于活跃状态
 
-If the notification targets the server that is already active:
+若通知目标是当前已处于活跃状态的服务器：
 
-- Kaiwu performs the action immediately (for example `Allow` / `Deny`)
-- then opens the session
+- Kaiwu 会立即执行对应操作（例如 `Allow` / `Deny`）
+- 随后打开对应会话
 
-### 2) Server is saved, but not active
+### 2) 服务器已保存，但未处于活跃状态
 
-If the notification targets a saved server profile that is not currently active:
+若通知目标是某个已保存但当前未处于活跃状态的服务器配置：
 
-- Kaiwu switches to that saved server
-- performs the action if applicable
-- opens the session
+- Kaiwu 会切换到该已保存服务器
+- 执行相应操作（若适用）
+- 打开对应会话
 
-### 3) Server is not saved, and the device has no saved servers yet
+### 3) 服务器未保存，且设备上尚未保存任何服务器
 
-If this is effectively the first server on the device:
+若这实际上是设备上的首个服务器：
 
-- Kaiwu may auto-add and switch to that server so the notification deep link still works
-- Kaiwu opens the session
-- for security, Kaiwu still does **not** auto-send `Allow` / `Deny` on an unsaved server
+- Kaiwu 可能会自动添加并切换到该服务器，确保通知深度链接依然可用
+- Kaiwu 打开对应会话
+- 出于安全考虑，Kaiwu 依然**不会**在未保存的服务器上自动发送 `Allow` / `Deny`
 
-This is mainly a bootstrap convenience for first-run or self-hosted setups.
+这主要是为初次运行或自托管场景提供的引导便利。
 
-### 4) Server is not saved, and the device already has saved servers
+### 4) 服务器未保存，且设备上已有保存的服务器
 
-If the app already knows about other servers, Kaiwu does **not** auto-add the incoming one.
+若 App 中已存在其他服务器记录，Kaiwu **不会**自动添加新传入的服务器。
 
-Instead it:
+而是会：
 
-- stores the pending destination
-- opens **Server settings**
-- prefills the incoming server URL
-- shows a hint that this server is not saved yet
+- 暂存待跳转的目标地址
+- 打开**服务器设置**
+- 预填传入的服务器 URL
+- 显示该服务器尚未保存的提示
 
-After you choose **Add & Use**, Kaiwu continues to the original session automatically.
+当你选择**添加并使用**后，Kaiwu 会自动继续前往原本的目标会话。
 
-## Why this flow is strict
+## 流程保持严格的原因
 
-Notification actions are convenient, but permission responses are security-sensitive.
+通知操作虽然便捷，但权限响应关乎系统安全。
 
-That is why Kaiwu only auto-sends a permission response when it can prove that the targeted server is:
+因此，Kaiwu 仅在能确认目标服务器满足以下条件时，才会自动发送权限响应：
 
-- already active, or
-- already saved locally and can be switched to explicitly
+- 当前已处于活跃状态，或
+- 本地已保存该服务器，且能够显式切换过去
 
-If the server is unknown, Kaiwu falls back to navigation and review instead of silently performing the approval.
+若遇到未知服务器，Kaiwu 会退化为仅跳转页面并交由人工核对，而不是静默执行批准操作。
 
-## Prerequisites
+## 前置条件
 
-- App has registered push token(s) to your selected server.
-- CLI/daemon and app are using the same server profile.
-- For multi-server setups, each server profile is configured correctly.
+- App 已向所选服务器注册推送 Token。
+- CLI/守护进程与 App 使用相同的服务器配置。
+- 在多服务器架构下，各服务器配置均已正确配置。
 
-## Troubleshooting
+## 故障排查
 
-If notification taps open the wrong context:
+若点击通知打开了错误的上下文：
 
-1. Verify active server profile in app.
-2. Re-run `happier auth login` on the correct server profile in CLI.
-3. Confirm push token registration for that server profile.
-4. If the notification came from a server that is not saved yet, add it from the prefilled **Server settings** screen first.
+1. 在 App 中核对当前活跃的服务器配置。
+2. 在 CLI 中针对正确的服务器配置重新运行 `happier auth login`。
+3. 确认该服务器配置的推送 Token 注册状态。
+4. 若通知来自尚未保存的服务器，请先在已预填的**服务器设置**页面中将其添加。
 
-## Related pages
+## 相关页面
 
-- [Multi-server](/accounts/multi-server)
-- [Permissions](/sessions/permissions)
-- [Inbox and approvals](/sessions/inbox-and-approvals)
-- [Notifications](/extras/notifications-setup)
+- [多服务器](/accounts/multi-server)
+- [权限](/sessions/permissions)
+- [收件箱与审批](/sessions/inbox-and-approvals)
+- [通知](/extras/notifications-setup)

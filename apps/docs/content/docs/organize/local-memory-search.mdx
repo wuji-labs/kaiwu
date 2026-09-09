@@ -1,242 +1,241 @@
 ---
-title: Local memory search
-description: Build a device-local memory index on a machine, search past conversation context, and optionally improve deep ranking with local or remote embeddings.
+title: 本地记忆搜索
+description: 在设备上构建本地记忆索引，检索历史会话上下文，并可选择使用本地或远程嵌入优化深度排序。
 ---
+本地记忆搜索允许 Kaiwu（无极开物）在连接了守护进程的特定设备上，利用解密后的会话记录构建**设备本地搜索索引**。
 
-Local memory search lets Kaiwu build a **machine-local search index** from your decrypted session transcripts on a specific daemon-connected machine.
+适合在需要 Kaiwu 回答如下问题时使用：
 
-Use it when you want Kaiwu to answer questions such as:
+- “你还记得我们什么时候讨论过这个吗？”
+- “帮我找一下讨论 OpenCode 配额的那次会话。”
+- “翻一下之前关于守护进程内存规划的对话。”
 
-- “Do you remember when we discussed this?”
-- “Find the session where we talked about OpenCode quotas.”
-- “Show me the earlier conversation about the daemon memory plan.”
+## 功能特性
 
-## What it does
+在设备上启用本地记忆搜索后，Kaiwu 可以：
 
-When local memory search is enabled on a machine, Kaiwu can:
+- 基于该设备的会话记录构建并维护**本地衍生索引**
+- 在客户端或 Web 端搜索该索引
+- 打开匹配的会话，并直接定位至相关的对话节点
+- 让编程智能体与语音智能体调用记忆工具进行召回，而非依赖模型记忆凭空猜测
 
-- build and maintain a **local derived index** from that machine’s transcripts
-- search that index from the app/web UI
-- open the matching session at the relevant conversation point
-- let coding and voice agents use memory tools for recall instead of guessing from model memory
+该功能严格遵循**设备本地**设计原则，并非服务端的全局搜索索引。
 
-This is intentionally **device-local**. It is not a server-side global search index.
+## 入口位置
 
-## Where to find it
+在客户端或 Web 端中：
 
-In the app/web UI:
+1. 打开 **Settings → Memory search**
+2. 选择要配置的设备
+3. 为该设备启用记忆搜索
 
-1. Open **Settings → Memory search**
-2. Pick the machine you want to configure
-3. Enable memory search for that machine
+进行搜索时：
 
-To search:
+1. 打开 **Local Memory Search**
+2. 选择目标设备
+3. 输入查询词
+4. 打开搜索结果，直接跳回匹配的会话上下文
 
-1. Open **Local Memory Search**
-2. Pick the machine
-3. Enter a query
-4. Open a result to jump back into the matching session context
+如果尚未看到该功能，请前往 **Settings → Features** 开启 `memory.search` 功能。
 
-If you do not see the feature yet, enable the `memory.search` feature in **Settings → Features**.
+## 核心模型：设备本地，非账户全局
 
-## Important model: machine-local, not account-global
+记忆搜索的作用域限定在**所选设备**上。
 
-Memory search is scoped to the **selected machine**.
+这意味着：
 
-That means:
+- 每台设备拥有独立的索引
+- 笔记本电脑与远程开发机之间**不会**自动共享记忆索引
+- 若设备处于离线状态，Kaiwu 将无法查询该设备的本地记忆索引
+- 远程嵌入设置同样归属于设备本地，不在全局共享
 
-- each machine has its own index
-- a laptop and a remote dev box do **not** automatically share one memory index
-- if a machine is offline, Kaiwu cannot query its local memory index
-- remote embeddings settings are also machine-local, not shared globally
+这一设计出于审慎考虑：
 
-This design is deliberate:
+- 会话记录的解密本就在客户端或守护进程侧完成
+- 衍生出的记忆索引仅保留在构建它的设备上
+- 用户可针对不同设备分别配置存储和嵌入参数
 
-- transcript decryption already happens on the client / daemon side
-- the derived memory index stays on the machine that built it
-- users can choose different storage and embeddings settings per machine
+## 轻量索引与深度索引
 
-## Light vs deep indexing
+Kaiwu 提供两种索引模式。
 
-Kaiwu supports two indexing modes.
+### 轻量模式（Light）
 
-### Light
+轻量模式仅存储**摘要分片**。
 
-Light mode stores **summary shards** only.
+适用场景：
 
-Use it when you want:
+- 磁盘空间有限
+- 后台维护开销要求更低
+- 需要更轻量的召回层
 
-- lower disk usage
-- faster background maintenance
-- a lighter-weight recall layer
+如果主要需求是粗粒度的泛化召回，无需深入检索详尽的会话记录，建议从该模式起步。
 
-This is the recommended starting point if you mainly want broad recall and do not need the richest transcript search.
+### 深度模式（Deep）
 
-### Deep
+深度模式会将**消息块**保存在本地。
 
-Deep mode stores **message chunks** locally.
+适用场景：
 
-Use it when you want:
+- 对实际对话内容有更强的召回需求
+- 针对特定话题、决策或代码片段需要更高的搜索质量
+- 配合基于嵌入的重排序机制
 
-- stronger recall over real conversation content
-- better search quality for specific topics, decisions, or snippets
-- optional embeddings-based reranking
+深度模式会占用更多磁盘空间，首次回填耗时也相对更长。
 
-Deep mode uses more disk and can take longer to backfill.
+## 历史回填机制
 
-## Backfill behavior
+开启本地记忆搜索时，可选择 Kaiwu 需要索引的历史范围：
 
-When you turn local memory search on, you can choose how much history Kaiwu should index:
+- **New only**（仅新会话）—— 仅索引启用记忆搜索后产生的内容
+- **Last 30 days**（近 30 天）—— 回填近期历史
+- **All history**（全部历史）—— 回填该设备上可用的所有历史数据
 
-- **New only** — index only content created after enabling memory search
-- **Last 30 days** — backfill recent history
-- **All history** — backfill everything available on that machine
+若追求最快上线且风险最低，建议先选择 **New only**。
 
-If you want the fastest, lowest-risk rollout, start with **New only**.
+若希望立即检索过去的对话，可选择 **Last 30 days** 或 **All history**。
 
-If you want older conversations to be searchable immediately, use **Last 30 days** or **All history**.
+## 记忆线索生成
 
-## Memory hint generation
+轻量模式依赖**记忆线索**（即摘要分片）。
 
-Light mode relies on **memory hints** (summary shards).
+支持配置的项包括：
 
-You can configure:
+- 摘要生成器后端
+- 摘要生成器模型
+- 摘要生成任务是以 `no tools` 还是 `read only` 权限运行
 
-- the summarizer backend
-- the summarizer model
-- whether summarization runs with `no tools` or `read only` permissions
+若希望使用该设备上现成的特定后端或模型来生成记忆线索，该配置项非常实用。
 
-This is useful if you want memory hints to run through a specific backend or model already available on that machine.
+## 深度模式下的嵌入向量
 
-## Embeddings in deep mode
+嵌入向量为可选配置，且仅在**深度**索引模式下生效。
 
-Embeddings are optional and only apply to **deep** indexing mode.
+未启用嵌入时：
 
-Without embeddings:
+- Kaiwu 依然支持深度搜索
+- 排序机制退化为纯文本匹配
 
-- Kaiwu still performs deep search
-- ranking falls back to text-based matching only
+启用嵌入后：
 
-With embeddings:
+- Kaiwu 能够显著提升深度搜索的排序质量
+- 系统会将嵌入向量层与文本排序打分相结合
 
-- Kaiwu can improve deep-search ranking
-- the embeddings layer is blended with text ranking
+## 预设嵌入配置
 
-## Embeddings presets
+Kaiwu 目前提供以下几种模式：
 
-Kaiwu currently exposes these modes:
+- **Off**（关闭）—— 深度搜索仅采用纯文本排序
+- **Balanced**（均衡）—— `Xenova/all-MiniLM-L6-v2`
+- **Long context**（长上下文）—— `Xenova/jina-embeddings-v2-small-en`
+- **Quality**（高品质）—— `Alibaba-NLP/gte-modernbert-base`
+- **Custom**（自定义）—— 指定自定义本地模型或兼容 OpenAI 的端点
 
-- **Off** — deep search uses text-only ranking
-- **Balanced** — `Xenova/all-MiniLM-L6-v2`
-- **Long context** — `Xenova/jina-embeddings-v2-small-en`
-- **Quality** — `Alibaba-NLP/gte-modernbert-base`
-- **Custom** — choose your own local model or OpenAI-compatible endpoint
+`Balanced` 为默认选项，其初次运行的各项指标经过验证，最为稳妥：
+- 下载体积小
+- 冷启动成本低
+- 整体召回质量良好
 
-`Balanced` is the default because it has the safest validated first-run profile:
-- smaller download
-- lower cold-start cost
-- good overall retrieval quality
+`Long context` 表现优异，通常更适合处理较大的会话记录分块，但初次使用的开销仍高于默认项。
 
-`Long context` works well and is often a better fit for larger transcript chunks, but it still has a heavier first-use cost than the default.
+`Quality` 是资源消耗最大的预设，建议仅作为评估测试或高级配置使用。
 
-`Quality` is the heaviest preset and is best treated as an evaluation / advanced option.
+## 本地嵌入
 
-## Local embeddings
+针对本地预设以及自定义本地模型：
 
-For local presets and custom local models:
+- Kaiwu 会全权管理本地运行时
+- 模型在首次使用时自动下载
+- 下载完成后，直接由守护进程缓存于本地运行
 
-- Kaiwu manages the local runtime itself
-- the model downloads on first use
-- after that, the model runs locally from the daemon cache
+用户**无需**自行安装 Python、Ollama、sentence-transformers 或任何其他独立的嵌入服务。
 
-Users do **not** need to install Python, Ollama, sentence-transformers, or another separate embeddings service.
+## 自定义远程嵌入
 
-## Custom remote embeddings
+高级用户可选择 **Custom → OpenAI-compatible endpoint**。
 
-Advanced users can choose **Custom → OpenAI-compatible endpoint**.
+支持自定义填写：
 
-That lets you provide:
+- Base URL
+- API Key
+- 远程嵌入模型名
+- 维度（可选）
 
-- a base URL
-- an API key
-- a remote embeddings model
-- optional dimensions
+对于已有自建嵌入服务，或打算使用兼容 OpenAI 的接口替代本地模型的场景，该方式十分理想。
 
-This is useful if you already operate your own embeddings service or want to use an OpenAI-compatible endpoint instead of a local model.
+注意事项：
 
-Important details:
+- 远程配置仅限**设备本地**
+- API Key 安全保存在守护进程的本地加密配置中，非明文存储
+- 若远程端点不可用或配置有误，Kaiwu 会平滑降级为纯文本排序，不会导致记忆搜索崩溃
 
-- the remote settings are **machine-local**
-- the API key is stored in the daemon’s local sealed settings, not as plaintext
-- if the remote endpoint is unavailable or misconfigured, Kaiwu falls back safely to text-only ranking instead of breaking memory search
+## 隐私与清理
 
-## Privacy and cleanup
+本地记忆搜索围绕衍生本地数据设计。
 
-Local memory search is designed around derived local data.
+启用后，Kaiwu 会在本地存储如下索引数据：
 
-When enabled, Kaiwu stores local indexes such as:
+- 轻量索引数据库
+- 深度索引数据库
+- 可选的本地模型缓存
 
-- the light index database
-- the deep index database
-- optional local model caches
+勾选 **Delete on disable**（禁用时删除），即可在停用该设备的记忆搜索时，自动清除所有本地索引与缓存文件。
 
-You can enable **Delete on disable** to remove local indexes and caches when memory search is turned off on that machine.
+## 智能体协作机制
 
-## What agents do with it
+当记忆搜索可用且就绪时，Kaiwu 会引导智能体在处理召回请求时优先调用记忆工具。
 
-When memory search is available and usable, Kaiwu prompts its agents to use memory tools for recall requests.
+具体执行逻辑如下：
 
-In practice, that means:
+- 收到“你还记得我们讨论过某某问题吗？”这类提问时，智能体应先检索记忆
+- 检索到高相关度内容后，先拉取匹配的上下文窗口，再组织回答
+- 若记忆搜索未命中任何内容，智能体应当明确说明，而非凭空臆造
 
-- if you ask “do you remember when we discussed X?”, the agent should search memory first
-- if it finds a likely hit, it can fetch the matching window before answering
-- if memory search finds nothing, the agent should say that clearly instead of inventing an answer
+只要目标设备启用了记忆搜索，该机制对常规编程会话与语音交互流程均适用。
 
-This applies to both normal coding sessions and voice flows when memory search is available on the target machine.
+## 典型应用场景
 
-## Typical use cases
+### 查找早期的设计讨论
 
-### Find an earlier design discussion
+记得讨论过某个主题但想不起具体会话时，可以使用 **Local Memory Search**。
 
-Use **Local Memory Search** when you remember the topic but not the exact session.
+示例：
 
-Example:
+- “找一下我们讨论已连接服务配额的内容。”
 
-- “Find where we discussed connected-service quotas.”
+### 定位到历史会话的特定节点重新打开
 
-### Re-open an old session at the right moment
+搜索特定主题，直接打开命中结果即可跳至会话记录的对应位置，免去人工逐行翻找整场会话的繁琐。
 
-Search for a topic, then open the hit to jump back to the matching part of the transcript instead of scrolling through the full session manually.
+### 提升主力开发机的召回效果
 
-### Improve recall on a primary work machine
+在大部分会话运行的主力设备上，启用深度索引并配合本地嵌入预设。
 
-Enable deep indexing and a local embeddings preset on the machine where most of your sessions run.
+### 保持远程开发机支持搜索
 
-### Keep a remote dev box searchable
+若会话的守护进程实际运行在远程开发机上，直接在远程设备上单独开启记忆搜索即可。
 
-Enable memory search separately on a remote machine if that is where the daemon actually runs your sessions.
+## 局限性与预期表现
 
-## Limitations and expectations
+- 本地记忆搜索**不是**全服务端共享的检索索引。
+- 搜索效果取决于当前选定设备已完成索引的数据量。
+- 首次启用或切换模型后，构建深度索引与嵌入向量需要一定时间。
+- 远程嵌入属于高级功能，要求外部端点行为完全兼容 OpenAI 的 Embeddings API。
 
-- Local memory search is **not** a server-wide shared search index.
-- Search quality depends on what has already been indexed on the selected machine.
-- Deep indexing and embeddings can take time after first enablement or after switching models.
-- Remote embeddings are an advanced option and depend on your endpoint behaving like an OpenAI-compatible embeddings API.
+## 推荐配置流程
 
-## Recommended setup
+面向绝大多数用户的建议：
 
-For most users:
+1. 在主力设备上启用记忆搜索
+2. 初始模式选择 **Light**（轻量）或 **Deep + Balanced**（深度 + 均衡）
+3. 历史范围先选 **New only**（仅新会话）
+4. 勾选 **Delete on disable**，方便后续清理数据
 
-1. Enable memory search on your main machine
-2. Start with **Light** or **Deep + Balanced**
-3. Use **New only** first
-4. Turn on **Delete on disable** if you want easy cleanup
+若日常对话较长且希望对大段会话记录获得更佳的召回效果，建议切换至 **Long context**。
 
-Switch to **Long context** if your conversations are long and you want stronger recall over larger transcript chunks.
+仅在明确需要接入私有嵌入端点时，才使用 **Custom remote**。
 
-Use **Custom remote** only if you intentionally want to bring your own embeddings endpoint.
-
-## Related guides
+## 相关指南
 
 - [Daemon](/apps/daemon)
 - [App](/apps/app)

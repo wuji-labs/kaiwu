@@ -15,7 +15,7 @@ export async function cmdSessionStatus(
   const live = hasFlag(argv, '--live');
   const [idOrPrefix = ''] = readCommandPositionals(argv, { startIndex: 1 });
   if (!idOrPrefix) {
-    throw new Error('Usage: happier session status <session-id-or-prefix> [--live] [--json]');
+    throw new Error('Usage: kaiwu session status <session-id-or-prefix> [--live] [--json]');
   }
 
   const credentials = await deps.readCredentialsFn();
@@ -24,7 +24,7 @@ export async function cmdSessionStatus(
       await printJsonEnvelope({ ok: false, kind: 'session_status', error: { code: 'not_authenticated' } });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "happier auth login" first.');
+    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
     process.exit(1);
   }
 

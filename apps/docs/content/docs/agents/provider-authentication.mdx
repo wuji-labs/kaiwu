@@ -1,169 +1,169 @@
 ---
-title: Provider authentication
-description: Manage machine-local provider CLI authentication from Kaiwu, check auth status, and open provider login flows inside the app.
+title: 提供商认证
+description: 在 Kaiwu 中管理设备本地提供商 CLI 认证，检查认证状态，并在应用内打开提供商登录流程。
 ---
+Kaiwu 支持直接在各个提供商设置页面中，检查并管理受支持提供商 CLI 的**设备本地认证状态**。
 
-Kaiwu can inspect and manage the **machine-local authentication state** of supported provider CLIs directly from each provider settings page.
+该功能与[已连接服务](/accounts/connected-services)互不影响：
 
-This is separate from [Connected services](/accounts/connected-services):
+- **提供商认证**：安装在特定设备上的提供商 CLI 原生登录状态
+- **已连接服务**：存储在 Kaiwu 中、可在兼容后端之间复用的凭据
 
-- **Provider authentication** = the native login state of the provider CLI installed on a specific machine
-- **Connected services** = credentials stored in Kaiwu and reused across compatible backends
+该功能也不同于**自定义 ACP**：
 
-This also differs from **Custom ACP**:
+- Claude、Codex、Gemini 或 Kiro 等内置提供商拥有专属的提供商页面
+- 自定义 ACP 会将就绪状态与登录元数据存储在各个 ACP 后端定义内，不会为所有自定义后端暴露单一、全局的提供商级认证状态
 
-- built-in providers such as Claude, Codex, Gemini, or Kiro have dedicated provider pages
-- Custom ACP stores readiness/login metadata inside each ACP backend definition instead of exposing one single provider-wide auth state for every custom backend
+## 入口位置
 
-## Where to find it
+前往：
 
-Open:
+1. **设置**
+2. **AI 与智能体 → AI 后端**
+3. 选择一个提供商
+4. 在上下文栏中选择目标设备
+5. 找到**认证**区域
 
-1. **Settings**
-2. **AI & Agents → AI backends**
-3. Choose a provider
-4. Choose the target machine in the context bar
-5. Look for the **Authentication** section
+认证区域与具体设备绑定。切换到其他设备后，Kaiwu 将转而检查对应设备上的提供商 CLI。
 
-The Authentication section is machine-specific. If you switch to a different machine, Kaiwu checks that machine’s provider CLI instead.
+## Kaiwu 显示的内容
 
-## What Kaiwu shows
+根据提供商的不同，Kaiwu 可显示以下信息：
 
-Depending on the provider, Kaiwu can show:
+- **状态**——已登录、已登出或未知
+- **登录身份**——在提供商安全暴露账号信息的前提下，显示账号邮箱或标签
+- **方式**——例如 API 密钥、认证令牌、OAuth CLI 登录、凭据文件或 Google ADC
+- **来源**——结果来自环境变量、本地文件还是提供商 CLI 命令
+- **问题**——无法确认登录的原因，例如凭据缺失或凭据已过期
+- **上次检查时间**——Kaiwu 上次刷新该认证状态的时间
 
-- **Status** — Logged in, logged out, or unknown
-- **Logged in as** — an account email or label when the provider exposes one safely
-- **Method** — for example API key, auth token, OAuth CLI login, credentials file, or Google ADC
-- **Source** — whether the result came from environment variables, local files, or a provider CLI command
-- **Issue** — why login could not be confirmed, such as missing credentials or expired credentials
-- **Last checked** — when Kaiwu last refreshed that auth state
+## 可用操作
 
-## Actions
+### 登录 / 重新认证
 
-### Log in / Re-authenticate
+若提供商支持原生 CLI 登录流程，Kaiwu 可直接在应用内唤起。
 
-If the provider supports a native CLI login flow, Kaiwu can open it directly inside the app.
+其运行机制如下：
 
-What happens:
+- 在大屏布局下，登录终端会打开于会话终端复用的底部窗格系统中
+- 在手机屏幕尺寸下，Kaiwu 会采用更聚焦的终端展示形式
+- Kaiwu 会在所选设备上启动提供商的真实 CLI
+- 若提供商需要终端内命令（例如 `/login`、`/auth`、`/setup` 或 `/connect`），Kaiwu 会代为发送
+- 若提供商输出了网址，Kaiwu 会在终端界面中提供复制/打开操作
 
-- on larger layouts, the login terminal opens in the same shared bottom-pane system used by session terminals
-- on phone-sized layouts, Kaiwu uses a more focused terminal presentation
-- Kaiwu launches the provider’s real CLI on the selected machine
-- if the provider needs an in-terminal command such as `/login`, `/auth`, `/setup`, or `/connect`, Kaiwu sends it for you
-- if the provider prints a URL, Kaiwu shows copy/open actions in the terminal UI
+登录流程退出后，Kaiwu 会自动刷新该提供商的认证状态。
 
-When the login flow exits, Kaiwu refreshes the provider auth state automatically.
+### 立即检查
 
-### Check now
+**立即检查**会强制立即刷新所选设备上对应提供商的认证状态。
 
-**Check now** forces an immediate auth refresh for the selected provider on the selected machine.
+适用于以下场景：
 
-Use it when:
+- 你在 Kaiwu 之外完成了登录，希望立即更新状态
+- 你修改了环境变量
+- 你想重新检查此前处于“未知”状态的项目
 
-- you logged in outside Kaiwu and want the status to update immediately
-- you changed environment variables
-- you want to re-check a previously unknown status
+## “未知”代表什么
 
-## What “unknown” means
+部分提供商提供了安全、非交互式的方式来确认本地认证状态，部分则没有。
 
-Some providers expose a safe, non-interactive way to confirm local auth. Others do not.
+若 Kaiwu 显示**未知**，通常意味着：
 
-If Kaiwu shows **Unknown**, that usually means one of these:
+- 该提供商尚未暴露可靠的非交互式认证探测方式
+- 提供商 CLI 检查超时或失败
+- Kaiwu 在后台检测期间有意避开了交互式提供商命令
 
-- the provider does not expose a reliable non-interactive auth probe yet
-- the provider CLI check timed out or failed
-- Kaiwu intentionally avoided an interactive provider command during background detection
+“未知”**并不**等同于“已登出”。
 
-Unknown does **not** automatically mean “logged out”.
+## 各提供商支持情况
 
-## Which providers support what
-
-| Provider | Login from Kaiwu | Auth status detection |
+| 提供商 | 在 Kaiwu 中登录 | 认证状态检测 |
 | --- | --- | --- |
-| Claude | Yes | Yes |
-| Codex | Yes | Yes |
-| Gemini | Yes | Yes |
-| OpenCode | Yes | Yes |
-| Copilot | Yes | Yes |
-| Augment (Auggie) | Yes | Limited / conservative |
-| Kiro | Yes | Limited / conservative |
-| Qwen | Yes | Limited / conservative |
-| Kimi | Yes | Limited / conservative |
-| Kilo | Yes | Limited / conservative |
-| Pi | No native login flow in Kaiwu | Yes, env-based |
+| Claude | 支持 | 支持 |
+| Codex | 支持 | 支持 |
+| Gemini | 支持 | 支持 |
+| OpenCode | 支持 | 支持 |
+| Copilot | 支持 | 支持 |
+| Augment (Auggie) | 支持 | 受限 / 保守检测 |
+| Kiro | 支持 | 受限 / 保守检测 |
+| Qwen | 支持 | 受限 / 保守检测 |
+| Kimi | 支持 | 受限 / 保守检测 |
+| Kilo | 支持 | 受限 / 保守检测 |
+| Pi | Kaiwu 内无原生登录流程 | 支持，基于环境变量 |
 
-“Limited / conservative” means Kaiwu can launch the login flow, but only reports a positive auth state when the provider exposes a safe local signal.
+“受限 / 保守检测”意味着 Kaiwu 可以启动登录流程，但仅在提供商暴露了安全的本地信号时，才会将认证状态报告为正常。
 
-## How this works with Custom ACP
+## 在自定义 ACP 中的工作机制
 
-Custom ACP is more generic than a dedicated provider page.
+与专属提供商页面相比，自定义 ACP 更加通用。
 
-For Custom ACP:
+对于自定义 ACP：
 
-- auth/login hints live on the **ACP backend** definition
-- different ACP backends can expose different login/status behavior
-So if you are using **Custom ACP**, think in terms of:
+- 认证与登录提示保存在 **ACP 后端**定义中
+- 不同的 ACP 后端可表现出不同的登录与状态行为
 
-- “is this backend ready on this machine?”
-- not “does the generic Custom ACP provider have one global login state?”
+因此，在使用**自定义 ACP** 时，请从以下角度考虑：
 
-See [Custom ACP](/agents/custom-acp).
+- “该后端在此设备上是否就绪？”
+- 而非“通用自定义 ACP 提供商是否存在全局登录状态？”
 
-## How the login terminal fits with the rest of Kaiwu
+详见[自定义 ACP](/agents/custom-acp)。
 
-The provider login terminal is not a one-off modal. It reuses the same terminal foundation as Kaiwu’s embedded session terminal:
+## 登录终端与 Kaiwu 其它模块的协作
 
-- the same connected-machine terminal transport
-- the same URL detection and open/copy actions
-- the same bottom-pane host on larger layouts
-- the same close / restart / clear behaviors
+提供商登录终端并非一次性弹窗，它复用了 Kaiwu 内嵌会话终端的底层架构：
 
-That keeps provider login flows consistent with the rest of the app instead of introducing a second terminal UI.
+- 复用同一套连接设备的终端传输通道
+- 复用网址识别以及打开/复制操作
+- 在大屏布局下复用同一个底部窗格宿主
+- 复用相同的关闭、重启与清屏行为
 
-## Common use cases
+这种设计避免了引入第二套终端界面，使提供商登录流程与应用其余部分保持一致。
 
-### “I installed a provider CLI and want to finish setup in the app”
+## 常见使用场景
 
-Open the provider’s settings page, confirm the CLI is detected, then use **Log in**.
+### “我安装了提供商 CLI，想在应用内完成配置”
 
-### “I already logged in in my terminal and want Kaiwu to pick it up”
+打开提供商设置页面，确认检测到 CLI，随后点击**登录**。
 
-Open the provider’s settings page and use **Check now**.
+### “我已经在外置终端中完成登录，想让 Kaiwu 识别到”
 
-### “I want to know which account the machine is using”
+打开提供商设置页面，点击**立即检查**。
 
-If the provider exposes an account label safely, Kaiwu shows it in **Logged in as**.
+### “我想查看设备当前使用的是哪个账号”
 
-### “I use env-based auth instead of interactive login”
+若提供商安全暴露了账号标签，Kaiwu 会将其显示在**登录身份**中。
 
-Kaiwu can detect env-backed auth for providers that expose it and shows the auth method accordingly.
+### “我使用的是环境变量认证，而非交互式登录”
 
-## Important limitations
+若提供商支持，Kaiwu 能够检测出基于环境变量的认证，并相应展示其认证方式。
 
-- Provider authentication is **machine-local**. Logging into a provider on one machine does not log it in on another machine.
-- Not every provider supports reliable non-interactive auth detection.
-- Connected services and machine-local auth can both exist for the same provider. They solve different problems.
-- If a provider login flow changes upstream, Kaiwu follows the provider CLI’s real current behavior rather than inventing a custom auth flow.
-- For Custom ACP, authentication/readiness is backend-specific rather than one global provider-wide state.
+## 重要限制
 
-## Provider authentication and session handoff
+- 提供商认证仅在**设备本地**生效。在某台设备上登录提供商，并不会让其他设备自动登录。
+- 并非所有提供商都支持可靠的非交互式认证检测。
+- 已连接服务与设备本地认证可同时存在于同一个提供商下，二者解决的问题各不相同。
+- 若上游变更了提供商登录流程，Kaiwu 会遵循提供商 CLI 当前的实际行为，而不会自行封装一套定制认证流程。
+- 对于自定义 ACP，认证与就绪状态绑定于具体的后端，而非全局统一的提供商状态。
 
-This matters directly for **session handoff between machines**.
+## 提供商认证与会话交接
 
-When you move a session to another machine:
+该机制对**跨设备会话交接**至关重要。
 
-- machine-local provider auth does not come along automatically
-- the target machine must still be able to run that provider/backend
+将某个会话迁移至其他设备时：
 
-If the provider/backend supports Kaiwu [Connected services](/accounts/connected-services), that is often the easiest way to make the target machine ready for handoff without depending only on a native CLI login on that machine.
+- 设备本地的提供商认证不会自动同步过去
+- 目标设备仍须具备运行该提供商或后端的能力
 
-If the provider/backend depends on native machine-local auth, you still need the destination machine to be authenticated.
+若该提供商或后端支持 Kaiwu [已连接服务](/accounts/connected-services)，这通常是让目标设备在交接时直接就绪的最简方案，无需单纯依赖该设备上的 CLI 原生登录。
 
-## Related guides
+若提供商或后端依赖本地原生认证，则仍须先在目标设备上完成认证。
 
-- [Providers](/agents)
-- [Custom ACP](/agents/custom-acp)
-- [Session handoff](/sessions/session-handoff)
-- [Connected services](/accounts/connected-services)
-- [Embedded terminal](/extras/embedded-terminal)
-- [Daemon](/apps/daemon)
+## 相关指南
+
+- [提供商](/agents)
+- [自定义 ACP](/agents/custom-acp)
+- [会话交接](/sessions/session-handoff)
+- [已连接服务](/accounts/connected-services)
+- [内嵌终端](/extras/embedded-terminal)
+- [守护进程](/apps/daemon)

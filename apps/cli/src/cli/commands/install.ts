@@ -10,11 +10,11 @@ import type { runDoctorCommand as runDoctorCommandDefault } from '@/ui/doctor';
 
 function usage(): string {
   return [
-    `${chalk.bold('happier install')} - Installation helpers`,
+    `${chalk.bold('kaiwu install')} - Installation helpers`,
     '',
     `${chalk.bold('Usage:')}`,
-    '  happier install doctor',
-    '  happier install provider <providerId> [--dry-run] [--force]',
+    '  kaiwu install doctor',
+    '  kaiwu install provider <providerId> [--dry-run] [--force]',
     '',
   ].join('\n');
 }

@@ -77,7 +77,7 @@ export async function cmdSessionCreate(
       await printJsonEnvelope({ ok: false, kind: 'session_create', error: { code: 'not_authenticated' } });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "happier auth login" first.');
+    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
     process.exit(1);
   }
 

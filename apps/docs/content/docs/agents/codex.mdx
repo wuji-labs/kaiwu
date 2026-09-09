@@ -1,52 +1,51 @@
 ---
 title: Codex
-description: Configure Codex in Kaiwu, including the default App Server backend, installables, local control, and resume behavior.
+description: 在 Kaiwu 中配置 Codex，包括默认 App Server 后端、可安装项、本地控制以及恢复行为。
 ---
+本文档介绍 Kaiwu 如何集成 **Codex**，以及日常使用中与 Codex 相关的关键行为特性。
 
-This page documents how Kaiwu integrates with **Codex** and what Codex-specific behavior matters for day-to-day usage.
+## 安装 Codex
 
-## Install Codex
-
-Kaiwu can install it for you:
+Kaiwu 可以代为安装：
 
 ```bash
 happier install provider codex
 ```
 
-Or install it yourself, then restart Kaiwu:
+也可以自行安装后重启 Kaiwu：
 
 ```bash
 npm install -g @openai/codex
 codex --version
 ```
 
-## Local authentication in Kaiwu
+## Kaiwu 本地认证
 
-Codex supports machine-local auth management in:
+Codex 支持在以下路径进行设备本地的认证管理：
 
-- **Settings → AI & Agents → AI backends → Codex**
+- **设置 → AI 与智能体 → AI 后端 → Codex**
 
-From there you can:
+在此界面中，你可以：
 
-- see whether Codex is logged in on the selected machine
-- see whether Kaiwu detected CLI login or `OPENAI_API_KEY`
-- open `codex login` directly inside Kaiwu
-- use **Check now** after logging in outside Kaiwu
+- 查看当前选定设备上 Codex 是否已登录
+- 查看 Kaiwu 检测到的是 CLI 登录还是 `OPENAI_API_KEY`
+- 直接在 Kaiwu 内部打开 `codex login`
+- 在 Kaiwu 外部完成登录后，点击**立即检查**
 
-For the shared user guide, see [Provider authentication](/agents/provider-authentication).
+通用指南请参阅[提供商认证](/agents/provider-authentication)。
 
-## Authentication (subscriptions and API keys)
+## 认证方式（订阅与 API Key）
 
-Codex can authenticate through Kaiwu connected services:
+Codex 可通过 Kaiwu 关联服务进行认证：
 
-- **OpenAI Codex subscription** (`openai-codex`): OAuth via device code, paste redirect URL, or in-app browser on native
-- **OpenAI API key** (`openai`): manual key entry
+- **OpenAI Codex 订阅**（`openai-codex`）：支持设备代码 OAuth 认证、粘贴重定向 URL，或在原生客户端使用内置浏览器
+- **OpenAI API Key**（`openai`）：手动输入密钥
 
-In the app:
+在 App 中配置：
 
-- Settings → Connected services → OpenAI (Codex)
+- 设置 → 关联服务 → OpenAI (Codex)
 
-In the CLI:
+在 CLI 中配置：
 
 ```bash
 # Subscription auth (recommended): device code flow
@@ -59,225 +58,211 @@ happier connect codex --paste
 happier connect codex --api-key
 ```
 
-Notes:
+注意事项：
 
-- Device auth can require enabling “device code authorization for Codex” in ChatGPT settings.
-- If you connect multiple profiles, you can choose which one to use when starting a new session.
-- On web, Kaiwu uses device or paste flows. Embedded OAuth is native-only.
+- 设备认证可能需要在 ChatGPT 设置中启用“Codex 设备代码授权”。
+- 若关联了多个配置文件，可在启动新会话时选择要使用的配置。
+- 在 Web 端，Kaiwu 仅支持设备代码流或粘贴 URL 流。内置 OAuth 仅限原生端使用。
 
-Codex-connected-service selection can also affect **session browsing** and the **Resume session** picker. See:
+Codex 关联服务的选择还会影响**会话浏览**以及**恢复会话**选择器。详见：
 
-- [Continuing a session](/sessions/continuing-a-session)
-- [Continuing a session](/sessions/continuing-a-session)
+- [继续会话](/sessions/continuing-a-session)
+- [继续会话](/sessions/continuing-a-session)
 
-## Session handoff
+## 会话交接
 
-Codex supports Kaiwu session handoff as an **experimental** capability.
+Codex 支持 Kaiwu 的会话交接功能，目前处于**实验性**阶段。
 
-What that means in practice:
+实际使用中的具体表现：
 
-- the handoff action can move the same Kaiwu session id to another machine
-- Codex continuity can work across machines when the destination is ready
-- the feature is less mature than Claude or OpenCode handoff
+- 交接操作可将同一个 Kaiwu 会话 ID 迁移至另一台设备
+- 目标设备就绪时，跨设备的 Codex 上下文连续性可以保持正常运作
+- 该特性的成熟度目前低于 Claude 或 OpenCode 的交接功能
 
-Practical guidance:
+实用建议：
 
-- prefer Claude or OpenCode when you want the most stable cross-machine handoff today
-- keep Codex authenticated and ready on the destination machine
-- use connected services when possible to reduce machine-local auth friction
+- 若追求当前最稳定的跨设备交接体验，建议优先使用 Claude 或 OpenCode
+- 确保目标设备上的 Codex 已完成认证并就绪
+- 尽量使用关联服务，以减少设备本地认证带来的摩擦
 
-See:
+参阅：
 
-- [Session handoff](/sessions/session-handoff)
-- [Connected services](/accounts/connected-services)
+- [会话交接](/sessions/session-handoff)
+- [关联服务](/accounts/connected-services)
 
-## Backends and local control
+## 后端与本地控制
 
-Kaiwu can run Codex using different backends depending on what’s available and what features you enable:
+Kaiwu 可根据当前可用环境及启用的功能，使用不同后端运行 Codex：
 
-- **Codex App Server (default)**: the recommended and default path for normal Codex sessions in Kaiwu. It supports the app-first workflow, local/remote switching, and vendor resume when the session metadata is available.
-- **Codex ACP**: still available as an explicit fallback when you switch Codex to ACP mode.
-- **Codex MCP**: still available for fresh sessions, but plain MCP is not the default or normal vendor-resume path in current Kaiwu builds.
-- **Local-control**: Kaiwu can switch a session into a “local control” mode that mirrors Codex activity (useful when moving control from the app back to your terminal).
+- **Codex App Server（默认）**：Kaiwu 中常规 Codex 会话的推荐及默认路径。它支持 App 优先工作流、本地/远程切换，并在会话元数据可用时支持厂商原生恢复。
+- **Codex ACP**：将 Codex 切换至 ACP 模式时，仍可作为显式回退方案使用。
+- **Codex MCP**：全新会话仍可使用该后端，但在当前 Kaiwu 版本中，纯 MCP 既非默认配置，也不是常规的厂商恢复路径。
+- **本地控制**：Kaiwu 可将会话切换至“本地控制”模式以镜像 Codex 的活动（适用于将控制权从 App 切回终端的场景）。
 
-Important Codex behavior:
+Codex 关键行为说明：
 
-- Kaiwu defaults Codex to **App Server**
-- old `mcp_resume` behavior is gone
-- if App Server is unavailable for a **new** session, the default Codex launch fails instead of silently falling back; choose ACP or MCP explicitly if you want a different backend
-- local/remote switching and normal Codex resume work on the default App Server path
+- Kaiwu 默认将 Codex 设为 **App Server** 后端
+- 旧版的 `mcp_resume` 行为已移除
+- 启动**新**会话时若 App Server 不可用，Codex 默认启动将直接报错，而不会默默回退；如需使用其他后端，请显式选择 ACP 或 MCP
+- 本地/远程切换以及常规的 Codex 恢复均在默认的 App Server 路径上运作
 
-If you manually switch Codex to plain `mcp` in settings, new sessions can still run, but vendor resume is not available on that plain MCP path.
+若在设置中手动将 Codex 切换为纯 `mcp`，新会话仍可正常运行，但该纯 MCP 路径不支持厂商原生恢复。
 
-Codex local control is exclusive. When the Codex TUI owns the session, Kaiwu watches Codex turn boundaries and process state so it can tell when it is safe to resume remote processing. Completed turns, aborted turns, and provider process exit are treated as safe boundaries for handing control back to Kaiwu.
+Codex 本地控制具有排他性。当会话由 Codex TUI 接管时，Kaiwu 会监听 Codex 的轮次边界和进程状态，以准确判断何时可以安全恢复远程处理。轮次完成、轮次中止以及提供商进程退出，均会被视为将控制权交还给 Kaiwu 的安全边界。
 
-Codex model availability depends on the active Codex backend, installed runtime, and account state. The new-session engine picker can show the currently available Codex models, model-specific options such as reasoning effort, and favorite Codex model shortcuts when those models are available for the selected backend.
+Codex 模型可用性取决于当前激活的 Codex 后端、已安装的运行时以及账户状态。新会话引擎选择器可显示当前可用的 Codex 模型、特定模型选项（如推理深度），以及在所选后端支持时显示收藏的 Codex 模型快捷入口。
 
-For the full model guide, see:
+完整模型指南请参阅：
 
-- [Model and engine selection](/agents/model-and-engine-selection)
+- [模型与引擎选择](/agents/model-and-engine-selection)
 
-For the full user-facing MCP guide in Kaiwu, see:
+Kaiwu 中面向用户的完整 MCP 指南请参阅：
 
-- [MCP servers](/extending/mcp-servers)
+- [MCP 服务器](/extending/mcp-servers)
 
-## Codex ACP installables behavior
+## Codex ACP 可安装组件行为
 
-Codex ACP depends on a machine-local **Codex ACP** installable.
+Codex ACP 依赖设备本地的 **Codex ACP** 可安装组件。
 
-Kaiwu exposes that in:
+Kaiwu 将其呈现在：
 
-- **Machine Details → Installables**
+- **设备详情 → 可安装组件**
 
-This matters for two reasons:
+该组件至关重要，原因有二：
 
-- **cold start performance** — a preinstalled Codex ACP binary avoids first-run install/setup delay
-- **ACP-mode reliability** — if you explicitly choose ACP, keeping Codex ACP installed avoids install-time waits and missing-capability errors
+- **冷启动性能**——预装 Codex ACP 二进制文件可避免首次运行时的安装与配置延迟
+- **ACP 模式可靠性**——如果显式选择了 ACP 模式，保持预装 Codex ACP 能免去安装等待，避免因缺少依赖而报错
 
-### Default behavior
+### 默认行为
 
-For the managed Codex ACP installable, Kaiwu defaults to:
+对于受管的 Codex ACP 可安装组件，Kaiwu 默认设置为：
 
-- **Auto-install when needed**: on
-- **Auto-update**: auto
+- **必要时自动安装**：开启
+- **自动更新**：自动
 
-If you select the Codex ACP backend for a new session and Codex ACP is missing, Kaiwu can install it in the background so that later sessions on that machine start more reliably and with less startup overhead.
+如果为新会话选择了 Codex ACP 后端且设备缺少该组件，Kaiwu 可在后台自动安装，从而让该设备后续启动会话更稳定、启动开销更低。
 
-### Important distinction: new sessions vs resume
+### 关键区别：新会话与恢复会话
 
-For a **new** Codex session:
+对于**新** Codex 会话：
 
-- Kaiwu can install Codex ACP in the background when policy allows it
-- later ACP sessions on that machine benefit from having the installable ready ahead of time
+- 策略允许时，Kaiwu 可在后台安装 Codex ACP
+- 该设备后续的 ACP 会话可直接受益于提前就绪的组件
 
-For **resume in ACP mode**:
+对于 **ACP 模式下的恢复**：
 
-- Codex ACP must already be available
-- Kaiwu does not silently replace resume with a fresh session
+- Codex ACP 必须已处于可用状态
+- Kaiwu 不会静默使用全新会话替代恢复操作
 
-If you want predictable Codex resume while using ACP on a machine, keep Codex ACP installed there and leave automatic updates enabled unless you have a specific reason not to. If you stay on the default App Server path, this ACP installable is not required for normal resume.
+如果希望在该设备使用 ACP 时获得可预期的 Codex 恢复体验，请保持安装 Codex ACP 并启用自动更新，除非有特定理由关闭。若使用默认的 App Server 路径，常规恢复则无需此 ACP 可安装组件。
 
-Full guide: [Installables](/extending/installables).
+完整指南：[可安装组件](/extending/installables)。
 
-## Start in Kaiwu, continue in the terminal
+## Kaiwu 启动，终端接续
 
-Codex supports Kaiwu’s attach flow for app-started sessions:
+Codex 支持 Kaiwu 对 App 启动会话的接入（attach）工作流：
 
-- start the session from the Kaiwu app,
-- let it run remotely in the background on your machine,
-- later run `happier attach <session-id>` from a terminal on that same machine,
-- switch into local control when you want to use Codex’s terminal UI directly.
+- 在 Kaiwu App 中启动会话，
+- 让其在设备后台远程运行，
+- 后续在同一台设备的终端中运行 `happier attach ⟦K7⟧`，
+- 需要直接使用 Codex 终端 UI 时，切换至本地控制。
 
-You can later switch back to remote control and keep using the same session from Kaiwu.
+稍后你还可以切换回远程控制，继续在 Kaiwu 中使用该会话。
 
-Local control starts from the terminal. Use `happier attach <session-id>` on the owning machine.
+本地控制从终端发起。在宿主设备上使用 `happier attach ⟦K8⟧` 即可。
 
-If you send a message from the app while Codex is locally controlled, Kaiwu stores it in the pending queue first. If Codex is idle, Kaiwu can switch back to remote control and process it. If Codex is still running a local turn, Kaiwu waits for that turn to finish, abort, or exit before switching, which avoids interrupting the current Codex TUI turn.
+在 Codex 处于本地控制期间，若从 App 发送消息，Kaiwu 会先将其放入待处理队列中。若 Codex 处于空闲状态，Kaiwu 可切回远程控制并处理该消息；若 Codex 仍在执行本地轮次，Kaiwu 会等待当前轮次完成、中止或退出后再执行切换，避免打断当前 Codex TUI 的轮次。
 
-On machines with `tmux`, this is usually a tmux-backed attach flow. On Windows, use Kaiwu’s Windows remote session mode (`Windows Terminal`, `Console`, or `Hidden`) instead of relying on tmux.
+在支持 `tmux` 的设备上，这通常是基于 tmux 的接入流程。在 Windows 上，请使用 Kaiwu 的 Windows 远程会话模式（`Windows Terminal`、`Console` 或 `Hidden`），而不要依赖 tmux。
 
-For the end-to-end workflow, see [Features → Attach to a running session](/sessions/attach-to-session).
+完整端到端工作流请参阅[功能特性 → 接入运行中的会话](/sessions/attach-to-session)。
 
-## Resume inactive Codex sessions
+## 恢复非活跃 Codex 会话
 
-Codex resume in Kaiwu normally uses the default App Server path. ACP resume still works when you explicitly choose ACP.
+Kaiwu 中的 Codex 恢复通常走默认的 App Server 路径。显式选择 ACP 时，ACP 恢复依然有效。
 
-An inactive Codex session can be resumed when:
+非活跃 Codex 会话在满足以下条件时可以恢复：
 
-- the session has valid Codex resume metadata
-- the current backend/machine combination supports resume for that session (App Server by default, or ACP when explicitly selected)
-- any required machine dependency for the selected resume path is already installed
+- 会话具备有效的 Codex 恢复元数据
+- 当前后端与设备的组合支持恢复该会话（默认为 App Server，显式指定时为 ACP）
+- 所选恢复路径依赖的各项设备环境均已安装就绪
 
-From the CLI, use:
+在 CLI 中，使用：
 
 ```bash
 happier resume
 ```
 
-or:
+或：
 
 ```bash
 happier resume <session-id>
 ```
 
-From the app/web UI, inactive Codex sessions are resumable only when those same checks pass.
+在 App 或 Web 界面中，非活跃 Codex 会话同样只有通过上述检查后方可恢复。
 
-Resume is strict: Kaiwu does not silently replace a failed Codex resume with a fresh Codex session.
+恢复机制判定极为严格：若 Codex 恢复失败，Kaiwu 绝不会静默新建一个 Codex 会话取而代之。
 
-## Permissions and modes
+## 权限与模式
 
-Kaiwu uses a **provider-agnostic permission mode** (`default`, `read-only`, `safe-yolo`, `yolo`) and applies it to Codex in the best available way.
+Kaiwu 采用**与提供商无关的权限模式**（`default`、`read-only`、`safe-yolo`、`yolo`），并尽可能以最佳方式将其映射至 Codex。
 
-For the full user guide (CLI flags, UI picker, defaults, apply timing), see:
+完整用户指南（包括 CLI 参数、UI 选择器、默认值和应用时机）请参阅：
 
-- [Permissions](/sessions/permissions)
-- [Session modes](/sessions/session-modes)
+- [权限](/sessions/permissions)
+- [会话模式](/sessions/session-modes)
 
-### What permission modes mean in Codex
+### 权限模式在 Codex 中的含义
 
-Codex enforcement is a combination of:
-- **Kaiwu tool-approval gating** (what Kaiwu will auto-approve vs deny vs prompt for), and
-- **provider-native sandbox/policy** (what the Codex backend enforces internally).
+Codex 的策略执行由两部分共同组成：
+- **Kaiwu 工具审批拦截**（决定 Kaiwu 会自动批准、拒绝还是提示确认），以及
+- **提供商原生沙箱/策略**（Codex 后端内部强制执行的安全规则）。
 
-Important notes:
+重要说明：
 
-- `read-only` is enforced by Kaiwu by **denying write-like actions** (edits/patches/exec) when Kaiwu is the approver.
-- `safe-yolo` and `yolo` control whether Kaiwu prompts vs auto-approves actions it can approve.
-- Codex backends may have sandbox policies that are **fixed at session start**. Changing permission mode mid-session can still update Kaiwu’s approval behavior, but it may not change Codex’s internal sandbox until you start a new Codex session.
+- 当由 Kaiwu 负责审批时，Kaiwu 会通过**拒绝写类操作**（编辑/补丁/执行）来强制执行 `read-only`。
+- `safe-yolo` 和 `yolo` 决定 Kaiwu 对有权审批的操作是弹出提示还是自动批准。
+- Codex 后端的沙箱策略可能在**会话启动时即已固定**。在会话中途更改权限模式仍能更新 Kaiwu 的审批行为，但可能无法更改 Codex 的内部沙箱，直至启动新的 Codex 会话。
 
-### Plan mode
+### 计划模式（Plan mode）
 
-Plan is a **session mode**, not a permission mode, and Codex reaches it
-differently from Claude.
+计划是**会话模式**，而非权限模式，Codex 启用该模式的方式与 Claude 不同。
 
-Claude's plan mode is provider-native, so Kaiwu gives it a dedicated control.
-Codex's modes arrive over ACP from the running Codex app-server, so what is
-available is whatever that build advertises for the session — `plan` among them.
-You select it from the **Mode** control rather than a plan-specific toggle.
+Claude 的计划模式由提供商原生支持，因此 Kaiwu 为其提供了专属控制项。Codex 的模式则是从运行中的 Codex app-server 通过 ACP 传入，因此当前可用的模式取决于该版本为当前会话通告的内容——`plan` 就在其中。你需要在**模式**控制项中选择它，而非通过计划专属开关来切换。
 
-Because the list comes from the runtime, Kaiwu shows the Mode control only when
-the current Codex backend and session actually advertise modes. If they do not,
-the control is hidden rather than offering a mode that would fail.
+由于该列表动态来自运行时，Kaiwu 仅在当前 Codex 后端和会话确实声明了可用模式时才显示“模式”控制项；如果未声明，控制项将自动隐藏，以避免展示后调用失败。
 
-Kaiwu keeps the older spelling working: `--permission-mode plan` maps to
-`--agent-mode plan`.
+Kaiwu 保持对旧写法的兼容：`--permission-mode plan` 会映射至 `--agent-mode plan`。
 
-## Code review
+## 代码审查
 
-Codex can run a review through its own review API rather than by being asked in
-prose, which produces structured findings instead of a paragraph.
+Codex 可直接调用专属审查 API 执行代码审查，无需在对话提示词中用自然语言发起，审查结果也会以结构化结论而非段落文本呈现。
 
-Start one inline with:
+在对话中直接启动审查：
 
 ```
 /codex.review
 ```
 
-Kaiwu's own review entry point uses the same path where the request can be
-represented safely. Findings come back normalized, so they render as a review
-card in the transcript rather than as free text, and entering and leaving review
-show up as transcript events.
+Kaiwu 自身的审查入口在请求支持安全表达时，同样使用该路径。返回的结论经过格式规范化，会在会话记录中渲染为审查卡片而非自由文本；进入与退出审查的过程也会作为事件记录在会话记录中。
 
-Where the running Codex build does not offer the review API, Kaiwu reports the
-method as unsupported rather than silently falling back to an ordinary prompt
-that would look like a review but not be one.
+若当前运行的 Codex 版本不提供该审查 API，Kaiwu 会明确提示该方法不受支持，而不是静默退化为伪装成审查的普通提示词调用。
 
-For marking up a diff yourself and sending those notes to an agent — any agent,
-not just Codex — see [Review comments](/code/review-comments).
+若需自行标记 diff 并将批注发送给智能体（适用于任意智能体，不仅限于 Codex），请参阅[审查评论](/code/review-comments)。
 
-## Switching and permission persistence
+## 切换与权限持久化
 
-When you change permission mode:
-- it is stored canonically in **session metadata**, and
-- it follows you when you open the same session on another device or switch local ↔ remote.
+更改权限模式时：
+- 变更会规范存储在**会话元数据**中，并且
+- 在另一台设备打开同一会话或在本地与远程之间切换时，设置将完整继承。
 
-If you choose **Apply timing: next prompt** in the app:
-- the selection applies to the next message you send (as message metadata), and
-- it becomes session-wide only after that message is committed.
+如果在 App 中勾选了**生效时机：下一条提示词**：
+- 该选择仅应用于你发送的下一条消息（作为消息元数据生效），并且
+- 仅在该消息提交后，才会成为整个会话的全局配置。
 
-## Related
+## 相关内容
 
-- [Agent capabilities](/agents/capabilities) — what this agent supports, generated from the manifest.
-- [Choosing an agent](/agents)
-- [Model and engine selection](/agents/model-and-engine-selection)
-- [Agent authentication](/agents/provider-authentication)
+- [智能体能力](/agents/capabilities)——根据清单生成，展示该智能体支持的所有特性。
+- [选择智能体](/agents)
+- [模型与引擎选择](/agents/model-and-engine-selection)
+- [智能体认证](/agents/provider-authentication)

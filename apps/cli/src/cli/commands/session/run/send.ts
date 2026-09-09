@@ -18,7 +18,7 @@ export async function cmdSessionRunSend(
   const resume = hasFlag(argv, '--resume');
 
   if (!idOrPrefix || !runId || !message) {
-    throw new Error('Usage: happier session run send <session-id-or-prefix> <run-id> <message> [--resume] [--json]');
+    throw new Error('Usage: kaiwu session run send <session-id-or-prefix> <run-id> <message> [--resume] [--json]');
   }
 
   const credentials = await deps.readCredentialsFn();
@@ -27,7 +27,7 @@ export async function cmdSessionRunSend(
       await printJsonEnvelope({ ok: false, kind: 'session_run_send', error: { code: 'not_authenticated' } });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "happier auth login" first.');
+    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
     process.exit(1);
   }
 

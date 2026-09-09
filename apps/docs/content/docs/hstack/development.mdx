@@ -1,129 +1,128 @@
 ---
-title: Development workflow
-description: The “one-stop” guide to develop Kaiwu locally with hstack (worktrees + stacks + dev-auth).
+title: 开发工作流
+description: 使用 hstack（工作树 + 栈 + dev-auth）本地开发 Kaiwu 的“一站式”指南。
+---
+本文旨在为**开发者与 LLM** 提供完备的指导，确保在 Kaiwu monorepo 中的操作安全且可复现。
+
+初次使用请先阅读以下内容：
+
+- 工作树与 Fork：[Worktrees and forks](/hstack/worktrees-and-forks)
+- 栈：[Stacks (isolated instances)](/hstack/stacks)
+- 路径与环境变量优先级：[Paths, folders, and env precedence](/hstack/paths-and-env)
+- 快速上手（即拷即用工作流）：[Quickstarts](/hstack/quickstarts)
+- 运行模式（dev 与 start 的区别）：[Running (dev vs start)](/hstack/running)
+- 校验（类型检查、代码检查与测试）：[Validation (typecheck, lint, test)](/hstack/validation)
+- CLI 命令参考：[CLI reference (high-signal)](/hstack/cli-reference)
+- 调试指南：[Debugging (inspect + env knobs)](/hstack/debugging)
+- 排障指南：[Troubleshooting](/hstack/troubleshooting)
+
 ---
 
-This document is intended to be sufficient for **humans and LLMs** to work safely and repeatably in the Kaiwu monorepo.
-
-If you’re brand new, read these first:
-
-- Worktrees + forks: [Worktrees and forks](/hstack/worktrees-and-forks)
-- Stacks: [Stacks (isolated instances)](/hstack/stacks)
-- Paths/env precedence: [Paths, folders, and env precedence](/hstack/paths-and-env)
-- Quickstarts (copy/paste flows): [Quickstarts](/hstack/quickstarts)
-- Running (dev vs start): [Running (dev vs start)](/hstack/running)
-- Validation (typecheck/lint/test): [Validation (typecheck, lint, test)](/hstack/validation)
-- CLI reference: [CLI reference (high-signal)](/hstack/cli-reference)
-- Debugging: [Debugging (inspect + env knobs)](/hstack/debugging)
-- Troubleshooting: [Troubleshooting](/hstack/troubleshooting)
-
----
-
-## Core concepts (the mental model)
+## 核心概念（心智模型）
 
 ### Monorepo
 
-hstack is **monorepo-first**: UI/CLI/server all live in the same Kaiwu git repo.
+hstack **以 Monorepo 为核心**构建：UI、CLI 以及服务器代码均存放在同一个 Kaiwu Git 仓库中。
 
-Current layout:
+当前目录结构：
 
-- `apps/ui` (UI)
-- `apps/cli` (CLI + daemon)
-- `apps/server` (server; light + full flavors)
-- `apps/stack` (this tool)
+- `apps/ui`（UI）
+- `apps/cli`（CLI 与守护进程）
+- `apps/server`（服务器；提供轻量版和完整版两种形态）
+- `apps/stack`（本工具）
 
-### Workspace checkouts (where code lives)
+### 工作区签出（代码存放位置）
 
-Your workspace contains:
+你的工作区包含以下内容：
 
-- `main/` — stable checkout (treat as read-only)
-- `dev/` — the canonical development checkout (dev branch)
-- categorized worktrees:
-  - `pr/<...>` — PR checkouts (`hstack wt pr ...`)
-  - `local/<owner>/<...>` — feature worktrees
-  - `tmp/<owner>/<...>` — throwaway worktrees
+- `main/` —— 稳定版本签出（请视为只读）
+- `dev/` —— 标准开发签出（dev 分支）
+- 分类工作树：
+  - `pr/<...>` —— PR 签出（`hstack wt pr ...`）
+  - `local/⟦K24⟧/<...>` —— 特性工作树
+  - `tmp/⟦K25⟧/<...>` —— 临时工作树
 
-### Worktrees (where you implement)
+### 工作树（代码编写位置）
 
-**Never** develop directly in `main/`. Treat it as “launcher defaults”.
+**切勿**直接在 `main/` 中开发，请将其视为“启动器默认环境”。
 
-All implementation work should happen in:
+所有功能实现均应在以下位置进行：
 
-- `dev/`, or
-- a worktree under `local/`, `tmp/`, or `pr/`.
+- `dev/`，或
+- 位于 `local/`、`tmp/`、`pr/` 下的工作树。
 
-### Stacks (how you test safely)
+### 栈（安全测试方案）
 
-A **stack** is an isolated runtime environment (ports + dirs + DB + CLI home), stored under:
+**栈**是隔离的运行时环境（包含独立的端口、目录、数据库以及 CLI 主目录），存放在：
 
 ```
 ~/.happier/stacks/<stack>/...
 ```
 
-Each stack is configured by:
+每个栈的配置位于：
 
 ```
 ~/.happier/stacks/<stack>/env
 ```
 
-Stacks are how you test changes without mutating your “main” environment.
+通过使用栈，你可以在不污染“主”环境的前提下测试代码修改。
 
-### Server flavor (which backend you’re running)
+### 服务器形态（运行哪种后端）
 
-Each stack runs exactly one server flavor:
+每个栈仅运行一种服务器形态：
 
-- `happier-server-light` (recommended) — simplest local install (SQLite by default; optional embedded Postgres via PGlite)
-- `happier-server` (full) — Docker-managed Postgres/Redis/Minio
+- `happier-server-light`（推荐）—— 最简单的本地安装形态（默认使用 SQLite；可通过 PGlite 选用嵌入式 Postgres）
+- `happier-server`（完整版）—— 由 Docker 管理的 Postgres/Redis/Minio 环境
 
-See: [Server flavors](/hstack/server-flavors).
-
----
-
-## Non‑negotiables (discipline that keeps stacks safe)
-
-- **Use `hstack` as the entrypoint**
-  - Don’t run raw `yarn dev`, `expo`, `docker compose`, etc. when you intend stack-scoped behavior.
-  - hstack needs stack-scoped env + runtime bookkeeping to keep things isolated.
-- **Develop in worktrees**
-  - Use `dev/` or `hstack wt ...` worktrees; don’t edit `main/`.
-- **Test in non-`main` stacks**
-  - Prefer `hstack stack <stack> dev|start|test|typecheck|lint` so you don’t mutate the default stack.
-- **Don’t kill global daemons**
-  - Multiple stack daemons are expected (one per stack).
-  - Stop stacks explicitly: `hstack stop` or `hstack stack stop <name>`.
+详情参见：[Server flavors](/hstack/server-flavors)。
 
 ---
 
-## Quickstarts (common development flows)
+## 原则底线（保障栈环境安全的开发纪律）
 
-### 1) Typical feature work (UI + CLI + server changes in one worktree)
+- **统一以 `hstack` 作为入口**
+  - 如果需要栈级隔离行为，切勿直接运行裸命令 `yarn dev`、`expo`、`docker compose` 等。
+  - hstack 需要依赖栈范围的环境变量与运行时记录来保持环境相互隔离。
+- **始终在工作树中开发**
+  - 使用 `dev/` 或 `hstack wt ...` 工作树；不要直接修改 `main/`。
+- **在非 `main` 栈中测试**
+  - 优先选用 `hstack stack ⟦K26⟧ dev|start|test|typecheck|lint`，避免变更污染默认栈。
+- **不要杀掉全局守护进程**
+  - 系统设计上允许多个栈的守护进程并存（每个栈一个）。
+  - 请显式停止指定栈：执行 `hstack stop` 或 `hstack stack stop ⟦K27⟧`。
 
-Create a worktree based on upstream (recommended for clean PR history):
+---
+
+## 快速上手（常用开发流）
+
+### 1) 典型特性开发（在单个工作树中同时修改 UI、CLI 和服务器）
+
+基于上游创建工作树（推荐此做法以保持干净的 PR 提交历史）：
 
 ```bash
 hstack wt new local/my-feature --from=upstream --use
 ```
 
-Create an isolated stack and point it at the active worktree:
+创建隔离栈并将其指向当前活动工作树：
 
 ```bash
 hstack stack new exp1
 hstack stack wt exp1 -- use active
 ```
 
-Run dev mode:
+以开发模式运行：
 
 ```bash
 hstack tui stack dev exp1
 ```
 
-If you can’t use the TUI (non-interactive terminals / CI), run:
+如果无法使用 TUI（例如非交互式终端或 CI 环境），请运行：
 
 ```bash
 hstack stack dev exp1
 ```
 
-Validate:
+执行校验：
 
 ```bash
 hstack stack typecheck exp1
@@ -131,9 +130,9 @@ hstack stack lint exp1
 hstack stack test exp1
 ```
 
-### 2) Use the canonical `dev/` checkout instead of a feature worktree
+### 2) 使用标准 `dev/` 签出代替特性工作树
 
-Create a dev stack and pin it to `dev/`:
+创建开发栈并将其固定到 `dev/`：
 
 ```bash
 hstack stack new dev
@@ -143,21 +142,21 @@ hstack tui stack dev dev
 hstack tui stack dev dev --mobile
 ```
 
-### 3) Testing an upstream PR locally (recommended)
+### 3) 本地测试上游 PR（推荐）
 
-Create a PR worktree:
+创建 PR 工作树：
 
 ```bash
 hstack wt pr 123 --use
 ```
 
-Create an isolated PR stack (idempotent updates supported):
+创建隔离的 PR 栈（支持幂等更新）：
 
 ```bash
 hstack stack pr pr123 --repo=123 --dev
 ```
 
-If you already have a `dev-auth` seed stack, add:
+如果已经创建过 `dev-auth` 种子栈，可以追加参数：
 
 ```bash
 hstack stack pr pr123 --repo=123 --dev --seed-auth --copy-auth-from=dev-auth --link-auth
@@ -165,24 +164,24 @@ hstack stack pr pr123 --repo=123 --dev --seed-auth --copy-auth-from=dev-auth --l
 
 ---
 
-## PR workflow (dev branch targeting)
+## PR 工作流（以 dev 分支为目标）
 
-Kaiwu uses:
+Kaiwu 的分支规划如下：
 
-- `main` as the stable branch
-- `dev` as the contribution branch (PR base)
+- `main`：稳定分支
+- `dev`：贡献分支（PR 的基准分支）
 
-Recommended flow:
+推荐流程：
 
-1. Base your worktree on `upstream/dev`
-2. Push to your fork (`origin`)
-3. Open a PR **into `upstream/dev`**
+1. 基于 `upstream/dev` 创建工作树
+2. 推送至个人 Fork 仓库（`origin`）
+3. **向 `upstream/dev`** 提交 PR
 
-hstack helps keep this clean by defaulting new worktrees to upstream-based histories and by encouraging `origin` pushes.
+hstack 默认基于上游历史创建新工作树，并推荐使用 `origin` 推送，从而有效保障 PR 历史的整洁。
 
-See: [Worktrees and forks](/hstack/worktrees-and-forks).
+详情参见：[Worktrees and forks](/hstack/worktrees-and-forks)。
 
-If you prefer a guided workflow for “extract feature branch from dev”, use:
+若想通过引导式工作流从 dev 分支提取特性分支，可运行：
 
 ```bash
 hstack contrib ensure-dev
@@ -191,66 +190,66 @@ hstack contrib extract my-feature --push
 
 ---
 
-## `start` vs `dev`
+## `start` 与 `dev` 的区别
 
-- `hstack start` / `hstack stack start <name>`: “production-like” behavior (built UI, fewer watch processes)
-- `hstack dev` / `hstack stack dev <name>`: development (watchers, dev servers, faster iteration)
+- `hstack start` / `hstack stack start ⟦K28⟧`：接近生产环境的表现（使用构建后的 UI，文件监听进程更少）
+- `hstack dev` / `hstack stack dev ⟦K29⟧`：开发环境（启动监听器与开发服务器，迭代更快速）
 
-If you’re unsure, use `hstack tui stack dev <stack>` (or `hstack stack dev <stack>` in non-interactive environments).
+如果不确定该选哪个，请使用 `hstack tui stack dev ⟦K30⟧`（在非交互式环境中请使用 `hstack stack dev ⟦K31⟧`）。
 
 ---
 
-## Developer-only: set up `dev-auth` once (recommended)
+## 开发者专属：一次性配置 `dev-auth`（推荐）
 
-Create the seed stack and do the guided login:
+创建种子栈并完成交互式登录：
 
 ```bash
 hstack auth seed
 ```
 
-Then new stacks can reuse the same auth:
+后续创建新栈即可直接复用该认证凭据：
 
 ```bash
 hstack stack auth <stack> copy-from dev-auth
 ```
 
-See: [Auth (dev-auth seeding)](/hstack/auth).
+详情参见：[Auth (dev-auth seeding)](/hstack/auth)。
 
 ---
 
-## Process isolation (why stops/restarts are safe)
+## 进程隔离（停止与重启操作安全的原因）
 
-Stacks track runtime ownership in a per-stack runtime state file:
+每个栈都会在专用的运行时状态文件中记录其归属的运行中进程：
 
 ```
 ~/.happier/stacks/<stack>/stack.runtime.json
 ```
 
-hstack uses this to:
+hstack 依此实现：
 
-- stop only stack-owned processes
-- reuse ephemeral ports on restart when appropriate
-- avoid killing by port globally
+- 仅停止属于当前栈的进程
+- 重启时尽可能复用临时端口
+- 避免直接按端口号进行全局误杀
 
 ---
 
-## “Upstream-first” worktree workflow (recommended)
+## “上游优先”工作树工作流（推荐）
 
-The goal is:
+该流程的目标是：
 
-- keep your fork’s long-lived branches clean and stable
-- create upstream-targeting PR branches quickly
-- avoid mixing “fork-only” changes into upstream PRs
+- 保持个人 Fork 长期分支的整洁与稳定
+- 快速创建面向基准上游的 PR 分支
+- 避免将仅用于 Fork 的本地修改混入上游 PR 中
 
-Suggested pattern:
+推荐操作模式：
 
-1) Create a worktree based on `upstream/dev`:
+1) 基于 `upstream/dev` 创建工作树：
 
 ```bash
 hstack wt new local/my-feature --from=upstream --base=upstream/dev --use
 ```
 
-2) Develop and validate inside an isolated stack:
+2) 在隔离栈中进行开发与校验：
 
 ```bash
 hstack stack new exp1
@@ -258,31 +257,31 @@ hstack stack wt exp1 -- use active
 hstack stack dev exp1
 ```
 
-3) Push the branch to your fork and open a PR into `upstream/dev`:
+3) 将分支推送到个人 Fork，并向 `upstream/dev` 发起 PR：
 
 ```bash
 hstack wt push active --remote=origin
 ```
 
-If you need to keep a fork-only “distribution patch” (rare), keep it on a separate branch and do not merge it into your upstream PR worktrees.
+如果确实需要保留仅用于 Fork 的发行补丁（极少见），请放在独立分支中维护，切勿合并到面向由上游合并的 PR 工作树里。
 
 ---
 
-## Watch mode + hot-reload-ish iteration
+## 监听模式与热重载迭代
 
-hstack’s `dev` mode is the default for development because it:
+hstack 默认使用 `dev` 模式进行开发，原因如下：
 
-- starts the server in a dev-friendly mode
-- starts the UI dev server (Expo/Next, depending on the app)
-- restarts processes safely using stack-owned runtime state
+- 以适配开发的方式启动服务器
+- 启动 UI 开发服务器（视具体应用决定启动 Expo 还是 Next）
+- 基于栈自身的运行时状态安全重启各进程
 
-When switching flags (e.g. enabling mobile), it’s usually better to restart the stack using hstack rather than restarting individual processes.
+在切换运行选项参数（如启用移动端）时，推荐使用 hstack 重启整个栈，而非逐个手动重启各个进程。
 
 ---
 
-## Validation commands (typecheck / lint / test)
+## 校验命令（类型检查、代码检查与测试）
 
-Prefer stack-scoped validation so the environment matches what you’re actually running:
+推荐在栈作用域内执行校验，以确保测试环境与实际运行环境一致：
 
 ```bash
 hstack stack typecheck exp1
@@ -290,7 +289,7 @@ hstack stack lint exp1
 hstack stack test exp1
 ```
 
-For the active checkout (non-stack), you can also run:
+针对当前活动的签出目录（非栈环境），也可以直接运行：
 
 ```bash
 hstack typecheck
@@ -300,77 +299,77 @@ hstack test
 
 ---
 
-## CLI reference (high-signal)
+## CLI 命令参考（高频核心）
 
-Core:
+核心操作：
 
-- Setup (from source): `hstack setup-from-source --profile=dev|selfhost` (deprecated alias: `hstack setup`)
-- Run: `hstack start` / `hstack dev`
-- Stop: `hstack stop`
-- Diagnostics: `hstack where`, `hstack doctor`
+- 初始化（源码安装）：`hstack setup-from-source --profile=dev|selfhost`（已废弃别名：`hstack setup`）
+- 运行：`hstack start` / `hstack dev`
+- 停止：`hstack stop`
+- 诊断：`hstack where`、`hstack doctor`
 
-Stacks:
+栈管理：
 
-- Create/list/info: `hstack stack new`, `hstack stack list`, `hstack stack info`
-- Run: `hstack stack dev <name>`, `hstack stack start <name>`
-- Switch repo: `hstack stack wt <name> -- use <spec>`
-- Switch server: `hstack stack srv <name> -- use happier-server-light|happier-server`
-- Auth: `hstack stack auth <name> status|login|copy-from`
-- PR stacks: `hstack stack pr <name> --repo=<pr>`
+- 创建/列出/查看信息：`hstack stack new`、`hstack stack list`、`hstack stack info`
+- 运行：`hstack stack dev ⟦K32⟧`、`hstack stack start ⟦K33⟧`
+- 切换仓库目录：`hstack stack wt ⟦K34⟧ -- use ⟦K35⟧`
+- 切换服务器形态：`hstack stack srv ⟦K36⟧ -- use happier-server-light|happier-server`
+- 认证管理：`hstack stack auth ⟦K37⟧ status|login|copy-from`
+- PR 栈：`hstack stack pr ⟦K38⟧ --repo=⟦K39⟧`
 
-Worktrees:
+工作树管理：
 
-- Create/use: `hstack wt new <slug> --use`
-- PR checkout: `hstack wt pr <pr> --use`
-- List/status/update: `hstack wt list`, `hstack wt status`, `hstack wt update`, `hstack wt update-all`
-- Push: `hstack wt push active --remote=origin`
+- 创建/使用：`hstack wt new ⟦K40⟧ --use`
+- PR 签出：`hstack wt pr ⟦K41⟧ --use`
+- 列出/状态/更新：`hstack wt list`、`hstack wt status`、`hstack wt update`、`hstack wt update-all`
+- 推送：`hstack wt push active --remote=origin`
 
-Auth seeding:
+认证播种：
 
-- Seed stack: `hstack auth seed`
-- Bulk seed: `hstack auth copy-from dev-auth --all --except=main,dev-auth`
-- Dev key: `hstack auth dev-key`
-
----
-
-## Useful environment knobs (high-signal)
-
-Paths:
-
-- `HAPPIER_STACK_WORKSPACE_DIR` (workspace root)
-- `HAPPIER_STACK_REPO_DIR` (active checkout; usually managed by `hstack wt use`)
-- `HAPPIER_STACK_CLI_ROOT_DIR` (run hstack from a local checkout)
-
-Auth:
-
-- `HAPPIER_STACK_AUTH_SEED_FROM` (default auth source for new stacks; commonly `dev-auth`)
-- `HAPPIER_STACK_AUTH_MODE` (`copy` vs `link`)
-
-Server selection:
-
-- `HAPPIER_STACK_SERVER_COMPONENT` (`happier-server-light` vs `happier-server`)
+- 种子栈：`hstack auth seed`
+- 批量播种：`hstack auth copy-from dev-auth --all --except=main,dev-auth`
+- 开发者密钥：`hstack auth dev-key`
 
 ---
 
-## Troubleshooting (high-signal)
+## 常用环境变量配置（高频核心）
 
-### “What is hstack actually using?”
+路径配置：
+
+- `HAPPIER_STACK_WORKSPACE_DIR`（工作区根目录）
+- `HAPPIER_STACK_REPO_DIR`（活动签出目录；通常由 `hstack wt use` 管理）
+- `HAPPIER_STACK_CLI_ROOT_DIR`（从本地签出目录运行 hstack）
+
+认证配置：
+
+- `HAPPIER_STACK_AUTH_SEED_FROM`（新栈的默认认证源；常用 `dev-auth`）
+- `HAPPIER_STACK_AUTH_MODE`（`copy` 与 `link`）
+
+服务器选择：
+
+- `HAPPIER_STACK_SERVER_COMPONENT`（`happier-server-light` 与 `happier-server`）
+
+---
+
+## 排障指南（高频核心）
+
+### “hstack 究竟在使用什么配置？”
 
 ```bash
 hstack where
 hstack stack info <name>
 ```
 
-### “Why is this stack using the wrong checkout?”
+### “为什么这个栈使用了错误的签出目录？”
 
-Check the pinned repo:
+检查已固定的仓库路径：
 
 ```bash
 hstack stack info <name>
 cat ~/.happier/stacks/<name>/env | rg HAPPIER_STACK_REPO_DIR
 ```
 
-Fix by repointing:
+重新指定路径即可修复：
 
 ```bash
 hstack stack wt <name> -- use dev

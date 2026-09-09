@@ -1,79 +1,75 @@
 ---
 title: Kimi
-description: Configure Kimi in Kaiwu via ACP-backed local runtime integration.
+description: 通过基于 ACP 的本地运行时集成在 Kaiwu 中配置 Kimi。
 ---
-
-Kaiwu supports Kimi as a local CLI-backed provider.
+Kaiwu 支持接入 Kimi 作为本地 CLI 提供商。
 
 <Callout type="info">
-  Kimi is an **experimental** integration. It works and people use it
-  daily, but its surface is younger than Claude, Codex or OpenCode and is
-  more likely to change. What it supports today is in
-  [Agent capabilities](/agents/capabilities).
+  Kimi 属于**实验性**集成。该功能稳定可用且已有人在日常使用，但相比 Claude、Codex 或 OpenCode，它起步较晚，接口变动的可能性也更大。当前支持的功能详见[智能体功能支持](/agents/capabilities)。
 </Callout>
 
-## Requirements
+## 环境要求
 
-- Kimi CLI installed locally.
-- Binary available on `PATH` (or set `HAPPIER_KIMI_PATH`).
+- 本地已安装 Kimi CLI。
+- 二进制文件已加入 `PATH`（或设置 `HAPPIER_KIMI_PATH`）。
 
-## Install Kimi
+## 安装 Kimi
 
-Kaiwu can run the vendor installer for you:
+Kaiwu 可以代你运行官方安装程序：
 
 ```bash
 happier install provider kimi
 ```
 
-Or install it yourself (macOS / Linux):
+或者自行手动安装（macOS / Linux）：
 
 ```bash
 curl -LsSf https://code.kimi.com/install.sh | bash
 kimi --version
 ```
 
-Windows (PowerShell):
+Windows (PowerShell)：
 
 ```powershell
 Invoke-RestMethod https://code.kimi.com/install.ps1 | Invoke-Expression
 kimi --version
 ```
 
-## Local authentication in Kaiwu
+## 在 Kaiwu 中进行本地认证
 
-Kimi supports launching its native setup/login flow from:
+你可以通过以下路径启动 Kimi 原生的配置/登录流程：
 
 - **Settings → AI & Agents → AI backends → Kimi**
 
-Kaiwu opens Kimi and sends `/setup` for you.
+Kaiwu 会启动 Kimi 并自动为你发送 `/setup`。
 
-Auth-status detection for Kimi is currently conservative, so Kaiwu may still show **Unknown** even though the login flow is available.
+目前对 Kimi 认证状态的检测策略较为保守，因此即使登录流程可用，Kaiwu 仍可能显示为 **Unknown**。
 
-For the shared user guide, see [Provider authentication](/agents/provider-authentication).
+通用用户指南请参阅[提供商认证](/agents/provider-authentication)。
 
-## Start Kimi with Kaiwu
+## 在 Kaiwu 中启动 Kimi
 
 ```bash
 happier kimi
 ```
 
-## Notes
+## 注意事项
 
-- Resume availability is session-specific in Kaiwu and depends on valid resume metadata plus the current backend/settings.
-- Model, mode, and permission behavior can still vary by installed Kimi runtime.
-- Tool calls are normalized to canonical Kaiwu tool renderers.
+- Kaiwu 能否恢复会话因会话而异，取决于是否存在有效的恢复元数据以及当前的后端/配置。
+- 模型、模式和权限的具体行为仍可能因所安装的 Kimi 运行时版本不同而有所差异。
+- 工具调用均已归一化，接入 Kaiwu 规范的工具渲染器。
 
-## Troubleshooting
+## 故障排查
 
-If Kimi is not detected:
+如果未检测到 Kimi：
 
-1. Verify `kimi --version` works.
-2. Restart Kaiwu.
-3. Set `HAPPIER_KIMI_PATH` if needed.
+1. 验证 `kimi --version` 能否正常执行。
+2. 重启 Kaiwu。
+3. 必要时设置 `HAPPIER_KIMI_PATH`。
 
-## Related
+## 相关内容
 
-- [Agent capabilities](/agents/capabilities) — what this agent supports, generated from the manifest.
-- [Choosing an agent](/agents)
-- [Model and engine selection](/agents/model-and-engine-selection)
-- [Agent authentication](/agents/provider-authentication)
+- [智能体功能支持](/agents/capabilities) — 该智能体支持的功能特性，由 manifest 自动生成。
+- [选择智能体](/agents)
+- [模型与引擎选择](/agents/model-and-engine-selection)
+- [智能体认证](/agents/provider-authentication)

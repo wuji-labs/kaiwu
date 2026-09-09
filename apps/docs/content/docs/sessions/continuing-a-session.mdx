@@ -1,125 +1,77 @@
 ---
-title: Continuing a session
-description: Pick up a conversation that already exists — one of your agent's own sessions, or a Kaiwu session that went quiet — and decide who owns it afterwards.
+title: 继续会话
+description: 接手已有的对话——无论是你智能体自身的会话，还是已沉寂的 Kaiwu 会话——并在之后决定其归属。
 ---
+并非所有会话都始于 Kaiwu。也许你昨天在终端里开了个头，又或者某个 Kaiwu 会话隔夜挂起进入了非活跃状态，而你现在想继续处理。Kaiwu 可以接入所有这些会话——但以*何种方式*接入，会决定你后续能进行的操作。这是在开始之前最值得厘清的一个核心差异。
 
-Not every session starts in Kaiwu. You began something in your terminal
-yesterday, or a Kaiwu session went inactive overnight, and now you want to
-carry on. Kaiwu can reach all of it — but *how* it reaches it changes what you
-can do afterwards, and that is the one distinction worth understanding before
-anything else.
+## 会话记录归谁所有
 
-## Who owns the transcript
+Kaiwu 中的每个会话都属于以下两类之一，分别对应会话列表中的 **Kaiwu** 和 **Direct** 标签页：
 
-Every session in Kaiwu is one of two kinds, shown as the **Kaiwu** and
-**Direct** tabs in your session list:
-
-| | Kaiwu session | Direct session |
+| | Kaiwu 会话 | Direct 会话 |
 | --- | --- | --- |
-| Source of truth | Kaiwu | The agent, on your machine |
-| Visible across devices | Yes | Only while that machine is reachable |
-| If the machine goes offline | Still readable | Unavailable until it returns |
-| Transcript stored | In Kaiwu, encrypted | Stays with the agent |
+| 权威数据源 | Kaiwu | 设备上的 Agent |
+| 跨设备可见 | 是 | 仅当该设备可达时可见 |
+| 设备离线时 | 依然可读 | 不可用，直至设备重新上线 |
+| 会话记录存储位置 | 存储在 Kaiwu 中（加密） | 保留在 Agent 本地 |
 
-Both keep durable history — "direct" does not mean unsaved. It means the agent's
-own logs remain canonical and Kaiwu is reading them rather than owning them.
+两者都会持久保存历史记录——“Direct”并不代表未保存，而是指 Agent 自身的日志才是权威记录，Kaiwu 只是读取这些日志，并不拥有它们的所有权。
 
-Which kind new sessions start as is up to you:
-**Settings → Session → Default session type**.
+新会话默认创建为哪种类型完全由你决定：
+**设置 → 会话 → 默认会话类型**。
 
 <Callout type="info">
-  Direct sessions are experimental. They also need the owning machine to stay
-  reachable until you import them, which is the practical difference you will
-  feel first.
+  Direct 会话目前为实验性功能。此外，在将其导入之前，必须保证其所属设备始终保持可达状态——这也是你最先感受到的实际差异。
 </Callout>
 
-## Finding a session the agent already has
+## 查找 Agent 已有的会话
 
-Kaiwu can list the conversations that already exist on a connected machine, so
-you do not have to remember an identifier.
+Kaiwu 能够列出已连接设备上已存在的对话，免去了记忆标识符的麻烦。
 
-In the new-session flow, choose the AI backend and the machine, then open the
-input controls and look for **Resume session**. Where the agent supports
-listing, a **Browse sessions** button appears beside it — picking a session from
-that list fills the field for you.
+在新会话创建流程中，选择 AI 后端与设备，展开输入控件并找到 **恢复会话**。在支持列出会话的 Agent 旁会出现 **浏览会话** 按钮，从列表中选择一个会话即可自动填入对应字段。
 
-The list is scoped to the agent and machine you already chose. For Codex it is
-scoped further still, to the Codex home implied by your authentication choice,
-so a connected-service account and your local `~/.codex` show different
-histories.
+该列表的作用域限定为你此前选定的 Agent 与设备。对于 Codex，其范围还会进一步收缩到当前认证方式所对应的 Codex 主目录；因此，已连接的服务账号与本地的 `~/.codex` 会显示不同的历史记录。
 
-If listing is not available for that agent, you can paste the agent's own
-session identifier instead. Session Info shows it for sessions you already have.
+若该 Agent 不支持列出会话，你也可以直接粘贴该 Agent 自身的会话标识符。对于已有的会话，可以在“会话信息”中查看该标识符。
 
-## Taking over a direct session
+## 接管 Direct 会话
 
-Opening someone's — or rather, your own — agent session directly lets you read
-and follow it. When you want to *drive* it from Kaiwu, you take it over, and
-Kaiwu asks how:
+直接打开某个——或者更确切地说，你自己的——Agent 会话，你可以阅读并实时跟踪其进展。当你想要在 Kaiwu 中*主导*该会话时，就需要执行接管操作，此时 Kaiwu 会询问你的接管方式：
 
-- **Take over** — control the session from Kaiwu without importing the
-  transcript. It stays a direct session, and the agent's logs stay canonical.
-- **Take over + import** — bring the transcript into Kaiwu and continue as a
-  normal Kaiwu session, synced across your devices.
+- **接管**——在 Kaiwu 中控制该会话，但不导入会话记录。它仍保持为 Direct 会话，且以 Agent 本地的日志为权威记录。
+- **接管并导入**——将会话记录导入 Kaiwu，并作为常规 Kaiwu 会话继续运行，在多台设备间保持同步。
 
-There is a third option you will only see sometimes. When Kaiwu finds a
-trusted local process still attached to that session, it offers **Try to stop
-the local process first**, confirmed with **Stop and take over**. That is the
-one to reach for when a terminal somewhere is still holding the conversation and
-your takeover would otherwise be fighting it.
+还有第三个选项，不过它只会在特定情况下出现：当 Kaiwu 检测到仍有受信任的本地进程挂接在该会话上时，会提供 **先尝试停止本地进程** 选项，并在确认后执行 **停止并接管**。若某个终端仍在占用该对话，直接接管会导致两者冲突，此时便应选择此项。
 
-Choosing between the first two is really a question about where you want the
-history to live afterwards. Import when you want the session on your phone
-tomorrow; keep it direct when the agent's own logs are the record you care about.
+在前两者之间做选择，本质上取决于你希望后续的历史记录保存在哪里。如果你明天想在手机上继续处理该会话，就选择导入；如果你更看重 Agent 自身的日志记录，就保持 Direct 状态。
 
-## What controls are available
+## 有哪些可用控制项
 
-A direct session Kaiwu is only following — rather than locally controlling —
-shows the transcript and history, including provider-backed side work, but
-leaves subagent launch, steering and stop unavailable. Kaiwu hides controls it
-cannot honour rather than offering ones that would fail.
+如果 Kaiwu 只是在跟踪某个 Direct 会话，而非进行本地控制，界面会显示会话记录与历史（包括由提供商支持的后台任务），但无法启动子 Agent、进行引导或停止。对于无法生效的控制项，Kaiwu 会直接隐藏，而不是提供一个注定会失败的操作。
 
-Once the session is locally controlled, the full surface returns: subagent
-launch, steering and send, stop and cancel.
+一旦会话进入本地控制状态，所有操作能力都会恢复：启动子 Agent、引导与发送、停止以及取消。
 
-An inactive **Kaiwu** session is a different case again. If it is resumable and
-its machine is reachable, Kaiwu can resume it first and then give you those
-controls. In development builds, its composer also remains available while the
-machine is offline: Kaiwu queues what you send and can resume the session after
-its owning daemon returns.
+非活跃的 **Kaiwu** 会话则是另一种情况。如果该会话支持恢复且其所属设备处于可达状态，Kaiwu 可以先恢复会话，然后再为你开放这些控制项。在开发版构建中，即便设备离线，其输入框也依然可用：Kaiwu 会将你发送的内容排入队列，并在其所属守护进程恢复后自动恢复会话。
 
-## When the machine is offline
+## 设备离线时
 
-For a **direct** session, the transcript cannot refresh, live following stops,
-and takeover waits until the machine reconnects.
+对于 **Direct** 会话，会话记录将无法刷新，实时跟踪也会暂停，且必须等待设备重新连接后才能执行接管。
 
-For a **Kaiwu** session, the transcript is already in Kaiwu, so it stays
-readable and stays in your list. In development builds, resumable sessions also
-remain composable. The session still shows as offline, and a composer banner
-explains that the queued message is parked until the machine returns. You can
-keep it queued instead or disable automatic resume for future sends in Session
-settings.
+对于 **Kaiwu** 会话，由于会话记录已保存在 Kaiwu 中，因此它不仅常驻在会话列表中，还始终保持可读。在开发版构建中，可恢复的会话依然支持编辑输入。会话状态仍会显示为离线，且输入框上方的横幅会提示当前排队的消息已暂存，直至设备重新上线。你可以选择让消息继续排队，也可以在“会话设置”中针对后续发送关闭自动恢复功能。
 
-## What each agent supports
+## 各 Agent 的支持情况
 
-- **Codex** — browsing covers your normal Codex home plus supported
-  connected-service homes, and Kaiwu can follow Codex transcripts directly.
-  See [Codex](/agents/codex).
-- **Claude** — Kaiwu can browse and open Claude sessions from the machine that
-  owns them. Titles and transcript continuity depend on what the session logs
-  expose. See [Claude](/agents/claude).
-- **OpenCode** — server-backed sessions can be browsed directly, which is
-  natural when the OpenCode server is already the source of truth. See
-  [OpenCode](/agents/opencode).
+- **Codex**——浏览范围涵盖常规 Codex 主目录以及受支持的已连接服务目录，Kaiwu 可以直接跟踪 Codex 的会话记录。详见 [Codex](/agents/codex)。
+- **Claude**——Kaiwu 可以从托管 Claude 会话的设备上浏览并打开这些会话。会话标题与会话记录的连贯性取决于会话日志暴露的内容。详见 [Claude](/agents/claude)。
+- **OpenCode**——支持直接浏览由服务器托管的会话；当 OpenCode 服务端本身就是权威数据源时，这种方式十分顺理成章。详见 [OpenCode](/agents/opencode)。
 
-Which agents can resume their own sessions at all is in
-[Agent capabilities](/agents/capabilities).
+有关各 Agent 本身是否支持恢复其会话，请参阅 [Agent 能力](/agents/capabilities)。
 
-## Related
+## 相关内容
 
-These are the neighbouring ideas people most often confuse with this one:
+以下是与本文相关、但最容易被混淆的概念：
 
-- [Session handoff](/sessions/session-handoff) — moving a *live* session to another machine, keeping the same session id.
-- [Session forking](/sessions/session-forking) — branching a conversation into a second one.
-- [Continue with another Agent](/sessions/continue-with-another-agent) — changing the engine without leaving the session.
-- [Resume inactive sessions](/sessions/session-resume) — waking a Kaiwu session that stopped.
+- [会话交接](/sessions/session-handoff)——将*活跃*会话迁移至另一台设备，并保留相同的会话 ID。
+- [会话分叉](/sessions/session-forking)——将对话分支为一个新会话。
+- [换用其他 Agent 继续](/sessions/continue-with-another-agent)——在不离开当前会话的前提下更换引擎。
+- [恢复非活跃会话](/sessions/session-resume)——唤醒已停止的 Kaiwu 会话。

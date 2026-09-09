@@ -1,234 +1,233 @@
 ---
-title: Attachments & image previews
-description: Attach local files to a message, preview images before and after sending, and control where uploaded attachments are stored.
+title: 附件与图片预览
+description: 在消息中附加本地文件，在发送前后预览图片，并控制已上传附件的存储位置。
 ---
+无论是在发送首条消息前的**新建会话输入框**中，还是在活跃会话记录中的**既有会话输入框**中，Kaiwu 都支持将本地文件直接附加到消息中：
 
-Kaiwu lets you attach local files directly to a message in both:
+- **新建会话输入框**：发送首条消息前
+- **既有会话输入框**：位于活跃的会话记录内
 
-- a **new session composer** before the first message, and
-- an **existing session composer** inside an active transcript.
+该功能与**关联文件**（Link file）不同：
 
-This is different from **Link file**:
+- **附件**会将本地文件从你的设备发送到会话中
+- **关联文件**则引用当前工作区中已存在的文件
 
-- **Attachments** send local files from your device into the session
-- **Link file** references files that already exist in the current workspace
+在需要发送以下内容时，可以使用附件功能：
 
-Use attachments when you want to send things like:
+- 屏幕截图
+- 导出的日志
+- 设计资源
+- 代码仓库外部的 PDF 或文档
+- 尚未存在于工作区中的生成输出文件
 
-- screenshots
-- exported logs
-- design assets
-- PDFs or docs from outside the repo
-- generated output files that are not already in the workspace
+## 如何添加附件
 
-## How to add attachments
+根据运行平台的不同，Kaiwu 支持多种附件添加方式：
 
-Kaiwu supports several attachment flows depending on platform:
+- **全平台：**通过附件/文件选择器流程选取文件
+- **Web 端：**将文件直接拖放至输入框
+- **Web 端：**当浏览器将剪贴板内容暴露为文件时，可直接将其粘贴到输入框中
 
-- **All platforms:** pick files with the attachment/file-picker flow
-- **Web:** drag and drop files into the composer
-- **Web:** paste clipboard files/images into the composer when the browser exposes them as files
+你可以在同一条消息中同时附加图片和非图片文件。
 
-You can attach both images and non-image files in the same message.
+## 发送前的预览状态
 
-## What you see before sending
+在发送消息之前，Kaiwu 会将附件作为**草稿**保留在输入框中。
 
-Before you send the message, Kaiwu keeps attachments as **drafts** in the composer.
+在**新建会话流程**中，即使你在同一应用流程中切换（例如打开选择器页面后返回输入框），这些附件草稿仍会保留。
 
-In the **new-session flow**, those draft attachments are kept while you move around the same in-app flow, such as opening picker screens and returning to the composer.
+但它们仍属于**临时的未发送草稿状态**，并未持久化存储。刷新整个页面或重启应用仍可能清空未发送的附件。
 
-They are still treated as **temporary unsent draft state**, not durable stored content. A full page reload or app restart can still clear unsent attachments.
+### 非图片文件
 
-### Non-image files
+非图片文件会显示为带有文件名的附件标签条。
 
-Non-image files appear as attachment chips with the filename.
+### 图片
 
-### Images
+图片附件会显示为行内缩略图，而非纯文件名的标签条。
 
-Image attachments appear as inline thumbnails instead of plain filename chips.
+这样更便于确认：
 
-This makes it easier to confirm:
+- 选取的文件无误
+- 图片顺序正确
+- 没有发错截图
 
-- you picked the correct image
-- the image order looks right
-- you are not about to send the wrong screenshot
+### 发送前移除
 
-### Remove before send
+发送前你可以随时移除已添加的附件。
 
-You can remove an attachment before sending it.
+### 上传进度
 
-### Upload progress
+发送包含附件的消息时，Kaiwu 会先逐个上传文件，并在输入框中显示**各文件的独立进度**：
 
-When you send a message with attachments, Kaiwu uploads each file first and shows **per-file progress** in the composer:
+- 图片卡片上会显示带有百分比的上传遮罩层
+- 非图片标签条内会直接显示百分比进度
 
-- image tiles show an upload overlay with a percentage
-- non-image chips show percentage progress inline
+同时发送多个文件时这尤为实用，你能清楚地看到哪些文件仍在上传，哪些已经上传完成。
 
-This is especially useful when you send multiple files together, because you can see which file is still uploading and which one already finished.
+## 发送前预览图片
 
-## Previewing images before sending
+点击输入框中的图片缩略图，可以打开大图预览。
 
-Click an image thumbnail in the composer to open a larger preview.
+预览弹窗专为发送前的快速确认设计：
 
-The preview modal is designed for quick confirmation before send:
+- 图片铺满弹窗主体区域
+- 文件名保留在顶部标题栏中
+- 若附加了多张图片，可直接在同一弹窗中前后切换
 
-- the image takes the full modal body
-- the filename stays in the header
-- if multiple images are attached, you can move between them from the same modal
+在 **Web 端**，将鼠标悬停在图片上时会显示上一张/下一张控制按钮。
 
-On **web**, the previous/next controls appear when you hover the image.
+在**触控/原生应用**界面上，由于没有悬停状态，导航控件会保持常驻显示。
 
-On **touch/native** surfaces, the navigation controls stay directly available because there is no hover state.
+## 发送附件时的处理机制
 
-## What happens when you send attachments
+Kaiwu 的附件流程与具体提供商无关。
 
-Kaiwu keeps the attachment flow provider-agnostic.
+发送包含附件的消息时：
 
-When you send a message with attachments:
+1. Kaiwu 首先上传各个文件
+2. Kaiwu 将文件保存至预先配置的附件上传位置
+3. 发送的消息中会包含带有固定文件路径的附件块
+4. 消息会提示智能体在作答前先从磁盘读取这些路径
 
-1. Kaiwu uploads each file first
-2. Kaiwu stores the files in the configured attachment upload location
-3. the sent message includes an attachments block with stable file paths
-4. the message tells the agent to read those paths from disk before answering
+这意味着附件在会话环境中等同于真实文件，而不是特定提供商专有的“行内二进制数据块”。
 
-This means attachments behave like real files in the session environment, not like provider-specific “inline binary parts”.
+这种设计带来了诸多实际优势：
 
-That has a few practical benefits:
+- 同一份消息历史在不同提供商之间保持通用可读
+- 智能体可以直接读取指定的精确文件路径
+- 图片附件与非图片附件遵循相同的核心工作流
 
-- the same message history remains understandable across providers
-- the agent can read the exact file path it was given
-- image attachments and non-image attachments follow the same core workflow
+## 发送后的图片展示效果
 
-## How images behave after sending
+已发送的用户消息会在会话记录中保留其附件。
 
-Sent user messages keep their attachments in the transcript.
+### 会话记录中的行内图片
 
-### Inline transcript images
+如果附件是图片，Kaiwu 会直接在消息内嵌入展示，而不仅仅是列出文件名。
 
-If an attachment is an image, Kaiwu shows it inline in the message instead of only listing the filename.
+这样在共享以下内容时，会话记录浏览起来会更加一目了然：
 
-This makes transcripts easier to scan when you shared:
+- 屏幕截图
+- 原型设计图
+- 架构与流程图
+- 导出的数据图表
 
-- screenshots
-- mockups
-- diagrams
-- exported charts
+### 共用图片预览弹窗
 
-### Shared image preview modal
+点击会话记录中的行内图片，会打开与输入框相同的预览弹窗。
 
-Clicking an inline image in the transcript opens the same preview modal used by the composer.
+这确保了发送前后的看图体验完全一致。
 
-That gives you a consistent image-viewing flow before and after send.
+### 非图片附件
 
-### Non-image attachments
+非图片文件仍会显示在消息的附件栏中，并可直接从中打开。
 
-Non-image files still appear in the message attachments row and can be opened from there.
+### 超大图片或无法预览的情况
 
-### Very large or unavailable previews
+Kaiwu 不会强行将所有图片都渲染为行内预览。
 
-Kaiwu does not try to force every image into an inline preview.
+如果图片尺寸超出了应用内的预览限制预算，或者无法正常加载预览：
 
-If an image is too large for the in-app preview budget, or the preview cannot be loaded cleanly:
+- 附件仍会保留在消息中
+- Kaiwu 会回退显示占位符或提供打开文件的路径，而不会伪造预览成功状态
 
-- the attachment still remains attached to the message
-- Kaiwu falls back to a placeholder/open-file path instead of pretending the preview succeeded
+这样既保障了底层文件随时可访问，又保护了会话记录的渲染性能。
 
-This protects transcript performance while preserving access to the underlying file.
+## 附件存储位置
 
-## Attachment storage location
+你可以自主控制 Kaiwu 存放已上传消息附件的位置。
 
-You can control where Kaiwu stores uploaded message attachments.
-
-Open:
+打开路径：
 
 - **Settings**
 - **Attachments**
 
-### Workspace directory (default)
+### 工作区目录（默认）
 
-Default behavior stores attachments inside the current workspace.
+默认情况下，附件会保存在当前工作区内。
 
-By default, Kaiwu uses this workspace-relative directory:
+Kaiwu 默认使用的相对工作区路径为：
 
 ```text
 .happier/uploads
 ```
 
-This path is relative to the workspace root, which keeps attachments alongside the rest of the session’s project context.
+该路径相对于工作区根目录，使附件能够与当前会话的其余项目上下文存放在一起。
 
-### OS temp
+### 操作系统临时目录
 
-You can also store attachments in the operating system temporary directory instead of the workspace.
+你也可以选择将附件保存在操作系统的临时目录中，而非工作区内。
 
-This is useful when:
+这适用于以下场景：
 
-- you do not want attachment files written into the repo/worktree
-- the attachment is only temporary session input
-- you want the upload flow without adding extra workspace files
+- 不希望将附件文件写入代码仓库或工作树
+- 附件仅用作临时的会话输入
+- 希望使用上传流程，但不产生多余的工作区文件
 
-## Source-control ignore behavior
+## 版本控制忽略策略
 
-When workspace storage is enabled, Kaiwu can also help keep attachment files out of normal source-control workflows.
+启用工作区存储时，Kaiwu 还可以帮助将附件文件排除在日常版本控制流程之外。
 
-Attachment settings let you choose the ignore strategy for workspace uploads.
+附件设置允许你为工作区上传内容选择忽略策略。
 
-This matters when you want the convenience of workspace-backed attachments without accidentally treating them as project files you intend to commit.
+如果你既想享受基于工作区存放附件的便利，又不想误将附件当作待提交的项目文件，这一设置便非常关键。
 
-## Limits and important things to know
+## 限制与重要注意事项
 
-### Size limit
+### 大小限制
 
-Attachment uploads still follow the normal **maximum attachment size** setting.
+附件上传仍遵循常规的**最大附件尺寸**设置。
 
-If a file is over that limit, Kaiwu skips it and tells you why.
+若文件超出该限制，Kaiwu 会跳过该文件并说明原因。
 
-### No separate image-count cap
+### 无单独的图片数量上限
 
-Kaiwu does not add a special “only a few images” composer rule on top of the normal attachment settings.
+在通用附件设置之上，Kaiwu 并未在输入框中人为附加“只能上传少量图片”的特殊限制。
 
-The main practical limit is still your configured file-size policy.
+实际的主要限制仍取决于你所配置文件的大小策略。
 
-### Images are still files
+### 图片本质仍是文件
 
-Image attachments get a better UI, but they still follow the same core attachment model as other files.
+尽管图片附件拥有更优秀的界面呈现，但它们与其它文件遵循相同的核心附件模型。
 
-That means:
+这意味着：
 
-- the image is uploaded as a file
-- the message stores a file-path reference
-- the agent reads that file from the session environment
+- 图片作为普通文件上传
+- 消息中存储的是文件路径引用
+- 智能体直接从会话环境中读取该文件
 
-## Attachments vs Link file
+## 附件与关联文件的区别
 
-Use **Attachments** when the file starts on your device and needs to be brought into the session.
+当文件原本位于本地设备、需要导入会话中时，使用**附件**。
 
-Use **Link file** when the file already exists in the workspace and you only want to reference it in your prompt.
+当文件已存在于工作区中、只需在提示词中引用它时，使用**关联文件**。
 
-Examples:
+示例：
 
-- **Attachment:** “Here is the screenshot I just took on my desktop”
-- **Link file:** “Look at `src/auth/login.ts` and explain this bug”
+- **附件：**“这是我刚在桌面上截的图”
+- **关联文件：**“请查看 `src/auth/login.ts` 并解释这个 Bug”
 
-## Attachments together with review comments
+## 结合评审批注使用附件
 
-Review comments are separate from attachments, but they can be sent in the same prompt flow.
+评审批注与附件彼此独立，但可以在同一次提示词交互中一并发送。
 
-Use them together when you want to hand the agent both:
+当你需要向智能体同时提交以下两类内容时，可以结合使用两者：
 
-- a structured set of line-specific review comments, and
-- extra local files such as screenshots, logs, or exported artifacts.
+- 针对具体代码行的一组结构化评审批注
+- 截图、日志或导出制品等额外的本地文件
 
-In a session, the composer shows review comments as their own **Review** chip/attachment badge when saved comments are available for the current workspace.
+在会话中，若当前工作区有已保存的批注，输入框会将其显示为专用的 **Review** 标签条/附件徽标。
 
-In a new-session flow, Kaiwu can also discover saved review comments for the selected machine and directory. If you keep the review-comments chip enabled, the matching review comments are sent with the first actionable message. Turning that chip off does not remove attachment drafts.
+在新建会话流程中，Kaiwu 还能自动检索所选设备及目录中已保存的评审批注。如果保持评审批注标签条处于启用状态，匹配的评审批注将随首条有效消息一同发送。关闭该标签条不会移除已添加的附件草稿。
 
-## Provider-specific note
+## 提供商专属说明
 
-Regular session messages support attachments through Kaiwu’s shared attachment flow.
+常规会话消息通过 Kaiwu 的通用附件流程支持附件。
 
-For routed Claude teammate messages, check the Claude provider page for the current attachment limitations on that flow.
+对于路由至 Claude 协作智能体的消息，请参阅 Claude 提供商页面了解该流程当前的附件限制。
 
-See:
+参见：
 
 - [Claude](/agents/claude)
 - [Subagents](/extending/subagents)

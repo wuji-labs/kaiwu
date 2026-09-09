@@ -1,80 +1,76 @@
 ---
 title: Qwen
-description: Configure Qwen in Kaiwu via ACP-backed local runtime integration.
+description: 在 Kaiwu 中通过基于 ACP 的本地运行时集成配置 Qwen。
 ---
-
-Kaiwu supports Qwen as a local CLI-backed provider.
+Kaiwu 支持接入基于本地 CLI 的 Qwen 提供商。
 
 <Callout type="info">
-  Qwen Code is an **experimental** integration. It works and people use it
-  daily, but its surface is younger than Claude, Codex or OpenCode and is
-  more likely to change. What it supports today is in
-  [Agent capabilities](/agents/capabilities).
+  Qwen Code 属于**实验性**集成。该功能已可正常使用，且有用户在日常工作中依赖它；但与 Claude、Codex 或 OpenCode 相比，其接口面尚处早期阶段，后续更有可能发生调整。当前支持的功能请参阅[智能体能力](/agents/capabilities)。
 </Callout>
 
-## Requirements
+## 环境要求
 
-- Qwen CLI installed locally.
-- Binary available on `PATH` (or set `HAPPIER_QWEN_PATH`).
+- 本地已安装 Qwen CLI。
+- 可执行文件已添加至 `PATH`（或设置 `HAPPIER_QWEN_PATH`）。
 
-## Install Qwen
+## 安装 Qwen
 
-Kaiwu can install it for you:
+Kaiwu 可以代你安装：
 
 ```bash
 happier install provider qwen
 qwen --version
 ```
 
-Or install manually (macOS / Linux):
+也可以手动安装（macOS / Linux）：
 
 ```bash
 curl -fsSL https://qwen-code-assets.oss-cn-hangzhou.aliyuncs.com/installation/install-qwen.sh | bash
 qwen --version
 ```
 
-Windows (Run as Administrator in CMD):
+Windows（在 CMD 中以管理员身份运行）：
 
 ```bat
 curl -fsSL -o %TEMP%\\install-qwen.bat https://qwen-code-assets.oss-cn-hangzhou.aliyuncs.com/installation/install-qwen.bat && %TEMP%\\install-qwen.bat
 qwen --version
 ```
 
-## Local authentication in Kaiwu
+## 在 Kaiwu 中进行本地认证
 
-Qwen supports launching its native auth flow from:
+Qwen 支持从以下路径发起原生认证流程：
 
 - **Settings → AI & Agents → AI backends → Qwen Code**
 
-Kaiwu opens Qwen and sends `/auth` for you.
+Kaiwu 会自动打开 Qwen 并代你发送 `/auth`。
 
-Auth-status detection for Qwen is currently conservative, so Kaiwu may still show **Unknown** even though the login flow is available.
+目前对 Qwen 认证状态的检测较为保守，因此即便登录流程可用，Kaiwu 也仍可能显示为 **Unknown**。
 
-For the shared user guide, see [Provider authentication](/agents/provider-authentication).
+通用说明请参阅[提供商认证](/agents/provider-authentication)。
 
-## Start Qwen with Kaiwu
+## 在 Kaiwu 中启动 Qwen
 
 ```bash
 happier qwen
 ```
 
-## Notes
+## 注意事项
 
-- Resume availability is session-specific in Kaiwu and depends on valid resume metadata plus the current backend/settings.
-- Model, mode, and permission behavior can still vary by installed Qwen runtime.
-- Tool calls are normalized to canonical Kaiwu tool renderers.
+- 会话能否恢复取决于具体的会话，需要具备有效的恢复元数据，并结合当前的后端与设置判断。
+- 模型、运行模式以及权限行为可能因安装的 Qwen 运行时版本不同而存在差异。
+- 工具调用均已归一化，交由 Kaiwu 标准工具渲染器呈现。
 
-## Troubleshooting
+## 故障排查
 
-If Qwen is not detected:
+如果系统未能检测到 Qwen：
 
-1. Verify `qwen --version` works.
-2. Restart Kaiwu.
-3. Set `HAPPIER_QWEN_PATH` if needed.
+1. 验证 `qwen --version` 是否正常运行。
+2. 重启 Kaiwu。
+3. 如有需要，配置 `HAPPIER_QWEN_PATH`。
 
-## Related
+## 相关内容
 
-- [Agent capabilities](/agents/capabilities) — what this agent supports, generated from the manifest.
-- [Choosing an agent](/agents)
-- [Model and engine selection](/agents/model-and-engine-selection)
-- [Agent authentication](/agents/provider-authentication)
+- [智能体能力](/agents/capabilities) —— 该智能体支持的功能，基于清单（manifest）生成。
+- [选择智能体](/agents)
+- [模型与引擎选择](/agents/model-and-engine-selection)
+- [智能体认证](/agents/provider-authentication)

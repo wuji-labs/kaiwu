@@ -1,23 +1,21 @@
 ---
-title: Extending Kaiwu
-description: Giving agents more tools, letting them delegate work, and driving Kaiwu itself from somewhere else.
+title: 扩展 Kaiwu
+description: 为智能体提供更多工具、让它们委派工作，并从外部驱动 Kaiwu 本身。
 ---
+Kaiwu 开箱即可使用，但它绝大部分的能力扩展，都取决于你为它接入的外部系统。
 
-Kaiwu is useful out of the box, but most of its reach comes from what you
-connect to it.
+## 为智能体提供更多工具
 
-## Giving agents more tools
+- [MCP 服务端](/extending/mcp-servers) —— 浏览器自动化、文档检索、内部 API。
+- [Kaiwu 工具与操作](/extending/happier-tools) —— 智能体可在 Kaiwu 内部调用的各项操作。
+- [提示词与技能](/extending/prompts-and-skills)
+- [可安装项](/extending/installables) —— Kaiwu 可按设备独立安装并持续更新的工具。
 
-- [MCP servers](/extending/mcp-servers) — browser automation, documentation lookup, internal APIs.
-- [Kaiwu tools and actions](/extending/happier-tools) — the actions agents can call inside Kaiwu itself.
-- [Prompts and skills](/extending/prompts-and-skills)
-- [Installables](/extending/installables) — tools Kaiwu can install and keep updated per machine.
+## 任务委派
 
-## Delegating work
+- [委派工作](/extending/subagents) —— 子智能体、工作流与 Claude 团队。
+- [智能体自主性](/extending/agent-autonomy) —— 智能体自行创建并协调会话，以及相关的行为边界。
 
-- [Delegated work](/extending/subagents) — subagents, workflows and Claude teams.
-- [Agent autonomy](/extending/agent-autonomy) — agents creating and coordinating sessions themselves, and the limits on that.
+## 从外部驱动 Kaiwu
 
-## Driving Kaiwu from elsewhere
-
-- [Kaiwu as an MCP server](/extending/happier-as-mcp-server) — letting an editor or automation control Kaiwu.
+- [将 Kaiwu 作为 MCP 服务端](/extending/happier-as-mcp-server) —— 允许编辑器或自动化程序控制 Kaiwu。

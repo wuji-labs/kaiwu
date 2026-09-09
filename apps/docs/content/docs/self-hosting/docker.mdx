@@ -1,55 +1,54 @@
 ---
 title: Docker
-description: Deploy the Kaiwu Server using Docker / Docker Compose.
+description: 使用 Docker / Docker Compose 部署 Kaiwu 服务器。
 ---
+本文介绍如何使用 Docker 部署**专属的 Kaiwu Server**。内容仅涉及服务端本身。
 
-This page explains how to deploy **your own Kaiwu Server** with Docker. It focuses on the server only.
+请以 `/apps/server/.env.example` 作为基础环境变量模板，并在 Docker 或 Compose 中载入相同的配置值。
 
-Use `/apps/server/.env.example` as your base env template and load the same values in Docker/Compose.
+## 预构建镜像（推荐）
 
-## Prebuilt images (recommended)
-
-We publish preview Docker images on Docker Hub (recommended):
+我们在 Docker Hub 上发布了预览版 Docker 镜像（推荐）：
 
 ```bash
 docker pull happierdev/relay-server:preview
 ```
 
-We also publish the same images to GitHub Container Registry (GHCR):
+此外，相同的镜像也会同步发布到 GitHub Container Registry (GHCR)：
 
 ```bash
 docker pull ghcr.io/happier-dev/relay-server:preview
 ```
 
-Published images:
+已发布的镜像：
 
-- `relay-server`: Kaiwu Server + embedded web UI (this page)
-- `dev-box`: Kaiwu CLI + daemon in Docker (see: [Dev box](/development/devcontainers))
+- `relay-server`：Kaiwu Server + 内嵌 Web UI（本文主讲）
+- `dev-box`：Docker 环境下的 Kaiwu CLI + 守护进程（参见：[Dev box](/development/devcontainers)）
 
-The published `relay-server` image is built from signed server-runtime and UI-web release artifacts. It runs as the non-root `happier` user, embeds the UI bundle at image build time, and does not need a source checkout or `hstack`.
+已发布的 `relay-server` 镜像基于签名认证的 server-runtime 和 UI-web 发布产物构建。该镜像以非 root 用户 `happier` 运行，在构建期便已内嵌 UI 静态资源包，既无需拉取源码，也不依赖 `hstack`。
 
-Prebuilt `relay-server` images support the default SQLite setup and the documented Postgres override. They intentionally do not include the generated MySQL Prisma client. To run Kaiwu with MySQL, build a source-based `server` image from this repository with MySQL included at build time.
+预构建的 `relay-server` 镜像支持默认的 SQLite 配置，以及文档中说明的 Postgres 覆盖配置。出于体积考量，该镜像特意移除了生成的 MySQL Prisma 客户端。若要搭配 MySQL 运行 Kaiwu，请基于本仓库源码构建包含 MySQL 的 `server` 镜像。
 
-Tags:
+标签：
 
-- `:preview` (floating preview tag)
-- `:preview-<short-sha>` (immutable preview build)
-- `:stable` / `:latest` (stable channel, when enabled)
+- `:preview`（动态预览标签）
+- `:preview-⟦K21⟧`（不可变预览构建标签）
+- `:stable` / `:latest`（稳定通道，启用后可用）
 
-## Updates
+## 版本更新
 
-Docker images do **not** update themselves. To upgrade, pull a newer tag and restart/recreate your container:
+Docker 镜像**不会**自动更新。升级时，只需拉取更新的标签版本，并重启或重新创建容器即可：
 
 ```bash
 docker pull happierdev/relay-server:preview
 docker compose up -d --force-recreate
 ```
 
-For strict control, pin to an immutable tag (for example `:preview-<short-sha>`) or a digest.
+如果需要严格控制版本，建议锁定到不可变标签（例如 `:preview-⟦K22⟧`）或镜像摘要。
 
-Full matrix (all apps/assets): [Updates](/releases/updates).
+完整版本矩阵（所有应用与资产）：[Updates](/releases/updates)。
 
-The `relay-server` image defaults to the **light flavor + SQLite**, with all data stored under `/data`. Mount it as a volume so upgrades and restarts are safe.
+`relay-server` 镜像默认采用 **light（轻量）风格 + SQLite**，所有数据均存放在 `/data` 下。请将其挂载为数据卷，以确保升级和重启时的数据安全。
 
 ```bash
 docker run --rm -p 3005:3005 \
@@ -57,25 +56,25 @@ docker run --rm -p 3005:3005 \
   happierdev/relay-server:preview
 ```
 
-Configuration docs:
+配置文档：
 
-- Server env var reference: [Environment variables](/self-hosting/env)
-- Server auth policy (GitHub/OIDC/anonymous, etc): [Server Auth](/self-hosting/auth)
-- If you’re running a headless machine and want to pair/authenticate without a browser: [Daemon auth (headless)](/apps/daemon#headless-authentication-no-tty)
+- 服务端环境变量参考：[Environment variables](/self-hosting/env)
+- 服务端认证策略（GitHub/OIDC/匿名等）：[Server Auth](/self-hosting/auth)
+- 若你在无界面的无头设备上运行，且希望在没有浏览器的情况下完成配对或认证：[Daemon auth (headless)](/apps/daemon#headless-authentication-no-tty)
 
-Notes:
+注意事项：
 
-- This Docker image runs the Kaiwu Server directly (a self-host-friendly default config).
-- It embeds the web UI bundle and serves it at `/` by default.
-  - Disable UI serving: set `HAPPIER_SERVER_UI_DIR=` (empty).
-  - Serve UI under `/ui`: set `HAPPIER_SERVER_UI_PREFIX=/ui`.
-- It does not install a managed host service. Upgrades happen when the container is restarted after pulling a new image tag.
+- 该 Docker 镜像直接运行 Kaiwu Server（针对自托管优化的默认配置）。
+- 镜像内嵌了 Web UI 资源包，默认在 `/` 提供服务。
+  - 禁用 UI 服务：设置 `HAPPIER_SERVER_UI_DIR=`（留空）。
+  - 在子路径 `/ui` 下托管 UI：设置 `HAPPIER_SERVER_UI_PREFIX=/ui`。
+- 镜像内不会安装受管宿主服务。拉取新镜像标签并重启容器后，即完成升级。
 
-### Prebuilt image: use Postgres (full flavor)
+### 预构建镜像：搭配 Postgres（full 风格）
 
-The `relay-server` image is built from the same server code and can run full flavor too — you just override the defaults. Postgres is the external database supported by the prebuilt image. On startup, the image applies its bundled Postgres migrations before starting the server. Health-managed or multi-replica deployments should instead use the dedicated migration step described under [Migrations](#migrations).
+`relay-server` 镜像源自相同的服务端代码，同样能够以 full 风格运行——只需覆盖默认配置即可。Postgres 是预构建镜像原生支持的外部数据库。容器启动时，会先执行内嵌的 Postgres 迁移，然后再启动服务端。对于由健康检查编排管理或多副本部署的场景，建议改用 [Migrations](#migrations) 中介绍的独立迁移步骤。
 
-Example `docker-compose.yml` (Postgres + local files backend):
+`docker-compose.yml` 示例（Postgres + 本地文件后端）：
 
 ```yaml
 services:
@@ -110,19 +109,19 @@ volumes:
   happier-relay-data:
 ```
 
-For S3/Minio instead of local files, set `HAPPIER_FILES_BACKEND=s3` and the `S3_*` env vars (see [Environment variables](/self-hosting/env)).
+若要改用 S3/Minio 替代本地文件，请设置 `HAPPIER_FILES_BACKEND=s3` 以及相关的 `S3_*` 环境变量（参见 [Environment variables](/self-hosting/env)）。
 
-## Optional: expose a relay securely with Tailscale
+## 可选：使用 Tailscale 安全暴露中继
 
-If you want to access your self-hosted relay from a phone or remote machine without opening inbound ports, we recommend using **Tailscale** as a sidecar and publishing the server via **Tailscale Serve**.
+如果你想在不开放入站端口的情况下，从手机或远程设备访问自托管中继，推荐使用 **Tailscale** 作为边车容器，并通过 **Tailscale Serve** 发布服务端。
 
-This approach:
+该方案的优势：
 
-- avoids public ingress and TLS setup
-- gives you a stable HTTPS URL inside your tailnet
-- keeps the Kaiwu server image unprivileged (Tailscale runs in its own container)
+- 无需公网入口与复杂的 TLS 配置
+- 在你的 tailnet 内网中提供稳定的 HTTPS 访问地址
+- Kaiwu 服务端镜像无需特权即可运行（Tailscale 在独立的容器中工作）
 
-Minimal `docker-compose.yml` example (preview channel):
+最小化 `docker-compose.yml` 示例（预览通道）：
 
 ```yaml
 services:
@@ -164,17 +163,17 @@ volumes:
   tailscale-state:
 ```
 
-Notes:
+注意事项：
 
-- Use an **ephemeral**, **one-time** pre-auth key for `TS_AUTHKEY` when possible.
-- `tailscale serve` publishes the Kaiwu UI + API (including WebSockets) behind the Tailscale HTTPS endpoint.
-- If your environment can’t use `/dev/net/tun` (some restricted hosts), fall back to a normal reverse proxy (Caddy/Traefik/nginx) or run Tailscale on the host OS and proxy to the container.
-  - Make sure your proxy supports **WebSocket upgrades** for Socket.IO realtime at `/v1/updates` (otherwise machines can stay offline).
-  - See: [Deployment → Environment variables → Networking / reverse proxy](/self-hosting/env#websockets-required-for-realtime--machine-online)
+- `TS_AUTHKEY` 请尽量使用**临时**、**一次性**的预授权密钥。
+- `tailscale serve` 会将 Kaiwu UI 与 API（包含 WebSocket）发布在 Tailscale HTTPS 端点后方。
+- 若宿主环境受限导致无法使用 `/dev/net/tun`，可退回采用传统的反向代理（Caddy/Traefik/nginx），或者在宿主机操作系统中运行 Tailscale 并代理至容器。
+  - 请确保反向代理支持 `/v1/updates` 路径上的 Socket.IO 实时通信 **WebSocket upgrades** 请求，否则设备可能会持续显示离线。
+  - 参见：[Deployment → Environment variables → Networking / reverse proxy](/self-hosting/env#websockets-required-for-realtime--machine-online)
 
-## Build images
+## 构建镜像
 
-This repo includes a top-level `Dockerfile` with multiple targets.
+本仓库顶层包含一个 `Dockerfile`，提供了多个构建目标。
 
 ```bash
 # Server image (defaults to the full flavor; role defaults to "all" unless SERVER_ROLE is set at runtime)
@@ -184,7 +183,7 @@ docker build -t happier-server --target server .
 docker build -t happier-server-worker --target server-worker .
 ```
 
-The `server` and `server-worker` targets build from the source tree. The `relay-server` target is the same artifact-based shape used by published Docker images, so it expects explicit release artifact inputs:
+`server` 与 `server-worker` 目标直接基于源码树构建。`relay-server` 目标则与公开发布的 Docker 镜像结构一致，基于产物构建，因此需要显式传入发布产物作为输入：
 
 ```bash
 docker build -t happier-relay-server --target relay-server \
@@ -195,13 +194,13 @@ docker build -t happier-relay-server --target relay-server \
   .
 ```
 
-The release pipeline resolves these build args from GitHub releases automatically. For local source iteration, build the `server` target instead.
+发布流水线会自动从 GitHub Releases 解析这些构建参数。本地源码迭代开发时，建议改用 `server` 目标进行构建。
 
-### Optional: build only selected DB providers
+### 可选：仅构建指定的数据库提供商
 
-By default, source-built `server` and `server-worker` images include generated Prisma clients for all supported DB providers. The prebuilt `relay-server` image is artifact-based and prunes the generated MySQL Prisma client; use the `server` target below when you need MySQL.
+默认情况下，从源码构建的 `server` 与 `server-worker` 镜像会包含所有受支持数据库提供商的生成版 Prisma 客户端。预构建的 `relay-server` 镜像基于发布产物，并剔除了生成的 MySQL Prisma 客户端；若需要使用 MySQL，请使用下方介绍的 `server` 目标。
 
-If you want a smaller, provider-specific image, you can limit which Prisma clients are generated at build time:
+若希望精简镜像体积、针对特定提供商定制镜像，可在构建时限制生成的 Prisma 客户端：
 
 ```bash
 # Build with only Postgres (includes pglite support since it uses the Postgres client)
@@ -215,52 +214,52 @@ docker build -t happier-server --target server \
   .
 ```
 
-Notes:
+注意事项：
 
-- `pglite` uses the Postgres Prisma client, so include `postgres` if you intend to run light mode on PGlite. The light flavor's own default is `sqlite`.
-- If you build without `mysql` (or `sqlite`) and later run with `HAPPIER_DB_PROVIDER=mysql` (or `sqlite`), the server will fail at startup with a clear error telling you to rebuild with the missing provider included.
+- `pglite` 使用的是 Postgres Prisma 客户端。若计划在 light 模式下使用 PGlite，请务必包含 `postgres`。light 风格本身的默认设置为 `sqlite`。
+- 若构建时未包含 `mysql`（或 `sqlite`），而在运行时指定了 `HAPPIER_DB_PROVIDER=mysql`（或 `sqlite`），服务端在启动时会报错退出，并明确提示重新构建以包含缺失的提供商。
 
-## Full vs light presets
+## Full 与 Light 预设对比
 
-Kaiwu Server supports two presets that share the same API and runtime. A preset supplies topology and backend defaults; `HAPPIER_DB_PROVIDER` independently selects the database under either preset.
+Kaiwu Server 提供两种预设，二者共用相同的 API 与运行时环境。预设决定了拓扑架构和后端默认值；无论采用哪种预设，均可通过 `HAPPIER_DB_PROVIDER` 独立选择底层数据库。
 
-### Full flavor (recommended for production)
+### Full 风格（生产环境推荐）
 
-Use this if you want a production setup: an external database, and optional Redis for multi-replica Socket.IO. By default, full flavor uses S3/Minio for public files, but you can opt into local disk storage with `HAPPIER_FILES_BACKEND=local`.
+适用于生产环境部署：搭配外部数据库，并可选接入 Redis 以支持多副本 Socket.IO 实时通信。默认情况下，full 风格使用 S3/Minio 存储公共文件，但你也可以通过 `HAPPIER_FILES_BACKEND=local` 选择本地磁盘存储。
 
-**You will need:**
+**所需资源：**
 
-- A database (`DATABASE_URL`)
-- Public files backend (choose one):
-  - S3/Minio-compatible storage (the `S3_*` env vars) with `HAPPIER_FILES_BACKEND=s3` (default)
-  - Local disk with `HAPPIER_FILES_BACKEND=local` (stores files under `HAPPIER_SERVER_LIGHT_DATA_DIR`)
-- A stable secret (`HANDY_MASTER_SECRET`)
-- Optional: Redis for scaling realtime across multiple API replicas (`REDIS_URL` + `HAPPIER_SOCKET_ADAPTER=redis-streams`)
+- 一个数据库（`DATABASE_URL`）
+- 公共文件后端（二选一）：
+  - 兼容 S3/Minio 的对象存储（配合 `S3_*` 环境变量），并配置 `HAPPIER_FILES_BACKEND=s3`（默认）
+  - 本地磁盘存储，配置 `HAPPIER_FILES_BACKEND=local`（文件存放在 `HAPPIER_SERVER_LIGHT_DATA_DIR` 下）
+- 一个固定的密钥（`HANDY_MASTER_SECRET`）
+- 可选：Redis，用于在多个 API 副本间横向扩展实时连接（`REDIS_URL` + `HAPPIER_SOCKET_ADAPTER=redis-streams`）
 
-### Light flavor (single-node / testing)
+### Light 风格（单节点 / 测试）
 
-Use this if you want the simplest self-hosted setup: a single-node DB stored on disk (SQLite by default, or embedded Postgres via PGlite) and local file storage served by the server at `GET /files/*`.
+适用于追求极简的自托管场景：数据库单节点落盘运行（默认为 SQLite，或通过 PGlite 嵌入 Postgres），公共文件保存在本地，由服务端直接在 `GET /files/*` 提供访问。
 
-**You will need:**
+**所需资源：**
 
-- Persistent disk for the light data directory (DB + files + persisted secrets)
-- Optional `HANDY_MASTER_SECRET` for a stable secret (otherwise one is generated and persisted)
+- 用于 light 数据目录的持久化磁盘（存放数据库、文件及持久化密钥）
+- 可选配置 `HANDY_MASTER_SECRET` 传入固定密钥（未配置时会自动生成并持久化存储）
 
-## Database providers
+## 数据库提供商
 
-The DB provider is selected via:
+数据库提供商可通过以下方式配置：
 
-- `HAPPIER_DB_PROVIDER` (preferred) or `HAPPY_DB_PROVIDER`
+- `HAPPIER_DB_PROVIDER`（推荐）或 `HAPPY_DB_PROVIDER`
 
-Supported values under either preset are `postgres`, `mysql` (MySQL 8.0.16+), `sqlite`, and `pglite`. Full defaults to Postgres; light defaults to SQLite.
+两种预设下均支持以下取值：`postgres`、`mysql`（MySQL 8.0.16+）、`sqlite` 与 `pglite`。Full 预设默认采用 Postgres；Light 预设默认采用 SQLite。
 
-Image support depends on how the image was built. Prebuilt `relay-server` images include SQLite and Postgres runtime support; MySQL requires a source-built `server` image with MySQL included.
+镜像所支持的数据库取决于构建方式。预构建的 `relay-server` 镜像内置了 SQLite 与 Postgres 运行时支持；若需支持 MySQL，必须基于源码构建并包含 MySQL 的 `server` 镜像。
 
-## Quick start (single container)
+## 快速开始（单容器）
 
-This is useful for quick experiments. For production, prefer Docker Compose (next section) or set a restart policy and use an env file.
+本节适用于快速验证与测试。在生产环境中，建议使用 Docker Compose（见下节），或配置容器重启策略并配合环境变量文件。
 
-### Full flavor (Postgres)
+### Full 风格（Postgres）
 
 ```bash
 docker run --rm -p 3005:3005 \
@@ -278,7 +277,7 @@ docker run --rm -p 3005:3005 \
   happier-server
 ```
 
-### Full flavor (MySQL 8.0.16+)
+### Full 风格（MySQL 8.0.16+）
 
 ```bash
 docker run --rm -p 3005:3005 \
@@ -297,18 +296,18 @@ docker run --rm -p 3005:3005 \
   happier-server
 ```
 
-Production note: remove `--rm` and add `--restart unless-stopped` (or your platform’s equivalent), and prefer `--env-file` over long `-e ...` lists.
+生产环境注意：移除 `--rm` 并添加 `--restart unless-stopped`（或对应运行平台的等效参数）；同时建议使用 `--env-file`，避免维护冗长繁杂的 `-e ...` 参数列表。
 
-Example:
+示例：
 
 ```bash
 cp apps/server/.env.example .env
 docker run --env-file .env -p 3005:3005 happier-server
 ```
 
-### Full flavor (local files backend)
+### Full 风格（本地文件后端）
 
-If you don’t want S3/Minio, you can store public files on local disk:
+若无需 S3/Minio，可将公共文件持久化在本地磁盘：
 
 ```bash
 docker run --rm -p 3005:3005 \
@@ -321,14 +320,14 @@ docker run --rm -p 3005:3005 \
   happier-server
 ```
 
-### Light flavor (PGlite)
+### Light 风格（PGlite）
 
-The default `server` image starts the **full** flavor. To run light in Docker, you can either:
+默认的 `server` 镜像会启动 **full** 风格。若要在 Docker 中以 light 风格运行，可以通过以下两种方式之一：
 
-- use the `relay-server` target (recommended for self-host), or
-- run the `server` target with `HAPPIER_SERVER_FLAVOR=light`.
+- 使用 `relay-server` 目标（自托管推荐方式），或
+- 运行 `server` 目标并传入 `HAPPIER_SERVER_FLAVOR=light`。
 
-The image entrypoint runs the packaged PGlite migration owner before startup, just as it does for external Postgres. Persist the local data directory.
+镜像入口点会在启动前执行内置的 PGlite 迁移主程序，其机制与外部 Postgres 一致。请务必持久化挂载本地数据目录。
 
 ```bash
 docker run --rm -p 3005:3005 \
@@ -340,9 +339,9 @@ docker run --rm -p 3005:3005 \
   happier-server
 ```
 
-### Light flavor (SQLite, default)
+### Light 风格（SQLite，默认）
 
-SQLite is the light flavor's default and the recommended light-mode database for Docker because it is single-process and easy to back up. With `RUN_MIGRATIONS=1` (default), the entrypoint enables the server's existing startup migration path; migrations run once inside normal server startup before the database client is initialized.
+SQLite 是 light 风格的默认数据库，也是 Docker 环境下 light 模式的推荐之选，其架构为单进程且易于备份。在 `RUN_MIGRATIONS=1`（默认配置）下，入口点会启用服务端既有的启动迁移链路；在正常启动流程中，迁移任务会在数据库客户端初始化前执行一次。
 
 ```bash
 docker run --rm -p 3005:3005 \
@@ -354,18 +353,18 @@ docker run --rm -p 3005:3005 \
   happier-server
 ```
 
-## Recommended: Docker Compose
+## 推荐方式：Docker Compose
 
-For most self-hosters, Docker Compose is the most reliable and reproducible way to run the server: it keeps env vars and volumes in one place and makes upgrades easier.
+对于绝大多数自托管用户而言，Docker Compose 是最可靠、可复现度最高的服务端运行方案：环境变量和数据卷统一维护在一处，升级也更加便捷。
 
-You can either:
+你可以选择以下任意一种方式：
 
-- copy values from `/apps/server/.env.example` into `environment:`, or
-- use `env_file:` with a managed copy of that file.
+- 将 `/apps/server/.env.example` 中的配置复制到 `environment:`，或
+- 直接通过 `env_file:` 指定你独立维护的配置文件副本。
 
-### Full flavor (single process)
+### Full 风格（单进程）
 
-This example uses Postgres + Minio. Redis is optional and only needed for multi-replica API deployments.
+本示例采用 Postgres + Minio。Redis 为可选组件，仅在 API 部署为多副本时需要。
 
 ```yaml
 services:
@@ -419,9 +418,9 @@ volumes:
   minio:
 ```
 
-### Full flavor (single process, MySQL 8.0.16+)
+### Full 风格（单进程，MySQL 8.0.16+）
 
-This example uses MySQL 8.0.16+ + Minio.
+本示例采用 MySQL 8.0.16+ + Minio。
 
 ```yaml
 services:
@@ -473,9 +472,9 @@ volumes:
   minio:
 ```
 
-### Light flavor (Compose, PGlite or SQLite)
+### Light 风格（Compose，PGlite 或 SQLite）
 
-The light flavor runs a single process and stores everything on disk.
+Light 风格以单进程运行，所有数据均存储在本地磁盘。
 
 ```yaml
 services:
@@ -509,16 +508,16 @@ volumes:
   happier-server-light:
 ```
 
-### Full flavor (API + worker)
+### Full 风格（API + Worker）
 
-If you split roles, run:
+若将角色拆分部署，配置规则如下：
 
-- API container(s) with `SERVER_ROLE=api`
-- Worker container with `SERVER_ROLE=worker`
+- API 容器添加 `SERVER_ROLE=api`
+- Worker 容器添加 `SERVER_ROLE=worker`
 
-With more than one API replica, enable Redis fanout (`REDIS_URL` + `HAPPIER_SOCKET_ADAPTER=redis-streams`) and configure sticky sessions at your load balancer.
+当 API 副本数大于 1 时，需启用 Redis 广播分发机制（`REDIS_URL` + `HAPPIER_SOCKET_ADAPTER=redis-streams`），并在负载均衡器处配置粘性会话。
 
-Minimal example (add this on top of the full-flavor compose above):
+最小化配置示例（叠加至上方 full 风格的 Compose 配置中）：
 
 ```yaml
 services:
@@ -551,51 +550,51 @@ services:
       - redis
 ```
 
-## Migrations
+## 数据迁移
 
-The source-built `server` target and prebuilt `relay-server` image run DB migrations by default. Migration selection follows `HAPPIER_DB_PROVIDER`, independently of the preset: Postgres, MySQL, and PGlite use their packaged/provider migration owner; SQLite uses the server's canonical in-process startup migration path.
+基于源码构建的 `server` 目标和预构建的 `relay-server` 镜像默认均会自动执行数据库迁移。具体选用哪种迁移机制由 `HAPPIER_DB_PROVIDER` 决定，与预设无关：Postgres、MySQL 和 PGlite 会调用对应的内置/提供商迁移主程序；SQLite 则沿用服务端规范的进程内启动迁移路径。
 
-The default is convenient for a single container. For Postgres, MySQL, or PGlite deployments managed by an orchestrator, run migrations once before replacing application containers:
+默认机制非常适合单容器环境。对于由编排工具管理的 Postgres、MySQL 或 PGlite 部署，在替换应用容器前应单独执行一次迁移：
 
 ```bash
 docker compose run --rm relay run-server --migrate-only
 docker compose up -d --force-recreate relay
 ```
 
-Set `RUN_MIGRATIONS=0` on the long-running API and worker services. The explicit `--migrate-only` command still runs migrations when that environment value is present, exits only after migration completion, and never starts the server. Your deployment system must treat a non-zero exit as a failed deployment and leave the existing application containers running.
+请在长期运行的 API 和 Worker 服务中设置 `RUN_MIGRATIONS=0`。显式执行 `--migrate-only` 命令时，即使存在该环境变量也会照常运行迁移，并在迁移完成后立即退出，绝不启动服务端。你的部署系统必须将非零退出状态码视为部署失败，并保持现有的应用容器继续运行。
 
-If your platform cannot run and await a blocking pre-deploy command (for example, separate Dokploy Applications triggered by independent webhooks), designate exactly one API service as the migration owner instead: set `RUN_MIGRATIONS=1` only there, set `RUN_MIGRATIONS=0` on every worker and other replica, use a start-first rollout with automatic rollback, and give the migration-owning container enough health-check startup grace for the largest expected migration. This fallback relies on backward-compatible migrations so workers may continue serving while the API owner upgrades the schema.
+若你的部署平台无法运行并等待阻塞式预部署命令执行完毕（例如，由独立 Webhook 触发的多个 Dokploy 独立应用），可退而求其次，指定仅由某一个 API 服务作为迁移负责人：仅在这一处配置 `RUN_MIGRATIONS=1`，并在所有 Worker 和其他副本中配置 `RUN_MIGRATIONS=0`；同时采用“先启后停”滚动更新与自动回滚策略，并为负责迁移的容器预留足够的健康检查启动宽限时间，以应对最耗时的迁移任务。该兜底方案依赖向后兼容的数据库迁移，使得 API 负责人在升级模式期间，Worker 能够不受中断地持续对外服务。
 
-Notes:
+注意事项：
 
-- Disable automatic migrations with `RUN_MIGRATIONS=0`. For SQLite, the entrypoint maps this to the server startup migration setting; it does not launch a second migration process.
-- Keep SQLite on its normal single-process startup path; the packaged SQLite runtime does not support `--migrate-only`.
-- PostgreSQL advisory locks serialize competing migration attempts, but they do not protect a migration if an orchestrator terminates its container for failing startup health checks. Use one dedicated migration owner when migrations can outlive the platform's startup grace period.
-- If migration deployment is interrupted, inspect the database and migration ledger before recovery. Never mark an unknown failed migration as applied merely to make the server start.
+- 可通过 `RUN_MIGRATIONS=0` 禁用自动迁移。对于 SQLite，入口点会将该配置映射到服务端启动迁移设置中，不会拉起第二个迁移进程。
+- SQLite 请保持常规的单进程启动流程；封装的 SQLite 运行时不支持 `--migrate-only`。
+- PostgreSQL 的咨询锁可以串行化并发的迁移操作，但若编排器因启动健康检查超时而强制终止容器，咨询锁无法提供保护。如果迁移耗时可能超过平台的启动宽限期，请务必指定单独的专职迁移负责实例。
+- 若迁移部署过程意外中断，在恢复前请务必核查数据库状态与迁移台账。绝不能仅为了让服务端启动，就盲目将状态未知的失败迁移强行标记为已应用。
 
-## Reverse proxy checklist
+## 反向代理检查清单
 
-- Terminate TLS at the proxy (recommended).
-- Forward WebSocket upgrade headers.
-- Increase timeouts for long-lived connections.
-- Keep secrets in your deployment platform (env vars), not in git.
+- 在反向代理处终止 TLS（推荐）。
+- 转发 WebSocket upgrade 请求头。
+- 为长连接适当增大超时时间。
+- 密钥统一保存在部署平台的环境变量中，严禁提交至 Git 仓库。
 
-## Development notes (contributors)
+## 开发说明（贡献者指南）
 
-If you are developing Kaiwu Server itself (not just deploying it), keep in mind:
+如果你是在参与 Kaiwu Server 本身的开发（而非仅仅部署运行），请留意以下要点：
 
-- There are two runtime presets: **full** (`yarn --cwd apps/server start`) and **light** (`yarn --cwd apps/server start:light`).
-- The DB provider is independently selected via `HAPPIER_DB_PROVIDER=postgres|mysql|sqlite|pglite`; full defaults to Postgres and light defaults to SQLite.
-- Prisma model source of truth: `apps/server/prisma/schema.prisma`.
-- Provider schemas are generated from it:
-  - `yarn --cwd apps/server schema:sync` (and tests enforce `schema:sync:check`)
-- Migrations are provider-specific:
-  - Postgres/PGlite: `apps/server/prisma/migrations/*`
-  - SQLite: `apps/server/prisma/sqlite/migrations/*`
-  - MySQL: `apps/server/prisma/mysql/migrations/*`
+- 存在两种运行时预设：**full**（`yarn --cwd apps/server start`）与 **light**（`yarn --cwd apps/server start:light`）。
+- 数据库提供商通过 `HAPPIER_DB_PROVIDER=postgres|mysql|sqlite|pglite` 独立指定；full 预设默认使用 Postgres，light 预设默认使用 SQLite。
+- Prisma 模型的单一真实来源：`apps/server/prisma/schema.prisma`。
+- 各提供商的 schema 文件均由其生成：
+  - `yarn --cwd apps/server schema:sync`（且测试会严格校验 `schema:sync:check`）
+- 迁移文件按提供商区分：
+  - Postgres/PGlite：`apps/server/prisma/migrations/*`
+  - SQLite：`apps/server/prisma/sqlite/migrations/*`
+  - MySQL：`apps/server/prisma/mysql/migrations/*`
 
-When you change the data model, make sure you:
+当你修改数据模型时，请务必执行以下步骤：
 
-1. Update `apps/server/prisma/schema.prisma`
-2. Run `yarn --cwd apps/server schema:sync`
-3. Create migrations for each supported provider (at least Postgres + MySQL; and SQLite if you want light/sqlite supported for that change)
+1. 更新 `apps/server/prisma/schema.prisma`
+2. 运行 `yarn --cwd apps/server schema:sync`
+3. 为每个受支持的提供商创建迁移文件（至少包含 Postgres + MySQL；若本次修改需要支持 light/sqlite，还需包含 SQLite）

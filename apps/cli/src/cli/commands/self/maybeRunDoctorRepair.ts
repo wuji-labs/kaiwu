@@ -24,7 +24,7 @@ export async function maybeRunDoctorRepair(params: Readonly<{
 
   await handleServiceRepairCliCommand({
     argv: ['repair'],
-    commandPath: 'happier doctor',
+    commandPath: 'kaiwu doctor',
   });
   return true;
 }

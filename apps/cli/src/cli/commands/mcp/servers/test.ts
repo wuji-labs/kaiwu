@@ -26,14 +26,14 @@ export async function cmdMcpServersTest(
       await printJsonEnvelope({ ok: false, kind: 'mcp_servers_test', error: { code: 'not_authenticated' } }, { exitCode: 1 });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "happier auth login" first.');
+    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
     process.exitCode = 1;
     return;
   }
 
   const serverRef = readFlagValue(argv, '--mcp-server') ?? readFlagValue(argv, '--server');
   const directory = readFlagValue(argv, '--dir') ?? process.cwd();
-  if (!serverRef) throw new Error('Usage: happier mcp servers test --mcp-server <name|id> [--dir <path>] [--json]');
+  if (!serverRef) throw new Error('Usage: kaiwu mcp servers test --mcp-server <name|id> [--dir <path>] [--json]');
 
   const startedAt = deps.nowMs();
 

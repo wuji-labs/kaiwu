@@ -1,156 +1,151 @@
 ---
 title: Claude
-description: Configure Claude in Kaiwu (remote mode), including Agent SDK, partial streaming, and /rewind.
+description: 在 Kaiwu（远程模式）中配置 Claude，包括 Agent SDK、部分流式传输和 /rewind。
 ---
+本文介绍 Kaiwu 与 **Claude Code** 的集成方式，以及各项 Claude 专有设置的具体作用。
 
-This page documents how Kaiwu integrates with **Claude Code** and what Claude-specific settings do.
+## 运行模式：本地模式与远程模式
 
-## Modes: local vs remote
+Kaiwu 支持两种 Claude 运行方式：
 
-Kaiwu supports two ways of running Claude:
+- **本地模式**：直接在终端中运行 **Claude Code 自带的 TUI**。
+- **远程模式**：通过 **Kaiwu 界面**操控 Claude，但 Claude 依然在**本地设备**上运行（由 Kaiwu 在后台拉起 `claude` 进程）。
 
-- **Local mode**: you run **Claude Code’s own TUI** directly in your terminal.
-- **Remote mode**: you drive Claude from the **Kaiwu UI**, but Claude still runs **locally on your machine** (Kaiwu spawns the `claude` process in the background).
+远程模式提供**三种实现方案**，并按以下优先级依次选用：若启用了统一终端则优先使用；未启用则使用 Agent SDK；最后回退至旧版实现。
 
-Remote mode has **three implementations**, selected in that order: unified
-terminal when it is enabled, otherwise Agent SDK, otherwise legacy.
-
-| Runtime | How Kaiwu drives Claude | Terminal to join? |
+| 运行时 | Kaiwu 驱动 Claude 的方式 | 是否需要接入终端？ |
 | --- | --- | --- |
-| **Unified terminal** (opt-in) | Kaiwu hosts Claude Code's own TUI in a terminal session and types prompts into its composer, so the app and the terminal share one Claude Code run. | Yes |
-| **Agent SDK** (default) | Runs Claude through the official `@anthropic-ai/claude-agent-sdk` in a background process, publishing capabilities and optionally file checkpointing. | No |
-| **Legacy remote** (fallback) | The older SDK-like shim that spawns `claude` with a streaming output format and forwards hooks for session info. | No |
+| **统一终端**（需手动开启） | Kaiwu 在终端会话中托管 Claude Code 自带的 TUI，并自动向其输入框中键入提示词，使客户端与终端共享同一个 Claude Code 运行实例。 | 是 |
+| **Agent SDK**（默认） | 在后台进程中通过官方 `@anthropic-ai/claude-agent-sdk` 运行 Claude，对外发布功能能力，并可选支持文件检查点。 | 否 |
+| **旧版远程模式**（回退方案） | 较早的类 SDK 垫片方案，通过流式输出格式拉起 `claude`，并转发会话信息的钩子。 | 否 |
 
-The unified terminal is off until you turn it on, and it changes enough about
-how a session behaves — steering, queued input, which runtime controls apply
-live — to be worth reading about first:
-[Claude unified terminal](/sessions/claude-unified-terminal).
+统一终端默认处于关闭状态。由于它会显著改变会话的运行机制（如交互引导、排队输入、各项运行时控制的实时生效方式等），建议先查阅：[Claude 统一终端](/sessions/claude-unified-terminal)。
 
-## Start in Kaiwu, continue in the terminal
+## 从 Kaiwu 启动，在终端中继续
 
-Claude supports Kaiwu’s attach flow for app-started sessions:
+对于在客户端中启动的会话，Claude 支持 Kaiwu 的接入流程：
 
-- start a Claude session from the Kaiwu app,
-- let Kaiwu run it remotely on your machine,
-- later reattach with `happier attach <session-id>`,
-- switch into local mode when you want to use Claude Code’s native terminal UI directly.
+- 在 Kaiwu 客户端中启动 Claude 会话，
+- 由 Kaiwu 在本地设备上以远程模式运行该会话，
+- 随后可使用 `happier attach ⟦K3⟧` 重新接入，
+- 如需直接使用 Claude Code 的原生终端 TUI，可切换至本地模式。
 
-You can later switch back to remote mode and continue from the Kaiwu app without starting a new session.
+之后你还可以切回远程模式，在 Kaiwu 客户端中继续操作，无需新建会话。
 
-Local control is started from the terminal. Use `happier attach <session-id>` on the machine that owns the session.
+本地控制需从终端发起。请在承载该会话的设备上运行 `happier attach ⟦K4⟧`。
 
-If you send a message from the app while Claude is locally controlled, Kaiwu stores it in the pending queue first. When Claude is idle, Kaiwu can switch back to remote control and process the queued message. If Claude is still working in the terminal, Kaiwu waits until the local turn finishes or stops before switching, so the app message does not interrupt the current Claude turn.
+若在 Claude 处于本地控制期间从客户端发送消息，Kaiwu 会先将其存入待处理队列。当 Claude 处于空闲状态时，Kaiwu 可切回远程控制并处理队列中的消息。如果 Claude 仍在终端中执行任务，Kaiwu 会等待当前本地轮次执行完毕或中止后再切换，确保客户端消息不会打断 Claude 当前的执行轮次。
 
-On machines with `tmux`, this is usually a tmux-backed attach flow. On Windows, use Kaiwu’s Windows remote session mode (`Windows Terminal`, `Console`, or `Hidden`) instead of expecting tmux.
+在装有 `tmux` 的设备上，该流程通常基于 tmux 实现接入。在 Windows 上，请使用 Kaiwu 的 Windows 远程会话模式（`Windows Terminal`、`Console` 或 `Hidden`），无需依赖 tmux。
 
-For the full workflow, see [Features → Attach to a running session](/sessions/attach-to-session).
+完整工作流程请参见[功能特性 → 接入正在运行的会话](/sessions/attach-to-session)。
 
-## Permissions and modes
+## 权限与模式
 
-Kaiwu uses:
+Kaiwu 包含以下两套机制：
 
-- a **provider-agnostic permission mode** (`default`, `read-only`, `safe-yolo`, `yolo`)
-- a separate Claude **session mode** surface (including **Plan**)
+- **与提供商无关的通用权限模式**（`default`、`read-only`、`safe-yolo`、`yolo`）
+- 独立的 Claude **会话模式**控制项（包含 **Plan**）
 
-For the full user guide (CLI flags, UI picker, defaults, and apply timing), see:
+完整的用户指南（包括 CLI 参数、界面选择器、默认值和生效时机）请参见：
 
-- [Permissions](/sessions/permissions)
-- [Session modes](/sessions/session-modes)
-- [Model and engine selection](/agents/model-and-engine-selection)
+- [权限](/sessions/permissions)
+- [会话模式](/sessions/session-modes)
+- [模型与引擎选择](/agents/model-and-engine-selection)
 
-### Claude plan mode
+### Claude 计划模式
 
-In current Kaiwu builds, **Plan** is shown under **Mode**, not under the normal permission picker.
+在当前的 Kaiwu 版本中，**Plan** 位于**模式（Mode）**菜单下，而非普通的权限选择器中。
 
-That matters because:
+这一区分非常关键：
 
-- **Mode = Plan** changes Claude’s behavior for the current session
-- **permission mode** still controls how approvals are handled
+- **Mode = Plan** 会改变 Claude 在当前会话中的行为方式
+- **权限模式**则依然负责控制审批流程
 
-Plan mode does **not** bypass approvals by itself. Claude can still ask for permission while the session is in plan mode.
+计划模式本身**不会**绕过审批。会话处于计划模式时，Claude 依然可以请求权限。
 
-### Exiting plan mode
+### 退出计划模式
 
-When Claude finishes planning, Kaiwu surfaces **Exit Plan Mode** as a user-action request.
+当 Claude 完成规划后，Kaiwu 会以用户操作请求的形式呈现**退出计划模式**（Exit Plan Mode）。
 
-Common choices are:
+常见选项包括：
 
 - **Approve Plan**
 - **Request changes**
 - **Approve Plan (Accept Edits)**
 - **Approve Plan (Bypass All Permissions)**
 
-Those choices affect what happens **after** Claude leaves plan mode:
+这些选项决定了 Claude 退出计划模式**之后**的行为：
 
-- **Approve Plan** returns to normal build mode
-- **Accept Edits** returns to build mode with an edit-friendly permission posture
-- **Bypass All Permissions** returns to build mode with a YOLO-style permission posture
+- **Approve Plan**：返回常规构建模式
+- **Accept Edits**：返回构建模式，并采用放宽编辑限制的权限策略
+- **Bypass All Permissions**：返回构建模式，并采用完全放行的 YOLO 权限策略
 
-If you request changes, Claude stays in plan mode and revises the plan instead of starting execution.
+如果选择请求修改，Claude 将保留在计划模式中继续修改方案，而不会开始执行。
 
-### Local ↔ remote switching
+### 本地与远程模式切换
 
-Permission mode is stored canonically in **session metadata**, so it follows the session when you:
-- open the same session on another device, or
-- switch between **local** and **remote** mode.
+权限模式以标准方式保存在**会话元数据**中。因此，在以下场景中权限模式都会跟随会话保持同步：
+- 在另一台设备上打开同一个会话，或
+- 在**本地**与**远程**模式之间切换。
 
-Some permission behavior is implemented by Kaiwu (tool approval gating) and can update immediately; other behavior depends on Claude’s own session flags and may only take effect when Claude is launched/resumed. The in-session picker’s “Effective policy” line is the source of truth for what will apply right now.
+部分权限行为由 Kaiwu 自身实现（如工具调用的审批拦截），此类行为可即时更新；另一些行为则依赖 Claude 自身的会话标志位，可能仅在 Claude 启动或恢复时生效。会话内选择器中的“生效策略”（Effective policy）一行，即为当前实际生效规则的权威参考。
 
-When local permission bridge is enabled, Claude permission prompts can still be forwarded into Kaiwu while the terminal owns the session. Message sending is separate from permission approval: app messages sent during exclusive local control still go through the pending queue and are delivered only after Kaiwu can safely resume remote processing.
+启用本地权限桥接后，即使终端持有会话控制权，Claude 的权限提示仍可转发至 Kaiwu。消息发送与权限审批彼此独立：在本地独占控制期间从客户端发送的消息仍会进入待处理队列，直到 Kaiwu 能安全恢复远程处理时才会投递。
 
-## Install Claude Code
+## 安装 Claude Code
 
-Install and authenticate Claude Code on your machine first, then restart Kaiwu.
+请先在设备上安装并认证 Claude Code，然后重启 Kaiwu。
 
-Use Anthropic’s official setup guide:
+请参考 Anthropic 官方安装指南：
 
 - https://docs.anthropic.com/en/docs/claude-code/getting-started
 - https://docs.anthropic.com/en/docs/claude-code/overview
 
-Anthropic currently supports both install paths. Prefer the native installer flow in their docs, and use npm (`npm install -g @anthropic-ai/claude-code`) when that better fits your environment.
+Anthropic 目前支持两种安装方式。建议优先使用其文档中推荐的原生安装程序；若 npm（`npm install -g @anthropic-ai/claude-code`）更契合你的环境，也可采用。
 
-### Let Kaiwu install it
+### 由 Kaiwu 自动安装
 
-Kaiwu can run the installer for you, using Anthropic's native installer rather than npm:
+Kaiwu 可代你运行安装程序，该方式会使用 Anthropic 的原生安装程序而非 npm：
 
 ```bash
 happier install provider claude
 claude --version
 ```
 
-## Local authentication in Kaiwu
+## 在 Kaiwu 中进行本地认证
 
-Claude also supports **machine-local provider authentication** directly in provider settings.
+Claude 还支持直接在提供商设置中完成**设备本地提供商认证**。
 
-Open:
+打开路径：
 
-- **Settings → AI & Agents → AI backends → Claude**
+- **设置 → AI & Agents → AI 后端 → Claude**
 
-From there you can:
+在此界面中，你可以：
 
-- check whether Claude is logged in on the selected machine
-- see whether Kaiwu detected CLI login, `ANTHROPIC_API_KEY`, or `ANTHROPIC_AUTH_TOKEN`
-- open Claude’s native login flow inside Kaiwu
-- refresh the auth state with **Check now**
+- 检查所选设备上 Claude 的登录状态
+- 查看 Kaiwu 是否检测到 CLI 登录、`ANTHROPIC_API_KEY` 或 `ANTHROPIC_AUTH_TOKEN`
+- 在 Kaiwu 内调出 Claude 的原生登录流程
+- 点击 **Check now** 刷新认证状态
 
-Kaiwu launches Claude and sends `/login` for you when you use **Log in**.
+点击 **Log in** 时，Kaiwu 会启动 Claude 并自动发送 `/login`。
 
-For the shared user guide, see [Provider authentication](/agents/provider-authentication).
+通用用户指南请参见[提供商认证](/agents/provider-authentication)。
 
-## Authentication (connected services)
+## 认证（关联服务）
 
-Claude can authenticate through Kaiwu connected services:
+Claude 可通过 Kaiwu 的关联服务进行认证：
 
-- `claude-subscription`: Claude subscription credentials
-  - **Setup-token** (recommended default): generate on any machine with Claude Code installed via `claude setup-token`, then paste into Kaiwu
-  - OAuth: available through paste redirect flows everywhere and in-app browser on native
-- `anthropic`: Anthropic API key (Anthropic Console)
+- `claude-subscription`：Claude 订阅凭据
+  - **Setup-token**（推荐默认方案）：在任何安装了 Claude Code 的设备上通过 `claude setup-token` 生成，然后粘贴到 Kaiwu 中
+  - OAuth：支持各平台的粘贴重定向流程，并在原生端提供应用内浏览器登录
+- `anthropic`：Anthropic API 密钥（Anthropic Console）
 
-In the app:
+在客户端中：
 
-- Settings → Connected services → Claude
+- 设置 → 关联服务 → Claude
 
-In the CLI:
+在 CLI 中：
 
 ```bash
 # Claude subscription (recommended default)
@@ -163,156 +158,156 @@ happier connect claude --api-key
 happier connect claude --oauth
 ```
 
-For more details (service ids, security model, and env overrides), see:
+更多详细信息（服务 ID、安全模型及环境变量替代机制）请参见：
 
-- [Connected services](/accounts/connected-services)
+- [关联服务](/accounts/connected-services)
 
-Practical guidance:
+实践建议：
 
-- Prefer setup-token when you want the most stable Claude subscription credential across machines.
-- Use OAuth when the user does not already have Claude Code installed / logged in.
-- In the new-session auth picker, Claude-compatible backends will show only the Claude-related connected-service options they actually support.
+- 若追求在不同设备间最稳定的 Claude 订阅凭据体验，建议优先选择 setup-token。
+- 若尚未安装或登录 Claude Code，可使用 OAuth。
+- 在新建会话的认证选择器中，兼容 Claude 的后端仅会展示其切实支持的 Claude 相关关联服务选项。
 
-## Session handoff
+## 会话交接
 
-Claude supports Kaiwu session handoff between machines.
+Claude 支持在不同设备之间进行 Kaiwu 会话交接。
 
-That means you can:
+这意味着你可以：
 
-- start a Claude session on one machine
-- hand off the same Kaiwu session id to another machine
-- continue that session there
-- hand it back later if needed
+- 在一台设备上启动 Claude 会话
+- 将同一个 Kaiwu 会话 ID 交接至另一台设备
+- 在目标设备上继续该会话
+- 必要时还可交接回原设备
 
-Important notes:
+重要提示：
 
-- machine-local Claude login still matters for native Claude CLI workflows
-- connected services can make cross-machine continuity easier because the credential is account-managed instead of machine-local only
-- direct-session handoff support is provider-dependent, but Claude is one of the supported providers
+- 设备本地的 Claude 登录状态对于原生 Claude CLI 工作流依然必要
+- 关联服务可以让跨设备连续体验更加顺畅，因为凭据是由账号统一管理，而非仅保存在本地设备
+- 跨设备直接交接会话的能力取决于提供商，Claude 属于支持该特性的提供商之一
 
-See:
+参见：
 
-- [Session handoff](/sessions/session-handoff)
-- [Connected services](/accounts/connected-services)
+- [会话交接](/sessions/session-handoff)
+- [关联服务](/accounts/connected-services)
 
-## Where to configure Claude in Kaiwu
+## 在 Kaiwu 中配置 Claude 的入口
 
-In the app:
+在客户端中：
 
-1. **Settings**
-2. **AI & Agents → AI backends**
+1. **设置**
+2. **AI & Agents → AI 后端**
 3. **Claude (remote)**
 
-Most settings below affect **Claude remote mode only**.  
-The one exception is **Experimental: local permission bridge**, which affects **local mode**.
+下方列出的大多数设置项**仅对 Claude 远程模式生效**。  
+唯一的例外是**实验性：本地权限桥接**，该选项对**本地模式**生效。
 
-## Settings reference (Claude remote)
+## 设置参考（Claude 远程模式）
 
-| Setting | Default | What it does |
+| 设置项 | 默认值 | 说明 |
 | --- | --- | --- |
-| **Use Agent SDK (remote)** | On | Enables the official Agent SDK remote runner (`@anthropic-ai/claude-agent-sdk`). When off, Kaiwu uses the legacy remote runner. |
-| **Setting sources** | User + Project | Controls what Claude settings get loaded: **Project only** loads repo config (for example `CLAUDE.md`); **User + Project** includes user-global config too (including user-defined MCP servers); **None** ignores both for maximum determinism. |
-| **Force-enable Agent Teams (experimental)** | Off | When enabled, Kaiwu force-enables Claude Code experimental Agent Teams for all Claude starts (local + remote). When off, Kaiwu does not force-disable and Claude uses its own defaults. |
-| **Experimental: local permission bridge** | On | In local mode, forwards Claude permission prompts into Kaiwu so you can approve/deny from the app UI instead of only in the terminal. |
-| **File checkpointing + /rewind** | Off | Enables file checkpoint capture and the `/rewind` command (remote Agent SDK only). Adds overhead. |
-| **Max thinking tokens** | Default | Sets an upper bound on Claude’s internal thinking budget (remote Agent SDK only). |
-| **Disable TODOs** | Off | Adds a remote-mode system instruction that asks Claude not to create TODO items/lists in its output. |
-| **Strict MCP server config** | Off | Fails the remote start if any MCP server config is invalid (instead of trying to continue). |
-| **Advanced options (JSON)** | Empty | Power-user overrides for a limited allowlist of Agent SDK query options (remote Agent SDK only). Invalid JSON is ignored with a user-visible warning. |
+| **Use Agent SDK (remote)** | 开启 | 启用官方 Agent SDK 远程运行器（`@anthropic-ai/claude-agent-sdk`）。关闭时，Kaiwu 将使用旧版远程运行器。 |
+| **Setting sources** | User + Project | 控制加载哪些 Claude 设置项：**Project only** 仅加载代码仓配置（例如 `CLAUDE.md`）；**User + Project** 会一并加载用户全局配置（包括用户自定义的 MCP 服务器）；**None** 忽略两者以获得最高的确定性。 |
+| **Force-enable Agent Teams (experimental)** | 关闭 | 开启后，Kaiwu 会对所有 Claude 启动实例（本地与远程）强制启用 Claude Code 实验性 Agent Teams 特性。关闭时，Kaiwu 不会强制禁用，Claude 将遵循其默认行为。 |
+| **Experimental: local permission bridge** | 开启 | 在本地模式下，将 Claude 权限提示转发到 Kaiwu 中，从而可以在客户端界面中进行批准或拒绝，而无需局限在终端内。 |
+| **File checkpointing + /rewind** | 关闭 | 启用文件检查点捕获以及 `/rewind` 命令（仅限远程 Agent SDK 模式）。此功能会带来额外开销。 |
+| **Max thinking tokens** | Default | 设置 Claude 内部思考预算的上限（仅限远程 Agent SDK 模式）。 |
+| **Disable TODOs** | 关闭 | 添加一条远程模式系统指令，要求 Claude 不要在输出中创建 TODO 条目或列表。 |
+| **Strict MCP server config** | 关闭 | 只要有任何 MCP 服务器配置无效即中止远程启动（而非尝试忽略并继续）。 |
+| **Advanced options (JSON)** | 空 | 面向高级用户，用于覆盖 Agent SDK 查询选项的受限白名单（仅限远程 Agent SDK 模式）。无效的 JSON 会被忽略，并向用户弹出警告提示。 |
 
-For the full user-facing MCP guide in Kaiwu, see:
+Kaiwu 中完整的 MCP 用户指南请参见：
 
-- [MCP servers](/extending/mcp-servers)
+- [MCP 服务器](/extending/mcp-servers)
 
-## Environment variables
+## 环境变量
 
-Kaiwu does not have a Claude-specific “env var” CLI flag. To set environment variables for Claude:
+Kaiwu 没有专门针对 Claude 的“环境变量”CLI 参数。如需为 Claude 设置环境变量：
 
-- **Local mode**: export env vars in your shell before running `happier` (Claude inherits them).
-- **Remote mode (from the app UI)**: set env vars on the profile/session in the UI (Kaiwu forwards them to the spawned Claude process).
+- **本地模式**：在运行 `happier` 之前于 Shell 中导出环境变量（Claude 会自动继承）。
+- **远程模式（通过客户端界面）**：在界面的配置文件或会话中设置环境变量（Kaiwu 会将其转发给拉起的 Claude 进程）。
 
-Remote Agent SDK mode uses a filtered environment by default, but **explicit** GUI/profile env vars (and connected-services auth env vars) are forwarded to the Claude subprocess so workflows like GitHub integration can work without leaking the full parent `process.env`.
+远程 Agent SDK 模式默认使用经过过滤的环境变量，但界面或配置文件中**明确指定**的环境变量（以及关联服务的认证环境变量）会转发给 Claude 子进程，从而在保证 GitHub 集成等工作流正常运行的同时，避免泄露父进程完整的 `process.env`。
 
-## Agent Teams (Claude swarms) in Kaiwu
+## Kaiwu 中的 Agent Teams（Claude 群体智能）
 
-When Agent Teams are enabled in Claude, Kaiwu can:
+在 Claude 中启用 Agent Teams 后，Kaiwu 可以支持：
 
-- **Force-enable Agent Teams** for all Claude starts (local + remote) via the **Force-enable Agent Teams (experimental)** setting.
-- **Route user messages** from the main session composer to:
-  - a specific **team member** (1:1), or
-  - a **team broadcast** (team-wide).
-- Surface Claude teammates as first-class rows in the session **Agents** tab, where you can reopen their transcript, launch more teammates into an existing team, and terminate them when needed.
-- Reopen teammate work from both the **Agents** sidebar and the original **transcript/tool entry**.
+- 通过 **Force-enable Agent Teams (experimental)** 设置项，为所有 Claude 启动实例（本地与远程）**强制启用 Agent Teams**。
+- 将主会话输入框中的**用户消息路由至**：
+  - 具体的**团队成员**（1:1），或
+  - **团队广播**（全员）。
+- 在会话的 **Agents** 标签页中将 Claude 队员作为一级条目展示，支持重新打开其会话记录、向现有团队中增派队员，以及在必要时将其终止。
+- 既可以从 **Agents** 侧边栏重新打开队员的工作上下文，也可以从原始的**会话记录/工具调用条目**中打开。
 
-For the complete user-facing guide to the Agents sidebar, Subagents, details-pane behavior, and Claude team workflows, see:
+有关 Agents 侧边栏、子智能体、详情面板行为及 Claude 团队工作流的完整指南，请参见：
 
-- [Agents & subagents](/extending/subagents)
-- [Participant routing & live run messaging](/accounts/participant-routing)
+- [智能体与子智能体](/extending/subagents)
+- [参与者路由与实时运行消息](/accounts/participant-routing)
 
-### Routing UI (recipient chip)
+### 路由界面（接收者标签）
 
-When a Claude session has an active team, the session composer shows a **“To:” recipient chip**. Use it to:
+当 Claude 会话中存在活跃团队时，会话输入框会显示一个 **“To:” 接收者标签**。你可以用它来：
 
-- send to the **Lead** (default),
-- pick a specific teammate, or
-- pick **Broadcast**.
+- 发送给 **Lead**（默认），
+- 选择具体的队员，或
+- 选择 **Broadcast**。
 
-Routed messages are stored as a provider-agnostic structured message kind (`participant_message.v1`) so Kaiwu can render them as a distinct card in the transcript (instead of looking like a normal bubble).
+路由消息以与提供商无关的结构化消息类型（`participant_message.v1`）存储，因此 Kaiwu 可以将其在会话记录中渲染为独立的卡片样式（而非普通气泡）。
 
-The important user-visible rule is:
+呈现在用户界面的关键规则如下：
 
-- Kaiwu shows the message you typed,
-- Kaiwu does **not** show Claude’s internal prompt rewrite for the routing step.
+- Kaiwu 会如实展示你输入的原始内容，
+- Kaiwu **不会**展示 Claude 为执行路由步骤而在内部重写的提示词。
 
-### View-aware default recipient
+### 视口感知的默认接收者
 
-When you open a focused tool transcript view:
+当你打开聚焦的工具会话记录视图时：
 
-- `Task` transcripts that contain a teammate spawn event can auto-select that teammate as the recipient (if you haven’t manually picked a different recipient).
-- `SubAgentRun` transcripts auto-select the running execution run as the recipient (while it is running).
+- 包含队员派生事件的 `Task` 会话记录可自动将该队员选为接收者（前提是你未手动选择其他接收者）。
+- `SubAgentRun` 会话记录会在任务运行期间自动将正在运行的执行实例选为接收者。
 
-If you manually pick a different recipient on that screen, your manual choice wins until you leave/reopen the screen.
+若在该界面上手动选择了其他接收者，则在离开或重新打开该界面前，均以手动选择为准。
 
-### Teammate lifecycle in the recipient picker
+### 接收者选择器中的队员生命周期
 
-The recipient picker follows the active Claude team roster.
+接收者选择器与 Claude 团队的当前活跃名单保持同步。
 
-That means:
+这意味着：
 
-- active teammates remain available as recipients,
-- **Broadcast** remains available while the team exists,
-- terminated teammates are removed from the active recipient list.
+- 活跃队员始终可作为接收者选用，
+- 只要团队存在，**Broadcast** 就始终可用，
+- 已终止的队员会从活跃接收者列表中移除。
 
-### Current limitation: attachments and review comments
+### 当前限制：附件与审查评论
 
-Routed messages currently do **not** support:
+路由消息目前**不支持**：
 
-- attachments, or
-- review comment drafts.
+- 附件，或
+- 审查评论草稿。
 
-Send those as regular lead messages instead.
+如有此类需求，请作为常规消息发送给 Lead。
 
-Regular non-routed session messages do support Kaiwu attachments.
+常规的非路由会话消息均支持 Kaiwu 附件。
 
-See: [Attachments & image previews](/apps/attachments)
+参见：[附件与图片预览](/apps/attachments)
 
-## Local permission bridge (experimental)
+## 本地权限桥接（实验性）
 
-When **Experimental: local permission bridge** is enabled:
+启用**实验性：本地权限桥接**后：
 
-- You can keep using Claude’s local TUI in your terminal.
-- Permission prompts are also available in Kaiwu’s UI, so approvals can be done from the app.
-- If the bridge is unavailable, Claude falls back to its normal permission prompt behavior in the terminal.
+- 你可以继续在终端中使用 Claude 的本地 TUI。
+- 权限提示也会同步显示在 Kaiwu 界面中，支持直接在客户端内完成审批。
+- 若桥接不可用，Claude 会回退至终端内的常规权限提示行为。
 
-This is intended to improve local-mode usability when you want to keep session control in the app while still using Claude’s local runtime.
+该特性旨在改善本地模式的易用性：当你想继续使用 Claude 本地运行时，又希望在客户端中保留会话控制权，即可使用此功能。
 
-**Apply timing:** This is a user-level setting that syncs with your account settings. It’s picked up when a local Claude session starts. If you change it while a local session is already running, restart that session (or send any message from the app) for the change to take effect.
+**生效时机**：此项为用户级设置，会与你的账号设置同步，并在本地 Claude 会话启动时读取。若在本地会话运行期间更改了此设置，需重启该会话（或从客户端发送任意消息）方可生效。
 
-### Advanced options (JSON): allowlist
+### 高级选项（JSON）：白名单
 
-The advanced JSON field is intentionally restricted so it can’t break Kaiwu’s control plane (hooks, permissions, session handling).
+高级 JSON 字段经过了专门的限制，避免破坏 Kaiwu 的控制平面（如钩子、权限、会话处理等核心逻辑）。
 
-Currently allowlisted keys:
+当前白名单中允许的键如下：
 
 - `plugins`
 - `betas`
@@ -326,43 +321,41 @@ Currently allowlisted keys:
 - `debugFile`
 - `stderr`
 
-All other keys are ignored.
+其余所有键均会被忽略。## 文件检查点与 `/rewind`
 
-## File checkpointing and `/rewind`
+启用 **File checkpointing + /rewind** 后，Kaiwu 会捕获检查点 ID 并提供回滚命令：
 
-When **File checkpointing + /rewind** is enabled, Kaiwu captures checkpoint IDs and exposes a rewind command:
+- `/checkpoints` 显示已捕获的检查点 ID（按时间倒序排列）。
+- `/rewind ⟦K5⟧ --confirm` 将文件回滚至指定检查点。
+- `/rewind --confirm` 将文件回滚至最近一次捕获的检查点。
 
-- `/checkpoints` shows captured checkpoint IDs (newest first).
-- `/rewind <checkpoint-id> --confirm` rewinds files to a specific checkpoint.
-- `/rewind --confirm` rewinds files to the most recent captured checkpoint.
+注意事项：
 
-Important notes:
+- **Agent SDK 的回滚仅作用于文件系统**，不会删除或重写对话内容。
+- 这与 Claude Code 在 TUI 中的交互式 `/rewind` 命令不同，后者可以回滚对话上下文和/或文件。Kaiwu 远程环境采用的是 Agent SDK 的回滚行为。
+- `/rewind` 需要二次确认，因为该操作会放弃本地的文件修改。
+- 检查点功能**仅适用于远程 Agent SDK**；由于需要捕获并流式传输检查点信息，速度可能会稍慢。
+- 如果在未启用检查点（或尚未捕获任何检查点）的情况下尝试 `/rewind`，Kaiwu 会提示当前无可用检查点。
 
-- **Agent SDK rewind is filesystem-only.** It does not delete or rewrite the conversation.
-- This is different from Claude Code’s interactive `/rewind` command in the TUI, which can rewind conversation context and/or files. Kaiwu remote uses the Agent SDK rewind behavior.
-- `/rewind` requires explicit confirmation because it can discard local file edits.
-- Checkpointing is **remote Agent SDK only** and may be slower because it captures/streams checkpoint information.
-- If you try to `/rewind` without checkpointing enabled (or before a checkpoint is captured), Kaiwu will report that no checkpoint is available.
-
-## Troubleshooting
+## 故障排查
 
 ### “Claude not found”
 
-Make sure Claude Code is installed on your machine, then restart Kaiwu.
+请确保你的设备上已安装 Claude Code，然后重启 Kaiwu。
 
 ### “Not authenticated”
 
-Log into Claude Code using its normal login flow, then retry.
+请按照 Claude Code 的正常登录流程完成身份验证，然后重试。
 
-You can do that either in your terminal or directly from the Claude provider settings page in Kaiwu.
+你可以在终端中完成登录，也可以直接在 Kaiwu 的 Claude 提供商设置页面中操作。
 
-### Settings changes don’t seem to apply
+### 设置更改似乎未生效
 
-Some remote settings can be applied dynamically, but others require a remote runner restart. If in doubt, stop and restart the remote session after changing settings.
+部分远程设置支持动态应用，但也有设置需要重启远程 runner 才能生效。如果不确定，请在更改设置后停止并重新启动远程会话。
 
-## Related
+## 相关内容
 
-- [Agent capabilities](/agents/capabilities) — what this agent supports, generated from the manifest.
-- [Choosing an agent](/agents)
-- [Model and engine selection](/agents/model-and-engine-selection)
-- [Agent authentication](/agents/provider-authentication)
+- [Agent 功能特性](/agents/capabilities) — 当前 Agent 支持的能力，根据清单生成。
+- [选择 Agent](/agents)
+- [模型与引擎选择](/agents/model-and-engine-selection)
+- [Agent 身份验证](/agents/provider-authentication)

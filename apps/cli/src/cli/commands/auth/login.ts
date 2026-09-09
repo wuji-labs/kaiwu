@@ -17,7 +17,7 @@ import { resolveAuthMethodFlag } from './methodFlag';
  * `--wait-timeout <seconds>`: how long to keep this terminal waiting for the
  * sign-in to be approved.
  *
- * For callers that have to give the terminal back — `happier setup` runs this
+ * For callers that have to give the terminal back — `kaiwu setup` runs this
  * command with inherited stdio — an unbounded wait is a terminal nobody can
  * reclaim. Omitted, the wait stays unbounded, which is right for someone sitting
  * in front of a QR code.
@@ -122,7 +122,7 @@ export async function handleAuthLogin(args: string[]): Promise<void> {
       console.log(chalk.green('✓ Already authenticated'));
       console.log(chalk.gray(`  Machine ID: ${readiness.machineId}`));
       console.log(chalk.gray(`  Host: ${os.hostname()}`));
-      console.log(chalk.gray(`  Use 'happier auth login --force' to re-authenticate`));
+      console.log(chalk.gray(`  Use 'kaiwu auth login --force' to re-authenticate`));
       return;
     }
 

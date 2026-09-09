@@ -1,36 +1,33 @@
 ---
-title: Working in a session
-description: Sending work to an agent, correcting it while it runs, approving what it wants to do, and picking the session back up later.
+title: 在会话中工作
+description: 向智能体派发任务，在其运行时予以纠偏，审批其要执行的操作，并在稍后随时接回会话。
 ---
+这是你日常花费时间最多的核心工作流。一个会话，就是与运行在某台设备上的单个智能体展开的一次对话；而本节的所有内容，都是为了让你无论身在何处，都能轻松自如地驾驭它。
 
-This is the loop you spend most of your time in. A session is one conversation
-with one agent, running on one of your machines — and everything here is about
-driving it well from wherever you happen to be.
+## 基础指南
 
-## The basics
+- [启动会话](/sessions/new-session-shortcuts) —— 选择设备、文件夹、智能体和模型。
+- [权限](/sessions/permissions) —— 智能体无需询问即可执行的操作。在开启无人值守运行前，建议仔细阅读。
+- [排队与投递](/sessions/pending-queue) —— 在智能体忙碌时发送消息，以及尚未投递成功的消息会如何处理。
+- [动态纠偏](/sessions/steering) —— 无需打断当前执行轮次，直接在运行过程中进行即时修正。
+- [审批与收件箱](/sessions/inbox-and-approvals) —— 查看与处理权限请求的集中入口。
 
-- [Starting a session](/sessions/new-session-shortcuts) — choosing the machine, folder, agent and model.
-- [Permissions](/sessions/permissions) — what the agent may do without asking. Worth reading before you leave one running unattended.
-- [Queueing and delivery](/sessions/pending-queue) — sending while the agent is busy, and what happens to a message that cannot be delivered yet.
-- [Steering](/sessions/steering) — correcting a turn already in flight instead of interrupting it.
-- [Approvals and the inbox](/sessions/inbox-and-approvals) — where requests for permission surface.
+## 设置与模式
 
-## Settings and modes
+- [会话设置](/sessions/session-settings) —— 最详尽的配置参考说明。
+- [会话模式](/sessions/session-modes)
 
-- [Session settings](/sessions/session-settings) — the closest thing to a settings reference.
-- [Session modes](/sessions/session-modes)
+## 重返会话
 
-## Coming back to a session
+以下几个概念容易混淆，该页面专门对它们进行了梳理与区分：
 
-Several things sound alike here, so one page owns the distinction:
+- [继续会话](/sessions/continuing-a-session) —— 如果不确定下方哪项符合需求，请先从这里开始。
+- [恢复非活跃会话](/sessions/session-resume)
+- [设备间交接](/sessions/session-handoff)
+- [会话分叉](/sessions/session-forking)
+- [会话中途切换智能体](/sessions/continue-with-another-agent)
+- [从终端接入](/sessions/attach-to-session)
 
-- [Continuing a session](/sessions/continuing-a-session) — start here if you are unsure which of the below you want.
-- [Resuming an inactive session](/sessions/session-resume)
-- [Handoff between machines](/sessions/session-handoff)
-- [Forking](/sessions/session-forking)
-- [Switching agent mid-session](/sessions/continue-with-another-agent)
-- [Attaching from a terminal](/sessions/attach-to-session)
+## Claude 专有特性
 
-## Claude specifics
-
-- [The unified terminal](/sessions/claude-unified-terminal) — running the real Claude Code TUI with Kaiwu driving it.
+- [统一终端](/sessions/claude-unified-terminal) —— 运行原生的 Claude Code TUI，并由 Kaiwu 负责调度驱动。

@@ -1,234 +1,228 @@
 ---
-title: Session settings
-description: Configure session behavior, permissions, transcript presentation, and tool rendering from the app.
+title: 会话设置
+description: 在 App 内配置会话行为、权限、会话记录展示及工具渲染。
 ---
+**会话**设置界面用于控制 Kaiwu 会话在应用中的运行行为。
 
-The **Session** settings screen controls how Kaiwu sessions behave in the app.
+常用控制项保留在主界面；其余项则归入各自的子界面中，以确保主界面清晰易览。
 
-The common controls stay on the root screen; the rest live in focused
-sub-screens so that root page stays scannable.
+## 查找位置
 
-## Where to find it
+打开**设置 → 会话**。在**详细会话行为**下，你会看到四个页面：
 
-Open **Settings → Session**. Under **Detailed session behavior** you will find
-four pages:
-
-| Sub-screen | What is on it |
+| 子界面 | 包含内容 |
 | --- | --- |
-| **Composer and sending** | Enter-to-send, message history, composer appearance, and how sending behaves while an agent is busy. |
-| **Provider limits and usage** | Usage-limit recovery, and the provider usage gauge beside the composer. |
-| **Resume and handoff** | Replay-based resume, and defaults for moving a session between machines. |
-| **Runtime and terminal** | tmux, Windows terminal windows, and Terminal Connect compatibility. |
+| **输入框与发送** | 回车发送、消息历史、输入框外观，以及智能体忙碌时的发送行为。 |
+| **提供商用量与限额** | 用量限制恢复，以及输入框旁的提供商用量仪表盘。 |
+| **恢复与交接** | 基于重放的恢复，以及跨设备迁移会话的默认设置。 |
+| **运行时与终端** | tmux、Windows 终端窗口，以及终端连接兼容性。 |
 
 <Callout type="info">
-  **Permissions** and **Transcript** are *not* here — they are top-level
-  Settings entries in their own right. **Tool rendering** is reached from
-  Transcript. If you are hunting for one of those from the Session screen, that
-  is why you cannot find it.
+  **权限**和**会话记录** *并不* 在这里——它们本身就是设置中的顶级条目。**工具渲染**则可从“会话记录”中进入。如果你在“会话”界面中找不到这些项，原因便在于此。
 </Callout>
 
-## What stays on the main Session screen
+## 会话主界面保留项
 
-The root Session screen keeps the controls that affect how you work day to day:
+会话主界面保留了影响日常工作流的核心控制项：
 
-- **Session list** behavior such as density, grouping, hidden inactive sessions, tags, and where sessions needing attention appear
-- **New session shortcut** behavior such as whether project shortcuts reuse the newest project session selections
-- **Mobile session layout** for choosing the phone session cockpit or the classic focused-screen layout, and for turning the cockpit's swipe-between-sessions gesture on or off
-- **Message sending** behavior such as interrupt vs queue/pending strategies
-- **Composer input behavior** such as **Enter to Send**
-- **Message history** scope as a dropdown
-- **Input layout** preferences
-- **Replay / resume** defaults
-- **Session handoff** defaults
-- **Terminal connect** options
-- **Attach / local-control launch defaults** such as tmux and Windows remote session mode
+- **会话列表**行为：如信息密度、分组、隐藏非活跃会话、标签，以及待处理会话的显示位置
+- **新建会话快捷方式**行为：如项目快捷方式是否复用该项目最新会话的选项配置
+- **移动端会话布局**：用于在手机端驾驶舱布局与经典聚焦界面布局之间切换，以及开启或关闭驾驶舱的滑动切换会话手势
+- **消息发送**行为：如打断与排队/等待策略
+- **输入框交互行为**：如**回车发送**
+- **消息历史**范围下拉菜单
+- **输入区布局**偏好
+- **重放 / 恢复**默认设置
+- **会话交接**默认设置
+- **终端连接**选项
+- **附加 / 本地控制启动默认设置**：如 tmux 与 Windows 远程会话模式
 
-This keeps the root screen focused on common workflow choices instead of mixing them with large advanced settings groups.
+这样可以确保主界面专注于常用工作流设置，避免混入大量繁杂的高级设置项。
 
-## Session list attention settings
+## 会话列表关注设置
 
-The **Activity and status signals** group on the root **Session** screen decides how the session list treats sessions that want something from you.
+会话主界面上的**活动与状态信号**分组，决定了会话列表如何处理需要你操作介入的会话。
 
-**Sessions needing attention** chooses where those sessions appear:
+**待处理会话**用于设置这类会话的显示位置：
 
-- **Leave in normal position** (the default): the list stays exactly as grouped and sorted
-- **Group at top**: one **Needs attention** section above the rest of the list
-- **Move to top of current group**: sessions rise inside their own folder or workspace group instead
+- **保留在原位置**（默认）：列表完全保持现有的分组与排序规则
+- **置顶分组**：在列表顶部单独生成一个**待处理**分区
+- **移至当前分组顶部**：会话仅在其所属的文件夹或工作区分组内部上浮
 
-**Keep sessions in Needs attention** sets what happens to a session once it no longer needs you:
+**将已处理会话保留在“待处理”中**用于设定当会话不再需要你介入时的行为：
 
-- **off** (the default): the session leaves the attention area, and you hold back the ones you care about with **Keep in Needs attention** from the session actions
-- **on**: every session stays until you choose **Remove from Needs attention**
+- **关**（默认）：会话会自动移出待处理区域；你可以通过会话操作菜单中的**保留在“待处理”中**手动留存关键会话
+- **开**：所有会话都会一直保留，直到你手动选择**从“待处理”中移除**
 
-A per-session choice wins over that default in both directions. Both settings are account-wide, so they follow you to your other devices.
+无论选用哪种默认行为，针对单个会话的手动设置都具有更高优先级。这两项配置均基于账户全局生效，会自动同步到你的其他设备。
 
-Full guide: [Session read and unread state](/organize/session-read-state)
+完整指南：[会话已读与未读状态](/organize/session-read-state)
 
-## Session handoff settings
+## 会话交接设置
 
-The dedicated **Session handoff** screen controls the defaults used when you move a session between machines.
+独立的**会话交接**界面用于配置跨设备迁移会话时的默认行为。
 
-It includes:
+包含以下选项：
 
-- **Transfer workspace**
-- **Workspace conflict policy**
-- **Ignored files**
-- **Direct session target mode**
+- **传输工作区**
+- **工作区冲突策略**
+- **忽略的文件**
+- **直连会话目标模式**
 
-### Workspace transfer defaults
+### 工作区传输默认设置
 
-By default, Kaiwu keeps workspace transfer **off**.
+默认情况下，Kaiwu 会**关闭**工作区传输。
 
-You can change the default behavior to:
+你可以将默认行为更改为：
 
-- transfer the workspace by default
-- keep the target workspace unchanged by default
+- 默认传输工作区
+- 默认保持目标工作区不变
 
-The handoff modal still lets you override this per handoff.
+在每次交接时，弹窗中仍支持单独覆盖此设置。
 
-### Conflict policy
+### 冲突策略
 
-The default conflict policy can be:
+默认冲突策略可选：
 
-- **Create sibling copy**
-- **Replace existing path**
+- **创建同级副本**
+- **替换现有路径**
 
-This controls what should happen if the destination path already exists.
+该选项用于控制当目标路径已存在时的处理方式。
 
-### Ignored files
+### 忽略的文件
 
-The default ignored-file mode can be:
+默认的忽略文件模式可选：
 
-- **Exclude ignored files**
-- **Include selected ignored files**
+- **排除忽略的文件**
+- **包含选定的被忽略文件**
 
-If you choose **Include selected ignored files**, you can set comma-separated include globs such as:
+若选择**包含选定的被忽略文件**，可设置以逗号分隔的包含通配符（glob），例如：
 
 - `dist/**`
 - `.env.local`
 
-### Direct session target mode
+### 直连会话目标模式
 
-This applies only when the source session is currently **Direct**.
+此设置仅在源会话当前处于**直连**状态时生效。
 
-You can choose:
+可选项包括：
 
-- **Keep direct**
-- **Convert to synced**
+- **保持直连**
+- **转为同步**
 
-That setting becomes the default choice in the handoff modal, but you can still override it case by case.
+该设置将作为交接弹窗中的默认选项，但在实际操作中仍可逐次覆盖。
 
-For the full workflow, see [Session handoff](/sessions/session-handoff).
+完整工作流请参阅[会话交接](/sessions/session-handoff)。
 
-## Attach and local-control settings
+## 附加与本地控制设置
 
-The root Session screen also contains the defaults that control how app-started sessions can later be continued from a terminal.
+会话主界面还包含了相关默认配置，用于控制在应用中启动的会话后续如何通过终端接续运行。
 
-### tmux integration
+### tmux 集成
 
-Enable **tmux integration** when you want supported sessions to start inside `tmux`.
+若希望支持的会话在 `tmux` 中启动，请启用 **tmux 集成**。
 
-Use this on machines where:
+适用于满足以下条件的设备：
 
-- `tmux` is installed,
-- you want to start from the app first, then later run `happier attach <session-id>` from a shell,
-- you want providers such as **Claude** or **Codex** to reopen inside the same tmux-backed local host.
+- 已安装 `tmux`；
+- 希望先从应用启动，随后再在 Shell 中运行 `happier attach ⟦K3⟧` 进行接管；
+- 希望 **Claude** 或 **Codex** 等提供商在同一个由 tmux 支撑的本地主机中重新打开。
 
-### Windows remote session mode
+### Windows 远程会话模式
 
-For Windows machines, the Session screen also exposes a **default Windows remote session mode**.
+针对 Windows 设备，“会话”界面还提供了**默认 Windows 远程会话模式**选项。
 
-The available modes are:
+可选模式包括：
 
-- **Hidden** — keep the session in the background for remote app usage
-- **Windows Terminal** — start the session in a dedicated Windows Terminal host so you can later continue there locally
-- **Console** — start the session in a visible console host
+- **隐藏**——将会话保持在后台运行，供远程应用访问
+- **Windows Terminal**——在专属的 Windows Terminal 宿主中启动会话，以便后续在本地直接接续操作
+- **控制台**——在可见的控制台宿主中启动会话
 
-This is the global default. You can still override it:
+此项为全局默认设置。你仍可通过以下方式进行针对性覆盖：
 
-- per machine from the machine details screen
-- per session from the new-session flow when the selected machine is Windows
+- 在设备详情界面按设备单独覆盖
+- 在新建会话流程中（所选设备为 Windows 时）按会话单独覆盖
 
-Precedence is:
+优先级次序如下：
 
-1. per-session choice
-2. machine override
-3. global Session setting
+1. 会话级选项
+2. 设备级覆盖
+3. 全局会话设置
 
-For the full workflow, see [Attach to a running session](/sessions/attach-to-session).
+完整工作流请参阅[附加到运行中的会话](/sessions/attach-to-session)。
 
-## Permissions screen
+## 权限界面
 
-The dedicated **Permissions** screen separates two different concerns:
+独立的**权限**界面将两类不同层面的配置解耦拆分：
 
-### 1. Default permissions
+### 1. 默认权限
 
-This section shows one row per enabled backend choice and lets you choose the default permission mode for new sessions.
+该部分针对已启用的每个后端分别展示一行，供你为新建会话指定默认权限模式。
 
-Important details:
+关键细节：
 
-- the list is **dynamic**
-- it comes from the resolved backend catalog
-- built-in backends and configured **Custom ACP** backends can both appear here
-- if a backend choice is not enabled for your account/build/settings, it should not appear
+- 列表项为**动态加载**
+- 数据源自解析出的后端目录
+- 内置后端与已配置的**自定义 ACP** 后端均可在此显示
+- 若某个后端在当前账户、构建版本或设置中未启用，则不会显示
 
-### 2. Apply permission changes
+### 2. 应用权限更改
 
-This is now a separate dropdown group.
+该配置现已独立为专属的下拉菜单分组。
 
-It controls **when** a permission change should take effect for a running session:
+用于控制运行中会话的权限变更**何时**生效：
 
-- **Immediate**
-- **Next prompt**
+- **立即生效**
+- **下一轮提示词**
 
-Use **Immediate** when you want the running session to react right away. Use **Next prompt** when you want the change to arm for the next turn instead of changing the current one mid-flight.
+若希望正在运行的会话即刻响应，请选择**立即生效**；若希望在下一轮交互才启用变更、避免中途干扰当前执行，请选择**下一轮提示词**。
 
-The same screen can also show related permission/session-default controls such as where prompts appear and transcript-storage defaults for backend choices when those features are available.
+当相关功能可用时，该界面还会显示配套的权限及会话默认控制项，例如提示词显示位置，以及各后端选项的会话记录存储默认策略。
 
-Full guide: [Permissions](/sessions/permissions)
+完整指南：[权限](/sessions/permissions)
 
-## New session shortcut settings
+## 新建会话快捷方式设置
 
-The root **Session** settings screen includes a **New session modal** group.
+会话设置主界面包含**新建会话弹窗**分组。
 
-This group contains the **New session wizard** row, where you can choose how wizard selectors are presented, and shortcut settings for project-based session creation.
+该分组包含**新建会话向导**配置行（用于设置向导选择器的呈现样式），以及基于项目创建会话的快捷方式设置。
 
-The **Remember last project session selections** setting controls what happens when you use the project **+** action in the session list.
+**记住上次项目会话选择**设置用于控制在会话列表中点击项目 **+** 按钮时的行为。
 
-When it is on, Kaiwu seeds the new-session screen from the newest session in that project group. This reuses selections such as machine, folder, engine, profile, permissions, model, session mode, MCP selection, connected services, and provider config options.
+开启后，Kaiwu 会直接读取该项目分组内最新会话的配置来初始化新建会话界面。这将复用包括设备、文件夹、引擎、配置文件、权限、模型、会话模式、MCP 选择、已连接服务以及提供商配置选项在内的各项设置。
 
-When it is off, the project **+** action only preselects the project machine and folder. The rest of the new-session screen follows the normal draft/default behavior.
+关闭后，项目 **+** 操作仅会预选该项目的设备与文件夹，新建会话界面的其余项则遵循常规的草稿或默认行为。
 
-Contextual shortcuts preserve typed draft content, such as an unsent prompt, while replacing launch selections with the shortcut source. This keeps your written intent without carrying stale choices from another project.
+上下文快捷方式在复用快捷方式源配置的同时，会保留你已输入的草稿内容（如未发送的提示词）。这样既能留存编辑意图，又不会错误带入其他项目的过时选项。
 
-Full guide: [New session shortcuts](/sessions/new-session-shortcuts)
+完整指南：[新建会话快捷方式](/sessions/new-session-shortcuts)
 
-## Transcript screen
+## 会话记录界面
 
-The **Transcript** screen controls how session conversations are presented:
+**会话记录**界面用于控制会话对话内容的展示方式：
 
-- transcript layout
-- thinking display
-- tool chrome mode
-- tool grouping / collapsed preview behavior
-- motion / scrolling defaults
-- code and diff presentation
+- 会话记录布局
+- 思考过程展示
+- 工具栏边框模式
+- 工具调用分组与折叠预览行为
+- 动效与滚动默认行为
+- 代码及 Diff 对比呈现
 
-This is a presentation layer. It does not change provider behavior or tool permissions.
+此处均为表现层设置，不会改变提供商的运行行为或工具权限。
 
-Some transcript-related defaults, such as transcript-storage defaults for new sessions, are still backend-aware. That means a built-in backend and a configured ACP backend can have different default behavior.
+部分与会话记录相关的默认设置（例如新建会话的会话记录存储默认策略）仍与后端类型绑定。也就是说，内置后端与已配置的 ACP 后端可以具备各自独立的默认行为。
 
-## Tool Rendering screen
+## 工具渲染界面
 
-The **Tool Rendering** screen controls how tool calls appear in the transcript.
+**工具渲染**界面用于控制工具调用在会话记录中的显示方式。
 
-It contains:
+包含以下配置：
 
-- default tool-detail behavior
-- per-tool overrides
-- separate overrides for the expanded/full view
+- 工具详情默认行为
+- 针对单个工具的自定义覆盖
+- 展开视图与全屏视图的独立覆盖规则
 
-This is useful when you want different defaults for tools like:
+当你需要对不同工具设定差异化的默认表现时，该功能十分有用，例如：
 
 - `Bash`
 - `Read`
@@ -236,98 +230,96 @@ This is useful when you want different defaults for tools like:
 - `Diff`
 - `WebSearch`
 
-For example, you might keep most tools compact in the timeline but still expand `Diff` or `Patch` more aggressively when opened.
+例如，你可以让时间线中的大多数工具保持紧凑收起，而在展开 `Diff` 或 `Patch` 时显示更充分的内容。
 
-Related guide: [Tool timeline & normalization](/organize/tool-timeline)
+相关指南：[工具时间线与标准化](/organize/tool-timeline)
 
-## Composer input behavior
+## 输入框交互行为
 
-Session settings also includes input behavior for the message composer.
+会话设置还包含消息输入框的交互控制。
 
-These controls change how you type and send prompts in the app. They do not change provider permissions, model behavior, or how transcripts are stored.
+这些设置仅改变你在应用中键入和发送提示词的方式，不会影响提供商权限、模型行为或会话记录的存储机制。
 
-### Enter to Send
+### 回车发送
 
-**Enter to Send** controls what the Return/Enter key does in the composer.
+**回车发送**用于控制在输入框中按下 Return / Enter 键的行为。
 
-When it is off:
+关闭时：
 
-- pressing Enter inserts a new line in the composer
-- use the send button to send the message
+- 按回车键将在输入框中换行
+- 发送消息需点击发送按钮
 
-When it is on:
+开启时：
 
-- on web, pressing Enter sends the message
-- on web, pressing Shift+Enter inserts a new line
-- on iOS and iPadOS with a physical keyboard, pressing Enter sends the message
-- on iOS and iPadOS with a physical keyboard, pressing Shift+Enter still inserts a new line
+- Web 端：按回车键直接发送消息
+- Web 端：按 Shift+回车键换行
+- 配备外接键盘的 iOS 及 iPadOS 设备：按回车键直接发送消息
+- 配备外接键盘的 iOS 及 iPadOS 设备：按 Shift+回车键换行
 
-Kaiwu only sends when the composer has sendable content. That can be typed text, attached files, or included review-comment context. Empty composers and disabled send states are ignored.
+Kaiwu 仅在输入框存在可发送内容时才会执行发送。内容可以为键入的文本、附加的文件，或包含的代码审查批注上下文。内容为空或处于禁用发送状态时，按键将被忽略。
 
-Use **Enter to Send** when you prefer a chat-style workflow. Leave it off when you often write longer prompts, code blocks, or multi-line instructions.
+偏好即时聊天风格的工作流时，可启用**回车发送**；若经常需要撰写长篇提示词、代码块或多行指令，建议保持关闭。
 
-The web and native app settings are stored separately, so you can use Enter-to-send on one platform and keep Enter-for-new-line on another.
+Web 端与原生客户端的设置相互独立存储，因此你可以在一个平台上启用回车发送，在另一个平台上保持回车换行。
 
-On phones and tablets without a physical keyboard, the visible send button remains the clearest way to send a prompt.
+在未连接实体键盘的手机和平板电脑上，界面上可见的发送按钮依然是发送提示词最直观的方式。
 
-## Mobile session layout
+## 移动端会话布局
 
-**Mobile session layout** controls how phone-sized session screens are organized.
+**移动端会话布局**用于控制手机尺寸屏幕下的会话界面排布结构。
 
-The setting is synced with your account and defaults to **Cockpit**.
+该设置与账户同步，默认值为**驾驶舱**（Cockpit）。
 
-### Cockpit
+### 驾驶舱
 
-Cockpit is the default phone layout.
+驾驶舱是手机端的默认布局。
 
-It shows a bottom session tab bar with the session’s main work surfaces:
+底部会显示一个包含会话核心工作面板的标签栏：
 
-- the current agent chat, labeled by backend such as **Claude**, **Codex**, or **OpenCode**
-- **Files**
+- 当前智能体对话界面，带有对应的后端标识（如 **Claude**、**Codex** 或 **OpenCode**）
+- **文件**
 - **Git**
-- **Tabs** for open file previews, editors, Review, commit details, stash details, and other detail views
-- **Terminal** when the embedded terminal is enabled and available as a session tab
+- **标签页**：用于查看已打开的文件预览、编辑器、代码审查、提交详情、贮藏详情以及其他详情视图
+- **终端**：启用内置终端且可作为会话标签页时显示
 
-Use Cockpit when you want mobile sessions to behave like a compact workspace instead of a single long chat screen.
+如果你希望移动端会话能呈现为紧凑的工作区、而非单纯的一长串聊天列表，建议选用驾驶舱布局。
 
-### Classic
+### 经典
 
-Classic keeps the older focused-screen layout for phone-sized sessions.
+经典布局延续了原先适用于手机端会话的单屏聚焦模式。
 
-Use Classic if you prefer opening Files, Git, Terminal, and details as separate focused routes instead of switching through the cockpit tab bar.
+如果你更习惯将文件、Git、终端及各项详情作为独立的聚焦路由页面打开，而不是在驾驶舱标签栏中来回切换，请选择经典布局。
 
-You can change the setting at any time from **Settings → Session → Mobile session layout**.
+你随时可以通过**设置 → 会话 → 移动端会话布局**调整该选项。
 
-### Swipe between sessions
+### 滑动切换会话
 
-**Swipe between sessions** is on by default and also synced with your account.
+**滑动切换会话**默认处于启用状态，并且会随账户自动同步。
 
-While it is on, a horizontal swipe across the bottom band of the cockpit moves to the next or previous session in the session list order you last saw, without going back to the list first. Back still returns to the list.
+启用该功能后，在驾驶舱底部区域左右滑动，即可按照最近浏览的会话列表顺序直接切换至上一个或下一个会话，无需退回列表界面。点击返回按钮仍可回到会话列表。
 
-Turn it off if you would rather keep bottom-band swipes out of the way. The setting only affects the mobile app cockpit; the web and desktop clients are unaffected.
+若不希望底部区域触发滑动手势，可将其关闭。此项设置仅对移动端 App 的驾驶舱生效，Web 端与桌面客户端均不受影响。
 
-Full description: [Swipe between sessions](/apps/app#swipe-teleport).
+完整说明：[滑动切换会话](/apps/app#swipe-teleport)。
 
-### Message history
+### 消息历史
 
-Message history is now a dropdown instead of an inline toggle pair.
+消息历史现已改为下拉选择框，取代了原先的行内开关组合。
 
-The options let you choose whether composer history is kept:
+你可以指定输入框历史记录的保留范围：
 
-- per session, or
-- globally
+- 按会话独立保留，或
+- 全局保留
 
-This makes the current selection easier to understand at a glance.
+这种设计让当前生效的配置项更加一目了然。
 
-## Cannot find a setting?
+## 找不到某项设置？
 
-A setting you remember seeing inline has almost certainly moved into one of the
-four sub-screens above rather than been removed — and Permissions, Transcript
-and Tool rendering are not under Session at all.
+如果你印象中曾见过某项行内设置，它大概率是被归入了上述四个子界面之一，而非被移除；另外，“权限”、“会话记录”和“工具渲染”并不属于“会话”设置项下的子内容。
 
-## Related
+## 相关内容
 
-- [Session handoff](/sessions/session-handoff)
-- [New session shortcuts](/sessions/new-session-shortcuts)
-- [Custom ACP](/agents/custom-acp)
-- [Profiles](/agents/profiles)
+- [会话交接](/sessions/session-handoff)
+- [新建会话快捷方式](/sessions/new-session-shortcuts)
+- [自定义 ACP](/agents/custom-acp)
+- [配置文件](/agents/profiles)

@@ -1,286 +1,284 @@
 ---
-title: Menu bar (SwiftBar)
-description: macOS menu bar integration for monitoring stacks and switching worktrees.
+title: 菜单栏 (SwiftBar)
+description: 用于监控栈和切换工作树的 macOS 菜单栏集成。
 ---
+`hstack` 提供了一款基于 [SwiftBar](https://swiftbar.app/) 的 macOS 菜单栏插件。
 
-`hstack` ships a macOS menu bar plugin powered by [SwiftBar](https://swiftbar.app/).
+SwiftBar 会按设定的时间间隔周期性运行脚本，并将其输出渲染为原生 macOS 菜单项。
 
-SwiftBar runs a script on an interval and renders its output as native macOS menu items.
+## 功能特性
 
-## Features
+- **状态一目了然**，配有动态图标（绿/橙/红）
+  - 服务器健康状况
+  - 守护进程状态（PID 及可选的控制服务器探测）
+  - 开机自启 LaunchAgent 状态
+  - Tailscale Serve 状态与 URL（若已配置）
+- **便捷控制**
+  - 启动、停止或重启栈
+  - 仅重启守护进程（不影响栈运行）
+  - 安装、启用、禁用或卸载开机自启
+  - 启用或禁用 Tailscale Serve
+- **详细信息**
+  - PID、CPU 占用率、内存使用量（MB）及运行时间（如可用）
+  - 常用 URL 和文件路径
+  - 栈运行时的聚合详情，包含 CPU 与内存总览（服务器 + 守护进程 + 自启服务）
+  - 在控制台（Console.app）中打开日志
+- **刷新控制**
+  - 手动即时刷新
+  - 菜单内切换刷新间隔（支持 10m/15m/30m/1h/6h/12h/1d 等长周期）
+  - 采用小型辅助脚本（`extras/swiftbar/set-interval.sh`）规避 SwiftBar 的引号转义问题
+- **栈与服务布局**
+  - 主栈直接外显（无需展开多层嵌套）
+  - 每个栈均包含服务行（Server/Daemon/Autostart/Tailscale），并提供各服务的专属子菜单
+- **组件（Git 与工作树）**
+  - 收纳于顶层的 **Components** 子菜单下（保持主菜单整洁）
+  - 显示当前单体仓库代码检出（`⟦K13⟧/main`、`⟦K14⟧/dev` 或 `⟦K15⟧/{pr,local,tmp}/...` 下的工作树）的仓库及工作树状态
+  - 每个仓库条目均配有 **Worktrees** 子菜单，列出全部工作树并提供切换或打开操作
+  - 快捷操作：`wt status/sync/update`、PR 工作树提示词、打开终端或编辑器（`wt shell/code/cursor`）
+  - 对比仓库主分支与 **origin** 及 **upstream** 的状态（基于上一次 `git fetch` 的数据）
+  - 默认启用 **Git 缓存**，确保栈和工作树较多时 SwiftBar 刷新依然流畅
 
-- **Status at a glance** with dynamic icons (green/orange/red)
-  - Server health
-  - Daemon status (PID + optional control server probe)
-  - Autostart LaunchAgent status
-  - Tailscale Serve status / URL (if configured)
-- **Quick controls**
-  - Start / stop / restart the stack
-  - Restart just the daemon (stack-safe)
-  - Install / enable / disable / uninstall autostart
-  - Enable / disable Tailscale Serve
-- **Details**
-  - PID, CPU %, RAM MB, uptime (where available)
-  - Useful URLs and file paths
-  - Stack details include aggregate CPU/RAM (server+daemon+autostart) when running
-  - Open logs in Console.app
-- **Refresh control**
-  - Manual refresh
-  - In-menu refresh interval toggles (includes slower intervals like 10m/15m/30m/1h/6h/12h/1d)
-  - Uses a small helper script (`extras/swiftbar/set-interval.sh`) to avoid SwiftBar quoting issues
-- **Stacks + services layout**
-  - Main stack is shown directly (no extra nesting level)
-  - Each stack shows service rows (Server/Daemon/Autostart/Tailscale) with per-service submenus
-- **Components (git/worktrees)**
-  - Available under a top-level **Components** submenu (to keep the main menu clean)
-  - Shows repo/worktree status for the active monorepo checkout (`<workspace>/main`, `<workspace>/dev`, or a worktree under `<workspace>/{pr,local,tmp}/...`)
-  - Each repo entry includes a **Worktrees** submenu listing all worktrees, with actions to switch/open
-  - Quick actions: `wt status/sync/update`, PR worktree prompt, open shells/editors (`wt shell/code/cursor`)
-  - Shows **origin** and **upstream** comparisons for the repo’s main branch (based on your last `git fetch`)
-  - Uses a **Git cache** by default so SwiftBar refresh stays fast even with many stacks/worktrees
+## 运行模式：自托管模式对比开发模式
 
-## Modes: selfhost vs dev
+菜单支持两种工作模式：
 
-The menu supports two modes:
+- **自托管模式**（`selfhost`）：用于运行 Kaiwu 的轻量级“控制面板”。
+  - 仅显示主栈核心信息（Server/Daemon/Autostart/Tailscale）及精简的 **Maintenance** 维护项。
+  - 隐藏栈枚举、Git/工作树和工作树工具等面向开发者的模块。
+- **开发模式**（`dev`）：全功能栈控制面板（涵盖所有栈与 Components Git/工作树）。
 
-- **Selfhost mode** (`selfhost`): lightweight “control panel” for running Kaiwu.
-  - Shows only the main stack essentials (Server/Daemon/Autostart/Tailscale) plus a small **Maintenance** section.
-  - Hides developer-oriented sections like stacks enumeration, git/worktrees, and worktree tooling.
-- **Dev mode** (`dev`): full stack control plane (stacks + Components (git/worktrees)).
+### 如何切换模式
 
-### How to switch modes
-
-- In the menu, use the **Mode** section at the top, or
-- From a terminal:
+- 在菜单顶部的 **Mode** 区域切换，或者
+- 在终端中执行：
 
 ```bash
 hstack menubar mode selfhost
 hstack menubar mode dev
 ```
 
-## Stacks (multiple instances)
+## 栈（多实例）
 
-If you create additional stacks (see `docs/stacks.md`), the plugin shows:
+如果创建了多个栈（参见 `docs/stacks.md`），插件会呈现：
 
-- **Main stack** (the default, stack name `main`)
-- **Stacks** section listing each stack found under `~/.happier/stacks/<name>/env`
+- **主栈**（默认栈，名称为 `main`）
+- **Stacks** 区域，列出在 `~/.happier/stacks/⟦K16⟧/env` 下找到的每个栈
 
-Each stack row renders the same “mini control panel” (server/daemon/autostart/logs + a few actions) with stack-specific ports, dirs, and LaunchAgent label.
+每个栈条目均呈现相同的“迷你控制面板”（包含服务器、守护进程、自启服务、日志及部分操作项），并针对各栈显示专属的端口、目录和 LaunchAgent 标识。
 
-The menu also includes:
+菜单还包含以下功能：
 
-- `stack new --interactive` (create stacks)
-- `stack edit <name> --interactive` (edit stack port/server flavor/repo checkout)
-- `stack wt <name> -- use --interactive` (switch the stack’s repo checkout/worktree)
-- “PR worktree into this stack (prompt)” (creates `wt pr ... --use` scoped to the stack env)
+- `stack new --interactive`（创建栈）
+- `stack edit ⟦K17⟧ --interactive`（修改栈端口、服务器版本或仓库检出路径）
+- `stack wt ⟦K18⟧ -- use --interactive`（切换栈绑定的仓库检出或工作树）
+- “PR worktree into this stack (prompt)”（在栈环境下创建 `wt pr ... --use`）
 
-## Worktrees (quick entry points)
+## 工作树（快捷入口）
 
-The menu also provides “jump off” actions for the worktree tooling:
+菜单中还提供了工作树工具的快速跳转操作：
 
 - `hstack wt use --interactive`
 - `hstack wt new --interactive`
 - `hstack wt sync-all`
 - `hstack wt update-all --dry-run` / `hstack wt update-all`
-- `hstack wt pr ...` (via an in-menu prompt)
+- `hstack wt pr ...`（通过菜单内弹窗操作）
 
-For stack-specific worktree selection (which worktree a stack uses), use:
+若需指定某个栈使用的工作树，请使用：
 
-- `hstack stack edit <name> --interactive`
-  - or `hstack stack wt <name> -- use --interactive`
+- `hstack stack edit ⟦K19⟧ --interactive`
+  - 或 `hstack stack wt ⟦K20⟧ -- use --interactive`
 
-### Note (worktree switching)
+### 注意事项（切换工作树）
 
-Kaiwu is a single monorepo, so switching worktrees is always a **repo-level** action. Use:
+Kaiwu 采用单体仓库架构，因此切换工作树始终是**仓库级别**的操作。请使用：
 
-- `hstack stack wt <name> -- use --interactive`
+- `hstack stack wt ⟦K21⟧ -- use --interactive`
 
-## Implementation notes
+## 实现细节
 
-- **Entry script**: `extras/swiftbar/hstack.5s.sh` (installed into SwiftBar as `hstack.<interval>.sh`)
-- **Shared functions**: `extras/swiftbar/lib/*.sh` (sourced by the entry script)
-- **Helper scripts**:
+- **入口脚本**：`extras/swiftbar/hstack.5s.sh`（安装到 SwiftBar 中命名为 `hstack.⟦K22⟧.sh`）
+- **共享函数**：`extras/swiftbar/lib/*.sh`（由入口脚本引入）
+- **辅助脚本**：
   - `extras/swiftbar/set-interval.sh`
   - `extras/swiftbar/set-server-flavor.sh`
 
-## Install
+## 安装说明
 
-### 1) Install SwiftBar
+### 1) 安装 SwiftBar
 
 ```bash
 brew install --cask swiftbar
 ```
 
-### 2) Install the plugin
+### 2) 安装插件
 
 ```bash
 hstack menubar install
 ```
 
-For a named stack running as a service, prefer a stack-scoped install in selfhost mode:
+若栈作为独立服务运行且指定了名称，推荐以自托管模式安装该栈专属的插件：
 
 ```bash
 hstack menubar install --stack=dev-built --mode=selfhost
 ```
 
-This makes the menu bar target that stack’s service/runtime state instead of the generic main-stack view.
+这样菜单栏将精准定位该栈的服务与运行时状态，而不是通用的主栈视图。
 
-If you want a different default refresh interval at install time:
+如需在安装时指定不同的默认刷新间隔：
 
 ```bash
 HAPPIER_STACK_SWIFTBAR_INTERVAL=15m hstack menubar install
 ```
 
-### 3) Open the active SwiftBar plugin folder
+### 3) 打开当前生效的 SwiftBar 插件目录
 
-SwiftBar can be configured to use a custom plugin directory. To open the *active* one:
+SwiftBar 支持自定义插件目录。若要打开*当前生效*的目录：
 
 ```bash
 hstack menubar open
 ```
 
-## Uninstall
+## 卸载
 
-Remove the installed SwiftBar plugin files (does not delete your stacks/workspace):
+移除已安装的 SwiftBar 插件文件（不会删除栈或工作区）：
 
 ```bash
 hstack menubar uninstall
 ```
 
-## How refresh works (important)
+## 刷新机制（重要）
 
-SwiftBar’s refresh interval is controlled by the **filename** suffix:
+SwiftBar 的刷新周期由**文件名**后缀控制：
 
-- `hstack.30s.sh` → every 30 seconds
-- `hstack.5m.sh` → every 5 minutes
-- `hstack.1h.sh` → every 1 hour
+- `hstack.30s.sh` → 每 30 秒
+- `hstack.5m.sh` → 每 5 分钟
+- `hstack.1h.sh` → 每 1 小时
 
-The plugin defaults to a slower interval (recommended), and also sets:
+插件默认使用较长的刷新间隔（推荐设置），同时开启了：
 
-- `refreshOnOpen=false` (recommended) to avoid surprise refreshes while you’re navigating the menu.
+- `refreshOnOpen=false`（推荐启用），防止在操作菜单时发生突发刷新干扰使用。
 
-You can also change the interval directly from the menu via **Refresh interval** (it renames the plugin file and restarts SwiftBar).
+你也可以直接在菜单中的 **Refresh interval** 项修改刷新间隔（它会自动重命名插件文件并重启 SwiftBar）。
 
-## Git cache (important for performance)
+## Git 缓存（性能关键）
 
-Git/worktree inspection is the most expensive part of the menu when you have many stacks.
-By default, the plugin runs in **cached mode**:
+在栈数量较多时，检查 Git 与工作树是菜单中最耗时的操作。
+插件默认运行在**缓存模式**下：
 
-- It renders git/worktree info from an on-disk cache under `~/.happier-stack/cache/swiftbar/git`.
-- Normal menu refreshes do **not** run git commands (so refresh stays snappy).
-- The cache is refreshed explicitly (via menu actions), and can optionally refresh on TTL expiry.
+- 插件会从 `~/.happier-stack/cache/swiftbar/git` 下的本地磁盘缓存中读取并渲染 Git 及工作树信息。
+- 常规的菜单刷新**不会**调用 Git 命令，从而保持刷新响应敏捷。
+- 缓存支持通过菜单操作手动刷新，也可以设置为到达 TTL 过期时间后自动更新。
 
-Controls and settings:
+控制与设置：
 
-- **Refresh now**: open **Components → Git cache** and run:
+- **立即刷新**：进入 **Components → Git cache** 并执行：
   - “Refresh now (main components)”
   - “Refresh now (all stacks/components)”
-  - or “Refresh now (this stack)” from a stack’s Components menu
-- **TTL**: `HAPPIER_STACK_SWIFTBAR_GIT_TTL_SEC` (default `21600` seconds = 6 hours)
-- **Mode**: `HAPPIER_STACK_SWIFTBAR_GIT_MODE=cached|live` (default `cached`)
-- (Optional) **Background auto-refresh**: `HAPPIER_STACK_SWIFTBAR_GIT_AUTO_REFRESH_SCOPE=main|all|off` (default `main`)
+  - 或在指定栈的 Components 菜单中点击 “Refresh now (this stack)”
+- **TTL（有效时长）**：`HAPPIER_STACK_SWIFTBAR_GIT_TTL_SEC`（默认 `21600` 秒 = 6 小时）
+- **模式**：`HAPPIER_STACK_SWIFTBAR_GIT_MODE=cached|live`（默认为 `cached`）
+- （可选）**后台自动刷新**：`HAPPIER_STACK_SWIFTBAR_GIT_AUTO_REFRESH_SCOPE=main|all|off`（默认为 `main`）
 
-Notes:
+补充说明：
 
-- Cached git info can be stale; it’s meant for at-a-glance signal.
-- Actions like worktree switching/build/dev are always live (they use `hstack`); only *displayed git status* is cached.
+- 缓存的 Git 信息可能存在滞后，仅供快速概览使用。
+- 切换工作树、构建或启动开发服务等具体操作始终实时执行（使用 `hstack`）；只有*界面展示的 Git 状态*经过了缓存。
 
-## Maintenance (selfhost mode)
+## 维护操作（自托管模式）
 
-In **selfhost** mode, the menu includes a **Maintenance** section that can:
+在**自托管**模式下，菜单包含一个 **Maintenance** 维护区域，支持：
 
-- show whether a `hstack` update is available (from cached `~/.happier-stack/cache/update.json`)
-- run:
+- 显示是否有 `hstack` 更新（读取缓存中的 `~/.happier-stack/cache/update.json`）
+- 执行：
   - `hstack self check`
   - `hstack self update`
 
-## Terminal preference for interactive actions
+## 交互操作的终端偏好设置
 
-Many menu actions open a terminal (interactive wizards, long-running dev servers, etc).
-The plugin uses helper scripts so these run in your preferred terminal, using the same env var as `wt shell`:
+许多菜单操作需要打开终端窗口（例如交互式向导、长时间运行的开发服务器等）。
+插件借助辅助脚本在常用终端中运行这些任务，环境变量规则与 `wt shell` 一致：
 
 - `HAPPIER_STACK_WT_TERMINAL=auto|ghostty|iterm|terminal|current`
 
-Notes:
-- `auto` tries ghostty → iTerm → Terminal → current.
-- Ghostty is best-effort; if your Ghostty build can’t execute the command automatically, the command is copied to your clipboard and Ghostty is opened in the repo directory.
+补充说明：
+- `auto` 会依次尝试 Ghostty → iTerm → Terminal → 当前终端。
+- Ghostty 为尽力支持；若当前 Ghostty 版本无法自动执行传入的命令，脚本会将命令复制到剪贴板，并在仓库目录下打开 Ghostty。
 
-## Start SwiftBar at login (optional)
+## 开机自启 SwiftBar（可选）
 
-SwiftBar is independent from the hstack LaunchAgent/service.
+SwiftBar 的启动与 hstack 的 LaunchAgent 或后台服务彼此独立。
 
-- In SwiftBar Preferences, enable **Launch at Login**, or
-- Add SwiftBar to macOS **Login Items**.
+- 可在 SwiftBar 偏好设置中勾选 **Launch at Login**，或
+- 将 SwiftBar 添加至 macOS 系统的**登录项**中。
 
-## Troubleshooting
+## 故障排查
 
-### Plugin doesn’t show up
+### 菜单栏未显示插件
 
-- Ensure SwiftBar is running.
-- Check which plugin folder SwiftBar is using:
+- 确认 SwiftBar 正在运行。
+- 检查 SwiftBar 正在使用的插件目录：
   - SwiftBar → Preferences → Plugin Folder
-- Open the active folder:
+- 打开当前生效的目录：
   - `hstack menubar open`
 
-### Daemon shows “auth required” / “no machine”
+### 守护进程显示“auth required”或“no machine”
 
-This happens on a **fresh machine** (or any new stack) when the daemon does not yet have credentials in the
-stack-specific CLI home directory.
+当在**全新设备**（或新创建的栈）上运行时，守护进程在栈专属的 CLI 主目录下尚未生成凭据，就会出现此现象。
 
-**What’s going on**
+**原因分析**
 
-- The daemon stores credentials in `access.key` under the CLI home directory.
-- For stacks (including main), that’s typically:
-  - `~/.happier/stacks/<name>/cli/access.key`
-- When `access.key` is missing, the daemon enters an interactive auth flow and won’t become a “machine” until it completes.
-  - Under `launchd` (autostart), this shows up as **no machine** and the daemon may appear “stopped”.
+- 守护进程将凭据保存在 CLI 主目录下的 `access.key` 中。
+- 对于各个栈（包含主栈），该路径通常为：
+  - `~/.happier/stacks/⟦K23⟧/cli/access.key`
+- 若缺少 `access.key`，守护进程会进入交互式认证流程；在认证完成前，它不会注册为“设备”。
+  - 在 `launchd`（开机自启）管理下，这会表现为 **no machine**，守护进程看起来可能处于“已停止”状态。
 
-**If it still needs auth**
+**若仍需完成认证**
 
-- In SwiftBar, open the **Daemon** section:
-  - If it shows `auth_required`, click **Auth login (opens browser)**
-- Or run manually:
+- 在 SwiftBar 中展开 **Daemon** 区域：
+  - 若显示 `auth_required`，点击 **Auth login (opens browser)**
+- 或者手动执行：
 
 ```bash
 hstack auth login
 ```
 
-For a named stack:
+对于指定名称的栈：
 
 ```bash
 hstack stack auth dev-built login
 ```
 
-If the named stack prefers a runtime snapshot, guided login uses the runtime-backed stack UI when a valid snapshot is active.
+如果该指定栈配置为优先使用运行时快照，在快照有效时，引导登录会直接调起基于该运行时的栈 UI。
 
-### Menu bar says daemon/autostart is wrong for a named stack
+### 菜单栏显示的命名栈守护进程或自启状态异常
 
-If you installed a stack-scoped menu bar plugin, it should reflect the same stack service state as:
+如果安装的是绑定特定栈的菜单栏插件，其显示内容应与该栈的服务状态保持一致：
 
 ```bash
 hstack stack auth dev-built status
 hstack stack service dev-built status
 ```
 
-If the stack was rebuilt with a new runtime snapshot, restart the service so the menu bar observes the new running process:
+如果使用新的运行时快照重新构建了栈，请重启服务，以便菜单栏能捕获到新运行的进程：
 
 ```bash
 hstack stack build dev-built --activate-runtime
 hstack stack service dev-built restart
 ```
 
-If you only activated a new web bundle, the service keeps serving the updated runtime UI and the menu bar should not need a restart:
+如果仅激活了新的前端 Bundle，服务会继续承载已更新的运行时 UI，菜单栏通常无需重启：
 
 ```bash
 hstack stack build dev-built --web
 hstack stack runtime dev-built activate --web
 ```
 
-### “Daemon stale” even though it’s running
+### 守护进程明明在运行，却显示“Daemon stale”
 
-The plugin checks:
+插件通过两项指标进行检测：
 
-- `daemon.state.json` **PID is alive**, and
-- (optionally) the daemon control server responds.
+- `daemon.state.json` **PID 进程处于活跃状态**，且
+- （可选）守护进程控制服务器正常响应。
 
-If the daemon is running but the menu is stale, refresh and check the **PID** line under “Daemon”.
+如果守护进程正在运行但菜单状态未更新，请手动刷新并查看 “Daemon” 下方的 **PID** 一行。

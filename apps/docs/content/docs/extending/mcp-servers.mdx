@@ -1,45 +1,42 @@
 ---
-title: MCP servers
-description: Configure Kaiwu-managed MCP servers, preview the effective tool surface for a session, and reuse the same tools across native-MCP and shell-bridge providers.
+title: MCP 服务器
+description: 配置 Kaiwu 托管的 MCP 服务器，预览会话的生效工具集，并在原生 MCP 与 shell 桥接提供商之间复用相同的工具。
 ---
+MCP 服务器允许智能体调用外部工具，例如浏览器自动化、文档检索、GitHub API 以及各类内部系统。
 
-MCP servers let your agents use external tools — browser automation,
-documentation lookup, GitHub APIs, internal systems.
+这是 Kaiwu 作为*消费端*使用 MCP 的场景。若希望通过编辑器或自动化脚本来反向驱动 Kaiwu 本身，请参阅另一方向的文档：
+[Kaiwu MCP（外部）](/extending/happier-as-mcp-server)。
 
-This is Kaiwu *consuming* MCP. If instead you want an editor or automation to
-drive Kaiwu itself, that is the other direction:
-[Kaiwu MCP (external)](/extending/happier-as-mcp-server).
+Kaiwu 提供了统一的管理入口，可在桌面应用、守护进程与 CLI 之间集中管理这些服务：
 
-Kaiwu gives you one place to manage them across the app, daemon, and CLI:
+- 在 Kaiwu 中一次定义，多处复用
+- 自定义各服务器的默认生效范围
+- 导入现有的宿主 MCP JSON 配置
+- 自动检测 Claude、Codex 或 OpenCode 中已配置的 MCP 服务器
+- 针对特定后端、设备与工作区，实时预览确切生效的工具集
+- 针对单次会话临时覆盖 Kaiwu 托管的 MCP 选择，且不改动已保存的默认配置
 
-- define MCP servers once in Kaiwu
-- choose where they should apply by default
-- import existing host MCP JSON
-- detect MCP servers already configured in Claude, Codex, or OpenCode
-- preview the exact tool set for a backend, machine, and workspace
-- override Kaiwu-managed MCP selection for a single session without changing your saved defaults
+## MCP 服务器与 Kaiwu 工具
 
-## MCP servers vs Kaiwu tools
+MCP 服务器是更宏大的 **Kaiwu 工具**体系中的一部分。
 
-MCP servers are one part of the broader **Kaiwu tools** surface.
+这意味着：
 
-That means:
+- Kaiwu 内置操作与自定义 MCP 工具将被统一配置，并作为整体工具面交付给模型
+- 支持**原生 MCP** 的提供商可直接通过 MCP 协议接收工具
+- 使用 **Kaiwu shell bridge** 的提供商则通过 CLI 桥接方式，同样能获取这些由 Kaiwu 托管的工具
 
-- built-in Kaiwu actions and custom MCP tools are configured and delivered as one tool surface
-- providers that support **native MCP** receive the tools through MCP directly
-- providers that use the **Kaiwu shell bridge** still receive the same Kaiwu-managed tools through the CLI bridge
+因此，即便当前所选的提供商不提供原生 MCP 清单接口，本页面依然是配置自定义 MCP 工具的正确入口。
 
-So this page is still the right place to configure custom MCP tools, even when the selected provider does not expose them as native MCP inventory.
+如需了解完整的产品模型，请参阅 [Kaiwu 工具与操作](/extending/happier-tools)。
 
-For the broader product model, see [Kaiwu tools & actions](/extending/happier-tools).
+## 在何处管理 MCP 服务器
 
-## Where to manage MCP servers
+在桌面应用中：
 
-In the app:
+- **Settings → MCP servers**（设置 → MCP 服务器）
 
-- **Settings → MCP servers**
-
-In the CLI, common examples are:
+在 CLI 中，常用命令示例如下：
 
 ```bash
 happier mcp servers list
@@ -47,95 +44,95 @@ happier mcp servers test --mcp-server <name-or-id>
 happier mcp servers detect --provider codex
 ```
 
-Use `happier mcp servers --help` for the current subcommands and flags.
+运行 `happier mcp servers --help` 可查看当前的子命令与参数列表。
 
-The same account-synced MCP settings are used by the app UI, the daemon, and the CLI.
+桌面端 UI、守护进程与 CLI 均使用同一套基于账号同步的 MCP 配置。
 
-## Kaiwu MCP (external control plane)
+## Kaiwu MCP（外部控制面）
 
-In addition to managing *other* MCP servers, Kaiwu can also run **its own MCP server** so external MCP clients can control sessions and execute Kaiwu actions:
+除了管理*其他* MCP 服务器外，Kaiwu 自身也能作为 **MCP 服务器**运行，以便外部 MCP 客户端控制会话并执行 Kaiwu 操作：
 
 ```bash
 happier mcp serve
 ```
 
-Guide: [Kaiwu MCP (external)](/extending/happier-as-mcp-server)
+指南：[Kaiwu MCP（外部）](/extending/happier-as-mcp-server)
 
-## How the MCP settings screen is organized
+## MCP 设置界面布局
 
-The MCP settings screen has three tabs:
+MCP 设置界面包含三个标签页：
 
-### Configured
+### 已配置（Configured）
 
-Shows the MCP servers that you manage directly in Kaiwu.
+展示直接在 Kaiwu 中管理的 MCP 服务器。
 
-Use this tab to:
+在该标签页中，你可以：
 
-- review your saved servers
-- edit or remove them
-- add a new server
-- quick-install common presets
+- 查看已保存的服务器
+- 编辑或删除服务器
+- 添加新服务器
+- 快速安装常用预设
 
-### Detected
+### 已检测（Detected）
 
-Shows MCP servers Kaiwu found in provider-native config files on the selected machine.
+展示 Kaiwu 在所选设备的原生配置文件中发现的 MCP 服务器。
 
-Today, Kaiwu can detect provider-native MCP servers for:
+目前，Kaiwu 支持自动检测以下提供商的原生 MCP 服务器：
 
 - **Claude**
 - **Codex**
 - **OpenCode**
 
-Detected servers are shown as **read-only**. You can use this view to understand what the selected backend already has configured, or import those definitions into Kaiwu-managed MCP settings.
+已检测到的服务器显示为**只读**。你可以借助该视图了解所选后端当前已有的配置，也可将这些定义导入到 Kaiwu 托管的 MCP 设置中。
 
-### Preview
+### 预览（Preview）
 
-Shows the effective tool picture for a specific combination of:
+展示在以下特定组合下实际生效的工具视图：
 
-- backend/provider
-- machine
-- workspace or directory
+- 后端 / 提供商
+- 设备
+- 工作区或目录
 
-Use this tab when you want to answer:
+当你想明确以下问题时，请使用该标签页：
 
-- “What will this session actually see?”
-- “Which Kaiwu-managed servers apply here by default?”
-- “Which provider-native MCP servers already exist for this backend?”
-- “Which saved servers are available but not currently applied?”
+- “当前会话实际能看到哪些工具？”
+- “此处默认生效哪些 Kaiwu 托管的服务器？”
+- “该后端已有现存的哪些提供商原生 MCP 服务器？”
+- “哪些已保存的服务器处于可用状态，但当前尚未应用？”
 
-## Add a server
+## 添加服务器
 
-When you add a new MCP server in Kaiwu, you can start from three entry points:
+在 Kaiwu 中添加新的 MCP 服务器时，可通过以下三种方式进入：
 
-### Configure
+### 手动配置（Configure）
 
-Use this when you want to define the server manually.
+适用于需要手动定义服务器的场景。
 
-Kaiwu supports:
+Kaiwu 支持：
 
-- **Local command** (`stdio`)
-- **Remote HTTP**
-- **Remote SSE**
+- **本地命令（Local command）** (`stdio`)
+- **远程 HTTP（Remote HTTP）**
+- **远程 SSE（Remote SSE）**
 
-For local command servers, the main field is a command line so you can paste common README examples directly. Kaiwu then splits that into command + arguments internally.
+对于本地命令型服务器，核心字段为命令行，你可以直接粘贴各类 README 中的常见命令。Kaiwu 会在内部自动将其拆解为命令与参数。
 
-For remote servers, you provide:
+对于远程服务器，你需要提供：
 
-- the URL
-- optional headers
-- optional environment variables
+- URL
+- 可选的请求头（headers）
+- 可选的环境变量
 
-### Import JSON
+### 导入 JSON（Import JSON）
 
-Use this when a README or another tool gives you a host MCP JSON snippet.
+适用于项目 README 或其他工具已提供宿主 MCP JSON 片段的场景。
 
-Kaiwu supports common host MCP JSON shapes such as:
+Kaiwu 支持常见的宿主 MCP JSON 格式，例如：
 
 - `mcpServers`
 - `servers`
-- nested `mcp.servers`
+- 嵌套的 `mcp.servers`
 
-Import JSON is useful when a project tells you to paste something like:
+当项目要求粘贴类似以下内容时，“导入 JSON”会非常方便：
 
 ```json
 {
@@ -148,256 +145,256 @@ Import JSON is useful when a project tells you to paste something like:
 }
 ```
 
-Kaiwu parses the supported fields, lets you review the result, and then converts it into normal Kaiwu-managed MCP entries.
+Kaiwu 会解析支持的字段并供你复核，随后将其转换为常规的 Kaiwu 托管 MCP 条目。
 
-### Quick install
+### 快速安装（Quick install）
 
-Use this when you want a fast setup for common developer MCP servers.
+适用于快速搭建常用的开发者 MCP 服务器。
 
-Current curated presets:
+目前精选的预设包括：
 
 - **Playwright**
 - **Context7**
 - **Sequential Thinking**
 - **GitHub**
 
-Some presets install immediately. Others can ask for follow-up auth mapping, such as a saved secret or a machine environment variable.
+部分预设可立即完成安装；另一些预设则可能需要配置后续认证映射，例如关联已保存的密钥（Saved Secret）或设备环境变量。
 
-## What “Applies to” means
+## “生效范围”（Applies to）详解
 
-Every Kaiwu-managed MCP server has default scope rules under **Applies to**.
+每个由 Kaiwu 托管的 MCP 服务器都在 **Applies to** 项下定义了默认作用域规则。
 
-That determines where Kaiwu should include the server automatically.
+该规则决定了 Kaiwu 在何处自动引入该服务器。
 
-Supported scopes:
+支持的作用域包括：
 
-- **All machines** — use this for portable servers, especially remote HTTP/SSE servers
-- **One machine** — use this for local command servers installed on a specific machine
-- **One workspace on one machine** — use this when a server should apply only for a specific project directory
+- **所有设备（All machines）**——适用于可移植的服务器，尤其是远程 HTTP/SSE 服务器
+- **单个设备（One machine）**——适用于安装在特定设备上的本地命令型服务器
+- **单设备单工作区（One workspace on one machine）**——适用于仅应在特定项目目录下生效的服务器
 
-Examples:
+示例：
 
-- A remote GitHub MCP server usually belongs on **All machines**
-- A local `npx @playwright/mcp` setup often belongs on **One machine**
-- A project-local MCP server started from repo files often belongs on **One workspace on one machine**
+- 远程 GitHub MCP 服务器通常适用于**所有设备**
+- 本地 `npx @playwright/mcp` 配置通常归属于**单个设备**
+- 基于仓库文件启动的特定项目 MCP 服务器，通常应设为**单设备单工作区**
 
-Important:
+注意事项：
 
-- these are **default apply rules**, not hard limits for every future session
-- you can still override Kaiwu-managed MCP selection from the new-session MCP chip
+- 这些规则仅为**默认生效规则**，并非后续所有会话不可逾越的硬性限制
+- 在新建会话时，你仍可通过 MCP 标签临时覆盖 Kaiwu 托管的服务器选择
 
-## Secrets, auth, and environment values
+## 密钥、认证与环境变量
 
-Kaiwu lets you set MCP env vars and headers using:
+Kaiwu 支持通过以下方式配置 MCP 的环境变量与请求头：
 
-- **Saved Secrets** — recommended
-- **machine environment references** such as `${MY_TOKEN}`
-- **plain text** values
+- **已保存的密钥（Saved Secrets）**——推荐
+- **设备环境引用（machine environment references）**，例如 `${MY_TOKEN}`
+- **明文（plain text）**值
 
-Recommended usage:
+推荐用法：
 
-- use **Saved Secrets** for reusable tokens and API keys
-- use **machine env references** when the value should come from the daemon or shell environment on the target machine
-- avoid **plain text** unless the value is not sensitive
+- 对于可复用的 Token 与 API Key，建议使用 **Saved Secrets**
+- 若配置值需取自目标设备上的守护进程或 shell 环境，使用**设备环境引用**
+- 除非是非敏感数据，否则尽量避免使用**明文**
 
-Saved Secrets are especially useful for remote MCP servers that require auth headers such as:
+Saved Secrets 对需要认证头的远程 MCP 服务器尤为实用，例如：
 
 - `Authorization: Bearer ...`
-- GitHub tokens
-- private API tokens
+- GitHub Token
+- 私有 API Token
 
-## Testing an MCP server
+## 测试 MCP 服务器
 
-Each Kaiwu-managed MCP server can be tested from the MCP settings flow.
+在 MCP 设置流程中，可以直接测试每个由 Kaiwu 托管的 MCP 服务器。
 
-Testing verifies that Kaiwu can:
+测试会验证 Kaiwu 是否能够：
 
-- resolve the configuration
-- resolve saved secrets and env references
-- start or connect to the server
-- list tools successfully
+- 解析配置
+- 解析已保存的密钥及环境引用
+- 成功启动或连接至服务器
+- 正常获取工具列表
 
-This is the fastest way to catch:
+这是排查以下问题的最快途径：
 
-- wrong command lines
-- missing local installations
-- bad URLs
-- missing auth
-- missing machine env variables
+- 命令行配置错误
+- 本地依赖未安装
+- URL 错误
+- 缺少认证凭据
+- 缺少设备环境变量
 
-## Detected provider-native MCP servers
+## 已检测到的提供商原生 MCP 服务器
 
-The **Detected** tab shows MCP servers already configured in the selected provider’s own config files.
+**已检测（Detected）**标签页会显示所选提供商自身配置文件中已配好的 MCP 服务器。
 
-This is useful when:
+这在以下场景中非常有用：
 
-- you already configured MCP in Claude, Codex, or OpenCode before using Kaiwu
-- you want to compare provider-native config with Kaiwu-managed defaults
-- you want to import an existing provider-native server into Kaiwu
+- 在使用 Kaiwu 之前，已在 Claude、Codex 或 OpenCode 中配置了 MCP
+- 需要对比提供商原生配置与 Kaiwu 托管的默认配置
+- 希望将现有的提供商原生服务器导入至 Kaiwu
 
-Important:
+注意事项：
 
-- detected entries are **informational and read-only**
-- they are refreshed for the selected machine and directory
-- provider-native and Kaiwu-managed MCP can both matter for the final session picture
+- 检测到的条目仅供**参考且为只读**
+- 列表会针对所选的设备与目录动态刷新
+- 提供商原生 MCP 与 Kaiwu 托管 MCP 均会影响最终会话的工具可用情况
 
-## Preview before starting a session
+## 启动会话前预览
 
-The **Preview** tab shows what a session should use for a specific context.
+**预览（Preview）**标签页可展示在特定上下文中会话将实际使用的工具。
 
-It combines:
+它整合了以下内容：
 
-- the built-in Kaiwu tool surface
-- Kaiwu-managed MCP servers that apply by default
-- provider-native detected MCP servers for the selected backend/context
-- Kaiwu-managed servers that are available but not currently applied
+- Kaiwu 内置工具面
+- 默认生效的 Kaiwu 托管 MCP 服务器
+- 针对所选后端及上下文检测到的提供商原生 MCP 服务器
+- 可用但当前未应用的 Kaiwu 托管服务器
 
-Use Preview when you want confidence before starting an important session, especially across multiple machines or workspaces.
+在开启重要会话前（尤其是跨多台设备或多个工作区时），使用“预览”功能可确保配置符合预期。
 
-## MCP in the new-session composer
+## 新建会话编辑区中的 MCP
 
-When you start a new session, the composer shows an **MCP chip** such as:
+启动新会话时，编辑区会显示一个 **MCP 标签**，例如：
 
 - `MCP (3)`
 
-The number is the current MCP count for that session context.
+其中的数字表示当前会话上下文中包含的 MCP 数量。
 
-Select the chip to open the MCP picker.
+点击该标签即可打开 MCP 选择器。
 
-From there you can:
+在该界面中，你可以：
 
-- see which Kaiwu-managed servers are selected by default
-- include additional Kaiwu-managed servers for this session only
-- exclude Kaiwu-managed servers that would normally apply by default
-- see provider-native detected servers that the selected backend already has configured
+- 查看默认选中的 Kaiwu 托管服务器
+- 仅为本次会话添加额外的 Kaiwu 托管服务器
+- 排除通常默认生效的 Kaiwu 托管服务器
+- 查看所选后端已配置的提供商原生检测服务器
 
-Important limits:
+重要限制：
 
-- provider-native detected entries are shown as **read-only context**
-- the built-in Kaiwu tool surface is always present
-- changes in the picker affect the session you are about to start; they do not rewrite your saved account defaults
+- 提供商原生检测条目仅作为**只读上下文**展示
+- Kaiwu 内置工具面始终处于启用状态
+- 选择器中的调整仅对即将启动的本次会话生效，不会覆盖已保存的账号默认配置
 
-## What happens when you change MCP settings
+## 修改 MCP 设置后的生效机制
 
-MCP settings apply on the **next session start**.
+MCP 设置将在**下次会话启动时**生效。
 
-That means:
+这意味着：
 
-- editing an MCP server changes future sessions
-- it does not hot-swap tools into already-running sessions
-- resumed sessions continue to use the session-level tool state they were started with
+- 修改 MCP 服务器只会影响后续的新会话
+- 不会对正在运行中的会话进行工具热替换
+- 恢复已暂停的会话时，将继续沿用该会话启动时的会话级工具状态
 
-## Supported providers and important behavior
+## 支持的提供商与重要特性
 
-Tool delivery depends on the selected backend.
+工具的具体投递机制取决于所选的后端。
 
-Kaiwu can currently deliver managed MCP tools through two broad paths:
+目前 Kaiwu 主要通过两条途径投递托管的 MCP 工具：
 
-- **Native MCP delivery** on backends with native MCP support, including Claude, Codex, OpenCode, and compatible custom ACP backends
-- **Shell-bridge delivery** on backends that use the Kaiwu tools bridge
+- **原生 MCP 投递**：适用于支持原生 MCP 的后端，包括 Claude、Codex、OpenCode 以及兼容的自定义 ACP 后端
+- **Shell 桥接投递**：适用于使用 Kaiwu 工具桥接的后端
 
-Important distinction:
+重要区别：
 
-- provider-native **detected** MCP configuration is only available where that provider actually has a native MCP config model
-- Kaiwu-managed custom MCP tools can still be delivered through the shell bridge on providers without native MCP delivery
+- 仅当提供商本身具备原生 MCP 配置模型时，才能**检测**到提供商原生 MCP 配置
+- 对于不支持原生 MCP 投递的提供商，Kaiwu 托管的自定义 MCP 工具仍可通过 shell 桥接完成投递
 
-Provider support can change over time, so use the provider pages and the feature matrix as the source of truth for current behavior.
+各提供商的支持情况可能会随版本迭代而变化，请以各提供商文档及特性矩阵为准。
 
-See also:
+另请参阅：
 
 - [Claude](/agents/claude)
 - [Codex](/agents/codex)
 - [OpenCode](/agents/opencode)
-- [Kaiwu tools & actions](/extending/happier-tools)
+- [Kaiwu 工具与操作](/extending/happier-tools)
 
-## Strict mode
+## 严格模式（Strict mode）
 
-Strict mode changes how Kaiwu reacts to invalid MCP configuration.
+严格模式决定了 Kaiwu 在遇到无效 MCP 配置时的处理方式。
 
-- **Off**: Kaiwu skips invalid MCP entries when it can and continues starting the session
-- **On**: Kaiwu fails the start if an enabled effective MCP server cannot be resolved correctly
+- **关闭（Off）**：Kaiwu 会尽可能跳过无效的 MCP 条目，并继续启动会话
+- **开启（On）**：若任何已启用且生效的 MCP 服务器无法正常解析，Kaiwu 将直接终止会话启动
 
-Use strict mode when you want the startup behavior to be fail-closed instead of best-effort.
+若希望启动行为遵循“遇错即停（fail-closed）”而非“尽力而为（best-effort）”，请开启严格模式。
 
-## Common use cases
+## 常见用例
 
-### Use Playwright everywhere on one machine
+### 在单台设备上全局使用 Playwright
 
-1. Open **Settings → MCP servers**
-2. Add **Playwright** from **Quick install**
-3. Set **Applies to → One machine**
-4. Test it
-5. Start sessions on that machine and confirm the MCP chip includes it
+1. 打开 **Settings → MCP servers**
+2. 从 **Quick install** 中添加 **Playwright**
+3. 将 **Applies to** 设置为 **One machine**
+4. 进行连接测试
+5. 在该设备上启动会话，确认 MCP 标签中已包含该服务
 
-### Reuse a remote GitHub MCP server across all machines
+### 在所有设备上复用远程 GitHub MCP 服务器
 
-1. Add a server with **Remote HTTP**
-2. Store the token as a **Saved Secret**
-3. Set **Applies to → All machines**
-4. Test it from the machine that will run sessions
+1. 选择 **Remote HTTP** 添加服务器
+2. 将 Token 保存为 **Saved Secret**
+3. 将 **Applies to** 设置为 **All machines**
+4. 在即将运行会话的设备上进行连接测试
 
-### Import a README snippet without manually rebuilding it
+### 直接导入 README 中的配置片段，无需手动新建
 
-1. Copy the host MCP JSON from the README
-2. Open **Add server → Import JSON**
-3. Paste the JSON
-4. Review the parsed result
-5. Map any secrets to a Saved Secret or machine env reference
-6. Save and test
+1. 从 README 中复制宿主 MCP JSON 代码
+2. 打开 **Add server → Import JSON**
+3. 粘贴 JSON 内容
+4. 核对解析结果
+5. 将敏感信息映射为 Saved Secret 或设备环境引用
+6. 保存并测试
 
-### Override MCP selection for one session
+### 为单次会话临时调整 MCP 选择
 
-1. Open the new-session screen
-2. Select the **MCP** chip
-3. Deselect a default Kaiwu-managed server you do not want
-4. Select an additional Kaiwu-managed server you want for this session only
-5. Start the session
+1. 打开新建会话界面
+2. 点击 **MCP** 标签
+3. 取消勾选本次不需要的默认 Kaiwu 托管服务器
+4. 勾选仅在本次会话中额外启用的 Kaiwu 托管服务器
+5. 启动会话
 
-## Troubleshooting
+## 故障排查
 
-### “The server is saved, but it does not appear in my session”
+### “服务器已保存，但未出现在我的会话中”
 
-Check:
+请检查以下各项：
 
-- the selected machine
-- the selected workspace/directory
-- the server’s **Applies to** rules
-- the selected backend’s tool-delivery support
-- the new-session MCP chip, which can override Kaiwu-managed defaults per session
+- 当前选中的设备
+- 当前选中的工作区或目录
+- 该服务器的 **Applies to** 生效规则
+- 所选后端的工具投递支持情况
+- 新建会话界面中的 MCP 标签（此处的会话级设置可能覆盖了 Kaiwu 托管的默认规则）
 
-Also use the **Preview** tab to confirm the effective result before starting the session.
+此外，可在启动会话前借助**预览（Preview）**标签页确认最终的实际生效结果。
 
-### “Detected does not show what I expected”
+### “已检测（Detected）中显示的内容与预期不符”
 
-Check:
+请检查以下各项：
 
-- the selected machine
-- the selected directory/workspace
-- whether the backend stores MCP config in user-level files, project files, or both
+- 当前选中的设备
+- 当前选中的目录或工作区
+- 该后端是将 MCP 配置存储在用户级文件、项目级文件，还是两者兼有
 
-The Detected tab is context-sensitive and refreshes based on the selected machine and directory.
+“已检测”标签页与上下文强相关，会根据当前选中的设备与目录动态刷新。
 
-### “Test fails”
+### “测试失败”
 
-The most common causes are:
+最常见的原因包括：
 
-- the local command is not installed on that machine
-- the URL is wrong
-- a required token/header is missing
-- a machine env reference is not present on the daemon host
+- 对应设备上未安装该本地命令
+- URL 填写错误
+- 缺少必需的 Token 或请求头
+- 运行守护进程的主机上不存在所引用的设备环境变量
 
-### “I changed MCP settings, but my current session did not change”
+### “修改了 MCP 设置，但当前会话没有任何变化”
 
-That is expected.
+这符合预期设计。
 
-MCP settings apply on the **next session start**. Start a new session to pick up the updated configuration.
+MCP 设置仅在**下次会话启动时**生效。请新建一个会话以加载更新后的配置。
 
-## Related pages
+## 相关页面
 
-- [Kaiwu tools & actions](/extending/happier-tools)
-- [Connected services](/accounts/connected-services)
+- [Kaiwu 工具与操作](/extending/happier-tools)
+- [已连接服务](/accounts/connected-services)
 - [Profiles](/agents/profiles)
-- [Provider integrations](/agents/provider-integrations)
+- [提供商集成](/agents/provider-integrations)
 - [Claude](/agents/claude)
 - [Codex](/agents/codex)
 - [OpenCode](/agents/opencode)

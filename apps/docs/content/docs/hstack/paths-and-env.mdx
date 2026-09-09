@@ -1,11 +1,10 @@
 ---
-title: Paths, folders, and env precedence
-description: Where hstack stores home/workspace/runtime/stacks and how env precedence works.
+title: 路径、文件夹与环境变量优先级
+description: hstack 存储 home/工作区/运行时/栈的位置，以及环境变量优先级的工作机制。
 ---
+本文档介绍 hstack 使用的**目录结构**（home/workspace/runtime/stacks）以及 `hstack` 采用的**环境配置文件优先级**。
 
-This doc explains the **directories** that hstack uses (home/workspace/runtime/stacks), and the **environment file precedence** used by `hstack`.
-
-If you’re ever unsure what your machine is actually using, run:
+若不确定当前设备实际生效的配置，可运行：
 
 ```bash
 hstack where
@@ -13,145 +12,145 @@ hstack where
 
 ---
 
-## Quick glossary
+## 术语速查
 
-- **CLI root dir**
-  - The directory containing the `@happier-dev/stack` scripts (`scripts/*.mjs`) that your `hstack` command is currently executing.
-  - This is *not* necessarily your current shell `cwd`.
-  - It can be:
-    - a cloned repo checkout (e.g. `/Users/<you>/.../happier-dev`), or
-    - the installed runtime package under `~/.happier-stack/runtime/node_modules/@happier-dev/stack` (see “Runtime dir”).
+- **CLI 根目录（CLI root dir）**
+  - 存放当前 `hstack` 命令所执行的 `@happier-dev/stack` 脚本（`scripts/*.mjs`）的目录。
+  - 该目录*不一定*是当前 shell 的 `cwd`。
+  - 它可以是：
+    - 克隆的代码仓库检出目录（例如 `/Users/⟦K4⟧/.../happier-dev`），或
+    - 安装在 `~/.happier-stack/runtime/node_modules/@happier-dev/stack` 下的运行时包（参见“运行时目录”）。
 
-- **Home dir** (`HAPPIER_STACK_HOME_DIR`)
-  - Default: `~/.happier-stack`
-  - Stores **global user config** + caches, and may include a runtime install.
+- **Home 目录（Home dir）**（`HAPPIER_STACK_HOME_DIR`）
+  - 默认路径：`~/.happier-stack`
+  - 用于存储**全局用户配置**及缓存，可能包含运行时安装。
 
-- **Runtime dir** (`HAPPIER_STACK_RUNTIME_DIR`)
-  - Default: `~/.happier-stack/runtime`
-  - Used by `hstack self update` to install/upgrade a pinned `@happier-dev/stack` runtime package.
+- **运行时目录（Runtime dir）**（`HAPPIER_STACK_RUNTIME_DIR`）
+  - 默认路径：`~/.happier-stack/runtime`
+  - 供 `hstack self update` 安装或升级锁定的 `@happier-dev/stack` 运行时包使用。
 
-- **Workspace dir** (`HAPPIER_STACK_WORKSPACE_DIR`)
-  - Default: `~/.happier-stack/workspace` (when it exists).
-  - This is the **storage workspace for the Kaiwu monorepo checkout + worktrees** used by hstack.
-  - It typically contains:
-    - `<workspace>/main` (stable monorepo checkout)
-    - `<workspace>/dev` (dev monorepo checkout; created by `hstack setup-from-source --profile=dev`)
-    - `<workspace>/pr/...` (PR worktrees)
-    - `<workspace>/local/<owner>/...` (local worktrees)
-    - `<workspace>/tmp/<owner>/...` (temporary worktrees)
+- **工作区目录（Workspace dir）**（`HAPPIER_STACK_WORKSPACE_DIR`）
+  - 默认路径：`~/.happier-stack/workspace`（存在时）。
+  - hstack 用于**存储 Kaiwu monorepo 检出与工作树的存储工作区**。
+  - 通常包含：
+    - `⟦K5⟧/main`（稳定版 monorepo 检出）
+    - `⟦K6⟧/dev`（开发版 monorepo 检出；由 `hstack setup-from-source --profile=dev` 创建）
+    - `⟦K7⟧/pr/...`（PR 工作树）
+    - `⟦K8⟧/local/⟦K9⟧/...`（本地工作树）
+    - `⟦K10⟧/tmp/⟦K11⟧/...`（临时工作树）
 
-- **Repo dir** (`HAPPIER_STACK_REPO_DIR`)
-  - Default: `<workspace>/main`
-  - This is the active Kaiwu monorepo checkout (either `main`, `dev`, or a worktree).
-  - `hstack wt use ...` and `hstack stack wt <stack> -- use ...` update this value.
+- **仓库目录（Repo dir）**（`HAPPIER_STACK_REPO_DIR`）
+  - 默认路径：`⟦K12⟧/main`
+  - 当前激活的 Kaiwu monorepo 检出目录（`main`、`dev` 或某个工作树）。
+  - `hstack wt use ...` 与 `hstack stack wt ⟦K13⟧ -- use ...` 会更新该值。
 
-- **Worktrees**
-  - PRs: `<workspace>/pr/...`
-  - locals: `<workspace>/local/<owner>/...`
-  - tmp: `<workspace>/tmp/<owner>/...`
+- **工作树（Worktrees）**
+  - PR：`⟦K14⟧/pr/...`
+  - 本地：`⟦K15⟧/local/⟦K16⟧/...`
+  - 临时：`⟦K17⟧/tmp/⟦K18⟧/...`
 
-- **Stacks storage dir**
-  - Default: `~/.happier/stacks`
-  - Each stack lives under `~/.happier/stacks/<name>/...` and has its own env file:
-    - `~/.happier/stacks/<name>/env`
+- **栈存储目录（Stacks storage dir）**
+  - 默认路径：`~/.happier/stacks`
+  - 每个栈存放在 `~/.happier/stacks/⟦K19⟧/...` 下，并拥有独立的环境变量文件：
+    - `~/.happier/stacks/⟦K20⟧/env`
 
 ---
 
-## “Where am I actually running from?”
+## “我到底是从哪里运行的？”
 
-`hstack` may **re-exec** to a different CLI root dir (for example, when you use an installed shim but want it to run a local checkout).
+`hstack` 可能会**重新执行（re-exec）**至另一个 CLI 根目录（例如使用已安装的 shim 但希望运行本地检出时）。
 
-- Run `hstack where` to see:
-  - **rootDir** (CLI root dir)
-  - **homeDir** (stacks home dir)
+- 运行 `hstack where` 可查看：
+  - **rootDir**（CLI 根目录）
+  - **homeDir**（栈 home 目录）
   - **runtimeDir**
   - **workspaceDir**
-  - resolved env file paths
+  - 解析出的环境变量文件路径
 
-Tip: to pin the shim to a local checkout, use:
+提示：若要将 shim 固定到本地检出，可使用：
 
 ```bash
 hstack self use-cli dev
 ```
 
-Tip: `hstack where --json` is easier to parse.
+提示：`hstack where --json` 更易于脚本解析。
 
 ---
 
-## Env files + precedence (lowest → highest)
+## 环境配置文件与优先级（从低到高）
 
-hstack loads env in `scripts/utils/env.mjs`.
+hstack 在 `scripts/utils/env.mjs` 中加载环境变量。
 
-### 0) “Canonical pointer” env (discovery)
+### 0) “规范指针”环境文件（用于发现路径）
 
-If `HAPPIER_STACK_HOME_DIR` is *not* set, we first try to read the **canonical pointer** env file to discover the intended home dir (useful for LaunchAgents / SwiftBar / minimal shells).
+若*未*设置 `HAPPIER_STACK_HOME_DIR`，系统会先尝试读取**规范指针（canonical pointer）**环境文件以发现目标 home 目录（适用于 LaunchAgents、SwiftBar 或极简 shell 环境）。
 
-- Default canonical pointer path: `~/.happier-stack/.env`
-- Override canonical pointer location:
-  - `HAPPIER_STACK_CANONICAL_HOME_DIR=/some/dir` (pointer becomes `<dir>/.env`)
+- 默认规范指针路径：`~/.happier-stack/.env`
+- 覆盖规范指针位置：
+  - `HAPPIER_STACK_CANONICAL_HOME_DIR=/some/dir`（指针变为 `⟦K21⟧/.env`）
 
-### 1) Global defaults (home config) OR cloned-repo defaults
+### 1) 全局默认配置（home 配置）或克隆仓库默认配置
 
-If home config exists, we load:
+若存在 home 配置，将加载：
 
-- `~/.happier-stack/.env` (**defaults**)
-- `~/.happier-stack/env.local` (**overrides**, prefix-aware for `HAPPIER_STACK_*`)
+- `~/.happier-stack/.env`（**默认值**）
+- `~/.happier-stack/env.local`（**覆盖项**，支持 `HAPPIER_STACK_*` 前缀匹配）
 
-If home config does *not* exist (cloned repo usage before `hstack init`), we load:
+若*不*存在 home 配置（即运行 `hstack init` 之前的克隆仓库使用场景），将加载：
 
 - `<cliRootDir>/.env`
-- `<cliRootDir>/env.local` (prefix-aware for `HAPPIER_STACK_*`)
+- `<cliRootDir>/env.local`（支持 `HAPPIER_STACK_*` 前缀匹配）
 
-### 2) Repo `.env` fallback (dev convenience)
+### 2) 仓库 `.env` 回退项（便于本地开发）
 
-Even when home config exists, we also load:
+即使存在 home 配置，系统仍会加载：
 
-- `<cliRootDir>/.env` (non-overriding fallback)
+- `<cliRootDir>/.env`（非覆盖式回退项）
 
-This exists so repo-local dev settings (example: `HAPPIER_CODEX_ACP_BIN`) can work without forcing everyone to duplicate them into `~/.happier-stack/env.local`.
+此机制让仓库本地开发配置（例如 `HAPPIER_CODEX_ACP_BIN`）直接生效，无需每个人重复复制到 `~/.happier-stack/env.local` 中。
 
-Notes:
-- This is a **fallback only** (`override: false`): it won’t stomp on values already provided by the environment or home config.
-- We intentionally do **not** auto-load `<cliRootDir>/env.local` in this “home config exists” path, because it’s higher-precedence and can unexpectedly fight stack config.
+注意：
+- 这**仅作为回退项**（`override: false`）：不会覆盖环境变量或 home 配置中已有的值。
+- 在“存在 home 配置”的分支中，系统特意**不**自动加载 `<cliRootDir>/env.local`，因为其优先级较高，可能会与栈配置产生非预期的冲突。
 
-### 3) Stack env overlay (highest precedence)
+### 3) 栈环境覆盖层（最高优先级）
 
-Finally, we load the active stack env file (override = true):
+最后，系统加载当前激活的栈环境文件（override = true）：
 
 - `HAPPIER_STACK_ENV_FILE`
-- if neither is set, we auto-select the env file for the current stack (defaults to `main`) if it exists
+- 若二者均未设置，系统会自动选择当前栈对应的环境文件（默认为 `main`，如果存在）
 
-Stack env files are allowed to contain **non-prefixed keys** (like `DATABASE_URL`) because that’s required for per-stack isolation.
-
----
-
-## What should go where? (rules of thumb)
-
-- Put **global, machine-wide defaults** in `~/.happier-stack/.env`.
-- Put **your personal overrides** in `~/.happier-stack/env.local`.
-- Put **per-stack isolation config** in the stack env file `~/.happier/stacks/<name>/env` (this is what `hstack stack edit` and `hstack stack wt` mutate).
-- Put **repo-local dev-only defaults** in `<cliRootDir>/.env` (works best when you’re actually running from that checkout as the CLI root dir).
+栈环境文件允许包含**无前缀的配置项**（如 `DATABASE_URL`），这是实现单栈隔离所必需的。
 
 ---
 
-## Sandbox / test installs (fully isolated)
+## 各项配置该写在哪里？（经验法则）
 
-If you want to test the full install + setup flows without touching your real installation, run with:
+- **全局且整台设备生效的默认项**，请写入 `~/.happier-stack/.env`。
+- **个人本地覆盖项**，请写入 `~/.happier-stack/env.local`。
+- **单栈隔离配置**，请写入对应的栈环境文件 `~/.happier/stacks/⟦K22⟧/env`（这也是 `hstack stack edit` 与 `hstack stack wt` 所修改的文件）。
+- **仅限仓库本地的开发默认项**，请写入 `<cliRootDir>/.env`（在该检出目录作为 CLI 根目录运行时效果最佳）。
+
+---
+
+## 沙箱与测试安装（完全隔离）
+
+若需完整测试安装与配置流程，且不影响真实安装环境，可运行：
 
 ```bash
 npx @happier-dev/stack@latest --sandbox-dir /tmp/hstack-sandbox where
 ```
 
-In sandbox mode, hstack redirects **home/workspace/runtime/storage** under the sandbox folder (so you can `rm -rf` it to reset).
+在沙箱模式下，hstack 会将 **home/workspace/runtime/storage** 重定向到沙箱目录内（直接 `rm -rf` 该目录即可彻底重置）。
 
-Global OS side effects (PATH edits, SwiftBar plugin install, LaunchAgents/systemd services) are **disabled by default** in sandbox mode.
-To explicitly allow them for testing, set:
+沙箱模式下**默认禁用**全局系统级副作用（修改 PATH、安装 SwiftBar 插件、注册 LaunchAgents/systemd 服务）。
+如需在测试中显式启用这些操作，请设置：
 
 - `HAPPIER_STACK_SANDBOX_ALLOW_GLOBAL=1`
 
 ---
 
-## Related docs
+## 相关文档
 
-- `docs/stacks.md` (stacks lifecycle + commands)
-- `docs/worktrees-and-forks.md` (worktrees layout + upstream/fork workflows)
+- `docs/stacks.md`（栈生命周期与命令详解）
+- `docs/worktrees-and-forks.md`（工作树布局与 upstream/fork 工作流）

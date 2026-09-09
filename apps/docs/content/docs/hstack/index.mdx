@@ -1,63 +1,57 @@
 ---
-title: hstack (Kaiwu Stack)
-description: The local stack orchestrator — running Kaiwu from your own checkout, in isolated instances, without the pieces stepping on each other.
+title: hstack（Kaiwu 栈）
+description: 本地栈编排器——直接基于本地代码检出运行 Kaiwu，实例相互隔离，各组件互不干扰。
 ---
+`hstack` 用于直接从本地代码仓库运行 Kaiwu。它的核心职责是实现隔离：在同一台设备上并行运行多套完整的实例（**栈**），每个栈各自绑定独立的代码检出、端口和数据目录，避免正在测试的分支干扰日常开发分支。
 
-`hstack` runs Kaiwu from your own checkout. Its job is isolation: several
-complete instances (**stacks**) side by side on one machine, each pinned to its
-own checkout, ports and data directory, so a branch you are testing cannot
-disturb the one you are developing.
-
-For interactive work, prefer the TUI wrapper — it shows what each command is
-doing rather than leaving you to read log files:
+进行交互式操作时，推荐使用 TUI 包装器。它可以实时展示各条命令的执行动态，无需自行翻阅日志文件：
 
 ```bash
 hstack tui stack dev dev
 ```
 
-## Get set up
+## 准备工作
 
-- [Setup](/hstack/setup) — installing hstack, choosing a workspace, initializing the main and dev checkouts.
-- [Paths, folders and env precedence](/hstack/paths-and-env) — where everything lands, and which env file wins.
+- [安装与配置](/hstack/setup) —— 安装 hstack、挑选工作区，以及初始化 main 和 dev 检出。
+- [路径、目录与环境变量优先级](/hstack/paths-and-env) —— 各文件的存放位置，以及不同 env 文件的生效优先级。
 
-## Day to day
+## 日常开发
 
-- [Development workflow](/hstack/development) — the one-stop guide: worktrees, stacks and dev-auth together.
-- [Quickstarts](/hstack/quickstarts) — the copy/paste companion for feature work, PR testing and server changes.
-- [Running (dev vs start)](/hstack/running) — how the server, daemon and UI come up, watch mode, and safe restarts.
-- [Remote development targets](/hstack/dev-targets) — mirroring one checkout to Linux, macOS or Windows machines.
-- [Validation](/hstack/validation) — typecheck, lint and test, scoped to a checkout or a stack.
-- [CLI reference](/hstack/cli-reference) — the commands you will actually use, with the flags that matter.
+- [开发工作流](/hstack/development) —— 一站式指南：协同使用工作树、栈与 dev-auth。
+- [快速入门](/hstack/quickstarts) —— 适用于特性开发、PR 测试和服务端改动的速查命令集。
+- [运行模式（dev 与 start 的区别）](/hstack/running) —— 服务端、守护进程和 UI 的启动机制、监听模式及安全重启。
+- [远程开发目标机](/hstack/dev-targets) —— 将同一份代码检出同步镜像到 Linux、macOS 或 Windows 设备。
+- [校验](/hstack/validation) —— 针对特定检出或栈执行类型检查、代码规范检查与测试。
+- [CLI 参考](/hstack/cli-reference) —— 常用核心命令及关键参数详解。
 
-## How isolation works
+## 隔离机制原理
 
-These four pages are the model. Read them before wondering why two stacks share
-something they should not.
+以下四篇文档介绍了隔离机制的核心模型。若遇到两个栈意外共享资源的情况，请先参阅这些内容：
 
-- [Stacks](/hstack/stacks) — isolated instances: ports, directories and repo pinning.
-- [Worktrees and forks](/hstack/worktrees-and-forks) — clean upstream PR worktrees with fork-only patches kept out of them.
-- [Auth (dev-auth seeding)](/hstack/auth) — seed credentials once, reuse them for new stacks without logging in again.
-- [Server flavors](/hstack/server-flavors) — light (SQLite, optionally PGlite) against full (Docker-managed infrastructure).
+- [栈](/hstack/stacks) —— 隔离实例：端口、目录与代码仓库绑定机制。
+- [工作树与 Fork](/hstack/worktrees-and-forks) —— 保持上游 PR 工作树干净整洁，隔离 fork 专属补丁。
+- [认证（dev-auth 预置）](/hstack/auth) —— 一次性预置凭据，新栈随取随用，无需重复登录。
+- [服务端版本类型](/hstack/server-flavors) —— 轻量版（基于 SQLite，可选 PGlite）与完整版（由 Docker 托管的基础设施）。
 
-## Reaching a stack from elsewhere
+## 跨设备访问栈
 
-- [Remote access (Tailscale)](/hstack/remote-access) — an HTTPS secure context on a phone or another laptop.
-- [Remote daemon setup (SSH)](/hstack/remote-daemon) — installing Kaiwu and pairing credentials on a remote host.
-- [Remote server setup (SSH)](/hstack/remote-server) — installing the self-host server on one.
+- [远程访问（Tailscale）](/hstack/remote-access) —— 在手机或其他笔记本电脑上建立 HTTPS 安全上下文。
+- [远程守护进程配置（SSH）](/hstack/remote-daemon) —— 在远程主机上安装 Kaiwu 并完成凭据配对。
+- [远程服务端配置（SSH）](/hstack/remote-server) —— 在远程主机上安装自托管服务端。
 
-## Other surfaces
+## 其他运行终端
 
-- [Mobile (iOS)](/hstack/mobile-ios) — the dev-client workflow for a local stack.
-- [Desktop app (Tauri)](/hstack/tauri) — the native wrapper around the web UI.
-- [Menu bar (SwiftBar)](/hstack/menubar) — monitoring stacks and switching worktrees from the macOS menu bar.
-- [Isolated Linux VM](/hstack/isolated-linux-vm) — repeatable validation in a clean VM on Apple Silicon.
+- [移动端（iOS）](/hstack/mobile-ios) —— 面向本地栈的 dev-client 工作流。
+- [桌面端应用（Tauri）](/hstack/tauri) —— 包裹 Web UI 的原生桌面应用壳。
+- [菜单栏扩展（SwiftBar）](/hstack/menubar) —— 通过 macOS 顶部菜单栏监控栈状态并切换工作树。
+- [隔离 Linux 虚拟机](/hstack/isolated-linux-vm) —— 在 Apple Silicon 上使用纯净虚拟机进行可复现的验证。
 
-## Workflow tooling
+## 工作流配套工具
 
-- [Edison](/hstack/edison) — tasks, QA and evidence capture, run through hstack so isolation still holds.
-- [Monorepo port](/hstack/monorepo-port) — bringing commits from the legacy split repos into the monorepo.
+- [Edison](/hstack/edison) —— 通过 hstack 运行任务调度、QA 和证据采集，确保隔离性不受破坏。
+- [Monorepo 迁移](/hstack/monorepo-port) —— 将旧版独立仓库中的提交合并迁移至 monorepo。
 
-## When something is wrong
+## 故障排查
 
-- [Debugging](/hstack/debugging) — effective paths, the pinned repo, ports, logs and the env knobs that change them.
-- [Troubleshooting](/hstack/troubleshooting) — the common failures: auth, ports, wrong checkout, unhealthy stacks.
+- [调试指南](/hstack/debugging) —— 实际生效路径、绑定的代码仓库、端口、日志以及修改它们的环境变量开关。
+- [常见问题排查](/hstack/troubleshooting) —— 覆盖认证失效、端口冲突、代码检出错误、栈状态异常等高频故障。

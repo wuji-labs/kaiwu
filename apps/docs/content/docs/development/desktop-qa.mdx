@@ -1,89 +1,86 @@
 ---
-title: Desktop and web QA
-description: Drive a real Tauri window and a disposable web stack when you need to verify setup and control-panel changes by hand.
+title: 桌面端与 Web 端 QA
+description: 在需要手动验证设置与控制面板的变更时，驱动真实的 Tauri 窗口和一次性 Web 栈。
 ---
+有些改动只有实际体验过才能判断效果：例如配置流程、控制面板，以及任何需要确认“在真实窗口中用起来是否自然”的场景。本文档介绍了调出这一界面的具体操作方法。
 
-Some changes can only be judged by using them: the setup flow, the control
-panel, anything where the question is "does this feel right on a real window".
-This page is the recipe for getting one in front of you.
+## 快速开始（Web QA 栈）
 
-## Quick start (web QA stack)
+1. 创建全新栈：
+   - `hstack stack new codex-bootstrap-qa-⟦K1⟧ --repo=<repoPath> --port=<uniquePort>`
+2. 构建并激活运行时：
+   - `hstack stack build codex-bootstrap-qa-⟦K2⟧ --activate-runtime`
+3. 优先使用运行时快照：
+   - `hstack stack env codex-bootstrap-qa-⟦K3⟧ set HAPPIER_STACK_RUNTIME_MODE=prefer`
+4. 启动栈（运行时）：
+   - `hstack stack start codex-bootstrap-qa-⟦K4⟧ --runtime`
+5. 身份验证：
+   - `hstack stack auth codex-bootstrap-qa-⟦K5⟧ login --force`
 
-1. Create a fresh stack:
-   - `hstack stack new codex-bootstrap-qa-<port> --repo=<repoPath> --port=<uniquePort>`
-2. Build + activate runtime:
-   - `hstack stack build codex-bootstrap-qa-<port> --activate-runtime`
-3. Prefer runtime snapshots:
-   - `hstack stack env codex-bootstrap-qa-<port> set HAPPIER_STACK_RUNTIME_MODE=prefer`
-4. Start stack (runtime):
-   - `hstack stack start codex-bootstrap-qa-<port> --runtime`
-5. Auth:
-   - `hstack stack auth codex-bootstrap-qa-<port> login --force`
+## 快速开始（通过 Tauri 进行原生桌面端 QA）
 
-## Quick start (native desktop QA via Tauri)
-
-Recommended (stack-owned dev + TUI):
+推荐方式（栈管理的开发环境 + TUI）：
 - `yarn tui:with-tauri`
 
-Notes:
-- The stack launcher points the desktop app at the **existing** Expo dev server.
-- The launcher uses a `--config` file inside `apps/ui/src-tauri` plus a `-c` config override (avoids stack-dir relative-path issues).
-- If you need the resolved launch plan (devUrl/config path/identifier): `node ./apps/stack/scripts/tauri_dev.mjs --json`.
-- `yarn ui:tauri` and `yarn --cwd apps/ui tauri:qa` do **not** start Expo; run `yarn ui` (or `yarn --cwd apps/ui start`) in another terminal first, or use `yarn tui:with-tauri`.
+说明：
+- 栈启动器会将桌面端应用指向**现有的** Expo 开发服务器。
+- 启动器使用 `apps/ui/src-tauri` 内的 `--config` 文件，并配合 `-c` 配置覆盖项（避免栈目录的相对路径问题）。
+- 如需查看解析后的启动方案（devUrl/配置路径/标识符）：`node ./apps/stack/scripts/tauri_dev.mjs --json`。
+- `yarn ui:tauri` 与 `yarn --cwd apps/ui tauri:qa` **不会**启动 Expo；请先在另一个终端运行 `yarn ui`（或 `yarn --cwd apps/ui start`），或直接使用 `yarn tui:with-tauri`。
 
-## Using `@hypothesi/tauri-mcp-server` for native manual QA
+## 使用 `@hypothesi/tauri-mcp-server` 进行原生手动 QA
 
-We use `@hypothesi/tauri-mcp-server` to drive an actual native Tauri window (screenshot/click/type/DOM snapshot/logs).
+我们使用 `@hypothesi/tauri-mcp-server` 来驱动真实的原生 Tauri 窗口（支持截图、点击、键入输入、获取 DOM 快照以及查看日志）。
 
-### Prereqs
+### 前置条件
 
-- The app must be running via `tauri dev` (debug assertions); the MCP bridge plugin is registered in `apps/ui/src-tauri/src/lib.rs`.
-- The public dev config enables the MCP capability:
-  - `apps/ui/src-tauri/tauri.publicdev.conf.json` includes `app.security.capabilities = ["default","mcp-dev"]`.
-  - `apps/ui/src-tauri/capabilities/mcp-dev.json` grants `mcp-bridge:default`.
+- 应用必须通过 `tauri dev` 运行（带调试断言）；MCP 桥接插件已在 `apps/ui/src-tauri/src/lib.rs` 中注册。
+- 公共开发配置中需启用 MCP 功能：
+  - `apps/ui/src-tauri/tauri.publicdev.conf.json` 包含 `app.security.capabilities = ["default","mcp-dev"]`。
+  - `apps/ui/src-tauri/capabilities/mcp-dev.json` 授予 `mcp-bridge:default`。
 
-### Install the MCP server into Codex
+### 将 MCP 服务器安装到 Codex
 
-From the repo root:
+在仓库根目录下运行：
 - `npx -y install-mcp @hypothesi/tauri-mcp-server --client codex --yes --oauth no`
 
-Restart Codex after installing (client config is loaded at startup).
+安装完成后重启 Codex（客户端配置在启动时加载）。
 
-### Start the native app
+### 启动原生应用
 
-Either:
-- `yarn ui:tauri` (standalone; requires Expo dev server already running)
-- `yarn tui:with-tauri` (preferred; unified with the stack/TUI)
-- `yarn --cwd apps/ui tauri:qa` (starts the Tauri app + MCP server together for QA; requires Expo dev server already running)
+可选方式：
+- `yarn ui:tauri`（独立运行；要求 Expo 开发服务器已在运行）
+- `yarn tui:with-tauri`（推荐方式；与栈及 TUI 保持统一）
+- `yarn --cwd apps/ui tauri:qa`（同时启动 Tauri 应用和 MCP 服务器用于 QA；要求 Expo 开发服务器已在运行）
 
-Optional launch-plan preview:
+可选的启动方案预览：
 - `yarn --cwd apps/ui tauri:qa --json`
 
-Raw MCP CLI helpers:
+原始 MCP CLI 辅助命令：
 - `yarn --cwd apps/ui tauri:mcp:cli --help`
 - `yarn --cwd apps/ui tauri:mcp:session:start`
 
-Notes:
-- By default, `yarn ui:tauri` / `yarn --cwd apps/ui tauri:qa` wait for Metro to report `packager-status:running` before launching Tauri; disable with `HAPPIER_STACK_TAURI_WAIT_FOR_EXPO=0`.
+说明：
+- 默认情况下，`yarn ui:tauri` / `yarn --cwd apps/ui tauri:qa` 会在启动 Tauri 前等待 Metro 报告 `packager-status:running`；可使用 `HAPPIER_STACK_TAURI_WAIT_FOR_EXPO=0` 禁用该等待机制。
 
-### Start a driver session
+### 启动驱动会话
 
-In the MCP client (Codex), start a session with the `driver_session` tool:
+在 MCP 客户端（Codex）中，使用 `driver_session` 工具启动会话：
 - `driver_session` → `{ "action": "start" }`
 
-CLI fallback (if you want to run commands without an MCP client):
+CLI 备用方案（脱离 MCP 客户端单独运行命令）：
 - `yarn --cwd apps/ui tauri:mcp:session:start`
 
-Implementation details (for debugging connectivity):
-- The MCP bridge plugin runs a WebSocket server on **port 9223** (or next available in 9223–9322), default bind `0.0.0.0`.
-- If needed, you can target a host explicitly:
+实现细节（用于排查连接问题）：
+- MCP 桥接插件在 **9223 端口**（或 9223–9322 中下一个可用端口）运行 WebSocket 服务器，默认绑定 `0.0.0.0`。
+- 如有需要，可显式指定目标主机：
   - `driver_session` → `{ "action": "start", "host": "127.0.0.1" }`
 
-### Useful tools during QA
+### QA 实用工具
 
-- `webview_screenshot` (attach evidence to issues)
-- `webview_dom_snapshot` (confirm what’s actually rendered)
-- `webview_find_element` + `webview_interact` (click buttons / toggle switches)
-- `webview_keyboard` (type into fields)
-- `read_logs` (webview + system logs)
-- `ipc_monitor` + `ipc_get_captured` (confirm `invoke(...)` calls and payloads)
+- `webview_screenshot`（在 issue 中附带验证凭据）
+- `webview_dom_snapshot`（确认实际渲染的内容）
+- `webview_find_element` + `webview_interact`（点击按钮 / 切换开关）
+- `webview_keyboard`（向输入框键入内容）
+- `read_logs`（webview 与系统日志）
+- `ipc_monitor` + `ipc_get_captured`（确认 `invoke(...)` 调用及有效载荷）

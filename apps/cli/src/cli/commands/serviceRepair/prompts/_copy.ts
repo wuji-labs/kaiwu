@@ -184,7 +184,7 @@ function findingDetailLine(finding: RepairFinding): string | null {
     case 'machine_not_registered_for_profile':
       return `${finding.serverName} · ${finding.serverUrl}`;
     case 'dev_on_hosted_cloud_informational':
-      return 'dev CLI · api.happier.dev';
+      return 'dev CLI · kaiwu.chengqiyun.com';
     case 'multi_stack_detected_informational':
       return finding.stacks.map((s) => s.releaseChannel).join(' · ');
     case 'cli_self_update_available':
@@ -289,11 +289,11 @@ export const UNHEALTHY_WORD = 'unhealthy';
 
 // ─────── End-of-run recaps ───────
 
-export function recapNothingToDo(invoker: string = 'happier'): string {
+export function recapNothingToDo(invoker: string = 'kaiwu'): string {
   return `All done. \`${invoker} doctor repair\` is always safe to re-run.`;
 }
 
-export function recapAppliedSome(applied: number, total: number, invoker: string = 'happier'): string {
+export function recapAppliedSome(applied: number, total: number, invoker: string = 'kaiwu'): string {
   return `Applied ${applied} of ${total} actions. Re-run \`${invoker} doctor repair\` to retry the rest.`;
 }
 
@@ -490,7 +490,7 @@ export function copyMissing(finding: AutomaticStartupMissing): FindingPromptCopy
   };
 }
 
-export function copyForeignHome(finding: AutomaticStartupForeignHome, invoker: string = 'happier'): readonly string[] {
+export function copyForeignHome(finding: AutomaticStartupForeignHome, invoker: string = 'kaiwu'): readonly string[] {
   // Informational only — no prompt. The bullet+title header is rendered
   // by the orchestrator via `formatFindingHeader()`; we just add the
   // per-entry path/home rows and the manual-cleanup guidance below it.
@@ -804,7 +804,7 @@ export function copyChannelSwitchRecommended(finding: ChannelSwitchRecommended):
 
 // ─── Manual-guidance copy for findings that print instructions instead of prompting ───
 
-export function copyNoActiveStackYet(finding: NoActiveStackYet, invoker: string = 'happier'): readonly string[] {
+export function copyNoActiveStackYet(finding: NoActiveStackYet, invoker: string = 'kaiwu'): readonly string[] {
   return [
     `You just installed the ${finding.releaseChannel} CLI but no daemon is running yet.`,
     '',
@@ -813,7 +813,7 @@ export function copyNoActiveStackYet(finding: NoActiveStackYet, invoker: string 
   ];
 }
 
-export function copyNoServersConfigured(invoker: string = 'happier'): readonly string[] {
+export function copyNoServersConfigured(invoker: string = 'kaiwu'): readonly string[] {
   return [
     'You need at least one server profile to connect to.',
     '',
@@ -834,7 +834,7 @@ export function copyNoServersConfigured(invoker: string = 'happier'): readonly s
  * The recovery is "configure this server" — list the canonical entry points
  * so the user can pick the right one for their setup.
  */
-export function copyServerProfileMissing(_finding: ServerProfileMissing, invoker: string = 'happier'): readonly string[] {
+export function copyServerProfileMissing(_finding: ServerProfileMissing, invoker: string = 'kaiwu'): readonly string[] {
   return [
     'Configure it before doctor repair can work for that server.',
     '',
@@ -845,28 +845,28 @@ export function copyServerProfileMissing(_finding: ServerProfileMissing, invoker
   ];
 }
 
-export function copyAuthMissingForProfile(finding: AuthMissingForProfile, invoker: string = 'happier'): readonly string[] {
+export function copyAuthMissingForProfile(finding: AuthMissingForProfile, invoker: string = 'kaiwu'): readonly string[] {
   return [
     'Sign in with:',
     `  ${authSignInCommand(invoker, finding.serverId)}`,
   ];
 }
 
-export function copyAuthExpiredForActiveProfile(_finding: AuthExpiredForActiveProfile, invoker: string = 'happier'): readonly string[] {
+export function copyAuthExpiredForActiveProfile(_finding: AuthExpiredForActiveProfile, invoker: string = 'kaiwu'): readonly string[] {
   return [
     'Sign in again with:',
     `  ${authSignInCommand(invoker)}`,
   ];
 }
 
-export function copyMachineNotRegisteredForProfile(_finding: MachineNotRegisteredForProfile, invoker: string = 'happier'): readonly string[] {
+export function copyMachineNotRegisteredForProfile(_finding: MachineNotRegisteredForProfile, invoker: string = 'kaiwu'): readonly string[] {
   return [
     'Starting the daemon will register it:',
     `  ${invoker} daemon start`,
   ];
 }
 
-export function copyDevOnHostedCloudInformational(invoker: string = 'happier'): readonly string[] {
+export function copyDevOnHostedCloudInformational(invoker: string = 'kaiwu'): readonly string[] {
   return [
     'Dev-channel features work best with a local dev relay; hosted cloud runs stable only.',
     '',
@@ -912,7 +912,7 @@ export function copyOrphanDaemonOnOtherChannel(finding: OrphanDaemonOnOtherChann
 
 export function copyLocalRelayOffChannelLeftovers(
   finding: LocalRelayOffChannelLeftovers,
-  invoker: string = 'happier',
+  invoker: string = 'kaiwu',
 ): readonly string[] {
   // Compact informational. One line per leftover relay + one line for the
   // remove-command hint. All muted \u2014 these are FYI, not action items. The
@@ -931,7 +931,7 @@ export function copyLocalRelayOffChannelLeftovers(
 
 export function copyBackgroundServiceCrashLooping(
   finding: BackgroundServiceCrashLooping,
-  invoker: string = 'happier',
+  invoker: string = 'kaiwu',
 ): FindingPromptCopy {
   const { runs, lastExitCode, lastErrorLine, suspectedCause, conflictingDaemon } = finding;
   const body: string[] = [

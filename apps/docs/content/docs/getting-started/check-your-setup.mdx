@@ -1,68 +1,47 @@
 ---
-title: Check your setup
-description: Find out what Kaiwu thinks is wrong with this machine, and let it fix what it can.
+title: 检查配置
+description: 查看 Kaiwu 认为此设备存在哪些问题，并让它修复能修复的部分。
 ---
-
-When a machine will not come online, or a session refuses to start, or the app
-shows a computer you are sure is running, there is one command that tells you
-why:
+当设备无法上线、会话拒绝启动，或是 App 显示某台电脑离线但你确信它正在运行时，只需一条命令即可排查原因：
 
 ```bash
 happier status
 ```
 
-It reads everything and changes nothing. You can run it whenever you want, on
-any machine, without wondering whether it will restart something mid-session.
+该命令只读取状态，不做任何修改。你可以在任何设备上随时运行，完全无需担心它会在会话进行中重启任何组件。
 
-## What it looks at
+## 检查范围
 
-`happier status` checks the whole chain between you and a working session:
+`happier status` 会对你与正常会话之间的整条链路进行全面排查：
 
-- **Your account** — whether this machine is signed in, and whether the sign-in
-  has expired.
-- **Relays** — which relay profiles are configured, which is active, and whether
-  the machine is registered against it. A machine can be signed in and still not
-  registered, which is the usual reason a computer never appears in the app.
-- **Automatic startup** — whether the background service is installed, running,
-  pointing at the right channel, and not duplicated.
-- **The CLI itself** — which channel it is on (`happier`, `hprev`, `hdev`),
-  whether an update is waiting, and whether a running daemon was built from a
-  different version than the CLI you just invoked.
+- **账户状态**——当前设备是否已登录，以及登录凭证是否已过期。
+- **中继**——配置了哪些中继配置项、当前处于激活状态的是哪一个，以及设备是否已在中继上注册。设备可能处于已登录状态却未完成注册，这也是电脑始终不显示在 App 中的最常见原因。
+- **自动启动**——后台服务是否已安装且处于运行状态、是否指向正确的通道，以及是否存在重复实例。
+- **CLI 本身**——当前处于哪个通道（`happier`、`hprev`、`hdev`）、是否有待安装的更新，以及正在运行的守护进程版本是否与刚刚调用的 CLI 版本不一致。
 
-It reports 27 distinct problems in those areas. Most are things you would never
-guess at: a background service left over from a channel you switched away from,
-two startup entries fighting over the same relay, a daemon still running from an
-older CLI, a local relay whose version has drifted from the client's.
+它能识别上述领域的 27 类具体问题，其中大多数都极难人工排查：切换通道后残留的后台服务、两个开机启动项争抢同一个中继、旧版 CLI 遗留的守护进程仍在运行、本地中继版本与客户端发生偏离等。
 
-## Fixing what it finds
+## 修复检测到的问题
 
-`happier status` never changes anything — it refuses `--yes` outright and tells
-you to use the repair command instead. When you are ready:
+`happier status` 绝不会擅自修改任何内容——它会直接拒绝 `--yes`，并提示你改用修复命令。准备就绪后，直接运行：
 
 ```bash
 happier doctor repair
 ```
 
-This walks the same findings and offers to fix each one, asking before it acts.
-Add `--yes` to accept every repair it can make without prompting, which is what
-you want in a script or over SSH:
+该命令会依序检查上述问题并逐项提供修复方案，在执行操作前会征求你的确认。添加 `--yes` 参数可以无需提示直接应用所有支持的修复操作，非常适合在脚本或 SSH 场景下使用：
 
 ```bash
 happier doctor repair --yes
 ```
 
-Add `--report-only` to see the plan without applying it. That is exactly what
-`happier status` runs underneath, so the two are interchangeable when you just
-want to look.
+添加 `--report-only` 参数可以只预览修复方案而不实际应用。这正是 `happier status` 底层执行的操作，因此若只是排查查看，两者完全等价。
 
-Some findings cannot be repaired automatically, and the report says so rather
-than pretending. Expired authentication is the common one: Kaiwu can tell you
-the sign-in has lapsed, but only you can complete a login.
+部分问题无法自动修复，诊断报告会如实说明，不会掩盖情况。最常见的就是认证过期：Kaiwu 可以告知你登录已失效，但重新登录必须由你亲自完成。
 
-## The background service
+## 后台服务
 
-Most of what `status` reports is about automatic startup, because that is what
-keeps a machine reachable when no terminal is open. You can drive it directly:
+`status` 报告的大部分内容都与自动启动相关，因为正是该机制保证了设备在没有终端打开时依然保持可达状态。你可以直接控制它：
 
 ```bash
 happier service status      # the default if you pass nothing
@@ -77,40 +56,36 @@ happier service paths
 happier service repair
 ```
 
-`happier service logs` is worth knowing before you need it — when a machine
-keeps dropping offline, the service log usually says why, and it is easier to
-read than reproducing the failure by hand.
+建议尽早了解 `happier service logs`：当设备频繁掉线时，服务日志通常会记录具体原因，直接查阅日志远比手动复现故障更高效。
 
 <Callout type="info">
-  `happier daemon …` still works and does something related but different:
-  `service` manages the operating system's autostart registration, `daemon`
-  manages the process that is running right now. If a machine is offline after a
-  reboot, `service` is the one you want.
+  `happier daemon …` 依然可用，但二者分工不同：
+  `service` 用于管理操作系统的开机自启注册项，而 `daemon`
+  用于管理当前正在运行的进程。如果设备在重启后处于离线状态，
+  `service` 才是你需要使用的命令。
 </Callout>
 
-## Machine-readable output
+## 机器可读输出
 
-Both commands can emit JSON, which is what you want in CI or a health check:
+这两条命令均支持输出 JSON 格式，方便在 CI 或健康检查流程中集成：
 
 ```bash
 happier doctor --json
 happier doctor repair --report-only --json
 ```
 
-## Clearing stuck processes
+## 清理残留进程
 
-Rarely, a crashed run leaves processes behind that hold a port and stop the
-daemon from starting:
+在极少数情况下，异常崩溃可能会残留进程，占用端口并导致守护进程无法启动：
 
 ```bash
 happier doctor clean
 ```
 
-It reports how many it stopped. Reach for it when `status` reports a port in use
-or a conflicting manual daemon and a plain repair has not settled it.
+该命令会显示已终止的进程数量。当 `status` 报告端口被占用或存在冲突的手动守护进程，且普通修复未能解决时，即可使用此命令。
 
-## Related
+## 相关文档
 
-- [CLI](/apps/cli) — the full command surface.
-- [Daemon](/apps/daemon) — what the background process actually does.
-- [Onboarding](/getting-started/onboarding) — first-time setup.
+- [CLI](/apps/cli) — 完整命令行指令集。
+- [守护进程](/apps/daemon) — 后台进程的具体工作机制。
+- [快速上手](/getting-started/onboarding) — 首次配置指南。

@@ -1,63 +1,62 @@
 ---
-title: Desktop app (Tauri)
-description: Optional native desktop wrapper around the web UI.
+title: 桌面应用 (Tauri)
+description: 基于 Web UI 的可选原生桌面封装。
 ---
+Tauri 应用是对 Web 界面的原生桌面封装。适合以下使用场景：
 
-The Tauri app is a native desktop wrapper around the web UI. It’s useful when you want:
+- 需要原生桌面窗口（而非浏览器标签页）
+- 存储与其他桌面安装相互隔离（避免复用旧的服务端 URL 或认证凭据）
 
-- a native desktop window (instead of a browser tab)
-- separate storage from other desktop installs (so it doesn’t reuse old server URLs/auth)
+## 关键行为
 
-## Important behavior
+- Tauri 应用必须内嵌明确的 API 基础 URL。
+- 默认情况下，`hstack` 会内嵌以下内容：
+  - 若在当前设备上检测到 **Tailscale Serve**，则内嵌 `https://*.ts.net` URL（这样构建出的应用可直接分发给同一 tailnet 上的其他设备使用）；
+  - 否则内嵌本地回环 URL `http://127.0.0.1:⟦K4⟧`（仅限当前设备访问）。
+- 如需更改内嵌的 URL，请重新构建 Tauri 应用。
 
-- The Tauri app must embed an explicit API base URL.
-- By default, `hstack` will embed:
-  - a **Tailscale Serve** `https://*.ts.net` URL if it detects one on this machine (so the built app can be copied to other devices on the same tailnet), otherwise
-  - the local loopback URL `http://127.0.0.1:<port>` (same-machine only).
-- If you change what URL you want embedded, rebuild the Tauri app.
+## 前置条件
 
-## Prereqs
+- 已安装 Rust 工具链
+- 已安装适用于当前操作系统的 Tauri 构建依赖
 
-- Rust toolchain installed
-- Tauri build dependencies installed for your OS
+## 构建应用
 
-## Build it
-
-Build (one-off):
+单次构建：
 
 ```bash
 hstack build --tauri
 ```
 
-Or during bootstrap:
+或在引导初始化时构建：
 
 ```bash
 hstack bootstrap --tauri
 ```
 
-## Run it
+## 运行应用
 
-1) Start the local server (or install the service):
+1) 启动本地服务端（或安装系统服务）：
 
 ```bash
 hstack start
 ```
 
-2) Launch the built app bundle (location is under `~/.happier/stacks/main/tauri-target/`).
+2) 启动构建出的应用包（位于 `~/.happier/stacks/main/tauri-target/` 目录下）。
 
-## “Portable” Tauri builds (send to another computer)
+## “便携式”Tauri 构建产物（分发至其他电脑）
 
-If you build the Tauri app while Tailscale Serve is enabled on the server machine, the app will embed the `https://*.ts.net` URL and can be copied to another computer.
+如果在服务端设备启用 Tailscale Serve 期间构建 Tauri 应用，该应用将内嵌 `https://*.ts.net` URL，可直接拷贝至其他电脑运行。
 
-Requirements:
+前置要求：
 
-- The server machine is running `hstack start` and Tailscale Serve is enabled
-- The other computer is on the same tailnet and can access the `https://*.ts.net` URL
+- 服务端设备正在运行 `hstack start` 且已启用 Tailscale Serve
+- 目标电脑处于同一 tailnet 内，且能够访问 `https://*.ts.net` URL
 
-## Configuration (high-signal)
+## 关键配置项
 
-- `HAPPIER_STACK_TAURI_IDENTIFIER` (default `com.happier.stack`)
-- `HAPPIER_STACK_TAURI_PRODUCT_NAME` (default `Kaiwu`)
-- `HAPPIER_STACK_TAURI_DEBUG=0` (build release-like without devtools)
-- `HAPPIER_STACK_TAURI_SERVER_URL` (force the embedded API URL)
-- `HAPPIER_STACK_TAURI_PREFER_TAILSCALE=0` (disable Tailscale detection; always embed `127.0.0.1`)
+- `HAPPIER_STACK_TAURI_IDENTIFIER`（默认 `com.happier.stack`）
+- `HAPPIER_STACK_TAURI_PRODUCT_NAME`（默认 `Kaiwu`）
+- `HAPPIER_STACK_TAURI_DEBUG=0`（以类似 Release 的模式构建，不包含 DevTools）
+- `HAPPIER_STACK_TAURI_SERVER_URL`（强制指定内嵌的 API URL）
+- `HAPPIER_STACK_TAURI_PREFER_TAILSCALE=0`（禁用 Tailscale 检测；始终内嵌 `127.0.0.1`）

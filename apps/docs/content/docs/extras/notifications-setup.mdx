@@ -1,73 +1,72 @@
 ---
-title: Notifications
-description: Push notifications (Expo + FCM/APNs) for CLI events and self-hosting.
+title: 通知
+description: CLI 事件与自托管的推送通知 (Expo + FCM/APNs)。
 ---
+Kaiwu 采用 **Expo Push Notifications** 作为推送机制。当前架构的设计如下：
 
-Kaiwu uses **Expo Push Notifications** as a delivery mechanism. In the current architecture:
+- **移动端 App** 注册 **Expo 推送令牌（push token）** 并保存至服务端。
+- **服务端**按账户存储推送令牌（*不*负责发送推送载荷）。
+- **CLI** 从服务端获取用户保存的令牌，并通过 Expo 的推送 API 发送通知（例如：*“已就绪！”*或*权限请求*）。
 
-- The **mobile app** registers an **Expo push token** and saves it to the server.
-- The **server** stores push tokens per account (it does *not* send push payloads).
-- The **CLI** fetches the user’s saved tokens from the server and sends notifications via Expo’s push API (for example: *“It’s ready!”* or *Permission Request*).
+## 通知支持的场景
 
-## What notifications can do
+当会话需要处理时，Kaiwu 会向你发送通知，涵盖以下情况：
 
-Kaiwu can notify you when a session needs attention, including:
+- **就绪通知**：当前轮次执行完毕，Agent 正在等待后续操作
+- **权限请求**：工具或操作需要人工审批
+- **用户操作请求**：Agent 需要结构化的人工响应
 
-- **Ready** notifications when a turn finishes and the agent is waiting
-- **Permission requests** when a tool/action needs approval
-- **User-action requests** when the agent needs a structured human response
+在移动端 App 上，权限和操作请求通知还会提供**操作按钮**：
 
-On the mobile app, permission and action-request notifications can also expose **action buttons**:
+- **权限请求**：`Allow` / `Deny`
+- **用户操作请求**：`Answer`
 
-- **Permission requests**: `Allow` / `Deny`
-- **User-action requests**: `Answer`
+当前设计的行为偏向稳妥克制：
 
-Current behavior is intentionally conservative:
+- 点击通知会打开目标会话
+- 点击通知中的操作按钮同样会打开 App
+- 仅当通知对应的服务端处于活跃状态，或已保存在当前设备上时，Kaiwu 才会自动发送权限响应
+- 若该服务端尚未保存，Kaiwu 会引导你走最安全的添加/切换流程，而不会在错误的服务端上静默批准操作
 
-- tapping the notification opens the targeted session
-- pressing a notification action button also opens the app
-- Kaiwu only auto-sends a permission response when the notification’s server is already active or already saved on the device
-- if the server is not saved yet, Kaiwu routes you into the safest add/switch flow instead of silently approving on the wrong server
+有关具体的路由行为，请参阅[通知路由](/extras/notifications-routing)。
 
-For the exact routing behavior, see [Notification routing](/extras/notifications-routing).
+## 更丰富的通知详情
 
-## Richer notification details
+与常规的“应用需要权限”这类笼统提示不同，权限与操作请求通知包含了更丰富的上下文信息。
 
-Permission and action-request notifications include more context than a generic “the app needs permission” alert.
+在当前版本中，Kaiwu 会尽可能展示：
 
-In current builds, Kaiwu tries to show:
+- 请求调用的**工具或请求类型**
+- 在兼顾实用与安全的前提下，展示简短的**详情提示**
 
-- the **tool or request type** being asked for
-- a short **detail hint** when it is useful and safe to show
+详情提示的示例包括：
 
-Examples of detail hints include:
+- 简短的文件提示，如 `src/file.ts`
+- 命令提示，如 `Command: npm`
+- 紧凑的问题计数，如 `1 question` 或 `3 questions`
 
-- a short file hint such as `src/file.ts`
-- a command hint such as `Command: npm`
-- a compact question count such as `1 question` or `3 questions`
+Kaiwu **不会**将工具的完整原始输入倾倒在推送通知中。这样设计既能提供足够的信息供你快速决策，又避免在锁屏界面泄露不必要的命令参数或请求载荷。
 
-Kaiwu does **not** try to dump full raw tool input into the push notification. The goal is to give you enough context to decide quickly without exposing unnecessary command arguments or request payloads on the lock screen.
+平台适配细节：
 
-Platform details:
+- **iOS** 可将工具或请求名称显示为通知副标题
+- **Android** 为权限请求和操作请求分配了独立通知渠道，便于用户在系统层级分别调整其通知行为
 
-- **iOS** can show the tool/request name as a notification subtitle
-- **Android** uses dedicated channels for permission requests and action requests so users can tune them separately at the OS level
+## Webhook 通知
 
-## Webhook notifications
+Expo 推送并非唯一的触达方式。前往**设置 → 通知 → Webhook 通知**，即可将同样的远程活动事件发送至自有的 HTTP 端点（如机器人、内部仪表盘、家庭自动化 Webhook 等）。
 
-Expo push is not the only delivery channel. You can send the same remote activity events to your own HTTP endpoint — a bot, an internal dashboard, a home-automation hook — from **Settings → Notifications → Webhook notifications**.
+填写 URL 即可添加通知渠道。每个渠道均具备独立的配置开关：
 
-Add a channel by URL. Each one carries its own switches:
+- **主题**——`ready`、`permissionRequest` 与 `userActionRequest`，创建渠道时默认全开。可关闭不需要接收的事件。
+- **就绪事件中的消息预览**——默认关闭。如果不希望端点接收消息正文，请保持关闭。
+- **签名密钥**——可选，后文会详细说明。
 
-- **Topics** — `ready`, `permissionRequest` and `userActionRequest`, all on when a channel is created. Turn off what you do not want delivered.
-- **Message preview in ready events** — off by default. Leave it off if the endpoint should not receive message text.
-- **Signing secret** — optional, and covered below.
+添加渠道后即刻生效；无需删除渠道，随时可以直接停用。
 
-A channel is enabled as soon as you add it, and you can disable one without deleting it.
+### Kaiwu 发送的数据内容
 
-### What Kaiwu sends
-
-A `POST` with `content-type: application/json` and a body shaped like this:
+请求为 `POST`，附带 `content-type: application/json`，请求体结构如下：
 
 ```json
 {
@@ -86,17 +85,17 @@ A `POST` with `content-type: application/json` and a body shaped like this:
 }
 ```
 
-`request` is `null` for `ready` events and populated for permission and user-action events, where `kind` is `permission` or `user_action`. Any non-2xx response is treated as a delivery failure.
+对于 `ready` 事件，`request` 的值为 `null`；而在权限和用户操作事件中，该字段包含具体内容，其中 `kind` 为 `permission` 或 `user_action`。凡是非 2xx 响应均视为推送失败。
 
-### Verifying the signature
+### 验证签名
 
-If you set a signing secret on the channel, Kaiwu signs every delivery:
+若为渠道配置了签名密钥，Kaiwu 会对每次推送签名：
 
 ```
 x-happier-signature-256: sha256=<hex>
 ```
 
-The value is an HMAC-SHA256 of the **raw request body**, keyed with your secret. Compute it over the bytes you received, before parsing the JSON — re-serialising the payload will not reproduce the digest.
+该签名是以密钥对**原始请求体**计算得出的 HMAC-SHA256 哈希值。请在解析 JSON 之前，直接基于收到的原始字节流计算签名；重新序列化载荷无法还原出一致的摘要。
 
 ```js
 import { createHmac, timingSafeEqual } from 'node:crypto';
@@ -109,120 +108,120 @@ function isFromHappier(rawBody, header, secret) {
 }
 ```
 
-Without a secret the header is simply absent, and your endpoint has no way to tell a genuine delivery from anyone who has guessed the URL. Set one on any endpoint that does something consequential.
+若未设置密钥，请求中将不包含该 Header，此时你的端点无法辨别请求是真实推送还是撞库猜测。只要端点涉及关键业务逻辑，务必配置签名密钥。
 
-## Notification preferences
+## 通知偏好设置
 
-The app also exposes notification preferences so users can tune how noisy Kaiwu should be.
+App 提供了通知偏好设置，方便用户按需调整 Kaiwu 的打扰频率。
 
-Current settings include:
+目前的设置项包括：
 
-- **Push notifications** on/off for the account
-- per-type toggles for **Ready**, **Permission requests**, and **User-action requests**
-- **In-app notifications** behavior while the app is open: `Full`, `Silent`, or `Off`
+- 账户维度的**推送通知**总开关
+- 针对**就绪通知**、**权限请求**以及**用户操作请求**的独立开关
+- App 打开时的**应用内通知**行为：`Full`、`Silent` 或 `Off`
 
-When you are already looking at a given session, Kaiwu suppresses notifications for that same session to avoid duplicate noise while you are actively reading it.
+当你正停留在某个会话页面时，Kaiwu 会静默该会话的通知，避免在阅读时造成重复打扰。
 
-## What you need to configure
+## 配置指南
 
-### 1) Server (any deployment)
+### 1) 服务端（任意部署方式）
 
-Your server must expose the push token routes:
+服务端必须暴露以下推送令牌路由：
 
 - `POST /v1/push-tokens`
 - `GET /v1/push-tokens`
 - `DELETE /v1/push-tokens/:token`
 
-If you’re self-hosting the server, see: `Deployment` → `Docker` / `Environment variables`.
+若自托管服务端，请参阅：`Deployment` → `Docker` / `Environment variables`。
 
-### 2) Mobile app (iOS + Android)
+### 2) 移动端 App（iOS 与 Android）
 
-For self-hosting, the recommended flow is:
+自托管模式下的推荐流程如下：
 
-1. Self-host the **server**, then
-2. Use the Kaiwu app and set its **Server URL** to your instance.
+1. 先自托管**服务端**；
+2. 使用 Kaiwu App，并将 **Server URL** 指向你的服务实例。
 
-In this setup, you do **not** need to configure APNs/FCM yourself. The app already includes the required push notification credentials; your server just stores the user’s Expo push tokens.
+在此架构下，你**无需**自行配置 APNs/FCM。App 已内置所需的推送通知凭据，服务端只需存储用户的 Expo 推送令牌。
 
-### 3) CLI (sender)
+### 3) CLI（发送方）
 
-The CLI sends notifications by:
+CLI 发送通知的机制为：
 
-1. Calling your server to fetch saved Expo push tokens for the authenticated user.
-2. Sending push payloads via Expo’s push API to those tokens.
+1. 调用服务端接口，获取已认证用户保存的 Expo 推送令牌。
+2. 通过 Expo 推送 API，向这些令牌发送推送载荷。
 
-If a user runs their **own server + CLI**, they must:
+若用户**自行运行服务端与 CLI**，必须确保：
 
-- Point both app and CLI at the same server URL.
-- Ensure the server stores push tokens (routes above).
+- App 与 CLI 指向相同的服务端 URL。
+- 服务端支持存储推送令牌（即上述路由生效）。
 
-## Self-hosting checklists
+## 自托管检查清单
 
-### Recommended (server-only)
+### 推荐方案（仅自托管服务端）
 
-1. Deploy the server.
-2. In the Kaiwu app, set **Server URL** to your server.
-3. Run the CLI against that same server URL.
+1. 部署服务端。
+2. 在 Kaiwu App 中，将 **Server URL** 配置为你的服务端地址。
+3. 运行 CLI，同样指向该服务端 URL。
 
-Once the app has registered a push token to your server, the CLI can send notifications (including permission notifications) via Expo.
+一旦 App 向服务端注册了推送令牌，CLI 即可通过 Expo 发送通知（包括权限通知）。
 
-## Multi-server behavior
+## 多服务端支持机制
 
-Notifications are also **multi-server-aware**.
+通知系统具备**多服务端感知能力**。
 
-When a notification targets a different server than the one currently active in the app, Kaiwu tries to route you correctly:
+当收到通知且其目标服务端与 App 当前活跃的服务端不一致时，Kaiwu 会尝试执行正确的路由：
 
-- if that server is already saved, Kaiwu switches to it first
-- if it is the first server on the device, Kaiwu can bootstrap that server so the deep link still works
-- if the app already has saved servers and the incoming server is not one of them, Kaiwu opens **Server settings** with the URL prefilled so you can review and add it explicitly
+- 若目标服务端此前已保存，Kaiwu 会先自动切换至该服务端
+- 若设备上尚未配置任何服务端，Kaiwu 可直接初始化该服务端配置，确保深度链接正常跳转
+- 若 App 中已有保存的服务端，但来访的服务端并不在其中，Kaiwu 会打开**服务端设置**并自动填入 URL，由你核对后显式添加
 
-After you add and use that server, Kaiwu continues to the original session/request automatically.
+添加并切换到该服务端后，Kaiwu 会自动继续跳转至最初的会话或请求。
 
-See [Multi-server](/accounts/multi-server) and [Notification routing](/extras/notifications-routing) for the full user-facing flow.
+关于面向用户的完整流程，请参阅[多服务端](/accounts/multi-server)与[通知路由](/extras/notifications-routing)。
 
-## API key restrictions (Android / Firebase)
+## API Key 限制（Android / Firebase）
 
-For Firebase Android configs, the API key embedded in `google-services.json` is **client-side**. Security comes from **restrictions**, not secrecy:
+针对 Firebase Android 配置，嵌入在 `google-services.json` 中的 API Key 属于**客户端凭据**。其安全性依赖于**访问限制**，而非保密性：
 
-### Application restriction (recommended)
+### 应用限制（推荐）
 
-In Google Cloud Console, restrict the API key to:
+在 Google Cloud Console 中，将该 API Key 限制为：
 
-- **Android apps**
-- Your app’s **package name(s)**
-- Your signing certificate **SHA-1** fingerprint(s)
+- **Android 应用**
+- 你的应用**包名**
+- 签名证书的 **SHA-1** 指纹
 
-#### Finding the SHA-1 fingerprints you should add
+#### 如何获取所需添加的 SHA-1 指纹
 
-You typically need **more than one** SHA-1 during development and release:
+在开发和发布流程中，通常需要**多个** SHA-1 指纹：
 
-- **Debug / dev builds** (your dev keystore)
-- **Release builds** (your release/upload keystore)
-- **Play Store installs** (the **Play App Signing** key, once enabled)
+- **Debug / 开发版构建**（本地开发 keystore）
+- **Release 正式版构建**（发布/上传 keystore）
+- **Play 商店安装版**（启用后的 **Play 应用签名**密钥）
 
-Common places to find them:
+常见的获取途径：
 
-- **EAS**: view Android credentials and copy the keystore SHA-1 (upload/release key).
-- **Play Console** (after enabling Play App Signing): *App integrity* → *App signing certificate* → SHA-1.
-- **Firebase Console**: *Project settings* → *Your apps* → *Android app* → add SHA-1 fingerprints (so Firebase recognizes the signing cert).
+- **EAS**：查看 Android 凭据并复制 keystore 的 SHA-1（上传/发布密钥）。
+- **Play Console**（启用 Play 应用签名后）：*应用完整性* → *应用签名密钥证书* → SHA-1。
+- **Firebase Console**：*项目设置* → *你的应用* → *Android 应用* → 添加 SHA-1 指纹（以便 Firebase 识别签名证书）。
 
-Note: the “fingerprint” shown in EAS build lists is **not** the same thing as the Android signing certificate SHA-1.
+注意：EAS 构建列表中显示的“指纹”与 Android 签名证书的 SHA-1 **并不是**一回事。
 
-### API restriction (recommended minimal allowlist for Cloud Messaging)
+### API 限制（Cloud Messaging 推荐最小白名单）
 
-If you use Firebase **Cloud Messaging** only, Google’s own allowlist guidance for Firebase keys is:
+如果仅使用 Firebase **Cloud Messaging**，Google 官方建议将 Firebase Key 的 API 白名单限制为：
 
-- **Firebase Management API** (`firebase.googleapis.com`)
-- **Cloud Logging API** (`logging.googleapis.com`)
-- **Firebase Installations API** (`firebaseinstallations.googleapis.com`)
-- **FCM Registration API** (`fcmregistrations.googleapis.com`)
+- **Firebase Management API**（`firebase.googleapis.com`）
+- **Cloud Logging API**（`logging.googleapis.com`）
+- **Firebase Installations API**（`firebaseinstallations.googleapis.com`）
+- **FCM Registration API**（`fcmregistrations.googleapis.com`）
 
-If you enable additional Firebase products (Firestore/Storage/Auth/etc), expand the allowlist accordingly.
+若启用了其他 Firebase 产品（如 Firestore/Storage/Auth 等），请相应扩充白名单。
 
-## Development builds (optional)
+## 开发版构建（可选）
 
-By default, Kaiwu avoids registering push tokens in `__DEV__` to prevent accidental token churn during local dev.
+默认情况下，Kaiwu 不会在 `__DEV__` 中注册推送令牌，以防止本地开发期间频繁更替令牌。
 
-To enable push token registration in dev builds, set:
+如需在开发版构建中启用推送令牌注册，请配置：
 
 - `EXPO_PUBLIC_ENABLE_DEV_PUSH_TOKEN_REGISTRATION=1`

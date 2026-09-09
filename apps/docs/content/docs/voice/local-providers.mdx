@@ -1,453 +1,452 @@
 ---
-title: Local voice providers
-description: Configure Local voice in Kaiwu with device, self-hosted, Google, and local-neural STT/TTS providers.
+title: 本地语音提供商
+description: 在 Kaiwu 中配置本地语音，支持设备、自托管、Google 及本地神经网络 STT/TTS 提供商。
 ---
+**本地语音**是 Kaiwu 的可配置语音流水线。
 
-**Local voice** is Kaiwu’s configurable speech pipeline.
+你可以自由组合搭配以下功能：
 
-It lets you mix and match:
+- **语音转文字（STT）**
+- **文字转语音（TTS）**
+- **直通会话**或**语音智能体**对话流
 
-- **speech-to-text (STT)**
-- **text-to-speech (TTS)**
-- **direct-to-session** or **voice-agent** conversation flow
+前往**设置 → 语音 → 本地语音**即可进行配置。
 
-Open **Settings → Voice → Local voice** to configure it.
+## 本地语音支持的功能
 
-## What Local voice supports
+### STT 提供商
 
-### STT providers
+你可以选择以下任一语音转文字提供商：
 
-You can choose one of these speech-to-text providers:
+- **设备 STT**：使用设备系统自带的平台语音识别
+- **OpenAI 兼容 STT**：接入自定义的 `/v1/audio/transcriptions` 端点
+- **Google Gemini (audio)**：使用 Google Gemini 音频转录
+- **本地神经 STT**：在原生客户端上运行的端侧 Sherpa 流式 STT
 
-- **Device STT**: platform speech recognition on the device
-- **OpenAI-compatible STT**: your own `/v1/audio/transcriptions` endpoint
-- **Google Gemini (audio)**: Google Gemini audio transcription
-- **Local neural STT**: on-device Sherpa streaming STT on native builds
+### TTS 提供商
 
-### TTS providers
+你可以选择以下任一文字转语音提供商：
 
-You can choose one of these text-to-speech providers:
-
-- **Device TTS**: platform text-to-speech on the device
-- **OpenAI-compatible TTS**: your own `/v1/audio/speech` endpoint
+- **设备 TTS**：使用设备系统自带的平台文字转语音
+- **OpenAI 兼容 TTS**：接入自定义的 `/v1/audio/speech` 端点
 - **Google Cloud Text-to-Speech**
-- **Local neural TTS**: Kokoro on web and native
+- **本地神经 TTS**：支持 Web 端与原生客户端的 Kokoro
 
-You can mix providers freely. For example:
+你可以自由混用不同的提供商，例如：
 
-- device STT + device TTS
-- device STT + Kokoro TTS
-- OpenAI-compatible STT + Google Cloud TTS
+- 设备 STT + 设备 TTS
+- 设备 STT + Kokoro TTS
+- OpenAI 兼容 STT + Google Cloud TTS
 - Gemini STT + Kokoro TTS
 
-## Conversation modes
+## 对话模式
 
-Local voice supports two conversation modes.
+本地语音支持两种对话模式。
 
-### Direct to session
+### 直通会话
 
-In **Direct to session**, your speech is transcribed and sent directly into the active session.
+在**直通会话**模式下，语音转写后的文本会直接发送到当前活跃的会话中。
 
-Use this when you want:
+适用于以下需求：
 
-- dictation-like behavior
-- simple speech input into a session
-- fewer moving parts
+- 类似听写的输入体验
+- 会话内简单的语音输入
+- 追求简单直观、减少中间处理环节
 
-TTS can still stay enabled here, so Kaiwu can read replies back to you.
+在此模式下依然可以启用 TTS，由 Kaiwu 朗读回复内容。
 
-### Agent
+### 智能体
 
-In **Agent** mode, your speech first goes through a dedicated voice agent.
+在**智能体**模式下，语音输入会先交由专属的语音智能体处理。
 
-Use this when you want the voice layer to:
+当你希望语音交互层具备以下能力时，可以使用此模式：
 
-- ask follow-up questions
-- summarize before acting
-- use structured actions
-- avoid writing every utterance into the target session
+- 进行追问
+- 执行操作前先总结要点
+- 执行结构化操作
+- 避免将每一句话都写入目标会话
 
-This mode is useful when you want voice to feel like a colleague instead of a dictation layer.
+如果你希望语音交互像与同事沟通一样自然，而不仅仅充当听写工具，该模式会非常实用。
 
-## Voice agent backend
+## 语音智能体后端
 
-In local voice agent mode, **voice agent backend** controls which runtime actually runs the agent:
+在本地语音智能体模式下，**语音智能体后端**决定了实际运行智能体的运行时：
 
-- **Daemon voice agent**: uses Kaiwu’s daemon-backed voice agent runtime
-- **OpenAI-compatible voice agent**: calls your configured chat-completions endpoint directly
+- **守护进程语音智能体**：使用基于 Kaiwu 守护进程的语音智能体运行时
+- **OpenAI 兼容语音智能体**：直接调用配置的 chat-completions 端点
 
-Use the daemon backend when you want the tightest Kaiwu integration, including the working-directory and teleport behavior described below.
+若需要最紧密的 Kaiwu 集成体验（包括下文介绍的工作目录和瞬移行为），建议使用守护进程后端。
 
-## Machine targeting
+## 运行设备选择
 
-For daemon-backed local voice agent mode, you can choose where the voice agent should run:
+对于基于守护进程的本地语音智能体模式，你可以选择语音智能体的运行位置：
 
-- **Auto**: pick a stable machine automatically
-- **Fixed machine**: always use the machine you selected
+- **自动**：自动选择一台稳定的设备
+- **固定设备**：始终使用你指定的设备
 
-### What “Auto” means
+### “自动”模式的工作机制
 
-Auto does **not** mean “follow whichever machine became active most recently.”
+“自动”**并不**意味着“随最新活跃的设备随时切换”。
 
-The goal is stability:
+该模式的核心目标是稳定性：
 
-- Kaiwu resolves a machine automatically when it starts the voice agent
-- the running voice agent stays anchored there instead of roaming every time your active session changes
+- Kaiwu 在启动语音智能体时会自动解析并选定一台设备
+- 运行中的语音智能体会固定在该设备上，不会因活跃会话的切换而频繁漂移
 
-This avoids unnecessary stop/restart churn while you move around the app.
+这样可以避免在应用内切换时产生不必要的停止与重启开销。
 
-If you want predictable placement, choose a **fixed machine** instead.
+如果需要明确可预期的运行位置，请改用**固定设备**。
 
-## Voice home vs session project root
+## 语音主目录与会话项目根目录
 
-Daemon-backed local voice agent mode uses two kinds of working directories:
+基于守护进程的本地语音智能体模式支持两种工作目录：
 
-### Voice home
+### 语音主目录
 
-A stable non-project directory used for global/sidebar-started voice sessions.
+这是一个稳定的非项目目录，供全局或侧边栏发起的语音会话使用。
 
-Use this when you want the voice agent to have a neutral workspace instead of starting inside a project automatically.
+当你希望语音智能体拥有中立的工作区，而不是自动在某个项目内部启动时，可以使用此目录。
 
-### Session project root
+### 会话项目根目录
 
-When you start voice directly from a session, Kaiwu can start the voice agent in that session’s project root.
+直接从某个会话中启动语音时，Kaiwu 可以在该会话的项目根目录下启动语音智能体。
 
-Use this when you want the voice agent to behave more like a coding colleague inside the current project.
+当你希望语音智能体像当前项目中的编程同事一样协同工作时，可以使用此目录。
 
-## Stay in voice home
+## 停留在语音主目录
 
-If you enable **Stay in voice home**, the voice agent always stays in voice home.
+启用**停留在语音主目录**后，语音智能体将始终保持在语音主目录中。
 
-That means:
+这意味着：
 
-- session-started voice does not start in the session project root
-- teleporting into a session root is blocked
+- 从会话发起的语音不会在该会话的项目根目录下启动
+- 禁止瞬移到会话根目录
 
-Use this when you want a safer, more neutral default working directory.
+当你需要更安全、更中立的默认工作目录时，建议启用此选项。
 
-## Teleport to current session
+## 瞬移至当前会话
 
-For daemon-backed local voice agent sessions, the session voice surface can show a **teleport** action.
+对于基于守护进程的本地语音智能体会话，会话语音界面会提供**瞬移**操作。
 
-Teleport lets you move the running voice agent to the current session’s project root.
+瞬移功能允许你将正在运行的语音智能体迁移到当前会话的项目根目录。
 
-Important rules:
+重要规则：
 
-- teleport is only available for the **daemon** backend
-- it is hidden/blocked when **Allow teleport** is off
-- it is hidden/blocked when **Stay in voice home** is on
-- it fails closed when the runtime is not eligible
+- 瞬移仅支持**守护进程**后端
+- 关闭**允许瞬移**时，该操作将被隐藏或阻止
+- 开启**停留在语音主目录**时，该操作将被隐藏或阻止
+- 运行时不满足条件时，将默认失败并阻止操作
 
-This is useful when you started globally from voice home and later want the agent to inspect the current project more deeply.
+当你最初从语音主目录全局启动，后续又希望智能体深入探查当前项目时，这个功能非常实用。
 
-## Warm roots
+## 根目录预热
 
-The local voice agent can either keep a single working-root runtime or keep multiple roots warm:
+本地语音智能体既可以只维护单个工作根目录运行时，也可以保持多个根目录处于预热状态：
 
-- **Single**: keep one root active
-- **Keep warm**: retain several recent roots for faster return/resume
+- **单一根目录**：仅保持一个根目录处于活跃状态
+- **保持预热**：保留最近使用过的多个根目录，以便快速切回或恢复
 
-When using **Keep warm**, you can choose the maximum number of warm roots to retain.
+使用**保持预热**时，你可以设置最多保留的预热根目录数量。
 
-Use **Single** for the simplest behavior. Use **Keep warm** when you regularly bounce between a small number of projects and want faster reuse.
+追求极简行为时建议选择**单一根目录**；若经常在少数几个项目之间往返切换，且需要更快的复用速度，建议选择**保持预热**。
 
-## Persistence and resumability
+## 持久化与恢复能力
 
-Voice agent mode separates two related choices:
+语音智能体模式将两项相关配置解耦分开：
 
-### Transcript persistence
+### 会话记录持久化
 
-- **Ephemeral**: voice agent transcript state is temporary
-- **Persistent**: keep voice agent conversation state across app reloads / restarts
+- **临时**：语音智能体的会话记录状态为临时保存
+- **持久化**：在应用重新加载或重启后，依然保留语音智能体的对话状态
 
-### Resumability mode
+### 恢复模式
 
-When persistence is enabled, you can choose how the agent resumes:
+启用持久化后，你可以选择智能体的恢复方式：
 
-- **Replay**: rebuild context from saved transcript/replay inputs
-- **Provider resume**: use provider-native resume when supported
+- **重放**：根据保存的会话记录或重放输入重建上下文
+- **提供商原生恢复**：在支持的情况下，使用提供商原生的恢复机制
 
-Provider resume is capability-driven. When it is not available for the current backend/agent combination, Kaiwu disables it instead of pretending it will work.
+提供商原生恢复取决于具体能力支持。若当前后端与智能体的组合不支持该特性，Kaiwu 会将其禁用，而不是假装可以正常工作。
 
-You can also enable **fallback to replay** so provider-resume setups still recover when native resume is unavailable in practice.
+你还可以开启**回退到重放**，这样当提供商原生恢复在实际场景中不可用时，系统仍可通过重放机制恢复状态。
 
-## Agent source and model source
+## 智能体来源与模型来源
 
-Local voice agent mode also separates:
+本地语音智能体模式还将以下两项设置解耦：
 
-### Agent source
+### 智能体来源
 
-- **Follow session**: use the session’s agent/backend context
-- **Fixed agent**: choose a specific voice agent backend/provider
+- **跟随会话**：复用当前会话的智能体与后端上下文
+- **固定智能体**：指定特定的语音智能体后端或提供商
 
-### Model source
+### 模型来源
 
-For chat and commit behavior, model selection can come from:
+针对对话和提交行为，模型选择可以来自：
 
-- the session
-- the chat model
-- a custom model selection
+- 当前会话
+- 对话模型
+- 自定义选定的模型
 
-When a backend exposes a dynamic model list, Kaiwu uses that live list in the dropdown instead of forcing manual text entry.
+当后端支持动态模型列表时，Kaiwu 会在下拉菜单中直接展示该实时列表，无需手动输入文本。
 
-## Shared Local voice settings
+## 本地语音通用设置
 
-### Preferred STT and TTS providers
+### 首选 STT 与 TTS 提供商
 
-Use the **STT provider** and **TTS provider** dropdowns to choose the speech backends for the current Local voice configuration.
+通过 **STT 提供商**和 **TTS 提供商**下拉菜单，为当前的本地语音配置指定语音后端。
 
-### Test TTS
+### 测试 TTS
 
-Use **Test TTS** to verify the currently selected TTS provider end-to-end.
+点击**测试 TTS**可以端到端验证当前选中的 TTS 提供商是否正常工作。
 
-This is the main output test for:
+该项主要用于测试以下提供商的音频输出：
 
-- device TTS
-- OpenAI-compatible TTS
+- 设备 TTS
+- OpenAI 兼容 TTS
 - Google Cloud TTS
-- Kokoro local neural TTS
+- Kokoro 本地神经 TTS
 
-### Auto-speak replies
+### 自动朗读回复
 
-If enabled, Kaiwu speaks replies automatically after a turn completes.
+启用后，Kaiwu 会在一轮对话完成时自动朗读回复内容。
 
-### Barge-in
+### 插话打断（Barge-in）
 
-If enabled, starting a new turn can interrupt current speech playback so you do not need to wait for the previous spoken reply to finish.
+启用后，开启新一轮发言可直接打断当前正在播放的语音，无需等待上一条语音回复播放完毕。
 
-### Network timeout
+### 网络超时
 
-Use **Network timeout** to control how long Kaiwu waits for STT or TTS network operations before failing.
+通过**网络超时**设置 Kaiwu 在判定失败前等待 STT 或 TTS 网络操作的最长时间。
 
-This matters most when you use:
+在以下场景中该配置尤为关键：
 
-- self-hosted OpenAI-compatible endpoints
+- 自托管的 OpenAI 兼容端点
 - Google Gemini STT
 - Google Cloud TTS
 
-## Device STT and Device TTS
+## 设备 STT 与设备 TTS
 
-Use device providers when you want the simplest local setup with no extra servers.
+如果希望配置尽可能简单，且无需额外部署服务器，推荐使用设备自带的提供商。
 
-### Device STT
+### 设备 STT
 
-Device STT uses built-in platform speech recognition where available.
+设备 STT 会在支持的平台上直接使用内置的系统语音识别。
 
-When **Device STT** is selected, Kaiwu can also expose **hands-free** controls such as:
+选中**设备 STT** 时，Kaiwu 还可提供**免提**控制选项，例如：
 
-- **silence timeout**
-- **minimum speech duration**
+- **静音超时**
+- **最小语音时长**
 
-These settings control when a spoken turn should be considered finished.
+这些设置项决定了何时判定一轮语音说话已经结束。
 
-### Device TTS
+### 设备 TTS
 
-Device TTS uses the operating system’s speech synthesizer.
+设备 TTS 使用操作系统自带的语音合成引擎。
 
-It is the easiest option, but audio quality and available voices depend on the platform.
+这是使用成本最低的方案，但音频质量和可选音色取决于具体的系统平台。
 
-## OpenAI-compatible STT and TTS
+## OpenAI 兼容 STT 与 TTS
 
-Use these providers when you already run your own OpenAI-style speech endpoints.
+如果你已经部署了 OpenAI 风格的语音端点服务，可以使用这些提供商。
 
 ### STT
 
-OpenAI-compatible STT expects:
+OpenAI 兼容 STT 要求满足以下格式：
 
 - `POST /v1/audio/transcriptions`
 
-You can configure:
+支持配置的项目包括：
 
-- base URL
-- API key
-- model
+- Base URL
+- API 密钥
+- 模型
 
 ### TTS
 
-OpenAI-compatible TTS expects:
+OpenAI 兼容 TTS 要求满足以下格式：
 
 - `POST /v1/audio/speech`
 
-You can configure:
+支持配置的项目包括：
 
-- base URL
-- API key
-- model
-- voice
-- output format (`mp3` or `wav`)
+- Base URL
+- API 密钥
+- 模型
+- 音色
+- 输出格式（`mp3` 或 `wav`）
 
-This path works well with self-hosted speech servers that intentionally match OpenAI’s API shape.
+该方案非常适合搭配遵循 OpenAI API 规范的自托管语音服务器。
 
-## Google providers
+## Google 提供商
 
 ### Google Gemini STT
 
-Google Gemini STT is available as an STT provider for Local voice.
+本地语音支持接入 Google Gemini STT 作为 STT 提供商。
 
-You can configure:
+支持配置的项目包括：
 
-- API key
-- model
-- optional language hint
+- API 密钥
+- 模型
+- 可选的语言提示
 
-Use this when you want Google transcription quality without changing the rest of your Local voice pipeline.
+若希望在不改动本地语音其他流水线的前提下获得 Google 水准的转录质量，可以选择此方案。
 
 ### Google Cloud TTS
 
-Google Cloud Text-to-Speech is available as a TTS provider.
+本地语音支持接入 Google Cloud Text-to-Speech 作为 TTS 提供商。
 
-You can configure:
+支持配置的项目包括：
 
-- API key
-- optional Android certificate SHA-1
-- language
-- voice
-- output format
-- speaking rate
-- pitch
+- API 密钥
+- 可选的 Android 证书 SHA-1
+- 语言
+- 音色
+- 输出格式
+- 语速
+- 音调
 
-The Google Cloud voice picker is searchable and lets you choose from the voices supported by your current API key and selected language.
+Google Cloud 音色选择器支持搜索，可供选择当前 API 密钥及所选语言支持的所有音色。
 
-## Local neural TTS: Kokoro
+## 本地神经 TTS：Kokoro
 
-Kaiwu’s **Local neural TTS** currently uses **Kokoro**.
+Kaiwu 的**本地神经 TTS** 目前基于 **Kokoro** 实现。
 
-### On web and desktop web
+### Web 端与桌面 Web 端
 
-On web, Kokoro runs through the web runtime and downloads its required assets on demand.
+在 Web 端，Kokoro 通过 Web 运行时运行，并按需下载所需资源。
 
-You can configure:
+支持配置的项目包括：
 
-- **Kokoro model pack**
-- **Download / prepare model**
-- **Clear browser cache**
-- **Voice**
-- **Speed**
+- **Kokoro 模型包**
+- **下载 / 准备模型**
+- **清理浏览器缓存**
+- **音色**
+- **语速**
 
-After the first successful download, the browser keeps the model files cached so they do not need to be fetched again for every turn.
+首次下载成功后，浏览器会缓存模型文件，后续对话无需重复获取。
 
-### On native
+### 原生客户端
 
-On native builds, Kokoro uses downloadable native model packs.
+在原生版本中，Kokoro 使用可独立下载的原生模型包。
 
-You can configure:
+支持配置的项目包括：
 
-- **Kokoro model pack**
-- **Download model**
-- **Remove downloaded assets**
-- **Check for updates**
-- **Voice**
-- **Speed**
+- **Kokoro 模型包**
+- **下载模型**
+- **删除已下载资源**
+- **检查更新**
+- **音色**
+- **语速**
 
-Model downloads happen on demand and can be removed later to free storage.
+模型按需下载，后续可随时删除以释放存储空间。
 
-### Voice previews
+### 音色试听
 
-The Kokoro voice dropdown includes inline preview playback so you can audition a voice before selecting it.
+Kokoro 音色下拉菜单内置了试听播放功能，可以在确认选择前先试听效果。
 
-## Local neural STT: Sherpa streaming STT
+## 本地神经 STT：Sherpa 流式 STT
 
-On native builds, **Local neural STT** uses downloadable **Sherpa** streaming STT packs.
+在原生版本中，**本地神经 STT** 使用可独立下载的 **Sherpa** 流式 STT 模型包。
 
-You can configure:
+支持配置的项目包括：
 
-- **Model pack**
-- **Download model**
-- **Remove downloaded assets**
-- **Check for updates**
-- **Language hint**
+- **模型包**
+- **下载模型**
+- **删除已下载资源**
+- **检查更新**
+- **语言提示**
 
-This gives Local voice a fully on-device STT option without requiring an external server.
+这为本地语音提供了一套完全在端侧运行的 STT 方案，无需依赖外部服务器。
 
-## Model downloads, updates, and storage
+## 模型下载、更新与存储
 
-Both Kokoro native TTS packs and Sherpa native STT packs are downloaded on demand from Kaiwu’s model-pack manifests.
+Kokoro 原生 TTS 模型包与 Sherpa 原生 STT 模型包均基于 Kaiwu 的模型清单文件按需下载。
 
-From settings, users can:
+用户可以在设置中执行以下操作：
 
-- download missing packs
-- see download progress
-- stop an in-progress download
-- check whether a newer model-pack build is available
-- remove downloaded assets to free storage
+- 下载缺失的模型包
+- 查看下载进度
+- 中止正在进行的下载
+- 检查是否有更新版本的模型包
+- 删除已下载资源以释放存储空间
 
-On web, Kokoro runtime files are stored in browser caches. On native, model packs are stored on the device.
+在 Web 端，Kokoro 运行时文件保存在浏览器缓存中；在原生客户端上，模型包则保存在本地设备存储中。
 
-## Recommended setups
+## 推荐配置方案
 
-### Simplest fully local setup
+### 极简全本地配置
 
-- **STT**: Device STT
-- **TTS**: Device TTS
-- **Conversation mode**: Direct to session
+- **STT**：设备 STT
+- **TTS**：设备 TTS
+- **对话模式**：直通会话
 
-### Better spoken output with minimal complexity
+### 兼顾输出品质与极简部署的方案
 
-- **STT**: Device STT
-- **TTS**: Local neural TTS (Kokoro)
-- **Conversation mode**: Agent
+- **STT**：设备 STT
+- **TTS**：本地神经 TTS（Kokoro）
+- **对话模式**：智能体
 
-### Fully self-hosted speech stack
+### 全自托管语音栈
 
-- **STT**: OpenAI-compatible STT
-- **TTS**: OpenAI-compatible TTS
-- **Conversation mode**: Agent
+- **STT**：OpenAI 兼容 STT
+- **TTS**：OpenAI 兼容 TTS
+- **对话模式**：智能体
 
-### Hybrid cloud/local setup
+### 云端与本地混合方案
 
-- **STT**: Google Gemini STT
-- **TTS**: Kokoro or Google Cloud TTS
-- **Conversation mode**: Agent
+- **STT**：Google Gemini STT
+- **TTS**：Kokoro 或 Google Cloud TTS
+- **对话模式**：智能体
 
-## Networking notes
+## 网络注意事项
 
-### Mobile and localhost
+### 移动端与 localhost
 
-On phones, `localhost` and `127.0.0.1` usually point to the phone itself, not your computer.
+在手机上，`localhost` 和 `127.0.0.1` 通常指向手机本身，而不是你的电脑。
 
-If your speech server runs on your computer, use:
+如果语音服务器运行在电脑上，请使用：
 
-- your computer’s LAN IP, or
-- a tunnel
+- 电脑的局域网 IP，或
+- 穿透隧道
 
-### Web and CORS
+### Web 端与跨域资源共享（CORS）
 
-For web builds, your STT or TTS server may need CORS configured correctly.
+对于 Web 端，STT 或 TTS 服务器可能需要正确配置 CORS。
 
-### Exposing services outside your LAN
+### 将服务暴露至局域网外
 
-If you expose a speech server beyond your local network, add proper authentication and HTTPS.
+若要将语音服务器暴露到本地局域网之外，请务必配置完善的身份认证并启用 HTTPS。
 
-## Troubleshooting
+## 常见问题排查
 
-### Local voice hears me, but nothing is spoken back
+### 本地语音能接收输入，但没有语音播报
 
-Check:
+请检查：
 
-- that a TTS provider is selected
-- that **Auto-speak replies** is enabled if you expect automatic playback
-- that **Test TTS** works
+- 是否已选择 TTS 提供商
+- 若需要自动播放，是否已开启**自动朗读回复**
+- **测试 TTS** 是否能正常发声
 
-### Kokoro is unavailable
+### Kokoro 不可用
 
-Check:
+请检查：
 
-- that the runtime is supported on your platform
-- that the model was downloaded successfully
-- that the selected Kokoro pack is ready
+- 当前平台是否支持该运行时
+- 模型是否已成功下载
+- 所选 Kokoro 模型包是否处于就绪状态
 
-### Sherpa STT is unavailable
+### Sherpa STT 不可用
 
-Check:
+请检查：
 
-- that you are on a native build
-- that the Sherpa model pack has been downloaded
-- that the selected language or pack matches your use case
+- 是否运行在原生客户端上
+- Sherpa 模型包是否已经下载
+- 所选语言或模型包是否与使用场景相符
 
-### Nothing is written into the target session
+### 目标会话中没有写入任何内容
 
-If you are in **Agent** mode, this can be expected. The voice agent does not need to write every utterance into the target session. It can keep part of the conversation in the hidden voice conversation and only send explicit actions back when needed.
+若当前处于**智能体**模式，这是正常现象。语音智能体并不需要把每句话都写入目标会话，它可以将部分交互保留在内部语音对话中，仅在必要时才将明确的操作回传至目标会话。
 
-## Related pages
+## 相关页面
 
-- [Voice overview](/voice)
+- [语音概览](/voice)

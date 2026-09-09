@@ -1,165 +1,164 @@
 ---
-title: Participant routing & live run messaging
-description: Send messages to the lead, a Claude teammate, or a running execution run from the same session UI.
+title: 参与者路由与实时运行消息
+description: 在同一个会话 UI 中向主导者、Claude 团队成员或正在执行的运行发送消息。
 ---
+Kaiwu 支持在会话内进行**参与者路由**。
 
-Kaiwu supports **participant routing** inside a session.
+这意味着同一个会话输入框可以指定发送给：
 
-That means the same session composer can target:
+- 常规 **Lead** Agent，
+- 指定的 **Claude 队员**，
+- Claude **广播**目标，或
+- **正在执行的运行实例**。
 
-- the normal **Lead** agent,
-- a specific **Claude teammate**,
-- a Claude **Broadcast** target, or
-- a **running execution run**.
+这也是围绕 Claude 团队、子 Agent 以及执行运行所构建路由功能的用户端交互模型。
 
-This is the end-user model for all of the routing work added around Claude teams, subagents, and execution runs.
+## 可以在哪里路由消息
 
-## Where you can route messages
+你可以从以下位置路由发送消息：
 
-You can route messages from:
+- **主会话输入框**，
+- 聚焦的**子 Agent / 队员 / 运行详情**视图，
+- 受支持的工具支持型子 Agent 会话记录详情视图。
 
-- the **main session composer**,
-- a focused **subagent / teammate / run details** view,
-- transcript detail views for supported tool-backed subagents.
+若当前界面没有其他备选接收方，输入框的表现与普通会话输入框完全一致。
 
-If the current screen has no alternate recipients, the composer behaves like a normal session composer.
+## 接收方标签
 
-## The recipient chip
+当存在备选接收方时，输入框会显示一个 **Send to** 标签。
 
-When alternate recipients are available, the composer shows a **Send to** chip.
-
-Depending on the session, the chip can list:
+根据具体会话的不同，该标签可列出：
 
 - **Lead**
-- one or more **Claude teammates**
+- 一个或多个 **Claude 队员**
 - **Broadcast**
-- one or more **running execution runs**
+- 一个或多个**正在执行的运行实例**
 
-Kaiwu remembers the selection **per screen while that screen stays open**. If you leave and reopen the screen, the selection resets to the default state for that screen.
+Kaiwu 会在该界面保持打开期间**记住当前界面的选择**。若离开并重新打开该界面，选项将重置为该界面的默认状态。
 
-## View-aware automatic selection
+## 依视图感知的自动选择
 
-If you open a focused teammate or run transcript, Kaiwu can auto-select that recipient for the composer.
+若打开某个队员或运行实例的聚焦会话记录，Kaiwu 可为输入框自动选中对应的接收方。
 
-This only happens when:
+这一行为仅在满足以下条件时生效：
 
-- the focused view clearly maps to one recipient, and
-- you have **not** already manually chosen a different recipient on that screen.
+- 聚焦视图明确对应单个接收方，且
+- 你**尚未**在该界面手动切换过其他接收方。
 
-Examples:
+例如：
 
-- opening a Claude teammate transcript can auto-select that teammate,
-- opening a running execution-run transcript can auto-select that run,
-- once you manually switch recipients, your manual choice wins for the rest of that screen session.
+- 打开 Claude 队员的会话记录，可自动选中该队员；
+- 打开正在执行的运行实例会话记录，可自动选中该运行；
+- 一旦手动切换了接收方，在当前界面停留期间，始终以手动选择为准。
 
-## What happens when you send
+## 发送后的处理逻辑
 
 ### Lead
 
-Sending to **Lead** is a normal session message.
+发送给 **Lead** 等同于发送一条常规会话消息：
 
-- it appears as a standard user message,
-- attachments work normally,
-- review-comment drafts work normally.
+- 显示为标准用户消息，
+- 附件功能正常可用，
+- 审查批注草稿正常可用。
 
-### Claude teammate or Broadcast
+### Claude 队员或广播
 
-Sending to a Claude teammate or to Broadcast creates a **routed participant message**.
+发送给 Claude 队员或广播目标会生成一条**路由参与者消息**。
 
-User-visible behavior:
+用户可见的行为表现：
 
-- Kaiwu keeps your original text in the transcript,
-- the transcript shows a structured card such as **To: alpha** or **To: Broadcast: qa-team**,
-- the card is visually distinct from a normal user bubble.
+- Kaiwu 会在会话记录中保留输入的原始内容，
+- 会话记录会展示结构化卡片，例如 **To: alpha** 或 **To: Broadcast: qa-team**，
+- 该卡片在视觉样式上与普通用户气泡明显区分。
 
-Implementation detail that matters for users:
+与用户相关的实现细节：
 
-- Kaiwu rewrites the backend prompt that Claude receives,
-- but the UI does **not** show that internal Claude-specific rewrite,
-- you only see the message you actually typed.
+- Kaiwu 会重写发送给 Claude 的后端提示词，
+- 但界面**不会**展示这些专属于 Claude 的内部重写内容，
+- 你只能看到自己实际键入的消息。
 
-### Running execution run
+### 正在执行的运行实例
 
-Sending to a running execution run sends directly to that run instead of to the lead session.
+发送给正在执行的运行实例时，消息会直接投递至该运行，而非主会话。
 
-This is useful when a review, delegate, or other execution run is already working and you want to refine it without starting over.
+当审查、委托任务或其他运行实例已经在执行，而你希望微调其行为且无需重新开始时，此功能非常有用。
 
-## Execution-run delivery modes
+## 运行实例投递模式
 
-When the selected recipient is an execution run, Kaiwu shows a **Delivery** chip.
+当选中的接收方是运行实例时，Kaiwu 会显示一个 **Delivery** 标签。
 
-The app currently exposes two user-facing modes:
+应用当前对外提供两种模式：
 
 ### Steer
 
-This is the default.
+此为默认模式。
 
-Behavior:
+行为表现：
 
-- if the backend supports in-flight steering, Kaiwu steers the current turn immediately,
-- otherwise Kaiwu aborts the current turn and sends your message as the next turn,
-- the run itself keeps going; Kaiwu does **not** kill the whole run just because steering is unavailable.
+- 若后端支持实时引导，Kaiwu 会立即引导当前的交互轮次，
+- 否则 Kaiwu 会中止当前轮次，并将你的消息作为下一轮次发送，
+- 运行本身仍会继续；Kaiwu **不会**因为无法实时引导而直接终止整个运行实例。
 
-Use this when you want the least disruptive follow-up.
+适用于希望尽可能减少干扰、平滑跟进的场景。
 
 ### Interrupt
 
-Behavior:
+行为表现：
 
-- Kaiwu always aborts the current turn,
-- then immediately sends your new instruction as a new turn.
+- Kaiwu 始终会中止当前轮次，
+- 随后立即将你的新指令作为新轮次发送。
 
-Use this when the current turn is clearly headed in the wrong direction and you want to replace it now.
+适用于当前轮次明显偏离预期方向、需要立即予以替换的场景。
 
-## When a run can receive messages
+## 运行实例何时可接收消息
 
-Execution runs are only shown as recipients while they are actually sendable.
+运行实例仅在其实际处于可发送状态时，才会作为接收方列出。
 
-In practice:
+实际表现为：
 
-- a running long-lived run can stay selectable while it remains active,
-- a bounded run is only selectable while its active turn is still in flight,
-- once a run finishes, stops, or becomes non-sendable, it disappears from the recipient list.
+- 正在执行的长生命周期运行，只要保持活跃即可持续供选，
+- 有范围限制的短运行，仅在其活跃轮次仍在执行时可选，
+- 一旦运行完成、停止或转为不可发送状态，就会从接收方列表中移除。
 
-This is why a run can sometimes still say **running** in a broad sense but no longer offer a send control: Kaiwu follows the runtime’s real sendability contract instead of guessing from a stale transcript state.
+正因如此，有时某个运行泛义上仍显示为**运行中**，却已无法提供发送控件：Kaiwu 遵循的是运行时真正的可发送性契约，而不是依靠可能过期的会话记录状态进行猜测。
 
-## How routed messages appear in the transcript
+## 路由消息在会话记录中的呈现方式
 
-Routed participant messages are rendered as structured message cards.
+路由参与者消息会渲染为结构化消息卡片。
 
-They intentionally show:
+卡片明确展示：
 
-- **who** the message was sent to,
-- the **original text** you typed.
+- 消息发送给**谁**，
+- 你键入的**原始内容**。
 
-They intentionally do **not** show:
+卡片特意隐去了：
 
-- backend-specific prompt rewrites,
-- Claude-specific internal routing instructions.
+- 特定后端的提示词重写内容，
+- Claude 特有的内部路由指令。
 
-## Where to follow the recipient’s work
+## 在何处跟踪接收方的工作进展
 
-You can inspect the recipient’s work from either place:
+你可以通过以下任一位置查看接收方的工作情况：
 
-- the **Agents** panel / Agents sidebar,
-- the original **tool or transcript entry** in the session timeline.
+- **Agents** 面板 / Agents 侧边栏，
+- 会话时间线中的原始**工具或会话记录条目**。
 
-For supported subagents and runs, both paths lead to the same underlying transcript/details flow.
+对于受支持的子 Agent 和运行实例，这两种路径都会导向相同的底层会话记录与详情流。
 
-## Current limitations
+## 当前限制
 
-Routed messages to Claude teammates currently do **not** support:
+当前，发送至 Claude 队员的路由消息**不**支持：
 
-- attachments,
-- review-comment drafts.
+- 附件，
+- 审查批注草稿。
 
-If you need those, send a normal **Lead** message instead.
+如果需要使用这些功能，请改用常规的 **Lead** 消息发送。
 
-Execution-run routing is also limited to recipients that expose a real control path. Some provider-created sidechains are monitor-only and therefore appear as transcripts you can inspect, but not as recipients you can send to.
+运行实例路由也仅限于暴露了真实控制链路的接收方。部分提供商创建的侧链属于只读监控类型，因此仅作为可供查看的会话记录出现，无法作为接收方接收消息。
 
-## Related pages
+## 相关页面
 
-- [Agents & subagents](/extending/subagents)
-- [Steering & interrupting](/sessions/steering)
+- [Agents 与子 Agent](/extending/subagents)
+- [引导与中断](/sessions/steering)
 - [Claude](/agents/claude)
-- [Attachments & image previews](/apps/attachments)
+- [附件与图片预览](/apps/attachments)

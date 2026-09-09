@@ -20,7 +20,7 @@ export async function cmdSessionPlanStart(
     valueFlags: ['--backends', '--backend', '--instructions', '--permission-mode', '--retention', '--run-class', '--io-mode'],
   });
   if (!idOrPrefix) {
-    throw new Error('Usage: happier session plan start <session-id-or-prefix> --backends <id1,id2> --instructions <text> [--json]');
+    throw new Error('Usage: kaiwu session plan start <session-id-or-prefix> --backends <id1,id2> --instructions <text> [--json]');
   }
 
   const backendsRaw = readFlagValue(argv, '--backends') ?? readFlagValue(argv, '--backend');
@@ -33,7 +33,7 @@ export async function cmdSessionPlanStart(
   const ioMode = readFlagValue(argv, '--io-mode') ?? undefined;
 
   if (backendTargetKeys.length === 0 || !instructions.trim()) {
-    throw new Error('Usage: happier session plan start <session-id> --backends <id1,id2> --instructions <text> [--json]');
+    throw new Error('Usage: kaiwu session plan start <session-id> --backends <id1,id2> --instructions <text> [--json]');
   }
 
   const input = {
@@ -51,7 +51,7 @@ export async function cmdSessionPlanStart(
       await printJsonEnvelope({ ok: false, kind: 'session_plan_start', error: { code: 'not_authenticated' } });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "happier auth login" first.');
+    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
     process.exit(1);
   }
 

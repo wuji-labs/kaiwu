@@ -1,42 +1,41 @@
 ---
-title: Quickstarts
-description: Common flows (feature work, PR testing, server changes) using stacks + worktrees.
+title: 快速入门
+description: 结合使用栈与工作树的常见工作流（功能开发、PR 测试、服务端变更）。
+---
+本页是[开发工作流](/hstack/development)的“即拷即用”速查参考。
+
+如果是初次接触，请先阅读[环境搭建](/hstack/setup)与[工作树与 Fork](/hstack/worktrees-and-forks)。
+
 ---
 
-This page is the “copy/paste” companion to [Development workflow](/hstack/development).
+## 1) 常规功能开发（推荐）
 
-If you’re new, read [Setup](/hstack/setup) and [Worktrees and forks](/hstack/worktrees-and-forks) first.
-
----
-
-## 1) Typical feature work (recommended)
-
-Create a worktree based on upstream (clean PR history):
+基于上游创建工作树（保持干净的 PR 提交记录）：
 
 ```bash
 hstack wt new my-feature --from=upstream --use
 ```
 
-Create an isolated stack and pin it to the active worktree:
+创建独立栈并固定至当前激活的工作树：
 
 ```bash
 hstack stack new exp1
 hstack stack wt exp1 -- use active
 ```
 
-Run the stack in dev mode:
+以开发模式运行该栈：
 
 ```bash
 hstack tui stack dev exp1
 ```
 
-If you can’t use the TUI (non-interactive terminals / CI), run:
+若无法使用 TUI（非交互式终端或 CI 环境），请运行：
 
 ```bash
 hstack stack dev exp1
 ```
 
-Push the branch to your fork:
+将分支推送到你的 Fork 仓库：
 
 ```bash
 hstack wt push active --remote=origin
@@ -44,9 +43,9 @@ hstack wt push active --remote=origin
 
 ---
 
-## 2) Use the canonical `dev/` checkout
+## 2) 使用规范的 `dev/` 检出代码
 
-If you’re working directly on the `dev` branch (common for maintainers):
+若直接在 `dev` 分支上工作（维护者常见操作）：
 
 ```bash
 hstack stack new dev
@@ -58,42 +57,42 @@ hstack tui stack dev dev --mobile
 
 ---
 
-## 3) Develop server changes (full server)
+## 3) 开发服务端变更（完整服务端）
 
-Create a full-server stack:
+创建完整服务端栈：
 
 ```bash
 hstack stack new full1 --server=happier-server
 ```
 
-Then run dev:
+随后运行开发模式：
 
 ```bash
 hstack tui stack dev full1
 ```
 
-Notes:
+说明：
 
-- This uses Docker-managed Postgres/Redis/Minio for the stack.
-- If you don’t want Docker-managed infra, configure `DATABASE_URL`/`REDIS_URL`/`S3_*` in the stack env file and re-run.
+- 此操作会使用 Docker 托管的 Postgres/Redis/Minio 来支持该栈。
+- 若不希望由 Docker 托管基础设施，可在栈环境配置文件中配置 `DATABASE_URL`/`REDIS_URL`/`S3_*` 后重新运行。
 
 ---
 
-## 4) Test an upstream PR locally
+## 4) 在本地测试上游 PR
 
-Create a PR worktree:
+创建 PR 工作树：
 
 ```bash
 hstack wt pr 123 --use
 ```
 
-Create a PR stack that pins to it:
+创建固定到该工作树的 PR 栈：
 
 ```bash
 hstack stack pr pr123 --repo=123 --dev
 ```
 
-If you have a `dev-auth` seed stack, you can seed and link/copy auth:
+若已有 `dev-auth` 种子栈，可进行数据预置并关联或复制认证信息：
 
 ```bash
 hstack stack pr pr123 --repo=123 --dev --seed-auth --copy-auth-from=dev-auth --link-auth
@@ -101,17 +100,17 @@ hstack stack pr pr123 --repo=123 --dev --seed-auth --copy-auth-from=dev-auth --l
 
 ---
 
-## 5) Port legacy split-repo commits into the monorepo
+## 5) 将旧版多仓提交迁移至 Monorepo
 
-If you have changes that live in a legacy split-repo layout (old UI/CLI/server repos), use:
+若待合并的修改仍留在旧版多仓架构中（原 UI/CLI/server 仓库），请参阅：
 
-- [Monorepo port (legacy split repos)](/hstack/monorepo-port)
+- [单体仓库迁移（旧版分仓）](/hstack/monorepo-port)
 
 ---
 
-## 6) One-shot validation on a worktree
+## 6) 在工作树上执行单次校验
 
-For quick checks against your current checkout (non-stack-scoped):
+针对当前检出代码进行快速检查（非栈作用域）：
 
 ```bash
 hstack typecheck all
@@ -119,7 +118,7 @@ hstack lint all
 hstack test all
 ```
 
-For stack-scoped validation (recommended when debugging runtime issues):
+执行栈作用域校验（排查运行时问题时推荐使用）：
 
 ```bash
 hstack stack typecheck exp1 all

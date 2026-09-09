@@ -1,76 +1,72 @@
 ---
 title: Augment (Auggie)
-description: Configure Augment via Kaiwu's Auggie backend integration.
+description: 通过 Kaiwu 的 Auggie 后端集成配置 Augment。
 ---
-
-Kaiwu integrates Augment using the **Auggie** backend/runtime.
+Kaiwu 通过 **Auggie** 后端/运行时集成了 Augment。
 
 <Callout type="info">
-  Auggie is an **experimental** integration. It works and people use it
-  daily, but its surface is younger than Claude, Codex or OpenCode and is
-  more likely to change. What it supports today is in
-  [Agent capabilities](/agents/capabilities).
+  Auggie 目前属于**实验性**集成。该功能完全可用且已有用户日常使用，但相较于 Claude、Codex 或 OpenCode，其接口更年轻，后续变动的可能性也更大。目前支持的功能详见 [Agent 功能特性](/agents/capabilities)。
 </Callout>
 
-## Requirements
+## 运行环境要求
 
-- Auggie CLI installed locally.
-- Binary available on `PATH` (or set `HAPPIER_AUGGIE_PATH`).
+- 本地已安装 Auggie CLI。
+- 可执行文件已包含在 `PATH` 中（或已设置 `HAPPIER_AUGGIE_PATH`）。
 
-## Install Auggie
+## 安装 Auggie
 
-Kaiwu can install it for you:
+Kaiwu 可以为你自动安装：
 
 ```bash
 happier install provider auggie
 auggie --version
 ```
 
-Or install manually:
+也可以手动安装：
 
 ```bash
 npm install -g @augmentcode/auggie
 auggie --version
 ```
 
-## Local authentication in Kaiwu
+## 在 Kaiwu 中进行本地认证
 
-Auggie supports launching its native login flow from:
+Auggie 支持通过以下路径发起原生登录流程：
 
-- **Settings → AI & Agents → AI backends → Auggie**
+- **设置 → AI 与 Agent → AI 后端 → Auggie**
 
-Use that page to:
+在该页面中，你可以：
 
-- open `auggie login` directly inside Kaiwu
-- re-run auth checks on the selected machine with **Check now**
+- 直接在 Kaiwu 内打开 `auggie login`
+- 点击**立即检查**，在所选设备上重新运行认证检查
 
-Auth-status detection for Auggie is currently conservative. Kaiwu may still show **Unknown** even though the login flow is available.
+目前 Auggie 的认证状态检测策略偏保守。即便登录流程正常可用，Kaiwu 也仍可能显示为**未知**。
 
-For the shared user guide, see [Provider authentication](/agents/provider-authentication).
+通用用户指南请参阅 [提供商认证](/agents/provider-authentication)。
 
-## Start Augment/Auggie with Kaiwu
+## 在 Kaiwu 中启动 Augment/Auggie
 
 ```bash
 happier auggie
 ```
 
-## Notes
+## 注意事项
 
-- Resume availability is session-specific in Kaiwu and depends on valid resume metadata plus the current backend/settings.
-- Modes, permissions, and model behavior can still vary by the installed runtime.
-- Session tools are normalized into canonical Kaiwu timeline tools.
+- 会话恢复（Resume）功能的可用性因会话而异，取决于是否存在有效的恢复元数据以及当前的后端/设置。
+- 模式、权限和模型行为仍可能随安装的运行时版本而有所差异。
+- 会话工具会规范化映射为标准的 Kaiwu 时间线工具。
 
-## Troubleshooting
+## 故障排查
 
-If Auggie is not detected:
+如果未检测到 Auggie：
 
-1. Verify `auggie --version` works.
-2. Restart Kaiwu.
-3. Set `HAPPIER_AUGGIE_PATH` if needed.
+1. 验证 `auggie --version` 是否能正常运行。
+2. 重启 Kaiwu。
+3. 必要时设置 `HAPPIER_AUGGIE_PATH`。
 
-## Related
+## 相关内容
 
-- [Agent capabilities](/agents/capabilities) — what this agent supports, generated from the manifest.
-- [Choosing an agent](/agents)
-- [Model and engine selection](/agents/model-and-engine-selection)
-- [Agent authentication](/agents/provider-authentication)
+- [Agent 功能特性](/agents/capabilities) —— 该 Agent 支持的功能，基于清单（manifest）自动生成。
+- [选择 Agent](/agents)
+- [模型与引擎选择](/agents/model-and-engine-selection)
+- [Agent 认证](/agents/provider-authentication)

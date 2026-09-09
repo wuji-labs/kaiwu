@@ -1,51 +1,44 @@
 ---
-title: Remote development targets
-description: Mirror one checkout to Linux, macOS, or Windows machines and run native development daemons from yarn dev or yarn tui.
+title: 远程开发目标
+description: 将一份检出代码镜像到 Linux、macOS 或 Windows 设备，并通过 yarn dev 或 yarn tui 运行原生开发守护进程。
 ---
+借助远程开发目标，你可以只用一份本地 Stack 检出，就能驱动其他设备构建原生的 Kaiwu 守护进程。Stack 使用 [Mutagen](https://mutagen.io/) 进行单向源码同步，并在每个目标上复用现有的 Stack 开发生命周期。
 
-Remote development targets let one local Stack checkout drive native Kaiwu daemon builds on other
-machines. Stack uses [Mutagen](https://mutagen.io/) for one-way source synchronization and reuses
-the existing Stack development lifecycle on every target.
+这一机制专为维护者设计：只需编辑一份检出，即可将 macOS、Linux 和 Windows 守护进程同时接入同一个开发服务器。
 
-This is intended for maintainers who want macOS, Linux, and Windows daemons connected to the same
-development server while editing one checkout.
+## 前置要求
 
-## Prerequisites
+在运行 `yarn dev` 或 `yarn tui` 的计算机上：
 
-On the computer running `yarn dev` or `yarn tui`:
+- 安装 Mutagen，并确保 `mutagen` 位于 `PATH` 中；
+- 为每个目标配置免交互 OpenSSH 访问；
+- 启动 TUI 之前，先接受每个目标的 SSH 主机密钥。
 
-- install Mutagen and make `mutagen` available on `PATH`;
-- configure non-interactive OpenSSH access to every target;
-- accept each target's SSH host key before starting the TUI.
+在各个目标上：
 
-On every target:
+- 运行 OpenSSH 服务器；
+- 安装 Node.js 和 Corepack；
+- 预留足够的磁盘空间，用于存放源码镜像、目标本地依赖项以及构建产物。
 
-- run an OpenSSH server;
-- install Node.js and Corepack;
-- allow enough disk space for a source mirror, target-local dependencies, and build output.
+Stack 不会主动安装或更新宿主机的 SSH 服务器、Node.js、Corepack 或 Mutagen CLI。这些都属于设备层面的前置依赖。项目启动时，Mutagen 会自动通过 SSH 安装自身轻量的同步代理。
 
-Stack deliberately does not install or update the host's SSH server, Node.js, Corepack, or Mutagen
-CLI. Those are machine prerequisites. Mutagen automatically installs its own small synchronization
-agent over SSH when a project starts.
-
-Verify a target without changing it:
+在不变更目标状态的前提下进行验证：
 
 ```bash
 hstack dev-targets doctor linux --stack=repo-dev
 ```
 
-`doctor` checks the local Mutagen CLI, passwordless SSH, and remote Node.js/Corepack availability.
-Omit the target name to check every target configured for the stack.
+`doctor` 会检查本地 Mutagen CLI、免密 SSH 以及远程 Node.js/Corepack 的可用性。省略目标名称时，将检查该栈配置的所有目标。
 
-## Add and manage targets
+## 添加与管理目标
 
-Target configuration is stack-scoped and stored at:
+目标配置的作用域限定在栈级别，保存在：
 
 ```text
 ~/.happier/stacks/<stack>/dev-targets.json
 ```
 
-Use the command rather than editing the JSON directly:
+请使用命令行操作，不要直接编辑 JSON 文件：
 
 ```bash
 hstack dev-targets path --stack=repo-dev
@@ -53,7 +46,7 @@ hstack dev-targets list --stack=repo-dev
 hstack dev-targets show linux --stack=repo-dev
 ```
 
-Add a Linux or macOS target:
+添加 Linux 或 macOS 目标：
 
 ```bash
 hstack dev-targets add linux \
@@ -64,7 +57,7 @@ hstack dev-targets add linux \
   --cli-home-dir=/home/dev/.happier/dev-targets/repo-dev-linux
 ```
 
-Add a Windows target using forward-slash paths:
+使用正斜杠路径添加 Windows 目标：
 
 ```bash
 hstack dev-targets add windows \
@@ -75,8 +68,7 @@ hstack dev-targets add windows \
   --cli-home-dir=C:/Users/dev/.happier/dev-targets/repo-dev-windows
 ```
 
-`--ssh` can be a normal OpenSSH alias or `user@host`. If a target uses a generated or isolated SSH
-configuration, pass its absolute path:
+`--ssh` 可以是普通的 OpenSSH 别名，也可以是 `user@host`。如果目标使用的是自动生成或隔离的 SSH 配置，请传入其绝对路径：
 
 ```bash
 hstack dev-targets add linux \
@@ -90,16 +82,15 @@ hstack dev-targets add linux \
   --cli-home-dir=/home/dev/.happier/dev-targets/repo-dev-linux
 ```
 
-When both Lima options are present, Stack runs `limactl start` before SSH preparation. It does not
-stop the VM when the TUI exits, so target-local dependency and build caches remain warm.
+同时指定这两个 Lima 选项时，Stack 会在准备 SSH 前执行 `limactl start`。TUI 退出时不会停止虚拟机，以便保留目标本地的依赖项与构建缓存。
 
-Adding a target with an existing name replaces that target's configuration. Remove one with:
+添加与现有目标同名的目标会覆盖原有配置。若要删除目标，请运行：
 
 ```bash
 hstack dev-targets remove windows --stack=repo-dev
 ```
 
-From a source checkout, the equivalent repo-local shortcuts are:
+在源码检出目录中，可以使用等效的仓库级快捷命令：
 
 ```bash
 yarn dev-targets list
@@ -109,89 +100,69 @@ yarn dev-targets doctor
 yarn dev-targets remove linux
 ```
 
-The repo-local wrapper selects that checkout's Stack automatically.
+仓库本地的包装脚本会自动选择该检出对应的 Stack。
 
-## What starts automatically
+## 自动启动流程
 
-When at least one target is configured, `yarn dev` and `yarn tui` start the local server, daemon,
-and Expo first. Remote preparation then runs independently in the background:
+配置了至少一个目标时，`yarn dev` 和 `yarn tui` 会先启动本地服务器、守护进程与 Expo。随后，远程准备流程会在后台独立运行：
 
-1. validate the locally installed Mutagen CLI;
-2. create the Mutagen `one-way-replica` project with every session paused;
-3. independently start any target's configured Lima instance and create its directories over SSH;
-4. resume and flush that target's Mutagen session;
-5. install its target-local dependencies with the synchronized lockfile;
-6. copy the current Stack daemon access key into a target-specific CLI home;
-7. open an SSH reverse tunnel to the already-running local Stack server;
-8. start the remote checkout through the existing daemon-only `hstack dev --watch` lifecycle.
+1. 校验本地安装的 Mutagen CLI；
+2. 创建 Mutagen `one-way-replica` 项目，并将所有会话置于暂停状态；
+3. 分别启动各目标配置的 Lima 实例，并通过 SSH 创建相应目录；
+4. 恢复并刷新该目标的 Mutagen 会话；
+5. 基于同步过去的 lockfile 安装目标本地依赖项；
+6. 将当前 Stack 守护进程的访问密钥复制到目标专用的 CLI 主目录下；
+7. 建立 SSH 反向隧道，连接到已在运行的本地 Stack 服务器；
+8. 沿用仅守护进程的 `hstack dev --watch` 生命周期，启动远程检出。
 
-An unavailable or slow target does not delay Expo, stop the local Stack, or delay another ready
-target. Its failure is reported in the target pane while the local Stack and other targets remain
-available. Windows dependency installation retries transient package-manager failures before
-reporting the target as failed.
+某个目标不可用或响应变慢，既不会拖延 Expo、中止本地 Stack，也不会阻塞其他就绪的目标。失败信息会显示在该目标的窗格中，本地 Stack 和其他目标仍可正常使用。在 Windows 上安装依赖项遇到临时包管理器错误时会自动重试，重试失败后才会将目标标记为失败。
 
-Each remote daemon builds from source on its own operating system and receives its own machine
-identity. It connects to the same Stack server as the local daemon; Stack does not copy the local
-machine identity or general settings.
+每个远程守护进程都会在各自的操作系统上从源码构建，并获得独立的设备标识。它与本地守护进程连接到同一个 Stack 服务器；Stack 不会复制本地的设备标识或通用设置。
 
-The TUI adds:
+TUI 新增了以下内容：
 
-- a `mutagen sync` pane for synchronization output and status;
-- one `remote <name>` pane per target for dependency, build, daemon, and reconnect output.
+- 一个 `mutagen sync` 窗格，用于显示同步输出与状态；
+- 每个目标各有一个 `remote ⟦K11⟧` 窗格，用于显示依赖项、构建、守护进程和重连的输出。
 
-Stopping the TUI stops its remote workers and terminates the generated Mutagen project. Target-local
-dependencies and build caches remain for the next run.
+停止 TUI 会终止其远程工作进程并销毁生成的 Mutagen 项目。目标本地的依赖项和构建缓存均会保留，供下次运行使用。
 
-To run only the local Stack:
+若只想运行本地 Stack：
 
 ```bash
 yarn dev --no-dev-targets
 yarn tui --no-dev-targets
 ```
 
-## Synchronization policy
+## 同步策略
 
-The local checkout is authoritative. Do not edit the remote mirror: Mutagen may overwrite target
-changes.
+一切以本地检出为准。请勿直接编辑远程镜像：Mutagen 可能会覆盖目标上的修改。
 
-Stack excludes source-control metadata and target-local artifacts such as `.git`, `node_modules`,
-`dist`, `.project`, `.happier`, coverage output, Rust targets, CocoaPods, and known review/build
-artifacts. Dependencies and build output are produced independently on every operating system.
+Stack 会排除版本控制元数据及目标本地产物，例如 `.git`、`node_modules`、`dist`、`.project`、`.happier`、覆盖率输出、Rust 目标文件、CocoaPods 以及已知的审查/构建产物。依赖项与构建产物均由各个操作系统独立生成。
 
-The initial synchronization and dependency installation can take time. After startup, source
-changes are incremental and every remote daemon watches and builds its own target-local mirror.
+初次同步与依赖项安装可能需要一些时间。启动完成后，源码变动将以增量方式同步，每个远程守护进程都会监听并构建各自的目标本地镜像。
 
-## Platform notes
+## 平台说明
 
 ### Lima
 
-Use Lima's generated SSH config with `--ssh-config-file`. Add `--lima-instance` and `--lima-home`
-when Stack should start that instance automatically. The VM still needs Node.js and Corepack;
-`hstack dev-targets doctor` verifies them before the full TUI starts.
+配合 `--ssh-config-file` 使用 Lima 生成的 SSH 配置。如果需要 Stack 自动启动该实例，请添加 `--lima-instance` 和 `--lima-home`。虚拟机内仍须安装 Node.js 和 Corepack；`hstack dev-targets doctor` 会在完整 TUI 启动前对其进行验证。
 
 ### Windows
 
-Use Windows OpenSSH Server and forward-slash target paths. The Stack sends encoded PowerShell
-commands, so spaces in paths are supported.
+请使用 Windows OpenSSH 服务器，并在目标路径中使用正斜杠。Stack 发送的是编码后的 PowerShell 命令，因此路径中可以包含空格。
 
-For administrator accounts, Windows OpenSSH may read
-`C:\ProgramData\ssh\administrators_authorized_keys` instead of the user's
-`.ssh\authorized_keys`. Confirm that the exact configured alias works non-interactively:
+对于管理员账户，Windows OpenSSH 可能会读取 `C:\ProgramData\ssh\administrators_authorized_keys`，而不是用户的 `.ssh\authorized_keys`。请务必确认所配置的别名可以免交互运行：
 
 ```bash
 ssh -o BatchMode=yes happier-stack-windows "echo ok"
 ```
 
-Mutagen documents possible slow or stalled streams with Windows OpenSSH Server. Validate the real
-target with `doctor` and one complete `yarn tui` synchronization before relying on it for unattended
-QA.
+Mutagen 官方文档指出，与 Windows OpenSSH 服务器配合使用时，数据流可能会变慢或卡顿。在将其用于无人值守的 QA 之前，请先用 `doctor` 验证真实目标，并完整跑通一次 `yarn tui` 同步。
 
-## Troubleshooting
+## 故障排查
 
-- **Mutagen not found:** install Mutagen locally and confirm `mutagen version`.
-- **SSH authentication fails:** make the configured alias work with `BatchMode=yes`; the TUI cannot
-  answer password or host-key prompts.
-- **Node.js/Corepack check fails:** install them on the target, then rerun `doctor`.
-- **A target should not start today:** use `--no-dev-targets`, or remove it from this stack's config.
-- **Synchronization diagnostics:** inspect the `mutagen sync` TUI pane and use the normal `mutagen`
-  CLI. Stack intentionally leaves Mutagen under user control.
+- **找不到 Mutagen：** 在本地安装 Mutagen，并确认 `mutagen version` 能正常运行。
+- **SSH 认证失败：** 确保所配置的别名可以通过 `BatchMode=yes` 正常连接；TUI 无法响应密码或主机密钥提示。
+- **Node.js/Corepack 检查失败：** 在目标上安装它们，然后重新运行 `doctor`。
+- **某个目标今天不想启动：** 使用 `--no-dev-targets`，或直接从该栈的配置中将其移除。
+- **同步诊断：** 查看 `mutagen sync` TUI 窗格，并直接使用标准的 `mutagen` 命令行。Stack 特意将 Mutagen 的控制权留给用户。

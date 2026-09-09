@@ -24,7 +24,7 @@ export async function handleAuthStatus(argv: string[] = []): Promise<void> {
 
   if (!credentials) {
     console.log(chalk.red('✗ Not authenticated'));
-    console.log(chalk.gray('  Run "happier auth login" to authenticate'));
+    console.log(chalk.gray('  Run "kaiwu auth login" to authenticate'));
     return;
   }
 
@@ -36,7 +36,7 @@ export async function handleAuthStatus(argv: string[] = []): Promise<void> {
 
     console.log(chalk.red('✗ Not authenticated'));
     console.log(chalk.gray('  Stored credentials were rejected by the selected relay'));
-    console.log(chalk.gray('  Run "happier auth login --force" to authenticate again'));
+    console.log(chalk.gray('  Run "kaiwu auth login --force" to authenticate again'));
     return;
   }
 
@@ -94,7 +94,7 @@ export async function handleAuthStatus(argv: string[] = []): Promise<void> {
     console.log(chalk.gray(`  Host: ${os.hostname()}`));
   } else {
     console.log(chalk.yellow('⚠️  Machine not registered'));
-    console.log(chalk.gray('  Run "happier auth login --force" to fix this'));
+    console.log(chalk.gray('  Run "kaiwu auth login --force" to fix this'));
   }
 
   console.log(chalk.gray(`\n  Data directory: ${configuration.happyHomeDir}`));

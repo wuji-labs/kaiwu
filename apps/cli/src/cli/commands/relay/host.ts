@@ -540,7 +540,7 @@ export async function runRelayHostSubcommand(args: string[]): Promise<void> {
   const json = wantsJson(args);
   const op = String(args[0] ?? '').trim();
   if (!op) {
-    throw new Error('Usage: happier relay host <install|status|start|stop|restart|uninstall> [--ssh <user@host>] [--mode user|system] [--channel stable|preview|dev] [--env KEY=VALUE]... [--server-binary <path>] [--lan | --expose | --host <ip>] [--preserve-active-server] [--yes] [--json]');
+    throw new Error('Usage: kaiwu relay host <install|status|start|stop|restart|uninstall> [--ssh <user@host>] [--mode user|system] [--channel stable|preview|dev] [--env KEY=VALUE]... [--server-binary <path>] [--lan | --expose | --host <ip>] [--preserve-active-server] [--yes] [--json]');
   }
 
   let rest = args.slice(1);
@@ -870,7 +870,7 @@ export async function runRelayHostSubcommand(args: string[]): Promise<void> {
     }
 
     // The bind URL is what the relay listens on, not what a phone can reach.
-    // Settle that here, before the profile is written, so `happier auth login`
+    // Settle that here, before the profile is written, so `kaiwu auth login`
     // binds the account to an address the user's other devices can actually
     // use. `--json` callers (including the SSH installer, which drives a remote
     // `relay host install --json`) are left exactly as they were: probing this
@@ -916,7 +916,7 @@ export async function runRelayHostSubcommand(args: string[]): Promise<void> {
       } else if (publish.kind === 'approvalNeeded') {
         console.log(chalk.yellow('  Your tailnet needs an admin to approve this before the address works:'));
         console.log(chalk.yellow(`    ${publish.approvalUrl}`));
-        console.log(chalk.gray('  Re-run `happier relay host install` once it is approved.'));
+        console.log(chalk.gray('  Re-run `kaiwu relay host install` once it is approved.'));
       } else if (publish.kind === 'failed') {
         // The relay is installed by now; a Serve failure must not unwind it.
         console.log(chalk.yellow(`  Could not publish on your tailnet: ${publish.message}`));
@@ -947,7 +947,7 @@ export async function runRelayHostSubcommand(args: string[]): Promise<void> {
       }
       console.log(chalk.gray(`  Using ${reachable.url} as this relay's address.`));
       if (reachable.chosenBy === 'default') {
-        console.log(chalk.gray('  Run `happier server add` to use a different address.'));
+        console.log(chalk.gray('  Run `kaiwu server add` to use a different address.'));
       }
     }
 

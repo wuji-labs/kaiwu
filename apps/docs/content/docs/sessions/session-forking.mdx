@@ -1,83 +1,73 @@
 ---
-title: Session forking & replay
-description: Branch Kaiwu sessions safely, keep context via hidden replay seeds, and understand current Codex app-server fork and rollback behavior.
+title: 会话分叉与重放
+description: 安全分支 Kaiwu 会话，通过隐藏重放种子保留上下文，并深入理解当前 Codex app-server 的分叉与回滚行为。
 ---
+会话分叉允许你在不丢失原始对话的前提下创建会话分支。本文将介绍 Kaiwu 会话分叉的工作原理、重放种子如何在隐藏提示词的同时完整保留上下文，以及 Codex app-server 目前对原生分叉与回滚的支持情况。
 
-Session forking lets you branch a session without losing the original conversation. This page explains how Kaiwu session forks work, how replay seeds keep context hidden but intact, and what Codex app-server currently supports for native fork and rollback.
+## 功能一览
 
-## What you get
+- **从任意消息分叉**：悬停在已提交的消息上，即可分叉至新会话。
+- **从最新对话分叉**：通过会话操作（顶部标题栏、菜单或命令面板），从当前对话的最新位置创建分支。
+- **隐藏式重放种子**：重放提示词仅在首个用户回合发送给模型，绝不会显示在会话记录中。
+- **无冗余的祖先上下文**：子会话以内联方式渲染只读的祖先消息；向上滚动即可自动按页加载父会话片段。
+- **分支与编辑**：从用户消息处分叉时，子会话的输入框会自动预填该消息，方便你修改后重新发送。
+- **易于识别的子会话标题**：若父会话已有标题，子会话会保留原标题并追加 `(fork 1)`。继续对该子会话进行分叉会递增编号，而不会叠加后缀。
+- **优先使用提供商原生能力**：支持 OpenCode 服务端原生在消息处分叉；Codex app-server 原生在最新位置分叉及回滚至指定点；ACP 在受支持时从最新位置分叉。若不满足原生条件，选择 `auto` 的兼容调用方可以使用重放机制。
 
-- **Fork from any message**: hover a committed message and fork into a new session.
-- **Fork the latest conversation**: use the session action (header/menu/command palette) to branch from the current tip.
-- **Hidden replay seed**: the replay prompt is sent only to the model on the first user turn and never shown in the transcript.
-- **Ancestor context without duplication**: the child renders read-only ancestor messages inline; scrolling pages parent segments automatically.
-- **Branch-and-edit**: when you fork on a user message, the child composer is prefilled with that message so you can revise and resend.
-- **Recognizable child titles**: when the parent has a session title, the child keeps it with `(fork 1)` appended. Forking that child increments the number instead of stacking another suffix.
-- **Provider-native when available**: OpenCode server-native fork-at-message; Codex app-server native fork-at-latest plus rollback-to-point; ACP fork-at-latest when supported. Compatibility callers that choose `auto` can use replay otherwise.
+## 分叉策略的选择机制
 
-## How fork selection works
+在当前的开发流程中，每个分叉入口在开始工作前都会打开策略选择器。当 Agent 和分叉点支持原生操作时，你可以选择**原生分叉**；也可以选择**重放分叉**，使用受限大小的会话记录种子启动子会话；或者选择**配置新会话**，进入常规的新建会话界面继续操作。
 
-In the current development flow, each fork entry point opens a strategy chooser before it starts any
-work. You can choose a **Native fork** when the Agent and fork point support one, **Replay fork** to
-start a child with a bounded transcript seed, or **Configure a new session** to continue through the
-normal new-session screen.
+显式指定原生分叉是严格生效的：若提供商原生分叉不可用或执行失败，Kaiwu 会直接报错并反馈结果，而不会静默创建重放子会话。显式使用兼容策略 `auto` 的既有调用方，仍可允许守护进程按既定规则自行选择原生或重放。原生分叉在提供商完成处理前会一直保持进行中状态；Kaiwu 不会设置武断的超时时间来放弃任务，也不会为了分叉专门执行就绪轮询。
 
-An explicit Native choice is strict: if the provider-native fork is unavailable or fails, Kaiwu
-reports that outcome instead of silently creating a replay child. Existing callers that explicitly
-use the compatibility `auto` strategy may still let the daemon choose its established native-or-replay
-policy. Native forks stay in progress until the provider resolves them; Kaiwu does not abandon one
-after an arbitrary deadline or run a fork-specific readiness poll.
+## 重放机制的工作原理
 
-## What replay does
+- 获取截止到分叉点（会话级分叉则截止到最新位置）的会话记录。
+- 构建重放种子提示词（若在“设置”中启用了“**摘要 + 近期**”，则可包含总结摘要）。
+- 将该种子**仅一次性**应用于子会话中发送的首条用户消息；既不注入草稿，也不污染会话记录。
+- 保持新提供商会话的独立纯净，确保工具与策略均作用于子会话而非父会话。
 
-- Pulls the transcript up to your fork point (or latest for session-level fork).
-- Builds a replay seed prompt (optionally with a summary if you enable **summary + recent** in Settings).
-- Applies the seed **once** to the first user message sent in the child session; no draft injection and no transcript pollution.
-- Keeps the new provider session fresh so tools and policies use the child session, not the parent.
+### 重放策略
 
-### Replay strategies
+- **近期消息**（默认）：仅发送近期的对话窗口。
+- **摘要 + 近期**：若启用且 `execution.runs` 可用，Kaiwu 会先生成一份结构化摘要（目标/指令/发现/已完成项/相关文件），随后附加近期消息。若执行运行已禁用，Kaiwu 会回退至仅包含近期消息。
 
-- **Recent messages** (default): sends the recent dialog window.
-- **Summary + recent**: if enabled and `execution.runs` is available, Kaiwu first generates a structured summary (Goal/Instructions/Discoveries/Accomplished/Relevant files) then appends recent messages. If execution runs are disabled, Kaiwu falls back to recent-only.
+你可以在“设置”中调整重放种子的预算（`max seed characters`），在上下文完整性与体积之间进行权衡。
 
-You can adjust the replay seed budget in Settings (`max seed characters`) to trade context vs. size.
+## 祖先会话记录渲染
 
-## Ancestor transcript rendering
+- 子会话会以内联形式展示自身消息及只读的祖先上下文，并带有“分叉自……”（Forked from …）分割线。
+- 向上滚动会自动拉取更早的父会话分页数据，不会在存储中产生重复消息。
+- 祖先消息不可交互（不支持审批或工具操作），但仍保留复制和深层链接功能。
 
-- The child session shows its own messages plus read-only ancestor context inline, with a “Forked from …” divider.
-- Scrolling upward fetches older parent pages automatically without duplicating messages in storage.
-- Ancestor messages are non-interactive (no approvals/tool actions), but copy/deep-link remains.
+## 分支与编辑语义
 
-## Branch-and-edit semantics
+- 在**用户消息**处分叉时，分叉点截取在该消息**之前**（开区间截止），并将该消息的原始内容恢复到子会话输入框中作为可编辑的草稿。
+- 在助手（assistant）或工具消息处分叉时，分叉点截取在该消息**之后**（闭区间截止），且不会预填草稿。
 
-- Forking on a **user message** forks **before** that message (exclusive cutoff) and restores that exact text into the child composer as an editable draft.
-- Forking on assistant/tool messages forks **after** that message (inclusive cutoff) and does not prefill a draft.
+## Codex app-server 行为表现
 
-## Codex app-server behavior
+- **原生会话级分叉**：Codex app-server 支持从最新已提交的对话状态进行分叉的会话操作。
+- **不支持原生消息级分叉**：悬停在旧消息上分叉仍依赖 Kaiwu 重放机制；若重放功能已禁用，该控件将不可用。
+- **回滚至指定点**：Codex app-server 支持将当前活跃对话回滚至任意已提交的用户消息之前。Kaiwu 会将该用户消息恢复到输入框草稿中供你修改重发，同时在会话记录中将已回滚的消息标记为历史记录，而非直接从视图中删除。
+- **旧版 Codex 变体**：较旧的会话元数据可能仍显示为 `openai` 或 `gpt`；Kaiwu 现已将其视作 Codex，以提供分叉与回滚的界面支持。
 
-- **Native session-level fork**: Codex app-server supports the session action that forks from the latest committed conversation state.
-- **No native fork-from-message**: hovering an older message still requires Kaiwu replay; if replay is disabled, that control is unavailable.
-- **Rollback to point**: Codex app-server supports rolling back the active conversation suffix before any committed user message. Kaiwu restores that user message into the composer draft so you can edit and resend it, and marks rolled-back messages as historical in the transcript instead of deleting them from view.
-- **Legacy Codex flavors**: older session metadata may still say `openai` or `gpt`; Kaiwu now treats those as Codex for fork/rollback UI support.
+## OpenCode 专属特性
 
-## OpenCode specifics
+- 两种后端：
+  - **服务端原生（默认）**：支持在消息处原生分叉、问题事件以及更丰富的生命周期。除非显式配置了服务器 URL，否则默认使用托管的本地 OpenCode 服务器。
+  - **ACP（旧版回退）**：当 ACP 后端暴露 `session/fork` 时，尽力从最新位置分叉；否则使用重放。
+- 显式配置外部服务器 URL（位于“设置”中）为可选功能；仅接受不含凭据的环回源 `http` 或 `https`。显式设置后，Kaiwu 会按会话持久化保存该 URL；托管服务器则不会被持久化。
+- 托管的 OpenCode 服务器在每台设备上共享；如果服务进程异常终止，Kaiwu 会自动重启它，避免阻塞新会话的创建。
 
-- Two backends:
-  - **Server-native (default)**: supports native fork-at-message, question events, and richer lifecycle. Uses a managed local OpenCode server unless you set an explicit server URL.
-  - **ACP (legacy fallback)**: best-effort fork-at-latest when the ACP backend exposes `session/fork`; otherwise replay is used.
-- Explicit external server URL (Settings) is opt-in; only loopback `http` or `https` origins without credentials are accepted. Kaiwu persists this URL per session when you explicitly set it; managed servers are not persisted.
-- Managed OpenCode server is shared per machine; if it dies, Kaiwu restarts it automatically instead of blocking new sessions.
+## AskUserQuestion（用户操作）
 
-## AskUserQuestion (user actions)
+- OpenCode 服务器会将 `question.*` 事件作为结构化的 **AskUserQuestion** 请求抛出。
+- 这些请求会渲染为用户操作卡片（而非权限）；回答问题即可恢复运行。已过期的历史问题呈只读状态，避免运行卡死。
 
-- OpenCode server emits `question.*` events as structured **AskUserQuestion** requests.
-- These render as user-action cards (not permissions); answering resumes the run. Stale historical questions are read-only to avoid stuck runs.
+## 提示与排错指南
 
-## Tips and troubleshooting
-
-- If a forked session lacks context, verify the fork point (hover fork vs. session-level fork) and that replay seeds are allowed in Settings.
-- For summary mode, ensure `execution.runs` is enabled; otherwise Kaiwu uses recent-only.
-- If an explicitly chosen native fork fails, select **Replay fork** yourself; it is never silently
-  substituted. Compatibility callers that use `auto` retain their established daemon-selected
-  fallback behavior.
-- For direct OpenCode server overrides, use loopback origins without paths/queries to avoid invalid base URLs.
+- 若分叉会话缺失上下文，请检查分叉点选择（悬停消息分叉与会话级分叉的区别），并确认“设置”中已允许使用重放种子。
+- 若要使用摘要模式，请确保已启用 `execution.runs`；否则 Kaiwu 将回退到仅包含近期消息。
+- 若显式选择的原生分叉失败，请手动改选**重放分叉**；系统绝不会静默替你降级。使用 `auto` 的兼容调用方则保留既有的守护进程自动选择回退行为。
+- 如需直接覆盖 OpenCode 服务器地址，请使用不包含路径或查询参数的环回源，避免基准 URL 无效。

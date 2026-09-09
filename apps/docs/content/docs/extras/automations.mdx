@@ -1,65 +1,44 @@
 ---
-title: Automations
-description: Run a session on a schedule, or queue recurring messages into one you already have.
+title: 自动化
+description: 定时运行会话，或向现有会话中排入周期性消息。
 ---
-
-Some work is worth doing on a timer rather than when you remember it: a nightly
-dependency check, a Monday-morning triage pass, a recurring prompt against a
-repository you watch. Automations run that work on your machines without you
-opening the app.
+有些工作适合定时自动执行，而不是想起来才去做：比如每晚检查依赖、周一早晨分类 issue，或是定期对关注的代码仓库运行提示词。借助自动化功能，无需打开应用，这些任务就能在你的设备上自动运行。
 
 <Callout type="warn">
-  Automations are experimental. The in-app message when they are off says it
-  plainly: enable them from Settings, then turn on **Experiments** and
-  **Automations**. The experiments switch gates the toggle, so you need both.
+  自动化功能目前处于实验阶段。未开启时，应用内的提示明确说明了启用方式：前往 Settings，然后开启 **Experiments** 与 **Automations**。实验性功能总开关控制着该选项，因此两者都需开启。
 </Callout>
 
-Find them at **Settings → Automations** — "Manage scheduled sessions and
-recurring runs".
+前往 **Settings → Automations** 即可找到该功能——“管理定时会话与周期运行任务”。
 
-## Two kinds
+## 两种类型
 
-**A scheduled session** starts a new session on a machine you choose, on a
-schedule. This is the one for work that should happen whether or not you are
-looking: create it from the new-session flow, where you have already picked the
-machine, folder, agent and model.
+**定时会话（scheduled session）**会按照预设时间表，在你指定的设备上启动新会话。这种类型适用于无需人工值守的任务：可在新建会话流程中直接创建，彼时你已选好设备、目录、agent 与模型。
 
-**A session automation** queues a message into a session that already exists,
-repeatedly. Add one from the session itself when you want a recurring nudge in a
-conversation you are keeping around.
+**会话自动化（session automation）**则会定期向已有会话中排入消息。如果你希望在长期保留的对话中定期触发提示，可在该会话内直接添加。
 
-## Scheduling
+## 调度设置
 
-A schedule is either an interval — every *n* minutes — or a cron expression,
-with presets for the common cases (**Every hour**, **Daily midnight**). Cron
-schedules run against a timezone you set, so a "daily at midnight" automation
-means midnight where you are rather than wherever the machine thinks it is.
+计划任务支持时间间隔（每 *n* 分钟）或 Cron 表达式，并提供了常用预设（**Every hour**、**Daily midnight**）。Cron 计划会基于你设置的时区运行，因此“每天午夜”是指你所在时区的午夜，而非设备本地所认定的午夜时间。
 
-Each automation is **Active** or **Paused**. Pausing keeps the definition and
-stops the runs, which is what you want while you are away.
+每项自动化都处于 **Active** 或 **Paused** 状态。暂停会保留配置并停止执行，适合离开或休假时使用。
 
-## Running one now
+## 立即运行
 
-**Run now** triggers an automation immediately without waiting for its next
-scheduled time — useful for checking that a new automation does what you meant
-before you leave it alone.
+**Run now** 可以立刻触发自动化，无需等待下一次计划时间——便于在脱手运行前验证新建的自动化是否符合预期。
 
-It queues rather than executing synchronously: the assigned daemon picks it up
-when it is available. If the machine is asleep, the run waits rather than
-failing.
+任务采用队列机制而非同步执行：指定的守护进程就绪后会自动拾取任务。若设备处于休眠状态，任务会等待唤醒，而不会直接报错。
 
-From a terminal:
+在终端中执行：
 
 ```bash
 happier automation run <automation-id> [--idempotency-key <key>] [--json]
 ```
 
-Pass `--idempotency-key` when the caller might retry — a repeated key will not
-run the automation twice.
+若调用方可能重试，请传入 `--idempotency-key`——重复的 key 不会触发二次运行。
 
-## Related
+## 相关内容
 
-- [Starting a session](/sessions/new-session-shortcuts) — where scheduled sessions are created.
-- [Agent autonomy](/extending/agent-autonomy) — agents creating sessions themselves.
-- [Feature flags](/extras/feature-flags) — the `automations` gate.
+- [启动会话](/sessions/new-session-shortcuts)——定时会话的创建入口。
+- [Agent 自主性](/extending/agent-autonomy)——agent 自主创建会话。
+- [特性标记](/extras/feature-flags)——`automations` 开关控制。
 - [CLI](/apps/cli)

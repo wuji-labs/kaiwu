@@ -1,16 +1,13 @@
 ---
-title: Code and review
-description: Read what an agent changed, mark up the parts you want revisited, and commit — without leaving the session.
+title: 编写与审查
+description: 查看智能体所做的修改，标出需要重新调整的部分并直接提交——无需离开会话。
 ---
+智能体声称修改的内容，并不等同于实际的代码变更（diff）。无论你使用何种设备，这几页文档都旨在帮助你直接在 Kaiwu 内部抹平这一差距。
 
-An agent's claim about what it changed is not the same as the diff. These pages
-are about closing that gap from inside Kaiwu, on whatever device you have.
+- [文件与编辑器](/code/files-and-editor) —— 浏览、搜索和编辑工作区。
+- [Diff 与审查](/code/diffs) —— 按代码仓库、按轮次、按会话或按已暂存内容查看变更。
+- [审查批注](/code/review-comments) —— 标记具体代码行，并将这些批注转化为发给智能体的指令。
+- [Git](/code/git) —— 暂存、提交、分支以及 stash 暂存，对任何可能导致代码丢失的操作均设有保护机制。
+- [Pull Request](/code/pull-requests) —— 发布分支，并新建或复用 Pull Request。
 
-- [Files and the editor](/code/files-and-editor) — browsing, searching and editing the workspace.
-- [Diffs and review](/code/diffs) — reading changes by repository, by turn, by session, or by what you have staged.
-- [Review comments](/code/review-comments) — marking exact lines and turning those notes into instructions for an agent.
-- [Git](/code/git) — staging, committing, branches and stashes, with guardrails on anything that could lose work.
-- [Pull requests](/code/pull-requests) — publishing a branch and opening or reusing a request.
-
-Git write operations are gated and off by default; each page states its own
-availability.
+Git 写入操作设有权限门禁且默认关闭；具体可用性请参阅各功能页面。

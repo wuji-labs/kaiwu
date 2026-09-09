@@ -1,26 +1,17 @@
 ---
-title: Protocol
-description: The event contract between clients, the relay and the machines running your agents.
+title: 协议
+description: 客户端、中继与运行智能体的设备之间的事件契约。
 ---
+Kaiwu 跨设备的所有交互都基于同一个约定：一套由客户端、中继与 CLI 守护进程共享的带版本事件协议。
 
-Everything Kaiwu does across devices rides on one contract: a versioned event
-protocol shared by the clients, the relay and the CLI daemon.
+即便从未阅读过具体的数据定义，以下两项特性也值得了解：
 
-Two properties of it are worth knowing even if you never read the schemas:
+- **双向数据均由套接字承载。** 消息体直接通过 WebSocket 传输，无需在事后另行通过 HTTP 拉取；客户端亦通过同一连接回写数据。
+- **写入采用乐观并发控制。** 带有版本的字段包含 `expectedVersion`；若写入操作已过期，系统会直接拒绝并附带返回当前最新版本，而非盲目覆盖。冲突解决由客户端负责，这也正是两台设备无需对会话加锁即可协同操作的关键所在。
 
-- **The socket carries the data, both ways.** Message bodies arrive over the
-  WebSocket rather than being fetched over HTTP afterwards, and clients write
-  back over the same connection.
-- **Writes are optimistically concurrent.** Versioned fields carry an
-  `expectedVersion`, and a stale write is rejected with the current version
-  attached rather than overwriting. Conflict resolution belongs to the client,
-  which is what lets two devices work on one session without locking it.
+[Kaiwu 的协同运作机制](/self-hosting/how-it-works) 详细阐述了这些特性在实践中的意义，包括在自托管中继前置反向代理时为何需要特别注意这一点。
 
-[How Kaiwu fits together](/self-hosting/how-it-works) covers what that means in practice,
-including why it matters when you put a reverse proxy in front of a self-hosted
-relay.
+## 相关内容
 
-## Related
-
-- [How Kaiwu fits together](/self-hosting/how-it-works)
-- [Security](/security) — what the relay can read.
+- [Kaiwu 的协同运作机制](/self-hosting/how-it-works)
+- [安全机制](/security) —— 中继能够读取哪些内容。

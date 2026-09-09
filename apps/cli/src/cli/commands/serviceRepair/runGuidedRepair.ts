@@ -426,7 +426,7 @@ function dispatchRunningDaemonCliMismatchAction(
   if (finding.recoveryStrategy === 'daemon-stop') {
     // Cross-channel replace: stop the old-channel daemon, then start a
     // fresh one using THIS CLI (which will be on the current channel).
-    // `happier daemon start` spawns against the active relay profile, so
+    // `kaiwu daemon start` spawns against the active relay profile, so
     // we end up with a current-channel daemon on the same profile the old
     // daemon was using. If the stop fails, skip the start.
     const stopped = runCliCommand([

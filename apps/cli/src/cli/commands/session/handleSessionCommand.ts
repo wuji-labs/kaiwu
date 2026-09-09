@@ -80,35 +80,35 @@ function inferSessionKind(argv: readonly string[]): string {
 }
 
 const SESSION_HELP_BY_COMMAND = {
-  list: 'happier session list [--active] [--archived] [--limit N] [--cursor C] [--include-system] [--resumable] [--plain] [--json]',
-  status: 'happier session status <session-id-or-prefix-or-tag> [--live] [--json]',
+  list: 'kaiwu session list [--active] [--archived] [--limit N] [--cursor C] [--include-system] [--resumable] [--plain] [--json]',
+  status: 'kaiwu session status <session-id-or-prefix-or-tag> [--live] [--json]',
   create: SESSION_CREATE_USAGE,
-  send: 'happier session send <session-id-or-prefix-or-tag> <message> [--permission-mode <mode>] [--model <model-id>] [--wait] [--timeout <seconds>] [--json]',
-  wait: 'happier session wait <session-id-or-prefix-or-tag> [--timeout <seconds>] [--json]',
-  stop: 'happier session stop <session-id-or-prefix-or-tag> [--json]',
-  history: 'happier session history <session-id-or-prefix-or-tag> [--limit N] [--format compact|raw] [--include-meta] [--include-structured-payload] [--json]',
-  'set-title': 'happier session set-title <session-id-or-prefix-or-tag> <title> [--json]',
-  'set-permission-mode': 'happier session set-permission-mode <session-id-or-prefix-or-tag> <mode> [--json]',
-  'set-model': 'happier session set-model <session-id-or-prefix-or-tag> <model-id> [--json]',
-  archive: 'happier session archive <session-id-or-prefix-or-tag> [--json]',
-  unarchive: 'happier session unarchive <session-id-or-prefix-or-tag> [--json]',
-  'review start': 'happier session review start <session-id-or-prefix-or-tag> --engines <id1,id2> [--instructions <text>] [--json]',
-  'plan start': 'happier session plan start <session-id-or-prefix-or-tag> --backends <id1,id2> --instructions <text> [--json]',
-  'delegate start': 'happier session delegate start <session-id-or-prefix-or-tag> --backends <id1,id2> --instructions <text> [--json]',
-  'voice-agent start': 'happier session voice-agent start <session-id-or-prefix-or-tag> --backends <id1,id2> --instructions <text> [--json]',
-  'actions list': 'happier session actions list [--json]',
-  'actions describe': 'happier session actions describe <action-id> [--json]',
-  'actions execute': 'happier session actions execute <session-id-or-prefix-or-tag> <action-id> [--input-json <json>] [--action-request-id <id>] [--resume-action-request] [--json]',
+  send: 'kaiwu session send <session-id-or-prefix-or-tag> <message> [--permission-mode <mode>] [--model <model-id>] [--wait] [--timeout <seconds>] [--json]',
+  wait: 'kaiwu session wait <session-id-or-prefix-or-tag> [--timeout <seconds>] [--json]',
+  stop: 'kaiwu session stop <session-id-or-prefix-or-tag> [--json]',
+  history: 'kaiwu session history <session-id-or-prefix-or-tag> [--limit N] [--format compact|raw] [--include-meta] [--include-structured-payload] [--json]',
+  'set-title': 'kaiwu session set-title <session-id-or-prefix-or-tag> <title> [--json]',
+  'set-permission-mode': 'kaiwu session set-permission-mode <session-id-or-prefix-or-tag> <mode> [--json]',
+  'set-model': 'kaiwu session set-model <session-id-or-prefix-or-tag> <model-id> [--json]',
+  archive: 'kaiwu session archive <session-id-or-prefix-or-tag> [--json]',
+  unarchive: 'kaiwu session unarchive <session-id-or-prefix-or-tag> [--json]',
+  'review start': 'kaiwu session review start <session-id-or-prefix-or-tag> --engines <id1,id2> [--instructions <text>] [--json]',
+  'plan start': 'kaiwu session plan start <session-id-or-prefix-or-tag> --backends <id1,id2> --instructions <text> [--json]',
+  'delegate start': 'kaiwu session delegate start <session-id-or-prefix-or-tag> --backends <id1,id2> --instructions <text> [--json]',
+  'voice-agent start': 'kaiwu session voice-agent start <session-id-or-prefix-or-tag> --backends <id1,id2> --instructions <text> [--json]',
+  'actions list': 'kaiwu session actions list [--json]',
+  'actions describe': 'kaiwu session actions describe <action-id> [--json]',
+  'actions execute': 'kaiwu session actions execute <session-id-or-prefix-or-tag> <action-id> [--input-json <json>] [--action-request-id <id>] [--resume-action-request] [--json]',
   'run start': SESSION_RUN_START_USAGE,
   'run list': SESSION_RUN_LIST_USAGE,
-  'run get': 'happier session run get <session-id-or-prefix-or-tag> <run-id> [--include-structured] [--json]',
-  'run send': 'happier session run send <session-id-or-prefix-or-tag> <run-id> <message> [--resume] [--json]',
-  'run stop': 'happier session run stop <session-id-or-prefix-or-tag> <run-id> [--json]',
-  'run action': 'happier session run action <session-id-or-prefix-or-tag> <run-id> <action-id> [--input-json <json>] [--json]',
-  'run wait': 'happier session run wait <session-id-or-prefix-or-tag> <run-id> [--timeout <seconds>] [--json]',
-  'run stream-start': 'happier session run stream-start <session-id-or-prefix-or-tag> <run-id> <message> [--resume] [--json]',
-  'run stream-read': 'happier session run stream-read <session-id-or-prefix-or-tag> <run-id> <stream-id> --cursor <n> [--max-events <n>] [--json]',
-  'run stream-cancel': 'happier session run stream-cancel <session-id-or-prefix-or-tag> <run-id> <stream-id> [--json]',
+  'run get': 'kaiwu session run get <session-id-or-prefix-or-tag> <run-id> [--include-structured] [--json]',
+  'run send': 'kaiwu session run send <session-id-or-prefix-or-tag> <run-id> <message> [--resume] [--json]',
+  'run stop': 'kaiwu session run stop <session-id-or-prefix-or-tag> <run-id> [--json]',
+  'run action': 'kaiwu session run action <session-id-or-prefix-or-tag> <run-id> <action-id> [--input-json <json>] [--json]',
+  'run wait': 'kaiwu session run wait <session-id-or-prefix-or-tag> <run-id> [--timeout <seconds>] [--json]',
+  'run stream-start': 'kaiwu session run stream-start <session-id-or-prefix-or-tag> <run-id> <message> [--resume] [--json]',
+  'run stream-read': 'kaiwu session run stream-read <session-id-or-prefix-or-tag> <run-id> <stream-id> --cursor <n> [--max-events <n>] [--json]',
+  'run stream-cancel': 'kaiwu session run stream-cancel <session-id-or-prefix-or-tag> <run-id> <stream-id> [--json]',
 } as const;
 
 const SESSION_HELP_GROUPS: Readonly<Record<string, readonly (keyof typeof SESSION_HELP_BY_COMMAND)[]>> = {
@@ -235,7 +235,7 @@ export async function handleSessionCommand(
         return;
       case 'run': {
         const runSub = String(argv[1] ?? '').trim();
-        if (!runSub) throw new Error('Usage: happier session run <subcommand> ...');
+        if (!runSub) throw new Error('Usage: kaiwu session run <subcommand> ...');
         if (runSub === 'get') {
           await cmdSessionRunGet(argv, { readCredentialsFn });
           return;
@@ -280,7 +280,7 @@ export async function handleSessionCommand(
       }
       case 'review': {
         const reviewSub = String(argv[1] ?? '').trim();
-        if (!reviewSub) throw new Error('Usage: happier session review <subcommand> ...');
+        if (!reviewSub) throw new Error('Usage: kaiwu session review <subcommand> ...');
         if (reviewSub === 'start') {
           await cmdSessionReviewStart(argv, { readCredentialsFn });
           return;
@@ -289,7 +289,7 @@ export async function handleSessionCommand(
       }
       case 'plan': {
         const planSub = String(argv[1] ?? '').trim();
-        if (!planSub) throw new Error('Usage: happier session plan <subcommand> ...');
+        if (!planSub) throw new Error('Usage: kaiwu session plan <subcommand> ...');
         if (planSub === 'start') {
           await cmdSessionPlanStart(argv, { readCredentialsFn });
           return;
@@ -298,7 +298,7 @@ export async function handleSessionCommand(
       }
       case 'delegate': {
         const delSub = String(argv[1] ?? '').trim();
-        if (!delSub) throw new Error('Usage: happier session delegate <subcommand> ...');
+        if (!delSub) throw new Error('Usage: kaiwu session delegate <subcommand> ...');
         if (delSub === 'start') {
           await cmdSessionDelegateStart(argv, { readCredentialsFn });
           return;
@@ -308,7 +308,7 @@ export async function handleSessionCommand(
       case 'voice-agent':
       case 'voice_agent': {
         const voiceSub = String(argv[1] ?? '').trim();
-        if (!voiceSub) throw new Error('Usage: happier session voice-agent <subcommand> ...');
+        if (!voiceSub) throw new Error('Usage: kaiwu session voice-agent <subcommand> ...');
         if (voiceSub === 'start') {
           await cmdSessionVoiceAgentStart(argv, { readCredentialsFn });
           return;
@@ -317,7 +317,7 @@ export async function handleSessionCommand(
       }
       case 'actions': {
         const actionSub = String(argv[1] ?? '').trim();
-        if (!actionSub) throw new Error('Usage: happier session actions <subcommand> ...');
+        if (!actionSub) throw new Error('Usage: kaiwu session actions <subcommand> ...');
         if (actionSub === 'list') {
           await cmdSessionActionsList(argv);
           return;
