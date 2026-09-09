@@ -2,7 +2,7 @@ import { listPublicReleaseChannels } from './public-release-rings.mjs';
 
 export const MANIFEST_SCHEMA_VERSION = 'v1';
 
-const PRODUCT_NAMES = new Set(['happier', 'hstack', 'happier-server']);
+const PRODUCT_NAMES = new Set(['kaiwu', 'happier', 'hstack', 'happier-server', 'kaiwu-server']);
 const RELEASE_CHANNELS = new Set(
   listPublicReleaseChannels()
     .map((entry) => entry.manifestChannel)
@@ -13,7 +13,7 @@ const RELEASE_CHANNELS = new Set(
 
 export function parseArtifactFilename(name) {
   const raw = String(name ?? '').trim();
-  const match = /^(happier|hstack|happier-server)-v(.+)-([a-z]+)-(x64|arm64)\.tar\.gz$/.exec(raw);
+  const match = /^(kaiwu|happier|hstack|happier-server|kaiwu-server)-v(.+)-([a-z]+)-(x64|arm64)\.tar\.gz$/.exec(raw);
   if (!match) return null;
   const [, product, version, os, arch] = match;
   return { product, version, os, arch, filename: raw };
@@ -22,7 +22,7 @@ export function parseArtifactFilename(name) {
 export function assertValidProduct(product) {
   const value = String(product ?? '').trim();
   if (!PRODUCT_NAMES.has(value)) {
-    throw new Error(`[release] invalid product "${value}" (expected happier|hstack|happier-server)`);
+    throw new Error(`[release] invalid product "${value}" (expected kaiwu|happier|hstack|happier-server|kaiwu-server)`);
   }
   return value;
 }
