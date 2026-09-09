@@ -12,11 +12,14 @@ const KNOWN_BINARY_EXTENSIONS = new Set([
     'wmv',
     'flv',
     'webm',
+    'm4v',
     'mp3',
     'wav',
-    'flac',
+    'm4a',
     'aac',
+    'flac',
     'ogg',
+    'opus',
     'pdf',
     'doc',
     'docx',
@@ -59,6 +62,69 @@ function getPathExtension(path: string): string | null {
     const lastDotIndex = basename.lastIndexOf('.');
     if (lastDotIndex <= 0 || lastDotIndex >= basename.length - 1) return null;
     return basename.slice(lastDotIndex + 1).toLowerCase();
+}
+
+export type MediaKind = 'pdf' | 'docx' | 'xlsx' | 'pptx' | 'audio' | 'video';
+export type LegacyOfficeKind = 'doc' | 'xls' | 'ppt';
+
+const MEDIA_KIND_BY_EXTENSION: Record<string, MediaKind> = {
+    pdf: 'pdf',
+    docx: 'docx',
+    xlsx: 'xlsx',
+    pptx: 'pptx',
+    mp3: 'audio',
+    wav: 'audio',
+    m4a: 'audio',
+    aac: 'audio',
+    flac: 'audio',
+    ogg: 'audio',
+    opus: 'audio',
+    mp4: 'video',
+    mov: 'video',
+    webm: 'video',
+    m4v: 'video',
+};
+
+const LEGACY_OFFICE_KIND_BY_EXTENSION: Record<string, LegacyOfficeKind> = {
+    doc: 'doc',
+    xls: 'xls',
+    ppt: 'ppt',
+};
+
+const MEDIA_MIME_BY_EXTENSION: Record<string, string> = {
+    pdf: 'application/pdf',
+    docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    mp3: 'audio/mpeg',
+    wav: 'audio/wav',
+    m4a: 'audio/mp4',
+    aac: 'audio/aac',
+    flac: 'audio/flac',
+    ogg: 'audio/ogg',
+    opus: 'audio/opus',
+    mp4: 'video/mp4',
+    mov: 'video/quicktime',
+    webm: 'video/webm',
+    m4v: 'video/x-m4v',
+};
+
+export function getMediaMimeTypeFromPath(path: string): string | null {
+    const extension = getPathExtension(path);
+    if (!extension) return null;
+    return MEDIA_MIME_BY_EXTENSION[extension] ?? null;
+}
+
+export function getMediaKind(path: string): MediaKind | null {
+    const extension = getPathExtension(path);
+    if (!extension) return null;
+    return MEDIA_KIND_BY_EXTENSION[extension] ?? null;
+}
+
+export function getLegacyOfficeKind(path: string): LegacyOfficeKind | null {
+    const extension = getPathExtension(path);
+    if (!extension) return null;
+    return LEGACY_OFFICE_KIND_BY_EXTENSION[extension] ?? null;
 }
 
 export function isKnownBinaryPath(path: string): boolean {
