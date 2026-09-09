@@ -53,6 +53,7 @@ import { PdfPreviewPanel } from '@/components/sessions/files/content/documentPre
 import { DocxPreviewPanel } from '@/components/sessions/files/content/documentPreview/DocxPreviewPanel';
 import { XlsxPreviewPanel } from '@/components/sessions/files/content/documentPreview/XlsxPreviewPanel';
 import { PptxPreviewPanel } from '@/components/sessions/files/content/documentPreview/PptxPreviewPanel';
+import { VideoPreviewPanel } from '@/components/sessions/files/content/mediaPreview/VideoPreviewPanel';
 import { getMediaKind, getLegacyOfficeKind } from '@/scm/utils/filePresentation';
 import { extractSelectedDiffLineKeysFromPatch } from '@/scm/scmPatchSelection';
 export type SessionFileDeepLinkAnchor = Readonly<{
@@ -839,6 +840,31 @@ export function SessionFileDetailsView(props: SessionFileDetailsViewProps) {
                                 theme={theme}
                                 filePath={filePath}
                                 customMessage={binaryMediaPreview.error ?? t('files.officePreviewFailed')}
+                                actionButton={
+                                    <FileDownloadButton
+                                        testID="file-media-download"
+                                        sessionId={sessionId}
+                                        path={filePath}
+                                        asZip={false}
+                                    />
+                                }
+                            />
+                        )
+                    ) : mediaKind === 'video' ? (
+                        binaryMediaPreview.status === 'loaded' ? (
+                            <VideoPreviewPanel
+                                uri={binaryMediaPreview.uri}
+                                theme={theme}
+                                fileName={fileName}
+                                mimeType={fileContent?.binaryMime}
+                            />
+                        ) : binaryMediaPreview.status === 'loading' ? (
+                            <FileLoadingState theme={theme} filePath={filePath} />
+                        ) : (
+                            <FileBinaryState
+                                theme={theme}
+                                filePath={filePath}
+                                customMessage={binaryMediaPreview.error ?? t('files.videoPlaybackFailed')}
                                 actionButton={
                                     <FileDownloadButton
                                         testID="file-media-download"
