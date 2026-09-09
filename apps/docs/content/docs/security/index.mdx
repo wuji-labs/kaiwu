@@ -1,65 +1,43 @@
 ---
-title: Security
-description: What the server can and cannot read, how that changes with your storage policy, and where the boundaries actually sit.
+title: 安全
+description: 服务器能够与无法读取的内容、这如何随存储策略发生变化，以及实际的边界究竟在何处。
 ---
+把代码托付给任何服务之前，最值得深究的问题是：**服务器的运维方究竟能读取什么？**
 
-The question worth asking before you trust anything with your code is: **what
-can whoever runs the server actually read?**
+坦白讲，答案取决于一项设置。在 Kaiwu Cloud 以及保持默认设置的自托管服务器上，答案是“读取不了你的对话”。这并非产品抽象的宣传辞令，而是由服务器当前运行的存储策略决定的客观事实。
 
-The honest answer depends on one setting. On Kaiwu Cloud, and on any
-self-hosted server left at its defaults, the answer is "not your conversations".
-That is not a property of the product in the abstract — it is a property of the
-storage policy the server is running.
+## 端到端加密及其生效前提
 
-## End-to-end encryption, and what it is conditioned on
+消息和敏感的会话载荷在离开你的设备前就已完成加密。服务器仅保存密文以及用于路由同步的元数据，无法读取实际内容。
 
-Messages and sensitive session payloads are encrypted on your device before they
-are sent. The server stores ciphertext and the sync metadata it needs to route
-it, and cannot read the content.
+这一结论在默认的 `required_e2ee` 策略（`HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY`）下始终成立。自托管运营方也可以选择其他策略：
 
-That holds under `required_e2ee`, which is the default
-(`HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY`). A self-hosted operator can
-choose otherwise:
-
-| Storage policy | What the server stores | Who can read it |
+| 存储策略 | 服务器存储的内容 | 谁能读取 |
 | --- | --- | --- |
-| `required_e2ee` *(default)* | Ciphertext only | Only your devices |
-| `optional` | Ciphertext, or plaintext for accounts and sessions in plain mode | Whoever runs the server, for anything stored in plain mode |
-| `plaintext_only` | Plaintext session content | Whoever runs the server |
+| `required_e2ee` *（默认）* | 仅密文 | 仅你的设备 |
+| `optional` | 密文；明文模式下的账户和会话则存为明文 | 服务器运维方可读取明文存储的任何内容 |
+| `plaintext_only` | 会话明文内容 | 服务器运维方 |
 
-Plaintext mode is not a loophole — it is a deliberate option for deployments
-that need server-side search, keyless logins, or enterprise identity through
-[mTLS](/self-hosting/auth-mtls), which provisions keyless accounts and so cannot be
-paired with `required_e2ee`. It is a real trade-off, and it should be a decision
-someone makes on purpose.
+明文模式并不是安全漏洞，而是一项深思熟虑的设计，专门面向需要服务端搜索、无密钥登录或通过 [mTLS](/self-hosting/auth-mtls) 对接企业身份认证的部署场景——mTLS 会配置无密钥账户，因此无法与 `required_e2ee` 配对使用。这是一个实实在在的权衡，必须由管理员按需主动做出决策。
 
-If you use Kaiwu Cloud, this is settled for you: content is end-to-end
-encrypted. If you use somebody else's server, the guarantee is theirs to make.
+如果你使用的是 Kaiwu Cloud，平台已为你做好保障：所有内容均经过端到端加密。如果你使用的是其他人搭建的服务器，这项保证则取决于对方的配置。
 
-## What the server can see
+## 服务器能看到什么
 
-Under the default policy:
+在默认策略下，服务器可以访问：
 
-- Account identifiers and the metadata needed to route sync.
-- Encrypted blobs — ciphertext it cannot open.
-- Operational metadata: timestamps, sizes, session and message ordering.
-- The device push token needed to deliver notifications, and the attention badge
-  count sent with a refresh. Notification *content* is generated on your device;
-  the delivery the backend sends carries a count and nothing else.
-- For a session shared through a public link with **Require consent** enabled,
-  an access log for each viewer, including their IP address and user agent.
-- Identity records and any stored OAuth or refresh tokens for connected
-  services, plus certificate identities where mTLS is in use.
-- Account settings and credentials, sealed with server-owned key material
-  (`server_sealed`) rather than your device key. Sealed is not the same as
-  end-to-end encrypted: an operator holding the master secret can open these.
+- 账户标识符及路由同步所需的元数据。
+- 加密 Blob——服务器无法解密的密文数据块。
+- 运维元数据：时间戳、数据大小、会话与消息的时序。
+- 用于推送通知的设备 Push Token，以及刷新时附带的未读角标计数。通知*内容*完全在你的设备本地生成；后端发送的推送仅包含数值，别无其他。
+- 对于通过公开链接共享且启用了 **Require consent** 的会话，服务器会记录访客的访问日志，包括其 IP 地址和 User Agent。
+- 身份凭证记录、已连接服务的 OAuth 或 Refresh Token，以及使用 mTLS 时的证书身份信息。
+- 账户设置与凭证，这类数据使用服务器自持的密钥材料（`server_sealed`）而非你的设备密钥进行封存（Sealed）。“封存”并不等同于端到端加密：掌握主密钥（Master Secret）的运维人员可以解密这些内容。
 
-Under `optional` or `plaintext_only`, add session content itself to that list
-for anything stored in plain mode.
+在 `optional` 或 `plaintext_only` 策略下，凡是以明文模式存储的内容，其会话本身也将列入上述可见清单。
 
-## Related
+## 相关内容
 
-- [Encryption model](/security/encryption) — the mechanism, key by key.
-- [Encryption and plaintext storage](/self-hosting/encryption) — the operator's view,
-  including how to choose a policy and what cannot be changed afterwards.
-- [Privacy Policy](/legal/privacy) — what Kaiwu Cloud does with the above.
+- [加密模型](/security/encryption)——逐密钥解析加密机制。
+- [加密与明文存储](/self-hosting/encryption)——运维视角解读，包括如何选择策略以及哪些配置后续无法更改。
+- [隐私政策](/legal/privacy)——Kaiwu Cloud 如何处理上述数据。

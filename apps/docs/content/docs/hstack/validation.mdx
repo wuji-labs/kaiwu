@@ -1,13 +1,12 @@
 ---
-title: Validation (typecheck, lint, test)
-description: Run checks on the active checkout or stack-scoped (recommended).
+title: 验证（类型检查、代码检查、测试）
+description: 在当前检出或栈范围内运行检查（推荐）。
+---
+大多数 hstack 命令都支持 `--help` 与 `--json`。
+
 ---
 
-Most hstack commands support `--help` and `--json`.
-
----
-
-## Validate the active checkout (non-stack)
+## 验证当前检出（非栈）
 
 ```bash
 hstack typecheck all
@@ -15,7 +14,7 @@ hstack lint all
 hstack test all
 ```
 
-Target a specific area:
+针对特定区域：
 
 ```bash
 hstack typecheck ui
@@ -25,9 +24,9 @@ hstack typecheck server
 
 ---
 
-## Validate inside a stack (recommended)
+## 在栈内验证（推荐）
 
-Stack-scoped validation applies that stack’s env (ports, server URLs, DB config, CLI home, etc).
+栈作用域下的验证会应用对应栈的环境配置（端口、服务器 URL、数据库配置、CLI 主目录等）。
 
 ```bash
 hstack stack typecheck exp1 all
@@ -35,7 +34,7 @@ hstack stack lint exp1 all
 hstack stack test exp1 all
 ```
 
-Target a specific area:
+针对特定区域：
 
 ```bash
 hstack stack typecheck exp1 ui
@@ -45,13 +44,12 @@ hstack stack test exp1 server
 
 ---
 
-## CI-oriented checks
+## 面向 CI 的检查
 
-hstack also provides a `ci` command for standardized runs:
+hstack 还提供了 `ci` 命令，用于执行标准化运行：
 
 ```bash
 hstack ci --help
 ```
 
-Use this when you want a repeatable “policy” run (and to align with what maintainers will run).
-
+当你需要执行可复现的“策略规范”运行（并与维护者的运行标准保持一致）时，可以使用此命令。

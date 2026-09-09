@@ -1,61 +1,60 @@
 ---
-title: Tool timeline & normalization
-description: How Kaiwu renders tools consistently across providers, with configurable detail levels.
+title: 工具时间线与规范化
+description: Kaiwu 如何在不同提供商间一致地渲染工具，并支持可配置的详情层级。
 ---
+Kaiwu 会将各提供商的原生工具规范化，统一呈现在标准的时间线界面中（例如 `Bash`、`Edit`、`Read`、`Diff`）。
 
-Kaiwu normalizes provider-native tools into a canonical timeline surface (for example `Bash`, `Edit`, `Read`, `Diff`).
+这让 Claude、Codex、Gemini、OpenCode、Kilo、Kimi、Qwen 以及 Augment 等各后端的会话时间线始终保持一致。
 
-This keeps session timelines consistent across Claude/Codex/Gemini/OpenCode/Kilo/Kimi/Qwen/Augment backends.
+## 规范化带来的优势
 
-## What normalization gives you
+- 跨提供商统一工具词汇体系。
+- 在会话时间线卡片中稳定渲染各类工具。
+- 更好地兼容历史会话以及混合后端的历史记录。
+- 提供更清晰的 diff 与摘要（在支持的场景下包含按轮次聚合的 diff）。
+- 当提供商发出子 agent 事件时，清晰展示子 agent 的活动。
 
-- A consistent tool vocabulary across providers.
-- Stable per-tool rendering in session timeline cards.
-- Better compatibility for legacy sessions and mixed backend histories.
-- Cleaner diffs and summaries (including per-turn diff aggregation where available).
-- Visibility into subagent activity when a provider emits subagent events.
+## 工具详情显示控制
 
-## Tool detail controls
+在应用中打开：
 
-In the app, open:
+1. **设置**
+2. **会话**
+3. **工具渲染**
 
-1. **Settings**
-2. **Session**
-3. **Tool Rendering**
+详情级别：
 
-Detail levels:
+- **Title**：仅显示工具名称
+- **Summary**：精简的安全摘要
+- **Full**：完整的行内详情
 
-- **Title**: tool name only
-- **Summary**: compact safe summary
-- **Full**: full inline details
+你可以配置全局默认项，也可以针对特定工具进行单独覆盖。
 
-You can configure defaults and per-tool overrides.
+展开视图的覆盖配置与时间线/折叠状态的行为相互独立。
 
-Expanded-view overrides are configured separately from timeline/collapsed behavior.
+设置独立的“工具渲染”界面，是为了避免在“会话”设置根页面中逐项展开每个工具的覆盖配置。
 
-The dedicated Tool Rendering screen exists so the root Session settings page does not need to render every tool override inline.
+## 调试与原始数据查看
 
-## Debug/raw visibility
+对于高级调试场景，你可以在工具的完整视图中查看规范化后的原始载荷。在排查提供商行为变动或工具解析的边界情况时，这一功能非常有用。
 
-For advanced debugging, you can view raw normalized payloads in full tool views. This is helpful when investigating provider drift or tool parsing edge cases.
+## 轮次摘要与子 agent
 
-## Turn summaries and subagents
+根据提供商与运行时载荷的完整程度，Kaiwu 可以呈现：
 
-Depending on provider/runtime payload quality, Kaiwu can surface:
+- 当前轮次按文件划分的 diff；
+- 轮次结束时的变更摘要；
+- 同一时间线内的嵌套子 agent 操作。
 
-- per-file diffs for the current turn,
-- a turn-end summary of changes,
-- nested subagent actions in the same timeline.
+这些界面的展示取决于底层能力，在不同提供商之间可能会有所差异。
 
-These displays are capability-driven and may vary by provider.
+如果你需要查看这些 agent 的实时列表，请使用专用的 [Agent 与子 agent](/extending/subagents) 界面。会话记录会保留启动历史，“Agents”标签页则负责呈现当前的运行状态与近期视图。
 
-If you want the live roster for those agents, use the dedicated [Agents & subagents](/extending/subagents) surface. The transcript keeps the launch history; the Agents tab keeps the current running/recent view.
+## 相关页面
 
-## Related pages
+- [Agent 与子 agent](/extending/subagents)
+- [Git 与文件浏览器](/code/git)
+- [权限](/sessions/permissions)
+- [忙碌时引导](/sessions/steering)
 
-- [Agents & subagents](/extending/subagents)
-- [Git & file browser](/code/git)
-- [Permissions](/sessions/permissions)
-- [Steering while busy](/sessions/steering)
-
-For internal implementation details, see `/docs/tool-normalization.md` in the repository.
+有关内部实现细节，请参阅代码仓库中的 `/docs/tool-normalization.md`。

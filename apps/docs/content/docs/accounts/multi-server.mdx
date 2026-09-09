@@ -1,51 +1,50 @@
 ---
-title: Multi-server
-description: Use multiple Kaiwu servers from the same app and CLI.
+title: 多服务器
+description: 在同一个 App 和 CLI 中使用多个 Kaiwu 服务器。
 ---
+Kaiwu 支持同时使用多个服务器（例如 Kaiwu Cloud + 个人自托管 + 公司自托管）。
 
-Kaiwu supports using multiple servers at once (for example Kaiwu Cloud + personal self-host + company self-host).
+## 核心模型
 
-## Core model
+- **服务器配置文件**（server profile）即已保存的 API 或 Web 应用目标地址。
+- 身份认证**限定在服务器级别**。登录 `server A` 并不会自动登录 `server B`。
+- 守护进程与运行时状态同样限定在服务器级别，因此一台设备可以安全运行多个守护进程实例。
 
-- A **server profile** is a saved API/webapp target.
-- Auth is **scoped per server**. Signing into `server A` does not sign you into `server B`.
-- Daemon/runtime state is also scoped per server, so one machine can run multiple daemon instances safely.
+即便在两个服务器上使用相同的身份提供商（例如 GitHub），它们依然是彼此独立的服务器账户。
 
-If you use the same identity provider (for example GitHub) on two servers, they are still separate server accounts.
+## App 与 Web 界面
 
-## App and web UI
+### 添加与切换服务器
 
-### Add and switch servers
+- 打开**服务器**设置，可添加、选择、重命名或删除已保存的服务器。
+- 在 Web 端，服务器选择可针对单标签页生效，也可设为当前设备的默认值。
+- 若连接链接或通知链接指向另一个**已保存**的服务器，Kaiwu 会在继续操作前自动切换到该服务器。
+- 若通知指向一个**尚未保存**的服务器，Kaiwu 不会盲目替换你现有的服务器配置。
 
-- Open **Server** settings to add, select, rename, or remove saved servers.
-- On web, server selection can be set per-tab or as a device default.
-- If a connect/notification link targets a different **saved** server, Kaiwu switches to that server before continuing.
-- If a notification targets a server that is **not saved yet**, Kaiwu does not blindly replace your existing server setup.
+#### 收到未保存服务器的通知
 
-#### Notifications from a server that is not saved yet
+Kaiwu 会根据当前设备的已有配置采取不同的处理方式：
 
-Kaiwu handles this differently depending on what is already on the device:
+- **尚无已保存的服务器**：Kaiwu 会自动初始化该服务器，确保通知链接仍能正常打开目标会话
+- **已存在一个或多个已保存的服务器**：Kaiwu 会打开**服务器设置**并自动填入传入的 URL，提示你明确添加该服务器
 
-- **No saved servers yet**: Kaiwu can bootstrap the server so the notification link still opens the intended session
-- **One or more saved servers already exist**: Kaiwu opens **Server settings** with the incoming URL prefilled and asks you to add it explicitly
+选择**添加并使用**（Add & Use）后，Kaiwu 将自动跳转至挂起的会话或请求。
 
-After you choose **Add & Use**, Kaiwu continues to the pending session/request automatically.
+### 服务器配置链接
 
-### Configure-server links
-
-Installers and setup commands can print one-click links:
+安装程序和配置命令可输出一键配置链接：
 
 - `happier://server?url=<ENCODED_SERVER_URL>`
-- `<WEBAPP_URL>/?server=<ENCODED_SERVER_URL>` (preferred)
-- `<WEBAPP_URL>/server?url=<ENCODED_SERVER_URL>&auto=1` (legacy)
+- `<WEBAPP_URL>/?server=<ENCODED_SERVER_URL>`（推荐）
+- `<WEBAPP_URL>/server?url=<ENCODED_SERVER_URL>&auto=1`（旧版）
 
-These prefill server settings so users do not have to paste URLs manually.
+这些链接会自动预填服务器设置，省去手动粘贴 URL 的麻烦。
 
-## CLI server profiles
+## CLI 服务器配置文件
 
-### Persisted profiles
+### 持久化配置文件
 
-Use server profile commands:
+使用服务器配置文件管理命令：
 
 ```bash
 happier server list
@@ -56,31 +55,31 @@ happier server remove company
 happier server test company
 ```
 
-### Per-command targeting (no default switch)
+### 单次命令指定服务器（不切换默认值）
 
-Target a server for one command only:
+仅对单条命令指定目标服务器：
 
 ```bash
 happier --server company auth login
 happier --server personal daemon status
 ```
 
-You can also pass explicit URLs for a single invocation:
+也可以在单次调用时直接传入明确的 URL：
 
 ```bash
 happier --server-url https://api.company.example --webapp-url https://app.company.example auth login
 ```
 
-## Multiple daemons on one machine
+## 单设备运行多个守护进程
 
-Install/start one daemon service per server profile:
+为各个服务器配置文件分别安装/启动独立的守护进程服务：
 
 ```bash
 happier --server personal daemon service install
 happier --server company daemon service install
 ```
 
-Check status:
+检查状态：
 
 ```bash
 happier daemon status --all
@@ -88,30 +87,30 @@ happier --server personal daemon service status
 happier --server company daemon service status
 ```
 
-## Recommended flow
+## 推荐流程
 
-1. Add/select the target server.
-2. Sign in on that server (app/web). If you already use Kaiwu on another device, sign in with that same account.
-3. Connect terminal/daemon for that same server.
+1. 添加或选择目标服务器。
+2. 在该服务器上登录（通过 App 或 Web 端）。若已在其他设备上使用 Kaiwu，请使用同一账户登录。
+3. 为该服务器连接终端或守护进程。
 
-For end-to-end walkthroughs, see [Onboarding](/getting-started/onboarding) and [Proxmox deployment](/self-hosting/proxmox).
+完整端到端操作指南请参阅 [新手引导](/getting-started/onboarding) 与 [Proxmox 部署指南](/self-hosting/proxmox)。
 
-## FAQ and gotchas
+## 常见问题与避坑指南
 
-### I opened a terminal-connect link while logged out. What should happen?
+### 未登录状态下打开了终端连接链接，会发生什么？
 
-Kaiwu stores the pending terminal-connect request, sends you through sign-in/create account, then returns you to terminal approval automatically.
+Kaiwu 会暂存该终端连接请求，引导你完成登录或注册流程，随后自动返回终端授权确认界面。
 
-### I signed in with the same provider on two servers. Why do I see different data?
+### 为什么在两个服务器上使用了同一个提供商登录，看到的数据却不同？
 
-Accounts are server-scoped. The identity provider can be the same, but each server has independent account/session state.
+账户按服务器独立隔离。虽然身份提供商相同，但各个服务器的账户和会话状态彼此独立。
 
-### I switched servers and my previous sessions are gone.
+### 切换服务器后之前的会话不见了？
 
-That is expected when the previous sessions belong to another server. Switch back to that server profile to see those sessions again.
+这是正常现象，之前的会话归属于另一个服务器。切回对应的服务器配置文件即可重新看到这些会话。
 
-### I tapped a notification and Kaiwu sent me to Server settings instead of directly into the session.
+### 点击通知后，Kaiwu 没有直接打开会话，而是跳转到了“服务器设置”，为什么？
 
-That usually means the notification came from a server URL that is not saved on this device yet, while you already had other saved servers.
+这通常是因为设备上已有其他保存的服务器，而该通知来自一个尚未保存的服务器 URL。
 
-Kaiwu does this on purpose so it does not silently add or trust a new server in the background. Add the server from the prefilled form, then Kaiwu will continue to the intended session.
+Kaiwu 有意这样设计，避免在后台静默添加或信任不受控的新服务器。在已自动预填的表单中确认添加该服务器后，Kaiwu 便会自动跳转至目标会话。

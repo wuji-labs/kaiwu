@@ -1,63 +1,44 @@
 ---
-title: Themes
-description: Pick a built-in theme, clone one to make your own, and move themes between devices or in from your editor.
+title: 主题
+description: 选择内置主题、克隆定制专属主题，还可在设备间迁移主题或从编辑器导入。
 ---
+Kaiwu 内置了 18 款主题，你也可以基于其中任意一款定制专属主题。配色会应用到应用渲染的各个角落——界面底色、文本、控件、diff、语法高亮、嵌入式编辑器，乃至窗口四周的原生系统边框。因此，主题绝不仅仅是更换聊天背景。
 
-Kaiwu ships 18 built-in themes and lets you build your own from any of them.
-Colours carry everywhere the app draws — surfaces, text, controls, diffs, syntax
-highlighting, the embedded editors, and the native system chrome around the
-window — so a theme is not just the chat background.
+可在 **Settings → Appearance** 中找到它们。
 
-Find them under **Settings → Appearance**.
+## 内置主题
 
-## Built-in themes
+预设主题涵盖常见的深色与浅色系列，并移植了数款开发者常用的编辑器主题：深色包含 Crisp、Pitch、Sunset、Night、Graphite 和 Classic；浅色包含 Crisp 和 Paper；此外还有 Tokyo Night、One Dark Pro、Monokai Pro、GitHub Dark 和 Light、Dark Modern，以及 Catppuccin 的四种风格。
 
-The presets cover the usual dark and light families plus several ports of
-editor themes people already use: Crisp, Pitch, Sunset, Night, Graphite and
-Classic on the dark side, Crisp and Paper on the light side, and Tokyo Night,
-One Dark Pro, Monokai Pro, GitHub Dark and Light, Dark Modern, and the four
-Catppuccin flavours.
+内置主题均为只读。若要修改，克隆一份即可——克隆出的主题可随意编辑，原主题保持不变。
 
-Built-in themes are read-only. To change one, clone it — the clone is yours to
-edit and the original stays intact.
+## 定制主题
 
-## Making your own
+自定义主题始于预设，因此你是在微调一套协调的调色盘，而非从零拼凑。在此基础上，你可以覆盖具体的颜色 Token；这些 Token 按生效区域而非变量名进行分组。
 
-A custom theme starts from a preset, so you are adjusting a coherent palette
-rather than assembling one from nothing. From there you can override individual
-colour tokens, grouped by what they affect rather than by variable name.
+编辑时有两点值得注意：
 
-Two things worth knowing while editing:
+- **预览区是一个实时沙盒。** 它会集中展示底色、文本、控件、状态颜色与语法高亮，即便应用中的某些部分当前并未打开，你也能评估修改带来的影响。
+- **切换预设会替换当前草稿配色。** 切换基础预设会丢弃未保存的修改，因此 Kaiwu 会在操作前向你确认。
 
-- **The preview is a live sandbox.** It shows surfaces, text, controls, state
-  colours and syntax together, so you can judge a change against the parts of
-  the app you do not currently have open.
-- **Changing the preset replaces your draft colours.** Kaiwu asks first,
-  because unsaved edits are discarded when the starting point changes.
+主题还会声明使用浅色还是深色应用资源，从而确保图标与图像在你所选的配色方案下清晰可辨。
 
-A theme also declares whether it uses light or dark app assets, which is what
-keeps icons and images legible against the palette you chose.
+## 迁移主题
 
-## Moving themes around
+你可以将主题导出为 JSON 文件，以便在另一台设备上导入或分享给他人。导出的文件带有版本号，因此即便后续 Token 集合不断扩充，当前生成的文件依然可以正常使用。
 
-Export a theme to JSON and import it on another device, or share it. The export
-is versioned, so a file made today keeps working as the token set grows.
+导入功能还支持 **VS Code 主题**，这也是让 Kaiwu 与你整天面对的编辑器保持视觉一致的最快方式。导入内容会经过校验，而非全盘信任：格式错误的文件会被拒绝并提示原因，避免生成只生效了一半的残缺调色盘。
 
-Import also accepts **VS Code themes**, which is usually the fastest way to make
-Kaiwu match the editor you already stare at all day. Imports are validated
-rather than trusted: a malformed file is rejected with a reason instead of
-producing a half-applied palette.
+## 规格限制
 
-## Limits
-
-| Thing | Limit |
+| 项目 | 限制 |
 | --- | --- |
-| Custom theme profiles | 50 |
-| Size of an imported file | 64 KB |
-| Colour overrides per mode | 300 |
-| Theme name length | 64 characters |
+| 自定义主题配置数 | 50 |
+| 导入文件大小 | 64 KB |
+| 每种模式下的颜色覆盖数 | 300 |
+| 主题名称长度 | 64 个字符 |
 
-## Related
+## 相关内容
 
-- [App](/apps/app) — the rest of the client's appearance settings.
-- [Keyboard shortcuts](/apps/keyboard-shortcuts)
+- [应用](/apps/app) — 客户端的其他外观设置。
+- [快捷键](/apps/keyboard-shortcuts)

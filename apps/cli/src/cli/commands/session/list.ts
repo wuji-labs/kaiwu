@@ -8,7 +8,7 @@ import { createCliActionExecutorFromCredentials } from '@/session/actions/create
 import { normalizeActionExecuteResult } from '@/cli/commands/session/shared/normalizeActionExecuteResult';
 import { tryHandleApprovalRequestCreated } from '@/cli/commands/session/shared/tryHandleApprovalRequestCreated';
 
-const SESSION_LIST_USAGE = 'Usage: happier session list [--active] [--archived] [--limit N] [--cursor C] [--include-system] [--resumable] [--plain] [--json]';
+const SESSION_LIST_USAGE = 'Usage: kaiwu session list [--active] [--archived] [--limit N] [--cursor C] [--include-system] [--resumable] [--plain] [--json]';
 const SESSION_LIST_BOOLEAN_FLAGS = new Set(['--active', '--archived', '--include-system', '--resumable', '--plain', '--json']);
 const SESSION_LIST_VALUE_FLAGS = new Set(['--limit', '--cursor']);
 
@@ -56,7 +56,7 @@ export async function cmdSessionList(
       await printJsonEnvelope({ ok: false, kind: 'session_list', error: { code: 'not_authenticated' } });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "happier auth login" first.');
+    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
     process.exit(1);
   }
 

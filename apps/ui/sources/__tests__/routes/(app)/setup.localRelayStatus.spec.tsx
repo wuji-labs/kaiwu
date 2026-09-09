@@ -54,7 +54,7 @@ vi.mock('@/sync/domains/server/serverProfiles', async (importOriginal) => {
     return createServerProfilesModuleMock({
         importOriginal,
         overrides: {
-            HAPPIER_CLOUD_SERVER_URL: 'https://api.happier.dev',
+            HAPPIER_CLOUD_SERVER_URL: 'https://kaiwu.chengqiyun.com',
             listServerProfiles: () => ([
                 {
                     id: 'relay-1',

@@ -24,7 +24,7 @@ export async function cmdSessionSetModel(
   const json = wantsJson(argv);
   const [idOrPrefix = '', rawModelId = ''] = readCommandPositionals(argv, { startIndex: 1 });
   if (!idOrPrefix || !rawModelId) {
-    throw new Error('Usage: happier session set-model <session-id-or-prefix> <model-id> [--json]');
+    throw new Error('Usage: kaiwu session set-model <session-id-or-prefix> <model-id> [--json]');
   }
 
   const modelId = normalizeModelIdOrThrow(rawModelId);
@@ -35,7 +35,7 @@ export async function cmdSessionSetModel(
       await printJsonEnvelope({ ok: false, kind: 'session_set_model', error: { code: 'not_authenticated' } });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "happier auth login" first.');
+    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
     process.exit(1);
   }
 

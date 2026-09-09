@@ -1,36 +1,35 @@
 ---
-title: Dev box
-description: Run Kaiwu CLI + daemon inside a container (dev-box), and pair it to your account without opening a browser.
+title: 开发机
+description: 在容器（dev-box）内运行 Kaiwu CLI + 守护进程，无需打开浏览器即可将其与你的账户配对。
 ---
+本文介绍如何在容器内（例如远程虚拟机或一次性“开发机”）运行 Kaiwu，并**从本地设备**完成认证。
 
-This page explains how to run Kaiwu inside a container (for example: a remote VM or a disposable “dev box”) and authenticate it **from your local machine**.
+## 开发机镜像
 
-## Dev box image
-
-We publish a preview dev box image on Docker Hub:
+我们在 Docker Hub 上发布了开发机预览版镜像：
 
 ```bash
 docker pull happierdev/dev-box:preview
 ```
 
-We also publish the same image to GitHub Container Registry (GHCR):
+同时，该镜像也会同步发布至 GitHub Container Registry (GHCR)：
 
 ```bash
 docker pull ghcr.io/happier-dev/dev-box:preview
 ```
 
-The image includes:
+该镜像包含：
 
-- the published `happier` CLI binary
-- optional provider CLIs, installed on first boot via `happier install provider`
+- 已发布的 `happier` CLI 二进制文件
+- 可选的提供商 CLI，可在首次启动时通过 `happier install provider` 安装
 
-The image does not include a source checkout or `hstack`; it is meant for using Kaiwu from a container, not developing Kaiwu itself.
+镜像内不包含源码检出或 `hstack`；其设计初衷是在容器中运行 Kaiwu，而非用于 Kaiwu 本身的开发。
 
-Note: “dev box” is our Docker image name — it’s not tied to any specific editor “devcontainer” feature.
+注：“dev box”仅为我们 Docker 镜像的命名，与任何特定编辑器的“devcontainer”功能无关。
 
-### Optional: install provider CLIs on first boot
+### 可选：在首次启动时安装提供商 CLI
 
-Set `HAPPIER_PROVIDER_CLIS` to install provider CLIs through the Kaiwu CLI:
+设置 `HAPPIER_PROVIDER_CLIS` 即可通过 Kaiwu CLI 安装提供商 CLI：
 
 ```bash
 docker run --rm -it \
@@ -38,11 +37,11 @@ docker run --rm -it \
   happierdev/dev-box:preview
 ```
 
-Supported values today: `claude`, `codex`.
+当前支持的值：`claude`、`codex`。
 
-## Recommended: persist Kaiwu state
+## 推荐做法：持久化 Kaiwu 状态
 
-Persist `~/.happier` so credentials, machine IDs, logs, etc. survive container restarts:
+建议持久化挂载 `~/.happier`，以确保凭据、设备 ID、日志等数据在容器重启后不受影响：
 
 ```bash
 docker run --rm -it \
@@ -50,39 +49,39 @@ docker run --rm -it \
   happierdev/dev-box:preview
 ```
 
-## Pair a remote container/host from your local CLI (no web UI)
+## 从本地 CLI 配对远程容器/主机（无需 Web UI）
 
-If your **local** machine is already authenticated (`happier auth status` is OK), you can pair a **remote** host/container over SSH:
+如果你的**本地**设备已经完成认证（即 `happier auth status` 状态正常），可以通过 SSH 配对**远程**主机或容器：
 
 ```bash
 happier auth pair-remote --ssh user@host
 ```
 
-What this does:
+该命令的执行流程如下：
 
-1. Runs `happier auth request --json` on the remote host.
-2. Approves the request locally using your existing token (the local token is **not** sent to the remote host).
-3. Runs `happier auth wait --public-key ... --json` on the remote host to claim the request and write credentials.
+1. 在远程主机上运行 `happier auth request --json`。
+2. 在本地使用现有令牌批准该请求（本地令牌**不会**发送到远程主机）。
+3. 在远程主机上运行 `happier auth wait --public-key ... --json`，认领请求并写入凭据。
 
-Use `--json` when scripting. If your active relay URL is loopback-only (`localhost` / `127.0.0.1`), interactive mode offers reachable addresses for this computer. In scripts, pass `--server-url-for-remote <url>` with the address the remote host can use to reach this computer's relay (`--remote-server-url` is still accepted as a legacy alias).
+在自动化脚本中请使用 `--json`。如果你当前生效的中继 URL 仅为回环地址（`localhost` / `127.0.0.1`），交互模式会提示可用于访问当前计算机的有效地址。在脚本中，请通过 `--server-url-for-remote ⟦K9⟧` 传入远程主机访问当前计算机中继所用的地址（兼容旧版别名 `--remote-server-url`）。
 
-### Manual (scriptable) alternative
+### 手动执行方式（适合脚本集成）
 
-If you want to integrate with custom orchestration:
+如需接入自定义编排流程，可以手动分步执行：
 
-1) On the remote host:
+1) 在远程主机上：
 
 ```bash
 happier auth request --json
 ```
 
-2) On your local machine (authenticated):
+2) 在本地设备上（需已完成认证）：
 
 ```bash
 happier auth approve --public-key <publicKey> --json
 ```
 
-3) Back on the remote host:
+3) 返回远程主机：
 
 ```bash
 happier auth wait --public-key <publicKey> --json

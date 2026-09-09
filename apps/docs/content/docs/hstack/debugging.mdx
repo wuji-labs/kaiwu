@@ -1,16 +1,15 @@
 ---
-title: Debugging (inspect + env knobs)
-description: "Where to look when something is “weird”: effective paths, pinned repo, ports, logs, and key env knobs."
+title: 调试（inspect 与环境变量开关）
+description: "出现“异常”时的排查切入点：生效路径、固定仓库、端口、日志及关键环境变量开关。"
 ---
-
-## Inspect what hstack is actually using
+## 查看 hstack 的实际运行配置
 
 ```bash
 hstack where
 hstack where --json
 ```
 
-Common follow-ups:
+常用后续操作：
 
 ```bash
 hstack stack info exp1
@@ -19,13 +18,13 @@ hstack stack info exp1 --json
 
 ---
 
-## Inspect stack health
+## 检查栈运行状况
 
 ```bash
 hstack stack doctor exp1
 ```
 
-Logs:
+日志：
 
 ```bash
 hstack logs
@@ -36,9 +35,9 @@ hstack stack service exp1 tail
 
 ---
 
-## High-signal env knobs
+## 核心环境变量配置
 
-Paths:
+路径：
 
 - `HAPPIER_STACK_HOME_DIR`
 - `HAPPIER_STACK_RUNTIME_DIR`
@@ -46,15 +45,15 @@ Paths:
 - `HAPPIER_STACK_REPO_DIR`
 - `HAPPIER_STACK_CLI_ROOT_DIR`
 
-Run behavior:
+运行行为：
 
 - `HAPPIER_STACK_NO_BROWSER=1`
 - `HAPPIER_STACK_CLI_BUILD_MODE=auto|always|never`
 - `HAPPIER_STACK_CLI_BUILD=0`
 
-Auth seeding:
+认证预置：
 
 - `HAPPIER_STACK_AUTH_SEED_FROM=dev-auth`
 - `HAPPIER_STACK_AUTO_AUTH_SEED=1`
 
-See also [Paths, folders, and env precedence](/hstack/paths-and-env) for precedence and where env files live.
+有关优先级规则及环境配置文件的存放位置，另请参阅[路径、目录与环境变量优先级](/hstack/paths-and-env)。

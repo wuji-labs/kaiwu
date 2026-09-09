@@ -1,120 +1,119 @@
 ---
-title: Friends
-description: Add friends, share sessions with people you trust, and discover users by username.
+title: 好友
+description: 添加好友，与信任的人共享会话，并通过用户名查找用户。
 ---
+好友（Friends）是构建在 Kaiwu 会话之上的社交层：
 
-Friends is a social layer on top of Kaiwu sessions:
+- **发现**：通过用户名（`@username`）查找用户
+- **申请**：发送好友申请并管理好友关系
+- **分享**：直接与好友共享会话
 
-- **Discover** people by a username (`@username`)
-- **Send** friend requests and manage relationships
-- **Share** sessions directly with friends
+服务器通过 `GET /v1/features` 告知客户端是否支持好友功能及 GitHub OAuth。UI 则利用该端点决定是否显示好友模块，以及是否提供 GitHub 关联入口。
 
-The server advertises Friends and GitHub OAuth availability via `GET /v1/features`. The UI uses that endpoint to decide whether to show Friends at all, and whether to offer GitHub connect.
+## 身份模型（无论来源，统一为一个用户名）
 
-## Identity model (one username, regardless of how you got it)
+Kaiwu 采用唯一的标识符进行用户发现：`account.username`。
 
-Kaiwu uses a single, unique identifier for discovery: `account.username`.
+- 用户搜索（`GET /v1/user/search`）会匹配 `username`
+- 好友申请在内部使用账户 ID，但在 UI 交互上以 `@username` 为核心
+- 用户名在服务器端会**统一规范化为小写**
 
-- User search (`GET /v1/user/search`) matches `username`
-- Friend requests use account IDs internally, but the UI is centered around `@username`
-- Usernames are **normalized to lowercase** on the server
+用户无需关心某个用户名是来自 GitHub 还是手动设置的——直接搜索 `@username` 即可。
 
-Users should not need to know whether a username came from GitHub or was set manually — they just search `@username`.
+## 关联 GitHub（OAuth）
 
-## GitHub connection (OAuth)
+用户关联 GitHub 时：
 
-When a user connects GitHub:
+1. 服务器完成 OAuth 流程并获取 `GET https://api.github.com/user`（权限范围为 `read:user`）。
+2. 服务器将该 GitHub 账户与 Kaiwu 账户绑定（1 个 GitHub 账户对应 1 个 Kaiwu 账户）。
+3. 服务器**不会覆盖**已有的 `account.username`。
+4. 若 `account.username` 为空，服务器会尝试将其设置为该 GitHub 的 `login`（转为小写），**前提是该用户名尚未被占用**。
 
-1. The server completes the OAuth flow and fetches `GET https://api.github.com/user` (scope is `read:user`).
-2. The server links the GitHub account to the Kaiwu account (1 GitHub account → 1 Kaiwu account).
-3. The server **does not overwrite** an existing `account.username`.
-4. If `account.username` is empty, the server tries to set it to the GitHub `login` (lowercased), **but only if that username is not already taken**.
+如果该 GitHub 登录用户名已被占用（或不符合服务器的用户名规范），GitHub 依然可以成功关联，但应用会在完成好友功能设置前，提示用户另选一个 `@username`。
 
-If the GitHub login username is already taken (or invalid under your server’s username policy), GitHub can still connect successfully, but the app will prompt the user to pick a different `@username` before Friends setup is complete.
+解除 GitHub 关联：
 
-Disconnecting GitHub:
+- 必定会移除 GitHub 绑定关系。
+- 保留自定义用户名。
+- 仅当 `account.username` 与 GitHub 登录名一致（被视为“衍生自 GitHub”）时，才会清空该项。
 
-- Always removes the GitHub link.
-- Keeps a custom username.
-- Clears `account.username` only when it matches the GitHub login (treated as “GitHub-derived”).
+## 仅用户名模式（无需 GitHub）
 
-## Username-only mode (no GitHub required)
+部分自托管服务器不希望强制绑定 GitHub。启用此模式后，用户可以直接认领本地用户名。
 
-Some self-hosted servers prefer not to require GitHub. When enabled, users can claim a local username.
+- 端点：`POST /v1/account/username`
+- 校验规则由服务器环境变量控制（见下文）。
 
-- Endpoint: `POST /v1/account/username`
-- Validation is controlled by server env vars (see below).
+### 必须绑定 GitHub 的服务器上的用户名选取
 
-### Username selection on GitHub-required servers
+即使好友功能要求绑定 GitHub，应用有时仍可能要求用户**选择一个用户名**。
 
-Even when Friends requires GitHub, the app may still ask a user to **choose a username**.
+这种情况通常发生在用户的 GitHub 登录名无法作为服务器上的唯一用户名时（例如已被占用）。此时：
 
-This happens when the user’s GitHub login cannot be used as a unique server username (for example, it’s already taken). In that case:
+- GitHub 仍可成功关联。
+- 用户必须另选一个 `@username`，才能被其他人搜索到。
+- 应用会在好友页面以及**设置 → 账户**中提示用户操作。
 
-- GitHub can still be connected successfully.
-- The user must pick a different `@username` to be discoverable.
-- The app surfaces this on the Friends screens, and in **Settings → Account**.
+## 服务器配置
 
-## Server configuration
+### 功能开关
 
-### Feature toggles
+- `HAPPIER_FEATURE_SOCIAL_FRIENDS__ENABLED`（`true`/`false`，默认 `true`）：好友功能端点及 UI 的总开关。
+- `HAPPIER_FEATURE_SOCIAL_FRIENDS__ALLOW_USERNAME`（`true`/`false`，默认 `false`）：
+  - `false`：好友申请与搜索必须关联 GitHub。
+  - `true`：好友功能只需认领 `@username`（GitHub 关联可选）。
 
-- `HAPPIER_FEATURE_SOCIAL_FRIENDS__ENABLED` (`true`/`false`, default `true`): master switch for Friends endpoints + UI.
-- `HAPPIER_FEATURE_SOCIAL_FRIENDS__ALLOW_USERNAME` (`true`/`false`, default `false`):
-  - `false`: Friends requires GitHub connection for requests/discovery.
-  - `true`: Friends requires a claimed `@username` (GitHub is optional).
+### 用户名策略（启用基于用户名的好友模式时）
 
-### Username policy (when username-based friends are enabled)
-
-- `FRIENDS_USERNAME_MIN_LEN` (default `3`)
-- `FRIENDS_USERNAME_MAX_LEN` (default `32`)
-- `FRIENDS_USERNAME_REGEX` (default `^[a-z0-9_-]+$`)
+- `FRIENDS_USERNAME_MIN_LEN`（默认 `3`）
+- `FRIENDS_USERNAME_MAX_LEN`（默认 `32`）
+- `FRIENDS_USERNAME_REGEX`（默认 `^[a-z0-9_-]+$`）
 
 ### GitHub OAuth
 
-Required to enable GitHub connect:
+启用 GitHub 关联所需的配置：
 
 - `GITHUB_CLIENT_ID`
 - `GITHUB_CLIENT_SECRET`
-- `GITHUB_REDIRECT_URL` (canonical) or `GITHUB_REDIRECT_URI` (legacy)
+- `GITHUB_REDIRECT_URL`（规范名称）或 `GITHUB_REDIRECT_URI`（旧版名称）
 
-Optional:
+可选配置：
 
-- `HAPPIER_WEBAPP_URL` (default `https://kaiwu.chengqiyun.com`): base URL/scheme for the client. The server redirects to `${HAPPIER_WEBAPP_URL}/oauth/github` after the server callback completes.
-  - This is only “optional” if you are using the hosted client at `https://kaiwu.chengqiyun.com`. If you are self-hosting the web app (or using a local dev web UI), set `HAPPIER_WEBAPP_URL` (or `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE`) so OAuth can return to your client.
-- `GITHUB_STORE_ACCESS_TOKEN` (`true`/`false`, default `false`): whether to persist GitHub access tokens on the server (Friends does not require this). If you enforce org membership via `AUTH_GITHUB_ORG_MEMBERSHIP_SOURCE=oauth_user_token` (membership checks via user OAuth token mode), token storage is required for offboarding checks. See [Org membership source](/self-hosting/auth-github#org-membership-source-important).
-- `OAUTH_PENDING_TTL_SECONDS` (default `600`, min `60`, max `3600`): how long a “pending OAuth finalize” (e.g. waiting for username selection) can be finalized.
-  - Legacy alias: `GITHUB_OAUTH_PENDING_TTL_SECONDS` (if `OAUTH_PENDING_TTL_SECONDS` is unset).
+- `HAPPIER_WEBAPP_URL`（默认 `https://kaiwu.chengqiyun.com`）：客户端的基础 URL / scheme。服务器回调完成后，会将请求重定向至 `${HAPPIER_WEBAPP_URL}/oauth/github`。
+  - 只有在使用 `https://kaiwu.chengqiyun.com` 上的托管客户端时，该项才属“可选”。如果您自托管了 Web 应用（或使用本地开发的 Web UI），请设置 `HAPPIER_WEBAPP_URL`（或 `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE`），以便 OAuth 能正确跳回您的客户端。
+- `GITHUB_STORE_ACCESS_TOKEN`（`true`/`false`，默认 `false`）：是否在服务器上持久化存储 GitHub 访问令牌（好友功能不需要此项）。如果您通过 `AUTH_GITHUB_ORG_MEMBERSHIP_SOURCE=oauth_user_token` 强制校验组织成员身份（通过用户 OAuth 令牌模式进行成员校验），则必须存储令牌以执行离职/成员退出检查。详见[组织成员身份来源](/self-hosting/auth-github#org-membership-source-important)。
+- `OAUTH_PENDING_TTL_SECONDS`（默认 `600`，最小 `60`，最大 `3600`）：“待完成 OAuth（pending OAuth finalize）”（例如等待用户选择用户名）允许被完成的最长保留时间。
+  - 旧版别名：`GITHUB_OAUTH_PENDING_TTL_SECONDS`（未设置 `OAUTH_PENDING_TTL_SECONDS` 时生效）。
 
-#### GitHub setup (OAuth App)
+#### GitHub 配置（OAuth App）
 
-1. In GitHub, go to **Settings → Developer settings → OAuth Apps → New OAuth App**.
-2. Set **Authorization callback URL** to your server callback endpoint:
+1. 在 GitHub 中，进入 **Settings → Developer settings → OAuth Apps → New OAuth App**。
+2. 将 **Authorization callback URL** 设置为您的服务器回调端点：
    - `https://YOUR_SERVER/v1/oauth/github/callback`
-   - You do **not** need GitHub’s “Device Flow / device authentication flow”. Kaiwu uses the standard browser redirect OAuth flow, so you can leave “Enable Device Flow” **disabled**.
-3. Copy the **Client ID** and **Client secret** into your server environment as `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET`.
-4. Set `GITHUB_REDIRECT_URL` to the same callback URL you registered above.
-5. (Self-hosting) Set `HAPPIER_WEBAPP_URL` to the URL/scheme that should receive the post-OAuth redirect.
-   - The server redirects to `${HAPPIER_WEBAPP_URL}/oauth/github?...`
+   - 您**无需**启用 GitHub 的“设备流（Device Flow / device authentication flow）”。Kaiwu 使用标准浏览器重定向 OAuth 流程，因此让“Enable Device Flow”保持**未勾选**即可。
+3. 将 **Client ID** 和 **Client secret** 复制到服务器环境变量中，分别对应 `GITHUB_CLIENT_ID` 和 `GITHUB_CLIENT_SECRET`。
+4. 将 `GITHUB_REDIRECT_URL` 设置为您在上面注册的同一回调 URL。
+5.（自托管）将 `HAPPIER_WEBAPP_URL` 设置为接收 OAuth 完成后重定向的 URL / scheme。
+   - 服务器会重定向至 `${HAPPIER_WEBAPP_URL}/oauth/github?...`
 
-## Client behavior (UI)
+## 客户端行为（UI）
 
-- The Friends experience is reachable at `/friends`. It does not redirect, and it is separate from the global Inbox at `/inbox` — see [Inbox and approvals](/sessions/inbox-and-approvals).
-- If Friends is disabled (`features.social.friends.enabled=false`), the UI hides the Friends tab and related screens.
-- If Friends requires GitHub (`features.social.friends.requiresGitHub=true`) but GitHub OAuth isn’t configured (`features.oauth.providers.github.configured=false`), the UI disables the GitHub connect button and shows a clear “not configured” hint.
+- 好友功能入口位于 `/friends`。该路径不会发生重定向，且独立于位于 `/inbox` 的全局收件箱——详见[收件箱与审批](/sessions/inbox-and-approvals)。
+- 若好友功能被禁用（`features.social.friends.enabled=false`），UI 会隐藏“好友”标签页及相关界面。
+- 若好友功能要求绑定 GitHub（`features.social.friends.requiresGitHub=true`），但尚未配置 GitHub OAuth（`features.oauth.providers.github.configured=false`），UI 会禁用 GitHub 关联按钮，并显示明确的“未配置”提示。
 
-## API surface (high level)
+## API 接口概览
 
-- `GET /v1/features`: server-advertised feature flags (Friends + GitHub OAuth).
-- `GET /v1/user/search?query=...`: search users by username.
-- `POST /v1/friends/add`: send a friend request.
-- `POST /v1/friends/remove`: remove a friend.
-- `GET /v1/friends`: list friends/relationships.
-- `POST /v1/account/username`: claim/update a username (requires auth; available when Friends is enabled and either username-based friends are enabled or GitHub is connected).
-  - Body: `{ "username": "alice" }`
-  - Success: `200 { "username": "alice" }`
-  - Errors:
-    - `400 { "error": "friends-disabled" }` when Friends is disabled
-    - `400 { "error": "username-disabled" }` when username-based friends are disabled and the user has no GitHub identity
-    - `400 { "error": "invalid-username" }` when the username fails validation
-    - `409 { "error": "username-taken" }` when the username is already in use
+- `GET /v1/features`：服务器公布的功能特性开关（好友功能 + GitHub OAuth）。
+- `GET /v1/user/search?query=...`：按用户名搜索用户。
+- `POST /v1/friends/add`：发送好友申请。
+- `POST /v1/friends/remove`：删除好友。
+- `GET /v1/friends`：获取好友及好友关系列表。
+- `POST /v1/account/username`：认领或更新用户名（需要身份认证；仅在好友功能已启用且满足“启用了基于用户名的好友模式”或“已关联 GitHub”之一时可用）。
+  - 请求体：`{ "username": "alice" }`
+  - 成功返回：`200 { "username": "alice" }`
+  - 错误响应：
+    - `400 { "error": "friends-disabled" }`：好友功能已禁用
+    - `400 { "error": "username-disabled" }`：未启用基于用户名的好友模式，且用户未关联 GitHub 身份
+    - `400 { "error": "invalid-username" }`：用户名未通过校验规则
+    - `409 { "error": "username-taken" }`：用户名已被占用

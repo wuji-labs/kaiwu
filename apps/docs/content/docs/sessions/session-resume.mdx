@@ -1,82 +1,81 @@
 ---
-title: Resume inactive sessions
-description: Resume an inactive Kaiwu session from the app, web UI, or CLI without starting over.
+title: 恢复非活跃会话
+description: 通过应用、Web UI 或 CLI 恢复非活跃 Kaiwu 会话，无需重新开始。
 ---
-
-Session resume lets you continue an **inactive Kaiwu session** by asking the provider backend to reopen the same provider session, then reconnecting that provider session to the same Kaiwu session.
+会话恢复允许你继续运行**处于非活跃状态的 Kaiwu 会话**。其工作方式是：请求提供商后端重新打开同一个提供商会话，随后将该提供商会话重新连接到同一个 Kaiwu 会话。
 
 <Callout type="info">
-  Sending to a resumable inactive session while its machine is offline is currently available in development builds and is not yet a released contract.
+  当设备离线时向可恢复的非活跃会话发送消息，该功能目前仅在开发构建版本中提供，尚不是已正式发布的约定规范。
 </Callout>
 
-This is different from:
+这不同于以下操作：
 
-- **Attach**: reconnecting to a session that is still running locally through its live terminal/provider host
-- **Browse Direct sessions**: opening a provider-native session that Kaiwu does not own yet
-- **Resume session**: starting a new Kaiwu session by resuming a session the agent already has (see [Continuing a session](/sessions/continuing-a-session))
-- **Starting a new session**: creating a fresh provider session with no vendor resume
+- **附加（Attach）**：通过活跃终端或提供商主机，重新连接到仍在本地运行的会话
+- **浏览直连会话**：打开 Kaiwu 尚未接管的提供商原生会话
+- **恢复会话**：通过恢复智能体已有的会话来启动新的 Kaiwu 会话（参见[继续会话](/sessions/continuing-a-session)）
+- **启动新会话**：创建全新的提供商会话，不使用厂商恢复功能
 
-## What “resume” means in Kaiwu
+## Kaiwu 中“恢复”的含义
 
-In Kaiwu, resume is a strict workflow:
+在 Kaiwu 中，恢复是一个严格的工作流：
 
-1. Kaiwu finds the existing Kaiwu session
-2. Kaiwu checks whether that session is actually **vendor-resumable**
-3. Kaiwu asks the backend/provider to resume the same vendor session
-4. If that vendor resume fails, Kaiwu shows an error instead of silently starting a new session
+1. Kaiwu 找到现有的 Kaiwu 会话
+2. Kaiwu 检查该会话是否真正**支持厂商恢复**
+3. Kaiwu 请求后端/提供商恢复同一个厂商会话
+4. 若厂商恢复失败，Kaiwu 会显示错误，而不会静默启动新会话
 
-That strict behavior matters because it keeps one session identity and one transcript source of truth.
+这种严谨的处理方式至关重要，因为它能确保会话身份唯一，并保持会话记录来源的单一真实性。
 
-When a synced Kaiwu session resumes, Kaiwu continues the existing session. It does **not** create a second imported-history pass just because you resumed it.
+当一个已同步的 Kaiwu 会话恢复时，Kaiwu 会继续现有的会话，而**不会**仅仅因为你恢复了它就再次导入一遍历史记录。
 
-## When a session is resumable
+## 会话何时可恢复
 
-A session is resumable only when all of these are true:
+会话仅在同时满足以下所有条件时才可恢复：
 
-- the session is a normal Kaiwu-managed session
-- it is currently **inactive**
-- it is **not archived**
-- Kaiwu has a valid provider resume id stored in session metadata
-- the selected backend/provider supports resume for that session
-- your current settings do not disable that backend
+- 该会话是由 Kaiwu 管理的普通会话
+- 当前处于**非活跃状态**
+- **未归档**
+- Kaiwu 的会话元数据中存有有效的提供商恢复 ID
+- 所选后端/提供商支持该会话的恢复
+- 当前设置未停用该后端
 
-If any of those checks fail, Kaiwu treats the session as **not resumable** and shows that clearly in the UI or CLI.
+若上述任一检查未通过，Kaiwu 都会将该会话视为**不可恢复**，并在界面或 CLI 中明确提示。
 
-## App and web behavior
+## 客户端与 Web 端行为
 
-In the app or web UI, an inactive session can still accept input **only if it is resumable**.
+在客户端或 Web 界面中，非活跃会话**仅在可恢复时**才允许输入内容。
 
-Typical behavior:
+常见行为表现：
 
-- **Inactive + resumable + machine reachable**: you can send a message; Kaiwu either attempts to resume it or leaves it queued according to your automatic-resume policy
-- **Inactive + resumable + machine offline**: you can still send; Kaiwu keeps the message in the Pending queue and starts it after reconnect only if that send has been authorized for processing when available
-- **Inactive + not resumable**: input is disabled
+- **非活跃 + 可恢复 + 设备可达**：你可以发送消息；Kaiwu 会尝试恢复会话，或根据你的自动恢复策略将其置于队列中
+- **非活跃 + 可恢复 + 设备离线**：你仍可发送消息；Kaiwu 会将消息保留在“待处理”队列中，仅在该发送操作已被授权在设备可用时处理的前提下，才会在重新连接后启动会话
+- **非活跃 + 不可恢复**：禁用输入
 
-The session continues to show **offline** while its machine is unavailable. A banner above the composer explains whether a queued message is waiting for automatic resume, has been left queued by your preference, or needs an explicit retry after a start failure.
+当设备不可用时，会话会持续显示为**离线**。输入框上方的横幅会明确说明：排队的消息是在等待自动恢复、依偏好设置保持排队状态，还是在启动失败后需要手动重试。
 
-Under **Settings → Session → Message sending**, **Automatic resume after sending** controls future sends to inactive sessions. The default, **Only if machine is online**, makes one immediate attempt when the machine is reachable but never parks authorization for a later restart. You can instead choose **Now or when machine returns** or **Never automatically**. Changing the setting does not cancel a resume already requested by an earlier send.
+在**设置 → 会话 → 消息发送**中，**发送后自动恢复**用于控制后续向非活跃会话发送消息的行为。默认选项**仅在设备在线时**会在设备可达时立即尝试一次，但绝不会暂存授权以供稍后重启。你也可以选择**立即恢复或待设备上线后恢复**或**从不自动恢复**。修改此设置不会取消先前发送操作已请求的恢复任务。
 
-## CLI behavior
+## CLI 行为
 
-Kaiwu CLI exposes two main workflows for resume.
+Kaiwu CLI 提供了两个主要的恢复工作流。
 
-### List sessions
+### 列出会话
 
 ```bash
 happier session list
 ```
 
-By default this prints a table with:
+默认情况下，该命令会输出一个表格，包含：
 
-- shortened session id
-- agent
-- last updated time
-- active state
-- resume status
-- title
-- working directory path
+- 缩短后的会话 ID
+- 智能体
+- 最后更新时间
+- 活跃状态
+- 恢复状态
+- 标题
+- 工作目录路径
 
-Useful variants:
+常用命令变体：
 
 ```bash
 happier session list --resumable
@@ -84,111 +83,111 @@ happier session list --plain
 happier session list --json
 ```
 
-Use:
+用法说明：
 
-- `--resumable` to show only sessions that can currently be resumed
-- `--plain` for the older one-line output format
-- `--json` for scripting
+- 使用 `--resumable` 仅显示当前可恢复的会话
+- 使用 `--plain` 查看旧版的单行输出格式
+- 使用 `--json` 方便编写脚本
 
-### Resume interactively
+### 交互式恢复
 
 ```bash
 happier resume
 ```
 
-In a real TTY, Kaiwu opens an interactive selector and shows resumable inactive sessions sorted by recent activity.
+在真正的 TTY 终端中，Kaiwu 会打开交互式选择器，按近期活跃度排序显示可恢复的非活跃会话。
 
-If your terminal does not support the interactive selector, Kaiwu tells you to use `happier session list --resumable` and then resume by id.
+如果你的终端不支持交互式选择器，Kaiwu 会提示你使用 `happier session list --resumable`，然后再通过 ID 进行恢复。
 
-### Resume by id
+### 按 ID 恢复
 
 ```bash
 happier resume <session-id>
 ```
 
-You can pass a full session id or an unambiguous prefix.
+你可以传入完整的会话 ID 或无歧义的前缀。
 
-Kaiwu then:
+随后 Kaiwu 会执行以下操作：
 
-1. resolves the session
-2. validates that it is inactive, not archived, and resumable
-3. restores the session’s working directory
-4. resumes the provider session
-5. reconnects that provider session to the same Kaiwu session
+1. 解析会话
+2. 验证其处于非活跃状态、未归档且可恢复
+3. 恢复会话的工作目录
+4. 恢复提供商会话
+5. 将该提供商会话重新连接到同一个 Kaiwu 会话
 
-If the session is active already, archived, missing its working directory, or not vendor-resumable, the command fails with a clear error.
+如果会话已处于活跃状态、已归档、缺少工作目录或不支持厂商恢复，该命令将执行失败并给出明确的错误提示。
 
-## Resume status in the CLI table
+## CLI 表格中的恢复状态
 
-The `RESUME` column is a quick summary:
+`RESUME` 列提供简明概述：
 
-- `yes`: resumable
-- `no(unsupported)`: that agent/backend does not support vendor resume
-- `no(missing-id)`: the session does not have the provider resume id Kaiwu needs
-- `no(disabled)`: resume exists for that backend, but your current settings disable it
-- `no(off)`: account settings disabled that backend entirely
+- `yes`：可恢复
+- `no(unsupported)`：该智能体/后端不支持厂商恢复
+- `no(missing-id)`：会话缺少 Kaiwu 所需的提供商恢复 ID
+- `no(disabled)`：该后端支持恢复，但你当前的设置已将其禁用
+- `no(off)`：账户设置已完全禁用该后端
 
-## Codex-specific behavior
+## Codex 专属行为
 
-Codex resume in Kaiwu normally uses the default App Server path. ACP resume is still available when you explicitly choose ACP.
+Kaiwu 中的 Codex 恢复通常使用默认的 App Server 路径。显式选择 ACP 时，ACP 恢复依然可用。
 
-Important points:
+重点说明：
 
-- Codex now defaults to **App Server** in Kaiwu
-- legacy `mcp_resume` behavior is gone
-- if you opt Codex back to plain **MCP**, fresh sessions can still start there, but vendor resume is not available on that path
-- for new Codex sessions, Kaiwu does not silently fall back from the default App Server path; choose ACP or MCP explicitly if you want a different backend
-- App Server is the default resumable path; ACP still works when you explicitly select it
-- for an explicit **resume**, Kaiwu stays strict and errors instead of falling back
+- Kaiwu 中的 Codex 现已默认使用 **App Server**
+- 旧版 `mcp_resume` 行为已被移除
+- 如果你主动将 Codex 改回普通 **MCP**，仍可在该路径上启动全新会话，但不支持厂商恢复
+- 对于新建的 Codex 会话，Kaiwu 不会从默认的 App Server 路径静默回退；若需使用其他后端，请显式选择 ACP 或 MCP
+- App Server 是默认的可恢复路径；显式选择 ACP 时依然有效
+- 针对显式发起的**恢复**操作，Kaiwu 保持严格校验，会直接报错而不是静默降级回退
 
-So for Codex, “can I resume this session?” depends on the session metadata and on whether the current backend path supports resume for that session.
+因此，对于 Codex 而言，“能否恢复此会话”取决于会话元数据，以及当前后端路径是否支持该会话的恢复。
 
-## Resume vs attach
+## 恢复与附加的区别
 
-Use **resume** when the session is inactive and the provider supports reopening that provider session.
+当会话处于非活跃状态，且提供商支持重新打开该提供商会话时，使用**恢复（resume）**。
 
-Use **attach** when the session is still running locally and you want to reconnect to the live process:
+当会话仍在本地运行，且你想重新连接到该运行进程时，使用**附加（attach）**：
 
 ```bash
 happier attach <session-id>
 ```
 
-If you are unsure:
+如果不确定如何选择：
 
-- use `attach` for a still-running local session
-- use `resume` for an inactive session you want to continue
+- 本地会话仍在运行时，使用 `attach`
+- 会话处于非活跃状态但想继续进行时，使用 `resume`
 
-Attach can mean different things depending on how the session was started:
+根据会话的启动方式，“附加”可能有不同的含义：
 
-- tmux reattach,
-- focusing an existing Windows Terminal or Console host,
-- or using a provider-native attach flow when the provider supports it.
+- tmux 重新附加，
+- 聚焦到现有的 Windows Terminal 或控制台宿主，
+- 或者在提供商支持时，使用提供商原生的附加流程。
 
-## Resume vs Direct sessions
+## 恢复与直连会话的区别
 
-Direct sessions are provider-native sessions that Kaiwu can inspect or follow, but that Kaiwu does not fully own yet.
+直连会话是提供商原生会话，Kaiwu 可以检查或跟踪，但尚未完全接管其控制权。
 
-For those sessions:
+针对这些会话：
 
-- browsing/opening happens through the **Direct** sessions flow
-- syncing/importing happens through **Take over + import**
-- normal Kaiwu resume applies after the session is a synced Kaiwu session and has valid vendor-resume metadata
+- 通过**直连**会话流程进行浏览/打开
+- 通过**接管 + 导入**完成同步/导入
+- 会话成为已同步的 Kaiwu 会话且具有有效的厂商恢复元数据后，才适用常规的 Kaiwu 恢复流程
 
-## Things to check if resume is unavailable
+## 无法恢复时的排查步骤
 
-If a session does not resume, check:
+如果会话无法恢复，请检查：
 
-- is the session inactive rather than already running?
-- is it archived?
-- does it belong to the provider/backend you think it does?
-- are you on the correct Kaiwu server/account profile?
-- for Codex, is the selected resume path available (App Server by default, or ACP when explicitly selected)?
-- is the owning machine online and reachable from Kaiwu?
+- 会话是非活跃状态，还是其实已经在运行？
+- 会话是否已归档？
+- 会话是否属于你预期的提供商/后端？
+- 你当前是否位于正确的 Kaiwu 服务器/账户配置下？
+- 针对 Codex，所选的恢复路径是否可用（默认为 App Server，显式选择时为 ACP）？
+- 所属设备是否在线且可与 Kaiwu 通信？
 
-## Related
+## 相关内容
 
-- [Attach to a running session](/sessions/attach-to-session)
-- [Continuing a session](/sessions/continuing-a-session)
+- [附加到运行中的会话](/sessions/attach-to-session)
+- [继续会话](/sessions/continuing-a-session)
 - [CLI](/apps/cli)
 - [Codex](/agents/codex)
-- [Permissions](/sessions/permissions)
+- [权限](/sessions/permissions)

@@ -75,7 +75,7 @@ export async function handleAuthLogout(args: string[]): Promise<void> {
       }
 
       console.log(chalk.green('✓ Successfully logged out'));
-      console.log(chalk.gray('  Run "happier auth login" to authenticate again'));
+      console.log(chalk.gray('  Run "kaiwu auth login" to authenticate again'));
     } catch (error) {
       throw new Error(`Failed to logout: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }

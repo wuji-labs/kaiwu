@@ -1,62 +1,61 @@
 ---
-title: Bug reports
-description: Send issue reports from Kaiwu with optional diagnostics for faster triage.
+title: 错误报告
+description: 从 Kaiwu 发送问题报告，可选择附带诊断信息以便更快排查分流。
 ---
+Kaiwu 在应用设置中内置了问题报告流程。
 
-Kaiwu includes a built-in bug report flow from app settings.
+在服务端启用后，用户可以提交：
 
-When enabled by your server, users can submit:
+- 简要的问题描述，
+- 可选的诊断数据（例如日志），
+- 有助于技术支持复现与分类排查问题的元数据。
 
-- a short issue description,
-- optional diagnostic payloads (for example logs),
-- metadata that helps support reproduce and triage issues.
+## 服务端配置项
 
-## Server controls
+在 Kaiwu 服务端上可配置以下环境变量：
 
-Use these env vars on the Kaiwu server:
+- `HAPPIER_FEATURE_BUG_REPORTS__ENABLED`（默认值：`1`）
+- `HAPPIER_FEATURE_BUG_REPORTS__PROVIDER_URL`（默认值：`https://kaiwu.chengqiyun.com`）
+  - 若配置为无效 URL，系统将直接禁用提供商提交功能，而不会回退到中心默认地址。
+- `HAPPIER_FEATURE_BUG_REPORTS__DEFAULT_INCLUDE_DIAGNOSTICS`（默认值：`1`）
+- `HAPPIER_FEATURE_BUG_REPORTS__MAX_ARTIFACT_BYTES`（默认值：`10485760`）
+- `HAPPIER_FEATURE_BUG_REPORTS__UPLOAD_TIMEOUT_MS`（默认值：`120000`）
+- `HAPPIER_FEATURE_BUG_REPORTS__CONTEXT_WINDOW_MS`（默认值：`1800000`；最小值：`1000`，最大值：`86400000`）
+- `HAPPIER_FEATURE_BUG_REPORTS__ACCEPTED_ARTIFACT_KINDS`（以逗号分隔的白名单）
+- `HAPPIER_BUG_REPORTS_SERVER_DIAGNOSTICS_ENABLED`（默认值：`0`）
+- `HAPPIER_BUG_REPORTS_SERVER_DIAGNOSTICS_ACCESS_MODE`（默认值：`owner`，可选值：`authenticated`、`owner`）
+- `HAPPIER_SERVER_OWNER_USER_IDS`（以逗号分隔的服务端所有者账户 ID，用于仅限所有者使用的功能）
+- `HAPPIER_BUG_REPORTS_SERVER_LOG_PATH`（可选，显式指定服务端日志路径）
+- `HAPPIER_BUG_REPORTS_SERVER_LOG_MAX_BYTES`（默认值：`262144`，服务端日志快照读取的最大末尾字节数）
+- `HAPPIER_DIAGNOSTICS_BUG_REPORT_SNAPSHOT_RATE_LIMIT_MAX`（默认值：`30`）
+- `HAPPIER_DIAGNOSTICS_BUG_REPORT_SNAPSHOT_RATE_LIMIT_WINDOW`（默认值：`1 minute`）
 
-- `HAPPIER_FEATURE_BUG_REPORTS__ENABLED` (default `1`)
-- `HAPPIER_FEATURE_BUG_REPORTS__PROVIDER_URL` (default `https://kaiwu.chengqiyun.com`)
-  - If set to an invalid URL, provider submission is disabled instead of falling back to a central default.
-- `HAPPIER_FEATURE_BUG_REPORTS__DEFAULT_INCLUDE_DIAGNOSTICS` (default `1`)
-- `HAPPIER_FEATURE_BUG_REPORTS__MAX_ARTIFACT_BYTES` (default `10485760`)
-- `HAPPIER_FEATURE_BUG_REPORTS__UPLOAD_TIMEOUT_MS` (default `120000`)
-- `HAPPIER_FEATURE_BUG_REPORTS__CONTEXT_WINDOW_MS` (default `1800000`; min `1000`, max `86400000`)
-- `HAPPIER_FEATURE_BUG_REPORTS__ACCEPTED_ARTIFACT_KINDS` (comma-separated allowlist)
-- `HAPPIER_BUG_REPORTS_SERVER_DIAGNOSTICS_ENABLED` (default `0`)
-- `HAPPIER_BUG_REPORTS_SERVER_DIAGNOSTICS_ACCESS_MODE` (default `owner`, allowed: `authenticated`, `owner`)
-- `HAPPIER_SERVER_OWNER_USER_IDS` (comma-separated server owner account ids for owner-gated features)
-- `HAPPIER_BUG_REPORTS_SERVER_LOG_PATH` (optional explicit server log path)
-- `HAPPIER_BUG_REPORTS_SERVER_LOG_MAX_BYTES` (default `262144`, max tail bytes read from server log snapshot)
-- `HAPPIER_DIAGNOSTICS_BUG_REPORT_SNAPSHOT_RATE_LIMIT_MAX` (default `30`)
-- `HAPPIER_DIAGNOSTICS_BUG_REPORT_SNAPSHOT_RATE_LIMIT_WINDOW` (default `1 minute`)
+如需强制禁止向外导出服务端日志，请保留 `HAPPIER_BUG_REPORTS_SERVER_DIAGNOSTICS_ENABLED=0`，或从 `HAPPIER_FEATURE_BUG_REPORTS__ACCEPTED_ARTIFACT_KINDS` 中移除 `server`（或两者同时执行）。
 
-To hard-disable server log exfiltration, keep `HAPPIER_BUG_REPORTS_SERVER_DIAGNOSTICS_ENABLED=0` and/or remove `server` from `HAPPIER_FEATURE_BUG_REPORTS__ACCEPTED_ARTIFACT_KINDS`.
+对于共享服务器，建议保留 `HAPPIER_BUG_REPORTS_SERVER_DIAGNOSTICS_ACCESS_MODE=owner`（或保持未设置状态）并配置 `HAPPIER_SERVER_OWNER_USER_IDS`，确保仅指定的所有者可以获取服务端诊断快照。
 
-For shared servers, keep `HAPPIER_BUG_REPORTS_SERVER_DIAGNOSTICS_ACCESS_MODE=owner` (or leave it unset) and define `HAPPIER_SERVER_OWNER_USER_IDS` so only configured owners can fetch server diagnostics snapshots.
+`HAPPIER_SERVER_OWNER_USER_IDS` 接收的是 Kaiwu 账户 ID（而非用户名）。所有者可在客户端中通过“设置 → 账户”复制该 ID。
 
-`HAPPIER_SERVER_OWNER_USER_IDS` uses Kaiwu account ids (not usernames). Owners can copy their id from Settings → Account in the app.
+## 隐私与控制
 
-## Privacy and control
+- 提交时可自主选择是否上传诊断数据。
+- 针对受限网络环境，服务端运维人员可以禁用向提供商自动提交。
+- 客户端界面会依据服务端的特性标记动态适配。
+- 客户端对未暴露 `features.bugReports` 的旧版服务端保持向后兼容（视作禁用）。
+- 当提供商提交功能不可用时，客户端仍提供回退方案，可预填并跳转创建公开 GitHub Issue（不包含私有产物）。
 
-- Diagnostic upload is optional at submit time.
-- Server operators can disable automated provider submission for restricted environments.
-- User-facing UI follows server capability flags.
-- Clients remain backward-compatible with older servers that do not expose `features.bugReports` (treated as disabled).
-- When provider submission is unavailable, clients can still offer a prefilled public GitHub issue fallback (without private artifacts).
+## 相似问题（重复项检测）
 
-## Similar issues (duplicates)
+为减少重复报告，Kaiwu 可以在你填写报告的同时，在 GitHub 上检索可能相似的现有问题。
 
-To reduce duplicate reports, Kaiwu can search GitHub for potentially similar issues while you fill the report.
+- 在应用中，你可以选择某条建议的现有问题，直接以评论形式追加反馈，而无需新建 Issue。
+- 在 CLI 中，你可以：
+  - 传入 `--existing-issue-number ⟦K2⟧`，将报告作为评论发布到已有问题下
+  - 传入 `--no-similar-issues`，在交互模式下跳过重复问题检索
 
-- In the app, you can select one of the suggested issues to post your report as a comment instead of opening a new issue.
-- In the CLI, you can:
-  - pass `--existing-issue-number <number>` to post the report as a comment on an existing issue
-  - pass `--no-similar-issues` to skip duplicate searching in interactive mode
+## 通过 CLI 提交报告
 
-## CLI reporting
-
-You can submit reports from CLI too:
+你也可以通过 CLI 提交报告：
 
 ```bash
 happier bug-report \
@@ -69,20 +68,20 @@ happier bug-report \
   --accept-privacy-notice
 ```
 
-If required fields are missing in an interactive terminal, the CLI prompts for them. In non-interactive mode, pass all required flags.
+在交互式终端中，若缺少必填字段，CLI 会主动提示输入。在非交互模式下，请显式传入所有必需的参数标志。
 
-### Reporter GitHub username (optional)
+### 报告者的 GitHub 用户名（可选）
 
-If you want maintainers to be able to reach you, provide your GitHub username via `--github-username`. Kaiwu appends a `Reporter GitHub: \`...\`` line to the report summary (sanitized to avoid accidental formatting/pings).
+如果你希望维护者后续能与你取得联系，可通过 `--github-username` 提供自己的 GitHub 用户名。Kaiwu 会在报告摘要中追加一行 `Reporter GitHub: \`...\``（该内容经过无害化处理，以防意外触发格式错乱或人员提及）。
 
-## When to use
+## 适用场景
 
-- UI rendering issues,
-- session sync mismatches,
-- auth/connection problems,
-- tool timeline or diff rendering regressions.
+- 界面渲染异常，
+- 会话同步不一致，
+- 认证或连接问题，
+- 工具时间线或差异对比（diff）渲染回退问题。
 
-## Related pages
+## 相关页面
 
-- [Notification routing](/extras/notifications-routing)
-- [Server feature flags](/extras/feature-flags)
+- [通知路由](/extras/notifications-routing)
+- [服务端特性标记](/extras/feature-flags)

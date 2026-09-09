@@ -14,22 +14,22 @@ function isHelpToken(value: string): boolean {
 }
 
 function printMcpUsage(): void {
-  console.log('happier mcp serve [--session <session-id>]');
-  console.log('happier mcp servers list [--dir <path>] [--json]');
-  console.log('happier mcp servers add --name <name> --transport stdio --command <cmd> [--arg <arg>] [--json]');
-  console.log('happier mcp servers bind --mcp-server <name|id> --all-machines [--json]');
-  console.log('happier mcp servers unbind --binding-id <id> [--json]');
-  console.log('happier mcp servers detect --provider <provider-id> [--json]');
-  console.log('happier mcp servers test --mcp-server <name|id> [--dir <path>] [--json]');
+  console.log('kaiwu mcp serve [--session <session-id>]');
+  console.log('kaiwu mcp servers list [--dir <path>] [--json]');
+  console.log('kaiwu mcp servers add --name <name> --transport stdio --command <cmd> [--arg <arg>] [--json]');
+  console.log('kaiwu mcp servers bind --mcp-server <name|id> --all-machines [--json]');
+  console.log('kaiwu mcp servers unbind --binding-id <id> [--json]');
+  console.log('kaiwu mcp servers detect --provider <provider-id> [--json]');
+  console.log('kaiwu mcp servers test --mcp-server <name|id> [--dir <path>] [--json]');
 }
 
 function printMcpServersUsage(): void {
-  console.log('happier mcp servers list [--dir <path>] [--json]');
-  console.log('happier mcp servers add --name <name> --transport stdio --command <cmd> [--arg <arg>] [--json]');
-  console.log('happier mcp servers bind --mcp-server <name|id> --all-machines [--json]');
-  console.log('happier mcp servers unbind --binding-id <id> [--json]');
-  console.log('happier mcp servers detect --provider <provider-id> [--json]');
-  console.log('happier mcp servers test --mcp-server <name|id> [--dir <path>] [--json]');
+  console.log('kaiwu mcp servers list [--dir <path>] [--json]');
+  console.log('kaiwu mcp servers add --name <name> --transport stdio --command <cmd> [--arg <arg>] [--json]');
+  console.log('kaiwu mcp servers bind --mcp-server <name|id> --all-machines [--json]');
+  console.log('kaiwu mcp servers unbind --binding-id <id> [--json]');
+  console.log('kaiwu mcp servers detect --provider <provider-id> [--json]');
+  console.log('kaiwu mcp servers test --mcp-server <name|id> [--dir <path>] [--json]');
 }
 
 function resolveCommandKind(args: readonly string[]): string {
@@ -64,7 +64,7 @@ export async function handleMcpCommand(args: string[], deps?: Partial<McpCommand
 
     if (group === 'serve' || group === 'start') {
       if (isHelpToken(subcommand)) {
-        console.log('happier mcp serve [--session <session-id>]');
+        console.log('kaiwu mcp serve [--session <session-id>]');
         return;
       }
       await runMcpServeCommand(args, resolvedDeps);
@@ -72,7 +72,7 @@ export async function handleMcpCommand(args: string[], deps?: Partial<McpCommand
     }
 
     if (group !== 'servers') {
-      throw new Error('Usage: happier mcp servers <command>');
+      throw new Error('Usage: kaiwu mcp servers <command>');
     }
 
     if (!subcommand || isHelpToken(subcommand)) {

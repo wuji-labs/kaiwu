@@ -1,11 +1,11 @@
 /**
- * The decision half of `happier setup`, kept pure so every branch is testable
+ * The decision half of `kaiwu setup`, kept pure so every branch is testable
  * without a terminal.
  *
  * Setup asks one question the client cannot answer for itself — where the relay
  * lives — because credentials are stored per relay profile and the answer has to
  * be settled before signing in. Everything after that delegates to commands that
- * already exist (`happier server add`, `happier auth login`, `happier relay host
+ * already exist (`kaiwu server add`, `kaiwu auth login`, `kaiwu relay host
  * install`); this module only decides which of them to run, in what order.
  */
 
@@ -237,9 +237,9 @@ const RELAY_CHOICE_REQUIRED = [
   'Setup will not choose a relay for you — your account lives on the one you pick.',
   'Name it:',
   '',
-  '  happier setup --cloud --yes',
-  '  happier setup --relay https://relay.example.com --yes',
-  '  happier setup --this-computer --yes',
+  '  kaiwu setup --cloud --yes',
+  '  kaiwu setup --relay https://relay.example.com --yes',
+  '  kaiwu setup --this-computer --yes',
 ].join('\n');
 
 /**
@@ -252,7 +252,7 @@ const RELAY_CHOICE_REQUIRED = [
 const SIGN_IN_REQUIRED = [
   'Setup needs you for the last step — signing in has to be approved on a device.',
   '',
-  '  happier auth login',
+  '  kaiwu auth login',
 ].join('\n');
 
 export function buildSetupPlan(params: BuildSetupPlanParams): SetupPlan {
@@ -269,8 +269,8 @@ export function buildSetupPlan(params: BuildSetupPlanParams): SetupPlan {
           `The selected relay (${activeRelayUrl}) did not answer, so its stored sign-in could not be verified.`,
           'Your relay selection and credentials were kept unchanged.',
           '',
-          'Retry: `happier setup`',
-          'Choose another relay explicitly: `happier setup --cloud` or `happier setup --relay <url>`',
+          'Retry: `kaiwu setup`',
+          'Choose another relay explicitly: `kaiwu setup --cloud` or `kaiwu setup --relay <url>`',
         ].join('\n'),
       },
     };
@@ -291,7 +291,7 @@ export function buildSetupPlan(params: BuildSetupPlanParams): SetupPlan {
         steps: [],
         stop: {
           reason: 'needs-interactive',
-          detail: 'This account is already selected, but this computer still needs to be registered. Run `happier auth login` in a terminal to finish.',
+          detail: 'This account is already selected, but this computer still needs to be registered. Run `kaiwu auth login` in a terminal to finish.',
         },
       };
     }
@@ -319,11 +319,11 @@ export function buildSetupPlan(params: BuildSetupPlanParams): SetupPlan {
       stop: {
         reason: 'needs-interactive',
         detail: selection
-          ? 'Setup changes nothing unattended unless you ask it to. Run `happier setup --yes` to do the '
-            + 'steps that need no answer, then `happier auth login` to finish — signing in has to be '
+          ? 'Setup changes nothing unattended unless you ask it to. Run `kaiwu setup --yes` to do the '
+            + 'steps that need no answer, then `kaiwu auth login` to finish — signing in has to be '
             + 'approved on your phone or in a browser.'
-          : 'Setup needs a terminal to ask where your relay lives. Run `happier setup` directly, or name '
-            + 'the relay yourself: `happier setup --cloud --yes`.',
+          : 'Setup needs a terminal to ask where your relay lives. Run `kaiwu setup` directly, or name '
+            + 'the relay yourself: `kaiwu setup --cloud --yes`.',
       },
     };
   }

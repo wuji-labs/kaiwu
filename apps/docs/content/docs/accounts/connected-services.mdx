@@ -1,431 +1,400 @@
 ---
-title: Connected services
-description: Link provider subscriptions and API keys to Kaiwu, reuse them across supported backends, and monitor quota snapshots where available.
+title: 已连接服务
+description: 将提供商订阅与 API 密钥关联至 Kaiwu，在支持的后端之间复用，并在可用时监控配额快照。
 ---
+已连接服务允许你在 Kaiwu 中一次性存储提供商凭据，并在受支持的后端与会话间反复复用。
 
-Connected services let you store provider credentials once in Kaiwu and then reuse them across supported backends and sessions.
+它不同于提供商设置中的**提供商身份验证**：
 
-They are different from **provider authentication** in provider settings:
+- **已连接服务**存储在 Kaiwu 中，可在兼容的后端之间复用
+- **提供商身份验证**则反映某台特定设备上提供商 CLI 的原生登录状态
 
-- **Connected services** are stored in Kaiwu and can be reused across compatible backends
-- **Provider authentication** reflects the native login state of a provider CLI on one specific machine
+参见[提供商身份验证](/agents/provider-authentication)。
 
-See [Provider authentication](/agents/provider-authentication).
+该功能旨在帮助你：
 
-They exist so you can:
+- 关联订阅和 API 密钥，无需为每个后端反复手动输入
+- 将凭据加密保存在 Kaiwu Cloud 中，仅在客户端 / 守护进程上解密
+- 在启动会话时按服务选择身份验证方式，而不单纯依赖各后端的原生身份验证
+- 监控受支持服务的使用量与额度快照
+- 简化多设备工作流，使目标设备能直接复用 Kaiwu 托管的同一凭据
 
-- connect subscriptions and API keys without manually re-entering them for every backend
-- keep credentials encrypted in Kaiwu Cloud and decrypt them only on the client / daemon
-- choose per-service auth at session start instead of relying only on each backend's native auth
-- monitor usage / quota snapshots for supported services
-- make multi-machine workflows easier when the target machine should reuse the same Kaiwu-managed credential
+## 什么是已连接服务
 
-## What a connected service is
+Kaiwu 将不同类型的凭据分别建模为独立的已连接服务：
 
-Kaiwu models different credential types as distinct connected services:
+- `openai-codex`：OpenAI Codex 订阅身份验证
+- `openai`：OpenAI API 密钥身份验证
+- `claude-subscription`：Claude 订阅身份验证
+- `anthropic`：Anthropic API 密钥身份验证
+- `gemini`：Gemini OAuth 身份验证
+- `github`：用于版本控制工作流的 GitHub 令牌身份验证
 
-- `openai-codex`: OpenAI Codex subscription auth
-- `openai`: OpenAI API key auth
-- `claude-subscription`: Claude subscription auth
-- `anthropic`: Anthropic API key auth
-- `gemini`: Gemini OAuth auth
-- `github`: GitHub token auth for source-control workflows
+这种拆分是刻意设计的。订阅身份验证和 API 密钥身份验证在提供商行为、计费途径以及后端具象化需求上均有不同，因此 Kaiwu 不会将它们合并为泛化的“Claude”或“OpenAI”单一凭据类型。
 
-This split is intentional. Subscription auth and API-key auth have different provider behavior, billing paths, and backend materialization requirements, so Kaiwu does not merge them into a single generic "Claude" or "OpenAI" credential type.
+GitHub 是首个非智能体/后端凭据的已连接服务，供 GitHub 代码仓库发布、GitHub 拉取请求操作等版本控制功能使用。
 
-GitHub is the first connected service that is not an agent/backend credential. It is used by source-control features such as GitHub repository publishing and GitHub pull request operations.
+## 如何管理已连接服务
 
-## Where you manage them
+在客户端中：
 
-In the app:
+- 设置 -> 已连接服务
 
-- Settings -> Connected services
+你可以在此处：
 
-From there you can:
+- 为同一服务添加一个或多个配置
+- 为配置添加自定义标签
+- 为每个服务设置默认配置
+- 查看提供商邮箱、账户 ID 和额度计量表等配置详情
+- 断开单个配置的连接
 
-- add one or more profiles for the same service
-- give profiles custom labels
-- set a default profile per service
-- inspect profile details such as provider email, account id, and quota meters
-- disconnect individual profiles
-
-In the CLI:
+在 CLI 中：
 
 - `happier connect status`
 - `happier connect codex ...`
 - `happier connect claude ...`
 - `happier connect gemini`
 
-## Connection methods
+## 连接方式
 
 ### OpenAI Codex
 
-Supported methods:
+支持的方式：
 
-- device code
-- paste redirect URL
-- in-app browser on native only
+- 设备代码（device code）
+- 粘贴重定向 URL
+- 应用内浏览器（仅限原生客户端）
 
-OpenAI Codex can also be connected with an API key, but that is modeled as the separate `openai` service.
+OpenAI Codex 也支持通过 API 密钥连接，但在架构上被建模为独立的 `openai` 服务。
 
-### OpenAI API key
+### OpenAI API 密钥
 
-Supported methods:
+支持的方式：
 
-- manual API key entry
+- 手动输入 API 密钥
 
-Use this when you want OpenAI-backed backends to run against your own API key instead of your Codex subscription login.
+若希望基于 OpenAI 的后端直接调用你自己的 API 密钥运行，而非使用 Codex 订阅登录，请使用此项。
 
-### Claude subscription
+### Claude 订阅
 
-Supported methods:
+支持的方式：
 
 - setup-token
-- paste redirect URL
-- in-app browser on native only
+- 粘贴重定向 URL
+- 应用内浏览器（仅限原生客户端）
 
-Setup-token is the recommended default. Generate it on any machine already logged into Claude Code:
+推荐默认使用 setup-token。可在已登录 Claude Code 的任意设备上生成：
 
 ```bash
 claude setup-token
 ```
 
-Then paste it into Kaiwu.
+然后将其粘贴到 Kaiwu 中。
 
-### Anthropic API key
+### Anthropic API 密钥
 
-Supported methods:
+支持的方式：
 
-- manual API key entry
+- 手动输入 API 密钥
 
-This is the Anthropic Console API-key path. It is separate from `claude-subscription`.
+此项对应 Anthropic Console 的 API 密钥途径，独立于 `claude-subscription`。
 
 ### Gemini
 
-Supported methods:
+支持的方式：
 
-- paste redirect URL
-- in-app browser on native only
+- 粘贴重定向 URL
+- 应用内浏览器（仅限原生客户端）
 
 ### GitHub
 
-Supported methods:
+支持的方式：
 
-- token / Personal Access Token entry
-- local GitHub CLI auth outside Connected services
+- 输入 Token / 个人访问令牌（Personal Access Token）
+- 已连接服务之外的本地 GitHub CLI 身份验证
 
-A connected GitHub token lets Kaiwu use GitHub REST APIs for:
+连接 GitHub 令牌后，Kaiwu 可调用 GitHub REST API 执行以下操作：
 
-- publishing a local repository to GitHub
-- listing and opening pull requests for the current branch
-- creating or reusing pull requests
+- 将本地仓库发布至 GitHub
+- 列出并打开当前分支的拉取请求
+- 创建或复用拉取请求
 
-The local `gh` CLI is not stored as a connected service. If `gh` is already installed and authenticated with `gh auth login`, Kaiwu can use it as an optional fallback for GitHub source-control workflows.
+本地 `gh` CLI 不会作为已连接服务存储。若已安装 `gh` 并通过 `gh auth login` 完成身份验证，Kaiwu 可将其作为 GitHub 版本控制工作流的可选备用方案。
 
-Current GitHub OAuth note:
+当前 GitHub OAuth 说明：
 
-- GitHub OAuth/device flow is not enabled in this build.
-- Use a GitHub token in Connected services, or authenticate the local `gh` CLI.
+- 当前构建版本未启用 GitHub OAuth / 设备代码流。
+- 请在已连接服务中使用 GitHub 令牌，或对本地 `gh` CLI 进行身份验证。
 
-GitLab is not currently a connected service in Kaiwu. GitLab merge-request workflows use an authenticated local `glab` CLI when available, or a no-auth compare URL fallback.
+GitLab 目前尚未作为 Kaiwu 的已连接服务提供。GitLab 合并请求工作流优先使用经身份验证的本地 `glab` CLI（若可用），或回退至免验证的比对 URL。
 
-### Why web behaves differently
+### Web 端表现差异的原因
 
-Kaiwu does not use embedded OAuth capture on web. Web falls back to paste-based flows because a browser app cannot reliably auto-capture provider redirects to `localhost`.
+Kaiwu 在 Web 端不采用内嵌式 OAuth 捕获。由于浏览器环境无法可靠地自动捕获提供商向 `localhost` 发起的重定向，Web 端会回退至基于粘贴的流程。
 
-## Backend compatibility
+## 后端兼容性
 
-Connected services are not global "works everywhere" credentials. Each backend declares which service ids and credential kinds it can consume.
+已连接服务并非“处处通用”的全局凭据。各个后端会明确声明自身支持的服务 ID 与凭据类型。
 
-| Backend | Supported connected services |
+| 后端 | 支持的已连接服务 |
 | --- | --- |
-| Claude | `claude-subscription` (setup-token or OAuth), `anthropic` (API key) |
-| Codex | `openai-codex` (OAuth), `openai` (API key) |
-| Gemini | `gemini` (OAuth) |
-| OpenCode | `openai-codex` (OAuth), `openai` (API key), `claude-subscription` (setup-token only), `anthropic` (API key) |
-| Pi | `openai-codex` (OAuth), `openai` (API key), `claude-subscription` (OAuth or setup-token), `anthropic` (API key) |
+| Claude | `claude-subscription`（setup-token 或 OAuth），`anthropic`（API 密钥） |
+| Codex | `openai-codex`（OAuth），`openai`（API 密钥） |
+| Gemini | `gemini`（OAuth） |
+| OpenCode | `openai-codex`（OAuth），`openai`（API 密钥），`claude-subscription`（仅限 setup-token），`anthropic`（API 密钥） |
+| Pi | `openai-codex`（OAuth），`openai`（API 密钥），`claude-subscription`（OAuth 或 setup-token），`anthropic`（API 密钥） |
 
-Important limitations:
+重要限制：
 
-- OpenCode accepts `claude-subscription` only when the profile is a setup-token profile, not a Claude OAuth profile.
-- Pi accepts `claude-subscription` OAuth and setup-token profiles. Claude subscription OAuth is materialized into Pi's isolated `auth.json`; setup-token profiles are materialized as Pi API-key credentials.
-- `anthropic` is API-key only in Kaiwu.
-- `github` is not consumed by agent backends. It is consumed by source-control workflows.
+- 仅当配置为 setup-token 配置而非 Claude OAuth 配置时，OpenCode 才接受 `claude-subscription`。
+- Pi 接受 `claude-subscription` 的 OAuth 与 setup-token 配置。Claude 订阅 OAuth 会具象化至 Pi 隔离的 `auth.json` 中；setup-token 配置则具象化为 Pi 的 API 密钥凭据。
+- 在 Kaiwu 中，`anthropic` 仅支持 API 密钥。
+- 智能体后端不使用 `github`，该服务仅由版本控制工作流使用。
 
-## Source-control compatibility
+## 版本控制兼容性
 
-| Source-control workflow | Preferred credential | Fallback |
+| 版本控制工作流 | 首选凭据 | 回退方案 |
 | --- | --- | --- |
-| Publish repository to GitHub | Connected `github` token | Authenticated `gh` CLI |
-| GitHub pull requests | Connected `github` token | Authenticated `gh` CLI, then compare URL |
-| GitLab merge requests | Not a connected service today | Authenticated `glab` CLI, then compare URL |
-| Bitbucket pull requests | Not a connected service today | Compare URL only |
+| 将仓库发布至 GitHub | 已连接的 `github` 令牌 | 经身份验证的 `gh` CLI |
+| GitHub 拉取请求 | 已连接的 `github` 令牌 | 经身份验证的 `gh` CLI，其次为比对 URL |
+| GitLab 合并请求 | 目前未提供已连接服务 | 经身份验证的 `glab` CLI，其次为比对 URL |
+| Bitbucket 拉取请求 | 目前未提供已连接服务 | 仅支持比对 URL |
 
-This means a user who already has `gh` installed and authenticated can use GitHub PR/publish features without connecting GitHub in Kaiwu first. Connecting GitHub is still the preferred cross-machine path because the credential can be reused by the daemon on the target machine.
+这意味着，如果用户已安装 `gh` 并完成身份验证，无需先在 Kaiwu 中连接 GitHub 即可直接使用 GitHub PR 与发布功能。不过，连接 GitHub 仍是跨设备场景下的首选方案，因为目标设备上的守护进程可以直接复用该凭据。
 
-## Using connected services in the new-session flow
+## 在新建会话流程中使用已连接服务
 
-If the selected backend supports connected services, the new-session screen shows an auth picker.
+若所选后端支持已连接服务，新建会话界面将显示身份验证选择器。
 
-That picker is dynamic:
+该选择器是动态加载的：
 
-- it appears only for backends that support connected services
-- it shows only services compatible with the selected backend
-- it shows only connected profiles that are valid for that backend
-- it lets you choose `native` auth or `connected` auth for each compatible service
+- 仅在后端支持已连接服务时才会显示
+- 仅展示与所选后端兼容的服务
+- 仅展示适用于该后端的已连接配置
+- 允许你针对每个兼容服务选择 `native` 身份验证或 `connected` 身份验证
 
-If no compatible connected profile exists for a service, Kaiwu keeps that service on native auth and offers a shortcut to open Connected services settings.
+若某服务不存在兼容的已连接配置，Kaiwu 会将该服务保留为原生身份验证，并提供打开“已连接服务”设置的快捷入口。
 
-## Connected services and browsing sessions (Codex)
+## 已连接服务与浏览会话（Codex）
 
-For some providers, your connected-service choice affects which provider “home” Kaiwu should use for session browsing.
+对于某些提供商，已连接服务的选择会决定 Kaiwu 在浏览会话时应使用哪一个提供商“主目录（home）”。
 
-The most important example is **Codex**:
+最典型的例子是 **Codex**：
 
-- With **native auth**, Kaiwu browses sessions from the machine’s standard Codex home.
-- With a **connected service profile** selected for Codex, Kaiwu browses sessions from that connected-service-backed Codex home.
+- 使用**原生身份验证**时，Kaiwu 会从该设备的标准 Codex 主目录中浏览会话。
+- 为 Codex 选用**已连接服务配置**时，Kaiwu 则从该已连接服务对应的 Codex 主目录中浏览会话。
 
-This matters in two places:
+这一机制在以下两个场景中发挥作用：
 
-- **Direct → Browse provider sessions**: you can explicitly choose a source/home when browsing.
-- **Browse sessions**: the picker is locked to the effective Codex home implied by your new-session selection, so the session you choose is one that can actually resume under that auth.
+- **直连 → 浏览提供商会话**：浏览时可明确指定数据源/主目录。
+- **浏览会话**：选择器会锁定为新建会话选择所决定的生效 Codex 主目录，确保所选会话在该身份验证下能够正常恢复。
 
-If you need to browse a different Codex home, switch the auth choice first and then browse again.
+若需要浏览其他 Codex 主目录，请先切换身份验证选项，然后再重新浏览。
 
-## Connected services and session handoff
+## 已连接服务与会话交接
 
-Connected services are often the easiest way to preserve session continuity across machines.
+在跨设备场景下，已连接服务通常是保持会话连续性最便捷的途径。
 
-Why:
+原因在于：
 
-- the credential is stored in Kaiwu, not only in one machine-local provider login
-- compatible backends can materialize that credential again on another machine
-- you can hand off the same Kaiwu session and continue without depending only on native provider CLI auth on the destination
+- 凭据保存在 Kaiwu 中，而非局限于单台设备的本地提供商登录信息
+- 兼容的后端可在另一台设备上重新具象化该凭据
+- 你可以交接同一个 Kaiwu 会话并继续执行，无需完全依赖目标设备上的原生提供商 CLI 身份验证
 
-This is especially useful for:
+该特性在以下场景中尤其有用：
 
-- moving a session from one desktop/laptop to another
-- moving between a host machine and a VM
-- keeping continuity when only one side had previously been set up through the app
+- 将会话从一台台式机/笔记本电脑迁移到另一台
+- 在宿主机与虚拟机之间迁移会话
+- 当仅有一侧设备此前通过应用完成设置时，仍能保持操作连续
 
-Connected services do not replace every native provider login flow. Some providers and runtimes still depend on machine-local authentication. But for supported backends, connected services are the preferred path for cross-machine continuity.
+已连接服务并不能替代所有的原生提供商登录流程。某些提供商与运行时仍依赖设备本地的身份验证。不过对于受支持的后端，已连接服务是实现跨设备连续性的首选方案。
 
-See:
+参见：
 
-- [Session handoff](/sessions/session-handoff)
-- [Provider authentication](/agents/provider-authentication)
+- [会话交接](/sessions/session-handoff)
+- [提供商身份验证](/agents/provider-authentication)
 
-## Profiles, defaults, and labels
+## 配置、默认值与标签
 
-Each connected service can have multiple profiles, for example:
+每个已连接服务均可拥有多个配置，例如：
 
-- a personal OpenAI subscription and a work OpenAI subscription
-- multiple Anthropic API keys
-- multiple Claude setup-token profiles
+- 个人 OpenAI 订阅与工作 OpenAI 订阅
+- 多个 Anthropic API 密钥
+- 多个 Claude setup-token 配置
 
-For each service you can:
+针对每个服务，你可以：
 
-- set one default profile
-- override the default at session start
-- assign a friendly label so the auth picker can show something clearer than just `work` or `default`
+- 设置一个默认配置
+- 在启动会话时覆盖默认配置
+- 指定易懂的标签，使身份验证选择器展示更直观的信息，而非仅仅显示 `work` 或 `default`
 
-## Account pools
+## 账户池
 
-A pool groups several accounts for the same service and decides which one should
-be handling work right now. It is the answer to running out of quota mid-turn:
-instead of the session stopping until a reset, the pool moves to another account
-and carries on.
+账户池将同一服务的多个账户归为一组，并由系统判定当前应由哪个账户处理任务。它是解决交互轮次中途额度耗尽问题的方案：会话不必停滞等待配额重置，账户池会自动切至其他账户并继续处理。
 
-Pools are shared by every session using them. When one session discovers the
-active account is exhausted, the pool selects a replacement and the other
-sessions bound to that pool adopt it, rather than each rediscovering the same
-dead account.
+使用账户池的所有会话共享该池。当某个会话发现当前活动账户额度耗尽时，账户池会遴选替代账户；绑定到该池的其他会话也会同步采用新账户，无需各自再去触碰同一个已失效的账户。
 
-### Choosing which account is active
+### 选择活动账户
 
-| Strategy | What it does |
+| 策略 | 说明 |
 | --- | --- |
-| **Least limited** *(default)* | Picks whichever member has the most quota left. |
-| **Priority** | Uses your ordering, falling back down the list. |
-| **Manual** | Never chooses for you; you pick. |
+| **受限最少** *(默认)* | 选取剩余额度最多的成员。 |
+| **优先级** | 按照你设定的顺序依次使用，依列表向下回退。 |
+| **手动** | 不自动选择，完全由你自行指定。 |
 
-Reorder members to set the fallback order, and enable or disable individual
-accounts without removing them.
+你可以通过调整成员顺序来设定回退优先级，也可以在不移除账户的情况下单独启用或禁用特定账户。
 
-### When it switches
+### 触发切换的条件
 
-Automatic switching is **off by default** — turn it on per pool. Once on, it
-reacts to:
+自动切换**默认处于关闭状态**，需针对各个账户池单独开启。开启后，将在以下情况触发切换：
 
-| Trigger | Default |
+| 触发条件 | 默认状态 |
 | --- | --- |
-| The account hit a usage limit | On |
-| Authentication expired | On |
-| The active account changed unexpectedly | On |
-| A credential refresh failed | Off |
+| 账户达到使用上限 | 开启 |
+| 身份验证过期 | 开启 |
+| 活动账户意外变更 | 开启 |
+| 凭据刷新失败 | 关闭 |
 
-It can also move *before* a hard limit: when the active account drops below
-**15%** remaining and a better member is available. That threshold is
-configurable.
+系统还可在触及硬性上限*之前*提前切换：当活动账户的剩余额度低于 **15%** 且有更优成员可用时即可触发。该阈值支持自定义配置。
 
-### Bounds that stop it thrashing
+### 防抖限制
 
-A broken pool or a repeated authentication failure must not become a switching
-loop, so switching is bounded:
+为了避免配置异常的账户池或反复出现的身份验证失败导致无限循环切换，切换行为受到以下约束：
 
-- at most **1 switch per turn**
-- at most **3 switches per session per hour**
-- a **30-second cooldown** between switches
-- provider reset times are honoured, so a member known to be resetting shortly
-  is not treated as permanently dead
+- 单轮次内最多切换 **1 次**
+- 单个会话每小时最多切换 **3 次**
+- 切换之间设有 **30 秒冷却时间**
+- 遵循提供商的重置时间，对于已知即将在短时间内重置额度的成员，不会将其视作永久失效
 
-### Recovery after a hard limit
+### 触及硬性上限后的恢复
 
-When a session does hit a wall, what happens next is configurable:
+当会话确实遇到额度上限受阻时，后续处理行为支持配置：
 
-| Mode | Behaviour |
+| 模式 | 行为 |
 | --- | --- |
-| **Switch or wait** *(default)* | Move to another account; wait for a reset if there is none. |
-| **Switch then resume** | Move and continue immediately. |
-| **Wait until reset** | Stay on this account and wait. |
-| **Off** | Stop and let you decide. |
+| **切换或等待** *(默认)* | 切至其他账户；若无可替换账户则等待重置。 |
+| **切换后继续** | 完成切换并立即继续。 |
+| **等待直至重置** | 保持当前账户并等待。 |
+| **关闭** | 暂停并交由你决定。 |
 
-When it resumes, it can send Kaiwu's standard continuation prompt, a prompt
-you write, or nothing at all.
+恢复运行时，系统可以发送 Kaiwu 的标准继续提示词、由你自定义编写的提示词，或者完全不发送任何内容。
 
-### Freshness
+### 时效性检查
 
-Quota snapshots older than **five minutes** are re-probed before a turn. By
-default Kaiwu probes only when the snapshot is stale, checking the current
-account first and candidates after — you can make it probe every turn, or never,
-and reverse that order.
+在执行轮次前，若额度快照的时间已超过**五分钟**，系统会重新探测。默认情况下，Kaiwu 仅在快照过期时才触发探测，并优先检查当前账户，随后再检查备选成员——你也可以将其配置为每轮均探测或从不探测，并调整检查顺序。
 
 <Callout type="info">
-  Every switch appears as an event in the session transcript, saying which
-  account became active and why. Routine low-quota observations stay out of the
-  transcript so they do not bury the conversation.
+  每次切换都会作为事件记录在会话记录中，注明生效的账户及其原因。常规的低额度检测日志不会写入会话记录，以免淹没对话内容。
 </Callout>
 
-## Quotas
+## 额度
 
-Quota / usage surfaces are behind the `connectedServices.quotas` feature gate.
+额度 / 使用量界面受 `connectedServices.quotas` 特性开关控制。
 
-Current quota snapshots are available for:
+当前支持查看额度快照的服务包括：
 
 - `openai-codex`
 - `claude-subscription`
 - `gemini`
 
-GitHub connected accounts do not currently expose quota meters in Kaiwu.
+GitHub 已连接账户目前在 Kaiwu 中不显示额度计量表。
 
-They appear in:
+额度信息会在以下位置展示：
 
-- the Connected services list as badges on the effective profile
-- per-profile detail screens
-- the new-session auth picker for connected profiles
+- “已连接服务”列表中当前生效配置上的徽标
+- 单个配置的详情界面
+- 新建会话时针对已连接配置的身份验证选择器
 
-Each profile detail view lets you:
+每个配置详情视图均允许你：
 
-- refresh the snapshot
-- inspect the provider plan label when available
-- pin specific meters so the same meters appear as summary badges elsewhere in the UI
+- 刷新快照
+- 查看提供商套餐标签（若可用）
+- 置顶特定的计量表，以便在界面的其他区域以摘要徽标的形式呈现
 
-## When you hit a usage limit
+## 达到使用上限时的处理
 
-Reaching a provider's usage limit does not silently stall the session. Kaiwu
-shows a banner explaining what it is waiting for and what you can do about it,
-with a status of **Limit reached**, **Temporarily throttled**, or **Ready to
-resume**.
+当触及提供商的使用上限时，会话不会静默卡住。Kaiwu 会展示横幅提示，说明当前正在等待的内容以及应对操作，并显示**已达上限**、**临时限流**或**准备恢复**等状态。
 
-What it offers depends on what is actually possible:
+横幅提供的操作选项取决于当前实际可行的方案：
 
-| Action | When it helps |
+| 操作 | 适用场景 |
 | --- | --- |
-| **Check limit now** | You think the limit has already lifted and want to re-probe rather than wait. |
-| **Apply reset** | Your account has usage-reset credits available — see below. |
-| **Switch account now** | Another account in the pool can take over immediately. |
-| **Switch fallback now** | Move to the configured fallback without waiting for the pool to decide. |
-| **Resume when limit resets** | Wait it out; Kaiwu resumes for you when the window opens. |
-| **Retry now** | The block was a temporary throttle rather than a hard limit. |
-| **Stop waiting** | Give up on automatic recovery and handle it yourself. |
+| **立即检查上限** | 认为限制已经解除，希望立即重新探测而非继续等待。 |
+| **应用重置配额** | 账户存在可用的用量重置额度——详见下文。 |
+| **立即切换账户** | 账户池中有其他账户可立即接管。 |
+| **立即切换到备用方案** | 直接切至已配置的备用方案，无需等待账户池决策。 |
+| **上限重置时恢复** | 保持等待；限流窗口重新开启后 Kaiwu 会自动为你恢复运行。 |
+| **立即重试** | 阻断原因为临时限流而非硬性上限。 |
+| **停止等待** | 放弃自动恢复，由你手动处理。 |
 
-**Always wait and resume** remembers your choice for that account so the banner
-stops asking, and **Ask each time** puts the question back.
+选择**一律等待并恢复**可针对该账户记住当前决策，横幅将不再弹窗提示；选择**每次都询问**则会恢复每次提示。
 
-### Usage-reset credits
+### 用量重置额度
 
-Some Codex accounts receive usage-limit reset credits from the provider. Where
-they exist, the banner says how many are available and when the next one
-expires, and **Apply reset** consumes one without leaving Kaiwu — no separate
-account page, no session restart.
+部分 Codex 账户会获得提供商发放的用量限制重置额度。若存在该额度，横幅会显示当前可用数量及下一笔额度的过期时间；点击**应用重置配额**即可直接在 Kaiwu 内消耗额度，无需跳转至单独的账户网页，也无需重启会话。
 
-Kaiwu reports back what actually happened rather than assuming success: the
-reset applied, there was nothing to reset, no credit remained, or the credit had
-already been used. A blocked session continues once the provider starts
-accepting requests again.
+Kaiwu 会如实反馈实际的执行结果，而非默认操作一定成功：包括重置成功、无需重置、无剩余额度或额度已被使用等。一旦提供商重新开始接收请求，被阻断的会话便会自动继续运行。## 安全模型
 
-## Security model
+对于基于 OAuth 的服务，Kaiwu 客户端不会直接向提供商用授权码换取令牌。
 
-For OAuth-based services, Kaiwu clients do not exchange provider codes for tokens directly.
+具体流程如下：
 
-Instead:
+1. 客户端通过设备授权、粘贴或内嵌浏览器捕获获取 OAuth 授权码
+2. 客户端调用 Kaiwu 服务端 `/v2/connect/<serviceId>/oauth/exchange`
+3. 服务端向提供商换取令牌
+4. 服务端使用客户端公钥加密令牌并返回加密数据包
+5. 客户端在本地解密数据包，并保存解密后的凭据记录
 
-1. the client receives an OAuth code through device auth, paste, or embedded browser capture
-2. the client calls Kaiwu server `/v2/connect/<serviceId>/oauth/exchange`
-3. the server exchanges the code with the provider
-4. the server returns an encrypted bundle sealed to the client public key
-5. the client decrypts the bundle locally and stores the resulting credential record
+这样可以避免将提供商机密（包括服务端 OAuth 客户端密钥）暴露在 UI 打包产物中。
 
-This keeps provider secrets, including server-side OAuth client secrets, out of the UI bundle.
+基于令牌的服务（包括 GitHub 令牌配置）会作为已连接服务的凭据进行存储，且仅在客户端或守护进程需要使用时才会解密。在当前构建版本中，这种方式无需 Kaiwu 运行单独的 GitHub OAuth 应用。
 
-Token-based services, including GitHub token profiles, are stored as connected-service credentials and decrypted only where the client/daemon needs to use them. They do not require Kaiwu to run a GitHub OAuth application in the current build.
+会话启动时，守护进程会在本地解密所选凭据记录，且仅实例化本次进程启动所需的特定后端认证信息。
 
-When a session starts, the daemon decrypts the selected records locally and materializes only the backend-specific auth it needs for that spawn.
+## 特性门控与覆盖
 
-## Feature gates and overrides
+已连接服务采用规范的特性门控系统。
 
-Connected services uses the canonical feature-gating system.
-
-Server feature flags:
+服务端特性标志：
 
 - `connectedServices`
 - `connectedServices.quotas`
 
-UI build gates:
+UI 构建门控：
 
 - `EXPO_PUBLIC_HAPPIER_FEATURE_CONNECTED_SERVICES__ENABLED`
 - `EXPO_PUBLIC_HAPPIER_FEATURE_CONNECTED_SERVICES_QUOTAS__ENABLED`
 
-See:
+参见：
 
-- [Server feature flags](/extras/feature-flags)
-- [App environment variables (Expo)](/development/app-env)
+- [服务端特性标志](/extras/feature-flags)
+- [App 环境变量 (Expo)](/development/app-env)
 
-## Advanced server overrides
+## 高级服务端配置覆盖
 
-Most users should not need these. They are mainly for self-hosted deployments and drift reduction.
+大多数用户无需配置这些项。它们主要用于自托管部署以及减少环境偏差。
 
-Global server exchange timeout:
+全局服务端令牌交换超时：
 
 - `HAPPIER_CONNECTED_SERVICES_OAUTH_EXCHANGE_TIMEOUT_MS`
 
-OpenAI Codex OAuth:
+OpenAI Codex OAuth：
 
 - `HAPPIER_CONNECTED_SERVICES_OPENAI_CODEX_OAUTH_CLIENT_ID`
 - `HAPPIER_CONNECTED_SERVICES_OPENAI_CODEX_OAUTH_TOKEN_URL`
 
-Gemini OAuth:
+Gemini OAuth：
 
 - `HAPPIER_CONNECTED_SERVICES_GEMINI_OAUTH_CLIENT_ID`
 - `HAPPIER_CONNECTED_SERVICES_GEMINI_OAUTH_CLIENT_SECRET`
 - `HAPPIER_CONNECTED_SERVICES_GEMINI_OAUTH_TOKEN_URL`
 
-Claude subscription OAuth:
+Claude 订阅 OAuth：
 
 - `HAPPIER_CONNECTED_SERVICES_CLAUDE_SUBSCRIPTION_OAUTH_CLIENT_ID`
 - `HAPPIER_CONNECTED_SERVICES_CLAUDE_SUBSCRIPTION_OAUTH_TOKEN_URL`
 
-Quota fetchers:
+配额获取器：
 
 - `HAPPIER_CONNECTED_SERVICES_QUOTAS_STALE_AFTER_MS`
 - `HAPPIER_CONNECTED_SERVICES_QUOTAS_USER_AGENT`
@@ -433,4 +402,4 @@ Quota fetchers:
 - `HAPPIER_CONNECTED_SERVICES_CLAUDE_SUBSCRIPTION_USAGE_URL`
 - `HAPPIER_CONNECTED_SERVICES_ANTHROPIC_USAGE_URL`
 
-`HAPPIER_CONNECTED_SERVICES_ANTHROPIC_USAGE_URL` remains accepted as a fallback override for Claude subscription quota fetching, but the primary service identity is `claude-subscription`.
+`HAPPIER_CONNECTED_SERVICES_ANTHROPIC_USAGE_URL` 仍可作为获取 Claude 订阅配额的回退覆盖项，但主服务标识仍为 `claude-subscription`。

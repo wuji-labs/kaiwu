@@ -1,81 +1,80 @@
 ---
-title: Run From A Monorepo Clone (Repo-Local Mode)
-description: Use yarn commands from the Kaiwu monorepo root to run a stackless local stack, install an OS service, and configure Tailscale.
+title: 从 Monorepo 克隆运行（仓库本地模式）
+description: 在 Kaiwu monorepo 根目录下使用 yarn 命令运行无栈本地栈、安装操作系统服务并配置 Tailscale。
 ---
+如果克隆了 Kaiwu monorepo，你可以直接在仓库根目录下运行 `yarn` 脚本，处理大部分日常工作流。
 
-If you cloned the Kaiwu monorepo, you can run most day-to-day workflows directly from the repo root using `yarn` scripts.
+注意：GitHub 仓库的默认分支是 `dev`，可能不够稳定。若希望在基于源码运行时获得更稳定的环境，建议签出 `preview`。
 
-Note: the GitHub repo default branch is `dev` and may be unstable. If you want a more stable base when running from source, check out `preview`.
+该模式为**仓库本地**（repo-local，即无栈）模式：它会在 `~/.happier/stacks/⟦K28⟧/...` 下为当前签出目录创建隔离的栈，且**无需**指定栈名称。
 
-This mode is **repo-local** (stackless): it creates an isolated per-checkout stack under `~/.happier/stacks/<repo-stack>/...` and does **not** require you to pick a stack name.
+重要说明：仓库本地模式本质上仍是**基于源码运行**（source-backed）的流程。
 
-Important: repo-local mode is still a **source-backed** flow.
+- `yarn tui`、`yarn dev` 以及仓库本地的 `yarn start` 均直接运行自当前签出源码。
+- 若需要栈本地生产构建产物（`web + server + daemon`）及激活的运行时快照，请搭配 `hstack stack build ⟦K29⟧ --activate-runtime` 使用**具名栈**。
+- 如果你想让第二个栈指向同一个签出目录，同时免受源码重新构建带来的变动影响，具名栈是理想选择。
 
-- `yarn tui`, `yarn dev`, and repo-local `yarn start` run from this checkout directly.
-- If you want stack-local production artifacts (`web + server + daemon`) and an activated runtime snapshot, use a **named stack** with `hstack stack build <name> --activate-runtime`.
-- This is the right choice when you want a second stack pointed at the same checkout but insulated from source rebuild churn.
+## 前置准备
 
-## Prerequisites
+- 启用 Node + Corepack
+- 在 monorepo 根目录下运行 `yarn install`
 
-- Node + Corepack enabled
-- `yarn install` in the monorepo root
-
-## Quick Start (Dev)
+## 快速上手（开发模式）
 
 ```bash
 cd /path/to/happier
 yarn dev
 ```
 
-For the interactive terminal UI:
+若要使用交互式终端 UI（TUI）：
 
 ```bash
 yarn tui
 ```
 
-If the machine is already saturated by agent work, start the control plane with rescue scheduling priority:
+如果设备已被 Agent 任务完全占满，可使用救援调度优先级启动控制面：
 
 ```bash
 yarn tui --rescue
 ```
 
-Rescue mode is available on macOS and Linux. It asks `sudo` to raise only the TUI and stack-control process priority; newly launched agent sessions are normalized back to a lower scheduling priority so they cannot inherit the control-plane boost. Run Yarn as your normal user—the command requests privilege only for `renice`.
+救援模式支持 macOS 和 Linux。它会请求 `sudo` 仅提升 TUI 和栈控制进程的优先级；新启动的 Agent 会话则会恢复为较低的调度优先级，不会继承控制面的提速权限。以普通用户身份运行 Yarn 即可——该命令仅在执行 `renice` 时请求提权。
 
-Attended TUI startup waits do not tear the stack down merely because a readiness interval elapsed. While the owned startup lifecycle remains active, the interval produces a visible “still starting” checkpoint and the TUI keeps waiting. Exiting the TUI remains the cancellation mechanism. Non-interactive stack and service commands keep finite deadlines.
+在有人值守的 TUI 启动等待过程中，即便超过了就绪检测间隔，也不会直接销毁栈。只要归属的启动生命周期仍处于活跃状态，该检测间隔就会生成一个可见的“仍处于启动中”检查点，TUI 将继续等待。退出 TUI 依然是唯一的取消机制。非交互式栈和服务命令则保留有限的超时时限。
 
-With mobile (starts the dev stack with `--mobile` so the Expo dev-client QR flow is available):
+包含移动端（启动带 `--mobile` 的开发栈，从而可以使用 Expo dev-client 二维码流程）：
 
 ```bash
 yarn tui:with-mobile
 ```
 
-## Command Model (How Repo-Local Works)
+## 命令模型（仓库本地模式工作原理）
 
-All repo-root runtime scripts use this wrapper shape:
+所有仓库根目录的运行时脚本均遵循以下包装器结构：
 
 ```text
 node ./apps/stack/scripts/repo_local.mjs <hstack-subcommand> [args...]
 ```
 
-The wrapper does a few important things automatically:
+该包装器会自动处理以下关键操作：
 
-- Forces execution from this monorepo checkout (no re-exec to a global install).
-- Uses an isolated per-checkout stack name (`repo-<repo>-<id>`).
-- Sets a stack-scoped env file and CLI home under `~/.happier/stacks/<repo-stack>/...`.
-- Uses stackless stable port ranges by default:
-  - server range base `52005`
-  - expo range base `18081`
-- Auto-installs dependencies when needed before most runtime commands.
+- 强制基于当前 monorepo 签出目录执行（不会重定向到全局安装）。
+- 使用与各签出目录隔离的栈名称（`repo-⟦K30⟧-⟦K31⟧`）。
+- 在 `~/.happier/stacks/⟦K32⟧/...` 下设置栈作用域的环境变量文件和 CLI 主目录。
+- 默认使用无栈模式的固定端口范围：
+  - 服务端起始端口 `52005`
+  - Expo 起始端口 `18081`
+- 在大多数运行时命令执行前，按需自动安装依赖。
 
-Wrapper defaults/convenience rewrites:
+包装器默认行为与便捷改写规则：
 
-- `yarn tui` becomes `hstack tui dev` (when no extra args are passed).
-- `yarn stop` becomes `hstack stack stop <repo-stack>`.
-- `yarn mobile:install` becomes `hstack stack mobile:install <repo-stack> --name="Kaiwu (Local)"` unless you pass your own `--name`.
+- `yarn tui` 会变为 `hstack tui dev`（在未传入额外参数时）。
+- `yarn stop` 会变为 `hstack stack stop ⟦K33⟧`。
+- `yarn mobile:install` 会变为 `hstack stack mobile:install ⟦K34⟧ --name="Kaiwu (Local)"`，除非显式传入 `--name`。
 
-## Passing Arguments And Getting Help
+## 传递参数与获取帮助
 
-Use Yarn v1 arg forwarding with `--`:
+使用 Yarn v1 的参数转发机制，配合 `--` 传参：
 
 ```bash
 yarn logs -- --component=daemon --lines 200 --no-follow
@@ -83,7 +82,7 @@ yarn auth login -- --method=mobile --no-open
 yarn service:enable -- --auth-now -- --method=web --webapp=hosted
 ```
 
-Show help:
+查看帮助：
 
 ```bash
 yarn <script> -- --help
@@ -91,41 +90,41 @@ yarn service -- --help
 yarn remote -- --help
 ```
 
-## Run The Kaiwu CLI From Anywhere (Use This Repo Checkout)
+## 在任意位置运行 Kaiwu CLI（基于当前仓库签出）
 
-If you want `hstack` / `happier` commands you run from any terminal to execute from **this** clone (instead of a runtime install),
-activate repo-local shims:
+若希望在任意终端中运行的 `hstack` / `happier` 命令都基于**当前**克隆版本执行（而非运行时全局安装版本），
+可以激活仓库本地 shim：
 
 ```bash
 yarn cli:activate
 ```
 
-To also add `~/.happier-stack/bin` to your shell `PATH` automatically (edits shell config):
+若要同时将 `~/.happier-stack/bin` 自动添加到 Shell 的 `PATH`（会修改 Shell 配置文件）：
 
 ```bash
 yarn cli:activate:path
 ```
 
-## Production-Like Start (Local)
+## 类生产环境启动（本地）
 
-`yarn start` runs the local stack in a **prod-like** mode (server + daemon + optionally serving a prebuilt UI bundle).
+`yarn start` 会以**类生产环境**（prod-like）模式运行本地栈（包括服务端、守护进程，以及可选托管的预构建 UI 产物包）。
 
-Before `yarn start`, build the static UI export:
+在执行 `yarn start` 之前，先构建导出的静态 UI 产物：
 
 ```bash
 yarn build
 yarn start
 ```
 
-By default, `yarn build` writes the web UI export into your stack base dir:
+默认情况下，`yarn build` 会将 Web UI 导出产物写入当前栈的根目录：
 
 ```text
 ~/.happier/stacks/<repo-stack>/ui
 ```
 
-This is only the web bundle. Repo-local mode does **not** currently assemble a stack-local runtime snapshot for the server and daemon.
+这里仅包含 Web 产物包。仓库本地模式目前**不会**为服务端和守护进程组装栈本地运行时快照。
 
-If you need that level of isolation, use a named stack instead:
+若需要该级别的隔离，请改用具名栈：
 
 ```bash
 hstack stack new prod-dev --repo=/absolute/path/to/this/checkout
@@ -134,39 +133,39 @@ hstack stack env prod-dev set HAPPIER_STACK_RUNTIME_MODE=prefer
 hstack stack start prod-dev --runtime
 ```
 
-## OS Service (Autostart)
+## 系统服务（开机自启）
 
-You can install an OS service that runs `hstack start` in the background (launchd on macOS; systemd on Linux).
+你可以安装系统服务，使 `hstack start` 在后台常驻运行（macOS 使用 launchd，Linux 使用 systemd）。
 
-Recommended (build UI then install service):
+推荐做法（先构建 UI 再安装服务）：
 
 ```bash
 yarn service:install
 yarn service:enable
 ```
 
-### First-time auth (recommended)
+### 首次认证（推荐）
 
-If this is your first time running a stack on this machine, the service will keep the server/UI running, but the daemon may stay stopped until you authenticate.
+如果是首次在该设备上运行栈，服务会保持服务端和 UI 运行，但守护进程可能会处于停止状态，直到完成认证。
 
-Headless-friendly (prints a QR code / deep link, does not auto-open a browser):
+适合无图形界面环境（打印二维码/深度链接，不会自动打开浏览器）：
 
 ```bash
 yarn service:enable -- --auth-now -- --method=mobile --no-open
 ```
 
-Laptop-friendly (uses the hosted web app for the approval UI):
+适合笔记本电脑环境（使用托管 Web 应用呈现授权审批界面）：
 
 ```bash
 yarn service:enable -- --auth-now -- --method=web --webapp=hosted
 ```
 
-Notes:
+注意事项：
 
-- If you already enabled the service, you can authenticate later with `yarn auth login ...` — the service will detect credentials and start the daemon automatically.
-- If your stack’s public URL is `localhost` / `127.0.0.1` (or empty) and you did not enable Tailscale Serve, `--method=mobile` won’t work from a phone until you configure a public URL (see the Tailscale section below).
+- 如果已启用服务，之后可通过 `yarn auth login ...` 完成认证——服务会自动检测凭据并启动守护进程。
+- 若栈的公网 URL 为 `localhost` / `127.0.0.1`（或为空）且未启用 Tailscale Serve，在配置公网 URL 之前无法通过手机使用 `--method=mobile`（详见下文 Tailscale 部分）。
 
-Other service commands:
+其他服务相关命令：
 
 ```bash
 yarn service status
@@ -177,37 +176,37 @@ yarn service:disable
 yarn service:uninstall
 ```
 
-Linux system service (advanced):
+Linux 系统服务（高级）：
 
 ```bash
 yarn service:install:system
 ```
 
-## Tailscale Serve (HTTPS Secure Context)
+## Tailscale Serve（HTTPS 安全上下文）
 
-If you use Tailscale, you can configure `tailscale serve` to expose your local stack over HTTPS.
+如果使用 Tailscale，可以配置 `tailscale serve` 通过 HTTPS 暴露本地栈。
 
 ```bash
 yarn tailscale:enable
 yarn tailscale:url
 ```
 
-Other Tailscale commands:
+其他 Tailscale 命令：
 
 ```bash
 yarn tailscale status
 yarn tailscale:disable
 ```
 
-## Logs
+## 日志
 
-Follow logs (defaults to `--component=auto` selection):
+持续跟踪日志（默认跟踪 `--component=auto` 选中的日志）：
 
 ```bash
 yarn logs
 ```
 
-Common streams (no extra flags needed):
+常用日志流（无需额外参数）：
 
 ```bash
 yarn logs:all
@@ -218,7 +217,7 @@ yarn logs:daemon
 yarn logs:service
 ```
 
-Advanced: pass arguments to `hstack logs` (Yarn v1 requires `--` to forward args to the underlying command):
+高级用法：向 `hstack logs` 传递参数（Yarn v1 需要使用 `--` 才能将参数转发到底层命令）：
 
 ```bash
 yarn logs -- --component=server --follow
@@ -226,7 +225,7 @@ yarn logs -- --component=expo --follow
 yarn logs -- --component=daemon --lines 200 --no-follow
 ```
 
-## Environment Variables (Per Repo-Local Stack)
+## 环境变量（针对单个仓库本地栈）
 
 ```bash
 yarn env list
@@ -234,131 +233,131 @@ yarn env set KEY=VALUE
 yarn env unset KEY
 ```
 
-These edits are persisted in:
+这些修改会持久化保存在：
 
 ```text
 ~/.happier/stacks/<repo-stack>/env
 ```
 
-## Mobile
+## 移动端
 
-Install the iOS release build (runs the full flow, no stack name required):
+安装 iOS Release 构建版本（执行完整流程，无需指定栈名称）：
 
 ```bash
 yarn mobile:install
 ```
 
-Other repo-local mobile workflows:
+其他仓库本地移动端工作流：
 
 ```bash
 yarn mobile
 yarn mobile-dev-client
 ```
 
-## Command Reference (Repo-Local Runtime Scripts)
+## 命令参考（仓库本地运行时脚本）
 
-This section documents runtime commands exposed at monorepo root. It intentionally excludes test/build/release maintainer scripts.
+本节汇总了 monorepo 根目录下提供的运行时命令，有意略过了面向维护者的测试、构建和发布脚本。
 
-### Core Lifecycle
+### 核心生命周期
 
-| Yarn script | Underlying command | Purpose | Common args |
+| Yarn 脚本 | 底层命令 | 用途 | 常用参数 |
 | --- | --- | --- | --- |
-| `yarn dev` | `hstack dev` | Start local stack in dev mode (server + ui + daemon orchestration). | `--restart`, `--mobile`, `--no-ui` |
-| `yarn tui` | `hstack tui dev` (default) | Run dev stack in split-pane TUI (or pass explicit `hstack` args). | `--restart`, `--mobile`, `--no-browser`, `--rescue` |
-| `yarn tui:with-mobile` | `hstack tui dev --mobile` | TUI + mobile dev-client ready flow. | add extra TUI flags after `--` |
-| `yarn build` | `hstack build` | Build/export UI assets for prod-like start/service. | `--tauri`, `--no-ui`, `--json` |
-| `yarn start` | `hstack start` | Start prod-like local stack. | `--restart`, `--mobile`, `--no-ui` |
-| `yarn stop` | `hstack stack stop <repo-stack>` | Stop this repo-local stack without manually passing stack name. | stack stop flags after `--` |
+| `yarn dev` | `hstack dev` | 以开发模式启动本地栈（编排服务端 + UI + 守护进程）。 | `--restart`, `--mobile`, `--no-ui` |
+| `yarn tui` | `hstack tui dev` (default) | 在分屏 TUI 中运行开发栈（或显式传入 `hstack` 参数）。 | `--restart`, `--mobile`, `--no-browser`, `--rescue` |
+| `yarn tui:with-mobile` | `hstack tui dev --mobile` | TUI + 移动端 dev-client 就绪流程。 | 在 `--` 后追加额外的 TUI 参数 |
+| `yarn build` | `hstack build` | 为类生产环境启动/服务构建并导出 UI 资源。 | `--tauri`, `--no-ui`, `--json` |
+| `yarn start` | `hstack start` | 启动类生产环境本地栈。 | `--restart`, `--mobile`, `--no-ui` |
+| `yarn stop` | `hstack stack stop ⟦K35⟧` | 停止该仓库本地栈，无需手动传入栈名称。 | 在 `--` 后追加栈停止参数 |
 
-### Auth, Daemon, CLI Entry
+### 认证、守护进程与 CLI 入口
 
-| Yarn script | Underlying command | Purpose | Common args |
+| Yarn 脚本 | 底层命令 | 用途 | 常用参数 |
 | --- | --- | --- | --- |
-| `yarn auth` | `hstack auth ...` | Login/status/dev-key auth helpers for this repo-local stack. | `status`, `login`, `seed`, `--method=mobile|web`, `--no-open` |
-| `yarn daemon` | `hstack daemon ...` | Manage daemon process (`start`, `stop`, `restart`, `status`) in stack scope. | `status`, `restart`, `--identity=<name>`, `--json` |
-| `yarn happier` | `hstack happier ...` | Run Kaiwu CLI against this repo-local stack context. | provider/CLI args passthrough |
-| `yarn cli:activate` | `hstack init --cli-root-dir=<this-repo>/apps/stack --no-runtime --no-bootstrap` | Point global `hstack`/`happier` shims to this clone. | `--home-dir=...` |
-| `yarn cli:activate:path` | same as above + `--install-path` | Same as `cli:activate` and also update shell PATH. | none (forwards extra args) |
+| `yarn auth` | `hstack auth ...` | 当前仓库本地栈的登录/状态/开发密钥认证辅助工具。 | `status`, `login`, `seed`, `--method=mobile|web`, `--no-open` |
+| `yarn daemon` | `hstack daemon ...` | 在栈作用域内管理守护进程（`start`、`stop`、`restart`、`status`）。 | `status`, `restart`, `--identity=⟦K36⟧`, `--json` |
+| `yarn happier` | `hstack happier ...` | 针对当前仓库本地栈上下文运行 Kaiwu CLI。 | 透传提供商/CLI 参数 |
+| `yarn cli:activate` | `hstack init --cli-root-dir=⟦K37⟧/apps/stack --no-runtime --no-bootstrap` | 将全局 `hstack`/`happier` shim 指向当前克隆版本。 | `--home-dir=...` |
+| `yarn cli:activate:path` | 同上 + `--install-path` | 功能同 `cli:activate`，并同步更新 Shell PATH。 | 无（透传额外参数） |
 
-### Logs
+### 日志
 
-| Yarn script | Underlying command | Purpose | Common args |
+| Yarn 脚本 | 底层命令 | 用途 | 常用参数 |
 | --- | --- | --- | --- |
-| `yarn logs` | `hstack logs --follow` | Follow auto-selected log stream(s). | `--component=<name>`, `--lines N`, `--no-follow` |
-| `yarn logs:all` | `hstack logs --follow --component=all` | Follow all component logs (runner preferred when available). | `--lines N` |
-| `yarn logs:server` | `hstack logs --follow --component=server` | Server logs only. | `--lines N`, `--no-follow` |
-| `yarn logs:expo` | `hstack logs --follow --component=expo` | Expo/Metro logs only. | `--lines N`, `--no-follow` |
-| `yarn logs:ui` | `hstack logs --follow --component=ui` | UI gateway logs only. | `--lines N`, `--no-follow` |
-| `yarn logs:daemon` | `hstack logs --follow --component=daemon` | Daemon logs only. | `--lines N`, `--no-follow` |
-| `yarn logs:service` | `hstack logs --follow --component=service` | OS service logs (launchd/systemd output). | `--lines N`, `--no-follow` |
+| `yarn logs` | `hstack logs --follow` | 跟踪自动选取的日志流。 | `--component=⟦K38⟧`, `--lines N`, `--no-follow` |
+| `yarn logs:all` | `hstack logs --follow --component=all` | 跟踪所有组件日志（可用时优先使用 runner）。 | `--lines N` |
+| `yarn logs:server` | `hstack logs --follow --component=server` | 仅服务端日志。 | `--lines N`, `--no-follow` |
+| `yarn logs:expo` | `hstack logs --follow --component=expo` | 仅 Expo/Metro 日志。 | `--lines N`, `--no-follow` |
+| `yarn logs:ui` | `hstack logs --follow --component=ui` | 仅 UI 网关日志。 | `--lines N`, `--no-follow` |
+| `yarn logs:daemon` | `hstack logs --follow --component=daemon` | 仅守护进程日志。 | `--lines N`, `--no-follow` |
+| `yarn logs:service` | `hstack logs --follow --component=service` | 系统服务日志（launchd/systemd 输出）。 | `--lines N`, `--no-follow` |
 
-Valid `--component` values: `auto`, `all`, `runner`, `server`, `expo`, `ui`, `daemon`, `service`.
+`--component` 的有效值包括：`auto`、`all`、`runner`、`server`、`expo`、`ui`、`daemon`、`service`。
 
-### Environment Variables
+### 环境变量
 
-| Yarn script | Underlying command | Purpose | Common args |
+| Yarn 脚本 | 底层命令 | 用途 | 常用参数 |
 | --- | --- | --- | --- |
-| `yarn env list` | `hstack env list` | Print effective persisted env for this repo-local stack. | `--json` |
-| `yarn env set KEY=VALUE` | `hstack env set KEY=VALUE` | Set/update persisted env key(s). | multiple `KEY=VALUE` pairs |
-| `yarn env unset KEY` | `hstack env unset KEY` | Remove persisted env key(s). | multiple keys |
-| `yarn env get KEY` | `hstack env get KEY` | Read one persisted env key. | key name |
-| `yarn env path` | `hstack env path` | Show stack env file path. | `--json` |
+| `yarn env list` | `hstack env list` | 打印当前仓库本地栈生效的持久化环境变量。 | `--json` |
+| `yarn env set KEY=VALUE` | `hstack env set KEY=VALUE` | 设置/更新持久化环境变量。 | 多个 `KEY=VALUE` 键值对 |
+| `yarn env unset KEY` | `hstack env unset KEY` | 删除持久化环境变量。 | 多个键名 |
+| `yarn env get KEY` | `hstack env get KEY` | 读取单个持久化环境变量。 | 变量名 |
+| `yarn env path` | `hstack env path` | 显示栈环境变量文件路径。 | `--json` |
 
-### Service (Autostart)
+### 系统服务（开机自启）
 
-| Yarn script | Underlying command | Purpose | Common args |
+| Yarn 脚本 | 底层命令 | 用途 | 常用参数 |
 | --- | --- | --- | --- |
-| `yarn service` | `hstack service ...` | Generic service entrypoint. | `install`, `enable`, `status`, `logs`, `tail`, `restart` |
-| `yarn service:install` | `yarn build && hstack service install` | Build UI first, then install service unit/plist. | none (`yarn service install -- ...` for custom flags) |
-| `yarn service:install:user` | `yarn build && hstack service install --mode=user` | Explicit user-mode service install. | none |
-| `yarn service:install:system` | `yarn build && hstack service install --mode=system` | Linux system-mode install. | `yarn service install -- --mode=system --system-user=<name>` |
-| `yarn service:enable` | `hstack service enable` | Enable/start service persistently. | `--auth-now -- --method=...` |
-| `yarn service:disable` | `hstack service disable` | Disable/stop persistent service. | none |
-| `yarn service:status` | `hstack service status` | Show current service status. | `--json` |
-| `yarn service:logs` | `hstack service logs` | Print recent service logs (non-follow). | `--mode=system|user` |
-| `yarn service:tail` | `hstack service tail` | Follow service logs continuously. | none |
-| `yarn service:restart` | `hstack service restart` | Restart managed service. | none |
-| `yarn service:uninstall` | `hstack service uninstall` | Remove service unit/plist. | none |
+| `yarn service` | `hstack service ...` | 通用服务入口。 | `install`, `enable`, `status`, `logs`, `tail`, `restart` |
+| `yarn service:install` | `yarn build && hstack service install` | 先构建 UI，再安装服务 unit/plist 文件。 | 无（通过 `yarn service install -- ...` 传入自定义参数） |
+| `yarn service:install:user` | `yarn build && hstack service install --mode=user` | 显式安装用户级服务。 | 无 |
+| `yarn service:install:system` | `yarn build && hstack service install --mode=system` | 安装 Linux 系统级服务。 | `yarn service install -- --mode=system --system-user=⟦K39⟧` |
+| `yarn service:enable` | `hstack service enable` | 启用/启动持久化服务。 | `--auth-now -- --method=...` |
+| `yarn service:disable` | `hstack service disable` | 禁用/停止持久化服务。 | 无 |
+| `yarn service:status` | `hstack service status` | 显示当前服务状态。 | `--json` |
+| `yarn service:logs` | `hstack service logs` | 输出近期服务日志（非实时跟踪）。 | `--mode=system|user` |
+| `yarn service:tail` | `hstack service tail` | 持续跟踪服务日志。 | 无 |
+| `yarn service:restart` | `hstack service restart` | 重启受托管的服务。 | 无 |
+| `yarn service:uninstall` | `hstack service uninstall` | 移除服务 unit/plist 文件。 | 无 |
 
-Service log line count defaults to `120`; override with `HAPPIER_STACK_LOG_LINES=<N>`.
+服务日志输出行数默认为 `120`；可通过 `HAPPIER_STACK_LOG_LINES=⟦K40⟧` 覆盖该默认值。
 
 ### Tailscale
 
-| Yarn script | Underlying command | Purpose | Common args |
+| Yarn 脚本 | 底层命令 | 用途 | 常用参数 |
 | --- | --- | --- | --- |
-| `yarn tailscale` | `hstack tailscale ...` | Generic Tailscale Serve command entrypoint. | `status`, `enable`, `disable`, `url` |
-| `yarn tailscale:status` | `hstack tailscale status` | Show current `tailscale serve` status. | none |
-| `yarn tailscale:enable` | `hstack tailscale enable` | Configure `tailscale serve` for repo-local stack URL. | `--json` |
-| `yarn tailscale:disable` | `hstack tailscale disable` | Reset/disable `tailscale serve` config. | none |
-| `yarn tailscale:url` | `hstack tailscale url` | Print resolved HTTPS Serve URL if configured. | none |
+| `yarn tailscale` | `hstack tailscale ...` | Tailscale Serve 通用命令入口。 | `status`, `enable`, `disable`, `url` |
+| `yarn tailscale:status` | `hstack tailscale status` | 查看当前 `tailscale serve` 状态。 | 无 |
+| `yarn tailscale:enable` | `hstack tailscale enable` | 为仓库本地栈的 URL 配置 `tailscale serve`。 | `--json` |
+| `yarn tailscale:disable` | `hstack tailscale disable` | 重置/禁用 `tailscale serve` 配置。 | 无 |
+| `yarn tailscale:url` | `hstack tailscale url` | 打印解析后的 HTTPS Serve URL（若已配置）。 | 无 |
 
-### Mobile
+### 移动端
 
-| Yarn script | Underlying command | Purpose | Common args |
+| Yarn 脚本 | 底层命令 | 用途 | 常用参数 |
 | --- | --- | --- | --- |
-| `yarn mobile` | `hstack mobile` | iOS mobile helper against repo-local stack context. | command-specific flags |
-| `yarn mobile:install` | `hstack stack mobile:install <repo-stack> --name=Kaiwu (Local)` | Full install flow for a stack-scoped app build; no stack name needed. | `--name=...`, `--device=...`, `--configuration=...` |
-| `yarn mobile-dev-client` | `hstack mobile-dev-client` | Install/manage shared hstack iOS dev-client app. | `--install`, `--device=...`, `--clean` |
+| `yarn mobile` | `hstack mobile` | 针对仓库本地栈上下文的 iOS 辅助工具。 | 命令专有参数 |
+| `yarn mobile:install` | `hstack stack mobile:install ⟦K41⟧ --name=Kaiwu (Local)` | 栈作用域应用构建的完整安装流程，无需指定栈名称。 | `--name=...`, `--device=...`, `--configuration=...` |
+| `yarn mobile-dev-client` | `hstack mobile-dev-client` | 安装/管理共享的 hstack iOS dev-client 应用。 | `--install`, `--device=...`, `--clean` |
 
-### Advanced Workflows
+### 高级工作流
 
-| Yarn script | Underlying command | Purpose | Common args |
+| Yarn 脚本 | 底层命令 | 用途 | 常用参数 |
 | --- | --- | --- | --- |
-| `yarn providers` | `hstack providers ...` | List/install provider CLIs. | `list`, `install --providers=...` |
-| `yarn eas` | `hstack eas ...` | EAS build wrapper with stack env context. | `build --platform=ios|android|all --profile=production` |
-| `yarn setup` | `hstack setup-from-source ...` | Guided setup profiles (`selfhost`, `dev`, `local-repo`). | `--profile=dev`, `--profile=local-repo`, `--json` |
-| `yarn remote` | `hstack remote ...` | Remote setup helpers for daemon/server via SSH. | `daemon setup --ssh user@host`, `server setup ...` |
-| `yarn self-host` | `hstack self-host ...` | Managed Relay runtime install/lifecycle management (delegates to `happier relay host ...` when supported). | `install`, `status`, `update`, `rollback`, `uninstall` |
-| `yarn menubar` | `hstack menubar ...` | SwiftBar menu bar integration. | `install`, `uninstall`, `open`, `mode`, `status` |
+| `yarn providers` | `hstack providers ...` | 列出/安装提供商 CLI。 | `list`, `install --providers=...` |
+| `yarn eas` | `hstack eas ...` | 注入栈环境变量上下文的 EAS 构建包装器。 | `build --platform=ios|android|all --profile=production` |
+| `yarn setup` | `hstack setup-from-source ...` | 引导式配置预设（`selfhost`、`dev`、`local-repo`）。 | `--profile=dev`, `--profile=local-repo`, `--json` |
+| `yarn remote` | `hstack remote ...` | 通过 SSH 进行守护进程/服务端的远程配置辅助工具。 | `daemon setup --ssh user@host`, `server setup ...` |
+| `yarn self-host` | `hstack self-host ...` | 托管中继运行时安装与生命周期管理（支持时会委托给 `happier relay host ...`）。 | `install`, `status`, `update`, `rollback`, `uninstall` |
+| `yarn menubar` | `hstack menubar ...` | SwiftBar 菜单栏集成。 | `install`, `uninstall`, `open`, `mode`, `status` |
 
-## `hstack` And `npx` Equivalence
+## `hstack` 与 `npx` 的等价关系
 
-Yes, users can run many flows with direct `hstack` or `npx`, but there is one important distinction:
+是的，用户可以直接使用 `hstack` 或 `npx` 来运行许多工作流，但两者有一个重要区别：
 
-- `yarn <repo-local-script>` applies repo-local wrapper semantics automatically.
-- `hstack ...` / `npx ... hstack ...` runs plain `hstack` behavior unless you set equivalent env/stack args yourself.
+- `yarn ⟦K42⟧` 会自动应用仓库本地包装器语义。
+- `hstack ...` / `npx ... hstack ...` 则以纯粹的 `hstack` 行为运行，除非自行配置了等效的环境变量或栈参数。
 
-Examples:
+示例：
 
 ```bash
 # Published CLI (works, but not repo-local wrapper semantics by default)

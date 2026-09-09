@@ -1,24 +1,23 @@
 ---
-title: Troubleshooting
-description: High-signal fixes for common local issues (auth, ports, wrong checkout, unhealthy stacks).
+title: 故障排查
+description: 常见本地问题（认证、端口、签出错误、异常栈）的精准修复方案。
 ---
+## “未找到设备” / 需要身份验证
 
-## “No machine” / auth required
+大多数“身份验证失效”的表现通常由以下原因之一引起：
 
-Most “auth is broken” symptoms are one of:
+- 打开了错误的栈 URL（浏览器源冲突）
+- 该栈未注入初始身份验证信息（非 main 栈）
+- 该栈指向了非预期的代码仓库检出路径
 
-- you opened the wrong stack URL (browser origin collision)
-- the stack did not get seeded auth (non-main stacks)
-- the stack is pointed at an unexpected repo checkout
-
-Check:
+检查：
 
 ```bash
 hstack where
 hstack stack info <stack>
 ```
 
-Fix auth seeding:
+修复身份验证初始注入：
 
 ```bash
 hstack auth seed
@@ -26,26 +25,26 @@ hstack auth seed --force
 hstack stack auth <stack> copy-from dev-auth
 ```
 
-If the stack already has seeded auth but still fails with an auth error or a daemon `401`, repair the stack-scoped login state directly:
+如果该栈已注入身份验证信息，但仍出现身份验证错误或守护进程 `401`，可以直接修复该栈专属的登录状态：
 
 ```bash
 hstack stack auth <stack> login --force
 ```
 
-This is safer than deleting files by hand. In current builds, `--force` clears stale stack-specific aliases before reauth and keeps unrelated credentials untouched.
+这比手动删除文件更安全。在当前构建版本中，`--force` 会在重新认证前清除过期的栈专属别名，同时不会影响其他无关凭据。
 
 ---
 
-## “This stack is using the wrong checkout”
+## “该栈使用了错误的代码检出路径”
 
-Check the pinned repo:
+检查固定的代码仓库：
 
 ```bash
 hstack stack info <stack>
 cat ~/.happier/stacks/<stack>/env | rg HAPPIER_STACK_REPO_DIR
 ```
 
-Repoint:
+重新指向：
 
 ```bash
 hstack stack wt <stack> -- use dev
@@ -55,31 +54,31 @@ hstack stack wt <stack> -- use pr/123-some-pr
 
 ---
 
-## Port collisions
+## 端口冲突
 
-If hstack refuses to start because a pinned port is in use:
+如果因固定端口被占用导致 hstack 无法启动：
 
-- stop the stack: `hstack stack stop <stack>`
-- or unpin ports (then re-run start/dev):
-  - use `hstack stack edit <stack> --interactive`, or
+- 停止该栈：`hstack stack stop ⟦K14⟧`
+- 或取消固定端口（然后重新运行 start/dev）：
+  - 使用 `hstack stack edit ⟦K15⟧ --interactive`，或者
   - `hstack stack audit --fix-ports`
 
 ---
 
-## Stack is unhealthy / can’t reach server
+## 栈状态异常 / 无法连接服务器
 
 ```bash
 hstack stack doctor <stack>
 hstack logs:tail
 ```
 
-If you’re using full server (`happier-server`), verify Docker:
+如果使用的是完整服务器模式（`happier-server`），请检查 Docker：
 
 ```bash
 docker ps
 ```
 
-If the stack is supposed to use a runtime snapshot, inspect that explicitly:
+如果该栈预期使用运行时快照，请专门检查快照状态：
 
 ```bash
 hstack stack info <stack>
@@ -87,7 +86,7 @@ hstack stack info <stack> --json
 hstack stack doctor <stack> --json
 ```
 
-Look for:
+重点排查：
 
 - `runtime.mode`
 - `runtime.activeSnapshotId`
@@ -95,7 +94,7 @@ Look for:
 - `runtime.valid`
 - `runtime.errors`
 
-Common fixes:
+常见修复方法：
 
 ```bash
 # rebuild and activate a fresh runtime snapshot
@@ -108,7 +107,7 @@ hstack stack start <stack> --runtime
 hstack stack start <stack> --source
 ```
 
-If you only rebuilt one component, remember that builds update artifacts, not the active runtime:
+如果你只重新构建了单个组件，请注意构建只会更新产物，不会自动更新正在运行的环境：
 
 ```bash
 # new web artifact exists, but the runtime still serves the old UI until activation
@@ -126,15 +125,15 @@ hstack stack service <stack> restart
 
 ---
 
-## “I changed something but nothing updates”
+## “修改了代码但未生效”
 
-In dev mode, prefer running with `--restart` at least once (so hstack owns the PIDs and can restart safely):
+在开发模式下，建议至少使用 `--restart` 运行一次（以便 hstack 接管进程 PID 并安全重启）：
 
 ```bash
 hstack stack dev <stack> -- --restart
 ```
 
-If you’re running `hstack dev` outside stack mode, do:
+如果是在栈模式之外运行 `hstack dev`，请执行：
 
 ```bash
 hstack dev --restart

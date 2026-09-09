@@ -133,7 +133,7 @@ export async function handleAuthWait(argsRaw: string[]): Promise<void> {
     return;
   }
   if (pairingRequirement === 'v3' && !pairing) {
-    console.error(`${V3_REQUIRED_ERROR} Run \`happier auth request --json\` again.`);
+    console.error(`${V3_REQUIRED_ERROR} Run \`kaiwu auth request --json\` again.`);
     process.exit(1);
   }
 
@@ -146,7 +146,7 @@ export async function handleAuthWait(argsRaw: string[]): Promise<void> {
     });
     const status = statusRes?.data?.status;
     if (status === 'not_found') {
-      console.error('Authentication request expired. Run `happier auth request --json` again.');
+      console.error('Authentication request expired. Run `kaiwu auth request --json` again.');
       process.exit(1);
     }
 

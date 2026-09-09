@@ -22,7 +22,7 @@ export async function cmdSessionRunAction(
   let input: unknown = undefined;
 
   if (!idOrPrefix || !runId || !actionId) {
-    throw new Error('Usage: happier session run action <session-id-or-prefix> <run-id> <action-id> [--input-json <json>] [--json]');
+    throw new Error('Usage: kaiwu session run action <session-id-or-prefix> <run-id> <action-id> [--input-json <json>] [--json]');
   }
   if (rawInput !== null) {
     try {
@@ -49,7 +49,7 @@ export async function cmdSessionRunAction(
       await printJsonEnvelope({ ok: false, kind: 'session_run_action', error: { code: 'not_authenticated' } });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "happier auth login" first.');
+    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
     process.exit(1);
   }
 

@@ -1,30 +1,29 @@
 ---
-title: OIDC auth
-description: Configure generic OIDC providers (Okta/Auth0/Azure AD/Keycloak, etc.) for a self-hosted server.
+title: OIDC 认证
+description: 为自托管服务器配置通用 OIDC 提供商（Okta/Auth0/Azure AD/Keycloak 等）。
 ---
+Kaiwu 支持配置**一个或多个** OIDC 提供商实例。该功能适用于企业级或自托管部署场景，特别是当企业不想使用 GitHub 作为身份提供商时。
 
-Kaiwu can be configured with **one or more** OIDC provider instances. This is intended for enterprise/self-hosting deployments where GitHub isn’t the desired identity provider.
+## 支持哪些标准？
 
-## What standard is supported?
+Kaiwu 的“自定义提供商”支持 **OpenID Connect (OIDC) 1.0**，采用带 **PKCE** 的 **OAuth 2.0 授权码流程**（Authorization Code Flow）。
 
-Kaiwu’s “custom provider” support is **OpenID Connect (OIDC) 1.0** using **OAuth 2.0 Authorization Code Flow** with **PKCE**.
+- 必须支持 OIDC 发现机制（即 `issuer` 下的 `/.well-known/openid-configuration`）
+- 提供商必须支持在令牌端点（token endpoint）进行授权码兑换
+- 将 `id_token` 声明作为主要身份档案，并可按需启用可选的 `/userinfo`
+- 可选存储刷新令牌（加密存储），以便在人员离职或权限回收时进行复核
 
-- OIDC discovery is required (`/.well-known/openid-configuration` under your `issuer`)
-- The provider must support code exchange at the token endpoint
-- `id_token` claims are used as the primary identity profile; optional `/userinfo` can be enabled
-- Optional refresh tokens can be stored (encrypted) for offboarding re-checks
+如果你需要使用 SAML，建议使用身份提供商（IdP）的“OIDC 应用”或通过 SAML→OIDC 桥接器（例如 Okta、Auth0、Azure AD、Keycloak 等），然后按照下方的 OIDC 配置项接入 Kaiwu。
 
-If you need SAML, the recommended approach is to use your IdP’s “OIDC app” or a SAML→OIDC bridge (Okta/Auth0/Azure AD/Keycloak, etc.), and configure Kaiwu using the OIDC options below.
+## 配置来源
 
-## Config sources
-
-You can configure providers via either:
-- `AUTH_PROVIDERS_CONFIG_PATH` (recommended): path to a JSON file on the server
-- `AUTH_PROVIDERS_CONFIG_JSON`: a JSON string (useful for simple deployments)
+可通过以下任一方式配置提供商：
+- `AUTH_PROVIDERS_CONFIG_PATH`（推荐）：服务器上的 JSON 文件路径
+- `AUTH_PROVIDERS_CONFIG_JSON`：JSON 字符串（适用于简单部署）
 
 ## JSON schema (v1)
 
-The config must be a JSON array. Each entry defines one provider instance:
+配置内容必须是一个 JSON 数组，其中每个条目定义一个提供商实例：
 
 ```json
 [
@@ -60,29 +59,29 @@ The config must be a JSON array. Each entry defines one provider instance:
 ]
 ```
 
-Notes:
-- `id` becomes the provider id used in policy (`AUTH_SIGNUP_PROVIDERS=okta`) and in the callback URL (`/v1/oauth/:provider/callback`).
-- `issuer` must point at the provider’s OIDC issuer URL (discovery uses `/.well-known/openid-configuration`).
-- Make sure your OIDC app is configured to allow the exact `redirectUrl`.
-- `scopes` defaults to `openid profile email` and **must include `openid`**.
-- `httpTimeoutSeconds` (default `30`, clamp 1–120): timeout (seconds) for OIDC discovery and subsequent HTTP requests made by the OIDC client configuration.
-- `claims` lets you map where to read the provider login/email/groups from (defaults shown above).
-- `allow` restricts eligibility (all comparisons are lowercased):
-  - `usersAllowlist`: matches against the provider login claim.
-  - `emailDomains`: allows `user@domain` only if `domain` matches.
-  - `groupsAny`: user must be in *at least one* group.
-  - `groupsAll`: user must be in *all* groups.
-- `fetchUserInfo` (default `false`): if enabled, the server fetches `/userinfo` and merges it into the identity profile.
-- `storeRefreshToken` (default `false`): if enabled, the server stores an **encrypted refresh token** and uses refresh flows for periodic eligibility re-checks (offboarding) without requiring users to reconnect.
-- `ui` provides optional UI hints only (no security impact).
+说明：
+- `id` 将作为提供商 ID，用于策略配置（`AUTH_SIGNUP_PROVIDERS=okta`）和回调 URL（`/v1/oauth/:provider/callback`）。
+- `issuer` 必须指向提供商的 OIDC 签发者 URL（发现流程会请求 `/.well-known/openid-configuration`）。
+- 请确保你的 OIDC 应用配置中允许完全一致的 `redirectUrl`。
+- `scopes` 默认为 `openid profile email`，且**必须包含 `openid`**。
+- `httpTimeoutSeconds`（默认值为 `30`，取值范围限制为 1–120）：OIDC 发现及后续 OIDC 客户端配置发起的 HTTP 请求超时时间（单位：秒）。
+- `claims` 用于映射从何处读取提供商的用户名（login）、邮箱（email）和用户组（groups）（默认值如上所示）。
+- `allow` 用于限制访问资格（所有比较均转为小写）：
+  - `usersAllowlist`：与提供商返回的登录用户名声明（login claim）进行匹配。
+  - `emailDomains`：仅当 `domain` 匹配时才允许 `user@domain`。
+  - `groupsAny`：用户必须处于*至少一个*用户组中。
+  - `groupsAll`：用户必须处于*所有*用户组中。
+- `fetchUserInfo`（默认为 `false`）：若启用，服务器会拉取 `/userinfo` 并合并到身份档案中。
+- `storeRefreshToken`（默认为 `false`）：若启用，服务器会存储**加密的刷新令牌**，并通过刷新流程定期复核用户资格（处理离职或失效），无需用户重新连接。
+- `ui` 仅提供可选的 UI 提示信息（不影响安全性）。
 
-## Group overage / external claims
+## 用户组超限（Group overage）与外部声明
 
-Some providers (notably Microsoft Entra ID / Azure AD) may omit groups from tokens and instead return an “overage” pointer (e.g. `_claim_names/_claim_sources`). If you configure `groupsAny`/`groupsAll`, Kaiwu will **fail closed** when it detects group overage (treating the user as ineligible) unless it can read groups from the configured claim source (for example by enabling `fetchUserInfo` and mapping `claims.groups` appropriately).
+部分提供商（尤其是 Microsoft Entra ID / Azure AD）可能会在令牌中省略用户组信息，转而返回一个“超限（overage）”指示（例如 `_claim_names/_claim_sources`）。如果你配置了 `groupsAny`/`groupsAll`，Kaiwu 在检测到用户组超限时会采取**闭合失效（fail-closed）**策略（直接判定该用户不具备资格），除非能从配置的声明源中成功读取到用户组信息（例如启用 `fetchUserInfo` 并合理映射 `claims.groups`）。
 
-## Enabling OIDC signup / login enforcement
+## 启用 OIDC 注册与强制登录
 
-Example: **Okta-only signup** + **Okta required for ongoing access**:
+示例：**仅允许通过 Okta 注册** + **持续访问必须绑定 Okta**：
 
 ```bash
 AUTH_ANONYMOUS_SIGNUP_ENABLED=false
@@ -92,15 +91,15 @@ AUTH_REQUIRED_LOGIN_PROVIDERS=okta
 AUTH_PROVIDERS_CONFIG_PATH=/etc/happier/auth-providers.json
 ```
 
-## Keyless OIDC login (optional, enterprise)
+## 免密钥 OIDC 登录（可选，企业版）
 
-Kaiwu can also use an OIDC provider as a **keyless login method** (no device keys), when enabled by feature env vars.
+通过特性环境变量启用后，Kaiwu 还可以将 OIDC 提供商作为一种**免密钥登录方式**（无需设备密钥）。
 
-This is intended for enterprise deployments and is usually paired with plaintext storage mode. See:
+该功能专为企业部署设计，通常与明文存储模式配合使用。详见：
 - [Server Auth](/self-hosting/auth)
 - [Encryption & plaintext storage](/self-hosting/encryption)
 
-Minimum prerequisites (example for provider id `okta`):
+最低前置条件（以提供商 ID `okta` 为例）：
 
 ```bash
 HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY=optional|plaintext_only
@@ -110,20 +109,20 @@ HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_ENABLED=1
 HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_PROVIDERS=okta
 ```
 
-To allow OIDC sign-in to **create** a new keyless/plain account on first login:
+若要在首次登录时允许 OIDC 登录自动**创建**新的免密钥/明文账户：
 
 ```bash
 HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_AUTO_PROVISION=1
 ```
 
-Notes:
-- Keyless OIDC login is **separate** from keyed OIDC signup. You can enable either or both.
-- `HAPPIER_FEATURE_ENCRYPTION__DEFAULT_ACCOUNT_MODE` controls only the default for **keyed** accounts under `optional`; it does not gate keyless provisioning.
-- On `HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY=optional`, the client may offer a **choice** on first login (E2EE vs plaintext) when the provider is enabled for both keyed provisioning and keyless auto-provisioning.
+说明：
+- 免密钥 OIDC 登录与基于密钥的 OIDC 注册是**彼此独立**的，你可以单独启用其中一个，也可以两者同时启用。
+- `HAPPIER_FEATURE_ENCRYPTION__DEFAULT_ACCOUNT_MODE` 仅控制 `optional` 下**带密钥**账户的默认行为，不会限制免密钥账户的预配。
+- 在 `HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY=optional` 上，当提供商同时启用了带密钥预配和免密钥自动预配时，客户端在首次登录时可能会提供**选择**（端到端加密 vs 明文）。
 
-### Auto-redirect (OIDC-only deployments)
+### 自动重定向（纯 OIDC 部署）
 
-If an OIDC provider is your only supported login/signup flow, you can enable auto-redirect so users don’t have to tap the button:
+如果 OIDC 提供商是系统唯一支持的登录/注册流程，你可以开启自动重定向，免去用户手动点击按钮的步骤：
 
 ```bash
 HAPPIER_FEATURE_AUTH_UI__AUTO_REDIRECT_ENABLED=1
@@ -131,35 +130,35 @@ HAPPIER_FEATURE_AUTH_UI__AUTO_REDIRECT_PROVIDER_ID=<providerId>
 AUTH_ANONYMOUS_SIGNUP_ENABLED=0
 ```
 
-## Step-by-step: add a new OIDC provider
+## 操作步骤：添加新的 OIDC 提供商
 
-1. Pick a provider id (lowercase), e.g. `okta` / `auth0` / `entra`.
-2. In your IdP admin console, create an **OIDC application**:
-   - Grant type: **Authorization Code**
-   - Enable **PKCE**
-   - Add redirect URI: `https://YOUR_SERVER/v1/oauth/<providerId>/callback`
-3. Put the provider config in `AUTH_PROVIDERS_CONFIG_PATH` (preferred) or `AUTH_PROVIDERS_CONFIG_JSON`:
-   - Set `issuer`, `clientId`, `clientSecret`, and `redirectUrl` exactly (must match step 2).
-4. Enable it in policy:
-   - Allow signup via this provider: `AUTH_SIGNUP_PROVIDERS=<providerId>`
-   - Make it mandatory for ongoing access: `AUTH_REQUIRED_LOGIN_PROVIDERS=<providerId>`
-   - Disable anonymous signup if desired: `AUTH_ANONYMOUS_SIGNUP_ENABLED=false`
-5. Make sure the client app can return from OAuth:
-   - Web (required unless you use `https://kaiwu.chengqiyun.com`): set `HAPPIER_WEBAPP_URL` (or `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE`)
-   - Mobile deep link: set `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE` and allow the scheme via `HAPPIER_OAUTH_RETURN_ALLOWED_SCHEMES` (e.g. `myapp`)
-6. Validate:
-   - Restart the server (so it picks up env / config changes).
-   - Open the Kaiwu app and confirm the new sign-in option appears on the welcome/login screen.
-   - If it doesn’t, double-check the redirect URL, issuer URL, and that `AUTH_SIGNUP_PROVIDERS` / `AUTH_REQUIRED_LOGIN_PROVIDERS` reference the same provider id. (For troubleshooting, you can also inspect `GET /v1/features`.)
+1. 选取一个提供商 ID（全小写），例如 `okta` / `auth0` / `entra`。
+2. 在你的 IdP 管理控制台中创建一个 **OIDC 应用**：
+   - 授权类型（Grant type）：**Authorization Code**
+   - 启用 **PKCE**
+   - 添加重定向 URI：`https://YOUR_SERVER/v1/oauth/<providerId>/callback`
+3. 将提供商配置写入 `AUTH_PROVIDERS_CONFIG_PATH`（推荐）或 `AUTH_PROVIDERS_CONFIG_JSON` 中：
+   - 精确设置 `issuer`、`clientId`、`clientSecret` 和 `redirectUrl`（必须与步骤 2 保持一致）。
+4. 在策略中启用该提供商：
+   - 允许通过此提供商注册：`AUTH_SIGNUP_PROVIDERS=<providerId>`
+   - 设置为持续访问的必需项：`AUTH_REQUIRED_LOGIN_PROVIDERS=<providerId>`
+   - 若有需要，可禁用匿名注册：`AUTH_ANONYMOUS_SIGNUP_ENABLED=false`
+5. 确保客户端应用能够从 OAuth 正常返回：
+   - Web 端（除非使用 `https://kaiwu.chengqiyun.com`，否则为必填）：设置 `HAPPIER_WEBAPP_URL`（或 `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE`）
+   - 移动端 Deep Link：设置 `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE`，并通过 `HAPPIER_OAUTH_RETURN_ALLOWED_SCHEMES` 允许对应 scheme（例如 `myapp`）
+6. 验证：
+   - 重启服务器（以加载环境变量和配置变更）。
+   - 打开 Kaiwu 应用，确认欢迎/登录界面出现了新的登录选项。
+   - 如果没有显示，请仔细核对重定向 URL、签发者 URL，并确认 `AUTH_SIGNUP_PROVIDERS` / `AUTH_REQUIRED_LOGIN_PROVIDERS` 引用了相同的提供商 ID。（排查问题时，你也可以检查 `GET /v1/features`。）
 
-Note on “optional” web app URL env vars:
-- `HAPPIER_WEBAPP_URL` / `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE` are only “optional” if you are using the hosted client at `https://kaiwu.chengqiyun.com`.
-  - If you are self-hosting the web app, or using a local dev web UI, you must set one of these so the server can redirect back to your client after OAuth.
+关于“可选”Web 应用 URL 环境变量的说明：
+- 只有在使用托管于 `https://kaiwu.chengqiyun.com` 的客户端时，`HAPPIER_WEBAPP_URL` / `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE` 才是“可选”的。
+  - 如果你是自托管 Web 应用，或使用本地开发环境的 Web UI，则必须配置其中之一，以便服务器在 OAuth 流程结束后能够重定向回你的客户端。
 
-Troubleshooting:
-- If you get redirected to `https://kaiwu.chengqiyun.com` even after setting `HAPPIER_WEBAPP_URL`, the server likely rejected your configured return URL as unsafe. For local web dev, use `http://localhost:PORT` or `http://*.localhost:PORT` (or use `https://`).
+故障排查：
+- 如果在设置了 `HAPPIER_WEBAPP_URL` 后仍被重定向至 `https://kaiwu.chengqiyun.com`，通常是因为服务器判定你配置的返回 URL 不安全并予以拒绝。本地 Web 开发时，请使用 `http://localhost:PORT` 或 `http://*.localhost:PORT`（或使用 `https://`）。
 
-## “Custom providers” beyond OIDC
+## OIDC 之外的“自定义提供商”
 
-At the moment, “custom providers” are supported via **OIDC configuration** (no plugin system for arbitrary protocols).
-If you need a non-OIDC provider, it must be implemented as a new provider module in the server and UI (similar to the built-in GitHub provider).
+目前，“自定义提供商”仅支持通过 **OIDC 配置**接入（尚未提供面向任意协议的插件系统）。
+如果你需要接入非 OIDC 提供商，则必须在服务端和前端 UI 中将其实现为新的提供商模块（类似于内置的 GitHub 提供商）。

@@ -1,35 +1,34 @@
 ---
-title: Running (dev vs start)
-description: How hstack starts server/daemon/UI, browser auto-open, watch mode, and safe restarts.
+title: 运行（dev 对比 start）
+description: hstack 如何启动服务器/守护进程/UI，以及浏览器自动打开、监听模式与安全重启。
 ---
-
 ## `start` vs `dev`
 
-- `hstack start` / `hstack stack start <name>`: production-like (prefer built UI; fewer watchers)
-- `hstack dev` / `hstack stack dev <name>`: development (watch mode, faster iteration)
+- `hstack start` / `hstack stack start ⟦K17⟧`：类生产环境（优先使用构建好的 UI，监听进程更少）
+- `hstack dev` / `hstack stack dev ⟦K18⟧`：开发环境（监听模式，迭代更快）
 
-If you’re unsure, use `hstack tui stack dev <stack>` (or `hstack stack dev <stack>` in non-interactive environments).
+如果不确定，请使用 `hstack tui stack dev ⟦K19⟧`（非交互式环境下使用 `hstack stack dev ⟦K20⟧`）。
 
-For **named stacks only**, `start` can also run from an activated runtime snapshot stored under the stack folder instead of the live repo checkout:
+**仅适用于具名栈**：`start` 还可以基于保存在栈目录下的已激活运行时快照运行，而无需依赖实时的代码仓库检出：
 
 ```bash
 hstack stack build exp1 --activate-runtime
 hstack stack start exp1 --runtime
 ```
 
-Use this when you want:
+适用于以下场景：
 
-- stack-local production artifacts for `web + server + daemon`
-- service installs that are insulated from source rebuild churn in the same checkout
-- a production-like stack against the same worktree you are editing in another stack
+- 为 `web + server + daemon` 生成栈本地的生产构建产物
+- 隔离同一检出目录下的源码重新构建，避免对已安装的服务造成干扰
+- 与另一个栈中正在编辑的同一工作树保持关联，同时运行一个类生产环境的栈
 
-Keep using `dev` when you want watchers, Metro, or rapid source iteration.
+如果需要监听进程、Metro 或快速的源码迭代，请继续使用 `dev`。
 
 ---
 
-## TUI mode (recommended for interactive development)
+## TUI 模式（交互式开发推荐）
 
-For local interactive work, prefer wrapping your run command in the hstack TUI:
+对于本地交互式开发，建议在 hstack TUI 中包装运行命令：
 
 ```bash
 hstack tui stack dev dev
@@ -37,7 +36,7 @@ hstack tui stack dev dev
 hstack tui stack dev dev --mobile
 ```
 
-In non-interactive terminals / CI (or if the TUI is unavailable), run the underlying command directly:
+在非交互式终端 / CI 环境中（或 TUI 不可用时），请直接执行底层命令：
 
 ```bash
 hstack stack dev dev
@@ -45,47 +44,47 @@ hstack stack dev dev
 
 ---
 
-## Browser origin isolation (important)
+## 浏览器源隔离（重要）
 
-When you run multiple stacks, browser state (cookies/localStorage) can collide if you always use `http://localhost:...`.
+如果始终使用 `http://localhost:...`，同时运行多个栈会导致浏览器状态（Cookie / localStorage）发生冲突。
 
-hstack prefers stack-specific origins for non-main stacks when it matters (so stacks don’t fight over browser auth/session state).
+在需要隔离时，hstack 会优先为非主栈分配栈专属的源（避免各栈争抢浏览器认证/会话状态）。
 
-Tip: if you see “auth looks wrong” between stacks, check:
+提示：若发现不同栈之间的“认证状态异常”，请检查：
 
-- which stack you’re using (`hstack stack info <name>`)
-- which UI URL you opened (use the one printed by hstack)
-
----
-
-## Browser auto-open (`--no-browser`)
-
-In interactive runs, `hstack dev` / `hstack start` may auto-open the UI in your browser.
-
-- Disable: `--no-browser`
-- Global disable: `HAPPIER_STACK_NO_BROWSER=1`
+- 当前正在使用哪个栈（`hstack stack info ⟦K21⟧`）
+- 打开的是哪个 UI URL（请使用 hstack 输出的 URL）
 
 ---
 
-## Watch mode (hot-reload-ish)
+## 自动打开浏览器（`--no-browser`）
 
-In interactive TTY runs, `hstack dev` enables watch mode by default:
+在交互式运行中，`hstack dev` / `hstack start` 可能会自动在浏览器中打开 UI。
 
-- `happier-cli` changes → rebuild + restart the daemon
-- some long-lived processes can be restarted safely when hstack knows they are stack-owned
-
-Control flags:
-
-- Force enable: `hstack dev --watch`
-- Disable: `hstack dev --no-watch`
-
-If hstack prints that a restart is disabled because the PID is unknown, re-run with `--restart` so hstack can spawn and track the process.
+- 禁用：`--no-browser`
+- 全局禁用：`HAPPIER_STACK_NO_BROWSER=1`
 
 ---
 
-## Runtime-backed named stacks
+## 监听模式（类似热重载）
 
-Build targets:
+在交互式 TTY 运行中，`hstack dev` 默认启用监听模式：
+
+- `happier-cli` 发生变更 → 重新构建并重启守护进程
+- 当 hstack 确认某些常驻进程归属于当前栈时，可以安全地重启它们
+
+控制标志：
+
+- 强制启用：`hstack dev --watch`
+- 禁用：`hstack dev --no-watch`
+
+如果 hstack 提示因 PID 未知而禁用重启，请使用 `--restart` 重新运行，以便 hstack 能够派生并跟踪该进程。
+
+---
+
+## 基于运行时的具名栈
+
+构建目标：
 
 ```bash
 hstack stack build exp1 --web
@@ -94,13 +93,13 @@ hstack stack build exp1 --daemon
 hstack stack build exp1 --all
 ```
 
-Full runtime activation:
+全量运行时激活：
 
 ```bash
 hstack stack build exp1 --activate-runtime
 ```
 
-Partial runtime activation:
+部分运行时激活：
 
 ```bash
 hstack stack runtime exp1 activate --web
@@ -109,14 +108,14 @@ hstack stack runtime exp1 activate --daemon
 hstack stack runtime exp1 activate --all
 ```
 
-Typical production-like named-stack update flow:
+典型的类生产环境具名栈更新流程：
 
 ```bash
 hstack stack build exp1 --activate-runtime
 hstack stack service exp1 restart
 ```
 
-Component-only update flows:
+单组件更新流程：
 
 ```bash
 # UI-only: build the artifact, activate only web, then reload the browser
@@ -138,48 +137,48 @@ hstack stack runtime exp1 activate --daemon
 hstack stack service exp1 restart
 ```
 
-Launch selection:
+启动选择：
 
 ```bash
 hstack stack start exp1 --runtime
 hstack stack start exp1 --source
 ```
 
-Persistent mode:
+持久模式：
 
 ```bash
 hstack stack env exp1 set HAPPIER_STACK_RUNTIME_MODE=prefer
 ```
 
-Mode meanings:
+模式含义：
 
-- `source`: always use the live checkout
-- `prefer`: use the active runtime snapshot when present, otherwise source
-- `require`: fail unless an active runtime snapshot is valid
+- `source`：始终使用实时检出代码
+- `prefer`：存在已激活的运行时快照时优先使用，否则使用源码
+- `require`：必须存在有效的已激活运行时快照，否则报错退出
 
-Important:
+重要说明：
 
-- `hstack stack build <name>` with no flags still builds the web bundle only for backward compatibility.
-- `hstack stack build <name> --web|--server|--daemon` only updates artifacts. It does not switch the running stack to those artifacts until you activate a new runtime snapshot.
-- `--tauri` still belongs to the legacy local `hstack build` flow and is not part of named-stack artifact/runtime builds in v1.
-- Runtime snapshots are currently a **named stack** feature. Repo-local `yarn tui`, `hstack dev`, and repo-local `hstack start` are still source-backed flows.
-- `hstack stack dev <name>` remains source-only; runtime snapshots are for `start` and stack services.
-- Web-only activation updates the stable `runtime/current/ui` path, so a browser reload is enough.
-- Server-only or daemon-only activation requires a restart so the process re-resolves the active runtime.
-- A running named-stack service does not switch server/daemon processes in place. Rebuild or activate first, then restart the service or stack process so it re-resolves the active snapshot.
+- 为保持向后兼容，不带参数的 `hstack stack build ⟦K22⟧` 仍然仅构建 Web Bundle。
+- `hstack stack build ⟦K23⟧ --web|--server|--daemon` 仅更新构建产物。在激活新的运行时快照之前，运行中的栈不会切换到这些产物。
+- `--tauri` 仍属于传统的本地 `hstack build` 流程，未纳入 v1 具名栈的产物/运行时构建体系。
+- 运行时快照目前是**具名栈**的专属特性。仓库本地的 `yarn tui`、`hstack dev` 以及仓库本地的 `hstack start` 仍然基于源码运行。
+- `hstack stack dev ⟦K24⟧` 保持仅基于源码运行；运行时快照适用于 `start` 和栈服务。
+- 仅激活 Web 部分会更新稳定的 `runtime/current/ui` 路径，因此刷新浏览器即可生效。
+- 仅激活服务器或仅激活守护进程则需要重启，以便进程重新解析激活的运行时。
+- 运行中的具名栈服务不会就地切换服务器/守护进程。请先重新构建或激活，再重启服务或栈进程，以便重新解析激活的快照。
 
 ---
 
-## Safe restarts
+## 安全重启
 
-Both `hstack start` and `hstack dev` support `--restart`:
+`hstack start` 和 `hstack dev` 均支持 `--restart`：
 
 ```bash
 hstack dev --restart
 hstack start --restart
 ```
 
-For a named stack:
+针对具名栈：
 
 ```bash
 hstack stack dev exp1 -- --restart
@@ -188,33 +187,33 @@ hstack stack start exp1 -- --restart
 
 ---
 
-## Stopping stacks safely
+## 安全停止栈
 
-Stop a single stack:
+停止单个栈：
 
 ```bash
 hstack stack stop exp1
 ```
 
-Stop multiple stacks:
+停止多个栈：
 
 ```bash
 hstack stop --except-stacks=main --yes
 ```
 
-Useful flags:
+常用标志：
 
-- `--aggressive`: stop additional daemon-tracked sessions (still stack-owned)
-- `--sweep-owned`: final sweep for processes that still carry the stack env in their process env
-- `--no-docker`: skip Docker-managed infra shutdown
+- `--aggressive`：停止守护进程跟踪的其他会话（仍归属于该栈）
+- `--sweep-owned`：最终清理：扫描其进程环境中仍携带该栈环境变量的进程
+- `--no-docker`：跳过关闭由 Docker 管理的基础设施
 
 ---
 
-## CLI build behavior (happier-cli)
+## CLI 构建行为（happier-cli）
 
-When running stacks, hstack may ensure the CLI is built when needed (so the daemon can start).
+运行栈时，hstack 会在需要时确保完成 CLI 构建（以便守护进程可以启动）。
 
-Controls:
+控制选项：
 
 - `HAPPIER_STACK_CLI_BUILD_MODE=auto|always|never`
-- `HAPPIER_STACK_CLI_BUILD=0` (hard-disable)
+- `HAPPIER_STACK_CLI_BUILD=0`（强制禁用）

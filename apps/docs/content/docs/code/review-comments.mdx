@@ -1,142 +1,141 @@
 ---
-title: Review comments
-description: Leave line-specific review instructions on files and diffs, then send the selected comments to an agent.
+title: 评审批注
+description: 在文件和差异对比中针对特定行添加评审说明，然后将选中的批注发送给智能体。
 ---
+借助评审批注，你可以在工作区文件或 diff 中精准标记特定代码行，并将这些批注转化为给 Agent 的结构化指令。
 
-Review comments let you mark exact lines in a workspace file or diff and turn those notes into structured instructions for an agent.
+当你希望先直观审查代码，再让 Agent 针对一系列明确的审查意见执行操作时，可以使用此功能。
 
-Use them when you want to review code visually first, then ask an agent to act on a precise set of findings.
+常见用例：
 
-Common use cases:
+- 让 Agent 修复你手动审查指出的多行代码
+- 在查看 diff 时随手记录疑问，稍后统一发送
+- 将一轮代码审查交接给同一工作区中的新会话
+- 在本次发送时仅包含所需批注，将其余批注暂时从下一条提示词中分离
 
-- ask the agent to fix several lines you reviewed manually
-- collect questions while reading a diff, then send them together
-- hand off a code-review pass to a new session in the same workspace
-- keep a few comments detached from the next prompt while sending only the ones you want now
+## 功能可用性
 
-## Availability
+评审批注功能默认开启。如需关闭，可前往 **Settings → Features → File review comments** 进行切换。
 
-Review comments are on by default. The toggle is **Settings → Features → File review comments** if you want them off.
+该功能可在以下会话工作区界面中使用：
 
-They work from the session workspace surfaces:
+- 文件详情
+- diff 详情
+- Git 审查视图
+- 发送批注后显示在会话记录中的评审批注卡片
 
-- file details
-- diff details
-- the Git review view
-- transcript review-comment cards after comments have been sent
+评审批注具备工作区感知能力。其作用域严格限定在当前的服务器、设备和工作区文件夹内，因此某个项目的批注绝不会出现在另一个项目中。
 
-Review comments are workspace-aware. They are scoped to the current server, machine, and workspace folder, so comments from one project do not appear in another project.
+## 添加评审批注
 
-## Add a review comment
+从 **Files** 或 **Git** 中打开文件或 diff，然后将鼠标悬停或聚焦到支持批注的代码行。
 
-Open a file or diff from **Files** or **Git**, then hover or focus a line that can accept a comment.
+点击代码行旁边的交互入口即可打开输入框。无论点击行号槽（gutter）还是批注图标，交互效果完全一致。
 
-Use the review-comment affordance beside the line to open the comment field. The same line interaction is used whether you click the line gutter or the comment icon.
+保存批注时，Kaiwu 会记录以下信息：
 
-When you save the comment, Kaiwu stores:
+- 相对于工作区的文件路径
+- 批注来源于文件视图还是 diff 视图
+- 当前可见的行号
+- 选中代码行前后的简短代码片段
+- 稳定的代码行内容哈希（可用时）
+- 你填写的批注内容
 
-- the workspace-relative file path
-- whether the comment came from the file view or diff view
-- the visible line number
-- a short snippet around the selected line
-- a stable line-content hash when available
-- your comment text
+系统后续会再次展示该代码片段，方便你在发送前确认批注所对应的上下文。
 
-The snippet is shown again later so you can confirm what the comment refers to before sending it.
+## 代码行定位锚点
 
-## Line anchoring
+评审批注并非仅依据行号定位。
 
-Review comments are not anchored only by line number.
+Kaiwu 还会尽可能为选中行存储内容哈希。即使文件内容发生增删位移，Kaiwu 也能借助该哈希重新定位到对应的代码行。即便无法匹配到完全一致的内容，已保存的行号和代码片段仍可为 Agent 和界面提供可靠的兜底上下文。
 
-Kaiwu also stores a line-content hash for the selected line when it can. If the file shifts, Kaiwu can use that hash to find the same line content again. If the exact line cannot be found, the stored line number and snippet still give the agent and the UI useful fallback context.
+因此，已发送的评审批注会同时包含：
 
-This is why sent review comments include both:
+- 易于人类阅读的代码行引用，例如 `L8`
+- 代码行哈希（可用时），例如 `lh1:...`
 
-- a human-readable line reference, such as `L8`
-- a line hash, such as `lh1:...`, when available
+## 编辑、删除、包含或分离批注
 
-## Edit, delete, include, or detach comments
+已保存的批注在发送或丢弃前始终保持可编辑状态。
 
-Saved comments stay editable until you send or discard them.
+你可以通过以下入口进行管理：
 
-You can manage them from:
+- 文件或 diff 内的代码行内联批注区
+- 输入框中的 **Review** 标签
+- 从该标签或附件角标弹出的评审批注管理窗口
 
-- the inline file/diff comment area
-- the **Review** chip in the composer
-- the review-comments modal opened from that chip or attachment badge
+在管理窗口中，你可以：
 
-In the modal, you can:
+- 查看上下文代码片段
+- 编辑批注内容
+- 删除批注
+- 选择将哪些批注包含在下一条提示词中
 
-- review the surrounding snippet
-- edit the comment text
-- delete a comment
-- choose which comments are included in the next prompt
+关闭或移除输入框中的标签并不一定会删除批注。Kaiwu 会询问你的意图：
 
-Closing or removing the composer chip does not have to delete the comments. Kaiwu asks whether you want to:
+- 仅从下一条提示词中分离
+- 直接丢弃已保存的批注
 
-- detach them from the next prompt, or
-- discard the saved comments
+已分离的批注仍会保留在工作区中，但不会随下一条消息发出。
 
-Detached comments stay saved for the workspace but are not sent with the next message.
+## 在现有会话中发送评审批注
 
-## Send review comments in an existing session
+当工作区中存在已保存的评审批注时，会话输入框会显示 **Review** 标签以及评审附件角标。
 
-When a session has saved review comments for its workspace, the composer shows a **Review** chip and a review attachment badge.
+发送之前，点击该标签可检查即将发送的内容，支持单独勾选或取消勾选各项批注。
 
-Before sending, open the chip to review what will be sent. You can select or deselect individual comments.
+发送时，Kaiwu 会将选中的批注转化为结构化评审上下文。Agent 将接收到：
 
-When you send, Kaiwu sends the selected comments as structured review context. The agent receives:
+- 各文件的相对路径
+- 代码行锚点
+- 代码行哈希（可用时）
+- 上下文代码片段
+- 你的批注内容
+- 你在输入框中填写的附加提示词
 
-- each file path
-- the line anchor
-- the line hash when available
-- the surrounding snippet
-- your comment text
-- any additional prompt text you wrote
+发送成功后，已发送的批注会作为评审批注卡片转入会话记录。未被勾选的批注仍会继续保存在当前工作区中。
 
-After the send succeeds, the sent comments move into the transcript as a review-comments card. Comments that were not selected remain saved for the workspace.
+## 携带已保存的评审批注开启新会话
 
-## Start a new session with saved review comments
+评审批注的作用域归属于工作区，而非局限于单一会话。
 
-Review comments are scoped to the workspace, not only to one session.
+只要在相同的服务器、设备和工作区文件夹下创建新会话，Kaiwu 就能识别出已保存的批注，并在新会话的输入框中展示 **Review** 标签。
 
-If you create a new session in the same server, machine, and workspace folder, Kaiwu detects the saved comments and shows the **Review** chip in the new-session composer.
+无论所选文件夹是显示为绝对路径，还是显示为类似 `~/Documents/project` 的家目录相对路径，只要两者最终指向同一工作区，该机制均能正常生效。
 
-This works whether the selected folder is displayed as an absolute path or as a home-relative path such as `~/Documents/project`, as long as both resolve to the same workspace.
+适用场景：
 
-Use this when you want to:
+- 在某个会话中收集审查意见，随后开启一个全新的干净会话进行跟进
+- 调用不同的提供商或配置文件来处理这批审查意见
+- 将代码审查与实际开发实现拆分到不同会话中处理
 
-- collect comments in one session, then start a clean follow-up session
-- ask a different provider/profile to handle the reviewed findings
-- split review and implementation into separate sessions
+## 会话记录中的评审批注
 
-## Review comments in the transcript
+批注发送后，会话记录会将其渲染为结构化的评审批注卡片。
 
-After comments are sent, the transcript shows them as a structured review-comments card.
+卡片会按文件对批注进行归类，并展示：
 
-The card groups comments by file and shows:
+- 相对于工作区的文件路径
+- 锚点标签
+- 相关的代码片段
+- 批注内容
+- **Jump** 操作按钮
 
-- the workspace-relative file path
-- the anchor label
-- the relevant snippet
-- the comment text
-- a **Jump** action
+点击 **Jump** 可以在会话工作区界面中直达引用的文件或 diff。在桌面端上，这会展开右侧边栏/详情面板；在小屏幕设备上，则会打开全屏详情页。
 
-Use **Jump** to open the referenced file/diff in the session workspace surface. On desktop this opens the right sidebar/details pane. On small screens it opens the focused details screen.
+## 搭配附件与链接文件使用
 
-## Use with attachments and linked files
+评审批注可以与普通提示词文本及消息附件组合发送。
 
-Review comments can be sent together with normal prompt text and message attachments.
+建议根据不同场景选用合适的上下文工具：
 
-Use the different context tools for different jobs:
+- **Review comments**（评审批注）：绑定到工作区文件或 diff 特定行的具体指令
+- **Link file**（链接文件）：直接引用工作区中的现有文件，无需针对特定代码行撰写批注
+- **Attachments**（附件）：上传外部文件，例如截图、PDF、日志或导出的生成文件
 
-- **Review comments**: line-specific instructions tied to workspace files or diffs
-- **Link file**: references an existing workspace file without writing a line-specific comment
-- **Attachments**: uploads external files such as screenshots, PDFs, logs, or exported artifacts
+## 使用限制
 
-## Limitations
-
-- Review comments require workspace file/diff data from the machine.
-- Comments are scoped to a specific server, machine, and workspace path.
-- If the underlying file changes heavily, Kaiwu may not be able to relocate the exact line by hash, but the stored line number and snippet remain available.
-- Routed teammate messages do not currently support review-comment drafts. Send review comments as regular lead messages instead.
+- 评审批注依赖设备提供的工作区文件或 diff 数据。
+- 批注的作用域严格限定于特定的服务器、设备和工作区路径。
+- 如果底层文件变动剧烈，Kaiwu 可能无法借助哈希重新定位到确切行，但记录的原始行号与代码片段依然可用。
+- 路由团队成员消息目前不支持携带评审批注草稿。如需发送评审批注，请改用常规的主导消息。

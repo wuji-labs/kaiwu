@@ -12,7 +12,7 @@ export async function handleDoctorCliCommand(context: CommandContext): Promise<v
   if (args[1] === 'repair') {
     await handleServiceRepairCliCommand({
       argv: ['repair', ...args.slice(2)],
-      commandPath: 'happier doctor',
+      commandPath: 'kaiwu doctor',
     });
     return;
   }

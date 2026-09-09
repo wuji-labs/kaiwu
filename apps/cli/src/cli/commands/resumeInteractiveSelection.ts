@@ -17,7 +17,7 @@ import type { SessionActionSelectorRow } from '@/ui/ink/SessionActionSelector';
  *   ineligible row into "No resumable sessions found".
  * - Active sessions don't belong in this list at all — they're attachable
  *   territory. Instead of mixing them in, we surface them as a footer
- *   summary ("N session(s) running; use happier attach") so the user
+ *   summary ("N session(s) running; use kaiwu attach") so the user
  *   doesn't lose track of them.
  *
  * The split keeps each command's selector focused on one mental model
@@ -84,7 +84,7 @@ function shortReasonForResume(category: ResumeIneligibilityCategory): string {
     case 'archived':
       return 'archived';
     case 'still_active':
-      return 'currently running — use happier attach';
+      return 'currently running — use kaiwu attach';
     case 'vendor_resume_not_supported':
       return 'this agent does not support resume';
     case 'vendor_resume_id_missing':
@@ -105,7 +105,7 @@ function fullReasonForResume(category: ResumeIneligibilityCategory): string {
     case 'archived':
       return 'This session is archived and cannot be resumed.';
     case 'still_active':
-      return 'This session is currently running. Use `happier attach` to attach a terminal to it instead.';
+      return 'This session is currently running. Use `kaiwu attach` to attach a terminal to it instead.';
     case 'vendor_resume_not_supported':
       return 'This session\'s agent does not support resume from the CLI.';
     case 'vendor_resume_id_missing':
@@ -142,7 +142,7 @@ export async function buildResumeSelectionModel(params: Readonly<{
     if (rowModel.archivedAt !== null) continue;        // archives are out of scope here
     if (rowModel.active === true) {
       // Surface active sessions only as a footer count — they belong to
-      // `happier attach`, not `happier resume`. Showing them mixed in
+      // `kaiwu attach`, not `kaiwu resume`. Showing them mixed in
       // would muddle resume's mental model (stopped sessions only).
       activeRunningCount += 1;
       continue;
@@ -200,7 +200,7 @@ export function formatResumeSelectionFooter(hint: ResumeSelectionFooterHint): st
   const sessionWord = (n: number) => (n === 1 ? 'session' : 'sessions');
   const fragments: string[] = [];
   if (hint.activeRunningCount > 0) {
-    fragments.push(`${hint.activeRunningCount} ${sessionWord(hint.activeRunningCount)} running — use \`happier attach\` to attach a terminal.`);
+    fragments.push(`${hint.activeRunningCount} ${sessionWord(hint.activeRunningCount)} running — use \`kaiwu attach\` to attach a terminal.`);
   }
   if (hint.ineligibleCount > 0) {
     fragments.push(`${hint.ineligibleCount} ${sessionWord(hint.ineligibleCount)} can't be resumed (see reasons above).`);

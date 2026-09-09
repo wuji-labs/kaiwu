@@ -2783,7 +2783,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         },
         serverProbe: {
             title: '伺服器診斷',
-            httpError: ({ status }: { status: number }) => `HTTP ${status}`,
+            httpError: ({ status }: { status: string }) => `HTTP ${status}`,
         },
         findings: {
             notRun: '執行診斷以查看結果',
@@ -5631,7 +5631,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
     tools: {
         common: {
             more: ({ count }: { count: number }) => `+${count} 更多`,
-            elapsedSeconds: ({ seconds }: { seconds: number }) => `${seconds}秒`,
+            elapsedSeconds: ({ seconds }: { seconds: string }) => `${seconds}秒`,
             unknownToolTitle: '工具',
         },
         taskOutputView: {

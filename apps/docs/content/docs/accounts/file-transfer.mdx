@@ -1,70 +1,47 @@
 ---
-title: Moving files between machines
-description: How attachments, workspace files and handoffs travel — directly between your machines where possible, through the relay when not.
+title: 在设备之间移动文件
+description: 附件、工作区文件与交接的传输机制——条件允许时直接在您的设备间传输，不可行时则经由中继中转。
 ---
+当你把手机上的截图附加到桌面端运行的会话中时，该文件需要传输到目标设备。下载工作区文件、传输提示词资源以及会话交接的有效负载也是如此。这些场景都使用同一套分块加密传输管道。
 
-When you attach a screenshot from your phone to a session running on a desktop,
-that file has to get there. The same is true of workspace files you download,
-prompt assets, and the payload of a session handoff. They all use one encrypted,
-chunked transfer pipeline.
+具体采用哪条传输路线，取决于当时的网络连通状况，用户无法手动指定——但了解两者的差异很有必要，因为这决定了你的文件内容是否会经由中继。
 
-Which route a transfer takes depends on what is reachable at the time, and you
-do not choose it — but it is worth knowing the difference, because it decides
-whether your file contents pass through the relay at all.
+## 两种路线
 
-## The two routes
+**端到端直连（P2P）。** 当两台设备之间存在可用路由时，数据直接在它们之间传输。中继仅负责协调握手，绝不会接触到实际数据字节。这是首选路径，也是在常规家庭或办公网络环境下的默认路线。
 
-**Direct, peer to peer.** When both machines have a viable route to each other,
-contents move directly between them. The relay coordinates the handshake but
-never sees the bytes. This is the preferred path and the one you get on a normal
-home or office network.
+**经由中继。** 当无法建立直连时，中继将作为兜底降级方案承载传输。该路线设有明确的大小限制，超大文件的传输会明确报错失败，而非在后台被静默截断。
 
-**Through the relay.** When a direct route is not available, the relay carries
-the transfer as a bounded fallback — with explicit size limits, so a transfer
-that is too large fails visibly rather than being silently truncated.
-
-Web clients are a special case: a browser cannot open a direct peer connection
-to your machine, so where a machine exposes a Tailscale Serve route, the web
-client can use that instead of falling back to the relay.
+Web 客户端属于特殊情况：浏览器无法直接与你的设备建立点对点直连。因此，如果设备暴露了 Tailscale Serve 路由，Web 客户端便可优先使用该路由，而无需降级走中继。
 
 <Callout type="info">
-  Both routes are encrypted. The difference is not whether your file is
-  protected in transit — it is whether the relay handles the bytes at all.
+  两种路线均全程加密。二者的区别不在于文件在传输途中是否受保护，而在于中继是否会触碰这些数据字节。
 </Callout>
 
-## What uses this
+## 适用场景
 
-The same foundation carries prompt assets, message attachments, workspace file
-downloads, session handoff payloads, and folder archives. Route selection,
-progress, cancellation and recovery are shared, so a large transfer behaves the
-same way regardless of what started it.
+这套底层传输设施统一承载提示词资源、消息附件、工作区文件下载、会话交接数据以及文件夹归档。选路逻辑、进度展示、取消操作和中断恢复机制均完全通用，因此无论是由哪种操作触发的大文件传输，其行为表现都保持一致。
 
-## For self-hosters
+## 自托管指南
 
-Both routes are server features, on by default, and can be turned off
-independently:
+两种路线均为服务端功能，默认开启，并且支持独立关闭：
 
-| Variable | Default | Range |
+| 变量 | 默认值 | 取值范围 |
 | --- | --- | --- |
 | `HAPPIER_FEATURE_MACHINES_TRANSFER_DIRECT_PEER__ENABLED` | `1` | on / off |
 | `HAPPIER_FEATURE_MACHINES_TRANSFER_SERVER_ROUTED__ENABLED` | `1` | on / off |
-| `HAPPIER_FEATURE_MACHINES_TRANSFER_SERVER_ROUTED__MAX_BYTES` | 2 GiB | clamped to 8 GiB |
+| `HAPPIER_FEATURE_MACHINES_TRANSFER_SERVER_ROUTED__MAX_BYTES` | 2 GiB | 最大限制为 8 GiB |
 | `HAPPIER_FEATURE_MACHINES_TRANSFER_SERVER_ROUTED__MAX_ACTIVE_TRANSFERS_PER_SOCKET` | `128` | 1 – 10,000 |
 
 <Callout>
-  The size limit has a **default of 2 GiB**, not just a ceiling. A server-routed
-  transfer larger than that fails on an untouched deployment. Raising the
-  variable helps up to 8 GiB, where a hard maximum clamps it — a larger value is
-  silently reduced rather than rejected, so the setting appears to have applied.
+  大小限制的**默认值为 2 GiB**，不仅是一个上限参数。在未修改配置的部署环境下，经由服务器路由且超过该大小的传输都会失败。调大该变量最高可支持至 8 GiB，此处设有一道硬性上限——如果设置了更大的数值，系统不会报错拒绝，而是会静默向下压制至 8 GiB，使配置表面上看起来已被采纳。
 </Callout>
 
-Disabling the server-routed fallback means transfers only succeed where a direct
-route exists. Both depend on the `machines.transfer` control plane, so disabling
-that turns off both.
+禁用经由服务器路由的降级方案意味着传输仅在存在直连路由时才能成功。两种路线均依赖 `machines.transfer` 控制平面，因此一旦将其禁用，二者都会同时关闭。
 
-## Related
+## 相关内容
 
-- [Attachments](/apps/attachments)
-- [Files and the editor](/code/files-and-editor)
-- [Session handoff](/sessions/session-handoff)
-- [Environment variables](/self-hosting/env)
+- [附件](/apps/attachments)
+- [文件与编辑器](/code/files-and-editor)
+- [会话交接](/sessions/session-handoff)
+- [环境变量](/self-hosting/env)

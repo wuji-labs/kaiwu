@@ -1,27 +1,22 @@
 ---
-title: Contributing
-description: Building Kaiwu itself — the local stack, tests, and what CI expects.
+title: 参与贡献
+description: 构建 Kaiwu 本身——本地栈、测试及 CI 校验标准。
 ---
+本节面向 Kaiwu 的**开发人员**，而非普通使用者。如果你是为了使用 Kaiwu，请前往[从这里开始](/getting-started)。
 
-This section is for people working **on** Kaiwu rather than with it. If you
-are here to use Kaiwu, [Start here](/getting-started) is the page you want.
+Kaiwu 在单个代码库中划分为多个工作区运作，包含客户端、CLI 与守护进程、中继，以及各组件间的共享契约包。大多数改动都会波及多个模块，这正是本地栈的用武之地：它基于你本地检出的代码运行整套系统，便于你端到端地验证改动效果。
 
-Kaiwu runs as several workspaces in one repository — the clients, the CLI and
-daemon, the relay, and the shared contract packages between them. Most changes
-touch more than one, which is why the local stack exists: it runs the whole
-thing against your own checkout so you can see a change end to end.
-
-## Where to start
+## 从哪里开始
 
 <Cards>
-  <Card title="Local stack" href="/hstack/development" description="Run the server, CLI and app together against your own checkout." />
-  <Card title="Testing and CI" href="/development/testing" description="What the suites cover and what CI will hold you to." />
-  <Card title="App environment variables" href="/development/app-env" description="Expo-side configuration for the clients." />
-  <Card title="Desktop and web QA" href="/development/desktop-qa" description="Driving a real window when a change can only be judged by using it." />
-  <Card title="Dev box" href="/development/devcontainers" description="Running the CLI and daemon in a container, paired without a browser." />
+  <Card title="本地栈" href="/hstack/development" description="基于本地代码检出，同时运行服务器、CLI 与 App。" />
+  <Card title="测试与 CI" href="/development/testing" description="测试套件覆盖范围及 CI 的硬性检查要求。" />
+  <Card title="App 环境变量" href="/development/app-env" description="针对客户端的 Expo 侧配置。" />
+  <Card title="桌面端与 Web 端 QA" href="/development/desktop-qa" description="当变更只能通过实际体验来验证时，驱动真实窗口进行测试。" />
+  <Card title="开发机" href="/development/devcontainers" description="在容器中运行 CLI 和守护进程，无需浏览器直接配对。" />
 </Cards>
 
-## Related
+## 相关内容
 
-- [Release channels](/releases) — how a change reaches users.
-- [Release artifacts](/development/release-artifacts)
+- [发布渠道](/releases) —— 改动如何交付给用户。
+- [发布产物](/development/release-artifacts)

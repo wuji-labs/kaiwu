@@ -1,126 +1,110 @@
 ---
-title: Feature flags
-description: Every capability Kaiwu can gate, who controls it, and what it defaults to — generated from the feature catalog.
+title: 特性标志
+description: Kaiwu 可控制开关的所有能力、其控制方及默认状态——生成自特性目录。
 ---
+Kaiwu 的各项功能并非对所有人默认全量开启。一项能力可能受到三道关卡的管控；只有这三处判定全部通过，该功能才真正可用：
 
-Not everything Kaiwu can do is switched on for everybody. A capability can be
-gated in three places, and a feature is only usable when all three agree:
+1. **服务端**声明其支持的功能。自托管用户可通过 `HAPPIER_FEATURE_*` 环境变量进行配置；在 Kaiwu Cloud 上，这部分已由系统预先设定。
+2. **构建产物**可直接通过 `HAPPIER_BUILD_FEATURES_ALLOW` 与 `HAPPIER_BUILD_FEATURES_DENY` 禁用特定功能，不受服务端状态影响。
+3. **用户自行控制**：你可以在**设置 → 功能**（**Settings → Features**）中主动开启部分功能。
 
-1. **The server** advertises which features it supports. Self-hosters control
-   this with `HAPPIER_FEATURE_*` environment variables; on Kaiwu Cloud it is
-   set for you.
-2. **The build** can deny features regardless of the server, through
-   `HAPPIER_BUILD_FEATURES_ALLOW` and `HAPPIER_BUILD_FEATURES_DENY`.
-3. **You** turn some of them on in **Settings → Features**.
+功能目录中的所有功能均遵循**默认关闭（fail-closed）**原则：客户端若无法明确获知某项功能是否可用，便会直接将其视作不可用。正因如此，当服务端无法连接时，相关功能似乎会凭空消失；而自托管服务端如果配置有误，对应功能也会被直接隐藏，绝不会以半开启的异常状态呈现。
 
-Every feature in the catalog is **fail-closed**: if the client cannot get a
-clear answer about whether a feature is available, it treats it as unavailable.
-That is why a feature can seem to vanish when a server is unreachable, and why
-a misconfigured self-hosted server hides features rather than half-enabling them.
+功能目录中共有 72 项功能。其中 22 项配有用户可直接操作的开关；其余 50 项则在上游层级便已确定，无法手动切换。
 
-There are 72 features in the catalog. 22 of them have a switch you can
-reach; the other 50 are decided before you get there.
+## 可由用户自行开启的功能
 
-## Features you can turn on yourself
+这些功能位于**设置 → 功能**（**Settings → Features**）中。在这 22 项功能中，有 15 项被标记为实验性功能。
 
-These appear in **Settings → Features**. 15 of the 22 are marked experimental.
-
-| Feature | Id | Kind | Default |
+| 功能 | Id | 类型 | 默认状态 |
 | --- | --- | --- | --- |
-| **Attachment uploads** | `attachments.uploads` | Experimental | Off |
-| **Automations** | `automations` | Experimental | On |
-| **Channel bridges** | `channelBridges` | Experimental | Off |
-| **Connected services** | `connectedServices` | Experimental | Off |
-| **Connected services quotas** | `connectedServices.quotas` | Experimental | Off |
-| **Subagents** | `execution.runs` | Experimental | Off |
-| **Diff syntax highlighting** | `files.diffSyntaxHighlighting` | Standard | On |
-| **Embedded file editor** | `files.editor` | Standard | On |
-| **Rich markdown editor** | `files.markdownRichEditor` | Experimental | Off |
-| **File review comments** | `files.reviewComments` | Standard | On |
-| **Advanced syntax highlighting** | `files.syntaxHighlighting.advanced` | Standard | On |
-| **Memory search** | `memory.search` | Experimental | Off |
-| **Pets** | `pets.companion` | Standard | On |
-| **Source control operations** | `scm.writeOperations` | Experimental | Off |
-| **Direct sessions** | `sessions.direct` | Standard | On |
-| **Session folders** | `sessions.folders` | Standard | On |
-| **Friends** | `social.friends` | Experimental | Off |
-| **Embedded terminal** | `terminal.embeddedPty` | Experimental | Off |
-| **Usage reporting** | `usage.reporting` | Experimental | On |
-| **Voice** | `voice` | Experimental | Off |
-| **Voice agent** | `voice.agent` | Experimental | Off |
-| **Zen** | `zen.navigation` | Experimental | On |
+| **附件上传** | `attachments.uploads` | Experimental | Off |
+| **自动化** | `automations` | Experimental | On |
+| **渠道桥接** | `channelBridges` | Experimental | Off |
+| **已连接的服务** | `connectedServices` | Experimental | Off |
+| **已连接服务配额** | `connectedServices.quotas` | Experimental | Off |
+| **子 Agent** | `execution.runs` | Experimental | Off |
+| **Diff 语法高亮** | `files.diffSyntaxHighlighting` | Standard | On |
+| **内置文件编辑器** | `files.editor` | Standard | On |
+| **富文本 Markdown 编辑器** | `files.markdownRichEditor` | Experimental | Off |
+| **文件评审批注** | `files.reviewComments` | Standard | On |
+| **高级语法高亮** | `files.syntaxHighlighting.advanced` | Standard | On |
+| **记忆搜索** | `memory.search` | Experimental | Off |
+| **宠物** | `pets.companion` | Standard | On |
+| **版本控制操作** | `scm.writeOperations` | Experimental | Off |
+| **直连会话** | `sessions.direct` | Standard | On |
+| **会话文件夹** | `sessions.folders` | Standard | On |
+| **好友** | `social.friends` | Experimental | Off |
+| **内置终端** | `terminal.embeddedPty` | Experimental | Off |
+| **用量上报** | `usage.reporting` | Experimental | On |
+| **语音** | `voice` | Experimental | Off |
+| **语音 Agent** | `voice.agent` | Experimental | Off |
+| **Zen 模式** | `zen.navigation` | Experimental | On |
 
-Experimental toggles are hidden until you turn on the experiments switch at the
-top of that screen. If a page tells you to enable something here and you cannot
-find the row, that switch is almost always why.
+在该界面顶部开启“实验性功能”总开关之前，所有实验性选项均处于隐藏状态。若文档提示在此处开启某项功能，而你却找不到对应选项，通常都是因为该总开关尚未开启。
 
-A toggle only offers what the server already allows. Turning something on
-locally cannot enable a feature the server has not advertised.
+客户端开关仅能呈现服务端已允许的功能。如果服务端尚未声明某项能力，在本地强行开启开关也不会生效。
 
-## Features the server decides
+## 由服务端决定的功能
 
-These have no user-facing switch. A self-hoster sets them through the
-environment; on Kaiwu Cloud they are managed for you. `server` means the
-server owns the decision outright; `client` means the client owns the
-behaviour but still needs the server to advertise the capability.
+此类功能不提供面向用户的开关。自托管用户可通过环境变量对其进行配置；在 Kaiwu Cloud 上，这些功能均由平台统一托管。`server` 表示完全由服务端掌控判定逻辑；`client` 则表示具体行为由客户端掌控，但前提仍需服务端声明支持该能力。
 
-| Id | What it gates | Owned by | Depends on |
+| Id | 管控内容 | 归属方 | 依赖项 |
 | --- | --- | --- | --- |
-| `actions.approvals` | ActionSpec-driven approval request queue and inbox UI surfaces. | client | `inbox.global` |
-| `agent.goals` | Generalized agent session goal controls and work-state goal projection (umbrella over provider-specific goal sub-gates). | client | — |
-| `app.analytics` | Anonymous analytics and instrumentation (PostHog). | client | — |
-| `app.crashReports` | Crash reports and error telemetry (Sentry). | client | — |
-| `app.ui.changelog` | What’s New / changelog UI surfaces (banner, settings entry, changelog screen). | client | — |
-| `app.ui.onboardingShowcase` | First-launch onboarding story-deck modal (shares renderer with release notes). | client | — |
-| `app.ui.releaseNotes` | Curated release-notes story-deck modal (Notelet-style cards). Shares renderer with onboarding showcase. | client | — |
-| `app.ui.sessionGettingStartedGuidance` | Session getting-started guidance UI (includes CLI install instructions). | client | — |
-| `app.ui.storeReviewPrompts` | In-app store review prompts (native App Store / Play Store review sheet). | client | — |
-| `auth.login.keyChallenge` | Key-challenge login route availability (POST /v1/auth). | server | — |
-| `auth.mtls` | mTLS client certificate authentication support. | server | — |
-| `auth.pairing.desktopQrMobileScan` | Pairing session support for desktop/web QR → logged-out mobile scan sign-in. | server | — |
-| `auth.recovery.providerReset` | Auth provider reset support during recovery flows. | server | — |
-| `auth.ui.recoveryKeyReminder` | Recovery key reminder UI behavior. | server | — |
-| `bugReports` | Bug report submission and diagnostics capability. | server | — |
-| `channelBridges.telegram` | Telegram channel bridge provider. | server | `channelBridges` |
-| `connectedServices.accountFallback` | Connected service account group fallback and automatic active account switching APIs. | server | `connectedServices.accountGroups`, `sessions.usageLimitRecovery` |
-| `connectedServices.accountGroups` | Connected service account groups and member management APIs. | server | `connectedServices` |
-| `e2ee.keylessAccounts` | Keyless account support (accounts may omit E2EE signing keys). | server | — |
-| `encryption.accountOptOut` | Per-account encryption opt-out toggle support. | server | `encryption.plaintextStorage` |
-| `encryption.plaintextStorage` | Plaintext session storage support (no E2EE at rest). | server | — |
-| `inbox.global` | Global inbox aggregation surfaces (approvals, permissions, social, updates). | client | — |
-| `machines` | Machine control-plane transport capabilities. | client | — |
-| `machines.transfer` | Same-account machine transfer control plane. | client | `machines` |
-| `machines.transfer.directPeer` | Direct peer machine transfer capability. | server | `machines.transfer` |
-| `machines.transfer.serverRouted` | Server-routed machine transfer fallback capability. | server | `machines.transfer` |
-| `mcp.servers` | MCP servers management and injection support. | client | — |
-| `pets.sync` | Synced account pet library and cross-device pet package references. | server | — |
-| `prompts.assets.external` | External prompt assets import/export surfaces and daemon adapters. | client | `prompts.library` |
-| `prompts.library` | Prompt library (docs + skills bundles) stored as artifacts. | client | — |
-| `prompts.skills.registries` | Prompt/skills registries and marketplace integrations (registry-of-registries). | client | `prompts.library`, `prompts.assets.external` |
-| `providers.claude.unifiedTerminal` | Claude unified terminal runtime availability. | client | — |
-| `providers.claude.unifiedTerminal.tuiRuntimeControl` | Claude unified terminal TUI runtime-control controller (live model/effort/permission-mode controls). Falls back to restart/unsupported outcomes when disabled. | client | `providers.claude.unifiedTerminal` |
-| `providers.codex.appServer.goals` | Codex app-server native session goal controls and work-state projection (provider-specific sub-gate under the generalized agent.goals umbrella). | client | — |
-| `providers.codex.appServer.permissionProfiles` | Codex app-server permission profile transport. | client | `sessions.direct` |
-| `providers.codex.appServer.plugins` | Codex app-server readonly vendor plugin catalog and structured mentions. | client | `sessions.direct`, `prompts.skills.registries` |
-| `providers.codex.appServer.structuredInput` | Codex app-server structured turn inputs for text, images, skills, and vendor plugin mentions. | client | `sessions.direct`, `attachments.uploads` |
-| `session.media.generated` | Generated/provider/tool session media output substrate. | server | — |
-| `sessions` | Session-level product surfaces and control-plane capabilities. | client | — |
-| `sessions.agentSwitching` | Continue one Session in place with another coding Agent, and create configurable Sessions from a typed source-context recipe. | server | `sessions` |
-| `sessions.drafts` | Cross-device composer and new-session draft synchronization. | server | `sessions` |
-| `sessions.handoff` | Session handoff between machines. | server | `sessions` |
-| `sessions.usageLimitRecovery` | Session usage-limit recovery, wait/resume intent, and retry metadata APIs. | server | `sessions` |
-| `sharing.contentKeys` | Sharing content-key exchange support (E2EE sharing). | server | — |
-| `sharing.pendingDeliveryState` | Provider delivery-state materialization support for pending queue routes and fields. | server | `sharing.pendingQueueV2` |
-| `sharing.pendingQueueV2` | Pending queue v2 sharing/bridging surfaces and runtime. | server | — |
-| `sharing.public` | Public sharing link support for session content. | server | — |
-| `sharing.session` | Session sharing capability (share session with other users/devices). | server | — |
-| `updates.ota` | Expo over-the-air update checks and apply flows. | server | — |
-| `voice.happierVoice` | Kaiwu-hosted voice backend availability (server-configured voice). | server | `voice` |
+| `actions.approvals` | 基于 ActionSpec 驱动的审批请求队列及收件箱 UI 界面。 | client | `inbox.global` |
+| `agent.goals` | 通用 Agent 会话目标控制及工作状态目标投影（涵盖各提供商专属目标子开关的顶层门控）。 | client | — |
+| `app.analytics` | 匿名数据分析与埋点采集（PostHog）。 | client | — |
+| `app.crashReports` | 崩溃报告与错误遥测（Sentry）。 | client | — |
+| `app.ui.changelog` | “新功能特性”/更新日志 UI 界面（横幅、设置入口、更新日志页面）。 | client | — |
+| `app.ui.onboardingShowcase` | 首次启动引导故事卡片弹窗（与版本说明共用渲染器）。 | client | — |
+| `app.ui.releaseNotes` | 精选版本说明故事卡片弹窗（Notelet 风格卡片），与新手引导共用渲染器。 | client | — |
+| `app.ui.sessionGettingStartedGuidance` | 会话新手入门指引 UI（包含 CLI 安装说明）。 | client | — |
+| `app.ui.storeReviewPrompts` | 应用内商店评分提示（原生 App Store / Play Store 评价弹窗）。 | client | — |
+| `auth.login.keyChallenge` | 密钥质询登录路由可用性（POST /v1/auth）。 | server | — |
+| `auth.mtls` | mTLS 客户端证书认证支持。 | server | — |
+| `auth.pairing.desktopQrMobileScan` | 桌面端/Web 端二维码 → 未登录移动端扫码登录的配对会话支持。 | server | — |
+| `auth.recovery.providerReset` | 恢复流程中重置认证提供商的支持。 | server | — |
+| `auth.ui.recoveryKeyReminder` | 恢复密钥提醒的 UI 交互行为。 | server | — |
+| `bugReports` | Bug 报告提交与诊断能力。 | server | — |
+| `channelBridges.telegram` | Telegram 渠道桥接提供商。 | server | `channelBridges` |
+| `connectedServices.accountFallback` | 已连接服务的账户组回退与活动账户自动切换 API。 | server | `connectedServices.accountGroups`, `sessions.usageLimitRecovery` |
+| `connectedServices.accountGroups` | 已连接服务的账户组与成员管理 API。 | server | `connectedServices` |
+| `e2ee.keylessAccounts` | 无密钥账户支持（账户可免除端到端加密签名密钥）。 | server | — |
+| `encryption.accountOptOut` | 单账户退出加密选项支持。 | server | `encryption.plaintextStorage` |
+| `encryption.plaintextStorage` | 明文会话存储支持（静态数据不使用端到端加密）。 | server | — |
+| `inbox.global` | 全局收件箱聚合界面（审批、权限、社交、动态更新）。 | client | — |
+| `machines` | 设备控制平面传输能力。 | client | — |
+| `machines.transfer` | 同账户设备转移控制平面。 | client | `machines` |
+| `machines.transfer.directPeer` | 点对点设备直连转移能力。 | server | `machines.transfer` |
+| `machines.transfer.serverRouted` | 经由服务端路由的设备转移回退能力。 | server | `machines.transfer` |
+| `mcp.servers` | MCP 服务端管理与注入支持。 | client | — |
+| `pets.sync` | 多设备同步的账户宠物库及跨设备宠物包引用。 | server | — |
+| `prompts.assets.external` | 外部提示词资产导入/导出界面及守护进程适配器。 | client | `prompts.library` |
+| `prompts.library` | 以产物形式存储的提示词库（文档 + 技能包）。 | client | — |
+| `prompts.skills.registries` | 提示词/技能注册中心及市场集成（注册中心元聚合）。 | client | `prompts.library`, `prompts.assets.external` |
+| `providers.claude.unifiedTerminal` | Claude 统一终端运行时可用性。 | client | — |
+| `providers.claude.unifiedTerminal.tuiRuntimeControl` | Claude 统一终端 TUI 运行时控制器（动态调节模型、思考强度及权限模式）。禁用时回退至重启或不支持状态。 | client | `providers.claude.unifiedTerminal` |
+| `providers.codex.appServer.goals` | Codex 应用服务端的原生会话目标控制与工作状态投影（属于通用 agent.goals 门控下的提供商专属子开关）。 | client | — |
+| `providers.codex.appServer.permissionProfiles` | Codex 应用服务端的权限配置文件传输。 | client | `sessions.direct` |
+| `providers.codex.appServer.plugins` | Codex 应用服务端的只读厂商插件目录与结构化提及。 | client | `sessions.direct`, `prompts.skills.registries` |
+| `providers.codex.appServer.structuredInput` | Codex 应用服务端的结构化轮次输入，支持文本、图像、技能及厂商插件提及。 | client | `sessions.direct`, `attachments.uploads` |
+| `session.media.generated` | 生成内容/提供商/工具会话媒体输出底层基建。 | server | — |
+| `sessions` | 会话级产品交互界面与控制平面能力。 | client | — |
+| `sessions.agentSwitching` | 在当前位置切换至另一编程 Agent 继续会话，并基于类型化源码上下文配方创建可配置会话。 | server | `sessions` |
+| `sessions.drafts` | 跨设备输入框与新建会话草稿同步。 | server | `sessions` |
+| `sessions.handoff` | 跨设备会话交接。 | server | `sessions` |
+| `sessions.usageLimitRecovery` | 会话用量超限恢复、等待/继续意图及重试元数据 API。 | server | `sessions` |
+| `sharing.contentKeys` | 共享内容密钥交换支持（端到端加密共享）。 | server | — |
+| `sharing.pendingDeliveryState` | 待处理队列路由与字段的提供商投递状态物化支持。 | server | `sharing.pendingQueueV2` |
+| `sharing.pendingQueueV2` | 待处理队列 v2 共享/桥接界面与运行时。 | server | — |
+| `sharing.public` | 会话内容的公开共享链接支持。 | server | — |
+| `sharing.session` | 会话共享能力（支持与其他用户/设备共享会话）。 | server | — |
+| `updates.ota` | Expo OTA 更新检查与应用流程。 | server | — |
+| `voice.happierVoice` | Kaiwu 托管的语音后端可用性（服务端配置的语音服务）。 | server | `voice` |
 
-Where a feature depends on another, both must be enabled — enabling the
-dependant alone does nothing.
+若某项功能依赖于另一项功能，则二者必须同时开启——仅开启依赖方不会产生任何效果。
 
-## Related
+## 相关内容
 
-- [Environment variables](/self-hosting/env) — the `HAPPIER_FEATURE_*` variables that set these.
-- [Agent capabilities](/agents/capabilities) — what varies by agent rather than by flag.
+- [环境变量](/self-hosting/env) —— 用于配置这些开关的 `HAPPIER_FEATURE_*` 变量。
+- [Agent 能力](/agents/capabilities) —— 由 Agent 本身决定而非受功能开关控制的特性差异。

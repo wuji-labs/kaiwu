@@ -1,88 +1,63 @@
 ---
-title: Organizing sessions
-description: Folders, tags, pins and multi-select — how to keep a long session list navigable, and what carries across your devices.
+title: 组织会话
+description: 文件夹、标签、置顶与多选——如何让长会话列表保持清晰易览，以及哪些内容会在各设备间同步。
 ---
+当同时运行的会话超过几个时，列表管理就会成为难题。Kaiwu 提供四种整理方式，且全部存储在服务器端。无论是在笔记本电脑上排好的布局，还是在手机上查看，内容与顺序都能实时同步。
 
-Once you are running more than a handful of sessions, the list becomes the
-problem. Kaiwu gives you four ways to impose order on it, and all four are
-stored on the server, so the arrangement you build on your laptop is the one you
-see on your phone.
+文件夹功能默认开启。除非服务器管理员禁用了 `sessions.folders`，否则此处的所有功能均无需手动启用。
 
-Folders are on by default. Nothing here needs turning on unless your server
-operator has disabled `sessions.folders`.
+## 文件夹
 
-## Folders
+文件夹对会话的分组方式类似于目录组织文件，并支持多层嵌套。
 
-Folders group sessions the way directories group files, and they nest.
+- 支持创建、重命名、移动和删除，也可相互嵌套。
+- 将会话拖动到目标文件夹，或通过会话的右键菜单进行归类。
+- 将会话拖动到工作区根目录下，即可移出文件夹且不放入其他目录。
+- 聚焦指定文件夹即可只查看其内部内容，并通过面包屑导航随时返回。
+- 折叠当前无需处理的文件夹。
 
-- Create, rename, move and delete them, and nest one inside another.
-- Assign a session by dragging it onto a folder, or through the session's
-  context menu.
-- Drag a session onto the workspace root to take it out of a folder without
-  putting it in another.
-- Focus a folder to see only its contents, with breadcrumbs back out.
-- Collapse folders you are not working in.
+**删除文件夹不会删除其中的会话。** 会话会自动移至上一级父文件夹；若该文件夹已位于顶层，则直接移至工作区根目录。系统刻意未提供“连同内容一同删除”的选项——误删文件夹绝不应该导致工作丢失。
 
-**Deleting a folder does not delete its sessions.** They move up to the parent
-folder, or to the workspace root if the folder was top level. There is no
-variant that discards the contents, which is deliberate — a mis-click on a
-folder should never lose work.
+拖放操作在 Web、iOS 和 Android 端的体验保持一致，目标区域超出屏幕时同样支持拖拽滚动。若离线状态下的变更被服务器拒绝，移动操作将自动回滚，而不会在后台悄然产生分歧。
 
-Drag and drop works the same way on web, iOS and Android, including
-drag-scrolling when the target is off screen. If the server rejects a change
-you made while offline, the move rolls back rather than silently diverging.
+## 标签
 
-## Tags
+标签可跨文件夹使用。一个会话只能位于一个文件夹内，但可以打上多个标签。因此，标签非常适合用来标记跨项目的状态或主题——例如 `needs-review`、`flaky`、`customer-x`。
 
-Tags cut across folders. A session lives in exactly one folder but can carry
-several tags, so tags are the right tool for a state or a theme that spans
-projects — `needs-review`, `flaky`, `customer-x`.
+支持按单个或多个标签同时筛选。删除标签只会将其从所有打上该标签的会话中移除，会话本身不受影响。
 
-Filter by one tag or several at once. Deleting a tag removes it from every
-session that carried it and leaves the sessions alone.
+## 置顶
 
-## Pins
+将经常需要回访的少数关键会话置顶，它们便会始终停留在列表最上方，不受文件夹归属影响。
 
-Pin the few sessions you keep coming back to and they stay at the top of the
-list, above everything else, regardless of folder.
+长列表在首屏渲染时就会优先呈现置顶会话，无需滚动查找，这正是置顶的核心价值。归档会话会将其从置顶列表中移除，并释放占用的置顶配额。
 
-Pinned sessions appear during the first paint of a long list rather than after
-you scroll, which is the point of pinning them. Archiving a session removes it
-from the pinned list and gives the pin quota back.
+## 批量选择
 
-## Selecting several at once
+长按某一行或使用其菜单即可进入多选状态。随后可对所选会话进行批量归档、删除、移动、标记为已读或更改待处理状态。即便底层列表发生数据更新或滚动页面，已选状态也不会丢失。
 
-Long-press a row, or use its menu, to start a selection. Then archive, delete,
-move, mark read, or change attention handling for all of them together. The
-selection survives the list updating underneath you and survives scrolling.
+## 排序
 
-## Ordering
+在任意作用域内（置顶、文件夹、标签、工作区、分组），你都可以自定义排序方式，而不必局限于默认排序。该自定义顺序按作用域独立保存，因此调整某个文件夹内的排序不会影响其他文件夹。
 
-Within a scope — pinned, a folder, a tag, a workspace, a group — you can set
-your own order rather than accepting the default sort. That order is stored per
-scope, so the arrangement inside one folder does not disturb another.
+## 配额限制
 
-## Limits
+配额充裕，但非无限。各项限制均以单账户为单位：
 
-Generous, but not unbounded. Each is per account:
-
-| Thing | Limit |
+| 项目 | 配额限制 |
 | --- | --- |
-| Folders | 500 |
-| Tags | 500 |
-| Pinned sessions | 1000 |
-| Sessions kept in Needs attention | 500 |
-| Workspace and group labels | 1000 |
-| Sessions changed in one bulk action | 500 |
-| Custom order entries per scope | 1000 |
+| 文件夹 | 500 |
+| 标签 | 500 |
+| 置顶会话 | 1000 |
+| 保留在“需处理”中的会话 | 500 |
+| 工作区和分组标签 | 1000 |
+| 单次批量操作修改的会话数 | 500 |
+| 每个作用域内的自定义排序条目 | 1000 |
 
-These bound the snapshot every client parses on first paint, which is why they
-exist at all. A write past the limit is refused with an explanation rather than
-being accepted and silently dropped.
+设置这些限制，是为了约束每个客户端在首屏渲染时需要解析的快照大小。超出限制的写入请求会被明确拒绝并返回原因说明，而非静默接收并悄然丢弃。
 
-## Related
+## 相关内容
 
-- [Session read and unread state](/organize/session-read-state) — including
-  **Keep in Needs attention**, which is separate from unread.
-- [New session shortcuts](/sessions/new-session-shortcuts)
-- [Feature flags](/extras/feature-flags) — `sessions.folders`.
+- [会话已读与未读状态](/organize/session-read-state)——包括独立于未读状态的 **保留在“需处理”中**。
+- [新建会话快捷键](/sessions/new-session-shortcuts)
+- [功能特性开关](/extras/feature-flags)——`sessions.folders`。

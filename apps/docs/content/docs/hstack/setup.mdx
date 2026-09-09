@@ -1,105 +1,104 @@
 ---
-title: Setup
-description: Install hstack, choose a workspace, and initialize main/dev checkouts.
+title: 安装配置
+description: 安装 hstack，选择工作区，并初始化 main/dev 检出。
 ---
-
-## Prerequisites
+## 前置要求
 
 - Node.js
 - Yarn
-- Docker (recommended if you plan to use `happier-server` full flavor)
-- Tailscale (optional, but recommended for phone/remote access)
+- Docker（如果计划使用 `happier-server` 完整版本，建议安装）
+- Tailscale（可选，推荐用于手机或远程访问）
 
-## Install and initialize
+## 安装与初始化
 
-hstack can be run either:
+运行 hstack 有以下几种方式：
 
-- as an installed CLI (recommended once published), or
-- via `npx` (good for one-off setup), or
-- from a local checkout (maintainers / when the npm package isn’t published yet).
+- 作为已安装的 CLI 运行（发布后的推荐方式）
+- 通过 `npx` 运行（适合一次性配置）
+- 从本地检出代码运行（适合维护者，或 npm 包尚未发布时）
 
-### Guided setup (recommended)
+### 引导式设置（推荐）
 
-Development profile (recommended for contributors):
+开发配置（推荐贡献者使用）：
 
 ```bash
 hstack setup-from-source --profile=dev
 ```
 
-Self-host profile (stable / production-ish):
+自托管配置（稳定/类生产环境）：
 
 ```bash
 happier relay host install --mode system
 ```
 
-Legacy wrapper (still supported):
+旧版包装脚本（仍受支持）：
 
 ```bash
 hstack self-host install # forwards to `happier relay host install` when supported
 ```
 
-Enable auto-updates (opt-in) at install time:
+在安装时启用自动更新（需手动开启）：
 
 ```bash
 hstack self-host install --auto-update --auto-update-at=03:15
 ```
 
-You can also update the schedule after install:
+安装完成后也可以调整更新计划：
 
 ```bash
 hstack self-host config set --auto-update --auto-update-at=03:15
 ```
 
-Legacy alias (still supported):
+旧版别名（仍受支持）：
 
 ```bash
 hstack setup --profile=selfhost # deprecated; use setup-from-source or self-host install
 hstack setup-from-source --profile=selfhost
 ```
 
-### Use a different stable branch
+### 使用其他稳定分支
 
-By default, `setup-from-source` uses `main` for the stable `main/` workspace checkout. To target a different branch (for example `preview`):
+默认情况下，`setup-from-source` 会使用 `main` 检出稳定的 `main/` 工作区。若要指定其他分支（例如 `preview`）：
 
 ```bash
 hstack setup-from-source --profile=selfhost --stable-branch=preview
 ```
 
-This persists `HAPPIER_STACK_STABLE_BRANCH` in your user config so future bootstrap/review flows keep using the same branch.
+此操作会将 `HAPPIER_STACK_STABLE_BRANCH` 保存在用户配置中，以便后续的初始化引导与审查流程继续使用该分支。
 
-### Choose a workspace directory
+### 选择工作区目录
 
-The workspace is where hstack stores:
+工作区用于存放 hstack 的以下内容：
 
-- `main/` (stable checkout; treat as read-only)
-- `dev/` (dev branch checkout for development)
-- categorized worktrees:
+- `main/`（稳定分支检出；请视为只读）
+- `dev/`（用于开发的 dev 分支检出）
+- 按类别划分的工作树：
   - `pr/…`
-  - `local/<owner>/…`
-  - `tmp/<owner>/…`
+  - `local/⟦K12⟧/…`
+  - `tmp/⟦K13⟧/…`
 
-You can set it explicitly:
+可以显式指定目录：
 
 ```bash
 hstack setup-from-source --profile=dev --workspace-dir=~/Documents/Development/happier
 ```
 
-Or by env var:
+或者通过环境变量设置：
 
 ```bash
 export HAPPIER_STACK_WORKSPACE_DIR=~/Documents/Development/happier
 ```
 
-## Developing hstack itself (local CLI root)
+## 开发 hstack 本身（本地 CLI 根目录）
 
-When you’re iterating on the hstack source code inside the monorepo, you can point the installed shim at your local checkout:
+在 monorepo 内迭代 hstack 源码时，可以将已安装的垫片（shim）指向本地检出的代码：
 
 ```bash
 export HAPPIER_STACK_CLI_ROOT_DIR=~/Documents/Development/happier/dev/apps/stack
 hstack help
 ```
 
-To confirm what hstack is actually using on your machine, run:
+若要确认当前设备上 hstack 实际使用的版本与路径，请运行：
 
 ```bash
 hstack where

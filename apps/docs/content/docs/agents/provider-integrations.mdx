@@ -1,103 +1,102 @@
 ---
-title: Provider Integrations
-description: Use third-party routers, switchers, and plugins with Kaiwu (Claude Code + OpenCode).
+title: 提供商集成
+description: 搭配 Kaiwu（Claude Code + OpenCode）使用第三方路由、切换器与插件。
 ---
+Kaiwu 以子进程形式运行 **提供商 CLI**（例如 **Claude Code** 与 **OpenCode**），并将会话记录和状态同步到你的 Kaiwu 服务器，方便你从其他设备无缝接续。
 
-Kaiwu runs **provider CLIs** (for example: **Claude Code** and **OpenCode**) as subprocesses, then syncs transcripts/state to your Kaiwu server so you can continue from other devices.
+绝大多数第三方“集成”项目都可以归入以下两类：
 
-Most third-party “integration” projects fall into two buckets:
+1) **基于环境变量**：设置类似 `ANTHROPIC_BASE_URL` / `ANTHROPIC_AUTH_TOKEN` 的环境变量。
+2) **基于配置文件**：写入提供商 CLI 读取的配置文件（例如 `~/.claude/settings.json`）。
 
-1) **Environment-based**: they set env vars like `ANTHROPIC_BASE_URL` / `ANTHROPIC_AUTH_TOKEN`.
-2) **Config-file based**: they write config files that the provider CLI reads (for example `~/.claude/settings.json`).
+若想在 Kaiwu 中使用它们，唯一的要求是：**Kaiwu 启动的提供商 CLI 进程必须能够读取这些配置**。
 
-To use them with Kaiwu, the only requirement is: **those settings must be visible to the provider CLI process that Kaiwu spawns**.
+这一点不仅影响常规的提供商会话，也同样适用于每个提供商设置页中的**认证**模块。因为 Kaiwu 需要通过 CLI 运行环境、本地文件或提供商原生状态命令，来读取该设备本地的提供商认证状态。
 
-This matters both for normal provider sessions and for the **Authentication** section inside each provider settings page, because Kaiwu reads the same machine-local provider auth state from the CLI environment, local files, or provider-native status commands.
+如需了解 Kaiwu 内置的面向用户的 MCP 管理功能（包括 Kaiwu 托管的 MCP 服务器、已检测到的提供商原生 MCP 配置、配置预览、JSON 导入以及按会话选择 MCP），请参阅：
 
-For user-facing MCP management inside Kaiwu itself, including Kaiwu-managed MCP servers, detected provider-native MCP configs, preview, JSON import, and per-session MCP selection, see:
+- [MCP 服务器](/extending/mcp-servers)
 
-- [MCP servers](/extending/mcp-servers)
+## 环境变量如何传递给提供商进程
 
-## How env vars reach the provider process
+### 从终端启动的会话
 
-### Terminal-started sessions
+如果直接从终端启动会话，Kaiwu 会继承当前 shell 的环境变量，并透传给提供商进程。
 
-If you start a session from your terminal, Kaiwu inherits your shell environment and passes it through to the provider process.
+这意味着像 `eval "$(…)"` 这样仅导出环境变量的“激活”命令可以很好地工作：先执行激活命令，再运行 `happier` 即可。
 
-This means “activation” commands like `eval "$(…)"` (that only export env vars) work well: run the activation, then run `happier`.
+### 从客户端 / 远程启动的会话（守护进程）
 
-### UI / remotely-started sessions (daemon)
+当从应用远程启动会话时，由于脱离了交互式 shell 环境，提供环境变量的最可靠方式是：
 
-When you start sessions remotely (from the app), there is no interactive shell. The reliable way to provide env vars is:
+- **设置 → 配置文件**：创建或选择一个配置文件，并在其中配置相应的环境变量。
 
-- **Settings → Profiles**: create/select a profile and set the env vars there.
+守护进程启动提供商 CLI 进程时，会自动将该配置文件中的环境变量注入其中。
 
-Those profile env vars are passed to the provider CLI when the daemon spawns the process.
-
-For the full profile guide, see [Features → Profiles](/agents/profiles).
+关于配置文件的完整指南，请参阅[功能特性 → 配置文件](/agents/profiles)。
 
 ## Claude Code Router (`claude-code-router`)
 
-Claude Code Router runs a local server and makes Claude Code talk to it by setting `ANTHROPIC_BASE_URL` and a token.
+Claude Code Router 会启动一个本地服务，并通过设置 `ANTHROPIC_BASE_URL` 和 Token 让 Claude Code 与该服务通信。
 
-Recommended usage with Kaiwu:
+在 Kaiwu 中的推荐使用流程：
 
-1) Install + configure `claude-code-router`.
-2) Start the router service (`ccr start`).
-3) Configure env vars for Claude Code:
-   - Terminal flow: run the router’s activation command (for example `eval "$(ccr activate)"`), then start Kaiwu (`happier`).
-   - Remote/UI flow: create a **Claude** profile and set:
-     - `ANTHROPIC_BASE_URL` → your router URL (for example `http://127.0.0.1:3456`)
-     - `ANTHROPIC_AUTH_TOKEN` → the router API key/token (if configured)
+1) 安装并配置 `claude-code-router`。
+2) 启动路由服务（`ccr start`）。
+3) 为 Claude Code 配置环境变量：
+   - 终端流程：执行路由服务的激活命令（例如 `eval "$(ccr activate)"`），然后启动 Kaiwu（`happier`）。
+   - 远程 / 客户端流程：创建一个 **Claude** 配置文件，并配置：
+     - `ANTHROPIC_BASE_URL` → 你的路由服务地址（例如 `http://127.0.0.1:3456`）
+     - `ANTHROPIC_AUTH_TOKEN` → 路由服务的 API 密钥/Token（若已配置）
 
-Avoid `ccr code …` for Kaiwu usage: it launches Claude Code directly, which bypasses Kaiwu’s session syncing.
+在搭配 Kaiwu 使用时，请勿使用 `ccr code …`：它会直接启动 Claude Code，从而绕过 Kaiwu 的会话同步机制。
 
 ## Claude Code Switch (`claude-code-switch`)
 
-`claude-code-switch` provides:
+`claude-code-switch` 提供以下能力：
 
-- `ccm`: prints `export …` statements so you can switch providers *in the current shell*.
-- `ccc`: switches *and then execs `claude`* (a convenience launcher).
-- Optional persistence modes that write config files under `~/.claude/…` and/or `.claude/…` in a project.
+- `ccm`：输出 `export …` 语句，便于你在*当前 shell* 中切换提供商。
+- `ccc`：切换提供商*并随即执行 `claude`*（快捷启动器）。
+- 可选的持久化模式：在项目内的 `~/.claude/…` 和/或 `.claude/…` 下写入配置文件。
 
-Recommended usage with Kaiwu:
+在 Kaiwu 中的推荐使用流程：
 
-### Terminal flow (env-based)
+### 终端流程（基于环境变量）
 
-1) Install `claude-code-switch` and configure API keys (`ccm config`).
-2) Switch providers in your shell (example):
+1) 安装 `claude-code-switch` 并配置 API 密钥（`ccm config`）。
+2) 在当前 shell 中切换提供商（示例）：
    - `eval "$(ccm glm global)"`
-3) Start Kaiwu normally:
+3) 正常启动 Kaiwu：
    - `happier`
 
-Do **not** use `ccc …` with Kaiwu. `ccc` launches `claude` directly (bypassing Kaiwu). You want Kaiwu to be the process that spawns `claude`, with the switched env vars already set.
+在 Kaiwu 中**请勿**使用 `ccc …`。`ccc` 会直接启动 `claude`（绕过 Kaiwu）。正确做法应是由 Kaiwu 来生成已注入切换后环境变量的 `claude` 进程。
 
-### Remote/UI flow (Profiles)
+### 远程 / 客户端流程（配置文件）
 
-Create a **Claude** profile (Settings → Profiles) and set the same values that `ccm` would export, for example:
+创建一个 **Claude** 配置文件（设置 → 配置文件），并设置与 `ccm` 导出内容相同的值，例如：
 
 - `ANTHROPIC_BASE_URL`
 - `ANTHROPIC_AUTH_TOKEN`
-- (optional) `ANTHROPIC_MODEL` / `ANTHROPIC_SMALL_FAST_MODEL`
+- （可选）`ANTHROPIC_MODEL` / `ANTHROPIC_SMALL_FAST_MODEL`
 
-Then select that profile when you start a session from the app.
+随后在应用中启动会话时，选择该配置文件即可。
 
-### Persistence modes (advanced)
+### 持久化模式（进阶）
 
-If you prefer `claude-code-switch` to write `~/.claude/settings.json` (user-level) or `.claude/settings.local.json` (project-level), those can also work with Kaiwu because the provider CLI will read those files when it starts.
+如果你更倾向于让 `claude-code-switch` 写入 `~/.claude/settings.json`（用户级）或 `.claude/settings.local.json`（项目级），这种方式同样适用于 Kaiwu，因为提供商 CLI 启动时会自动读取这些文件。
 
-If you see provider settings “not sticking”, the simplest fix is to switch back to the env/profile approach above (it’s explicit and easy to debug).
+若遇到提供商设置“未生效”的情况，最简单的排查手段是换回上述环境变量/配置文件方案（直观且易于调试）。
 
 ## Oh My OpenCode (`oh-my-opencode`)
 
-`oh-my-opencode` is primarily an **OpenCode plugin/config installer**. Kaiwu runs OpenCode via ACP (`opencode acp`), so the general rule is:
+`oh-my-opencode` 本质上是一个 **OpenCode 插件/配置安装器**。Kaiwu 通过 ACP（`opencode acp`）运行 OpenCode，因此通用规则如下：
 
-- If `opencode` uses the plugin when you run it directly, it should behave the same when Kaiwu runs it.
+- 只要你直接运行 `opencode` 时能正常调用该插件，Kaiwu 运行它时的表现就会完全一致。
 
-Recommended usage with Kaiwu:
+在 Kaiwu 中的推荐使用流程：
 
-1) Install OpenCode.
-2) Install/configure `oh-my-opencode` (it typically updates your OpenCode config under `~/.config/opencode/…`).
-3) Start an OpenCode session in Kaiwu (OpenCode mode).
+1) 安装 OpenCode。
+2) 安装并配置 `oh-my-opencode`（通常会更新 `~/.config/opencode/…` 下的 OpenCode 配置）。
+3) 在 Kaiwu 中启动 OpenCode 会话（OpenCode 模式）。
 
-For remote/UI sessions, ensure **OpenCode and the plugin are installed on the target machine** (the machine running the daemon).
+对于远程 / 客户端会话，请确保**目标设备（即运行守护进程的设备）上已安装 OpenCode 及其插件**。

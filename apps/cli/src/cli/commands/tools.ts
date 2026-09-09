@@ -93,7 +93,7 @@ async function resolveToolsBaseContext(
   directory: string;
 }> {
   const credentials = await deps.readCredentials();
-  if (!credentials) throw new Error('Not authenticated. Run "happier auth login" first.');
+  if (!credentials) throw new Error('Not authenticated. Run "kaiwu auth login" first.');
 
   const sessionId = options?.requireSessionId === true
     ? requireFlagValue(args, '--session-id')
@@ -296,7 +296,7 @@ export async function handleToolsCommand(args: string[], overrides?: Partial<Too
       return;
     }
 
-    throw new Error('Usage: happier tools <list|call> ...');
+    throw new Error('Usage: kaiwu tools <list|call> ...');
   } catch (error) {
     if (!json) throw error;
     const mapped = mapUnknownErrorToControlError(error);

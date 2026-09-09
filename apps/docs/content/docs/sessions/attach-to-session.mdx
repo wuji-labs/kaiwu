@@ -1,236 +1,235 @@
 ---
-title: Attach to a running session
-description: Start a session from the Kaiwu app, attach to it later in your terminal, and switch between remote and local control.
+title: 接入正在运行的会话
+description: 从 Kaiwu 应用启动会话，稍后在终端中接入，并在远程与本地控制之间自由切换。
 ---
+本指南介绍如何在 Kaiwu 客户端中启动支持的会话，让其在设备上保持运行，之后再从终端重新连接该会话。
 
-This guide explains how to start a supported session from the Kaiwu app, leave it running on your machine, and then reconnect to that same session later from a terminal.
+该工作流主要用于：
 
-This is the main workflow behind:
+- 在离开终端时，从客户端界面启动会话；
+- 稍后使用 `happier attach ⟦K2⟧` 重新连接；
+- 在**远程控制**（来自 Kaiwu）与**本地控制**（来自终端中的提供商 TUI）之间切换同一会话。
 
-- starting a session from the app UI while you are away from your terminal,
-- reconnecting later with `happier attach <session-id>`, and
-- switching the same session between **remote control** (from Kaiwu) and **local control** (from the provider TUI in your terminal).
+## 适用场景
 
-## When to use it
+该工作流适用于以下场景：
 
-This workflow is useful when you want to:
+- 从 Web 端或桌面客户端启动会话；
+- 让智能体立即开始工作；
+- 稍后返回，在同一设备的 Shell 中继续操作；
+- 切回客户端，且不丢失会话历史记录。
 
-- start a session from the web or desktop app,
-- let the agent begin working immediately,
-- come back later and continue from a shell on the same machine,
-- switch back to the app without losing the session history.
+常见示例：
 
-Common examples:
+- 从客户端启动 **Codex** 或 **Claude** 会话，稍后从终端接入；
+- 从客户端启动 **OpenCode** 会话，之后在本地重新打开，无需创建第二个 Kaiwu 会话；
+- 从界面开始任务，需要直接使用提供商原生 TUI 时运行 `happier attach ⟦K3⟧`；
+- 让会话在后台运行，稍后重新连接，而无需启动新会话。
 
-- start a **Codex** or **Claude** session from the app, then attach later from your terminal,
-- start an **OpenCode** session from the app, then reopen it locally without creating a second Kaiwu session,
-- begin a task from the UI, then run `happier attach <session-id>` when you want to use the provider’s native TUI directly,
-- leave a session running in the background and reconnect later without starting a new one.
+## 接入机制
 
-## How attach works
-
-`happier attach` reconnects to a session that is already running.
+`happier attach` 用于重新连接正在运行的会话。
 
 ```bash
 happier attach
 happier attach <session-id>
 ```
 
-What happens depends on how that session was started:
+具体行为取决于会话的启动方式：
 
-- **tmux-backed session**: Kaiwu reattaches you to the live tmux session
-- **Windows Terminal session**: Kaiwu focuses the existing Windows Terminal host for that session
-- **Windows Console session**: Kaiwu brings the existing console host to the foreground
-- **provider-native attach session**: Kaiwu uses the provider’s own attach flow for that session
+- **基于 tmux 的会话**：Kaiwu 会将你重新接入运行中的 tmux 会话
+- **Windows Terminal 会话**：Kaiwu 会聚焦该会话现有的 Windows Terminal 宿主窗口
+- **Windows 控制台会话**：Kaiwu 会将现有的控制台宿主窗口置于前台
+- **提供商原生接入会话**：Kaiwu 会使用提供商自带的接入流程连接该会话
 
-`happier attach` reconnects to the existing session. It does not start a new one.
+`happier attach` 仅重连现有会话，不会启动新会话。
 
-If you run `happier attach` without a session id in a supported terminal, Kaiwu opens an interactive list of active sessions:
+若在受支持的终端中运行不带会话 ID 的 `happier attach`，Kaiwu 会打开活动会话的交互式列表：
 
-- attachable sessions on the current machine are selectable
-- active sessions that are visible but not attachable stay disabled with an explanation
-- remote-capable provider sessions are labeled as remote; press `P` to check reachability before attaching
+- 当前设备上可接入的会话可供选择
+- 可见但不可接入的活动会话将保持禁用状态，并附有说明
+- 支持远程的提供商会话会标记为 remote；在接入前按 `P` 可检查连通性
 
-Stopped sessions are not shown in this picker. Use [`happier resume`](/sessions/session-resume) for inactive sessions.
+已停止的会话不会显示在此选择器中。非活动会话请参阅 [`happier resume`](/sessions/session-resume)。
 
-## Requirements
+## 环境要求
 
-Attach support depends on the session type.
+接入功能的支持情况取决于会话类型。
 
-### tmux-backed sessions
+### 基于 tmux 的会话
 
-This is the classic attach flow for providers such as **Claude** and **Codex** on machines where `tmux` is available.
+这是在支持 `tmux` 的设备上，**Claude** 和 **Codex** 等提供商的经典接入流程。
 
-Requirements:
+要求：
 
-- the session must run on a machine where Kaiwu CLI/daemon is available,
-- `tmux` integration must be enabled before the session starts,
-- you must attach from the same machine that owns the running session,
-- you must be using the same Kaiwu account/server profile that started the session.
+- 会话必须运行在已安装并可用 Kaiwu CLI/守护进程的设备上；
+- 必须在会话启动前启用 `tmux` 集成；
+- 必须从运行该会话的同一台设备发起接入；
+- 必须使用启动该会话时相同的 Kaiwu 账号或服务器配置。
 
-`tmux` keeps the provider process alive after the app starts it, so Kaiwu can reconnect to it later.
+客户端启动提供商进程后，`tmux` 会保持其在后台存活，以便 Kaiwu 稍后重新连接。
 
-### Windows interactive-host sessions
+### Windows 交互式宿主会话
 
-On **Windows**, tmux is often not the right answer. Kaiwu also supports Windows-specific remote session modes:
+在 **Windows** 上，tmux 通常不是最佳方案。Kaiwu 针对 Windows 专门提供了以下远程会话模式：
 
-- **Hidden** — best for purely remote usage from the app
-- **Windows Terminal** — best when you want to come back later and continue in a Windows Terminal window
-- **Console** — starts the session in a regular visible console host
+- **Hidden**——最适合纯客户端远程使用
+- **Windows Terminal**——适合稍后返回并在 Windows Terminal 窗口中继续操作
+- **Console**——在常规的可见控制台宿主中启动会话
 
-If the session was started in **Windows Terminal** or **Console** mode, `happier attach <session-id>` focuses that existing interactive host instead of using tmux.
+如果会话以 **Windows Terminal** 或 **Console** 模式启动，`happier attach ⟦K4⟧` 会聚焦该现有交互式宿主，而无需使用 tmux。
 
-### Provider-native attach sessions
+### 提供商原生接入会话
 
-Some providers can attach through their own native session model.
+部分提供商可以通过自身的原生会话模型进行接入。
 
-For example, **OpenCode** can reopen a supported existing provider session without relying on tmux. In practice, this still means attaching from a terminal context that can reach the same underlying OpenCode machine/session.
+例如，**OpenCode** 无需依赖 tmux 即可重新打开受支持的现有提供商会话。在实际操作中，这仍需要从能访问到底层 OpenCode 设备/会话的终端环境中发起接入。
 
-## Choose how app-started sessions should launch
+## 选择客户端启动会话的运行方式
 
-### Enable tmux-backed starts
+### 启用基于 tmux 的启动模式
 
-Use this when you want tmux-backed attachable sessions on machines where tmux is available.
+当设备支持 tmux 且希望创建基于 tmux 的可接入会话时，请使用此模式。
 
-In the app:
+在客户端中：
 
-1. Open **Settings**
-2. Open **Session**
-3. Enable the **tmux integration** option
+1. 打开**设置**
+2. 打开**会话**
+3. 启用 **tmux integration** 选项
 
-Once enabled, new supported sessions started from the app are launched inside `tmux` so Kaiwu can reattach them later.
+启用后，从客户端启动的新支持会话会在 `tmux` 内运行，方便 Kaiwu 稍后重新接入。
 
-### Choose the default Windows mode
+### 选择 Windows 默认模式
 
-For Windows machines:
+对于 Windows 设备：
 
-1. Open **Settings**
-2. Open **Session**
-3. In the **Windows** section, choose the default remote session mode:
+1. 打开**设置**
+2. 打开**会话**
+3. 在 **Windows** 区域中，选择默认的远程会话模式：
    - **Hidden**
    - **Windows Terminal**
    - **Console**
 
-You can then refine that default in two places:
+你还可以在以下两处对默认设置进行更细粒度的调整：
 
-- **Per machine**: open the machine details screen and override the global Windows mode for that machine
-- **Per session**: in the new-session flow, use the Windows mode chip when the selected machine is Windows
+- **按设备指定**：打开设备详情页面，覆盖该设备的全局 Windows 模式
+- **按会话指定**：在新建会话流程中，当选定设备为 Windows 时，通过 Windows 模式标签进行设置
 
-Precedence is:
+优先级顺序为：
 
-1. per-session choice
-2. machine override
-3. global Windows default
+1. 单个会话设置
+2. 设备覆盖设置
+3. 全局 Windows 默认设置
 
-## Typical flow
+## 典型流程
 
-The most common flow looks like this:
+最常见的流程如下：
 
-1. Start the session in the Kaiwu app
-2. Use it normally in **remote** mode
-3. Run `happier attach <session-id>` on the owning machine
-4. Switch to **local** mode when you want direct provider-TUI control
-5. Continue working in the terminal
-6. Switch back to **remote** mode later to continue from the app
+1. 在 Kaiwu 客户端中启动会话
+2. 在**远程**模式下正常使用
+3. 在所属设备上运行 `happier attach ⟦K5⟧`
+4. 需要直接使用提供商 TUI 时，切换到**本地**模式
+5. 在终端中继续工作
+6. 稍后切回**远程**模式，在客户端中继续操作
 
-Starting local control is terminal-driven. To take local control, attach from the terminal on the owning machine with `happier attach <session-id>`.
+接管本地控制由终端驱动。如需接管本地控制，请在所属设备上的终端中运行 `happier attach ⟦K6⟧` 进行接入。
 
-If you send a message from the app while a Claude or Codex session is in local mode, Kaiwu queues it first instead of typing it into your terminal. If the local turn is still running, Kaiwu waits for that turn to finish, abort, or otherwise reach a safe boundary before switching the session back to remote processing and delivering the queued message.
+当 Claude 或 Codex 会话处于本地模式时，如果你从客户端发送消息，Kaiwu 会先将其加入队列，而不会直接键入终端。若本地轮次仍在运行，Kaiwu 会等待当前轮次结束、中止或达到安全边界后，再将会话切回远程处理并投递队列中的消息。
 
-## Remote control vs local control
+## 远程控制与本地控制
 
-The same session can move between two control styles:
+同一会话可以在两种控制模式之间切换：
 
-- **Remote control**: you interact from Kaiwu’s UI and Kaiwu drives the provider in the background
-- **Local control**: you interact from the provider’s own terminal UI after attaching locally
+- **远程控制**：在 Kaiwu 界面中交互，Kaiwu 在后台驱动提供商运行
+- **本地控制**：本地接入后，直接在提供商的原生终端 UI 中交互
 
-This is a control switch inside the same session, not a new session. The transcript, session id, and session settings stay the same.
+这是同一会话内部的控制权切换，并非新建会话。会话记录、会话 ID 和会话设置均保持不变。
 
-Remote-to-local control starts from the terminal with `happier attach`. Local-to-remote control can be requested from the app when the session is currently locally controlled. Kaiwu may wait until the current local turn is done before it takes remote control, because forcing a prompt into a busy terminal TUI could interrupt or abort the provider’s current work.
+从远程切换到本地控制需在终端中运行 `happier attach` 发起。当会话处于本地控制时，可从客户端请求切回远程控制。Kaiwu 可能会等待当前本地轮次执行完毕后再接管远程控制，因为强行向繁忙的终端 TUI 输入提示词可能会打断或中止提供商当前的工作。
 
-## Supported providers
+## 支持的提供商
 
 ### Claude
 
-- Claude supports local and remote control in Kaiwu.
-- In local mode, you use the normal Claude terminal UI directly.
-- App messages sent while Claude is locally controlled are queued and delivered after the current local turn reaches a safe stopping point.
-- On machines with `tmux`, this usually uses tmux-backed attach.
-- On Windows, use Kaiwu’s Windows remote session modes instead of expecting tmux.
-- If **local permission bridge** is enabled, some permission prompts can still appear in Kaiwu while the session is locally attached.
+- Claude 在 Kaiwu 中支持本地与远程控制。
+- 在本地模式下，可直接使用常规的 Claude 终端 UI。
+- 在 Claude 受本地控制期间从客户端发送的消息会进入队列，并在当前本地轮次达到安全停靠点后投递。
+- 在配备 `tmux` 的设备上，通常使用基于 tmux 的接入。
+- 在 Windows 上，请使用 Kaiwu 的 Windows 远程会话模式，而非依赖 tmux。
+- 若启用了**本地权限桥接**，在会话已本地接入的情况下，部分权限提示仍可在 Kaiwu 中弹出。
 
-See also: [Claude](/agents/claude)
+另请参阅：[Claude](/agents/claude)
 
 ### Codex
 
-- Codex supports app-started sessions plus later terminal attachment.
-- After attaching, you can switch into local control and continue from the Codex TUI directly.
-- App messages sent while Codex is locally controlled are queued and delivered after Codex finishes, aborts, or exits the current local turn.
-- On machines with `tmux`, this usually uses tmux-backed attach.
-- On Windows, use Kaiwu’s Windows remote session modes instead of expecting tmux.
-- Switching back to remote lets Kaiwu take over again without losing the session.
+- Codex 支持在客户端中启动会话，随后再从终端接入。
+- 接入后，你可以切换为本地控制，直接在 Codex TUI 中继续操作。
+- 在 Codex 受本地控制期间从客户端发送的消息会进入队列，并在 Codex 完成、中止或退出当前本地轮次后投递。
+- 在配备 `tmux` 的设备上，通常使用基于 tmux 的接入。
+- 在 Windows 上，请使用 Kaiwu 的 Windows 远程会话模式，而非依赖 tmux。
+- 切回远程模式后，Kaiwu 可重新接管，且会话不会丢失。
 
-See also: [Codex](/agents/codex)
+另请参阅：[Codex](/agents/codex)
 
 ### OpenCode
 
-- OpenCode supports app-started sessions plus later terminal attachment.
-- For supported sessions, Kaiwu can use OpenCode’s native attach flow instead of tmux.
-- OpenCode uses shared local control, so the app can remain writable while the OpenCode TUI is attached.
-- The session remains the same Kaiwu session while you move between remote and local/shared control.
+- OpenCode 支持在客户端中启动会话，随后再从终端接入。
+- 对于受支持的会话，Kaiwu 可以使用 OpenCode 原生接入流程，无需依赖 tmux。
+- OpenCode 采用共享本地控制模式，因此在接入 OpenCode TUI 的同时，客户端仍保持可写入状态。
+- 在远程与本地/共享控制之间切换时，会话始终是同一个 Kaiwu 会话。
 
-See also: [OpenCode](/agents/opencode)
+另请参阅：[OpenCode](/agents/opencode)
 
-## What happens to messages while switching
+## 切换过程中的消息处理机制
 
-Kaiwu keeps one canonical session state. During switching:
+Kaiwu 维护单一的标准会话状态。在模式切换期间：
 
-- transcript history remains shared,
-- permission mode follows the session,
-- queued messages stay attached to the session,
-- app-sent messages may wait in the pending queue if the session is not ready to process them immediately.
+- 会话记录历史保持共享；
+- 权限模式随会话保持一致；
+- 队列中的消息仍保留在会话中；
+- 若会话未处于可立即处理状态，客户端发送的消息会在等待队列中排队。
 
-This is expected. It prevents messages from being lost during mode switches or reconnects.
+这是预期行为，可避免在模式切换或重新连接期间丢失消息。
 
-For Claude and Codex local control, the pending queue also protects the current terminal turn. Kaiwu does not send a queued app message into the provider TUI while that TUI is busy. It waits for the local turn to complete or stop, then resumes remote control and processes the queued message from the same session.
+对于 Claude 和 Codex 的本地控制，等待队列还能保护当前终端轮次不受干扰。当提供商 TUI 处于繁忙状态时，Kaiwu 不会将排队的客户端消息发送至该 TUI，而是等待本地轮次完成或停止后，再恢复远程控制并在同一会话中处理队列中的消息。
 
-## Troubleshooting
+## 故障排查
 
-### `happier attach` does not find the session
+### `happier attach` 找不到会话
 
-Check that:
+请检查以下几项：
 
-- the session was started with an attachable mode before it began running,
-- the session was started on this same machine,
-- you are authenticated against the same Kaiwu server/account.
+- 会话在启动前是否配置为支持接入的模式；
+- 会话是否在当前设备上启动；
+- 是否已在同一 Kaiwu 服务器或账号下完成身份验证。
 
-### The session starts in the app but cannot be attached later
+### 会话在客户端中成功启动，但稍后无法接入
 
-This usually means one of the following:
+通常由以下原因之一导致：
 
-- the session was started in a non-attachable mode such as **Hidden** on Windows,
-- the session was not launched inside `tmux` on a tmux-based machine,
-- the Windows interactive host is no longer running,
-- the local machine/session ownership does not match the attach attempt.
+- 会话以不可接入的模式启动（如 Windows 上的 **Hidden** 模式）；
+- 在基于 tmux 的设备上，会话未在 `tmux` 内启动；
+- Windows 交互式宿主已停止运行；
+- 本地设备或会话所属权与接入请求不匹配。
 
-### On Windows, `Windows Terminal` is unavailable
+### 在 Windows 上，`Windows Terminal` 不可用
 
-If Kaiwu cannot use **Windows Terminal** on that machine:
+若 Kaiwu 在该设备上无法使用 **Windows Terminal**：
 
-- install or update Windows Terminal, or
-- choose **Console** or **Hidden** instead.
+- 安装或更新 Windows Terminal；或
+- 改选 **Console** 或 **Hidden** 模式。
 
-### The app briefly shows queued or waiting states during switching
+### 切换期间客户端短暂显示排队或等待状态
 
-Short “waiting”, “pending”, or “resume” states during local ↔ remote switching are normal. Kaiwu may wait for the provider process, transcript source, or daemon heartbeat to settle before the UI fully reflects the new mode.
+在本地 ↔ 远程切换过程中，出现短暂的“waiting”（等待中）、“pending”（待处理）或“resume”（恢复中）状态属于正常现象。Kaiwu 可能需要等待提供商进程、会话记录源或守护进程心跳稳定下来，界面才会完整呈现新模式。
 
-## Related guides
+## 相关指南
 
-- [Resume inactive sessions](/sessions/session-resume)
-- [Session settings](/sessions/session-settings)
+- [恢复非活动会话](/sessions/session-resume)
+- [会话设置](/sessions/session-settings)
 - [CLI](/apps/cli)
-- [Permissions](/sessions/permissions)
-- [Pending queue](/sessions/pending-queue)
+- [权限](/sessions/permissions)
+- [等待队列](/sessions/pending-queue)
 - [Windows](/apps/windows)
 - [Claude](/agents/claude)
 - [Codex](/agents/codex)

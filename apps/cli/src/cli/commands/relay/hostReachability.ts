@@ -4,7 +4,7 @@
  * `relay host install` binds a port and hands back the URL it bound — usually
  * `http://127.0.0.1:<port>`. That URL is the one thing a phone cannot use, so
  * the install has to settle the reachable address before the relay profile is
- * written and `happier auth login` binds an account to it.
+ * written and `kaiwu auth login` binds an account to it.
  *
  * Decision only: printing and profile writes stay with the command.
  */

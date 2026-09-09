@@ -1,136 +1,133 @@
 ---
-title: Continue with another Agent
-description: Switch the coding Agent running a session in place, keep the same session, and see what context was handed over.
+title: 换用其他 Agent 继续
+description: 原地切换正在运行会话的编程 Agent，保持同一会话，并查看交接了哪些上下文。
 ---
+通常情况下，一个 Kaiwu 会话的整个生命周期都由同一个编程 Agent 运行。**换用其他 Agent 继续**允许你在对话中途原地更换 Agent，无需新建会话。
 
-A Kaiwu session normally runs under one coding Agent for its whole life. **Continue with another Agent** lets you change that Agent in place, mid-conversation, without starting a new session.
+## 开发状态
 
-## Development status
+该功能目前仅存在于开发分支源码中，**尚未在已发布的 Kaiwu 版本中提供**。它尚未通过集成实机准入测试，因此下文描述的行为应视为当前的开发约定，而非最终发布的行为。可用性、文案及故障处理逻辑后续仍可能调整。
 
-This capability exists in the current development source and is **not yet available in released Kaiwu builds**. It has not passed an integrated live gate, so treat the behavior described below as the current development contract rather than as shipped behavior. Availability, copy, and failure handling can still change.
+该功能的保证范围很窄，有必要准确说明：
 
-The promise is narrow and worth stating exactly:
+- 会话仍是原会话，拥有相同的 ID、历史记录和设置
+- 当前 Agent 会被停止，由你选择的新 Agent 接管
+- 近期对话的有限摘要会以文本形式交接给新接入的 Agent
+- 切换操作在你发送消息时才会真正提交
 
-- the session stays the same session, with the same id, history and settings
-- the current Agent is stopped, and the Agent you chose takes over
-- a bounded summary of the recent conversation is handed to the arriving Agent as text
-- the message you send is what commits the switch
+这与以下操作不同：
 
-This is different from:
+- [会话交接](/sessions/session-handoff)：将当前会话迁移至**其他设备**，并保留原 Agent
+- [会话分叉与重放](/sessions/session-forking)：从当前会话分支派生出一个**新**会话
+- [模型与引擎选择](/agents/model-and-engine-selection)：为**新**会话选择引擎和模型
 
-- [Session handoff](/sessions/session-handoff), which moves a session to a **different machine** and keeps the same Agent
-- [Session forking & replay](/sessions/session-forking), which creates a **new** session branched from this one
-- [Model and engine selection](/agents/model-and-engine-selection), which chooses the engine and model for a **new** session
+## 功能入口
 
-## Where to find it
+打开正在运行的会话，在消息输入框中使用 Agent 选择器——也就是显示当前引擎和模型的同一个选择器。
 
-Open a running session and use the Agent picker in the message composer — the same picker that shows the current engine and model.
+选择器中列出了当前 CLI 可为该会话运行的所有 Agent。当前正在运行该会话的 Agent 会带有对应标识，并且依然可选，因为你也可以在该行中修改其模型与配置。
 
-The picker lists the Agents the current CLI can run for this session. The Agent currently running the session is marked as such and stays selectable, because that row is also where you edit its model and configuration.
+## 装载 Agent 并发送
 
-## Arm an Agent, then send
+选择另一个 Agent 即可将其**装载**。这一操作没有单独的确认步骤：
 
-Selecting another Agent **arms** it. There is no separate confirm step:
+1. 选中你想要的 Agent。该行会显示与新建会话选择器完全相同的模型、思考过程及配置选项，因此引擎和模型依旧保持联动选择。
+2. 详情面板会说明后续操作：*“你近期的对话会以文本形式延续；图片和文件不会继承。在你发送下一条消息之前，不会发出任何内容。”*
+3. 输入框的发送按钮会变为**换用 `{Agent}` 继续**。
+4. 输入你的消息并发送。点击发送即会停止当前 Agent 并启动选定的 Agent。
 
-1. Pick the Agent you want. Its row shows the same model, thinking and configuration options that the new-session picker shows for that Agent, so engine and model stay one decision.
-2. The detail pane states what will happen: *"Your recent conversation carries over as text; images and files don't. Nothing is sent until your next message."*
-3. The composer's send control changes to **Continue with `{Agent}`**.
-4. Type your message and send. That send stops the current Agent and starts the chosen one.
+如需取消，重新选中当前正在运行会话的 Agent 即可。你无需退出会话；在按下发送之前，不会发出任何内容。
 
-To cancel, reselect the Agent that is currently running the session. Leaving the session is not required, and nothing has been sent until you press send.
+装载状态仅在当前会话以及装载时运行的 Agent 范围内有效。如果在你操作期间会话底层的 Agent 发生变更，或服务器端禁用了该功能，已装载的状态会被直接丢弃，而不会隐式保留。
 
-An armed choice is scoped to this session and to the Agent that was running it when you armed. If the session's Agent changes underneath you, or the feature is turned off on your server, the arm is discarded rather than silently surviving.
+## 可用条件
 
-## When it is available
+只有当会话为**托管**会话、当前 Agent 在 Kaiwu 中可识别且**处于严格空闲状态**时，才能进行切换。会话记录的设备并不构成切换限制：由负责停止和激活的主体来决定当前 CLI 是否能执行对应的操作。对于处于冷不活跃状态的会话，一旦其规范的会话状态确认了这一事实，即视为已停止。
 
-The switch works only for a **hosted** session whose current Agent Kaiwu can name and is **strictly idle**. The Session's recorded machine is not a switch gate: the stop and activation owners determine whether this CLI can perform their work. A cold inactive Session counts as stopped once its canonical Session state confirms that fact.
+在以下情况下不可用：
 
-It is not available when:
+- **会话记录不由 Kaiwu 托管。** 在 Agent 自行维护存储的[直连会话](/sessions/continuing-a-session)中，不存在可供其他 Agent 延续的 Kaiwu 对话。
+- **你对该会话仅有只读权限。** 选择器会针对整个会话提示一次，而非对每个 Agent 分别提示。
+- **当前 Agent 仍在工作中。** 发送将被拒绝并提示：*“`{Agent}` 仍在工作中。未发送任何内容——请等待其完成后重试。”* 请等待当前轮次结束再重新发送。
+- **没有可访问的 CLI 能执行该操作，或对应的 CLI 版本低于该功能的要求。** Kaiwu 会尽量区分这两种情况；若确实无法判断，则会提示“请更新或重新连接”。
+- **目标为自定义 ACP 后端。** 已配置的 ACP 后端在选择器中依然可见，以确保各处的目录一致；但系统暂不支持原地切换到这类后端，并会提前拦截，而不是等到发送时才报错。
 
-- **The session's transcript is not hosted by Kaiwu.** A [direct session](/sessions/continuing-a-session), where the Agent owns its own store, has no Kaiwu conversation for another Agent to continue.
-- **You have read-only access to the session.** The picker says so once for the session rather than once per Agent.
-- **The current Agent is still working.** Send is refused with *"`{Agent}` is still working. Nothing was sent — try again once it finishes."* Wait for the turn to finish and send again.
-- **No reachable CLI can perform the operation, or its CLI is older than the feature.** Kaiwu distinguishes the two where it can, and says "update or reconnect" when it genuinely cannot tell.
-- **The target is a Custom ACP backend.** Configured ACP backends stay visible in the picker so the catalog reads the same everywhere, but in-place switching to them is not supported yet rather than failing at send time.
+切换操作绝不会将会话迁移到另一台设备。如需迁移设备，请使用[会话交接](/sessions/session-handoff)。
 
-The switch never moves a session to another machine. If you want that, use [session handoff](/sessions/session-handoff).
+## 切回之前使用过的 Agent
 
-## Switching back to an Agent you used before
+如果你切回**同一设备上**先前运行过该会话的 Agent，它会恢复自身的对话，而不是重新开始。Kaiwu 此时仅会重放该 Agent 离开期间发生的内容，因此不会向其重复灌输已知历史。
 
-If you switch back to an Agent that already ran this session **on the same machine**, it resumes its own conversation instead of starting a fresh one. Kaiwu then replays only what happened while that Agent was away, so it is not re-told history it already holds.
+由此引出两点：
 
-Two things follow from that:
+- 只有在该 Agent 自身的提供商会话恢复功能受支持且权限允许时，才会按此逻辑执行。如果你在设置中禁用了该 Agent、提供商根本不支持恢复，或者（对于 Codex）后端模式不支持恢复，系统都会回退为全新启动，并携带**完整**的延续上下文。参见[继续会话](/sessions/continuing-a-session)。
+- 当你切回时，Agent 自身的厂商会话可能已不复存在：提供商会对其会话存储进行修剪、轮换和过期清理。Kaiwu 不会对此进行预检。只有当提供商接受请求的原生标识时（包括无需重放种子的情形），记录的边界才会推进；仅凭提示词已送达或重放种子已停用，并不能作为成功恢复的凭据。严格恢复失败时，先前的边界保持不变，该标识也会失效，而不会再次被当作有效的原生恢复候选。
 
-- It only happens when that Agent's own provider-session resume is supported and allowed for you. An Agent you have disabled in settings, a provider that does not support resume at all, and — for Codex — a backend mode that does not offer it, all fall back to a fresh start with the **full** carried-over context instead. See [Continuing a session](/sessions/continuing-a-session).
-- The Agent's own vendor session can be gone by the time you return: providers prune, rotate and expire their session stores. Kaiwu does not pre-check it. The recorded boundary advances only when the provider accepts the requested native identity, including when no replay seed is needed; prompt delivery or replay-seed retirement alone is not that proof. A failed strict return leaves the earlier boundary unchanged and invalidates that identity instead of offering it again as a valid native return.
+## 新接入 Agent 获取的内容
 
-## What the arriving Agent is given
+新接入的 Agent 会收到一份有长度限制的纯文本简报。根据实际存在的内容，简报可能包括：
 
-The arriving Agent gets a bounded, text-only brief. Depending on what exists, it can include:
+- 一段简短的头部信息，说明这是同一个 Kaiwu 会话换由新 Agent 接管，并注明刚刚离开的 Agent 名称
+- 会话标题
+- 若是全新接入的 Agent，会明确提示前一个 Agent 自身的对话状态**不会**继承，后续内容为重放；若是切回的 Agent，则会恢复其自身原生对话，且只接收离开期间的增量内容
+- 前一个 Agent 正在追踪的内容（即其进行中的计划），会归属于该 Agent 并标记为已成过去
+- 你的最后一条指令；若该指令落在重放窗口之外，则会被置顶钉选
+- 对话末尾内容
+- 当窗口中的某部分内容无法读取时的说明提示
+- 读取其余内容的指引：如何获取完整的会话记录，以及在前一个 Agent 自身的会话日志仍保留在磁盘上时的读取方法
 
-- a short header saying this is the same Kaiwu session under a new Agent, and naming the Agent that just left
-- the session title
-- for a fresh arriving Agent, an explicit note that the previous Agent's own conversation state does **not** carry over, so what follows is a replay; a returning Agent instead resumes its own native conversation and receives only the away-delta
-- what the previous Agent was tracking — its in-flight plan — attributed to it and marked as past
-- your last instruction, pinned when it falls outside the replayed window
-- the tail of the conversation
-- a note when part of the window could not be read
-- pointers for reading the rest: how to fetch the full transcript, and the previous Agent's own session log when it is still on disk
+简报的大小受**字符数**而非消息条数限制，因此它截取的是对话末尾部分，而非全部对话——这也正是上述指引存在的原因。
 
-The brief is bounded by **characters**, not by message count, so it is a tail of the conversation rather than all of it — that is why the pointers matter.
+早期对话中的图片和文件不包含在简报中。随切换操作发送的新消息中的附件不受影响。
 
-Images and files from the earlier conversation are not part of the brief. Attachments on the message you send with the switch are unaffected.
+如果你尚未发送任何内容就进行切换，则没有任何可延续的上下文，选择器会显示相应提示，而不会展示常规说明。
 
-If you switch before sending anything, there is simply nothing to carry over, and the picker says so instead of the usual disclosure.
+## 会话记录分割线与“已交接的上下文”卡片
 
-## The transcript divider and the "Context handed over" card
+每次切换都会在会话记录中留下一条分割线，内容为 **“已将此会话从 `{A}` 切换至 `{B}` 继续”**。它标记了归属边界：分割线上方的消息归属于前一个 Agent，下方的消息归属于新 Agent。
 
-Every switch leaves a divider in the transcript reading **"Continued this Session from `{A}` to `{B}`"**. It marks the attribution boundary: messages above it are the previous Agent's, messages below are the new one's.
+点击分割线可打开**已交接的上下文**卡片。
 
-Tap the divider to open **Context handed over**.
+阅读该卡片时请务必了解一点：**系统并未存储任何内容用于回显。** 简报在新接入的 Agent 接收后即被丢弃。打开卡片时，执行重建的 CLI 会针对切换时记录的同一会话记录节点，重新运行相同的上下文处理流程，现场完成重建。
 
-Read this card knowing one thing about it: **nothing was stored to show you.** The brief is discarded as soon as the arriving Agent accepts it. The card rebuilds it on open, on the CLI performing the rebuild, by running the same context pass over the same point in the transcript that the switch recorded.
+卡片本身也说明了这一点，因为这直接决定了你该如何理解其内容：
 
-The card states this itself, because it changes how you should read it:
+> 当前根据此会话的会话记录重新生成，当时并未存储——因此可能与实际发送的内容存在差异。前一个 Agent 追踪的工作及其自身日志无法重建，因而未包含在内。
 
-> Rebuilt now from this Session's transcript, not stored at the time — so it can differ from what was sent. What the previous Agent was tracking, and its own log, can't be rebuilt, so they are left out.
+这两处省略皆为有意设计。前一个 Agent 追踪的工作及其会话日志属于该 Agent 自身的实时状态；切换时已被清空，后续 Agent 会在同一位置重新发布。若显示当前的值，则无异于宣称它们跨越了切换边界。
 
-Both omissions are deliberate. The previous Agent's tracked work and its session log are that Agent's own live state; the switch cleared them and the next Agent republishes into the same place. Showing today's values would claim they crossed the boundary.
+该卡片还提供了**跳转至所包含的最后一条消息**功能，可将会话记录滚动至简报所能覆盖的最新消息。
 
-The card also offers **Go to the last message included**, which scrolls the transcript to the newest message the brief could have carried.
+若设备不可达，或重建失败的原因可能不会再次出现，卡片会提供**重试**选项。
 
-If the machine is unreachable, or the rebuild fails for a reason that might not repeat, the card offers **Try again**.
+## 异常处理
 
-## When something goes wrong
+对于消息是否已发送、切换是否已发生，Kaiwu 均有明确的状态反馈。
 
-Kaiwu is explicit about whether your message was sent and whether the switch happened.
+- **未发送任何内容，未发生任何改变。** 原因可能包括：权限不足、会话不受支持、执行操作的 CLI 无法使用目标 Agent、在你选择期间会话发生变动、原 Agent 仍在运行，或原 Agent 无法停止。排除原因后重新发送即可——你的草稿会得以保留。
+- **前一个 Agent 已停止，但切换未完成。** 你的消息未发送。Kaiwu 会自动核对并协调当前会话的实际状态；你的草稿仍然可用，如果会话依然保留在原状态，直接按常规方式发送即等同于重试。
+- **会话已完成切换，但目标 Agent 未启动。** 你的原消息已进入队列，并将在会话恢复时投递；请勿重复发送。仅当会话已切换为目标且处于未激活状态时，才会提供原有的**恢复会话**操作。
+- **Kaiwu 无法确认处理结果。** 在状态明确之前，输入框会自动执行一次状态对齐，并拒绝新的发送请求，以避免重复发送消息的风险。
 
-- **Nothing was sent, nothing changed.** Wrong permissions, an unsupported session, a target that is not available to the CLI performing the operation, a session that changed while you were choosing, an Agent that was still working, or an Agent that could not be stopped. Fix the cause and send again — your draft is kept.
-- **The previous Agent stopped, but the switch did not complete.** Your message was not sent. Kaiwu reconciles the current Session facts automatically; your draft stays available and the ordinary send is the retry when the Session is still the source.
-- **The session switched but the target did not start.** Your exact message is already queued and will be delivered when the Session resumes; do not send it again. The existing **Resume session** action is offered only when the Session is already the target and inactive.
-- **Kaiwu could not confirm what happened.** While this is unresolved, the composer performs one automatic reconciliation and refuses new sends rather than risk sending your message twice.
+系统没有*检查状态*、*恢复源*或*恢复目标*控件，也没有恢复面板、轮询机制或第二重恢复状态机。除针对未激活目标的**恢复会话**外，输入框顶部的横幅不提供任何恢复操作。
 
-There is no *Check status*, *Resume source*, or *Resume target* control, recovery panel, polling, or
-second recovery state machine. Apart from **Resume session** for an inactive target, the composer
-banner offers no recovery action.
+重试同一次已装载的切换会复用同一个标识，因此重试只允许一条消息生效，不会产生重复投递。
 
-Retrying the same armed switch reuses the same identity, so a retry admits one message rather than a duplicate.
+一次发送只能对应一个目标。如果输入框当前已关联其他目标（例如语音适配器或委托运行），Kaiwu 会直接拒绝，而不是悄悄将消息投递到错误的位置，并提示你清除其中一项设置。
 
-One send has one destination. If the composer is already addressing something else — a voice adapter, or a delegated run — Kaiwu refuses instead of quietly delivering the message to the wrong place, and tells you to clear one of the two.
+## 运维指南
 
-## For operators
+该功能**由服务器声明支持且默认开启**。客户端采用故障闭锁（fail closed）设计：若服务器未声明支持该功能，选择器将完全不提供任何切换目标。
 
-The feature is **server-advertised and on by default**. Clients fail closed: if a server does not advertise it, the picker offers no switch targets at all.
-
-To turn it off for every client connected to a server:
+若要对连接到某台服务器的所有客户端禁用该功能：
 
 ```bash
 HAPPIER_FEATURE_SESSIONS_AGENT_SWITCHING__ENABLED=0
 ```
 
-Restart the server after changing this setting. Disabled or malformed server bits fail closed, and the mutation route rejects direct calls as unavailable rather than relying only on the picker.
+修改该设置后需重启服务器。被禁用或格式错误的服务器配置项均会触发故障闭锁，并且变更路由会直接拒绝未经选择器发起的直接调用并返回不可用，而不是仅仅依赖选择器做前端限制。
 
-The size of the carried-over brief is a daemon-side setting on the machine running the session. It is shared with forking and other replay-seeded flows, so changing it affects those too:
+所延续简报的大小是运行该会话的设备上的守护进程端设置。该设置与分叉及其他依赖重放种子的流程共享，因此对其进行修改也会影响这些流程：
 
 ```bash
 # Character budget for the carried-over context.
@@ -138,12 +135,12 @@ The size of the carried-over brief is a daemon-side setting on the machine runni
 HAPPIER_REPLAY_MAX_SEED_CHARS=120000
 ```
 
-The minimum is not arbitrary. Below roughly 800 characters the prompt builder correctly produces **no** brief at all rather than a frame with no conversation under it, so `1024` is the smallest value that can still deliver a usable brief.
+此处的最小值设定并非随意为之。低于大约 800 个字符时，提示词构建器会直接**不生成**任何简报，而不是生成一个没有对话内容的空框架；因此 `1024` 是仍能生成可用简报的最小值。
 
-## Related
+## 相关内容
 
-- [Session handoff](/sessions/session-handoff)
-- [Session forking & replay](/sessions/session-forking)
-- [Model and engine selection](/agents/model-and-engine-selection)
-- [Continuing a session](/sessions/continuing-a-session)
-- [Server feature flags](/extras/feature-flags)
+- [会话交接](/sessions/session-handoff)
+- [会话分叉与重放](/sessions/session-forking)
+- [模型与引擎选择](/agents/model-and-engine-selection)
+- [继续会话](/sessions/continuing-a-session)
+- [服务器功能标记](/extras/feature-flags)

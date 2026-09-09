@@ -1,212 +1,211 @@
 ---
-title: Model and engine selection
-description: Choose a backend engine, pick a model, use live model lists, and save favorite model choices for new sessions.
+title: 模型与引擎选择
+description: 选择后端引擎、挑选模型、使用实时模型列表，并为新会话保存偏好的模型选择。
 ---
+在 Kaiwu 应用界面中，运行会话所选用的后端称为**引擎**（engine）。
 
-Kaiwu uses **engine** in the app UI for the backend choice that will run a session.
+引擎可以是：
 
-An engine can be:
+- 内置的提供商后端，例如 Claude、Codex、Gemini、OpenCode 或 Pi
+- 配置好的**自定义 ACP**（Custom ACP）后端
+- 提供商集成所提供的后端变体
 
-- a built-in provider backend, such as Claude, Codex, Gemini, OpenCode, or Pi
-- a configured **Custom ACP** backend
-- a backend variant exposed by a provider integration
+引擎内部的**模型**（Model）区域用于控制由该提供商的哪个模型来运行会话。
 
-The **Model** section inside an engine controls which provider model should run the session.
+## 入口位置
 
-## Where to find it
+打开**新建会话**流程，使用底栏中的引擎选择器。
 
-Open the **new session** flow and use the engine picker in the bottom bar.
+选择器左侧显示可选引擎，右侧显示当前选中引擎的详细信息，包括：
 
-The left side of the picker shows engine choices. The right side shows the selected engine's details, including:
+- 模型选项
+- 提供商或 ACP 配置项
+- Kaiwu 探测所选设备时的刷新状态
+- 提供商开放的模型专属控制项
 
-- model choices
-- provider or ACP configuration options
-- refresh status when Kaiwu is probing the selected machine
-- model-specific controls, when the provider exposes them
+运行中的会话也可以在当前会话的输入设置中打开模型/配置选择器。收藏夹则属于**新建会话**引擎选择器的一部分。
 
-Running sessions can also show a model/config picker in the input settings for the current session. Favorites are part of the **new session** engine picker.
+在运行中的会话内部，该选择器还可以用来切换 Agent 本身——详见[使用其他 Agent 继续](/sessions/continue-with-another-agent)。
 
-Inside a running session, that same picker can also change the Agent itself — see [Continue with another Agent](/sessions/continue-with-another-agent).
+## 选择引擎
 
-## Choose an engine
+挑选用来启动会话的引擎。
 
-Pick the engine that should launch the session.
+列表具备能力感知特性：
 
-The list is capability-aware:
+- 已禁用的提供商或隐藏的后端不会出现
+- 配置好的 ACP 后端会作为常规引擎选项显示
+- 配置文件可以过滤兼容的引擎
+- 引擎详情会因设备、工作目录、配置文件以及连接服务状态的不同而有所差异
 
-- disabled providers or hidden backends do not appear
-- configured ACP backends appear as normal engine choices
-- profiles can filter which engines are compatible
-- engine details can vary by machine, working directory, profile, and connected-service state
+如果只有一个可用引擎，Kaiwu 会跳过大部分选择器界面，直接使用该引擎。
 
-If only one engine is available, Kaiwu can skip most of the picker chrome and use that engine directly.
+## 选择模型
 
-## Choose a model
+大多数模型选择器首项都是**使用 CLI 设置**（Use CLI settings）。
 
-Most model pickers start with **Use CLI settings**.
+如果你希望 Kaiwu 不要覆盖模型设置，而是由提供商 CLI/运行时依据自身配置决定，请使用此选项。
 
-Use this when you want Kaiwu to avoid setting a model override and let the provider CLI/runtime decide from its own settings.
+选择具体模型后，Kaiwu 会保存该选项用于启动会话。具体的生效行为取决于提供商和运行时：部分提供商可以在下一条提示词或通过 ACP 实时切换模型；其他提供商则只有在启动新的提供商进程时才会应用模型。
 
-When you choose a specific model, Kaiwu stores that selection for the session launch. The exact apply behavior depends on the provider and runtime. Some providers can change models on the next prompt or live through ACP; others only apply the model when a new provider process starts.
+关于运行中会话的生效时机，请参阅[权限](/sessions/permissions)。
 
-For running-session apply timing, see [Permissions](/sessions/permissions).
+## 动态模型列表
 
-## Live model lists
+部分引擎会动态暴露模型。Kaiwu 会探测所选的设备或后端，并列出该后端当前报告的模型。
 
-Some engines expose models dynamically. Kaiwu probes the selected machine/backend and shows the models that backend currently reports.
+这一机制非常实用，因为可用列表可能取决于：
 
-This matters because the available list can depend on:
+- 已安装的提供商 CLI 版本
+- 提供商是否已登录
+- 账户或订阅权益
+- 所选的连接服务配置文件
+- 自定义 ACP 后端的参数与环境变量
+- 提供商使用项目本地配置时所选的工作目录
 
-- the installed provider CLI version
-- whether the provider is logged in
-- account or subscription entitlements
-- selected connected-service profile
-- Custom ACP backend args and environment
-- the selected working directory, when the provider uses project-local config
+在更改提供商登录状态、CLI 配置、自定义 ACP 设置或工作目录后，请点击模型区域的刷新按钮。
 
-Use the refresh button in the model section after changing provider login state, CLI config, Custom ACP settings, or working directory.
+## 静态模型列表
 
-## Static model lists
+并非所有提供商都具备动态模型 API。
 
-Not every provider has a dynamic model API.
+对于仅支持静态列表的提供商，Kaiwu 会改用内置的提供商目录。Claude 就是典型代表：尽管其模型列表是静态的而非动态探测得出，但 Claude 模型依然可以正常选择与收藏。
 
-For static-only providers, Kaiwu uses its built-in provider catalog instead. Claude is the main example: Claude models can still be selected and favorited even though the model list is static rather than dynamically probed.
+当 Kaiwu 更新其提供商目录时，静态模型列表也会随之更新。
 
-Static model lists can still change when Kaiwu updates its provider catalog.
+## 自定义模型 ID
 
-## Custom model ids
+部分引擎支持输入自定义模型 ID。
 
-Some engines support entering a custom model id.
+如果明确知道具体的模型 ID，但该 ID 未显示在列表中，可以在对应的提供商或配置文件中使用此功能。
 
-Use this for providers or profiles where you know the exact model id but it is not shown in the list.
+注意事项：
 
-Important details:
+- Kaiwu 会将 ID 发送给提供商，依然由提供商决定该 ID 是否有效。
+- 自定义 ID 适用于兼容提供商协议的网关、自定义端点或新发布的模型。
+- 自定义 ID 不会自动成为收藏候选对象。收藏功能仅支持 Kaiwu 能从当前动态列表或静态目录中验证的模型。
 
-- Kaiwu sends the id to the provider; the provider still decides whether it is valid.
-- Custom ids are useful for provider-compatible gateways, custom endpoints, or newly released models.
-- A custom id is not automatically a favorite candidate. Favorites use models Kaiwu can verify from the current live list or static catalog.
+## 模型专属选项
 
-## Model-specific options
+部分模型会提供额外的控制项，例如思考（thinking）、推理（reasoning）、算力消耗（effort）或提供商专属模式。
 
-Some models expose extra controls, such as thinking, reasoning, effort, or a provider-specific mode.
+当存在这些控制项时，Kaiwu 会将其展示在所选模型的卡片内。它们属于所选引擎配置面板的一部分，并非独立的全局设置页面。
 
-When those controls exist, Kaiwu shows them inside the selected model card. They are part of the selected engine's configuration surface, not a separate global settings page.
+并非所有提供商都会提供这些选项，同一提供商旗下的不同模型所提供的选项也可能各不相同。
 
-Not every provider exposes these options, and not every model under the same provider exposes the same options.
+## 收藏模型
 
-## Favorite models
+收藏模型有助于整理出一份常用模型的精简列表。
 
-Favorite models help you keep a short list of model choices you use often.
+收藏模型的步骤：
 
-To favorite a model:
+1. 打开新建会话引擎选择器。
+2. 选择一个引擎。
+3. 选择一个具体模型。
+4. 点击所选模型卡片上的星标按钮。
 
-1. Open the new-session engine picker.
-2. Choose an engine.
-3. Select a concrete model.
-4. Use the star button on the selected model card.
+实心星标表示该模型已被收藏；空心星标表示可以添加收藏。
 
-The filled star means the model is already a favorite. The outline star means it can be added.
+默认的**使用 CLI 设置**选项无法收藏，因为它不是具体的模型选项。
 
-The **Use CLI settings** default is not favoritable because it is not a concrete model choice.
+## 收藏夹区域
 
-## Favorites section
+保存至少一个收藏模型后，引擎选择器的左侧栏会显示**收藏夹**（Favorites）区域。
 
-After you save at least one favorite model, the engine picker can show a **Favorites** section in the left rail.
+你可以借此直接跳转到已保存的引擎/模型组合，无需在长长的模型列表中翻找。
 
-Use it to jump directly to saved engine/model combinations without scanning a long model list.
+选择收藏项将会：
 
-Selecting a favorite:
+- 切换至该收藏对应的引擎
+- 应用该收藏对应的模型
+- 其余启动设置（例如配置文件、权限、模式和配置项）依然遵循普通新建会话的控制逻辑
 
-- switches to the favorite's engine
-- applies the favorite's model
-- keeps other launch settings, such as profile, permissions, modes, and config options, governed by the normal new-session controls
+收藏属于账户级设置。它们按后端身份标识和模型 ID 分别保存，因此同一个模型 ID 可以在两个不同的引擎或自定义 ACP 后端下分别独立收藏。
 
-Favorites are account settings. They are saved per backend identity and model id, so the same model id can be a separate favorite under two different engines or Custom ACP backends.
+## 取消收藏
 
-## Removing favorites
+点击实心星标即可取消收藏：
 
-You can remove a favorite by clicking the filled star:
+- 在常规模型列表中，当已收藏的模型可见时点击
+- 在**收藏夹**区域中点击
 
-- from the normal model list, when the favorited model is visible
-- from the **Favorites** section
+已收藏的模型会始终显示实心星标，无需先选中即可直接取消收藏。
 
-Already-favorited models keep showing the filled star so you can remove them without selecting them first.
+## 可用性规则
 
-## Availability rules
+收藏虽然已保存，但选用时依然取决于后端的当前状态。
 
-Favorites are saved, but selection still respects the current backend state.
+对于动态探测的引擎：
 
-For dynamically probed engines:
+- 只有当前探测报告该模型可用时，收藏项才可被选中
+- 若因认证变更、CLI 变动或提供商下架导致模型消失，Kaiwu 不会使用该不可用模型启动会话
+- 修复登录状态或配置后，请刷新探测
 
-- a favorite is selectable only when the current probe reports that model as available
-- if the model disappears because auth changed, the CLI changed, or the provider removed it, Kaiwu does not start a session with that unavailable model
-- refresh the probe after fixing login/configuration
+对于仅静态列表的引擎：
 
-For static-only engines:
+- 收藏项会对照 Kaiwu 的静态提供商目录进行校验
+- Claude 模型无需动态探测，即可直接从目录中收藏和选用
 
-- favorites are checked against Kaiwu's static provider catalog
-- Claude models can be favorited and selected from the catalog without a live model probe
+若保存的收藏项不再出现在当前的动态/静态模型列表中，Kaiwu 会将其保留在收藏夹区域并附带设置提示，以便你将其移除。在后端重新报告该模型前，该项将无法选用。
 
-If a saved favorite no longer appears in the current live/static model list, Kaiwu keeps it in the Favorites section with a setup hint so you can remove it. It will not be selectable until the backend reports it again.
+## 配置文件与后端兼容性
 
-## Profile and backend compatibility
+收藏项会遵循当前的引擎列表规则。
 
-Favorites respect the current engine list.
+如果选中的配置文件过滤掉了某个引擎，那么在当前选择器状态下，该不兼容引擎对应的收藏项会在收藏夹区域中隐藏。
 
-If a selected profile filters out an engine, favorites for that incompatible engine are hidden from the Favorites section for that picker state.
+这样可以确保收藏夹区域始终聚焦于适合当前启动配置的选项。
 
-This keeps the Favorites section focused on choices that make sense for the current launch configuration.
+## 收藏不保存的内容
 
-## What favorites do not store
+收藏项仅保存“引擎/模型”配对，无法替代配置文件或后端设置。
 
-A favorite stores the engine/model pair. It does not replace profiles or backend settings.
+收藏不保存以下内容：
 
-Favorites do not store:
+- API 密钥或连接服务凭据
+- 环境变量
+- 工作目录
+- 权限模式
+- 会话模式
+- 推理力度（reasoning effort）等模型专属控制项
 
-- API keys or connected-service credentials
-- environment variables
-- working directory
-- permission mode
-- session mode
-- model-specific controls such as reasoning effort
+如需复用环境、密钥、端点和后端默认配置，请使用[配置文件](/agents/profiles)。
 
-Use [Profiles](/agents/profiles) for reusable environment, secret, endpoint, and backend-default setup.
+## 常见使用场景
 
-## Common use cases
+在以下场景中推荐使用模型收藏功能：
 
-Use favorite models when you want to:
+- 常用 Claude、Codex 或 Gemini 模型，希望一键直达
+- 需要在轻量快速模型与深度推理模型之间迅速切换
+- 为多个自定义 ACP 后端保存各自常用的模型
+- 不想在冗长的动态模型列表中反复翻找
+- 提供商登录或权益问题暂时导致模型隐藏时，仍想保留该收藏配置
 
-- keep your normal Claude, Codex, or Gemini model one click away
-- quickly switch between a fast model and a deeper reasoning model
-- save favorite models for several Custom ACP backends
-- avoid scrolling through a long live model list
-- preserve a favorite while a provider login or entitlement issue is temporarily hiding it
+## 故障排查
 
-## Troubleshooting
+### 收藏项可见但无法启动
 
-### A favorite is visible but does not start
+模型配置已保存，但当前后端未报告其可用。
 
-The model is saved, but the current backend does not report it as available.
+请检查提供商登录状态、连接服务配置文件、自定义 ACP 配置以及所选设备，随后刷新模型探测。
 
-Check the provider login, connected-service profile, Custom ACP config, and selected machine. Then refresh the model probe.
+### 收藏项从左侧栏消失
 
-### A favorite disappeared from the left rail
+收藏夹区域仅显示当前可见且与选择器状态兼容的引擎收藏。
 
-The Favorites section only shows favorites for engines that are currently visible and compatible with the picker state.
+请检查是否有选中的配置文件或功能设置隐藏了对应的引擎。
 
-Check whether a selected profile or feature setting is hiding that engine.
+### 无法收藏自定义模型 ID
 
-### I cannot favorite a custom model id
+收藏功能仅支持 Kaiwu 能从动态探测或静态目录中验证的具体模型。
 
-Favorites are limited to concrete models Kaiwu can verify from a dynamic probe or static catalog.
+临时 ID 请直接使用自定义模型输入框。如果提供商后续在其模型列表中列出了该 ID，届时便可加入收藏。
 
-Use the custom model entry for one-off ids. If the provider later reports that id in its model list, it can become favoritable.
+## 相关指南
 
-## Related guides
-
-- [Profiles](/agents/profiles)
-- [Custom ACP](/agents/custom-acp)
-- [Provider authentication](/agents/provider-authentication)
-- [Permissions](/sessions/permissions)
-- [Session modes](/sessions/session-modes)
-- [Continue with another Agent](/sessions/continue-with-another-agent)
+- [配置文件](/agents/profiles)
+- [自定义 ACP](/agents/custom-acp)
+- [提供商认证](/agents/provider-authentication)
+- [权限](/sessions/permissions)
+- [会话模式](/sessions/session-modes)
+- [使用其他 Agent 继续](/sessions/continue-with-another-agent)

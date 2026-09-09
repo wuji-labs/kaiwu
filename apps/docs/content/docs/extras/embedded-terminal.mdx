@@ -1,167 +1,166 @@
 ---
-title: Embedded terminal
-description: Use the connected machine terminal directly inside Kaiwu, including the bottom panel, sidebar, details panel, and mobile behavior.
+title: 嵌入式终端
+description: 直接在 Kaiwu 中使用已连接设备的终端，包括底部面板、侧边栏、详情面板以及移动端行为。
 ---
+Kaiwu 可以在应用界面中直接调出当前会话的实时终端。
 
-Kaiwu can show a live terminal for the current session directly inside the app UI.
+无需离开当前会话，即可快速运行 Shell 命令、查看项目状态、追踪日志，或直接打开识别到的本地 URL。
 
-This is useful when you want to run quick shell commands, inspect project state, follow logs, or open detected local URLs without leaving the session.
+该终端底层能力还复用于提供商设置中的**提供商登录流程**。
 
-The same terminal foundation is also reused for **provider login flows** from provider settings.
+## 功能特性
 
-## What it does
+- 开启由已连接的 Kaiwu 守护进程支持的实时 Shell。
+- 将终端作为当前会话的一部分，而非独立脱节的外部工具。
+- 在不同面板位置间移动终端时，复用同一个终端会话。
+- 在常规页面跳转或刷新后，仍保留该会话的终端状态。
 
-- Opens a live shell backed by your connected Kaiwu daemon.
-- Treats the terminal as part of the current session, not as a separate detached tool.
-- Reuses the same terminal session when you move it between panel locations.
-- Preserves the terminal across normal navigation and page refresh for that session.
+## 终端呈现位置
 
-## Where the terminal can appear
+在**设置 → 功能特性 → 嵌入式终端位置**中选择首选位置：
 
-Choose a preferred location in **Settings → Features → Embedded terminal location**:
+- **底部面板**——Web 端与平板端的推荐默认选项，最适合展示宽屏命令输出。
+- **侧边栏**——适合需要将终端与会话记录并排展示的场景。
+- **详情面板**——适合将终端作为当前会话的辅助详情视图。
 
-- **Bottom panel** — the recommended default on web/tablet; best for wide command output.
-- **Sidebar** — useful when you want the transcript and terminal visible side by side.
-- **Details panel** — useful when the terminal is a secondary detail view for the current session.
+在手机端，Kaiwu 会采用更专注的终端视图，而不是强行在屏幕上同时保留桌面端风格的停靠面板。
 
-On phones, Kaiwu uses a more focused terminal presentation instead of trying to keep desktop-style docked panels on screen at the same time.
+## 如何打开终端
 
-## How to open it
+1. 打开一个会话。
+2. 点击会话顶栏中的**终端**按钮。
+3. Kaiwu 会在所选的停靠位置打开终端。
 
-1. Open a session.
-2. Use the **Terminal** button in the session header.
-3. Kaiwu opens the terminal in your selected dock location.
+在终端工具栏中，你可以：
 
-Inside the terminal toolbar you can:
+- 将终端移动到其他停靠位置；
+- 清除当前可见的记录；
+- 重启终端会话；
+- 关闭当前终端视图。
 
-- move it to another dock location,
-- clear the visible transcript,
-- restart the terminal session,
-- close the current terminal surface.
+## 底部面板行为
 
-## Bottom panel behavior
+底部面板是会话布局中的独立面板区域，并非临时的终端浮层。
 
-The bottom panel is a real panel region in the session layout, not a one-off terminal overlay.
+### 调整大小行为
 
-### Resize behavior
+- 拖拽底部面板的上边缘即可调整高度。
+- 若屏幕高度足以同时容纳主体内容与底部面板，面板将保持**停靠**状态。
+- 若面板高度过大、无法与主体内容并存，Kaiwu 会自动将其切换为**浮层**。
+- 再次缩小面板高度后，它会恢复为停靠布局。
 
-- Drag the top edge of the bottom panel to resize it.
-- If the screen still has enough height for both the main content and the bottom panel, the panel stays **docked**.
-- If the panel becomes too tall to fit beside the main content, Kaiwu automatically switches it to an **overlay**.
-- If you shrink it again, it returns to the docked layout.
+### 浮层行为
 
-### Overlay behavior
+当底部面板以浮层形式呈现时：
 
-When the bottom panel is shown as an overlay:
+- 面板将悬浮在会话内容上方；
+- 点击遮罩背景即可将其关闭；
+- 当焦点未落在终端文本输入区时，按 **Escape** 键即可关闭。
 
-- it appears above the session content,
-- tapping the scrim closes it,
-- pressing **Escape** closes it when focus is outside terminal text input.
+## 会话连续性
 
-## Session continuity
+嵌入式终端归属于对应会话；即便在面板间切换位置，使用体验也完全连贯。
 
-The embedded terminal is meant to feel like one session-owned terminal, even if you move it around.
+其具体表现如下：
 
-What to expect:
+- 在**底部**、**侧边栏**与**详情**面板间切换时，底层终端会话保持不变。
+- 终端打开时刷新页面，Kaiwu 会自动恢复已打开的面板，并重新连接至该会话的同一终端。
+- 重新进入某个会话时，会恢复该会话的终端状态。
+- 不同会话之间**不会**自动继承彼此的终端状态。
 
-- Switching between **bottom**, **sidebar**, and **details** keeps the same underlying terminal session.
-- Refreshing the page with the terminal open restores the open panel and reconnects to the same terminal for that session.
-- Returning to a session restores that session’s terminal state.
-- A different session does **not** automatically inherit another session’s terminal state.
+## 移动端行为
 
-## Mobile behavior
+在移动端和原生客户端上，Kaiwu 通过内嵌的 WebView 终端界面渲染终端。
 
-On mobile/native clients, Kaiwu renders the terminal through an embedded WebView terminal surface.
+它提供以下能力：
 
-That gives you:
+- 实时终端输入与输出；
+- 窗口尺寸自适应；
+- 重启与清屏操作；
+- 识别到的 URL 快速复制与打开；
+- 移动端快捷键（需设备支持）。
 
-- live terminal input and output,
-- resize handling,
-- restart and clear actions,
-- detected URL copy/open actions,
-- mobile quick keys where supported.
+在采用默认 **Cockpit** 会话布局的手机端上，只有在满足以下全部条件时，“终端”才会作为底部会话标签页出现：
 
-On phone layouts using the default **Cockpit** session layout, Terminal appears as a bottom session tab when all of these are true:
+- 已开启“嵌入式终端”功能；
+- 所选的终端位置支持会话标签页；
+- 当前会话解析至可访问的目标设备。
 
-- the Embedded terminal feature is enabled,
-- the selected terminal location supports a session tab,
-- the current session resolves to a reachable machine target.
+若终端标签页不可用，Kaiwu 会直接隐藏它，避免展示空白异常的标签页。此时可以通过会话顶栏的终端按钮打开，或修改嵌入式终端的位置设置。
 
-If the terminal tab is not available, Kaiwu hides it instead of showing a broken empty tab. In that case, use the session header terminal action or change the embedded-terminal location setting.
+在 Cockpit 模式下，终端保留常规的会话顶栏和安全区边距，在终端、文件、Git、标签页与 Agent 聊天之间切换时，也不会将每次标签页切换都推入返回栈。
 
-In Cockpit, the terminal keeps the normal session header and safe-area spacing, and switching between Terminal, Files, Git, Tabs, and the agent chat does not add every tab switch to the back stack.
+在**经典**（Classic）移动布局中，终端呈现为独立的专注终端屏幕，而非桌面端的多分栏布局。
 
-In the **Classic** mobile layout, the terminal still behaves more like a focused terminal screen than a multi-pane desktop layout.
+## 环境要求
 
-## Requirements
+使用嵌入式终端需满足以下条件：
 
-The embedded terminal depends on all of the following:
+- 在**设置 → 功能特性**中已启用**嵌入式终端**开关；
+- 目标控制设备上的**守护进程正在运行并已连接**；
+- 当前会话解析至可访问的目标设备。
 
-- the **Embedded terminal** feature toggle is enabled in **Settings → Features**,
-- your **daemon is running and connected** for the machine you want to control,
-- the current session resolves to a reachable machine target.
+若守护进程离线或目标设备不可用，Kaiwu 将显示终端错误状态，而非可用的实时 Shell。
 
-If the daemon is offline or the machine target is unavailable, Kaiwu shows a terminal error state instead of a live shell.
+## 注意事项
 
-## Important things to know
+- 命令将在当前会话所连接的目标设备上执行。
+- 嵌入式终端最适合处理会话关联任务：运行简短 Shell 命令、执行本地脚本、查看日志、检查 Git 状态，以及打开工具或开发服务器输出的链接。
+- 守护进程或 RPC 出现短暂波动后，终端界面可自动重连。
+- 识别到的本地 URL 会以横幅形式展示，方便快速打开或复制。
 
-- Commands run on the connected machine for the current session.
-- The embedded terminal is best for session-adjacent work: quick shell commands, local scripts, logs, git inspection, and following links emitted by tools or dev servers.
-- The terminal surface can reconnect automatically after short-lived daemon/RPC hiccups.
-- Detected local URLs can appear as a banner so you can open or copy them quickly.
+## 常见使用场景
 
-## Common use cases
+- 边浏览会话记录，边运行 `git status`、`git diff` 或项目脚本。
+- 启动本地开发服务器，并直接从终端横幅中打开识别到的 URL。
+- 在保持主会话记录可见的同时追踪实时日志。
+- 在不同面板布局间切换时，保持当前会话的 Shell 历史记录不丢失。
+- 无需离开 Kaiwu，即可直接在设置中调出提供商登录流程。
 
-- Run `git status`, `git diff`, or project scripts while reading the transcript.
-- Start a local dev server and open the detected URL from the terminal banner.
-- Follow logs while keeping the main transcript visible.
-- Keep one session’s shell history open while moving between panel layouts.
-- Open a provider login flow from settings without leaving Kaiwu.
+## 提供商登录终端
 
-## Provider login terminal
+当提供商支持在 Kaiwu 中进行原生 CLI 登录时，应用将复用会话终端相同的传输层与面板系统打开该登录流程。
 
-When a provider supports native CLI login from Kaiwu, the app opens that login flow with the same terminal transport and pane system used for session terminals.
+保持一致的体验包括：
 
-What stays consistent:
+- 共用已连接设备的终端会话模型
+- 支持复制/打开操作的 URL 识别横幅
+- 重启、清屏与关闭操作
+- 大屏布局下的底部面板展示
+- 小屏布局下的专注全屏展示
 
-- the shared connected-machine terminal session model
-- detected URL banners with copy/open actions
-- restart, clear, and close actions
-- bottom-pane presentation on larger layouts
-- focused presentation on smaller layouts
+提供商登录流程详见 [提供商认证](/agents/provider-authentication)。
 
-Provider login flows are documented in [Provider authentication](/agents/provider-authentication).
+## 故障排查
 
-## Troubleshooting
+### 已启用该功能，但终端仍未打开
 
-### I enabled the feature but the terminal still does not open
+请检查：
 
-Check:
+- **嵌入式终端**开关是否已开启；
+- 守护进程是否正在运行；
+- 会话是否已关联到可访问的设备；
+- 当前使用的服务器配置档是否与已连接的守护进程一致。
 
-- the **Embedded terminal** toggle is enabled,
-- the daemon is running,
-- the session is attached to a reachable machine,
-- you are on the same server profile as the daemon you connected.
+关于守护进程的配置与生命周期命令，请参阅 [守护进程](/apps/daemon)。
 
-For daemon setup and lifecycle commands, see [Daemon](/apps/daemon).
+### 终端已打开，但希望调整其展示位置
 
-### The terminal opens, but I want it somewhere else
+可在以下路径修改位置：
 
-Change the location in:
+- **设置 → 功能特性 → 嵌入式终端位置**
 
-- **Settings → Features → Embedded terminal location**
+或直接使用终端工具栏中的 **停靠至…**（Dock to …）控件。
 
-or use the **Dock to …** control in the terminal toolbar.
+### 底部终端遮挡了会话内容
 
-### The bottom terminal covers the session
+这种情况只会在面板过高、无法以停靠布局容纳时发生。
+重新缩小面板高度，它便会恢复为底部停靠面板布局。
 
-That should happen only when the panel no longer fits in a docked layout.
-Shrink it again and it returns to the docked bottom-panel layout.
+## 相关指南
 
-## Related guides
-
-- [App](/apps/app)
-- [Daemon](/apps/daemon)
-- [Provider authentication](/agents/provider-authentication)
+- [应用](/apps/app)
+- [守护进程](/apps/daemon)
+- [提供商认证](/agents/provider-authentication)
 - [Git](/code/git)
-- [Feature matrix](/agents/feature-matrix)
+- [功能特性表](/agents/feature-matrix)

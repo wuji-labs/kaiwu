@@ -1,305 +1,304 @@
 ---
-title: Voice
-description: Choose a voice mode, understand how voice conversations map to sessions, and configure ElevenLabs or local voice in Kaiwu.
+title: 语音
+description: 选择语音模式，了解语音对话如何映射到会话，并在 Kaiwu 中配置 ElevenLabs 或本地语音。
 ---
+Kaiwu 在 **Settings → Voice** 中支持四种语音模式：
 
-Kaiwu supports four voice modes in **Settings → Voice**:
+- **Off**：停用所有语音功能。
+- **Kaiwu Voice**：实时 ElevenLabs 语音，使用 Kaiwu 托管的凭据与服务端额度。
+- **Use my ElevenLabs**：实时 ElevenLabs 语音，使用你自己的 API Key 和 agent。
+- **Local voice**：可配置的 STT/TTS 流水线，支持设备自带、自托管、Google 以及本地神经语音提供商。
 
-- **Off**: disables all voice features.
-- **Kaiwu Voice**: realtime ElevenLabs voice using Kaiwu-managed credentials and server-side quotas.
-- **Use my ElevenLabs**: realtime ElevenLabs voice using your own API key and agent.
-- **Local voice**: a configurable STT/TTS pipeline with device, self-hosted, Google, and local-neural providers.
+## 快速入门
 
-## Start here
+如果只需要一条选型法则：
 
-If you only need one rule of thumb:
+- 追求最省心、开箱即用的实时语音体验，选择 **Kaiwu Voice**；
+- 希望完全掌控自己的 ElevenLabs 账号与 agent，选择 **Use my ElevenLabs**；
+- 需要设备自带语音、自托管端点或端侧神经语音，选择 **Local voice**。
 
-- choose **Kaiwu Voice** for the simplest “just works” realtime voice experience
-- choose **Use my ElevenLabs** if you want full control over your own ElevenLabs account and agent
-- choose **Local voice** if you want device speech, self-hosted endpoints, or on-device neural speech
+## 通用设置
 
-## Common settings
-
-All voice modes share a few top-level settings:
+所有语音模式都共用以下几项顶层设置：
 
 ### Preferred language
 
-**Preferred language** sets the language Kaiwu should prefer for spoken responses and voice-side interactions.
+**Preferred language**（首选语言）用于指定 Kaiwu 在语音回复和语音侧交互中优先使用的语言。
 
-Use this when:
+适用场景：
 
-- you want the assistant to answer in a specific language
-- your speech provider supports multiple languages
-- you want local voice and ElevenLabs voice to stay aligned with the same preference
+- 希望助手用特定语言回答；
+- 你的语音提供商支持多语言；
+- 希望 Local voice 与 ElevenLabs 语音保持相同的语言偏好。
 
-### Voice UI defaults
+### 语音界面默认设置
 
-Voice settings also include UI behavior such as:
+语音设置还包含以下界面交互行为选项：
 
-- whether voice defaults to **global** or **session** scope
-- whether the voice surface prefers the **sidebar**, the **session screen**, or **auto**
-- whether the activity feed is shown and auto-expands
+- 语音默认处于 **global**（全局）还是 **session**（会话）作用域；
+- 语音界面优先显示在 **sidebar**（侧边栏）、**session screen**（会话界面）还是 **auto**（自动）；
+- 是否显示动态流（activity feed）以及是否自动展开。
 
-These are app-level UX settings. They do not change how a provider itself speaks or reasons.
+这些属于应用层面的体验设置，不会改变提供商本身的语音合成或推理方式。
 
-### Voice activity feed
+### 语音动态流
 
-**Enable voice activity feed** shows recent voice events directly in the UI while voice is active.
+启用 **Enable voice activity feed** 后，在语音处于活跃状态时，界面会直接显示近期的语音事件。
 
-You can also enable **Auto-expand on start** if you want the activity feed to open automatically whenever a voice session starts.
+如果希望每次启动语音会话时都自动展开动态流，还可以开启 **Auto-expand on start**。
 
-### Privacy
+### 隐私控制
 
-Kaiwu includes privacy controls for what voice providers can see.
+Kaiwu 提供了针对语音提供商可见内容的隐私控制选项。
 
-Defaults are intentionally conservative for sensitive data:
+对待敏感数据，默认策略偏向保守：
 
-- session summaries and recent messages can be shared
-- tool names and permission requests can be shared
-- file paths and tool arguments are **off by default**
+- 允许共享会话摘要和最近消息；
+- 允许共享工具名称和权限请求；
+- 文件路径与工具参数**默认关闭共享**。
 
-If you need stricter privacy, start by disabling:
+如需更严格的隐私保护，可以先关闭以下项：
 
-- **Share recent messages**
-- **Share file paths**
-- **Share tool arguments**
+- **Share recent messages**（共享最近消息）
+- **Share file paths**（共享文件路径）
+- **Share tool arguments**（共享工具参数）
 
-## Voice conversations and session targeting
+## 语音对话与会话定位
 
-Voice in Kaiwu is more than a floating microphone button. It has its own conversation state and can act on real sessions.
+在 Kaiwu 中，语音不仅是一个悬浮麦克风按钮。它拥有独立的对话状态，并能操作实际的会话。
 
-### Hidden voice conversation
+### 隐藏语音对话
 
-When voice is active, Kaiwu keeps a hidden voice conversation session.
+语音激活时，Kaiwu 会维持一个隐藏的语音对话会话。
 
-Open it when you want to:
+在以下场景中可以打开它：
 
-- review what the assistant heard
-- read voice replies as text
-- continue the same conversation by typing
-- inspect request announcements, tool calls, or tool results
+- 查看助手听到了什么；
+- 以文本形式查阅语音回复；
+- 通过打字继续同一段对话；
+- 查看请求通知、工具调用或工具执行结果。
 
-The hidden voice conversation does **not** replace your main coding session. It is the voice-side conversation layer.
+隐藏语音对话**不会**替换你的主要编程会话，它是语音侧的对话层。
 
-### Target session
+### 目标会话
 
-Voice actions still need a real session to act on.
+语音执行操作时，仍需要一个实际的会话作为载体。
 
-That target session is the session where voice can:
+在这个目标会话中，语音功能可以：
 
-- send messages
-- answer requests
-- switch modes when supported
-- continue work on your behalf
+- 发送消息；
+- 回复请求；
+- 切换模式（若支持）；
+- 代替你继续推进工作。
 
-This is why voice can behave like a real assistant instead of just transcribing speech into a random text box.
+正因如此，语音才能像真正的助手一样工作，而不是仅仅将语音转成文字填进某个输入框。
 
-## Where the voice starts
+## 语音启动位置
 
-For local voice agent mode, start location depends on **where** you launch voice and on your directory policy:
+在本地语音 agent 模式下，启动位置取决于你**从哪里**唤起语音以及目录策略的配置：
 
-- **Start from the sidebar / global voice surface**: starts from **voice home**
-- **Start from a session surface**: starts from that session’s **project root**
-- **If “Stay in voice home” is enabled**: session starts also stay in **voice home**
+- **从侧边栏 / 全局语音界面启动**：从 **voice home**（语音主目录）启动；
+- **从会话界面启动**：从该会话的 **project root**（项目根目录）启动；
+- **若启用了“Stay in voice home”**：从会话中启动也会保持在 **voice home**。
 
-This gives you a neutral default for global voice use, while still letting session-started voice work directly against the current project when you want that behavior.
+这种设计既为全局语音操作提供了中立的默认位置，又允许从会话发起的语音直接针对当前项目执行操作。
 
 ## Kaiwu Voice
 
-**Kaiwu Voice** is the managed realtime option.
+**Kaiwu Voice** 是全托管的实时语音方案。
 
-Use it when you want:
+适用场景：
 
-- the least setup
-- a true realtime voice session
-- server-managed access control, quota enforcement, and subscription rules
+- 追求最简配置；
+- 需要真正的实时语音会话；
+- 依赖服务端统一管理访问控制、额度限制与订阅规则。
 
-Kaiwu Voice is available only when the connected server advertises it through `/v1/features`.
+Kaiwu Voice 仅在所连接的服务器通过 `/v1/features` 声明支持时可用。
 
-### Native background audio
+### 原生后台音频
 
-On native builds, active realtime ElevenLabs calls use a call-style audio mode so the conversation can continue more reliably when the app is backgrounded or the screen locks.
+在原生构建版本中，活跃的实时 ElevenLabs 通话会采用类似电话通话的音频模式，以便在应用切到后台或锁屏时更稳定地继续对话。
 
-This background-call behavior applies to the realtime ElevenLabs path, not to Local voice.
+这种后台通话特性仅适用于实时 ElevenLabs 链路，不适用于 Local voice。
 
 ## Use my ElevenLabs
 
-**Use my ElevenLabs** also runs a realtime ElevenLabs conversation, but it uses your own ElevenLabs account settings.
+**Use my ElevenLabs** 同样运行实时 ElevenLabs 对话，但使用的是你自己的 ElevenLabs 账号配置。
 
-This mode is useful when you want:
+该模式适用于以下需求：
 
-- your own ElevenLabs billing
-- your own ElevenLabs agent
-- direct control over voice, model, and voice tuning
+- 使用自己的 ElevenLabs 账单；
+- 使用自己的 ElevenLabs agent；
+- 直接控制音色、模型及声音微调参数。
 
-### What you configure
+### 配置项
 
-In **Settings → Voice → Use My ElevenLabs**, you can configure:
+在 **Settings → Voice → Use My ElevenLabs** 中，你可以配置：
 
 - **API key**
 - **Agent ID**
 - **Voice**
 - **Realtime model**
 - **Speaker boost**
-- **Voice tuning** such as stability, similarity, style, and speed
+- **Voice tuning**（如稳定性、相似度、风格以及语速）
 - **Welcome mode**
 
-The voice picker is searchable and supports inline preview playback, so you can audition voices before choosing one.
+音色选择器支持搜索与内嵌试听，方便在选定前预先试听效果。
 
-### API key permissions
+### API Key 权限
 
-When creating a restricted ElevenLabs API key for Kaiwu, enable:
+在为 Kaiwu 创建受限的 ElevenLabs API Key 时，需启用以下权限：
 
 - **Text to Speech** → **Access**
 - **Voices** → **Read**
 - **Conversational AI / Agents** → **Read & Write**
-- optional: **User** → **Read**
+- 可选：**User** → **Read**
 
-### Saved credentials
+### 凭据保存
 
-Your ElevenLabs API key is saved in Kaiwu as an encrypted secret setting rather than a plaintext field, so you do not need to re-enter it every time.
+你的 ElevenLabs API Key 会以加密敏感设置的形式保存在 Kaiwu 中，而非明文字段，因此无需每次重复输入。
 
-### Auto-provisioning a Kaiwu agent
+### 自动配置 Kaiwu Agent
 
-If you do not want to create or update the ElevenLabs agent manually, Kaiwu can help provision it for you.
+如果不想手动创建或更新 ElevenLabs agent，Kaiwu 可以代为自动配置。
 
-From the ElevenLabs section you can:
+在 ElevenLabs 设置区域中，你可以：
 
-- create a new Kaiwu-compatible agent
-- update an existing Kaiwu agent template
-- reuse an existing agent if you already have one
+- 创建新的 Kaiwu 兼容 agent；
+- 更新现有的 Kaiwu agent 模板；
+- 复用已有的 agent。
 
-This is the easiest way to keep your ElevenLabs agent aligned with Kaiwu’s current tool and prompt wiring.
+这是让 ElevenLabs agent 与 Kaiwu 当前工具及提示词管线保持一致的最便捷方式。
 
 ## Local voice
 
-**Local voice** is the configurable voice pipeline.
+**Local voice** 是高可配置的语音流水线。
 
-It supports:
+它支持：
 
-- **STT** from the device, OpenAI-compatible endpoints, Google Gemini, or local neural STT
-- **TTS** from the device, OpenAI-compatible endpoints, Google Cloud, or local neural TTS
+- **STT**：设备自带、OpenAI 兼容端点、Google Gemini 或本地神经语音 STT；
+- **TTS**：设备自带、OpenAI 兼容端点、Google Cloud 或本地神经语音 TTS。
 
-Local voice is the right choice when you want:
+在以下场景中，Local voice 是理想选择：
 
-- a self-hosted speech stack
-- device speech services
-- a hybrid setup such as device STT + cloud TTS
-- on-device neural speech models such as Kokoro TTS or Sherpa STT
+- 使用自托管语音栈；
+- 使用设备自带的语音服务；
+- 搭建混合方案，例如设备 STT + 云端 TTS；
+- 运行端侧神经语音模型，如 Kokoro TTS 或 Sherpa STT。
 
-Local voice settings also include voice-agent behavior such as backend selection, machine targeting, resumability, and working-directory policy when you use **Agent** mode.
+在使用 **Agent** 模式时，Local voice 设置还涵盖语音 agent 的行为配置，例如后端选择、目标设备、会话恢复能力以及工作目录策略。
 
-### Backend and model lists are machine-aware
+### 后端与模型列表具备设备感知能力
 
-When you use **Agent** mode, Kaiwu does not guess a fake model list locally.
+在 **Agent** 模式下，Kaiwu 不会在本地凭空猜测模型列表。
 
-- the **Voice agent backend** list follows your enabled backend toggles
-- the **Agent machine** setting decides which machine Kaiwu probes for backend capabilities
-- the **chat model** and **commit model** lists come from that selected machine when the backend supports dynamic model probing
+- **Voice agent backend** 列表与你启用的后端开关保持一致；
+- **Agent machine** 设置决定了 Kaiwu 向哪台设备探测后端能力；
+- 当后端支持动态模型探测时，**chat model**（对话模型）和 **commit model**（提交模型）列表均取自所选设备。
 
-This means the exact model list can differ between machines.
+这意味着不同设备之间的具体模型列表可能存在差异。
 
-If the selected machine cannot provide a dynamic list for the chosen backend, Kaiwu falls back to the safe options that are always valid:
+如果所选设备无法为指定后端提供动态列表，Kaiwu 会回退到始终有效的保底选项：
 
 - **Use CLI settings**
 - **Custom…**
 
-In practice, this usually means one of these is true on the selected machine/account:
+实际使用中，这通常意味着所选设备或账号存在以下情况之一：
 
-- the backend is not installed there
-- the backend is installed but not authenticated there
-- the backend does not expose a dynamic model probe for that machine context
+- 该设备未安装对应后端；
+- 该设备已安装后端但尚未完成认证；
+- 该后端在该设备上下文中未暴露动态模型探测接口。
 
-If you expect a richer model list, first check:
+如果你希望获取更完整的模型列表，请先检查：
 
-- **Settings → Voice → Agent machine**
-- the selected backend is actually available on that machine
-- that machine is signed in for the backend you selected
+- **Settings → Voice → Agent machine**；
+- 所选后端在该设备上确实可用；
+- 该设备已登录并认证了所选后端。
 
-### Conversation modes
+### 对话模式
 
-Local voice supports two conversation modes:
+Local voice 支持两种对话模式：
 
-- **Direct to session**: your transcribed speech is sent straight into the session
-- **Agent**: your speech goes through a dedicated voice agent first
+- **Direct to session**：转写后的语音直接发送到会话中；
+- **Agent**：语音先经过专用的语音 agent 处理。
 
-Use **Direct to session** when you want speech input to behave like direct dictation into a session.
+当希望语音输入充当会话的直接听写工具时，使用 **Direct to session**。
 
-Use **Agent** when you want a colleague-style voice layer that can ask follow-up questions, summarize, and use structured actions before writing anything back.
+当希望拥有一个如同事般的语音交互层，能在写入内容前回问跟进、总结归纳并调用结构化操作时，使用 **Agent**。
 
-### TTS still matters in direct-to-session mode
+### 听写模式下的 TTS 支持
 
-Even in **Direct to session**, TTS can still be enabled so Kaiwu can read agent replies back to you.
+即使在 **Direct to session** 模式下，依然可以启用 TTS，以便 Kaiwu 将 agent 的回复朗读出来。
 
-### Hands-free mode
+### 免提模式
 
-When you use **Device STT**, Kaiwu can also expose hands-free endpointing controls such as silence timeout and minimum speech duration.
+使用 **Device STT** 时，Kaiwu 还能提供免提截断控制选项，例如静音超时时长和最短语音时长。
 
-### Test TTS
+### 测试 TTS
 
-Use **Test TTS** to verify the currently selected local TTS provider.
+使用 **Test TTS** 可以验证当前选中的本地 TTS 提供商。
 
-That single button is the canonical end-to-end test for local voice output, regardless of whether you are using device TTS, OpenAI-compatible TTS, Google Cloud TTS, or local neural TTS.
+无论使用设备自带 TTS、OpenAI 兼容 TTS、Google Cloud TTS 还是本地神经语音 TTS，这都是验证本地语音输出的标准端到端测试方法。
 
-See the full setup guide: [Local voice providers](/voice/local-providers).
+完整配置指南请参阅：[Local voice providers](/voice/local-providers)。
 
-## What voice can do
+## 语音支持的操作
 
-Voice uses the same structured action system as the rest of Kaiwu.
+语音与 Kaiwu 的其他模块共享同一套结构化操作体系。
 
-Common voice actions include:
+常见的语音操作包括：
 
-- sending a message to a session
-- answering permission requests
-- answering user-action requests
-- changing the active target session
-- changing tracked sessions
-- searching or resolving supported actions
-- switching session mode when supported
+- 向会话发送消息；
+- 回复权限请求；
+- 回复用户操作请求；
+- 切换当前目标会话；
+- 更改跟踪的会话；
+- 检索或解析支持的操作；
+- 切换会话模式（若支持）。
 
-This is why voice is more reliable than a plain free-form speech interface: it can call typed actions instead of guessing.
+这也是语音比单纯的自由语音交互更可靠的原因：它能够直接调用具类型的操作，无需靠模型猜测。
 
-## Practical setup recipes
+## 实用配置方案
 
-### I want the simplest realtime voice setup
+### 需要最简便的实时语音方案
 
-Use **Kaiwu Voice**.
+使用 **Kaiwu Voice**。
 
-### I want ElevenLabs, but with my own billing and voices
+### 需要 ElevenLabs，但使用自己的账单与音色
 
-Use **Use my ElevenLabs**.
+使用 **Use my ElevenLabs**。
 
-### I want local or self-hosted speech services
+### 需要本地或自托管语音服务
 
-Use **Local voice**.
+使用 **Local voice**。
 
-### I want speech input without turning every utterance into a session message
+### 需要语音输入，但不想让每句话都直接变成会话消息
 
-Use **Local voice → Conversation mode → Agent**.
+使用 **Local voice → Conversation mode → Agent**。
 
-## Troubleshooting
+## 常见问题排查
 
-### Voice is connected, but nothing is spoken back
+### 语音已连接，但听不到回复语音
 
-Check:
+请检查：
 
-- that TTS is enabled for the selected provider
-- that the correct TTS provider is selected
-- that **Test TTS** succeeds in the Local voice section
+- 所选提供商是否已启用 TTS；
+- 是否选对了 TTS 提供商；
+- Local voice 区域中的 **Test TTS** 是否能正常播报。
 
-### My ElevenLabs voice list is empty
+### ElevenLabs 音色列表为空
 
-Check:
+请检查：
 
-- your API key is present
-- the key has **Voices → Read** permission
-- the selected agent and voice still exist in ElevenLabs
+- API Key 是否已填写；
+- 该 Key 是否具备 **Voices → Read** 权限；
+- 所选 agent 和音色在 ElevenLabs 中依然存在。
 
-### Local voice does not reach my self-hosted server
+### Local voice 无法连通自托管服务器
 
-On mobile, `localhost` usually points to the phone itself, not your computer. Use your computer’s LAN IP or a tunnel instead.
+在移动端，`localhost` 通常指向手机本机，而非你的电脑。请改为使用电脑的局域网 IP 或网络隧道。
 
-## Related pages
+## 相关页面
 
 - [Local voice providers](/voice/local-providers)
 - [Permissions](/sessions/permissions)

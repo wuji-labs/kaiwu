@@ -1,62 +1,51 @@
 ---
-title: Kaiwu Docs
-description: Run coding agents on your own machines and drive them from your phone, a browser, or anywhere else.
+title: Kaiwu 文档
+description: 在您自己的设备上运行编程智能体，并通过手机、浏览器或任何其他地方进行操控。
 ---
+Kaiwu 运行在你掌控的计算机上，支持 Claude Code、Codex、OpenCode、Cursor、Gemini 等十余种编程智能体。你可以通过手机、浏览器或另一台设备，实时查看、引导、审批并回复智能体。所有工作均在你自己的硬件设备和代码仓库中执行，使用的是智能体自身的凭据。
 
-Kaiwu runs coding agents — Claude Code, Codex, OpenCode, Cursor, Gemini and
-nine more — on computers you control, and lets you watch, steer, approve and
-reply to them from your phone, a browser, or another machine. The work happens
-on your hardware, in your repository, with your agent's own credentials.
+所有会话均通过端到端加密进行同步。在 Kaiwu 云端服务以及采用默认配置的自托管服务器上，服务端仅保存密文和路由元数据，无法读取你的对话内容。自托管运维人员也可以选择明文存储策略——[安全](/security)详细说明了该策略带来的具体变化。
 
-Sessions sync end-to-end encrypted. On Kaiwu Cloud, and on a self-hosted
-server at its defaults, the server holds ciphertext and routing metadata and
-cannot read your conversations. A self-hosted operator can choose a plaintext
-storage policy instead — [Security](/security) covers exactly what changes.
-
-## Start here
+## 快速入门
 
 <Cards>
-  <Card icon={<Rocket />} title="Start here" href="/getting-started" description="Install a client and the CLI, connect them, and run your first session. About ten minutes." />
-  <Card icon={<Laptop />} title="Get the apps" href="/getting-started/get-the-apps" description="iPhone, Android, desktop and browser — and which one to start with." />
-  <Card icon={<Boxes />} title="Coding agents" href="/agents" description="Every agent Kaiwu drives, what each needs installed, and how to authenticate it." />
-  <Card icon={<Table />} title="Agent capabilities" href="/agents/capabilities" description="What varies between agents: resume, forking, steering, images, models." />
-  <Card icon={<Ship />} title="Run your own relay" href="/self-hosting" description="Self-hosting: containers, TLS, database, auth and the settings that matter." />
-  <Card icon={<Network />} title="Working in a session" href="/sessions" description="Permissions, queueing, steering, and picking a session back up later." />
-  <Card icon={<Blocks />} title="Code and review" href="/code" description="Read what an agent changed, comment on it, and commit — without leaving the session." />
+  <Card icon={<Rocket />} title="快速入门" href="/getting-started" description="安装客户端与 CLI，完成连接并启动首个会话。约耗时十分钟。" />
+  <Card icon={<Laptop />} title="下载应用" href="/getting-started/get-the-apps" description="支持 iPhone、Android、桌面端与浏览器——教你如何选择首选客户端。" />
+  <Card icon={<Boxes />} title="编程智能体" href="/agents" description="了解 Kaiwu 支持的全部智能体、所需安装的依赖以及认证方式。" />
+  <Card icon={<Table />} title="智能体能力" href="/agents/capabilities" description="智能体之间的差异一览：会话恢复、分叉、引导、图像输入与模型支持。" />
+  <Card icon={<Ship />} title="运行自建中继" href="/self-hosting" description="自托管指南：容器、TLS、数据库、身份认证及核心配置项。" />
+  <Card icon={<Network />} title="会话操作指南" href="/sessions" description="权限管理、排队、实时引导，以及稍后恢复会话。" />
+  <Card icon={<Blocks />} title="代码与审查" href="/code" description="查看智能体修改的代码，添加审查评论并直接提交——无需离开当前会话。" />
 </Cards>
 
-## Browse by topic
+## 按主题浏览
 
-**Using Kaiwu**
+**使用 Kaiwu**
 
-- [Working in a session](/sessions) — permissions, queueing, steering, and coming back to a session later.
-- [Staying on top of work](/organize) — folders, unread state, transcript navigation and search, once you are running more than a few.
-- [Code and review](/code) — files, diffs, review comments, git and pull requests.
-- [Coding agents](/agents) — every agent, plus models, profiles and authentication.
-- [Voice](/voice) — the four voice modes, and what voice is allowed to do on your behalf.
+- [会话操作指南](/sessions)——权限管理、排队、实时引导，以及后续恢复会话。
+- [多任务管理](/organize)——会话较多时，利用文件夹、未读状态、会话记录导航与搜索理清头绪。
+- [代码与审查](/code)——文件浏览、差异比对、审查评论、Git 提交与拉取请求。
+- [编程智能体](/agents)——各智能体详解，涵盖模型、配置文件与认证。
+- [语音交互](/voice)——四种语音模式，以及允许语音代表你执行的操作。
 
-**Connecting things to it**
+**连接与扩展**
 
-- [Extending Kaiwu](/extending) — MCP servers, skills, delegated work, and driving Kaiwu from an editor.
-- [Accounts, machines and sharing](/accounts) — linked agent accounts, moving files between machines, sharing a session.
-- [Apps and interface](/apps) — the app, the desktop control panel, the CLI and the daemon.
-- [Extras](/extras) — automations, notifications, the embedded terminal, feature flags.
+- [扩展 Kaiwu](/extending)——MCP 服务器、技能、委托任务，以及从编辑器控制 Kaiwu。
+- [账户、设备与共享](/accounts)——关联智能体账户、跨设备传输文件、共享会话。
+- [应用与界面](/apps)——客户端应用、桌面控制面板、CLI 与守护进程。
+- [进阶功能](/extras)——自动化工作流、通知提醒、嵌入式终端与功能开关。
 
-**Running and trusting it**
+**运维与安全**
 
-- [Security](/security) — what the server can and cannot read.
-- [Self-hosting](/self-hosting) — your own relay, and who is allowed to sign in to it.
-- [Release channels](/releases) — stable, preview and dev, and how to move between them.
-- [Legal](/legal) — terms and privacy.
+- [安全机制](/security)——明确服务器可以读取与无法读取的内容。
+- [自托管](/self-hosting)——搭建自建中继，并管理访问与登录权限。
+- [发布通道](/releases)——稳定版、预览版与开发版，以及各通道间的切换方式。
+- [法律条款](/legal)——服务条款与隐私政策。
 
-## If something is not working
+## 遇到问题？
 
-[Check your setup](/getting-started/check-your-setup) explains `happier status`
-and `happier doctor repair`, which between them diagnose and fix most of what
-goes wrong on a machine.
+[环境检查](/getting-started/check-your-setup)介绍了 `happier status` 与 `happier doctor repair`，两者结合可诊断并修复设备上的绝大多数常见问题。
 
-## Contributing
+## 参与贡献
 
-Building Kaiwu itself, rather than using it, starts at
-[Development](/development). The local stack that runs the server, CLI and app
-together against your own checkout is documented under [hstack](/hstack).
+若要参与 Kaiwu 本身的构建与开发，请阅读[开发指南](/development)。针对本地代码拉取分支、将服务器、CLI 与应用程序整合运行的本地栈，已在 [hstack](/hstack) 中详细说明。

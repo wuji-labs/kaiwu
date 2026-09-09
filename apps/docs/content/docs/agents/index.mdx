@@ -1,28 +1,27 @@
 ---
-title: Coding agents
-description: The coding agents Kaiwu can run for you, what they have in common, and where to find the one you use.
+title: 编程 Agent
+description: Kaiwu 可为你运行的编程 Agent、它们的共同特性，以及如何找到你所使用的 Agent。
 ---
+Kaiwu 并不会取代你现有的编程 Agent。它直接运行你常用的 Agent——就在你自己的设备上、你检出的代码库里——并让你无论身在何处，都能随时查看其进度、把控方向、审批操作并与之交流。
 
-Kaiwu does not replace your coding agent. It runs the one you already use — on your own machine, in your own checkout — and gives you a way to watch it, steer it, approve its work and reply to it from anywhere.
+目前已接入 14 种 Agent。无论你选择哪一款，Kaiwu 原生支持的功能逻辑均完全一致：会话记录、待处理队列、权限与审批、会话设置、通知，以及 Agent 可调用的工具。不同之处仅在于各 Agent 自身的 CLI 所开放的能力——例如支持哪些模型、是否支持恢复会话，以及能否接收图片等。
 
-Fourteen agents are wired up today. Whichever you pick, the parts that belong to Kaiwu work the same way: the transcript, the pending queue, permissions and approvals, session settings, notifications, and the tools an agent can call. What differs is what each agent's own CLI exposes — which models it offers, whether it can resume a session, whether it accepts images.
-
-Those differences are real and worth checking before you commit to a workflow. They live in one generated place:
+这些差异切实存在，在确定工作流之前值得先确认清楚。相关对比都汇总在下文页面中：
 
 <Cards>
-  <Card title="Agent capabilities" href="/agents/capabilities" description="Every agent's models, auth, session and media support, generated from the agent manifest." />
+  <Card title="Agent 能力" href="/agents/capabilities" description="各 Agent 的模型、认证、会话与多媒体支持，均根据 Agent 清单生成。" />
 </Cards>
 
-## Getting an agent running
+## 运行 Agent
 
-Each agent's page covers the same three things: installing its CLI, authenticating it, and the limits that will actually affect you. The shape is deliberately identical so you can move between them.
+每个 Agent 的专属页面都涵盖相同的三项内容：安装其 CLI、完成身份验证，以及切实影响使用体验的限制条件。页面结构特意保持统一，以便你在不同的 Agent 之间无缝切换。
 
-Two things are true for all of them:
+以下两点对所有 Agent 均适用：
 
-- **You install the agent's CLI yourself.** Kaiwu detects what is already on the machine; it does not bundle any agent. Some agents have a managed install Kaiwu can run for you, and the capability tables say which.
-- **Authentication belongs to the agent.** Kaiwu reads its login state and, for some agents, can hold the credentials for you through [Connected Services](/accounts/connected-services) so you do not have to sign in separately on every machine.
+- **需自行安装 Agent 的 CLI。** Kaiwu 只会检测当前设备上已有的组件，本身不内置任何 Agent。对于部分 Agent，Kaiwu 能够代为执行托管安装，具体支持情况请参见各功能对比表。
+- **身份验证由 Agent 自行管理。** Kaiwu 会读取其登录状态；针对部分 Agent，Kaiwu 还可通过[已连接服务](/accounts/connected-services)为你保存凭据，免去在每台设备上分别登录的繁琐操作。
 
-## Built-in agents
+## 内置 Agent
 
 <Cards>
   <Card title="Claude" href="/agents/claude" />
@@ -40,23 +39,23 @@ Two things are true for all of them:
   <Card title="Pi" href="/agents/pi" />
 </Cards>
 
-## Anything else that speaks ACP
+## 其他支持 ACP 的工具
 
-For a CLI that is not on that list, Kaiwu ships a generic **Custom ACP** family. You define selectable ACP backends once, and they then appear as ordinary agent choices everywhere in the app — the new-session picker, session settings, the lot.
+针对未包含在上述列表中的 CLI，Kaiwu 提供了通用的 **Custom ACP** 类别。只需定义一次可供选择的 ACP 后端，它们就会作为标准 Agent 选项出现在 App 的各个位置——包括新建会话选择器、会话设置等所有场景。
 
 <Cards>
-  <Card title="Custom ACP" href="/agents/custom-acp" />
+  <Card title="自定义 ACP" href="/agents/custom-acp" />
 </Cards>
 
-## Choosing and configuring
+## 选择与配置
 
-- [Model and engine selection](/agents/model-and-engine-selection) — how Kaiwu decides which models to offer.
-- [Provider authentication](/agents/provider-authentication) — the shared authentication flow.
-- [Profiles](/agents/profiles) — reusable environment variables, secret bindings and startup defaults, shared by the app and the CLI.
-- [Provider integrations](/agents/provider-integrations) — third-party routers, switchers and plugins.
-- [Feature matrix](/agents/feature-matrix) — which user-facing features exist on which client and runtime.
+- [模型与引擎选择](/agents/model-and-engine-selection)——Kaiwu 如何决定提供哪些模型选项。
+- [提供商身份验证](/agents/provider-authentication)——通用的身份验证流程。
+- [配置文件](/agents/profiles)——App 与 CLI 共用的配置项，涵盖可复用的环境变量、密钥绑定及启动默认值。
+- [提供商集成](/agents/provider-integrations)——第三方路由服务、切换器与插件。
+- [功能矩阵](/agents/feature-matrix)——各项面向用户的特性在不同客户端与运行环境下的支持情况。
 
-## Related
+## 相关内容
 
-- [Session handoff](/sessions/session-handoff) — moving a session between machines.
-- [Continue with another Agent](/sessions/continue-with-another-agent) — changing the agent running a session.
+- [会话交接](/sessions/session-handoff)——在不同设备间迁移会话。
+- [使用其他 Agent 继续](/sessions/continue-with-another-agent)——更换运行当前会话的 Agent。

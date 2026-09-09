@@ -130,7 +130,7 @@ async function cmdSet(args: string[], options: CmdSetOptions = {}): Promise<void
     || argvValue(resolvedArgs, '--relay-url')
     || firstPositionalArg(resolvedArgs);
   if (!serverUrlRaw) {
-    throw new Error('Usage: happier relay set <relay-url | --local> [--use] [--json] [--server-url <url>] [--webapp-url <url>] [--local-server-url <url>]');
+    throw new Error('Usage: kaiwu relay set <relay-url | --local> [--use] [--json] [--server-url <url>] [--webapp-url <url>] [--local-server-url <url>]');
   }
 
   const serverUrl = normalizeUrlOrThrow(serverUrlRaw, 'relay url');
@@ -272,9 +272,9 @@ async function cmdAdd(args: string[]): Promise<void> {
 }
 
 /**
- * Convenience alias: `happier relay start-daemon` == `happier relay use --local`
- * followed by either `happier service start` (when a managing background
- * service already exists for this relay profile) or `happier daemon start`
+ * Convenience alias: `kaiwu relay start-daemon` == `kaiwu relay use --local`
+ * followed by either `kaiwu service start` (when a managing background
+ * service already exists for this relay profile) or `kaiwu daemon start`
  * (when no service is installed). We check the service inventory *after*
  * activating the profile so the match uses the newly-active server id.
  *
@@ -282,8 +282,8 @@ async function cmdAdd(args: string[]): Promise<void> {
  * emit one consolidated line covering the whole flow.
  */
 /**
- * Convenience alias: `happier relay auth` == `happier relay use --local`
- * followed by `happier auth login`. Ensures the auth flow targets the same
+ * Convenience alias: `kaiwu relay auth` == `kaiwu relay use --local`
+ * followed by `kaiwu auth login`. Ensures the auth flow targets the same
  * local-relay profile that `relay start-daemon` / `service install
  * --local-relay` use, so users don't have to manually `relay use --local`
  * and remember which profile the daemon is pointing at.

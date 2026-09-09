@@ -1,173 +1,172 @@
 ---
-title: Updates
-description: How updates work across Kaiwu apps, CLIs, installers, Docker images, and release assets.
+title: 更新
+description: Kaiwu 应用、CLI、安装程序、Docker 镜像及发布资产的更新机制。
 ---
+Kaiwu（无极开物）包含多个应用与工具，**具体的更新机制取决于各组件的安装方式**。
 
-Kaiwu ships multiple apps + tools, and **how updates work depends on how you installed each one**.
+本文档是以下内容的权威参考：
 
-This page is the “source of truth” for:
+- 哪些构件支持自动更新，哪些需要手动更新
+- 各类安装方式对应的更新命令
+- 稳定版、预览版和开发版通道如何映射到滚动发布标签
+- 自托管部署中“内置 UI”的获取途径
 
-- which artifacts update automatically vs manually
-- what commands to run for each install method
-- how stable/preview/dev channels map to rolling release tags
-- where “embedded UI” comes from in self-hosted deployments
+## 更新通道
 
-## Update channels
+大多数构件都会发布到以下通道中：
 
-Most artifacts are published into channels:
+- `stable`（生产通道）
+- `preview`（预发布 / 抢先体验通道）
+- `dev`（滚动 nightly / 最新的公开 `dev` 分支构建版本）
 
-- `stable` (production)
-- `preview` (pre-release / early access)
-- `dev` (rolling nightly / newest public `dev` branch builds)
+对外提供的公开承诺仅包含这三个通道名称。
+内部的发布通道标识符属于流水线与配置层的实现细节，不应出现在用户命令或公开文档中。
 
-Only those three names are part of the public user contract.
-Internal release-ring ids are implementation details used by the pipeline/config layer and should not appear in user commands or public docs.
+在底层，通道是通过**滚动发布标签**（例如 `cli-stable`、`cli-preview`、`cli-dev`、`server-preview`、`ui-web-dev`）来实现的。这些标签会持续更新，始终指向对应通道中的最新版本。
 
-Under the hood, channels are implemented using **rolling release tags** (for example `cli-stable`, `cli-preview`, `cli-dev`, `server-preview`, `ui-web-dev`). Those tags are updated to point at the newest version in that channel.
+各通道的可用性仍取决于具体构件。例如，部分构件提供了全部三个公开通道（`stable`、`preview`、`dev`），而其他构件目前可能仅开放其中一部分。
 
-Availability still depends on the artifact. For example, some assets expose all three public rings (`stable`, `preview`, `dev`), while others may currently expose only a subset.
+## 更新矩阵（完整构件一览）
 
-## Update matrix (everything we ship)
+下表列出了所有面向用户的已发布构件及其更新机制。
 
-The table below covers all user-facing released assets and how updates work.
-
-| Shipped asset | How you got it | Updates happen when… | Automatic? | How to update / control |
+| 发布的构件 | 获取方式 | 更新触发时机 | 是否自动更新？ | 如何更新 / 控制 |
 | --- | --- | --- | --- | --- |
-| **Desktop app** (Tauri, “Tori” / Kaiwu desktop) | Installed app bundle (`.app` / installer) | The app checks a signed update feed and offers an in-app update | **Checks automatically**, install is **user-triggered** | Accept the in-app update prompt; stable/preview/dev is determined by which build you installed |
-| **Mobile app** (iOS/Android) | App Store / Play Store | (1) JS/asset OTA updates may be fetched; (2) native updates come from the store | OTA can be **automatic + user-applied**; store updates are **store-managed** | In-app “Update available” banner applies OTA updates (reload). Native updates require installing the new store version |
-| **Web app** (hosted) | You open the hosted web UI | New deployments go live; users get them on refresh | Yes (on refresh) | Refresh the page (hard refresh if your browser is caching aggressively) |
-| **Self-hosted web UI bundle** (`happier-ui-web`) | Embedded/served by your self-hosted server, Docker image, or runner | It changes when your server runtime updates (or when your runner downloads a newer UI bundle) | Depends on the host (see below) | Control updates via the host (Docker pull, `happier relay host install`, runner restart, or pin tags) |
-| **Relay server Docker image** (`happierdev/relay-server`) | `docker run … happierdev/relay-server:<tag>` | You pull a newer image tag and restart the container | No | `docker pull …` then restart/recreate the container; pin to an immutable tag or digest for strict control |
-| **UI embedded in relay-server Docker image** | Part of the Docker image build | It updates with the Docker image | No | Same as the Docker image update (pull + restart) |
-| **Relay server npm package** (`@happier-dev/relay-server`) | `npx … @happier-dev/relay-server happier-server …` | The runner fetches the latest server runtime/UI bundle for the selected rolling tags on startup | Yes (on restart) | Restart the runner to pick up newest rolling tag; pin via `--tag server-vX.Y.Z` and `--ui-tag ui-web-vX.Y.Z`; disable UI via `--without-ui` or `HAPPIER_SERVER_UI_DIR=` |
-| **UI “embedded” in relay-server npm runner** | Downloaded + cached by the runner (not shipped inside npm tarball) | The runner downloads the UI bundle when needed | Yes (on restart) | Same controls as the runner: `--ui-tag …`, `--without-ui`, or set `HAPPIER_SERVER_UI_DIR` to a fixed directory |
-| **Managed Relay runtime** (`happier relay host …`) | Install the Kaiwu CLI, then run `happier relay host install …` | You rerun `happier relay host install` | No | `happier relay host install` (local or with `--ssh user@host`) |
-| **CLI installer** (`https://kaiwu.chengqiyun.com/install`) | `curl …install \| bash` / `irm …install.ps1` | You rerun it (or use the CLI’s self-update for installer installs) | No | Re-run the installer, or run the lane-specific command (`happier`, `hprev`, or `hdev`) with `self update` |
-| **CLI installer payload** | Installed under `~/.happier/cli{,-preview,-dev}/{versions,current,previous}` with lane-specific shims in `~/.happier/bin` and `~/.local/bin` (or Windows equivalent) | You run `happier self update`, `hprev self update`, `hdev self update`, or rerun the installer | No (but it can show notices) | Installer lanes are `stable` (`happier`), `preview` (`hprev`), and `dev` (`hdev`). You can still target `--channel preview|dev` or `--to versionOrTag` explicitly. |
-| **CLI npm package** (`@happier-dev/cli`) | `npm install -g @happier-dev/cli` | You upgrade the npm package | No (but it can show notices) | `npm install -g @happier-dev/cli@latest` (or `@next` for preview) |
-| **Stack npm package** (`@happier-dev/stack`) | `npm install -g @happier-dev/stack` | You upgrade the npm package (or use `hstack self update` runtime install) | No (but it can show notices) | `hstack self update` (recommended in-stack) or `npm install -g @happier-dev/stack@latest` |
+| **桌面端应用**（Tauri，“Tori” / Kaiwu 桌面版） | 已安装的应用包（`.app` / 安装程序） | 应用检查经签名的更新源，并在应用内提示更新 | **自动检查**，由**用户手动确认**安装 | 确认应用内的更新提示即可；所跟踪的通道由最初安装的构建版本决定 |
+| **移动端应用**（iOS/Android） | App Store / Play Store | (1) 可能拉取 JS/静态资源 OTA 更新；(2) 原生更新来自应用商店 | OTA 更新支持**自动下载 + 用户手动应用**；原生更新**由应用商店统一管理** | 点击应用内“有可用更新”横幅即可应用 OTA 更新（并重载应用）。原生更新则需在应用商店中安装新版本 |
+| **Web 端应用**（托管版） | 直接打开托管的 Web UI | 新版本上线后，用户刷新页面即可获取 | 是（刷新后生效） | 刷新页面即可（如果浏览器缓存严重，请执行强制刷新） |
+| **自托管 Web UI 静态包**（`happier-ui-web`） | 由自托管服务器、Docker 镜像或运行器内置/提供服务 | 随服务端运行时更新而变化（或在运行器下载更新的 UI 静态包时变更） | 取决于宿主方式（见下文） | 通过宿主方式控制更新（执行 Docker pull、`happier relay host install`、重启运行器，或锁定标签） |
+| **中继服务器 Docker 镜像**（`happierdev/relay-server`） | `docker run … happierdev/relay-server:⟦K15⟧` | 拉取更新的镜像标签并重启容器时更新 | 否 | 执行 `docker pull …`，随后重启或重建容器；如需严格受控，可固定为不可变标签或摘要 |
+| **中继服务器 Docker 镜像内置 UI** | 包含在 Docker 镜像构建产物中 | 随 Docker 镜像一同更新 | 否 | 与 Docker 镜像更新方式相同（拉取新镜像并重启） |
+| **中继服务器 npm 包**（`@happier-dev/relay-server`） | `npx … @happier-dev/relay-server happier-server …` | 运行器启动时，会拉取所选滚动标签对应的最新服务端运行时与 UI 静态包 | 是（重启后生效） | 重启运行器即可拉取最新的滚动标签；可通过 `--tag server-vX.Y.Z` 与 `--ui-tag ui-web-vX.Y.Z` 锁定版本；通过 `--without-ui` 或 `HAPPIER_SERVER_UI_DIR=` 禁用 UI |
+| **中继服务器 npm 运行器“内置” UI** | 由运行器动态下载并缓存（未直接打包在 npm tarball 中） | 运行器在需要时自动下载 UI 静态包 | 是（重启后生效） | 控制方式与运行器相同：使用 `--ui-tag …`、`--without-ui`，或将 `HAPPIER_SERVER_UI_DIR` 指向固定目录 |
+| **托管中继运行时**（`happier relay host …`） | 安装 Kaiwu CLI 后运行 `happier relay host install …` | 重新运行 `happier relay host install` 时更新 | 否 | 运行 `happier relay host install`（在本地执行或配合 `--ssh user@host` 执行） |
+| **CLI 安装程序**（`https://kaiwu.chengqiyun.com/install`） | `curl …install \| bash` / `irm …install.ps1` | 重新运行安装程序（或通过 CLI 的自我更新功能进行更新） | 否 | 重新运行安装程序，或使用 `self update` 配合运行对应通道的专用命令（`happier`、`hprev` 或 `hdev`） |
+| **CLI 安装程序产物** | 安装于 `~/.happier/cli{,-preview,-dev}/{versions,current,previous}` 下，并在 `~/.happier/bin` 和 `~/.local/bin`（或 Windows 对应路径）中提供通道专属 shim 脚本 | 运行 `happier self update`、`hprev self update`、`hdev self update` 或重新运行安装程序时更新 | 否（但会显示更新提示） | 安装程序对应的通道包括 `stable`（`happier`）、`preview`（`hprev`）和 `dev`（`hdev`）。你仍可显式指定 `--channel preview|dev` 或 `--to versionOrTag` 进行更新。 |
+| **CLI npm 包**（`@happier-dev/cli`） | `npm install -g @happier-dev/cli` | 升级该 npm 包时更新 | 否（但会显示更新提示） | 运行 `npm install -g @happier-dev/cli@latest`（预览版运行 `@next`） |
+| **栈 npm 包**（`@happier-dev/stack`） | `npm install -g @happier-dev/stack` | 升级该 npm 包（或使用 `hstack self update` 运行时安装）时更新 | 否（但会显示更新提示） | 运行 `hstack self update`（在栈内部推荐使用）或 `npm install -g @happier-dev/stack@latest` |
 
-## Integrity verification (binaries + bundles)
+## 完整性校验（二进制文件与静态包）
 
-Self-host and relay runtime downloads are verified before install:
+自托管以及中继运行时的下载包在安装前均会经过校验：
 
-- **SHA256**: downloaded archive matches the published checksums file.
-- **minisign**: the checksums file is verified with the embedded Kaiwu minisign public key.
+- **SHA256**：校验下载的压缩包是否与发布的校验和文件匹配。
+- **minisign**：使用内置的 Kaiwu minisign 公钥校验该校验和文件本身。
 
-## Desktop app (Tauri)
+## 桌面端应用（Tauri）
 
-The desktop app uses Tauri’s updater plugin:
+桌面端应用采用 Tauri 的 updater 插件机制：
 
-- it checks an update feed automatically
-- it shows an in-app banner/prompt when an update is available
-- installing the update downloads a signed bundle and restarts the app
+- 自动检查更新源
+- 检测到新版本时，在应用内弹出横幅或提示
+- 确认安装更新后，会自动下载经签名的安装包并重启应用
 
-Stable vs preview is determined by which desktop build you installed.
-Dev builds use the same updater model, but point at the `dev` feed instead.
+所属的稳定版或预览版通道，取决于最初安装的桌面构建版本。
+开发版构建采用完全相同的更新机制，但会指向 `dev` 更新源。
 
-## App (mobile + web)
+## 应用端（移动端与 Web 端）
 
-### Web app (hosted)
+### Web 端应用（托管版）
 
-Hosted web UI updates are delivered by normal deploys: users get the latest on refresh.
+托管的 Web UI 更新通过常规部署下发：用户只要刷新页面即可获取最新版本。
 
-### Mobile app (iOS/Android)
+### 移动端应用（iOS/Android）
 
-There are **two** distinct update types:
+包含**两类**不同的更新方式：
 
-1) **Native updates** (new binary): delivered via the App Store / Play Store.
-2) **OTA updates** (JS/assets): when enabled, the app checks for an OTA update when it becomes active, fetches it, and shows an “Update available” banner to apply it (reload).
+1) **原生更新**（新的二进制应用）：通过 App Store / Play Store 分发。
+2) **OTA 更新**（JS / 静态资源）：启用后，应用每次切换至前台活跃状态都会检查 OTA 更新，拉取新资源，并展示“有可用更新”横幅供用户点击应用（重载应用生效）。
 
-OTA updates are feature-gated by the server feature `updates.ota` (fail-closed if the server disables it).
+OTA 更新受服务端特性门控 `updates.ota` 控制（若服务端禁用此项，则默认关闭）。
 
-## CLI updates (binary vs npm)
+## CLI 更新（二进制版本与 npm 版本）
 
-### Update notices (opt-out)
+### 更新提示（可选择关闭）
 
-The CLI can print a periodic “update available” notice in TTY sessions and perform background checks.
+CLI 可在 TTY 交互式会话中定期打印“有可用更新”提示，并在后台执行版本检查。
 
-The notice includes the command to update:
+提示信息中会包含执行更新的命令：
 
 - `happier self update`
 
-Disable update checks + notices:
+禁用更新检查与提示：
 
 - `HAPPIER_CLI_UPDATE_CHECK=0`
 
-Tune frequency:
+调整检查频率：
 
 - `HAPPIER_CLI_UPDATE_CHECK_INTERVAL_MS`
 - `HAPPIER_CLI_UPDATE_NOTIFY_INTERVAL_MS`
 
-`hstack` (stack tooling) has the same pattern:
+`hstack`（栈工具）遵循相同的更新模式：
 
-- notice includes: `hstack self update`
-- disable with: `HAPPIER_STACK_UPDATE_CHECK=0`
+- 提示信息包含：`hstack self update`
+- 禁用命令：`HAPPIER_STACK_UPDATE_CHECK=0`
 
-### If you installed the CLI via our installer (binary)
+### 如果是通过官方安装程序安装 CLI（二进制版本）
 
-Check/update:
+检查 / 更新：
 
 ```bash
 happier self check
 happier self update
 ```
 
-Preview channel:
+预览版通道：
 
 ```bash
 happier self update --channel=preview
 ```
 
-Dev channel:
+开发版通道：
 
 ```bash
 hdev self update
 ```
 
-Pin to a specific version (or rolling tag like `latest`/`next`):
+锁定到特定版本（或类似 `latest`/`next` 的滚动标签）：
 
 ```bash
 happier self update --to 0.1.2
 ```
 
-Rerunning the installer is also a valid update path:
+重新运行安装程序同样是有效的更新途径：
 
 ```bash
 curl -fsSL https://kaiwu.chengqiyun.com/install | bash
 ```
 
-### If you installed the CLI via npm
+### 如果是通过 npm 安装 CLI
 
-Update with npm (the CLI will print the exact command when you run `happier self update`):
+使用 npm 进行更新（运行 `happier self update` 时 CLI 会打印出确切的命令）：
 
 ```bash
 npm install -g @happier-dev/cli@latest
 ```
 
-Preview:
+预览版：
 
 ```bash
 npm install -g @happier-dev/cli@next
 ```
 
-## Installers & binaries (what’s automatic vs manual)
+## 安装程序与二进制版本（自动与手动更新划分）
 
-Installers and binary installs do **not** auto-update in the background.
+安装程序和二进制安装包**不会**在后台自动更新。
 
-What *is* automatic:
+其中*自动执行*的部分：
 
-- **Update notices** for interactive CLI usage (TTY):
-  - `happier` prints a notice and tells you to run `happier self update`
-  - `hstack` prints a notice and tells you to run `hstack self update`
+- 交互式 CLI 会话（TTY）中的**更新提示**：
+  - `happier` 会打印提示，引导你运行 `happier self update`
+  - `hstack` 会打印提示，引导你运行 `hstack self update`
 
-What is *manual*:
+需要*手动执行*的部分：
 
-- actually installing an update (running the update command or rerunning the installer)
+- 实际执行版本更新（运行更新命令或重新执行安装程序）
 
-### CLI installer (`install`)
+### CLI 安装程序（`install`）
 
-The installer supports a few “actions” that are useful for scripting:
+该安装程序支持若干适用于自动化脚本的操作参数：
 
 ```bash
 # Check the installed binary + PATH shim
@@ -180,57 +179,57 @@ curl -fsSL https://kaiwu.chengqiyun.com/install | bash -s -- --version
 curl -fsSL https://kaiwu.chengqiyun.com/install | bash
 ```
 
-Windows (PowerShell) updates work the same way (rerun the installer).
+Windows（PowerShell）下的更新方式与此相同（重新运行安装程序）。
 
-### Managed Relay runtime (`happier relay host …`)
+### 托管中继运行时（`happier relay host …`）
 
-Install or update your managed Relay runtime by running:
+运行以下命令安装或更新托管中继运行时：
 
 ```bash
 happier relay host install --mode system
 ```
 
-Remote host (over SSH):
+远程主机（通过 SSH）：
 
 ```bash
 happier relay host install --ssh user@host --mode system
 ```
 
-Then manage it with `happier relay host status` and `happier relay host start|stop|restart`.
+随后即可使用 `happier relay host status` 与 `happier relay host start|stop|restart` 进行管理。
 
-## Server / self-host updates
+## 服务端 / 自托管更新
 
-There are multiple supported self-host shapes. See also: [Self-host runtime (installer vs runner)](/self-hosting/self-host-runtime).
+目前支持多种自托管部署形态。另请参阅：[自托管运行时（安装程序与运行器对比）](/self-hosting/self-host-runtime)。
 
-### Managed Relay runtime (`happier relay host …`)
+### 托管中继运行时（`happier relay host …`）
 
-Update/reinstall (install-or-update):
+更新 / 重新安装（即 install-or-update）：
 
 ```bash
 happier relay host install --mode system
 ```
 
-Then restart if needed:
+随后根据需要重启：
 
 ```bash
 happier relay host restart --mode system
 ```
 
-### Relay server runner (`@happier-dev/relay-server`)
+### 中继服务器运行器（`@happier-dev/relay-server`）
 
-By default, the runner tracks rolling tags:
+默认情况下，该运行器会跟踪以下滚动标签：
 
-- server runtime: `server-stable` / `server-preview` / `server-dev`
-- UI web bundle: `ui-web-stable` / `ui-web-preview` / `ui-web-dev`
+- 服务端运行时：`server-stable` / `server-preview` / `server-dev`
+- UI Web 静态包：`ui-web-stable` / `ui-web-preview` / `ui-web-dev`
 
-Updates are picked up on restart (the runner fetches tag metadata each time it starts).
+更新在重启后生效（运行器每次启动时都会获取最新的标签元数据）。
 
-Notes:
+注意：
 
-- Extracted artifacts are cached under your platform cache directory.
-- If UI is enabled and `HAPPIER_SERVER_UI_DIR` is not set, the runner downloads the UI bundle and sets `HAPPIER_SERVER_UI_DIR` automatically.
+- 解压后的构件会缓存于当前平台的缓存目录下。
+- 如果启用了 UI 且未设置 `HAPPIER_SERVER_UI_DIR`，运行器会自动下载 UI 静态包并设置 `HAPPIER_SERVER_UI_DIR`。
 
-Pinning example:
+版本锁定示例：
 
 ```bash
 npx --yes --package @happier-dev/relay-server happier-server \
@@ -238,17 +237,17 @@ npx --yes --package @happier-dev/relay-server happier-server \
   --ui-tag ui-web-v0.3.0
 ```
 
-### Relay server Docker image
+### 中继服务器 Docker 镜像
 
-The Docker image updates only when you pull a newer tag and restart:
+只有在拉取更新的标签并重启容器时，Docker 镜像才会更新：
 
 ```bash
 docker pull happierdev/relay-server:preview
 docker compose up -d --force-recreate
 ```
 
-The embedded UI updates together with the image.
+内置的 UI 会随镜像一同更新。
 
-## Release artifacts
+## 发布构件
 
-For artifact naming, supported targets, and manifest details, see [Release artifacts](/development/release-artifacts).
+有关构件命名规范、受支持的平台目标以及清单文件详情，请参阅[发布构件](/development/release-artifacts)。

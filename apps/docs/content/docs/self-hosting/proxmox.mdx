@@ -1,24 +1,23 @@
 ---
 title: Proxmox VE
-description: Deploy Kaiwu Server on Proxmox VE using community-scripts helper scripts.
+description: 使用 community-scripts 辅助脚本在 Proxmox VE 上部署 Kaiwu Server。
 ---
+本指南介绍如何利用社区维护的 Proxmox VE Helper-Scripts 项目（基于 LXC 的“单条命令”安装脚本），在 **Proxmox VE** 上部署 Kaiwu。
 
-This guide explains how to deploy Kaiwu on **Proxmox VE** using the community-maintained Proxmox VE Helper-Scripts project (LXC-based “one command” installs).
+## 方案包含
 
-## What you get
+- 专属 **Debian LXC 容器**，运行内置 PGlite 嵌入式数据库的 Kaiwu Server。
+- 可选的**内置 Web UI 服务**，由同一容器直接提供。
+- 可选的**开机自启**，通过容器内的 systemd *系统*服务实现。
+- 可选的 **Tailscale**，用于远程访问与 HTTPS（推荐用于手机端访问）。
 
-- A dedicated **Debian LXC container** running Kaiwu Server with PGlite embedded database.
-- Optional **served web UI** from the same container.
-- Optional **autostart** via a systemd *system* service inside the container.
-- Optional **Tailscale** for remote access + HTTPS (recommended for phone access).
+## 安装（推荐方式）
 
-## Install (recommended)
+1. 在浏览器中打开 `helper-scripts.com` 并搜索 **Kaiwu**。
+2. 从脚本页面复制安装命令。
+3. 粘贴到 **Proxmox Shell**（宿主机控制台）中，并按提示完成操作。
 
-1. In a browser, open `helper-scripts.com` and search for **Kaiwu**.
-2. Copy the install command from the script page.
-3. Paste it into the **Proxmox Shell** (host) and follow the prompts.
-
-If the script is not available on `helper-scripts.com` yet, you can run the installer directly from our ProxmoxVE fork:
+如果 `helper-scripts.com` 上尚未收录该脚本，可以直接从我们的 ProxmoxVE 分支运行安装程序：
 
 ```bash
 tmp="$(mktemp)" \
@@ -27,88 +26,88 @@ tmp="$(mktemp)" \
   && rm -f "$tmp"
 ```
 
-At the end, the installer prints:
+安装完成后，安装程序会输出：
 
-- Your container IP and local HTTP URL
-- If applicable, your public HTTPS URL
-- A “Connect terminal” link/QR (mobile deep link + web URL) that includes `server=...` so the app/web UI can switch servers automatically
-- Next steps to connect a terminal/daemon (and start/restart services if you installed Dev box)
+- 容器的 IP 地址与本地 HTTP URL
+- 公网 HTTPS URL（如果已配置）
+- “连接终端”链接与二维码（包含移动端深层链接与 Web URL），其中已包含 `server=...`，方便 App 或 Web UI 自动切换服务器
+- 连接终端/守护进程的后续步骤（若安装了 Dev box，还包含启动或重启服务的说明）
 
-Local access:
+本地访问地址：
 
-- `http://<container-ip>:3005` (LAN)
+- `http://⟦K5⟧:3005`（局域网）
 
-If you select **Tailscale** during install, the stack typically binds to `loopback` and will not be reachable from your LAN IP. In that case, use the installer’s printed **HTTPS** URL instead.
+若在安装过程中选择了 **Tailscale**，该栈通常会绑定到 `loopback`，此时将无法通过局域网 IP 访问。这种情况下，请改用安装程序输出的 **HTTPS** URL。
 
-## Quick start (recommended)
+## 快速入门（推荐流程）
 
-1. Run the Proxmox helper script install (above).
-2. Choose a remote access option:
-   - **Tailscale** (recommended) if you want an HTTPS URL without opening ports.
-   - **Reverse proxy** if you already have Caddy/Nginx/Traefik.
-3. On the computer where you want to run the daemon/terminal:
-   - `happier server add --server-url https://<your-server-url> --use`
+1. 运行上文的 Proxmox 辅助脚本完成安装。
+2. 选择一种远程访问方案：
+   - **Tailscale**（推荐）：无需在公网开放端口即可获得 HTTPS URL。
+   - **反向代理**：适合已部署 Caddy、Nginx 或 Traefik 的环境。
+3. 在需要运行守护进程/终端的电脑上执行：
+   - `happier server add --server-url https://⟦K6⟧ --use`
    - `happier auth login --method=mobile`
-4. On your phone, scan the QR code (or open the deep link). The app will prompt to switch servers (if needed), then you can sign in/create an account and approve the terminal connection.
-5. If you installed **Dev box**, SSH into the container and run:
+4. 在手机上扫描二维码（或打开深层链接）。App 会提示切换服务器（如需要），随后即可登录或注册账号，并确认批准终端连接。
+5. 如果安装了 **Dev box**，请通过 SSH 进入容器并运行：
    - `sudo -u happier -H happier auth login`
-   - (If needed) `systemctl restart 'happier-daemon.*.service'`
+   - （必要时）`systemctl restart 'happier-daemon.*.service'`
 
-## After install: recommended onboarding flow
+## 安装后：推荐上手流程
 
-Kaiwu has two separate “things to connect”:
+Kaiwu 包含两个独立的连接环节：
 
-- Your **app/web UI** needs to be configured to talk to **your server**
-- Your **terminal/daemon** needs to be connected to **your account on that server**
+- 将 **App 或 Web UI** 配置为连接**你的服务器**
+- 将**终端或守护进程**连接到**该服务器上的对应账号**
 
-The Proxmox installer **does not** automatically authenticate for you. It prints the exact commands/links you need for the full flow.
+Proxmox 安装程序**不会**替你自动完成认证，但会输出完整流程所需的具体命令和链接。
 
-### 1) Ensure you have a public HTTPS URL (remote access)
+### 1) 确保拥有公网 HTTPS URL（用于远程访问）
 
-If you only access Kaiwu from your LAN, plain HTTP can work.
+如果仅在局域网内访问 Kaiwu，普通的 HTTP 即可满足需求。
 
-For remote access (phone / outside your LAN), the web UI requires **HTTPS** (secure context). Use one of:
+如需远程访问（手机端或局域网外），Web UI 则必须在安全上下文（**HTTPS**）下运行。可选择以下方案之一：
 
-- **Tailscale Serve** (recommended): easiest end-to-end HTTPS
-- **Reverse proxy** (Caddy / Nginx / Traefik): terminate TLS and proxy to the container
+- **Tailscale Serve**（推荐）：实现端到端 HTTPS 最简便的方式
+- **反向代理**（Caddy / Nginx / Traefik）：由代理层终止 TLS 并转发到容器
 
-If you use a reverse proxy, the Proxmox installer will ask you for your public HTTPS URL and persist it in:
+若使用反向代理，Proxmox 安装程序会提示输入公网 HTTPS URL，并将其保存到：
 
-- Default (recommended installers): `/etc/happier/server.env` as:
-  - `HAPPIER_PUBLIC_SERVER_URL=https://<your-domain>` (canonical/share URL used in QR/deep links)
-  - `HAPPIER_WEBAPP_URL=https://<your-domain>` (when you serve the web UI from the container)
-- From-source installs (`HAPPIER_PVE_INSTALL_METHOD=from_source`): `/home/happier/.happier/stacks/main/env`
+- 默认（推荐的安装方式）：写入 `/etc/happier/server.env`，分别配置为：
+  - `HAPPIER_PUBLIC_SERVER_URL=https://⟦K7⟧`（规范/共享 URL，用于二维码和深层链接）
+  - `HAPPIER_WEBAPP_URL=https://⟦K8⟧`（在容器提供 Web UI 服务时生效）
+- 源码安装（`HAPPIER_PVE_INSTALL_METHOD=from_source`）：写入 `/home/happier/.happier/stacks/main/env`
 
-If you need to change it later, edit the same file and restart the stack/service.
+日后如需修改，编辑对应文件并重启栈或服务即可。
 
-#### Advanced: reverse proxy (Caddy / Nginx)
+#### 进阶：反向代理（Caddy / Nginx）
 
-For a reverse proxy setup, you typically terminate TLS on your proxy and forward to:
+采用反向代理配置时，通常在代理层终止 TLS，并转发到：
 
-- `http://<container-ip>:3005`
+- `http://⟦K9⟧:3005`
 
-Make sure your proxy supports **WebSockets** and forwards the usual “real URL” headers:
+请确保代理支持 **WebSocket**，并转发通用的真实 URL 请求头：
 
 - `Host`
 - `X-Forwarded-Proto`
 - `X-Forwarded-Host`
 - `X-Forwarded-For`
 
-Also make sure the stack knows its public URL (for correct deep links/QR codes):
+同时确保该栈能够识别自身的公网 URL（以生成正确的深层链接与二维码）：
 
-- Default (recommended installers): `HAPPIER_PUBLIC_SERVER_URL=https://<your-domain>` in `/etc/happier/server.env`
-- From-source installs: `HAPPIER_PUBLIC_SERVER_URL=https://<your-domain>` in `/home/happier/.happier/stacks/main/env`
+- 默认（推荐的安装方式）：在 `/etc/happier/server.env` 中配置 `HAPPIER_PUBLIC_SERVER_URL=https://⟦K10⟧`
+- 源码安装：在 `/home/happier/.happier/stacks/main/env` 中配置 `HAPPIER_PUBLIC_SERVER_URL=https://⟦K11⟧`
 
-Then restart:
+配置完成后重启：
 
-- Default (recommended installers): `systemctl restart happier-server`
-- From-source installs:
-  - `su - happier -c "/home/happier/.happier-stack/bin/hstack service restart --mode=system"` (if autostart enabled)
-  - `su - happier -c "/home/happier/.happier-stack/bin/hstack start --restart"` (manual start)
+- 默认（推荐的安装方式）：`systemctl restart happier-server`
+- 源码安装：
+  - `su - happier -c "/home/happier/.happier-stack/bin/hstack service restart --mode=system"`（已启用开机自启）
+  - `su - happier -c "/home/happier/.happier-stack/bin/hstack start --restart"`（手动启动）
 
-**Caddy** (recommended for simplest HTTPS)
+**Caddy**（推荐，配置 HTTPS 最为简单）
 
-`Caddyfile`:
+`Caddyfile`：
 
 ```
 happier.example.com {
@@ -116,11 +115,11 @@ happier.example.com {
 }
 ```
 
-If you’re running Caddy on the Proxmox host or another machine, replace `<container-ip>` with your container’s LAN IP.
+如果 Caddy 运行在 Proxmox 宿主机或其他设备上，请将 `⟦K12⟧` 替换为容器的局域网 IP。
 
-**Nginx** (manual config)
+**Nginx**（手动配置）
 
-Server block snippet:
+server 块配置片段：
 
 ```nginx
 server {
@@ -145,100 +144,100 @@ server {
 }
 ```
 
-If you use a UI-driven reverse proxy (e.g. Nginx Proxy Manager / Traefik), make sure “WebSocket support” is enabled and the upstream is `http://<container-ip>:3005`.
+若使用带图形界面的反向代理（如 Nginx Proxy Manager 或 Traefik），请务必开启“WebSocket 支持”，并将上游地址设为 `http://⟦K13⟧:3005`。
 
-### 2) Configure your app/web UI to use your server
+### 2) 配置 App 或 Web UI 连接你的服务器
 
-In most cases you don’t need a separate “configure server” step anymore: terminal connect links include `server=...`, so the app/web UI can safely prompt you to switch servers before you approve the connection.
+大多数情况下，你无需专门执行“配置服务器”操作：终端连接链接已包含 `server=...`，App 或 Web UI 会在确认连接前安全地提示你切换服务器。
 
-If you want to add/switch servers manually in the app:
+若想在 App 中手动添加或切换服务器：
 
-- Open **Settings → Relays** and add your relay URL.
+- 打开**设置 → 中继**，添加中继 URL。
 
-If you chose **not** to serve the web UI from your Proxmox container, use:
+若选择**不**通过 Proxmox 容器提供 Web UI 服务，可使用：
 
-- the **mobile app** (recommended), or
-- the hosted web app at `https://kaiwu.chengqiyun.com` and set the server there
+- **移动端 App**（推荐），或
+- 托管版 Web 应用 `https://kaiwu.chengqiyun.com`，并在其中配置服务器
 
-### 3) Connect the terminal/daemon
+### 3) 连接终端/守护进程
 
-Continue following the `happier auth login` output:
+继续按照 `happier auth login` 的输出进行操作：
 
-- If you’re using the mobile app: scan the QR code / open the mobile deep link
-- If you’re using the web app: open the URL in a browser where you’re signed in
+- 使用移动端 App：扫描二维码或打开移动端深层链接
+- 使用 Web 应用：在已登录的浏览器中打开该 URL
 
-Because the link includes the server URL, the app/web UI can safely prompt you to switch servers (if needed) before approving the connection.
+由于链接中已包含服务器 URL，App 或 Web UI 可以在批准连接前安全地提示你切换服务器（如需要）。
 
-### 4) Start (or restart) the daemon (Dev box mode)
+### 4) 启动（或重启）守护进程（Dev box 模式）
 
-If you installed **Dev box (server-light + daemon)**, the daemon is configured to wait for authentication on first install.
+如果安装的是 **Dev box（server-light + 守护进程）**，在首次安装时守护进程会默认等待认证完成。
 
-After login completes:
+登录完成后：
 
-- Default (recommended installers):
-  - If autostart is enabled, the daemon runs as a systemd system service inside the container.
-  - If needed, restart it: `systemctl restart 'happier-daemon.*.service'`
-- From-source installs:
-  - If autostart is enabled, the service will start the daemon automatically after credentials exist.
-  - Otherwise (manual start), restart so the daemon can start with the new credentials:
+- 默认（推荐的安装方式）：
+  - 若已启用开机自启，守护进程将作为容器内的 systemd 系统服务运行。
+  - 必要时可重启该服务：`systemctl restart 'happier-daemon.*.service'`
+- 源码安装：
+  - 若已启用开机自启，服务检测到凭据就绪后会自动启动守护进程。
+  - 否则（手动启动）需要手动重启，以便守护进程加载新凭据启动：
     - `/home/happier/.happier-stack/bin/hstack start --restart`
 
-## Using Kaiwu from another machine (common setup)
+## 从其他设备使用 Kaiwu（常见架构）
 
-If you installed **Server only** on Proxmox, you’ll typically run the **daemon/terminal** from your laptop/desktop and point it at your Proxmox server.
+如果 Proxmox 上仅安装了 **Server only**，通常会在笔记本或台式电脑上运行**守护进程/终端**，并将其指向 Proxmox 服务器。
 
-On your laptop/desktop:
+在你的笔记本/台式电脑上：
 
-- Save and switch to your self-hosted server:
-  - `happier server add --server-url https://<your-server-url> --use`
-- Then connect your terminal/daemon:
+- 保存并切换至自托管服务器：
+  - `happier server add --server-url https://⟦K14⟧ --use`
+- 随后连接终端/守护进程：
   - `happier auth login`
 
-This persists the server URL locally, then prints:
+该命令会将服务器 URL 保存到本地，随后输出：
 
-- “Connect terminal” links (mobile QR/deep link + web URL) so you can approve the machine connection
+- “连接终端”链接（移动端二维码/深层链接以及 Web URL），便于确认批准设备连接
 
-If you need to explicitly configure/switch servers in the app/web UI (rarely needed), run:
+如需在 App 或 Web UI 中显式配置或切换服务器（通常无需此操作），可运行：
 
 - `happier auth login --print-configure-links`
 
-For ongoing profile switching and multi-server usage, see [Features → Multi-server](/accounts/multi-server).
+有关配置文件切换及多服务器日常使用的详细说明，请参阅[特性 → 多服务器](/accounts/multi-server)。
 
-## Installer prompts (what they mean)
+## 安装提示选项说明
 
-### Installation type
+### 安装类型
 
-- **Dev box (server-light + daemon)**: Installs the server and the daemon tooling. The installer starts the server; the daemon may require authentication before it can run.
-- **Server only (no daemon)**: Installs only the server.
+- **Dev box (server-light + daemon)**：同时安装服务器和守护进程工具链。安装程序会自动启动服务器；守护进程可能需要完成认证后方可运行。
+- **Server only (no daemon)**：仅安装服务器组件。
 
-### Serve the web UI
+### 提供 Web UI 服务
 
-- **Yes**: Builds the UI and serves it from the server.
-- **No**: Skips UI dependencies/build for a faster install.
+- **Yes**：构建 Web 界面并由服务器直接托管提供服务。
+- **No**：跳过 Web UI 依赖及构建流程，以加快安装速度。
 
-### Autostart at boot
+### 开机自启
 
-- **Yes**: Installs a systemd *system* service inside the container.
-- **No**: You start it manually.
+- **Yes**：在容器内安装 systemd *系统*服务。
+- **No**：由用户手动启动。
 
-### Remote access / HTTPS
+### 远程访问 / HTTPS
 
-- **Tailscale (recommended)**: Installs Tailscale in the container and can set up an HTTPS URL via Tailscale Serve.
-- **Reverse proxy**: You terminate TLS yourself (Caddy / Nginx / Traefik / etc).
-- **None**: Local network only.
+- **Tailscale (recommended)**：在容器中安装 Tailscale，并可通过 Tailscale Serve 配置 HTTPS URL。
+- **Reverse proxy**：自行配置并终止 TLS（如使用 Caddy、Nginx、Traefik 等）。
+- **None**：仅限局域网访问。
 
-If you choose **Tailscale**, you can optionally paste a **Tailscale pre-auth key** (recommended: ephemeral, one-time). If you skip it (or leave it blank), the installer will still install Tailscale and you can enroll later from inside the container.
+若选择 **Tailscale**，可按需粘贴 **Tailscale 预授权密钥（pre-auth key）**（推荐使用临时一次性密钥）。若跳过或留空，安装程序仍会安装 Tailscale，后续可在容器内部手动加入网络。
 
-#### Tailscale enrollment (auto vs manual)
+#### Tailscale 加入网络（自动与手动）
 
-Tailscale enrollment is optional and depends on your tailnet policy:
+Tailscale 的设备接入操作是可选的，取决于你的 tailnet 安全策略：
 
-- **Auto-enroll (optional):** provide a pre-auth key during install. If it works, the installer will attempt to bring the node online and enable Tailscale Serve.
-- **Manual enroll (always works):** skip the key during install (or leave it blank), then run `tailscale up` later inside the container.
+- **自动接入（可选）：**在安装期间提供预授权密钥。密钥有效时，安装程序会尝试将节点上线并启用 Tailscale Serve。
+- **手动接入（始终适用）：**在安装时跳过密钥（或留空），后续在容器内运行 `tailscale up`。
 
-If enrollment fails or a key is rejected/expired/revoked, the installer prints a “Login URL” (when available) and the exact manual commands to run.
+若接入失败，或者密钥被拒绝、过期、吊销，安装程序会输出“登录 URL”（若可用）以及需要执行的具体手动命令。
 
-Manual enrollment commands (inside the container):
+手动接入命令（在容器内运行）：
 
 ```bash
 tailscale up
@@ -247,86 +246,86 @@ tailscale serve --bg http://127.0.0.1:3005
 tailscale serve status
 ```
 
-### HStack release channel
+### HStack 发布通道
 
-By default, the Proxmox helper script installs Kaiwu using the managed **Relay runtime** (`happier relay host` under the hood), which supports stable/preview/dev channels and in-place updates.
+默认情况下，Proxmox 辅助脚本使用托管的**中继运行时**（底层基于 `happier relay host`）安装 Kaiwu，支持 stable、preview 和 dev 通道，并支持就地热更新。
 
-If you prefer an install that builds from source using `npx ... hstack setup-from-source` you can opt into it via an env var (see below).
+若倾向于使用 `npx ... hstack setup-from-source` 从源码编译安装，可通过环境变量进行设置（见下文）。
 
-Non-interactive overrides:
+非交互式参数替换：
 
-- `HAPPIER_PVE_INSTALL_METHOD=installers|from_source` (default: `installers`)
-- `HAPPIER_PVE_HSTACK_CHANNEL=stable|preview|dev` (`preview` maps to npm `@next`)
-- `HAPPIER_PVE_HSTACK_PACKAGE='@happier-dev/stack@<tag-or-version>'` (from-source only; takes precedence)
+- `HAPPIER_PVE_INSTALL_METHOD=installers|from_source`（默认值：`installers`）
+- `HAPPIER_PVE_HSTACK_CHANNEL=stable|preview|dev`（`preview` 对应 npm `@next`）
+- `HAPPIER_PVE_HSTACK_PACKAGE='@happier-dev/stack@⟦K15⟧'`（仅限源码安装；优先级最高）
 
-## HTTPS guidance (important)
+## HTTPS 配置指南（重要）
 
-For remote usage, the Kaiwu web UI needs **HTTPS** (secure context). Typical setups:
+在远程访问场景下，Kaiwu Web UI 必须运行在 **HTTPS** 环境（安全上下文）中。常见配置方案如下：
 
-- **Tailscale Serve** (easiest): gives you an HTTPS URL without opening ports.
-- **Reverse proxy**: terminate TLS on your network edge and proxy to `http://<container-ip>:3005` (ensure WebSockets are supported).
+- **Tailscale Serve**（最简便）：无需在防火墙开放端口，即可直接获取 HTTPS URL。
+- **反向代理**：在网络边界终止 TLS，并反向代理至 `http://⟦K16⟧:3005`（请确保已开启 WebSocket 支持）。
 
-## Post-install: common commands
+## 安装后：常用命令
 
-Enter the container from the Proxmox host:
+从 Proxmox 宿主机进入容器：
 
-- `pct enter <CTID>`
+- `pct enter ⟦K17⟧`
 
-Service management (recommended installers):
+服务管理（推荐的安装方式）：
 
-- Server:
+- 服务器：
   - `systemctl status happier-server`
   - `journalctl -u happier-server -f`
-- Dev box daemon (if installed):
+- Dev box 守护进程（如已安装）：
   - `systemctl status 'happier-daemon.*.service'`
   - `journalctl -u 'happier-daemon.*.service' -f`
 
-Service management (from-source installs):
+服务管理（源码安装）：
 
 - `su - happier -c "/home/happier/.happier-stack/bin/hstack service status --mode=system"`
 - `su - happier -c "/home/happier/.happier-stack/bin/hstack service logs --mode=system"`
 - `su - happier -c "/home/happier/.happier-stack/bin/hstack service tail"`
 
-## Dev box mode: connect the daemon (recommended)
+## Dev box 模式：连接守护进程（推荐）
 
-If you chose **Dev box (server-light + daemon)**, the server/UI can run before the daemon is authenticated. To connect it:
+如果选择了 **Dev box（server-light + daemon）**，在守护进程完成认证前，服务器与 Web UI 即可正常启动。连接步骤如下：
 
-1. Enter the container:
-   - `pct enter <CTID>`
-2. Run login as the `happier` user (recommended: mobile):
+1. 进入容器：
+   - `pct enter ⟦K18⟧`
+2. 以 `happier` 用户身份执行登录（推荐在移动端操作）：
    - `sudo -u happier -H happier auth login`
 
-After login succeeds:
+登录成功后：
 
-- Recommended installers:
-  - If you installed the daemon system service, it will keep retrying and will connect once credentials exist.
-  - If needed, restart it: `systemctl restart 'happier-daemon.*.service'`
-- From-source installs:
-  - If autostart is enabled, the service will detect the new credentials and start the daemon automatically (usually within a few seconds).
-  - If you started the stack manually (no service), restart so it can start the daemon with the new credentials:
+- 推荐的安装方式：
+  - 若已安装守护进程系统服务，它会持续重试，并在凭据就绪后自动连接。
+  - 必要时可手动重启：`systemctl restart 'happier-daemon.*.service'`
+- 源码安装：
+  - 若已启用开机自启，服务检测到新凭据后会自动启动守护进程（通常只需数秒）。
+  - 若采用手动启动栈（未配置服务），需重启以使守护进程加载新凭据：
     - `/home/happier/.happier-stack/bin/hstack start --restart`
 
-You can verify status with:
+可通过以下命令检查运行状态：
 
-- Recommended installers: `sudo -u happier -H happier auth status`
-- From-source installs: `/home/happier/.happier-stack/bin/hstack auth status`
+- 推荐的安装方式：`sudo -u happier -H happier auth status`
+- 源码安装：`/home/happier/.happier-stack/bin/hstack auth status`
 
-If you enabled Tailscale but skipped the key, enroll later:
+若启用了 Tailscale 但在安装时跳过了密钥，后续可按如下方式接入：
 
 - `tailscale up`
 - `tailscale set --operator=happier`
 - `tailscale serve --bg http://127.0.0.1:3005`
 - `tailscale serve status`
 
-## Updating
+## 更新升级
 
-Recommended installers:
+推荐的安装方式：
 
-- Use the Proxmox helper script “Update” action (it runs `happier relay host install` and also updates the Kaiwu CLI if installed).
-- Or update from inside the container:
+- 使用 Proxmox 辅助脚本自带的“Update”更新操作（该操作会执行 `happier relay host install`，若已安装 Kaiwu CLI，也会一并更新）。
+- 或在容器内部直接更新：
   - `happier relay host install --mode system --channel stable|preview|dev`
-  - `happier self update --channel stable|preview|dev` (Dev box only)
+  - `happier self update --channel stable|preview|dev`（仅限 Dev box）
 
-From-source installs:
+源码安装：
 
-- There is no fully supported in-place updater. Re-run the installer in a fresh container, or update the checked-out workspace manually (advanced).
+- 暂不完全支持就地热更新。请在全新容器中重新运行安装脚本，或手动更新拉取的工作区代码（适合高级用户）。

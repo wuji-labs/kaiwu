@@ -1,290 +1,282 @@
 ---
 title: Git
-description: Stage, commit, branch, stash, push and pull from inside a session, with guardrails on anything that could lose work.
+description: 在会话内直接完成暂存、提交、分支、贮藏、推送与拉取，并对任何可能导致工作丢失的操作设有安全防护。
 ---
+Kaiwu 可以在会话的工作区中直接调用 Git。审查代码改动与提交代码一气呵成，无需切换到终端。
 
-Kaiwu can drive Git in the session's workspace, so reviewing a change and
-committing it are the same sitting rather than a context switch to a terminal.
-
-What it deliberately does not do is expose history-editing. There is no reset,
-rebase, cherry-pick or drop in the app. Those are the operations where a
-mistaken tap on a phone destroys work, and they stay where you have a shell and
-your full attention.
+但 Kaiwu 特意没有提供历史记录修改功能。应用内不包含 reset、rebase、cherry-pick 或 drop 等操作。这类操作一旦在手机上误触，就会导致心血付诸东流。它们应当留在能够使用 shell、且精力高度集中的场合下进行。
 
 <Callout type="warn">
-  Git **write** actions are gated behind
-  **Settings → Features → Source control operations**, which is experimental and
-  **off by default**. Reading a repository's state and diffs needs nothing —
-  see [Diffs and review](/code/diffs).
+  Git 的**写操作**受权限控制，需前往
+  **设置 → 功能 → 版本控制操作**手动开启。该功能目前处于实验阶段，且**默认处于关闭状态**。如果仅读取代码仓库状态和差异，无需开启任何权限——
+  详见[代码对比与审查](/code/diffs)。
 </Callout>
 
 ## Git
 
-The **Git** tab is the repository status surface for the current session.
+**Git** 标签页是当前会话的代码仓库状态界面。
 
-### What you can do
+### 支持的操作
 
-- Review changed files and diffs
-- Stage and unstage changes
-- Select whole files or selected lines/hunks where supported
-- Commit staged work
-- Fetch, pull, and push when Git write operations are enabled
-- Initialize Git when the current folder is not a repository
-- Publish a local repository to GitHub
-- Switch branches
-- Create branches
-- Publish a branch that does not yet have an upstream
-- Open, reuse, and checkout pull requests or merge requests
-- Open a pull request / merge request in a separate worktree-backed session
-- Inspect and manage Kaiwu-created stashes
-- Browse commit history and open historical commit diffs
+- 审查已修改的文件及差异
+- 暂存与取消暂存改动
+- 针对整份文件或支持的特定行/代码块（hunk）进行选择
+- 提交暂存的内容
+- 开启 Git 写操作权限时，执行 fetch、pull 与 push
+- 当前目录不是代码仓库时，进行 Git 初始化
+- 将本地仓库发布到 GitHub
+- 切换分支
+- 创建分支
+- 发布尚未关联上游的分支
+- 打开、复用及检出 PR 或 MR
+- 在基于独立工作树的会话中打开 PR 或 MR
+- 查看和管理由 Kaiwu 创建的暂存记录（stash）
+- 浏览提交历史，查看历史提交的差异
 
-## Repository setup
+## 代码仓库配置
 
-### Initialize Git from Kaiwu
+### 通过 Kaiwu 初始化 Git
 
-If the selected folder is not a Git repository, Kaiwu shows an initialization action instead of leaving the Git tab as a dead end.
+如果当前选择的目录不是 Git 仓库，Kaiwu 不会直接报错中止，而是会提供一个初始化操作选项。
 
-When you confirm, Kaiwu runs `git init` for that folder and then refreshes the Git status.
+确认之后，Kaiwu 会针对该目录执行 `git init`，随后刷新 Git 状态。
 
-What initialization does:
+初始化包含的操作：
 
-- creates the repository metadata for the current folder
-- keeps the folder contents as they are
-- does not stage files
-- does not create an initial commit
-- does not create or publish a remote
+- 为当前目录创建仓库元数据
+- 保持目录原有内容不变
+- 不会暂存文件
+- 不会生成初始提交
+- 不会创建或发布远程仓库
 
-If the folder is already a Git repository by the time the action runs, Kaiwu treats that as success and refreshes status.
+如果在执行该操作时，当前目录已经是 Git 仓库，Kaiwu 会将其视为成功并刷新状态。
 
-### Publish a local repository to GitHub
+### 将本地仓库发布到 GitHub
 
-When a Git repository does not already have a detected GitHub remote, Kaiwu can publish it to GitHub from the Git tab.
+当 Git 仓库尚未检测到 GitHub 远程地址时，你可以直接在 Kaiwu 的 Git 标签页中将其发布至 GitHub。
 
-The publish form lets you choose:
+发布表单支持配置以下项：
 
-- the GitHub owner, including organizations available to the authenticated account
-- the repository name
-- visibility: private, public, or internal when GitHub supports it for that owner
-- HTTPS or SSH remote URL
-- whether to push the current branch after creating the repository
-- what to do if the selected remote name already exists
+- GitHub 所有者（包含当前认证账号有权限的组织）
+- 仓库名称
+- 可见性：私有、公开，或在 GitHub 支持该所有者时选择内部公开
+- HTTPS 或 SSH 形式的远程 URL
+- 创建仓库后是否推送当前分支
+- 所选远程名称已存在时的处理方式
 
-Kaiwu creates the GitHub repository first, then updates the local Git remote through Kaiwu's own SCM backend. Even when it uses the GitHub CLI as the network adapter, it does not let `gh repo create` mutate local Git state directly.
+Kaiwu 会先创建 GitHub 仓库，随后通过自有的 SCM 后端更新本地 Git 远程配置。即使使用 GitHub CLI 作为网络适配层，Kaiwu 也不会让 `gh repo create` 直接修改本地 Git 状态。
 
-Authentication order:
+认证匹配顺序：
 
-1. a connected GitHub account token in Kaiwu
-2. an already-authenticated local or managed `gh` CLI
+1. Kaiwu 中已关联的 GitHub 账号 Token
+2. 本地或受管环境中已完成认证的 `gh` CLI
 
-If neither is available, Kaiwu explains the missing auth and points you toward connecting GitHub or authenticating/installing `gh`.
+若两者均未提供，Kaiwu 会说明缺失的认证信息，并引导你关联 GitHub 账号，或安装/认证 `gh`。
 
-Current scope:
+当前支持范围：
 
-- GitHub repository publishing is supported.
-- GitLab and Bitbucket repository creation are not currently supported from Kaiwu.
-- Publishing is explicit; Kaiwu does not create a repository, remote, commit, or push without a user action.
+- 支持发布到 GitHub 仓库。
+- 目前不支持直接从 Kaiwu 创建 GitLab 和 Bitbucket 仓库。
+- 发布操作完全由用户主动触发；未经用户明确操作，Kaiwu 绝不会自动创建仓库、远程分支、提交或执行推送。
 
-## Remote operations
+## 远程操作
 
-The remote-actions area covers routine network operations without leaving the session.
+无需离开当前会话，即可在远程操作区域完成日常的网络同步。
 
-Depending on repository state and capabilities, Kaiwu can show:
+Kaiwu 会根据仓库状态和支持的功能，提供以下操作：
 
-- **Fetch** to update remote refs
-- **Pull** when the current branch can fast-forward
-- **Push** when the current branch has an upstream
-- **Publish branch** when the current branch has no upstream yet
-- **Publish to GitHub** when the repository has no GitHub remote
+- **Fetch**：更新远程引用
+- **Pull**：当前分支可快进（fast-forward）时拉取
+- **Push**：当前分支已关联上游时推送
+- **发布分支**：当前分支尚未关联上游时显示
+- **发布到 GitHub**：当前仓库没有 GitHub 远程地址时显示
 
-### Publish branch
+### 发布分支
 
-When the current branch has no upstream tracking branch, Kaiwu shows **Publish** instead of a normal push action.
+如果当前分支尚未设置上游追踪分支，Kaiwu 会将常规的推送操作替换为**发布**。
 
-Publishing sets the upstream and pushes the branch in one step, similar to desktop Git clients.
+与桌面端 Git 客户端类似，发布操作会一步完成设置上游并推送分支。
 
-You can trigger this from the branch menu and, when relevant, from the remote-actions area that would otherwise offer push/pull.
+你可以从分支菜单触发该操作；在需要时，也可以直接在常规显示 push/pull 的远程操作区中触发。
 
-### Remote operation safety
+### 远程操作的安全机制
 
-Kaiwu keeps the remote workflow conservative:
+Kaiwu 在远程工作流上保持相对保守的策略：
 
-- pull uses fast-forward only
-- pull requires a clean worktree
-- push is blocked when `HEAD` is detached
-- push is blocked while the local branch is behind upstream
-- push, pull, and revert are blocked while conflicts are present
+- pull 仅支持快进（fast-forward）模式
+- pull 要求工作树必须保持干净
+- 当 `HEAD` 处于游离（detached）状态时禁止 push
+- 本地分支落后于上游分支时禁止 push
+- 存在冲突时禁止 push、pull 和 revert
 
-These rules are backend invariants. The UI explains the blocked state instead of offering an action that Git would reject or that could rewrite history.
+这些规则是后端强制遵循的不变式。Kaiwu 会直接在界面上解释被阻止的原因，绝不提供可能被 Git 拒绝、或可能导致重写历史的操作。
 
-## Commit history
+## 提交历史
 
-The **History** sub-tab shows past commits for the current repository.
+**历史**子标签页展示当前仓库过去的提交记录。
 
-Opening a commit creates a details tab that uses the same general diff-viewing model as Review:
+点开某次提交会开启一个详情标签页，其差异查看逻辑与“审查”功能完全一致：
 
-- progressively rendered diffs
-- collapsible file sections
-- stateful tab behavior in the details pane
+- 差异渐进式渲染
+- 文件区块支持折叠
+- 详情面板保留标签页状态
 
-This is intended to make “current changes” and “historical commit inspection” feel like the same mental model, not two unrelated tools.
+这种设计旨在让“查看当前改动”与“检查历史提交”遵循相同的使用直觉，而非割裂成两套互不相干的工具。
 
-Typical use cases:
+典型使用场景：
 
-- inspect what changed in a previous commit
-- compare current work against a known good commit
-- open a past commit, then jump back to current Review
+- 查看先前某次提交修改了哪些内容
+- 将当前改动与已知的稳定提交进行比对
+- 打开历史提交排查后，随时切回当前的审查界面
 
-## Committing staged work
+## 提交暂存的内容
 
-The commit composer sits at the bottom of the Git tab.
+提交编辑器位于 Git 标签页的底部。
 
-### Commit message generator
+### 提交信息生成器
 
-Kaiwu includes a **Generate commit message** action in the commit composer.
+Kaiwu 在提交编辑器中内置了**生成提交信息**功能。
 
-- It is **enabled by default**.
-- It uses a one-shot execution-run task to propose a commit message.
-- It uses the current commit selection/scope as input when applicable.
-- It applies the final suggested commit message text, not the structured response payload used internally by the generator.
-- You can choose the backend and add custom instructions in **Settings → Source control**.
+- 该功能**默认开启**。
+- 它通过单次执行任务给出建议的提交信息。
+- 在适用情况下，它会以当前选中的暂存范围作为输入。
+- 最终填入的是建议的提交信息文本，而非生成器内部使用的结构化响应载荷。
+- 你可以在**设置 → 版本控制**中选择后端模型并添加自定义指令。
 
-Good use cases:
+推荐使用场景：
 
-- you want a fast Conventional Commit suggestion
-- you staged only part of the repo and want a message scoped to that selection
-- you want a draft message, then refine it manually before committing
+- 需要快速生成符合 Conventional Commit 规范的提交信息
+- 仅暂存了仓库的部分改动，希望提交信息精准匹配该范围
+- 先生成草稿，再手动微调后提交
 
-The generator suggests text. It does not auto-commit.
+生成器仅提供文本建议，绝不会自动执行提交。
 
-### Selection-aware commits
+### 精细化暂存提交
 
-Depending on the SCM backend and capabilities, Kaiwu can support:
+基于 SCM 后端及其能力，Kaiwu 支持多种提交流程：
 
-- file-scoped selection
-- line/hunk-level selection
-- whole working-tree commits
+- 文件级选择
+- 代码行/代码块级选择
+- 整个工作树直接提交
 
-This lets you create more intentional commits without dropping into the terminal for routine staging flows.
+日常暂存无需切出到终端，即可按需组织出粒度更清晰的提交。
 
-## Branch management
+## 分支管理
 
-The branch summary at the top of the Git tab shows the current branch and branch state.
+Git 标签页顶部的分支摘要展示了当前分支及分支状态。
 
-From the branch menu you can:
+在分支菜单中，你可以：
 
-- see the current branch
-- switch to another branch
-- create a new branch
-- publish the current branch when it has no upstream yet
-- checkout a pull request or merge request into the current worktree
-- open a pull request or merge request in a separate worktree-backed session
+- 查看当前所在分支
+- 切换到其他分支
+- 创建新分支
+- 在当前分支没有上游时将其发布
+- 将 PR 或 MR 检出到当前工作树
+- 在基于独立工作树的会话中打开 PR 或 MR
 
-### Branch switching with uncommitted changes
+### 存在未提交改动时切换分支
 
-When you switch branches with local changes, Kaiwu can handle that in two ways:
+当本地存在未提交改动并尝试切换分支时，Kaiwu 提供两种处理策略：
 
-- **Leave my changes on the current branch**
-- **Bring my changes to the target branch**
+- **将改动保留在当前分支**
+- **将改动带到目标分支**
 
-The default behavior is to ask, unless you changed the branch-switch preference in Settings.
+除非你在设置中修改了分支切换偏好，否则 Kaiwu 默认每次都会询问。
 
-#### Leave my changes on the current branch
+#### 将改动保留在当前分支
 
-Kaiwu creates or updates a Kaiwu-managed stash for the current branch, then checks out the target branch.
+Kaiwu 会针对当前分支创建或更新一条受管暂存（stash），随后检出目标分支。
 
-Use this when:
+适用场景：
 
-- your current edits belong to the current branch
-- you want a clean checkout on the destination branch
+- 当前的修改属于当前分支
+- 希望在目标分支上获得干净的检出环境
 
-#### Bring my changes to the target branch
+#### 将改动带到目标分支
 
-Kaiwu tries to carry your uncommitted changes across the branch switch.
+Kaiwu 会尝试将未提交的改动顺延带到新分支。
 
-If Git would block the checkout because local changes would be overwritten, Kaiwu falls back to a transient stash/apply flow so the changes can still move with you.
+如果本地改动可能被覆盖而导致 Git 阻止检出，Kaiwu 会自动转入临时的 stash/apply 流程，确保改动随你一起迁移。
 
-Use this when:
+适用场景：
 
-- you started working on the wrong branch
-- your uncommitted edits should follow you to the new branch
+- 不小心在错误的分支上开始编写代码
+- 未提交的修改需要带到新分支继续开发
 
-## Managed stashes
+## 受管暂存
 
-Kaiwu creates and tracks its own stash entries for branch-switch workflows.
+在分支切换工作流中，Kaiwu 会创建并跟踪自有的 stash 记录。
 
-These stashes appear in the Git tab as **Managed stashes**.
+这些记录在 Git 标签页中显示为**受管暂存**。
 
-From the stash surface you can:
+在暂存界面中，你可以：
 
-- see all Kaiwu-managed stash entries
-- open a stash details view
-- inspect the stash diff
-- restore a stash
-- discard a stash
+- 查看所有 Kaiwu 受管暂存记录
+- 打开暂存详情视图
+- 检查暂存差异
+- 恢复暂存（restore）
+- 丢弃暂存（discard）
 
-### When stashes are created
+### 何时会生成暂存
 
-Common cases:
+常见情况：
 
-- you choose **Leave my changes on the current branch** during a branch switch
-- Kaiwu needs a transient stash to complete a **Bring my changes** workflow safely
+- 切换分支时选择了**将改动保留在当前分支**
+- Kaiwu 需要借助临时暂存安全完成**将改动带到目标分支**流程
 
-Transient stashes are internal safety rails for branch switching. If the carry-over apply succeeds they disappear automatically; if Git reports conflicts, Kaiwu keeps the stash so you can inspect or restore it manually.
+临时暂存是分支切换的内部安全机制。一旦带入并应用成功，该记录会自动清理；如果 Git 提示存在冲突，Kaiwu 会保留该暂存，以便你手动排查或恢复。
 
-### Restore vs discard
+### 恢复与丢弃
 
-- **Restore** applies the stash back into the working tree and removes it if the operation succeeds
-- **Discard** removes the stash without applying it
+- **恢复**：将暂存改动重新应用到工作树，操作成功后自动删除该暂存记录
+- **丢弃**：直接删除暂存记录，不应用改动
 
-If Git reports a conflict while restoring, Kaiwu keeps the stash instead of silently dropping it.
+如果在恢复过程中 Git 报告冲突，Kaiwu 会保留该暂存，绝不静默丢弃。
 
-## Lock recovery
+## 锁文件恢复
 
-If Git reports a stale `index.lock` during branch checkout, Kaiwu can offer a focused recovery prompt.
+如果在分支检出期间 Git 提示存在残留的 `index.lock`，Kaiwu 会弹出针对性的恢复提示。
 
-When you confirm, Kaiwu asks Git for the exact lock path and removes only that validated `index.lock` file inside the repository's Git directory. It then retries the failed checkout once.
+经你确认后，Kaiwu 会向 Git 查询具体的锁路径，并仅移除该仓库 Git 目录下经过验证的 `index.lock` 文件。随后重新尝试刚才失败的检出操作一次。
 
-Kaiwu does not run `git clean`, `git reset`, or broader repository cleanup as part of lock recovery.
+在锁文件恢复流程中，Kaiwu 不会执行 `git clean`、`git reset` 或更大范围的代码仓库清理。
 
-## Guardrails
+## 安全红线
 
-Kaiwu refuses an operation rather than attempting one that could lose work:
+只要操作存在丢失代码的风险，Kaiwu 宁可直接拒绝，也不会盲目尝试：
 
-- Initializing a repository and publishing to GitHub both require an explicit action from you.
-- Publish, push and pull are blocked when the repository state says the operation is unsafe.
-- Pull is **fast-forward only**, and pull and revert require a clean worktree.
-- Push, pull and revert are blocked when `HEAD` is detached, and while conflicts are present.
-- Push is blocked when the local branch is behind its upstream.
-- Stale lock recovery removes only a validated `index.lock` inside the repository's own Git directory.
-- Destructive history editing — reset, rebase, cherry-pick, drop — is not exposed in the app at all.
+- 初始化仓库和发布到 GitHub 都必须经过你的明确确认。
+- 只要仓库状态显示当前操作不安全，发布、push 和 pull 都会被直接阻止。
+- pull **仅支持快进**，且 pull 与 revert 都要求干净的工作树。
+- `HEAD` 处于游离状态或存在冲突时，禁止 push、pull 和 revert。
+- 本地分支落后于上游分支时，禁止 push。
+- 残留锁恢复只会移除仓库自有的 Git 目录下经过验证的 `index.lock`。
+- reset、rebase、cherry-pick、drop 等破坏性历史编辑操作完全不在应用中暴露。
 
-## Limits
+## 使用限制
 
-- Line-level staging works on text diffs; binary and conflict cases fall back to whole-file actions.
-- The commit-message generator needs daemon support for execution runs.
-- Publishing a repository is supported for GitHub. GitLab and Bitbucket repository publishing are not.
+- 行级暂存仅适用于文本差异；二进制文件和冲突情况回退为整文件操作。
+- 提交信息生成器依赖守护进程对执行任务的支持。
+- 仓库发布目前仅支持 GitHub。暂不支持发布到 GitLab 和 Bitbucket。
 
 ## Sapling
 
-Git is not the only backend. Sapling is supported too, and it is neither a full
-peer of Git nor read-only — so it is worth knowing where the line falls before
-you point Kaiwu at a Sapling checkout.
+Git 并非唯一的后端支持。Kaiwu 同时支持了 Sapling，但它既没有达到与 Git 同等的完备度，也不是完全只读——因此，在将 Kaiwu 接入 Sapling 工作区前，建议了解其支持边界：
 
-| Area | Sapling |
+| 领域 | Sapling |
 | --- | --- |
-| Reading | Status, file diffs, commit diffs, log |
-| Committing | Create, commit selected paths, back out a commit |
-| Working copy | Discard changes |
-| Remotes | Fetch, pull and push — but not publishing a new repository |
-| Branches and stashes | Not supported |
-| Line-level staging | Not supported — path-level selection only |
+| 读取 | 状态、文件差异、提交差异、日志 |
+| 提交 | 创建提交、提交指定路径、撤回提交（back out） |
+| 工作副本 | 放弃改动 |
+| 远程操作 | Fetch、pull 和 push——但不支持发布新仓库 |
+| 分支与暂存 | 不支持 |
+| 行级暂存 | 不支持——仅支持路径级（文件级）选择 |
 
-Anything branch- or stash-shaped is Git-only, as is staging individual lines.
+所有涉及分支与暂存的功能均为 Git 独享，单行级暂存亦是如此。
 
-## Related
+## 相关文档
 
-- [Diffs and review](/code/diffs) — reading changes before you commit them.
-- [Pull requests](/code/pull-requests) — publishing a branch and opening a request.
-- [Review comments](/code/review-comments)
-- [Files and the editor](/code/files-and-editor)
+- [代码对比与审查](/code/diffs) —— 提交代码前查看改动。
+- [拉取请求](/code/pull-requests) —— 发布分支并创建 PR。
+- [评审评论](/code/review-comments)
+- [文件与编辑器](/code/files-and-editor)

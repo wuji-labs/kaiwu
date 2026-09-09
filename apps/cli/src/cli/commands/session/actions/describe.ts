@@ -9,7 +9,7 @@ export async function cmdSessionActionsDescribe(argv: string[]): Promise<void> {
   const json = wantsJson(argv);
   const [id = ''] = readCommandPositionals(argv, { startIndex: 2 });
   if (!id) {
-    throw new Error('Usage: happier session actions describe <action-id> [--json]');
+    throw new Error('Usage: kaiwu session actions describe <action-id> [--json]');
   }
 
   const spec = getActionSpec(id as any);

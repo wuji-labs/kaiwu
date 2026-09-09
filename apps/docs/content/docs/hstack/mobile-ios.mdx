@@ -1,54 +1,51 @@
 ---
-title: Mobile (iOS)
-description: Optional iOS development and dev-client workflow for local stacks.
+title: 移动端 (iOS)
+description: 适用于本地栈的可选 iOS 开发及 dev-client 工作流。
 ---
+本步骤为可选项。多数用户直接在移动端通过 Tailscale 访问 Web UI，或者将 Kaiwu 应用指向自托管中继即可（参见 [App → Relay selection](/apps/app#relay-selection)）。
 
-This is optional. Most people can use the served web UI on mobile via Tailscale or point the Kaiwu app at their self-hosted relay (see [App → Relay selection](/apps/app#relay-selection)).
+## 前提条件（一次性配置）
 
-## Prereqs (one-time)
+- 已安装 Xcode
+- 已安装 CocoaPods（`brew install cocoapods`）
 
-- Xcode installed
-- CocoaPods installed (`brew install cocoapods`)
+## 支持的两种模式
 
-## Two supported modes
+- **共享 dev-client 应用**（推荐开发时使用）：
+  - 在手机上安装*一个* hstack dev-client 应用。
+  - 携带 `--mobile` 运行任意栈；扫描二维码即可在 dev-client 中打开该栈。
+  - 各栈的认证与存储通过 `EXPO_PUBLIC_HAPPY_STORAGE_SCOPE` 相互隔离（历史遗留环境变量名；在栈模式下会自动设置）。
 
-- **Shared dev-client app** (recommended for development):
-  - Install *one* hstack dev-client app on your phone.
-  - Run any stack with `--mobile`; scan the QR to open that stack inside the dev-client.
-  - Per-stack auth/storage is isolated via `EXPO_PUBLIC_HAPPY_STORAGE_SCOPE` (historical env var name; set automatically in stack mode).
+- **单栈专属 “Release” 应用**（推荐演示或需要严格隔离时使用）：
+  - 为每个栈安装独立的 iOS 应用（拥有唯一的 Bundle ID 与 Scheme）。
+  - 各栈应用由 iOS 容器沙箱隔离，不存在 Token 冲突问题。
 
-- **Per-stack “release” app** (recommended for demos / strict isolation):
-  - Install a separate iOS app per stack (unique bundle id + scheme).
-  - Each stack app is isolated by iOS app container (no token collisions).
+## 共享 dev-client 应用（单次安装）
 
-## Shared dev-client app (install once)
+若执行过 `hstack setup-from-source --profile=dev`，安装向导会询问是否代为安装 dev-client。
 
-If you ran `hstack setup-from-source --profile=dev`, the setup wizard can optionally offer to install the dev-client for you.
+通过 USB 连接 iPhone，安装专用的 hstack dev-client 应用。
 
-Install the dedicated hstack dev-client app on your iPhone (USB).
-
-This command **runs a prebuild** (generates `ios/` + runs CocoaPods) and then installs a Debug build
-without starting Metro:
+该命令会**执行预构建（prebuild）**（生成 `ios/` 并运行 CocoaPods），随后安装 Debug 构建，中途不会启动 Metro：
 
 ```bash
 hstack mobile-dev-client --install
 ```
 
-If you want to ensure the dev-client is built from a specific stack’s active repo worktree
-(e.g. to include upstream changes that aren’t merged into your default checkout yet), run:
+如果需要确保 dev-client 基于特定栈的当前代码工作树进行构建（例如引入尚未合并到默认检出分支的上游变更），可运行：
 
 ```bash
 hstack stack mobile-dev-client <stack> --install
 ```
 
-Optional:
+可选操作：
 
 ```bash
 hstack mobile-dev-client --install --device="Your iPhone"
 hstack mobile-dev-client --install --clean
 ```
 
-Then run any stack with mobile enabled:
+随后启动任意栈并启用移动端支持：
 
 ```bash
 hstack tui stack dev <stack> --mobile
@@ -58,33 +55,33 @@ hstack stack dev <stack> --mobile
 hstack dev --mobile
 ```
 
-Notes:
+注意事项：
 
-- **LAN requirement**: for physical iPhones, Metro must be reachable over LAN.
-  - hstack defaults to `lan` for mobile, and will print a QR code + deep link.
-  - For simulators you can usually use `localhost` (see `HAPPIER_STACK_MOBILE_HOST` below).
-- **If Expo is already running in web-only mode**: re-run with `--restart` and include `--mobile`.
+- **局域网连通要求**：使用真机 iPhone 时，必须确保 Metro 可通过局域网访问。
+  - 针对移动端，hstack 默认配置为 `lan`，并会输出二维码和深度链接。
+  - 模拟器通常可直接使用 `localhost`（参见下文的 `HAPPIER_STACK_MOBILE_HOST`）。
+- **若 Expo 已在纯 Web 模式下运行**：请加上 `--mobile` 重新执行 `--restart`。
 
-## Per-stack app install (isolated)
+## 单栈专属应用安装（相互隔离）
 
-Install an isolated app for a specific stack (unique bundle id + scheme, Release config, no Metro):
+为指定栈安装隔离的应用（具备独立的 Bundle ID 和 Scheme，使用 Release 配置，不依赖 Metro）：
 
 ```bash
 hstack stack mobile:install <stack> --name="Kaiwu (<stack>)"
 hstack stack mobile:install <stack> --name="Kaiwu PR 272" --device="Your iPhone"
 ```
 
-The chosen app name is persisted in the stack env so you can re-run installs without re-typing it.
+选定的应用名称会持久化保存在该栈的环境变量中，后续重新安装无需重复输入。
 
-## Native iOS regeneration / “prebuild” (critical)
+## 重新生成 iOS 原生工程 / “prebuild”（关键步骤）
 
-You’ll need to regenerate the iOS native project + Pods when:
+在以下情况下，需要重新生成 iOS 原生工程与 Pods：
 
-- you pull changes that affect native deps / Expo config
-- `apps/ui/ios/` was deleted
-- you hit CocoaPods / deployment-target mismatches after a dependency bump
+- 拉取的代码变更影响了原生依赖或 Expo 配置
+- `apps/ui/ios/` 被误删
+- 升级依赖后遇到 CocoaPods 或 Deployment Target 不匹配的问题
 
-Run:
+运行：
 
 ```bash
 hstack mobile --prebuild
@@ -92,26 +89,25 @@ hstack mobile --prebuild
 hstack mobile --prebuild --clean
 ```
 
-What this does today:
+该命令当前执行的操作如下：
 
-- runs `expo prebuild --no-install` (so we can patch before CocoaPods runs)
-- patches `ios/Podfile.properties.json` to:
-  - set `ios.deploymentTarget` to `16.0`
-  - set `ios.buildReactNativeFromSource` to `true`
-- patches the generated Xcode project deployment target (where applicable)
-- runs `pod install`
+- 运行 `expo prebuild --no-install`（以便在 CocoaPods 运行前完成补丁）
+- 为 `ios/Podfile.properties.json` 打补丁：
+  - 将 `ios.deploymentTarget` 设为 `16.0`
+  - 将 `ios.buildReactNativeFromSource` 设为 `true`
+- 修补生成的 Xcode 工程的 Deployment Target（在适用的情况下）
+- 运行 `pod install`
 
-Notes:
+注意事项：
 
-- **You usually don’t need to run this manually** because both:
+- **通常无需手动执行该步骤**，因为以下两个命令均已内置 `--prebuild`：
   - `hstack mobile-dev-client --install`
-  - `hstack stack mobile:install <stack>`
-  already include `--prebuild`.
-- Legacy alias: `hstack mobile:prebuild` exists (hidden), but prefer `hstack mobile --prebuild`.
+  - `hstack stack mobile:install ⟦K23⟧`
+- 历史别名：虽保留有隐藏别名 `hstack mobile:prebuild`，但建议优先使用 `hstack mobile --prebuild`。
 
-## Manual `hstack mobile` usage (advanced)
+## 手动调用 `hstack mobile`（高级用法）
 
-If you want to work on the embedded Expo app directly (outside `hstack dev --mobile`), `hstack mobile` supports:
+如果希望直接针对内置的 Expo 应用开发（脱离 `hstack dev --mobile`），`hstack mobile` 支持以下命令：
 
 ```bash
 # Start Metro (keeps running):
@@ -122,65 +118,63 @@ hstack mobile --prebuild --run-ios --device="Your iPhone"
 hstack mobile --prebuild --run-ios --configuration=Release --no-metro
 ```
 
-## Notes / troubleshooting
+## 说明与排错指南
 
-- **QR opens the wrong app**:
-  - The dev-client QR uses the `HAPPIER_STACK_DEV_CLIENT_SCHEME` (default: `hstack-dev`).
-  - Per-stack installs use a different per-stack scheme, so they should not intercept dev-client QR scans.
+- **扫码打开了错误的应用**：
+  - dev-client 二维码使用的是 `HAPPIER_STACK_DEV_CLIENT_SCHEME`（默认值：`hstack-dev`）。
+  - 单栈专属安装采用专属于各自栈的 Scheme，因此不会拦截 dev-client 的扫码操作。
 
-- **List connected devices** (for `--device=`):
+- **列出已连接的设备**（用于 `--device=`）：
 
 ```bash
 hstack mobile:devices
 ```
 
-- **Code signing weirdness on a real iPhone**:
-  - hstack will try to “un-pin” signing fields in the generated `.pbxproj` so Expo/Xcode can reconfigure signing
-    (this avoids failures where automatic signing is disabled because `DEVELOPMENT_TEAM`/profiles were pinned).
-  - If you want to manage signing manually, pass `--no-signing-fix` to `hstack mobile ...` / `hstack stack mobile <stack> ...`.
+- **iPhone 真机代码签名异常**：
+  - hstack 会尝试取消生成文件 `.pbxproj` 中固定的签名配置字段，以便 Expo/Xcode 重新配置签名（从而避免因固定了 `DEVELOPMENT_TEAM` 或描述文件而导致自动签名失效的问题）。
+  - 如需手动管理签名，可向 `hstack mobile ...` / `hstack stack mobile ⟦K24⟧ ...` 传入 `--no-signing-fix`。
 
-## Bake the default server URL into the app (optional)
+## 将默认服务器 URL 固化到应用中（可选）
 
-If you want the built app to default to your hstack server URL, set this **when building**:
+如果希望打包出的应用默认指向你的 hstack 服务器 URL，请在**构建时**设置：
 
 ```bash
 HAPPIER_STACK_SERVER_URL="https://<your-machine>.<tailnet>.ts.net" hstack mobile-dev-client --install
 ```
 
-Note: changing `HAPPIER_STACK_SERVER_URL` requires rebuilding/reinstalling the app you care about.
+注意：修改 `HAPPIER_STACK_SERVER_URL` 后，必须重新构建并安装目标应用。
 
-Tip: `HAPPIER_STACK_SERVER_URL` should be the canonical/share URL your phone can reach. For self-hosted deployments, the server-side equivalent is `HAPPIER_PUBLIC_SERVER_URL` (often the same value).
+提示：`HAPPIER_STACK_SERVER_URL` 应填入手机能够访问的规范/共享 URL。在自托管部署中，服务端对应的配置项为 `HAPPIER_PUBLIC_SERVER_URL`（两者取值通常一致）。
 
-Important:
+重要提示：
 
-- For **non-main stacks**, `HAPPIER_STACK_SERVER_URL` is only respected if it’s set **in that stack’s env file**
-  (safety: we ignore “global” URLs for non-main stacks to avoid accidentally repointing other stacks).
+- 针对**非主栈**，`HAPPIER_STACK_SERVER_URL` 只有在**该栈自身的环境变量文件**中设置时才会生效（安全考量：对非主栈忽略“全局”URL，以防误修改其他栈的指向）。
 
-## Customizing the app identity (optional / advanced)
+## 自定义应用标识（可选 / 高级用法）
 
-hstack uses these identities:
+hstack 预设了以下应用标识：
 
-- **Dev-client**: defaults to `Kaiwu Dev` + bundle id `dev.happier.stack.dev.<user>`
-- **Per-stack release**: defaults to `Kaiwu (<stack>)` + bundle id `dev.happier.stack.stack.<user>.<stack>`
+- **Dev-client**：默认为 `Kaiwu Dev`，Bundle ID 为 `dev.happier.stack.dev.⟦K25⟧`
+- **单栈 Release 应用**：默认为 `Kaiwu (⟦K26⟧)`，Bundle ID 为 `dev.happier.stack.stack.⟦K27⟧.⟦K28⟧`
 
-If you want to build/install *manually* (instead of `mobile-dev-client` / `stack mobile:install`), you can override:
+如果希望*手动*构建/安装（而非使用 `mobile-dev-client` / `stack mobile:install`），可以覆盖以下配置：
 
-- **Bundle identifier (recommended for real iPhones)**:
-  - You may need this if the bundle id you’re using isn’t available/owned by your Apple team.
+- **Bundle Identifier（推荐真机 iPhone 使用）**：
+  - 若当前 Bundle ID 未归属你的 Apple 开发者团队或已被占用，则需要进行覆盖。
 
 ```bash
 HAPPIER_STACK_IOS_BUNDLE_ID="com.yourname.hstack.dev" hstack mobile --prebuild --run-ios --no-metro
 ```
 
-- **App name (what shows on the home screen)**:
+- **应用名称（显示在主屏幕上的名称）**：
 
 ```bash
 HAPPIER_STACK_IOS_APP_NAME="hstack" hstack mobile --prebuild --run-ios --no-metro
 ```
 
-## Suggested env (recommended)
+## 推荐环境变量配置
 
-Add these to your main stack env file (`~/.happier/stacks/main/env`) (or `~/.happier-stack/env.local` for global overrides) so you don’t have to prefix every command:
+建议将以下内容加入主栈的环境变量文件（`~/.happier/stacks/main/env`）（或写入 `~/.happier-stack/env.local` 作为全局覆盖项），无需在每条命令前重复添加前缀：
 
 ```bash
 # How the phone reaches Metro:
@@ -199,41 +193,40 @@ HAPPIER_STACK_SERVER_URL="https://<your-machine>.<tailnet>.ts.net"
 HAPPIER_STACK_IOS_APP_NAME="Kaiwu"
 ```
 
-## EAS builds per stack (production / App Store-like)
+## 基于 EAS 的单栈构建（生产级 / 类 App Store 环境）
 
-This section documents the end-to-end workflow for producing a **fully working** EAS Build (cloud) for a stack,
-with a **custom bundle id + app name** (example: `dev.happier.app` / `Kaiwu`), while keeping upstream defaults unchanged when env vars are unset.
+本节详细说明如何为指定栈生成**完全可用**的云端 EAS Build 端到端工作流。该流程支持**自定义 Bundle ID 与应用名称**（例如：`dev.happier.app` / `Kaiwu`），并在未设置环境变量时保持上游默认值不变。
 
-### Overview
+### 概述
 
-To get a reliable EAS build for a stack-specific app identity, you generally need:
+若要为单栈特定应用标识生成可靠的 EAS 构建，通常需要：
 
-- a **Kaiwu monorepo worktree** that contains the app config hooks (dynamic `app.config.js`)
-- a stack pinned to that worktree (`hstack stack wt <stack> -- use ...`)
-- stack env vars describing the **app identity** (bundle id, name, scheme, etc.)
-- EAS **environment variables** configured on Expo (so the cloud builder sees the same values)
-- an initial **interactive** credentials setup (iOS signing) before non-interactive builds work
-- for identity changes: run **prebuild** so `ios/` + `android/` native projects reflect the new id
+- 包含应用配置钩子（动态 `app.config.js`）的 **Kaiwu 单体仓库（monorepo）工作树**
+- 一个绑定到该工作树的栈（`hstack stack wt ⟦K29⟧ -- use ...`）
+- 用于描述**应用标识**（Bundle ID、应用名、Scheme 等）的栈环境变量
+- 在 Expo 上配置好 EAS **环境变量**（确保云端构建机能读取到相同的值）
+- 首次构建时完成**交互式**凭据配置（iOS 签名），此后方可支持非交互式构建
+- 标识变更时：执行 **prebuild**，使 `ios/` 与 `android/` 原生工程同步更新为新的标识
 
-### 1) Create (or select) a stack + pin a worktree
+### 1) 创建（或选择）栈并绑定工作树
 
-Example stack name: `happier`.
+以栈名称 `happier` 为例。
 
-Create a monorepo worktree from your fork branch (example):
+从你的 Fork 分支创建单体仓库工作树（示例）：
 
 ```bash
 hstack wt new local/happier-eas --from=origin --base=origin/dev --use
 ```
 
-Pin the `happier` stack to that worktree:
+将 `happier` 栈绑定到该工作树：
 
 ```bash
 hstack stack wt happier -- use local/happier-eas
 ```
 
-### 2) Set the app identity in the stack env (local + build-time config)
+### 2) 在栈环境变量中设置应用标识（本地与构建期配置）
 
-These are evaluated by `apps/ui/app.config.js` when building:
+构建期间，`apps/ui/app.config.js` 会读取并评估这些变量：
 
 ```bash
 hstack stack env happier set \
@@ -245,14 +238,14 @@ hstack stack env happier set \
   EXPO_APP_OWNER="happier-dev"
 ```
 
-Notes:
+注意事项：
 
-- `APP_ENV` drives the built-in variant logic (development/preview/production).
-- `EXPO_APP_*` overrides keep upstream defaults intact when unset.
+- `APP_ENV` 用于控制内置的变体逻辑（development / preview / production）。
+- 未设置环境变量时，`EXPO_APP_*` 覆盖逻辑会完整保留上游默认值。
 
-### 3) Regenerate native projects (“prebuild”) when changing identity
+### 3) 更改标识时重新生成原生工程（“prebuild”）
 
-When changing bundle IDs / schemes / config plugins, you should run a clean prebuild so native projects match the config:
+修改 Bundle ID、Scheme 或配置插件后，建议执行一次干净的预构建，以确保原生工程与最新配置同步：
 
 ```bash
 hstack stack mobile happier --prebuild --platform=ios --clean --no-metro
@@ -260,17 +253,16 @@ hstack stack mobile happier --prebuild --platform=ios --clean --no-metro
 hstack stack mobile happier --prebuild --platform=all --clean --no-metro
 ```
 
-### 4) Make sure the cloud builder sees your env vars (EAS Environment Variables)
+### 4) 确保云端构建机能够读取环境变量（EAS 环境变量）
 
-Cloud builds do **not** automatically inherit your local shell env.
-You must configure EAS Environment Variables on Expo (project settings) and ensure your build profile selects an environment.
+云端构建**不会**自动继承本地终端的环境变量。必须在 Expo（项目设置）中配置 EAS 环境变量，并确保构建 Profile 选中了对应的环境。
 
-The EAS project env var workflow:
+EAS 项目环境变量配置流程：
 
-1) Ensure `apps/ui/eas.json` build profiles set `"environment": "production"` / `"preview"` / `"development"`.
-2) Sync the relevant **EXPO config** env vars into EAS for that environment (plain text or sensitive so `app.config.js` can evaluate them).
+1) 确保 `apps/ui/eas.json` 的构建 Profile 已设置 `"environment": "production"` / `"preview"` / `"development"`。
+2) 将相关 **EXPO 配置**环境变量同步到 EAS 的对应环境中（类型设为明文 Plain text 或敏感 Sensitive，确保 `app.config.js` 能够读取）。
 
-Recommended (stack-scoped sync helper):
+推荐做法（使用栈作用域同步工具）：
 
 ```bash
 hstack stack eas happier env:sync --environment production
@@ -283,56 +275,56 @@ hstack stack eas happier env:sync --environment production --dry-run
 hstack stack eas happier env:sync --environment production --hide-values
 ```
 
-Notes:
+注意事项：
 
-- `env:sync` uses the current stack env values (for example `EXPO_APP_*`, `EXPO_EAS_PROJECT_ID`, `EXPO_UPDATES_URL`, `EXPO_UPDATES_CHANNEL`, `EXPO_APP_LINK_HOST`).
-- `env:sync` does **not** sync `EXPO_PUBLIC_*` (those are bundle-inlined; use `apps/ui/eas.json` or EAS env vars UI as appropriate).
+- `env:sync` 会使用当前栈环境变量的值（例如 `EXPO_APP_*`、`EXPO_EAS_PROJECT_ID`、`EXPO_UPDATES_URL`、`EXPO_UPDATES_CHANNEL`、`EXPO_APP_LINK_HOST`）。
+- `env:sync` **不会**同步 `EXPO_PUBLIC_*`（这些变量是在打包时内嵌的；请视情况使用 `apps/ui/eas.json` 或 EAS 环境变量界面进行配置）。
 
-Manual EAS inspection (still useful for debugging a single variable):
+手动查看 EAS 配置（调试单个变量时依然实用）：
 
 ```bash
 hstack stack eas happier env:list --environment production
 ```
 
-Tip:
+提示：
 
-- If you see “No environment variables with visibility Plain text and Sensitive found…”, it means your EAS environment variables are missing (or set to `secret`).
+- 如果看到 “No environment variables with visibility Plain text and Sensitive found…”，说明 EAS 环境变量尚未添加（或被设置成了 `secret`）。
 
-### 5) EAS project + account sanity checks
+### 5) EAS 项目与账号状态检查
 
-If you see permission errors, verify the Expo account:
+若遇到权限报错，请核实当前登录的 Expo 账号：
 
 ```bash
 hstack stack eas happier whoami
 hstack stack eas happier login
 ```
 
-If the project is not initialized/linked under your account yet:
+若该项目尚未在你的账号下初始化或关联：
 
 ```bash
 hstack stack eas happier project:init
 ```
 
-### 6) Build (iOS / Android)
+### 6) 构建（iOS / Android）
 
-First-time iOS credential setup usually requires interactive mode:
+首次配置 iOS 签名凭据通常需要采用交互模式：
 
 ```bash
 hstack stack eas happier ios --profile production --interactive
 ```
 
-After credentials are set up, you can run non-interactive builds:
+凭据配置完成后，即可运行非交互式构建：
 
 ```bash
 hstack stack eas happier ios --profile production --no-wait --non-interactive
 hstack stack eas happier android --profile production --no-wait --non-interactive
 ```
 
-### Common pitfalls
+### 常见问题排查
 
-- **`eas.json is not valid` / `"build.base" must be of type object`**:
-  - your `eas.json` is using an old schema; update `build.base` to an object and use `"extends": "base"`.
-- **`Credentials are not set up. Run this command again in interactive mode.`**:
-  - run the same build with `--interactive` once to configure iOS signing.
-- **Cloud build doesn’t see stack env vars**:
-  - set EAS environment variables (project settings) and make sure your profile has `"environment": "production"`.
+- **`eas.json is not valid` / `"build.base" must be of type object`**：
+  - 你的 `eas.json` 使用了旧版 Schema；请将 `build.base` 更新为对象结构，并改用 `"extends": "base"`。
+- **`Credentials are not set up. Run this command again in interactive mode.`**：
+  - 附带 `--interactive` 重新执行相同的构建，完成一次 iOS 签名配置即可。
+- **云端构建无法读取栈环境变量**：
+  - 请在项目设置中配置 EAS 环境变量，并确认构建 Profile 中包含 `"environment": "production"`。

@@ -1,98 +1,97 @@
 ---
 title: Cursor
-description: Run Cursor's coding agent through Kaiwu — install and authenticate the CLI, pick a model, and know which parts of the integration are still young.
+description: 通过 Kaiwu 运行 Cursor 的编程智能体 —— 安装并认证 CLI、选择模型，并了解该集成中哪些部分尚处于早期阶段。
 ---
+Kaiwu 通过本地的 `cursor-agent` CLI，基于 Agent Client Protocol 运行 **Cursor**。只要该 CLI 在目标设备上正常运行，`happier cursor` 即可在当地启动会话。你可以在手机、浏览器或另一台电脑上查看、引导并审批该会话。
 
-Kaiwu runs **Cursor** through its local `cursor-agent` CLI, over the Agent Client Protocol. Once the CLI works on a machine, `happier cursor` starts a session there that you can read, steer and approve from your phone, a browser, or another computer.
-
-<Callout type="warn" title="Experimental">
-Cursor's integration is younger than Claude's, Codex's or OpenCode's. It works and people use it daily, but more of it is likely to change, and several session features Kaiwu offers elsewhere are not available here — see [Limits](#limits) below.
+<Callout type="warn" title="实验性">
+Cursor 的集成起步晚于 Claude、Codex 或 OpenCode。虽然它能正常工作且有人日常使用，但未来变动可能会更频繁，而且 Kaiwu 在其他地方提供的部分会话功能此处暂不支持——详情请见下方的[限制](#limits)。
 </Callout>
 
-## What you need first
+## 前提条件
 
-Kaiwu drives your coding agent; it does not ship one. Before `happier cursor` will do anything, `cursor-agent` has to be installed and signed in on the machine that will run the session. If it does not work in that machine's terminal today, it will not work through Kaiwu either.
+Kaiwu 负责调度你的编程智能体，本身并不内置智能体。在 `happier cursor` 执行任何操作之前，必须在运行会话的设备上安装 `cursor-agent` 并完成登录。如果它在该设备的终端中无法运行，通过 Kaiwu 也同样无法使用。
 
-## Install the CLI
+## 安装 CLI
 
-Follow Cursor's current CLI installation instructions, then confirm it runs:
+请按照 Cursor 最新的 CLI 安装指引进行安装，然后确认其能正常运行：
 
 ```bash
 cursor-agent --version
 ```
 
-In Kaiwu you can check the same thing without leaving the app: open **Settings → AI & Agents → AI backends → Cursor** to see whether the CLI was found on the selected machine.
+在 Kaiwu 中无需离开应用即可完成相同检查：打开 **Settings → AI & Agents → AI backends → Cursor**，查看所选设备上是否找到了该 CLI。
 
-Kaiwu looks for `cursor-agent` on `PATH` (`cursor-agent.cmd` on Windows), and falls back to `agent`. If yours lives somewhere unusual, set `HAPPIER_CURSOR_PATH` to the absolute path of the executable in the environment the Kaiwu CLI or daemon runs in.
+Kaiwu 会在 `PATH`（Windows 上为 `cursor-agent.cmd`）中查找 `cursor-agent`，若未找到则回退至 `agent`。如果可执行文件安装在非常规路径，请在运行 Kaiwu CLI 或守护进程的环境中，将 `HAPPIER_CURSOR_PATH` 设置为该可执行文件的绝对路径。
 
-## Authenticate
+## 身份验证
 
-Two routes, and Kaiwu accepts either.
+支持以下两种方式，Kaiwu 均可识别。
 
-**An API key.** Set `CURSOR_API_KEY` in the environment used by the Kaiwu CLI or daemon. Kaiwu detects the variable without copying its value into session metadata or logs.
+**API 密钥。** 在 Kaiwu CLI 或守护进程使用的环境中设置 `CURSOR_API_KEY`。Kaiwu 会读取该变量，但不会将其值复制到会话元数据或日志中。
 
-**Cursor's own login.** Sign in with the `cursor-agent` CLI as you normally would. Kaiwu reads the cached status by running Cursor's own read-only status command, so **Settings → AI & Agents → AI backends → Cursor** reflects your real login state without you having to re-authenticate through Kaiwu.
+**Cursor 自带登录。** 按常规方式使用 `cursor-agent` CLI 登录。Kaiwu 会运行 Cursor 自带的只读状态命令来读取缓存状态，因此 **Settings → AI & Agents → AI backends → Cursor** 能如实反映你的实际登录状态，无需通过 Kaiwu 重新认证。
 
-That status check is safe to run in the background, so unlike some agents, Cursor's login state stays current on its own.
+该状态检查在后台运行十分安全。因此与某些智能体不同，Cursor 的登录状态会自动保持最新。
 
-## Start a session
+## 启动会话
 
 ```bash
 happier cursor
 ```
 
-Or pick **Cursor** as the AI backend in the new-session flow on any client.
+或者在任意客户端的新建会话流程中，选择 **Cursor** 作为 AI 后端。
 
-### Models
+### 模型
 
-Kaiwu asks Cursor which models it offers and shows you that list — it does not carry a hardcoded catalog that can drift. Selecting one applies it through Cursor's own ACP configuration, so what you see selected is what Cursor confirmed.
+Kaiwu 会向 Cursor 查询其提供的模型并展示列表，而不是使用容易过期的硬编码目录。选择模型后，会通过 Cursor 自身的 ACP 配置进行应用，所选即所用，由 Cursor 确认生效。
 
-Cursor does not accept arbitrary model ids: you choose from the models it advertises. If you need one that is not listed, it is Cursor's CLI that decides, not Kaiwu.
+Cursor 不接受任意模型 ID，你只能从它公布的模型中进行选择。如果你需要的模型未在列表中，决定权在于 Cursor 的 CLI，而非 Kaiwu。
 
-### Permission modes
+### 权限模式
 
-Kaiwu's permission modes map onto real `cursor-agent` flags rather than being advisory:
+Kaiwu 的权限模式会直接映射到真实的 `cursor-agent` 标志位，并非仅供参考的建议设置：
 
-| Kaiwu mode | What Cursor is launched with |
+| Kaiwu 模式 | Cursor 启动参数 |
 | --- | --- |
-| Default | no override — Cursor asks as it normally would |
-| Accept edits | `--force --sandbox enabled` |
-| Bypass all permissions | `--force` |
+| 默认 | 无覆盖参数——Cursor 照常询问 |
+| 接受编辑 | `--force --sandbox enabled` |
+| 绕过所有权限 | `--force` |
 
-See [Permissions](/sessions/permissions) for what those modes mean across agents.
+各类智能体中各模式的具体含义，请参阅[权限](/sessions/permissions)。
 
-## Limits
+## 限制
 
-Cursor's own capabilities decide most of these, and the [agent capability tables](/agents/capabilities) carry the authoritative, generated version. The ones worth knowing before you start:
+以下限制大多由 Cursor 自身的能力决定，权威的自动生成清单请参阅[智能体能力表](/agents/capabilities)。开始前建议了解以下几点：
 
-- **Images go one way.** Cursor can generate images, and they arrive in Kaiwu as durable session media that survives a reload. Kaiwu does not send images *to* Cursor — attaching a screenshot to a prompt is not available on this agent.
-- **Resume is experimental.** Kaiwu stores the Cursor session identity and can ask to resume after the provider process restarts, but it checks at runtime whether the installed CLI actually supports it rather than assuming.
-- **No session browsing, forking or rollback through Cursor.** Kaiwu cannot list your existing Cursor sessions, fork one natively, or roll a conversation back. Where Kaiwu offers those actions, the Cursor routes are shown as unavailable with the reason, rather than silently doing something else. Kaiwu's own [replay fork](/sessions/session-forking) is a separate mechanism and is not affected by this.
-- **Tool calls run over the shell bridge**, and that path is experimental for Cursor.
-- **One session per machine at a time.** Cursor's local control is exclusive, and Kaiwu cannot attach to a `cursor-agent` process you started yourself.
-- **No plan mode.** Cursor exposes a single session mode.
+- **图像仅支持单向传输。** Cursor 可以生成图像，并在 Kaiwu 中以持久化会话媒体的形式保存（重新加载后依然保留）。但 Kaiwu 无法向 Cursor 发送图像——该智能体暂不支持在提示词中附加截图。
+- **恢复会话功能仍处于实验阶段。** Kaiwu 会保存 Cursor 会话标识，并能在提供商进程重启后请求恢复，但它会在运行时检查当前安装的 CLI 是否真正支持该操作，而非盲目假定支持。
+- **不支持通过 Cursor 进行会话浏览、派生或回滚。** Kaiwu 无法列出你已有的 Cursor 会话、无法进行原生分支派生，也无法回滚对话。在 Kaiwu 提供这些操作的界面中，Cursor 相关入口会提示不可用并说明原因，而不会静默执行其他行为。Kaiwu 自身的[重放分支](/sessions/session-forking)是独立机制，不受此限制影响。
+- **工具调用通过 shell 桥接运行**，该链路对 Cursor 而言仍处于实验阶段。
+- **每台设备同一时间仅限一个会话。** Cursor 的本地控制具有排他性，Kaiwu 无法附加到你自己启动的 `cursor-agent` 进程上。
+- **无计划模式。** Cursor 仅公开了单一会话模式。
 
-## Advanced
+## 高级设置
 
-`HAPPIER_CURSOR_API_ENDPOINT` points `cursor-agent` at a non-default API endpoint. Set it in the environment the Kaiwu CLI or daemon runs in; Kaiwu passes it through on launch.
+`HAPPIER_CURSOR_API_ENDPOINT` 可将 `cursor-agent` 指向非默认 API 端点。请在运行 Kaiwu CLI 或守护进程的环境中进行配置；Kaiwu 将在启动时透传该参数。
 
-## When it goes wrong
+## 故障排查
 
-### "Cursor not found"
+### “找不到 Cursor”
 
-1. Confirm `cursor-agent --version` works on the machine that will run the session — not on your laptop, if the session runs elsewhere.
-2. Restart Kaiwu after installing the CLI so detection re-runs.
-3. If the binary is outside the usual locations, set `HAPPIER_CURSOR_PATH` to its absolute path.
+1. 确认 `cursor-agent --version` 在将要运行会话的设备上能正常工作——如果会话运行在其他设备上，请不要在本地笔记本上检查。
+2. 安装 CLI 后重启 Kaiwu，以便重新执行检测。
+3. 如果二进制文件不在常用路径下，请将 `HAPPIER_CURSOR_PATH` 设置为其绝对路径。
 
-### Sessions fail to start, or the model list is empty
+### 会话启动失败或模型列表为空
 
-1. Check the login state under **Settings → AI & Agents → AI backends → Cursor**.
-2. If you authenticate by key, confirm `CURSOR_API_KEY` is present in the Kaiwu CLI or daemon environment — not just in your interactive shell. A daemon started before you exported it will not see it.
-3. Update `cursor-agent`. An older CLI can accept an ACP connection and then not advertise a model inventory.
+1. 在 **Settings → AI & Agents → AI backends → Cursor** 下检查登录状态。
+2. 若使用密钥认证，请确认 Kaiwu CLI 或守护进程的环境变量中包含 `CURSOR_API_KEY`——而不仅存在于交互式 shell 中。如果在导出环境变量前就已经启动了守护进程，它是读取不到该变量的。
+3. 更新 `cursor-agent`。较旧版本的 CLI 可能会接受 ACP 连接，但不会返回可用模型清单。
 
-## Related
+## 相关内容
 
-- [Agent capabilities](/agents/capabilities) — the generated matrix for all agents
-- [Provider authentication](/agents/provider-authentication) — the shared authentication flow
-- [Model and engine selection](/agents/model-and-engine-selection)
-- [Permissions](/sessions/permissions)
+- [智能体能力](/agents/capabilities) — 所有智能体的自动生成矩阵
+- [提供商认证](/agents/provider-authentication) — 通用认证流程
+- [模型与引擎选择](/agents/model-and-engine-selection)
+- [权限](/sessions/permissions)

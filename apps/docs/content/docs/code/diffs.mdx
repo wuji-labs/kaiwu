@@ -1,96 +1,92 @@
 ---
-title: Diffs and review
-description: Read what changed in a workspace — by repository, by turn, by session, or by what you have staged.
+title: 差异与审查
+description: 查看工作区中的变更——按仓库、按轮次、按会话或按已暂存的内容。
 ---
-
-Before you approve work, you want to see it. Kaiwu's changed-files list and
-Review surface let you read a session's changes as one continuous diff instead
-of opening each file in turn, and to narrow that to just what this session did.
+在确认采纳工作成果前，自然要先查看改动。Kaiwu 的变更文件列表与 Review 界面支持将当前会话的全部改动汇集为连续的 Diff 进行统一浏览，无需逐个打开文件，还能将改动范围精确缩小到本次会话所做的工作。
 
 <Callout type="info">
-  Reading diffs is part of the normal session UI. Writing — staging, committing —
-  is separate and gated; see [Git](/code/git).
+  查看 Diff 是常规会话界面的一部分。而暂存、提交等写入操作则相互独立且设有门禁；详见 [Git](/code/git)。
 </Callout>
 
-## Changed files list
+## 变更文件列表
 
-The changed-files list is the fast control surface for current repository state.
+变更文件列表是快速掌握和操作当前代码仓状态的高效控制界面。
 
-You can use it to:
+你可以通过它：
 
-- see the file status (`A`, `M`, `D`, etc.)
-- see additions/removals per file
-- stage or unstage files
-- open a file diff
-- open file actions such as revert/discard when supported
+- 查看文件状态（`A`、`M`、`D` 等）
+- 查看每个文件的增删行数
+- 暂存或取消暂存文件
+- 打开单个文件的 Diff
+- 在支持时执行还原/放弃更改等文件操作
 
-The list is optimized for fast scanning:
+该列表专为快速扫视与查阅而优化：
 
-- branch summary stays at the top
-- “Review” is available directly from the changed-files header
-- commit controls stay grouped at the bottom
-- file paths and filenames are aligned as a single readable label, with the filename kept prominent next to the line-change summary
+- 分支摘要固定在顶部
+- 在变更文件列表头部可直接进入“Review”
+- 提交控件统一归整在底部
+- 文件路径与文件名对齐整合为一行清晰易读的标签，文件名醒目地置于改动行数摘要旁
 
-### Changed-files scopes
+### 变更文件范围
 
-When more than one changed-file scope is available, the changed-files header becomes a compact dropdown. The dropdown shows the active scope name and count, and keeps the **Review** button beside it.
+当存在多个可选的变更文件范围时，列表头部会变为紧凑的下拉菜单。下拉菜单中显示当前生效的范围名称及文件数，旁边保留 **Review** 按钮。
 
-Possible scopes are:
+可选范围包括：
 
-- **Changed files** / **Repository changed files**: all current repository changes from the latest SCM snapshot.
-- **Latest turn changes**: provider-backed changes attributed to the most recent completed turn, when the provider/runtime reported them.
-- **Session-attributed changes**: best-effort changes attributed to this session across more than one turn.
-- **Selected for commit**: only files that are currently fully or partially selected for the next commit. This appears only after at least one file is selected.
+- **Changed files** / **Repository changed files**：来自最新 SCM 快照的全部代码仓当前改动。
+- **Latest turn changes**：由提供商或运行时上报、归属于最近一次已完成轮次的改动。
+- **Session-attributed changes**：系统尽最大努力归结出的、跨多个轮次属于本会话的改动。
+- **Selected for commit**：当前被全部或部分选中以备下次提交的文件。仅在至少勾选了一个文件后才会出现。
 
-The scope selector appears only when it is useful. If there is only the repository view, Kaiwu shows the normal changed-files title instead of a redundant dropdown.
+范围选择器仅在有实际作用时出现。若当前只有代码仓视图，Kaiwu 会直接显示普通的变更文件标题，省去多余的下拉菜单。
 
-Changing scope changes the list you are looking at; it does not rewrite repository state. Selecting files for commit does not make them “session changes”. It only makes the **Selected for commit** scope available.
+切换范围只会改变当前浏览的列表，不会重写代码仓状态。勾选待提交的文件并不会将其变为“会话改动”，而只是让 **Selected for commit** 范围变得可用。
 
-The **All** action is scope-aware:
+**全选（All）**操作能够感知当前范围：
 
-- in repository view, it selects all repository changed files;
-- in Latest turn changes, it selects only files in that turn scope;
-- in Session-attributed changes, it selects only files in that session scope;
-- in Selected for commit, it keeps the selection bounded to the already selected set.
+- 在代码仓视图下，会选中所有代码仓变更文件；
+- 在 Latest turn changes 下，仅选中属于该轮次范围的文件；
+- 在 Session-attributed changes 下，仅选中属于该会话范围的文件；
+- 在 Selected for commit 下，全选范围仅限于已选中的文件集合。
 
-Repository view remains the source of truth. Turn/session scopes are convenience filters that depend on the quality of provider/runtime attribution.
+代码仓视图始终是唯一的真实依据（source of truth）。轮次与会话范围属于便捷过滤视图，其准确度取决于提供商与运行时的归因质量。
 
 ## Review
 
-**Review** is the “scroll through the actual work” surface for current uncommitted changes.
+**Review** 界面专用于“一路顺畅滚动通读”当前所有未提交的实际改动。
 
-Instead of opening one file at a time, Review lets you inspect the diff set as a continuous working review.
+你无需逐个打开文件，通过 Review 即可将整组 Diff 作为连续的工作视图进行集中审查。
 
-### What Review is for
+### Review 的适用场景
 
-Use Review when you want to:
+在以下情况下推荐使用 Review：
 
-- scroll through many changed files in one pass
-- collapse files you are done with
-- open a specific file in edit mode without losing your place
-- go back to the review tab and continue where you stopped
+- 一气呵成地滚动通读大量变更文件
+- 折叠已查阅完毕的文件
+- 在不丢失当前阅读进度的前提下，直接打开指定文件进入编辑模式
+- 随时返回 Review 标签页，从上次中断的地方继续浏览
 
-### Review behavior
+### Review 运行机制
 
-- Diffs load progressively as needed instead of trying to mount everything at once.
-- Nearby diffs are prefetched so scrolling feels continuous.
-- If you manually collapse a diff, Kaiwu remembers that and does not auto-expand it again just because you scroll away and back.
-- Switching away from Review and coming back restores your previous position.
+- Diff 按需渐进式加载，而非一次性全部挂载。
+- 系统会自动预取临近的 Diff，保证滚动时的连贯流畅。
+- 若你手动折叠了某个 Diff，Kaiwu 会记住这一状态；不会因为你滚出视野又滚回来就将其自动重新展开。
+- 切出 Review 界面后再切回，系统会自动恢复你先前停留的位置。
 
-### Editing from Review
+### 在 Review 中直接编辑
 
-Review is not a dead-end viewer.
+Review 绝非一条单向的只读死胡同。
 
-From Review you can open a changed file into its own details tab, edit it, then return to Review without losing the review context.
+在 Review 中，你可以将变更文件打开到专属详情标签页中进行编辑，编辑完成后即可返回 Review，原本的审查上下文完好如初。
 
-On mobile cockpit layouts, Review opens in the **Tabs** surface. Use the back button to return to the Git list you opened it from, or use the bottom tabs to switch surfaces without adding extra tab switches to the back stack.
+在移动端驾驶舱布局中，Review 会在 **Tabs** 界面中打开。点击返回按钮可回到之前打开它的 Git 列表；若使用底部标签切换界面，则不会向返回栈添加多余的切页记录。
 
-Attribution uses direct operation signals and provider/runtime change sets first. When multiple sessions are active on the same repository, attribution reliability is lower, so Kaiwu favors repository truth over weak inference.
-If a scoped view cannot be supported confidently, Kaiwu falls back to repository view or hides that scope rather than showing an empty or misleading list.
+改动归因会优先使用直接操作信号与提供商/运行时的变更集。当同一个代码仓内有多个活跃会话时，归因的可靠性会有所下降，此时 Kaiwu 会优先保证代码仓的真实状态，而不是依赖脆弱的推断。
+如果系统无法以高置信度支持某个范围视图，Kaiwu 会自动回退到代码仓视图或直接隐藏该范围，宁缺毋滥，避免呈现空列表或误导信息。
 
-## Related
+## 相关内容
 
-- [Review comments](/code/review-comments) — turning a diff into instructions for an agent.
-- [Git](/code/git) — acting on what you have read.
-- [Files and the editor](/code/files-and-editor)
-- [Pull requests](/code/pull-requests)
+- [Review 批注](/code/review-comments) —— 将 Diff 转化为给 Agent 的操作指令。
+- [Git](/code/git) —— 针对查阅到的内容采取操作。
+- [文件与编辑器](/code/files-and-editor)
+- [Pull Request](/code/pull-requests)

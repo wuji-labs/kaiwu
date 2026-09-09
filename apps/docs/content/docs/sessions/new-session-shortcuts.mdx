@@ -1,165 +1,164 @@
 ---
-title: New session shortcuts
-description: Start a new session from a project or existing session while reusing the right launch settings.
+title: 新建会话快捷方式
+description: 从项目或已有会话新建会话，同时复用对应的启动设置。
 ---
+新建会话快捷方式可帮你启动相关会话，无需逐项重新检查启动配置。
 
-New session shortcuts help you start a related session without re-checking every launch option.
+当你已在某个项目中工作，或正在查看某个会话，并希望使用相同配置启动另一个智能体会话时，这项功能会非常实用。
 
-They are useful when you are already working in a project or looking at a session and want another agent session with the same setup.
+## 快捷方式的入口
 
-## Where shortcuts appear
+你可以通过以下位置启动预填配置的新会话：
 
-You can start a prefilled new session from:
+- 会话列表中的项目分组，点击项目的 **+** 按钮
+- **Session info**（会话信息）界面，点击 **New session with same setup**（使用相同配置新建会话）
 
-- a project group in the session list, using the project **+** action
-- the **Session info** screen, using **New session with same setup**
+这两个快捷方式都会打开常规的新建会话界面。在发送第一条提示词前，你依然可以检查或修改任何配置。
 
-Both shortcuts open the normal new-session screen. You can still review or change anything before sending the first prompt.
+## 项目快捷方式
 
-## Project shortcuts
+项目的 **+** 按钮专为常见场景设计：
 
-The project **+** action is designed for the common case:
+1. 你正在某个项目中工作
+2. 你想在该项目中启动第二个会话
+3. 你希望它沿用该项目最近使用的配置
 
-1. you are working in a project
-2. you want a second session in that same project
-3. you want it to use the setup you most recently used there
+开启该功能后，Kaiwu 会读取该项目分组中最新的会话，并将其启动配置填入新建会话界面。
 
-When enabled, Kaiwu looks at the newest session in that project group and uses its launch configuration to seed the new-session screen.
+这意味着该快捷方式可以复用该项目最新会话的配置，而不会退回使用你在其他项目中最后选取的全局设置。
 
-This means the shortcut can reuse the setup from the most recent session in that project, instead of falling back to whatever you last selected globally in another project.
+## 使用相同配置新建会话
 
-## New session with same setup
+**New session with same setup** 操作位于会话的 **Session info** 界面中。
 
-The **New session with same setup** action appears on a session's **Session info** screen.
+当你希望新建的会话完全复刻某个特定会话时，可以使用该功能，例如：
 
-Use it when you want the next session to mirror one specific session, for example:
+- 你遇到了旁路问题，想让另一个智能体前去排查
+- 你想用相同的后端、模型和权限策略再试一次
+- 你想保留相同的项目、配置文件以及提供商专属选项，而不想手动逐个确认设置项
 
-- you hit a side issue and want another agent to investigate it
-- you want a second attempt with the same backend, model, and permission posture
-- you want to keep the same project, profile, and provider-specific options without manually checking each control
+与项目的 **+** 操作不同，此操作以你当前查看的会话为基准，而不是项目分组中最新的会话。
 
-Unlike the project **+** action, this action uses the session you are viewing, not the newest session in the project group.
+## 会复用哪些内容
 
-## What gets reused
+快捷方式会从源会话中复用可用的启动配置项。
 
-Shortcuts reuse launch selections from the source session where those selections are available.
+其中可包括：
 
-That can include:
+- 设备
+- 文件夹
+- 引擎或后端
+- 配置文件
+- 会话记录存储选项
+- 权限模式
+- 所选模型
+- 提供商会话模式（如 Plan 模式）
+- 提供商配置项覆盖（如 reasoning effort 思考程度）
+- MCP 选择
+- 已连接服务的选择
+- 终端相关的启动选项
+- 提供商专属后端模式（若提供商支持）
 
-- machine
-- folder
-- engine or backend
-- profile
-- transcript storage choice
-- permission mode
-- model choice
-- provider session mode, such as Plan
-- provider config option overrides, such as reasoning effort
-- MCP selection
-- connected-service choices
-- terminal-related launch options
-- provider-specific backend mode, when the provider exposes one
+快捷方式本身不会自动发送提示词，它只负责预填并准备好新建会话界面。
 
-The shortcut does not send a prompt by itself. It only prepares the new-session screen.
+## 不会复用哪些内容
 
-## What does not get reused
+快捷方式经过专门设计，不会继续源会话的对话内容。
 
-Shortcuts intentionally do not continue the source conversation.
+它们不会复用：
 
-They do not reuse:
+- 源会话记录
+- 源会话 ID
+- 源会话的恢复目标
+- 源会话的待处理消息
+- 源会话当前的运行状态
 
-- the source session transcript
-- the source session id
-- the source session resume target
-- the source session's pending messages
-- the source session's current running state
+如果你想继续某个处于闲置状态的会话，请使用恢复功能。如果你想派生对话历史，请使用会话复刻或重放。
 
-If you want to continue an inactive session, use resume instead. If you want to branch conversation history, use session forking or replay.
+## 现存草稿的处理方式
 
-## Existing drafts
+如果你已经写好了新建会话草稿，上下文快捷方式并不会盲目覆盖全部内容。
 
-If you already have a new-session draft, a contextual shortcut does not blindly replace the whole thing.
+Kaiwu 会保留已输入的提示词和自动化草稿等内容，仅将启动配置项替换为快捷方式对应源会话的配置。
 
-Kaiwu preserves draft content such as the typed prompt and automation draft, then replaces the launch selections with the shortcut's source session configuration.
-
-For example, if your draft says:
+举例来说，如果你的草稿内容为：
 
 > "Investigate the failing checkout flow"
 
-and you click **New session with same setup** from a Codex session in `/repo/app`, the prompt remains in the composer, but the new-session screen switches to that session's machine, folder, engine, model, permissions, and related session options.
+而你在 `/repo/app` 的 Codex 会话中点击了 **New session with same setup**，输入框中的提示词仍会保留，但新建会话界面会切换为该会话对应的设备、文件夹、引擎、模型、权限以及相关会话选项。
 
-Selections that would conflict with the source session are reset or replaced. This includes stale resume targets and worktree checkout choices from the previous draft.
+与源会话冲突的选项会被重置或替换，包括先前草稿中失效的恢复目标和工作树检出选择。
 
-This behavior keeps your written intent while making the shortcut authoritative for where and how the new session should start.
+这种机制既保留了你已写好的意图，又以快捷方式的设置为准，决定新会话在何处以何种方式启动。
 
-## Setting: Remember last project session selections
+## 设置项：记住项目上次会话的选择
 
-The project **+** shortcut is controlled by **Remember last project session selections**.
+项目的 **+** 快捷方式由 **Remember last project session selections**（记住项目上次会话的选择）控制。
 
-Find it in:
+前往以下路径找到该设置：
 
-1. **Settings**
-2. **Session**
-3. **New session modal**
+1. **Settings**（设置）
+2. **Session**（会话）
+3. **New session modal**（新建会话弹窗）
 
-The setting is on by default.
+该设置默认处于开启状态。
 
-When it is on:
+开启时：
 
-- project **+** uses the newest session in that project group as the source configuration
-- existing composer draft content is preserved
-- launch selections come from the project session
+- 项目 **+** 会使用该项目分组中最新的会话作为源配置
+- 保留输入框中现有的草稿内容
+- 启动配置项取自该项目会话
 
-When it is off:
+关闭时：
 
-- project **+** only preselects the project machine and folder
-- the normal new-session defaults and draft behavior apply
+- 项目 **+** 仅预选该项目的设备和文件夹
+- 沿用常规的新建会话默认配置和草稿逻辑
 
-The **Session info** action is always explicit: if you choose **New session with same setup**, that session's setup is used for the new-session screen.
+**Session info** 中的操作始终是显式指定的：只要你选择 **New session with same setup**，新建会话界面就会采用该会话的配置。
 
-## How this differs from global remembered settings
+## 与全局记忆设置的区别
 
-Kaiwu still has normal new-session defaults and drafts.
+Kaiwu 依然保留了常规的新建会话默认配置与草稿功能。
 
-The shortcut behavior is more specific:
+快捷方式的行为则针对性更强：
 
-- normal **New Session** uses the current draft/defaults
-- project **+** can use the newest session in that project
-- **New session with same setup** uses the exact session you are viewing
+- 常规的 **New Session** 使用当前的草稿或默认配置
+- 项目 **+** 可以使用该项目中最新的会话配置
+- **New session with same setup** 则精确采用你当前正在查看的会话配置
 
-This avoids a common problem: settings from a different project accidentally shaping a new session in the project you are currently working on.
+这避免了一个常见问题：在其他项目中使用的设置，意外影响了你当前正在处理的项目的新建会话。
 
-## Common use cases
+## 常见使用场景
 
-### Investigate a side issue
+### 排查旁路问题
 
-You are in a feature session and discover a separate bug.
+你在处理某个功能的会话中发现了另一个不相干的缺陷。
 
-Open **Session info** for the current session, choose **New session with same setup**, and type a focused prompt for the side issue.
+打开当前会话的 **Session info**，选择 **New session with same setup**，然后针对该旁路问题输入专门的提示词。
 
-### Run a second agent in the same project
+### 在同一项目中运行第二个智能体
 
-Use the project **+** action from the session list.
+在会话列表中点击项目的 **+** 按钮。
 
-Kaiwu keeps you in the same project context and, when enabled, reuses the newest project session's engine, model, permissions, profile, and options.
+Kaiwu 会让你保持在同一项目上下文中；若已开启该设置，还会自动复用该项目最新会话的引擎、模型、权限、配置文件和各项选项。
 
-### Keep project-specific backend choices separate
+### 隔离不同项目的专属后端选择
 
-One project might use a configured ACP backend, while another uses a built-in provider.
+某个项目可能使用的是配置好的 ACP 后端，而另一个项目则使用内置提供商。
 
-With **Remember last project session selections** on, project shortcuts use the latest setup from that project instead of a global last-used backend from somewhere else.
+开启 **Remember last project session selections** 后，项目快捷方式会使用该项目自身的最新配置，而不会从其他地方带入全局最后使用的后端。
 
-### Keep a prompt but move it to the right setup
+### 保留提示词并切换到正确的配置
 
-If you already typed a prompt in the new-session screen, then realize you want it launched with the same setup as an existing session, use the contextual shortcut.
+如果你已经在新建会话界面中输入了提示词，随后发现需要改用某个现有会话的相同配置启动，直接使用上下文快捷方式即可。
 
-The prompt stays; the launch selections are replaced by the session configuration.
+提示词会完好保留，启动配置项则会替换为该会话的配置。
 
-## Related guides
+## 相关指南
 
-- [Session settings](/sessions/session-settings)
-- [Model and engine selection](/agents/model-and-engine-selection)
-- [Session modes](/sessions/session-modes)
-- [Permissions](/sessions/permissions)
-- [Session resume](/sessions/session-resume)
-- [Session forking & replay](/sessions/session-forking)
+- [会话设置](/sessions/session-settings)
+- [模型与引擎选择](/agents/model-and-engine-selection)
+- [会话模式](/sessions/session-modes)
+- [权限](/sessions/permissions)
+- [会话恢复](/sessions/session-resume)
+- [会话复刻与重放](/sessions/session-forking)

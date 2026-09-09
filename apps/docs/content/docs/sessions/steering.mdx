@@ -1,84 +1,83 @@
 ---
-title: Steering & interrupting
-description: Understand how Kaiwu updates a busy lead session or a running execution run without losing your message.
+title: 引导与中断
+description: 了解 Kaiwu 如何在不丢失消息的情况下更新繁忙的主导会话或正在运行的执行流程。
 ---
+Kaiwu 支持两种相关的忙碌时发送行为：
 
-Kaiwu supports two related busy-send behaviors:
+- 针对主导会话的**会话转向**（session steering），以及
+- 针对运行中子智能体与委托/审查运行的**执行运行投递模式**。
 
-- **session steering** for the main lead session, and
-- **execution-run delivery modes** for running subagents and delegate/review runs.
+两者的核心目标一致：即使系统正处于忙碌状态，你也能发送新的上下文，无需猜测消息是否会丢失。
 
-The shared goal is the same: let you send new context while something is already busy, without making you guess whether the message will be lost.
+## 会话转向
 
-## Session steering
+会话转向是指当主会话仍在执行某一轮次时，你直接发送一条新的主导消息。
 
-Session steering means you send a new lead message while the main session is still in the middle of a turn.
+当当前后端/运行时支持运行中转向时，Kaiwu 可以将消息直接注入活跃轮次中，无需让你强行等待。
 
-When the current backend/runtime supports in-flight steering, Kaiwu can inject the message into the active turn instead of forcing you to wait.
+如果该会话/运行时不支持转向，Kaiwu 会回退到主会话常规的忙碌发送流程。
 
-If steering is not available for that session/runtime, Kaiwu falls back to the normal busy-send path for the main session.
+## 忙碌会话发送策略
 
-## Busy-session send policy
+在应用中依次打开：
 
-In the app, open:
+1. **设置**
+2. **会话**
+3. **消息发送**
+4. **智能体忙碌时（支持转向）**
 
-1. **Settings**
-2. **Session**
-3. **Message sending**
-4. **When the agent is busy (steer-capable)**
+你可以选择：
 
-You can choose:
+- **立即转向**：立即发送并引导当前活跃轮次。
+- **服务端排队**：先将消息存入待处理队列。
 
-- **Steer immediately**: send immediately and steer the active turn.
-- **Server pending**: store message in pending queue first.
+## 执行运行投递模式
 
-## Execution-run delivery modes
+当所选接收者为**正在运行的执行运行**时，Kaiwu 会在输入框旁显示**投递**标签。
 
-When the selected recipient is a **running execution run**, Kaiwu shows a **Delivery** chip next to the composer.
+应用目前提供两种模式：
 
-The app currently exposes two modes:
+### 转向（Steer）
 
-### Steer
+这是执行运行的默认模式。
 
-This is the default for execution runs.
+具体行为：
 
-Behavior:
+- 若后端支持转向，Kaiwu 会引导当前活跃轮次；
+- 若不支持，Kaiwu 会中止当前轮次并立即开启新轮次发送；
+- 无论哪种情况，该运行都将保持存活。
 
-- if the backend supports steering, Kaiwu steers the active turn,
-- otherwise Kaiwu aborts the current turn and immediately sends a new turn,
-- the run stays alive either way.
+### 中断（Interrupt）
 
-### Interrupt
+具体行为：
 
-Behavior:
+- Kaiwu 始终中止当前轮次；
+- 随后立即将你的消息作为新轮次发送；
+- 该运行将从此处继续推进，而非彻底停止。
 
-- Kaiwu always aborts the current turn,
-- then immediately sends your message as a new turn,
-- the run continues from there instead of being fully stopped.
+## 重要区分：中断轮次不等于停止运行
 
-## Important distinction: interrupting a turn is not stopping a run
+对于执行运行而言，**中断**只会改变当前轮次。
 
-For execution runs, an **interrupt** changes the current turn.
+它**并不**意味着：
 
-It does **not** mean:
+- 停止整个运行；
+- 删除该运行；
+- 从历史记录中移除该运行。
 
-- stop the whole run,
-- delete the run,
-- remove the run from history.
+只有当该运行不再支持发送消息时，才会从可用接收者列表中移除，例如已停止/已取消、已执行完毕，或者有边界的运行已经结束了其正在进行的轮次。
 
-The run only leaves the available recipient list when it is no longer sendable, such as after stop/cancel, completion, or when a bounded run has already left its in-flight turn.
+## 与待处理队列及路由的交互
 
-## Interaction with pending queue and routing
+会话转向与待处理队列相辅相成：
 
-Session steering and pending queue are complementary:
+- 在轮次运行期间，使用转向进行快速的上下文修正。
+- 若希望在执行前按序整理并编辑消息，请使用待处理队列。
 
-- Use steering for quick context corrections while the turn is running.
-- Use pending queue when you want ordered, editable messages before execution.
+执行运行的投递独立于会话层级的待处理机制。对于正在运行的执行运行，请使用本文档以及参与者路由指南中所说明的接收者与投递标签。
 
-Execution-run delivery is separate from that session-level pending behavior. For running execution runs, use the recipient and delivery chips documented here and in the participant-routing guide.
+## 相关页面
 
-## Related pages
-
-- [Participant routing & live run messaging](/accounts/participant-routing)
-- [Pending queue](/sessions/pending-queue)
-- [Permissions](/sessions/permissions)
+- [参与者路由与实时运行消息传递](/accounts/participant-routing)
+- [待处理队列](/sessions/pending-queue)
+- [权限](/sessions/permissions)

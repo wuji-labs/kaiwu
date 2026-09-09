@@ -1,272 +1,271 @@
 ---
-title: Session handoff
-description: Move a live Kaiwu session between machines, keep the same session id, and understand workspace-transfer and direct-session options.
+title: 会话交接
+description: 在设备之间迁移运行中的 Kaiwu 会话，保持相同的会话 ID，并了解工作区传输与直连会话选项。
 ---
+会话交接功能允许你在不分叉的前提下，将活跃的 Kaiwu 会话从一台设备迁移到另一台设备。
 
-Session handoff lets you move a live Kaiwu session from one machine to another without forking it.
+它的核心承诺十分明确：
 
-The important promise is simple:
+- Kaiwu 会话 ID 保持不变
+- 会话的当前所有权设备发生变更
+- 对话可在目标设备上继续进行
 
-- the same Kaiwu session id stays in place
-- the active owner changes from one machine to another
-- the conversation can continue on the target machine
+这与以下操作不同：
 
-This is different from:
+- [会话分叉与重放](/sessions/session-forking)：会创建新的分支
+- [附加到运行中的会话](/sessions/attach-to-session)：在同一台设备的终端中重新打开会话
+- [继续会话](/sessions/continuing-a-session)：说明会话记录的存储位置
+- [使用其他 Agent 继续](/sessions/continue-with-another-agent)：在当前承载会话的设备上就地切换编程 Agent
 
-- [Session forking & replay](/sessions/session-forking), which creates a branch
-- [Attach to a running session](/sessions/attach-to-session), which reopens a session from a terminal on the same machine
-- [Continuing a session](/sessions/continuing-a-session), which explains where the transcript lives
-- [Continue with another Agent](/sessions/continue-with-another-agent), which changes the coding Agent in place on the machine that already hosts the session
+## 从何处发起交接
 
-## Where to start a handoff
+你可以通过以下入口发起交接：
 
-You can start handoff from:
+- 会话顶栏的操作菜单
+- 会话详情页
 
-- the session header action menu
-- the Session info screen
+打开对应操作，选择目标设备，确认交接选项后点击确认即可。
 
-Open the action, choose the destination machine, review the handoff options, and confirm.
+## 交接保留的内容
 
-## What handoff preserves
+交接成功后：
 
-When handoff succeeds:
+- Kaiwu 会话 ID 保持不变
+- 会话记录保留在原会话中
+- 会话元数据仍然挂载在原会话下
+- 目标设备成为当前所有者
 
-- the Kaiwu session id stays the same
-- the transcript stays in the same session
-- session metadata stays attached to that same session
-- the new machine becomes the active owner
+对于受支持的提供商，提供商的运行时状态也会随会话一同迁移。目标设备可以直接顺着既有进度继续工作，无需重新发起对话。
 
-For supported providers, the provider runtime state also moves with the session so the target machine can continue the same work instead of starting a brand-new conversation.
+## 交接不支持的操作
 
-## What handoff does not do
+会话交接不会自动执行以下操作：
 
-Session handoff does not automatically:
+- 在目标设备上登录提供商 CLI
+- 合并或覆盖目标工作区（除非你显式启用了工作区传输）
+- 让原本不支持的提供商突然具备跨设备恢复能力
 
-- log a provider CLI into the target machine
-- merge or overwrite the target workspace unless you explicitly enable workspace transfer
-- make unsupported providers suddenly resumable across machines
+如果目标设备无法满足该提供商或运行时的依赖要求，交接将无法完成。
 
-If the target side cannot satisfy the provider/runtime requirements, the handoff cannot complete.
+## 支持的提供商
 
-## Supported providers
+会话交接能力取决于具体的提供商。
 
-Session handoff is provider-dependent.
+当前支持情况：
 
-Current status:
-
-| Provider | Status | Notes |
+| 提供商 | 状态 | 说明 |
 | --- | --- | --- |
-| Claude | Supported | Works with supported Claude session state transfer. |
-| OpenCode | Supported | Works with OpenCode session import/export flows. |
-| Codex | Experimental | Available, but less stable than Claude/OpenCode. |
-| Other providers | Unsupported | The handoff action is hidden or unavailable. |
+| Claude | 已支持 | 支持通过 Claude 会话状态传输进行交接。 |
+| OpenCode | 已支持 | 支持通过 OpenCode 会话导入与导出流程进行交接。 |
+| Codex | 实验性支持 | 功能可用，但稳定性弱于 Claude 和 OpenCode。 |
+| 其他提供商 | 不支持 | 交接操作会处于隐藏或不可用状态。 |
 
-## Session types
+## 会话类型
 
-Session handoff works with both user-facing session models:
+会话交接支持面向用户的两种会话模式：
 
-- Kaiwu sessions
-- Direct sessions
+- Kaiwu 会话
+- 直连会话
 
-See [Continuing a session](/sessions/continuing-a-session).
+详见[继续会话](/sessions/continuing-a-session)。
 
-### Kaiwu sessions
+### Kaiwu 会话
 
-For a Kaiwu session, handoff moves the live owner to another machine while keeping the same Kaiwu-managed session.
+对于 Kaiwu 会话，交接会在保留当前 Kaiwu 托管会话的同时，将其活跃所有者迁移至另一台设备。
 
-This is the simplest case:
+这是最纯粹的使用场景：
 
-- same Kaiwu session
-- new owning machine
-- same transcript and session id
+- Kaiwu 会话保持不变
+- 所有权转交新设备
+- 会话记录与会话 ID 原样保留
 
-### Direct sessions
+### 直连会话
 
-For a direct session, handoff shows an extra target-mode choice.
+对于直连会话，交接弹窗会额外提供一个目标模式选项。
 
-You can choose:
+你可以选择：
 
-- Keep direct
-- Convert to synced
+- 保持直连
+- 转换为同步模式
 
-Use Keep direct when you want the target machine to keep following the provider-backed session.
+如果你希望目标设备继续沿用提供商底层的会话机制，请选择“保持直连”。
 
-Use Convert to synced when you want to move out of the machine-bound direct model and let Kaiwu own the session going forward.
+如果你想脱离受单机限制的直连模式，改由 Kaiwu 托管后续会话，请选择“转换为同步模式”。
 
-## Workspace transfer
+## 工作区传输
 
-Workspace transfer is optional.
+工作区传输是可选功能。
 
-By default, Kaiwu keeps the target workspace unchanged unless you turn transfer on.
+默认情况下，除非你手动开启传输，否则 Kaiwu 不会改动目标工作区。
 
-When enabled, the handoff modal lets you choose:
+开启后，交接弹窗允许你配置以下选项：
 
-- whether to transfer the workspace
-- what to do if the target path already exists
-- how ignored files should be handled
+- 是否传输工作区
+- 目标路径已存在时的处理方式
+- 忽略文件的处理策略
 
-### Conflict policies
+### 冲突策略
 
-Current conflict options:
+当前支持的冲突处理选项：
 
-- Create sibling copy
-- Replace existing path
+- 创建同级副本
+- 替换已有路径
 
-`Replace existing path` requires explicit confirmation when the destination already exists.
+当目标路径已存在时，`Replace existing path` 必须经过显式确认。
 
-### Ignored files
+### 忽略文件
 
-Current ignored-file options:
+当前支持的忽略文件策略：
 
-- Exclude ignored files
-- Include selected ignored files
+- 排除被忽略的文件
+- 包含选中的被忽略文件
 
-If you choose Include selected ignored files, you can provide include globs such as:
+如果选择“包含选中的被忽略文件”，你可以指定包含规则匹配模式（Glob），例如：
 
 - `dist/**`
 - `.env.local`
 
-### Safe-by-default path checks
+### 默认安全路径检查
 
-Kaiwu blocks workspace transfer for unsafe source paths such as:
+当源路径属于不安全目录时，Kaiwu 会拦截工作区传输，例如：
 
-- the filesystem root
-- your home directory
-- the shorthand home path (`~`)
+- 文件系统根目录
+- 用户主目录
+- 用户主目录简写（`~`）
 
-In those cases, the handoff UI forces workspace transfer off instead of attempting to copy an unsafe or excessively broad workspace.
+遇到这些路径时，交接界面会强制关闭工作区传输，避免复制不安全或范围过大的工作区。
 
-## Session handoff settings
+## 会话交接设置
 
-You can set default handoff behavior in:
+你可以在此处配置默认的交接行为：
 
-- Settings -> Session -> Session handoff
+- 设置 -> 会话 -> 会话交接
 
-Those defaults include:
+可配置的默认项包括：
 
-- whether workspace transfer is enabled by default
-- the default workspace conflict policy
-- the default ignored-file mode
-- ignored-file include globs
-- the default target mode for direct-session handoff
+- 是否默认启用工作区传输
+- 默认工作区冲突策略
+- 默认忽略文件模式
+- 忽略文件包含规则匹配模式（Glob）
+- 直连会话交接的默认目标模式
 
-The modal still lets you override those defaults for an individual handoff.
+即使配置了默认值，你仍可在每次发起交接时单独覆盖这些设置。
 
-Related guide:
+相关指引：
 
-- [Session settings](/sessions/session-settings)
+- [会话设置](/sessions/session-settings)
 
-## Connected services and handoff
+## 已连接服务与交接
 
-Connected services are often the easiest way to make handoff work across machines.
+配置“已连接服务”通常是实现跨设备顺畅交接最轻松的方式。
 
-Why:
+原因在于：
 
-- the credential lives in your Kaiwu account
-- compatible backends can reuse that credential on another machine
-- you do not need to depend only on the target machine’s native CLI login state
+- 凭据保存在你的 Kaiwu 账号中
+- 兼容的后端可在另一台设备上复用该凭据
+- 无需完全依赖目标设备的本地 CLI 登录状态
 
-This is especially useful when you want to move a session between:
+在以下场景之间迁移会话时，该功能尤其实用：
 
-- two laptops/desktops
-- a host machine and a VM
-- different machine homes attached to the same account
+- 两台笔记本或台式机
+- 宿主机与虚拟机
+- 绑定在同一账号下的不同设备宿主
 
-Connected services do not replace every machine-local auth requirement, but they are the preferred path for cross-machine continuity when the backend supports them.
+已连接服务并不能取代所有设备本地的认证要求；但只要后端支持，它就是保障跨设备连贯性的首选方案。
 
-Related guide:
+相关指引：
 
-- [Connected services](/accounts/connected-services)
+- [已连接服务](/accounts/connected-services)
 
-## Provider authentication and handoff
+## 提供商认证与交接
 
-Machine-local provider authentication still matters.
+设备本地的提供商认证依然至关重要。
 
-If a provider/backend relies on the native provider CLI login state, the target machine must be ready too.
+如果某个提供商或后端依赖本地原生的 CLI 登录状态，目标设备也必须提前就绪。
 
-So the mental model is:
+因此，整体逻辑如下：
 
-- Connected services help when the backend can materialize auth from Kaiwu-managed credentials
-- Provider authentication still matters for machine-local provider CLI workflows
+- 只要后端能利用 Kaiwu 托管的凭据生成认证状态，已连接服务就能发挥作用
+- 对于依赖本地提供商 CLI 的工作流，提供商认证依然必不可少
 
-Related guide:
+相关指引：
 
-- [Provider authentication](/agents/provider-authentication)
+- [提供商认证](/agents/provider-authentication)
 
-## What you see during handoff
+## 交接期间的界面展示
 
-When you start handoff, Kaiwu shows a progress modal while it:
+发起交接后，Kaiwu 会弹出进度弹窗，按顺序执行以下操作：
 
-- prepares the target machine
-- moves the session state
-- resumes the session on the target
-- updates the session ownership
+- 准备目标设备
+- 迁移会话状态
+- 在目标设备上恢复会话
+- 更新会话所有权
 
-After completion:
+交接完成后：
 
-- the session stays in place in Kaiwu
-- the active machine changes
-- the old owner relinquishes control
+- 该会话在 Kaiwu 中保持原位
+- 活跃设备完成切换
+- 原所有权设备释放控制权
 
-## Common workflows
+## 常见工作流
 
-### Move a live session from one machine to another
+### 将活跃会话从一台设备迁移到另一台设备
 
-Use handoff when you want to keep the same conversation going, but on a different machine.
+当你希望在另一台设备上顺畅继续当前对话时，请使用交接功能。
 
-Examples:
+例如：
 
-- move from your laptop to a desktop
-- move from a host machine to a VM
-- move from one dedicated Kaiwu home to another
+- 从笔记本电脑切换到台式机
+- 从宿主机切换到虚拟机
+- 在不同的专属 Kaiwu 宿主环境之间切换
 
-### Keep a direct session provider-backed, but move it
+### 保持直连会话的提供商底座并迁移
 
-Use Keep direct when the provider-backed ownership model is still what you want and the provider supports direct handoff.
+如果你仍想保留基于提供商的所有权模式，且该提供商支持直连交接，请选择“保持直连”。
 
-### Convert a direct session into a Kaiwu session
+### 将直连会话转换为 Kaiwu 会话
 
-Use Convert to synced when you started from a provider-native session but now want Kaiwu to own the transcript and future continuity.
+如果你最初使用的是提供商原生会话，但现在希望由 Kaiwu 来管理会话记录和后续的连贯性，请选择“转换为同步模式”。
 
-### Move the session but leave the target workspace alone
+### 迁移会话但不触碰目标工作区
 
-Leave workspace transfer off. This is the safest default when:
+保持工作区传输处于关闭状态。在以下情况下，这是最稳妥的默认选择：
 
-- the target already has the right files
-- you want session continuity without file copying
-- the source path is broad or machine-specific
+- 目标设备上已经具备正确的文件
+- 只需要保持会话连贯，无需拷贝文件
+- 源路径范围过大或依赖特定机器环境
 
-## Troubleshooting
+## 排错指南
 
-### The target machine is not selectable
+### 无法选择目标设备
 
-Usually one of these is true:
+通常由以下原因之一导致：
 
-- the machine is offline
-- the machine is the current owner
-- the provider/backend does not support handoff for this session
+- 目标设备处于离线状态
+- 目标设备正是当前的所有者
+- 该会话所用的提供商或后端不支持交接
 
-### Workspace transfer is disabled
+### 工作区传输处于禁用状态
 
-This usually means:
+通常意味着：
 
-- your defaults have workspace transfer off, or
-- Kaiwu detected an unsafe source path such as `~` or a filesystem root
+- 你的默认配置关闭了工作区传输，或者
+- Kaiwu 检测到了不安全的源路径，例如 `~` 或文件系统根目录
 
-### The handoff action is missing
+### 找不到交接操作入口
 
-The action can be unavailable when:
+以下情况下该操作可能不可用：
 
-- the provider does not support handoff
-- the session lacks the required provider resume/state information
-- the selected server/build disabled the handoff feature
+- 对应提供商不支持交接
+- 会话缺少恢复状态所需的提供商状态信息
+- 当前使用的服务器或构建版本禁用了交接功能
 
-## Related guides
+## 相关指引
 
-- [Continuing a session](/sessions/continuing-a-session)
-- [Session settings](/sessions/session-settings)
-- [Connected services](/accounts/connected-services)
-- [Provider authentication](/agents/provider-authentication)
-- [Attach to a running session](/sessions/attach-to-session)
-- [Session forking & replay](/sessions/session-forking)
-- [Continue with another Agent](/sessions/continue-with-another-agent)
+- [继续会话](/sessions/continuing-a-session)
+- [会话设置](/sessions/session-settings)
+- [已连接服务](/accounts/connected-services)
+- [提供商认证](/agents/provider-authentication)
+- [附加到运行中的会话](/sessions/attach-to-session)
+- [会话分叉与重放](/sessions/session-forking)
+- [使用其他 Agent 继续](/sessions/continue-with-another-agent)

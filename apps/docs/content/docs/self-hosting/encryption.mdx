@@ -1,89 +1,88 @@
 ---
-title: Encryption & plaintext storage
-description: Configure whether the server stores session content end-to-end encrypted or as plaintext.
+title: 加密与明文存储
+description: 配置服务器是以端到端加密还是明文形式存储会话内容。
 ---
+Kaiwu 的架构以**端到端加密（E2EE）**为核心：客户端在本地加密会话内容，服务器仅存储**密文**。
 
-Kaiwu is designed around **end-to-end encryption (E2EE)**: clients encrypt session content locally and the server stores **ciphertext**.
+在某些自托管或企业部署场景中，你可能希望**放弃使用存储端到端加密**，以便服务器能够以**明文**形式存储会话内容（例如用于后续实现服务端索引与搜索）。
 
-For some self-hosted or enterprise deployments, you may want to **opt out of E2EE for storage** so the server can store session content as **plaintext** (for example to enable future server-side indexing/search).
+本页将面向**服务器运维人员**说明相关配置，并介绍其对**最终用户**的具体影响。
 
-This page explains the **server operator** configuration and what it means for **end users**.
+## 启用明文存储后会有哪些变化？
 
-## What changes when plaintext storage is enabled?
+- **E2EE 存储（默认）**：服务器无法读取会话记录（仅存储加密数据块）。
+- **明文存储**：服务器*可以*读取并处理以明文存储的新会话内容。
 
-- **E2EE storage (default)**: the server cannot read session transcripts (it stores encrypted blobs).
-- **Plaintext storage**: the server *can* read and process new session content stored in plaintext.
+重要提示：明文存储是一种**存储模式**，而非认证模式。
+- 第一阶段的明文存储仍沿用 Kaiwu 常规的登录模型（基于设备密钥的账户）。
+- 仅当服务器策略允许时，用户才能为新会话选择明文模式。
 
-Important: plaintext storage is a **storage mode**, not an authentication mode.
-- Phase 1 plaintext storage still uses the normal Kaiwu login model (device-key accounts).
-- Users can choose plaintext for new sessions only when the server policy allows it.
+## 存储策略（服务器全局）
 
-## Storage policy (server-wide)
+可配置以下三种存储策略之一：
 
-Configure one of three storage policies:
+- `required_e2ee`（默认）：仅限加密；拒绝明文写入。
+- `optional`：视账户或会话模式而定，同时允许加密或明文。
+- `plaintext_only`：仅限明文；拒绝加密写入。
 
-- `required_e2ee` (default): encrypted-only; plaintext writes are rejected.
-- `optional`: encrypted or plaintext is allowed depending on account/session mode.
-- `plaintext_only`: plaintext-only; encrypted writes are rejected.
-
-Env var:
+环境变量：
 
 ```bash
 HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY=required_e2ee|optional|plaintext_only
 ```
 
-### Recommended configurations
+### 推荐配置
 
-Default E2EE server:
+默认 E2EE 服务器：
 
 ```bash
 HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY=required_e2ee
 ```
 
-Allow plaintext storage (opt-in per account):
+允许明文存储（按账户自选启用）：
 
 ```bash
 HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY=optional
 HAPPIER_FEATURE_ENCRYPTION__ALLOW_ACCOUNT_OPTOUT=1
 ```
 
-Force plaintext-only (for “server-side features first” deployments):
+强制仅限明文（适用于“优先使用服务端功能”的部署场景）：
 
 ```bash
 HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY=plaintext_only
 ```
 
-## Account encryption mode (end-user toggle)
+## 账户加密模式（最终用户开关）
 
-When the server policy is `optional` and account opt-out is enabled, the UI can expose an account-level toggle:
+当服务器策略设为 `optional` 且允许账户自选关闭加密时，界面可向用户提供账户级开关：
 
-- `e2ee`: new sessions default to encrypted storage
-- `plain`: new sessions default to plaintext storage
+- `e2ee`：新会话默认采用加密存储
+- `plain`：新会话默认采用明文存储
 
-Env vars:
+环境变量：
 
 ```bash
 HAPPIER_FEATURE_ENCRYPTION__ALLOW_ACCOUNT_OPTOUT=0|1
 HAPPIER_FEATURE_ENCRYPTION__DEFAULT_ACCOUNT_MODE=e2ee|plain
 ```
 
-Notes:
-- Switching account mode affects **new sessions** created after the change.
-- Existing sessions are **not** migrated (no retroactive decrypt/re-encrypt).
-- Switching account mode is an **atomic migration-backed transition** (clients call `POST /v1/account/encryption/migrate`).
+说明：
+- 切换账户模式仅对变更后创建的**新会话**生效。
+- 现有会话**不会**被迁移（不支持追溯解密或重新加密）。
+- 切换账户模式是一次**基于迁移的原子状态转换**（客户端调用 `POST /v1/account/encryption/migrate`）。
 
-### Plaintext accounts and account-scoped data
+### 明文账户与账户级作用域数据
 
-For plaintext accounts to work across devices (including keyless login), clients must not assume “device-key ciphertext” for account-scoped blobs.
+为了让明文账户在各设备间正常工作（包括无密钥登录），客户端不得对账户级作用域的数据块预设“设备密钥密文”。
 
-- Plaintext accounts use **settings v2** (`GET/POST /v2/account/settings`) and store settings as a plaintext envelope.
-- The legacy settings route (`/v1/account/settings`) is **rejected for plaintext accounts** with `400 { error: "plain_account_requires_settings_v2" }`.
+- 明文账户使用 **settings v2**（`GET/POST /v2/account/settings`），并将设置项存储为明文封装包。
+- 传统的设置路由（`/v1/account/settings`）会**对明文账户拒绝访问**，并返回 `400 { error: "plain_account_requires_settings_v2" }`。
 
-#### Plaintext at-rest sealing (recommended)
+#### 明文静态加密封装（推荐）
 
-Plaintext accounts are server-readable by definition, but you can still reduce disk/backups exposure by sealing sensitive account-scoped blobs at rest using the server master secret.
+从定义上看，明文账户的内容对服务器是可读的；但你仍可以使用服务器主密钥对敏感的账户级作用域数据块进行静态加密封装，从而降低磁盘或备份泄露带来的风险。
 
-Env vars:
+环境变量：
 
 ```bash
 # Defaults are server_sealed
@@ -91,41 +90,41 @@ HAPPIER_FEATURE_ENCRYPTION__PLAIN_ACCOUNT_SETTINGS_AT_REST=none|server_sealed
 HAPPIER_FEATURE_ENCRYPTION__PLAIN_ACCOUNT_CREDENTIALS_AT_REST=none|server_sealed
 ```
 
-Notes:
-- These affect **DB storage only**. Wire payloads remain plaintext envelopes for plaintext accounts.
-- For connected services, the v3 plaintext credential endpoints store credentials as plaintext envelopes and seal them at rest when configured.
+说明：
+- 该配置**仅影响数据库存储**。对于明文账户，传输中的网络负载依然是明文封装包。
+- 对于已连接的服务，v3 明文凭据端点会将凭据存储为明文封装包；若配置了静态封装，则会在落盘时予以密封。
 
-## Per-session encryption mode
+## 单会话加密模式
 
-Each session has a stable `encryptionMode` (`e2ee` or `plain`) chosen at creation time.
+每个会话在创建时都会选定一个固定的 `encryptionMode`（`e2ee` 或 `plain`）。
 
-This prevents “mixed-mode” content inside one session and makes it predictable for clients (and for future server-side features).
+这既避免了单个会话内出现“混合模式”内容，也让客户端的行为更加可预测（同时便于后续引入服务端功能）。
 
-## Sharing behavior
+## 分享行为
 
-- **Encrypted (E2EE) sessions**: sharing requires distributing a session data key to recipients (still E2EE).
-- **Plaintext sessions**: sharing is purely server-side authorization (no encrypted data key is needed).
+- **加密（E2EE）会话**：分享时需向接收方分发会话数据密钥（仍保持 E2EE）。
+- **明文会话**：分享纯粹依赖服务端授权（无需加密数据密钥）。
 
-Public share links also work for plaintext sessions (the server returns plaintext envelopes).
+公开分享链接同样适用于明文会话（服务器将返回明文封装包）。
 
-## Client compatibility
+## 客户端兼容性
 
-- Older clients that only support encrypted writes continue to work when:
-  - policy is `required_e2ee`, or
-  - policy is `optional` and they create encrypted sessions.
-- Under `plaintext_only`, older clients will fail because encrypted writes are rejected.
+- 仅支持加密写入的旧版客户端在以下情况下仍可正常工作：
+  - 策略为 `required_e2ee`，或
+  - 策略为 `optional`，且客户端创建的是加密会话。
+- 在 `plaintext_only` 策略下，由于服务器拒绝加密写入，旧版客户端将无法正常工作。
 
-## Where clients learn the policy
+## 客户端如何获取策略信息
 
-Clients use `GET /v1/features`:
-- gates: `features.encryption.plaintextStorage.enabled`, `features.encryption.accountOptOut.enabled`
-- details: `capabilities.encryption.storagePolicy`, `capabilities.encryption.defaultAccountMode`
+客户端使用 `GET /v1/features` 获取相关配置：
+- 特性开关：`features.encryption.plaintextStorage.enabled`、`features.encryption.accountOptOut.enabled`
+- 详细信息：`capabilities.encryption.storagePolicy`、`capabilities.encryption.defaultAccountMode`
 
-## Security checklist (plaintext mode)
+## 安全检查清单（明文模式）
 
-If you store plaintext session content on the server, treat it as sensitive application data:
+如果选择在服务器上存储明文会话内容，请将其视作敏感业务数据妥善保护：
 
-- Enforce HTTPS/TLS end-to-end (including between proxies and the server).
-- Encrypt disks and backups at rest.
-- Restrict database access and enable audit logging where possible.
-- Define retention and deletion policies appropriate for your org.
+- 全程强制使用 HTTPS/TLS 端到端传输（包括代理服务器与应用服务器之间）。
+- 对磁盘和备份实施静态加密。
+- 严格限制数据库访问权限，并尽可能开启审计日志。
+- 制定符合你所在组织规范的数据留存与清理策略。

@@ -119,7 +119,7 @@ export async function handleResumeCommand(
   const credentials = await readCredentialsFn();
   if (!credentials) {
     console.error(chalk.yellow('⚠️  Not authenticated with Kaiwu'));
-    console.error(chalk.gray('  Please run "happier auth login" first'));
+    console.error(chalk.gray('  Please run "kaiwu auth login" first'));
     process.exit(1);
   }
 
@@ -133,7 +133,7 @@ export async function handleResumeCommand(
     if (!canUseInkSelectorFn()) {
       console.error(chalk.red('Error:'), 'Interactive resume is not available (raw TTY mode not supported).');
       console.log('');
-      console.log('Hint: run `happier session list --resumable` and then `happier resume <session-id>`.');
+      console.log('Hint: run `kaiwu session list --resumable` and then `kaiwu resume <session-id>`.');
       process.exit(1);
     }
 
@@ -156,7 +156,7 @@ export async function handleResumeCommand(
   if (!sessionIdOrPrefix) {
     console.error(chalk.red('Error:'), 'Missing session ID.');
     console.log('');
-    console.log('Usage: happier resume <sessionId>');
+    console.log('Usage: kaiwu resume <sessionId>');
     process.exit(1);
   }
 
@@ -252,7 +252,7 @@ export async function handleResumeCommand(
     const handler = await resolveAgentHandlerFn(agentId);
     const context: CommandContext = {
       args: [agentId, '--existing-session', rawSession.id, '--resume', vendorResume.vendorResumeId, '--started-by', 'terminal'],
-      rawArgv: deps?.rawArgv ?? ['happier', 'resume', rawSession.id],
+      rawArgv: deps?.rawArgv ?? ['kaiwu', 'resume', rawSession.id],
       terminalRuntime: deps?.terminalRuntime ?? null,
     };
     await handler(context);

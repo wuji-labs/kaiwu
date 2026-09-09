@@ -1,120 +1,119 @@
 ---
-title: Privacy Policy
-description: Your privacy is our priority
+title: 隐私政策
+description: 您的隐私是我们的重中之重
+---
+**最后更新于：2026 年 8 月**
+
+## 概述
+
+Kaiwu 致力于保护您的隐私。本政策将向您说明我们如何依托零知识加密架构处理您的数据。
+
+本政策适用于我们运营的托管服务 Kaiwu Cloud。若您自托管 Kaiwu 服务器，数据则由该服务的运营个人或组织持有，并由其自行制定隐私政策（包括内容是否以加密方式存储）。下文所述的所有内容，仅代表*我们*在自身运营的服务中能够与不能查看到的信息。
+
+## 我们收集的信息
+
+### 加密数据
+- **消息与代码**：您所有的智能体对话与代码片段在传输前均已在设备端完成端到端加密。我们仅存储这些加密数据，无权也无法对其进行解密或读取。
+- **加密密钥**：当您配对设备时，加密密钥会以密文形式在设备之间传输。我们无法访问或解密这些密钥。
+
+### 元数据（未加密）
+- **消息 ID**：用于消息排序与同步的唯一标识符
+- **时间戳**：消息创建与同步的时间
+- **设备 ID**：用于设备配对的匿名标识符
+- **会话 ID**：用于标识编程智能体会话的标识符
+- **推送通知 Token**：用于通过 Expo 推送通知服务发送推送通知的设备 Token
+
+### 数据分析（PostHog）
+
+我们使用 PostHog 进行产品数据分析，服务运行于 PostHog 的**欧盟区域（法兰克福）**。App 与官方网站共用同一个 PostHog 项目；每个事件均包含一个用于标明来源（App 或网站）的属性，从而在不共享任何用户身份的前提下区分两者。
+
+**App 端**
+- **匿名事件**：我们收集基础的应用使用事件，以优化 App 体验
+- **隐私设计原则**：所有分析事件均采用由机密密钥派生的匿名化 ID——我们无法将其反查并关联到任何具体用户或账户
+- **不追踪内容**：我们仅追踪基础的应用使用事件，绝不涉及任何消息内容、代码或个人信息
+- **支持随时退出**：您可以在 App 设置中随时关闭数据分析收集
+
+**kaiwu.chengqiyun.com、kaiwu.chengqiyun.com/docs 与 guides.kaiwu.chengqiyun.com 网站端**
+- **无 Cookie 且无访客 ID**：网站以无 Cookie 模式运行 PostHog。我们不植入 Cookie、不存储任何标识符，也不会建立跨页面或跨访问跟踪您的画像。
+- **遵循全局隐私控制（GPC）**：如果您的浏览器发送了 GPC 信号（Brave 与 DuckDuckGo 默认开启），分析脚本将完全不会启动。
+- **仅限第一方请求**：分析请求均发送至您当前访问网站的自身路径，并由我们自己的服务器转发至 PostHog。网页端绝不发起任何第三方网络请求。
+- **不记录 IP 地址**：客户端 IP 地址在接收后立即丢弃。系统仅保留基于该地址解析出的粗粒度国家与地区信息，IP 地址本身绝不存储。
+- **记录的内容**：访问了哪些页面、所用语言，以及点击了哪些链接和按钮。绝不记录任何表单内容，也绝不记录您输入的任何字符。
+- **支持随时退出**：每个页面的页脚均提供退出开关。记录该选择的状态，是这些网站向您的设备写入的唯一数据。
+
+### 订阅管理（Revenue Cat）
+- **账户 ID**：Revenue Cat 使用您的账户 ID 来管理订阅并启用高级功能
+- **后端集成**：借助该 ID，我们既能通过后端为您提供增值特性，又能确保您的内容始终处于端到端加密保护之下
+- **数据隔离**：发送至 PostHog 的购买分析数据改用匿名化 ID——我们无法将 Revenue Cat 数据与 PostHog 分析数据进行关联
+
+## 我们不收集的信息
+- 您的实际代码或对话内容（我们无法解密）
+- 您在加密消息中主动填写内容之外的任何个人信息
+- 匿名 ID 之外的设备信息
+- 位置数据
+
+## 我们如何使用数据
+
+### 加密数据
+- 仅存储于我们的服务器上，用于在您的各设备之间同步
+- 在收到请求时传输至您已配对的设备
+- 持续保留，直至您在 App 中主动删除
+
+### 元数据
+- 消息 ID 与时间戳用于维持正确的消息排序
+- 设备 ID 用于保障各设备间的安全配对
+- 会话 ID 用于跟踪您的编程智能体会话以实现同步
+- 存储推送通知 Token，以便通过 Expo 服务发送通知
+
+### 推送通知
+通知内容完全在您的设备本地生成，绝不会在我们的后端拼接。我们的后端确实会发送一种推送，但特意不包含任何具体内容：
+
+- **文本始终保留在您的设备上。** 推送通知的标题与正文由您的设备基于已解密的数据在本地构建，我们全程不可见。
+- **我们发送的唯一推送仅为角标刷新。** 当待处理计数发生变化时，后端会请求 Expo 更新 App 图标上的角标数字。该消息仅携带这一数值，不包含任何其他信息——无标题、无正文，更无会话或消息内容。
+- **我们会存储您的设备推送 Token**，以确保通知能够送达。正如任何推送服务运作所必须的那样，Expo 以及操作系统级推送服务（Apple、Google）能够看到该 Token 以及上述角标数字。
+
+## 数据安全
+
+- **端到端加密**：消息在您的设备上使用每个会话独立的密钥加密（32 字节随机数，采用 AES-256-GCM 算法，每条消息使用全新 Nonce）。该会话密钥通过临时 X25519 密钥交换封装至您账户自身的密钥；账户级数据则通过 XSalsa20-Poly1305 进行加密封装。我们并未申请任何资质认证或外部审计，代码实现完全公开，供您随时查阅。
+- **零知识架构**：即使受到外界强制要求，我们也无法解密您的数据
+- **安全密钥交换**：加密密钥仅以我们无法访问的加密形式在您的设备之间传输
+- **开源透明**：我们的加密实现向公众开放审查
+- **杜绝后门**：系统架构从根本上杜绝了我们访问您内容的可能
+
+## 数据保留
+
+- 加密消息将无限期保留，直至您主动删除
+- 元数据的保留仅用于保障系统基础功能
+- 删除的数据将在 30 天内从我们的服务器上永久移除
+
+## 您的权利
+
+您有权：
+- 通过 App 删除您的全部数据
+- 导出您的加密数据
+- 审查我们的开源代码
+- 在无需提供任何个人信息的前提下使用 App
+
+## 数据共享
+
+我们绝不向任何人共享您的数据。绝无例外。
+
+## 政策变更
+
+若本隐私政策发生重大变更，我们将通过 App 通知用户。在变更生效后继续使用本服务，即视为您接受修改后的政策。
+
+## 联系我们
+
+如有任何隐私方面的疑虑或问题，请通过以下方式联系我们：
+- GitHub Issues：https://chengqiyun.com
+
+## 合规性
+
+Kaiwu 遵循默认隐私保护设计，符合以下法规与原则：
+- GDPR（通用数据保护条例）
+- CCPA（加州消费者隐私法）
+- 隐私设计（Privacy by Design）原则
+
 ---
 
-**Last Updated: August 2026**
-
-## Overview
-
-Kaiwu is committed to protecting your privacy. This policy explains how we handle your data with our zero-knowledge encryption architecture.
-
-It covers Kaiwu Cloud — the hosted service we run. If you self-host a Kaiwu server, the person or organisation running it holds your data and sets its own policy, including whether content is stored encrypted at all. Everything below describes what *we* can and cannot see on the service we operate.
-
-## What We Collect
-
-### Encrypted Data
-- **Messages and Code**: All your agent conversations and code snippets are end-to-end encrypted on your device before transmission. We store this encrypted data but have no ability to decrypt or read it.
-- **Encryption Keys**: When you pair devices, encryption keys are transmitted between your devices in encrypted form. We cannot access or decrypt these keys.
-
-### Metadata (Not Encrypted)
-- **Message IDs**: Unique identifiers for message ordering and synchronization
-- **Timestamps**: When messages were created and synced
-- **Device IDs**: Anonymous identifiers for device pairing
-- **Session IDs**: Identifiers for your coding-agent sessions
-- **Push Notification Tokens**: Device tokens for sending push notifications via Expo's push notification service
-
-### Analytics (PostHog)
-
-We use PostHog for product analytics. It runs in PostHog's **EU region (Frankfurt)**. One PostHog project covers both the app and our websites; every event carries a property naming which of the two it came from, so they can be told apart without ever sharing an identity between them.
-
-**In the app**
-- **Anonymous Events**: We collect basic app usage events to improve the app experience
-- **Privacy by Design**: All analytics events use an anonymized ID derived from a secret key - we cannot match this back to any user or account
-- **No Content Tracking**: We only track basic app usage events, never any message content, code, or personal information
-- **Opt-Out Available**: You can disable analytics collection at any time in the app settings
-
-**On kaiwu.chengqiyun.com, kaiwu.chengqiyun.com/docs and guides.kaiwu.chengqiyun.com**
-- **No cookies and no visitor ID**: The websites run PostHog in cookieless mode. We set no cookie, store no identifier, and build no profile that follows you between visits or between pages.
-- **Global Privacy Control is honoured**: If your browser sends the GPC signal — Brave and DuckDuckGo do by default — analytics never start at all.
-- **First-party only**: Analytics requests go to a path on the site you are already reading and are forwarded to PostHog from our own server. The pages make no third-party requests.
-- **No IP addresses**: Client IP addresses are discarded on arrival. A coarse country and region derived from the address is kept; the address itself is never stored.
-- **What is recorded**: which pages were viewed, in which language, and which links and buttons were clicked. Never the contents of a form, and never anything you type.
-- **Opt-Out Available**: There is a switch in the footer of every page. The record of that choice is the only thing these sites ever write to your device.
-
-### Subscription Management (Revenue Cat)
-- **Account ID**: Revenue Cat uses your account ID to manage subscriptions and enable premium features
-- **Backend Integration**: This ID allows us to provide additional features from our backend while maintaining end-to-end encryption for your content
-- **Data Separation**: Purchase analytics sent to PostHog use the anonymized ID instead - we cannot match Revenue Cat data with PostHog analytics
-
-## What We Don't Collect
-- Your actual code or conversation content (we can't decrypt it)
-- Personal information beyond what you voluntarily include in encrypted messages
-- Device information beyond anonymous IDs
-- Location data
-
-## How We Use Data
-
-### Encrypted Data
-- Stored on our servers solely for synchronization between your devices
-- Transmitted to your paired devices when requested
-- Retained until you delete it through the app
-
-### Metadata
-- Message IDs and timestamps are used to maintain proper message ordering
-- Device IDs enable secure pairing between your devices
-- Session IDs track your coding-agent sessions for synchronization
-- Push notification tokens are stored to enable notifications through Expo's service
-
-### Push Notifications
-Notification content is composed on your device, never on our backend. Our backend does send one kind of push, and it is deliberately empty of content:
-
-- **The text stays on your device.** A notification's title and body are built locally from data your device has already decrypted. We never see them.
-- **The one push we send is a badge refresh.** When your attention count changes, our backend asks Expo to update the number on your app icon. That message carries the count and nothing else — no title, no body, no session or message content.
-- **We store your device push token** so delivery can reach you. Expo and the operating-system push services (Apple, Google) see that token and the badge count above, as any push service must.
-
-## Data Security
-
-- **End-to-End Encryption**: Messages are encrypted on your device under a per-session key (32 random bytes, AES-256-GCM, a fresh nonce per message). That session key is sealed to your account's own key with an ephemeral X25519 exchange, and account-scoped data is sealed with XSalsa20-Poly1305. We claim no certification and no external audit; the implementation is in the open for you to read.
-- **Zero-Knowledge**: We cannot decrypt your data even if compelled
-- **Secure Key Exchange**: Encryption keys are transmitted between your devices only in encrypted form that we cannot access
-- **Open Source**: Our encryption implementation is publicly auditable
-- **No Backdoors**: The architecture makes it impossible for us to access your content
-
-## Data Retention
-
-- Encrypted messages are retained indefinitely until you delete them
-- Metadata is retained for system functionality
-- Deleted data is permanently removed from our servers within 30 days
-
-## Your Rights
-
-You have the right to:
-- Delete all your data through the app
-- Export your encrypted data
-- Audit our open-source code
-- Use the app without providing any personal information
-
-## Data Sharing
-
-We do not share your data with anyone. Period.
-
-## Changes to This Policy
-
-We will notify users of any material changes to this privacy policy through the app. Continued use of the service after changes constitutes acceptance.
-
-## Contact
-
-For privacy concerns or questions:
-- GitHub Issues: https://chengqiyun.com
-
-## Compliance
-
-Kaiwu is designed with privacy by default and complies with:
-- GDPR (General Data Protection Regulation)
-- CCPA (California Consumer Privacy Act)
-- Privacy by Design principles
-
----
-
-**Remember**: Your encryption keys are only shared between your own devices in encrypted form. We cannot read your code or conversations even if we wanted to.
+**请记住**：您的加密密钥仅会以加密形式在您自己的设备之间共享。即使我们想看，也根本无法读取您的代码或对话。

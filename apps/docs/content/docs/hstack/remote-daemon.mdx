@@ -1,28 +1,27 @@
 ---
-title: Remote daemon setup (SSH)
-description: Install Kaiwu on a remote host, pair credentials, and optionally install the daemon service.
+title: 远程守护进程配置 (SSH)
+description: 在远程主机上安装 Kaiwu，配对凭据，并可选安装守护进程服务。
 ---
+本文档介绍 `hstack remote daemon setup`，这是一套通过 SSH 配置**远端设备**（如 VPS、家庭服务器、开发机）的工作流：
 
-This page documents `hstack remote daemon setup`, a workflow to provision a **remote machine** (VPS, home server, dev box) over SSH:
+- 在远端主机上安装 Kaiwu CLI
+- 将远端主机与你的账号完成配对并认证
+- （可选）以**用户服务**形式安装并启动守护进程
 
-- installs the Kaiwu CLI on the remote host
-- pairs/authenticates the remote host against your account
-- optionally installs + starts the daemon as a **user service**
+## 快速开始
 
-## Quickstart
-
-From a machine where you already have Kaiwu authenticated:
+在已完成 Kaiwu 认证的设备上执行：
 
 ```bash
 hstack remote daemon setup --ssh user@host
 ```
 
-Default behavior:
+默认行为：
 
-- uses the **stable** channel (set `--channel preview` or `--channel dev` when you want newer public binaries)
-- installs/starts the daemon service in **user** mode
+- 使用 **stable** 通道（如需获取更新的公开发布版本，请设置 `--channel preview` 或 `--channel dev`）
+- 以 **user** 模式安装并启动守护进程服务
 
-## Release channel
+## 发布通道
 
 ```bash
 hstack remote daemon setup --ssh user@host --channel preview
@@ -32,7 +31,7 @@ hstack remote daemon setup --ssh user@host --channel preview
 hstack remote daemon setup --ssh user@host --channel dev
 ```
 
-Equivalent shortcuts:
+等效简写形式：
 
 ```bash
 hstack remote daemon setup --ssh user@host --preview
@@ -40,9 +39,9 @@ hstack remote daemon setup --ssh user@host --dev
 hstack remote daemon setup --ssh user@host --stable
 ```
 
-## Self-hosted server targeting
+## 指定自托管服务器
 
-If you’re pairing the remote machine to a self-hosted server, pass the URLs so the local approval step targets the right control plane:
+如果要将远端设备配对到自托管服务器，请传入对应 URL，以便本地审批步骤正确定位控制平面：
 
 ```bash
 hstack remote daemon setup --ssh user@host \
@@ -51,35 +50,35 @@ hstack remote daemon setup --ssh user@host \
   --public-server-url https://api.example.com
 ```
 
-Notes:
+说明：
 
-- `--server-url` is the server API base URL.
-- `--webapp-url` is the web UI origin used for login/approval UX.
-- `--public-server-url` is the server URL that other devices can reach (often the same as `--server-url`).
+- `--server-url` 为服务器 API 根地址。
+- `--webapp-url` 为用于登录/审批交互界面的 Web UI 来源地址。
+- `--public-server-url` 为其他设备可访问的服务器 URL（通常与 `--server-url` 相同）。
 
-## Skip daemon service install
+## 跳过守护进程服务安装
 
-If you only want the CLI installed + authenticated (no always-on daemon):
+如果只需安装 CLI 并完成认证（无需保持守护进程常驻）：
 
 ```bash
 hstack remote daemon setup --ssh user@host --service none
 ```
 
-## What this wraps (pairing details)
+## 底层封装机制（配对细节）
 
-Under the hood, `hstack remote daemon setup` orchestrates the same pairing flow documented in:
+在底层，`hstack remote daemon setup` 编排的配对流程与以下文档介绍的一致：
 
-- [Pairing JSON (manual / scripting)](/apps/cli#pairing-json-manual--scripting)
-- [Remote machine pairing over SSH (automated)](/apps/cli#remote-machine-pairing-ssh-automated)
+- [配对 JSON（手动 / 脚本）](/apps/cli#pairing-json-manual--scripting)
+- [通过 SSH 进行远端设备配对（自动化）](/apps/cli#remote-machine-pairing-ssh-automated)
 
-If you prefer, you can run pairing directly with the Kaiwu CLI:
+如果需要，你也可以直接使用 Kaiwu CLI 执行配对：
 
 ```bash
 happier auth pair-remote --ssh user@host --json
 ```
 
-## Requirements
+## 前置要求
 
-- SSH access to the remote host (`ssh user@host`)
-- Remote host has `bash` and `curl`
-- The remote host must be a Unix-like OS (Linux/macOS). Windows hosts are not supported for this SSH flow.
+- 具备远端主机的 SSH 访问权限（`ssh user@host`）
+- 远端主机已安装 `bash` 和 `curl`
+- 远端主机必须为类 Unix 系统（Linux/macOS）。此 SSH 工作流不支持 Windows 主机。

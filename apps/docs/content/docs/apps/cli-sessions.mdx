@@ -1,85 +1,84 @@
 ---
-title: CLI sessions
-description: Create, list, control, and script sessions from the CLI.
+title: CLI 会话
+description: 通过 CLI 创建、列出、控制会话并编写脚本。
 ---
+本文重点介绍如何通过 CLI 管理**会话生命周期与会话控制**。
 
-This page focuses on **session lifecycle and session control** from the CLI.
+如果你想先了解安装、认证或服务器配置文件，请先参阅 [CLI](/apps/cli)。
 
-If you’re looking for install/auth/server profiles first, start at [CLI](/apps/cli).
+同一套规范的**操作目录**（action catalog）同时驱动着客户端、会话智能体、语音功能以及外部 MCP 服务器。因此，无论是会话 CLI、内置操作界面，还是外部 MCP 控制端，本质上都是通过不同的传输通道来描述相同的会话操作。
 
-The same canonical **action catalog** also powers the app, session agents, voice, and the external MCP server. That is why the session CLI, the built-in action surface, and external MCP controls all describe the same session operations in different transports.
+## 会话标识符
 
-## Session identifiers
+大多数命令支持以下任一参数：
 
-Most commands accept either:
+- 完整的 `⟦K26⟧`
+- 或**无歧义的前缀**（`⟦K27⟧`）
+- 本地存有会话元数据时，通常还支持精确的**会话标签**（来自 `session create` 的 `--tag`）
 
-- a full `<session-id>`
-- or an **unambiguous prefix** (`<session-id-or-prefix>`)
-- (often) an exact **session tag** if the session metadata is available locally (`--tag` from `session create`)
+若前缀匹配到多个会话，命令将执行失败并列出候选会话（可使用 `--json` 获取结构化输出）。
 
-If the prefix matches multiple sessions, the command fails and prints candidates (use `--json` for structured output).
+## 挂载与恢复（Attach vs Resume）
 
-## Attach vs resume
-
-Use **attach** when the session is still running and you want to reconnect to the live local/provider process:
+当会话仍在运行、需要重新连接到运行中的本地或提供商进程时，使用 **attach**：
 
 ```bash
 happier attach <session-id>
 ```
 
-Use **resume** when the session is inactive but vendor-resumable:
+当会话处于非活跃状态，但提供商支持重新激活时，使用 **resume**：
 
 ```bash
 happier resume <session-id>
 ```
 
-Short version:
+简要说明：
 
-- **attach** = reconnect to a running session
-- **resume** = reopen an inactive session through the provider/backend
+- **attach** = 重新连接到运行中的会话
+- **resume** = 通过提供商或后端重新打开非活跃会话
 
-For the full workflows, see [Attach to a running session](/sessions/attach-to-session) and [Resume inactive sessions](/sessions/session-resume).
+完整工作流程请参阅[挂载到运行中的会话](/sessions/attach-to-session)与[恢复非活跃会话](/sessions/session-resume)。
 
-## Create a session
+## 创建会话
 
 ```bash
 happier session create --title "My session" --message "Hello"
 ```
 
-Target a different directory:
+指定其他目录：
 
 ```bash
 happier session create --path /path/to/repo --title "Repo session"
 ```
 
-### Backend targeting (`--backend`)
+### 指定后端（`--backend`）
 
-`--backend` expects a **backend target key**:
+`--backend` 需要传入一个**后端目标标识键**：
 
 ```bash
 happier session create --backend "agent:<agent-id>"
 happier session create --backend "acpBackend:<backend-id>"
 ```
 
-When in doubt, inspect the canonical schema and available options via the action catalog:
+如有疑问，可通过操作目录查看规范 Schema 及可用选项：
 
 ```bash
 happier session actions describe session.spawn_new --json
 ```
 
-## List sessions
+## 列出会话
 
 ```bash
 happier session list
 ```
 
-Scripting-friendly:
+便于脚本处理的用法：
 
 ```bash
 happier session list --json
 ```
 
-Useful filters:
+常用过滤条件：
 
 ```bash
 happier session list --active
@@ -87,54 +86,54 @@ happier session list --archived
 happier session list --resumable
 ```
 
-## Status
+## 查看状态
 
 ```bash
 happier session status <session-id-or-prefix>
 ```
 
-Live status (when supported):
+实时状态（若支持）：
 
 ```bash
 happier session status <session-id-or-prefix> --live
 ```
 
-## Messaging
+## 发送消息
 
-Send a user message:
+发送用户消息：
 
 ```bash
 happier session send <session-id-or-prefix> "ping"
 ```
 
-Wait for the agent to become idle:
+等待智能体进入空闲状态：
 
 ```bash
 happier session send <session-id-or-prefix> "ping" --wait --timeout 60
 ```
 
-Or wait without sending:
+或者仅等待而不发送消息：
 
 ```bash
 happier session wait <session-id-or-prefix> --timeout 60
 ```
 
-Notes:
+说明：
 
-- `--wait` can time out if the agent is offline/busy or if the backend does not emit an “idle” signal.
-- `--permission-mode` lets you override the permission intent for a single send.
-- `--model` lets you target a specific model for that message when the backend supports it.
-- `--json` + explicit timeouts are recommended for scripts.
+- 若智能体离线、繁忙，或后端未发送“空闲”信号，`--wait` 可能会超时。
+- `--permission-mode` 允许在单次发送时覆盖权限意图。
+- 当后端支持时，`--model` 允许针对该消息指定特定模型。
+- 在脚本中建议同时使用 `--json` 与显式超时设置。
 
-## History
+## 历史记录
 
-Get recent transcript rows:
+获取最近的会话记录条目：
 
 ```bash
 happier session history <session-id-or-prefix> --limit 20
 ```
 
-Scripting / debugging variants:
+用于脚本或调试的变体命令：
 
 ```bash
 happier session history <session-id-or-prefix> --json
@@ -142,25 +141,25 @@ happier session history <session-id-or-prefix> --format raw --include-meta --jso
 happier session history <session-id-or-prefix> --format raw --include-meta --include-structured-payload --json
 ```
 
-Use `compact` when you want a simpler text-focused view.
-Use `raw` when you need provider payloads, metadata, or structured tool/message records.
+若希望获得更简洁、偏重文本的视图，请使用 `compact`。
+若需要查看提供商 Payload、元数据或结构化的工具与消息记录，请使用 `raw`。
 
-## Session control
+## 会话控制
 
-Stop a session:
+停止会话：
 
 ```bash
 happier session stop <session-id-or-prefix>
 ```
 
-Archive / unarchive:
+归档或取消归档：
 
 ```bash
 happier session archive <session-id-or-prefix>
 happier session unarchive <session-id-or-prefix>
 ```
 
-Update metadata:
+更新元数据：
 
 ```bash
 happier session set-title <session-id-or-prefix> "New title"
@@ -168,33 +167,33 @@ happier session set-model <session-id-or-prefix> <model-id>
 happier session set-permission-mode <session-id-or-prefix> <mode>
 ```
 
-### Permission intent (`set-permission-mode` and `--permission-mode`)
+### 权限意图（`set-permission-mode` 与 `--permission-mode`）
 
-Kaiwu stores a provider-agnostic **permission intent** string for each session.
+Kaiwu 会为每个会话存储一个与提供商无关的**权限意图**字符串。
 
-Common intents and aliases:
+常见意图与别名：
 
 - `default`
-- `read_only` (also accepts `read-only`, `readonly`, `ro`)
-- `safe-yolo` (also accepts legacy `acceptEdits`)
-- `yolo` (also accepts legacy `bypassPermissions`)
+- `read_only`（也支持 `read-only`、`readonly`、`ro`）
+- `safe-yolo`（也支持旧版 `acceptEdits`）
+- `yolo`（也支持旧版 `bypassPermissions`）
 - `plan`
 
-Use it in either place:
+两种使用方式均可：
 
 ```bash
 happier session set-permission-mode <session-id-or-prefix> read_only
 happier session send <session-id-or-prefix> "ping" --permission-mode safe-yolo
 ```
 
-Notes:
+说明：
 
-- `set-permission-mode` updates the session’s persisted intent.
-- `session send --permission-mode ...` is a one-message override.
-- The exact allowed operations still depend on the backend/provider and your account policy.
-- Use `--json` to see the normalized intent stored/used.
+- `set-permission-mode` 会更新持久化保存的会话意图。
+- `session send --permission-mode ...` 仅对单条消息生效（临时覆盖）。
+- 具体允许执行的操作仍取决于后端/提供商以及你的账户策略。
+- 使用 `--json` 可查看存储或使用的规范化意图。
 
-These session control commands map to canonical actions such as:
+上述会话控制命令会映射到如下规范操作：
 
 - `session.title.set`
 - `session.model.set`
@@ -208,28 +207,28 @@ These session control commands map to canonical actions such as:
 - `session.run.send`
 - `session.run.stop`
 
-That is what makes them available not just from the CLI, but also from external MCP hosts and session agents when the relevant surface is enabled.
+得益于这种映射机制，一旦启用了相应的界面或接入通道，这些操作不仅能在 CLI 中使用，还能在外部 MCP 宿主和会话智能体中调用。
 
-## Approvals and action gating
+## 审批与操作门禁
 
-Session control commands are implemented as **actions**.
+会话控制命令均实现为**操作**。
 
-That means:
+这意味着：
 
-- each action can be enabled/disabled per surface (UI / CLI / session-agent / voice / external MCP)
-- each action can optionally require approval per surface
+- 可以针对不同界面（UI / CLI / 会话智能体 / 语音 / 外部 MCP）分别启用或禁用每个操作
+- 可以针对不同界面选择性地为每个操作配置审批要求
 
-When a command is approval-gated, the CLI returns an “approval request created” payload instead of executing immediately.
-Approve/deny in the app Inbox:
+当命令受到审批门禁限制时，CLI 不会立即执行，而是返回“审批请求已创建”的 Payload。
+在客户端收件箱中进行批准或拒绝：
 
-- [Inbox and approvals](/sessions/inbox-and-approvals)
-- [Kaiwu tools & actions](/extending/happier-tools)
+- [收件箱与审批](/sessions/inbox-and-approvals)
+- [Kaiwu 工具与操作](/extending/happier-tools)
 
-### Decide approvals from the CLI (advanced)
+### 通过 CLI 裁定审批（高级）
 
-For automation-heavy workflows, the same approval flow is also available through the generic action executor.
+对于重度依赖自动化的工作流，也可以通过通用操作执行器来走完同样的审批流程。
 
-Example:
+示例：
 
 ```bash
 # 1) run an approval-gated command
@@ -241,32 +240,32 @@ happier session actions execute <session-id> approval.request.decide \
   --json
 ```
 
-This is the same approval object that the app Inbox shows. Most users should review in the app, but scripted operators can decide approvals through the action surface when that fits their workflow.
+此对象与客户端收件箱中展示的审批对象完全一致。大部分用户应在客户端中完成审核，但对于脚本化运维人员，如果符合工作流需求，也可以直接通过操作界面裁定审批。
 
-## Actions (advanced scripting)
+## 操作（高级脚本编写）
 
-Discover actions:
+发现操作：
 
 ```bash
 happier session actions list --json
 happier session actions describe <action-id> --json
 ```
 
-Execute an action:
+执行操作：
 
 ```bash
 happier session actions execute <session-id> <action-id> --input-json '<json>' --json
 ```
 
-Current JSON envelopes:
+当前的 JSON 外层封装结构：
 
-- `session actions list --json` returns `data.actionSpecs`
-- `session actions describe <action-id> --json` returns `data.actionSpec`
-- `session actions execute ... --json` returns `data.result`
+- `session actions list --json` 返回 `data.actionSpecs`
+- `session actions describe ⟦K28⟧ --json` 返回 `data.actionSpec`
+- `session actions execute ... --json` 返回 `data.result`
 
-## Execution runs
+## 执行运行
 
-Execution runs are the structured “run” layer for multi-step flows (review / plan / delegate / voice agent):
+执行运行（Execution runs）是面向多步骤流程（审查 / 规划 / 委派 / 语音智能体）的结构化“运行”层：
 
 ```bash
 happier session run start <session-id> --intent <intent> --backend <backend-target-key> --json
@@ -277,7 +276,7 @@ happier session run stop <session-id> <run-id> --json
 happier session run wait <session-id> <run-id> --timeout 300 --json
 ```
 
-Advanced run control:
+高级运行控制：
 
 ```bash
 happier session run action <session-id> <run-id> <action-id> --input-json '<json>' --json

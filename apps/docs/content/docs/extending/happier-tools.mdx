@@ -1,67 +1,66 @@
 ---
-title: Kaiwu tools & actions
-description: Use one unified tools surface across providers, with built-in Kaiwu actions, custom MCP tools, and on-demand action discovery.
+title: Kaiwu 工具与操作
+description: 跨提供商使用统一的工具界面，支持内置 Kaiwu 操作、自定义 MCP 工具以及按需操作发现。
 ---
+Kaiwu 提供统一的 **Kaiwu tools** 界面。
 
-Kaiwu exposes one unified **Kaiwu tools** surface.
+该界面涵盖：
 
-That surface includes:
+- **Kaiwu 内置操作**：如代码审查、制定计划、委托任务、切换会话模式、指定目标会话以及响应请求等
+- **自定义工具**：来自你所配置的 MCP 服务器
 
-- **Built-in Kaiwu actions** such as review, plan, delegate, session mode changes, session targeting, and request responses
-- **Custom tools** from your configured MCP servers
+你无需将其视为两套独立的系统。Kaiwu 会选用当前提供商所支持的最佳传输通道来交付这些工具。
 
-You do not need to think about those as two different systems. Kaiwu delivers them through the best transport the current provider supports.
+Kaiwu 还对三个关联概念做了清晰划分：
 
-Kaiwu also separates three related ideas:
+- **操作可用性**（Action availability）：某个操作在特定界面上是否被允许使用。
+- **操作发现**（Action discovery）：智能体或客户端能否通过 `action_spec_search` / `action_spec_get` 找到该操作，并通过 `action_execute` 执行它。
+- **直接工具暴露**（Direct tool exposure）：该操作是否注册为独立的具名工具（例如 `session_title_set`）。
 
-- **Action availability**: whether an action is allowed on a surface at all.
-- **Action discovery**: whether an agent or client can find the action through `action_spec_search` / `action_spec_get` and execute it through `action_execute`.
-- **Direct tool exposure**: whether the action is registered as its own named tool, such as `session_title_set`.
+一项操作即便未作为直接工具暴露，也依然可以保持可用并支持动态发现。这种模式称为**仅支持发现**（discoverable-only）。
 
-An action can be available and discoverable without being exposed as a direct tool. That mode is called **discoverable-only**.
+## 什么是“Kaiwu tools”
 
-## What “Kaiwu tools” means
+Kaiwu tools 是指智能体可以通过 Kaiwu 本身调用的各种操作和外部工具。
 
-Kaiwu tools are the actions and external tools that an agent can use through Kaiwu itself.
+示例包括：
 
-Examples:
+- 启动审查运行
+- 启动用于计划或委托的子智能体
+- 将会话切换为提供商支持的模式（如 `plan`）
+- 响应 `AskUserQuestion` 或 `Exit Plan Mode` 请求
+- 调用自定义 MCP 工具，如 Playwright、GitHub 或 Context7
 
-- start a review run
-- start a plan or delegate subagent
-- switch a session into a provider-supported mode like `plan`
-- answer an `AskUserQuestion` or `Exit Plan Mode` request
-- call a custom MCP tool such as Playwright, GitHub, or Context7
+从用户视角来看，这是一个统一的产品界面：
 
-From the user point of view, this is one product surface:
+- 在**设置 → MCP 服务器**中配置工具
+- 预览会话将获取的内容
+- 在常规会话记录中查看生成的工具活动
 
-- configure tools in **Settings → MCP servers**
-- preview what a session will get
-- see the resulting tool activity in the normal session transcript
+## 原生 MCP 对比 Shell 桥接
 
-## Native MCP vs shell bridge
+不同的提供商接入工具的方式各有不同。
 
-Different providers accept tools in different ways.
+Kaiwu 支持两种交付模式：
 
-Kaiwu supports two delivery modes:
+### 原生 MCP
 
-### Native MCP
+对于可直接消费 MCP 的提供商，Kaiwu 会将工具作为原生 MCP 工具注入。
 
-For providers that can consume MCP directly, Kaiwu injects tools as native MCP tools.
-
-Current native-MCP providers include:
+目前支持原生 MCP 的提供商包括：
 
 - Claude
 - Codex
 - OpenCode
 - Gemini
 - Kiro
-- Custom ACP providers that expose native MCP support
+- 提供原生 MCP 支持的自定义 ACP 提供商
 
-### Shell bridge
+### Shell 桥接
 
-For providers that can execute shell commands but do not use native MCP directly, Kaiwu exposes the same tool surface through the `happier tools` CLI bridge.
+对于能够执行 Shell 命令但无法直接使用原生 MCP 的提供商，Kaiwu 会通过 `happier tools` CLI 桥接来暴露同一套工具界面。
 
-Current shell-bridge providers include:
+目前采用 Shell 桥接的提供商包括：
 
 - Auggie
 - Qwen
@@ -70,24 +69,24 @@ Current shell-bridge providers include:
 - Pi
 - Copilot
 
-The important user-facing result is the same:
+从用户端来看，两者的最终效果完全一致：
 
-- the provider can still use Kaiwu-managed tools
-- the transcript still shows normal Kaiwu tool activity
-- MCP server configuration still happens in one place
+- 提供商依然可以使用 Kaiwu 托管的工具
+- 会话记录依然正常展示 Kaiwu 工具活动
+- MCP 服务器配置依然在同一处完成
 
-## Built-in actions vs custom MCP tools
+## 内置操作对比自定义 MCP 工具
 
-Kaiwu tools intentionally mix:
+Kaiwu tools 有意将以下两类工具融合在一起：
 
-- **built-in actions** backed by Kaiwu `ActionSpec`
-- **custom MCP tools** from configured MCP servers
+- 基于 Kaiwu `ActionSpec` 的**内置操作**
+- 来自已配置 MCP 服务器的**自定义 MCP 工具**
 
-### Built-in actions
+### 内置操作
 
-Built-in actions are the safest way to expose structured Kaiwu workflows to agents.
+若要向智能体开放结构化的 Kaiwu 工作流，内置操作是最安全的方式。
 
-Examples include:
+示例包括：
 
 - `review.start`
 - `subagents.plan.start`
@@ -98,209 +97,209 @@ Examples include:
 - `session.target.primary.set`
 - `session.target.tracked.set`
 
-These actions have canonical:
+这些操作都具备规范的定义：
 
-- ids
-- input hints
-- examples
-- option sources
+- ID
+- 输入提示
+- 示例
+- 选项来源
 
-That means Kaiwu can reuse the same source of truth across:
+这意味着 Kaiwu 可以在以下场景中复用同一套权威数据源：
 
-- app launchers and forms
-- voice tools
-- MCP delivery
-- CLI bridge delivery
+- 应用启动器与表单
+- 语音工具
+- MCP 交付
+- CLI 桥接交付
 
-For session agents, most first-party action-backed tools default to discoverable-only. The session still gets a small direct bootstrap set for action discovery and generic execution, and the larger action catalog stays available through that bootstrap path. This keeps provider-native tool inventories focused while preserving access to Kaiwu workflows.
+对于会话智能体，大多数由第一方操作支持的工具默认设置为“仅支持发现”。会话只会获取一小组用于操作发现和泛型执行的直接引导工具，而更庞大的操作目录则保留在该引导路径中供按需取用。这样既能让提供商原生工具清单保持精简聚焦，又不会切断对 Kaiwu 工作流的访问。
 
-### Custom MCP tools
+### 自定义 MCP 工具
 
-Custom MCP tools are still configured the same way as before:
+自定义 MCP 工具的配置方式与以往一致：
 
-- add them in **Settings → MCP servers**
-- scope them by machine and workspace
-- preview what a session will see
+- 在**设置 → MCP 服务器**中添加
+- 按设备和工作区划定作用域
+- 预览会话可见的工具
 
-Once configured, they join the same Kaiwu tools surface as built-in actions.
+配置完成后，它们会与内置操作并入同一个 Kaiwu tools 界面。
 
-The direct/discoverable-only exposure setting applies to built-in action-backed tools. Configured custom MCP tools keep their normal direct MCP delivery behavior and are controlled from **Settings → MCP servers** unless a separate custom-tool discovery path is added later.
+“直接暴露 / 仅支持发现”的设置仅适用于由内置操作支持的工具。已配置的自定义 MCP 工具仍保留其常规的原生 MCP 交付行为，并在**设置 → MCP 服务器**中统一管理，除非后续另行引入独立的自定义工具发现路径。
 
-## Surfaces and approvals
+## 交互界面与审批
 
-Each built-in action can be configured per **surface** (where it is available), such as:
+各项内置操作均可按**交互界面**（即操作生效的场合）分别配置，例如：
 
-- session agents
-- the CLI (`happier session ...` and `happier tools ...`)
-- the external MCP server (`happier mcp serve`)
-- voice tools
+- 会话智能体
+- CLI（`happier session ...` 与 `happier tools ...`）
+- 外部 MCP 服务器（`happier mcp serve`）
+- 语音工具
 
-Those are all powered by the same action catalog, so one surface can be documented, approved, or disabled without creating a separate action system for each client.
+这些界面均由同一个操作目录驱动。因此，你可以在不为每个客户端单独构建操作体系的前提下，对某个界面的操作进行文档说明、开启审批或直接禁用。
 
-For sensitive actions, you can also configure the surface as **approval-gated**.
+对于敏感操作，你还可以将对应界面配置为**需要审批**（approval-gated）。
 
-In the app, this lives under **Settings → Actions**.
+在应用中，该配置位于**设置 → 操作**。
 
-When an action is approval-gated, callers do not execute it immediately. Instead, Kaiwu creates an approval request and surfaces it in **Inbox** for review and execution.
+操作被设置为需要审批后，调用方将无法直接执行。Kaiwu 会转而创建一条审批请求，并显示在**收件箱**中等待人工审查与执行。
 
-Eligible tool-backed action surfaces also have a **tool exposure** setting:
+支持工具调用的操作界面还拥有**工具暴露**选项：
 
-- **Use default** follows Kaiwu’s default for that action and surface.
-- **Discoverable only** keeps the action available through discovery and `action_execute`, but does not register a named direct tool on that surface.
-- **Direct tool** registers the action as its own named tool when the action is otherwise enabled on that surface.
+- **使用默认值**：遵循 Kaiwu 针对该操作和界面的默认策略。
+- **仅支持发现**：允许通过发现流程和 `action_execute` 调用，但不在该界面上注册具名的直接工具。
+- **直接工具**：当该操作在此界面上启用时，将其注册为独立的具名工具。
 
-The exposure setting is independent from approval mode. A direct tool can still require approval, and a discoverable-only action can still require approval when it is executed through `action_execute`.
+暴露设置与审批模式相互独立。直接工具同样可以要求审批；同样地，仅支持发现的操作在通过 `action_execute` 执行时，也能触发审批流程。
 
-User guide: [Inbox and approvals](/sessions/inbox-and-approvals)
+用户指南：[收件箱与审批](/sessions/inbox-and-approvals)
 
-## Discovery-first behavior
+## 发现优先机制
 
-Kaiwu no longer needs to stuff a huge fixed action catalog into every prompt.
+Kaiwu 不再需要将庞大而固定的操作目录塞进每条提示词中。
 
-Instead, agents can discover actions on demand.
+智能体可以按需动态发现操作。
 
-The built-in discovery flow is:
+内置的发现流程如下：
 
-1. **Search action specs** when the agent knows the goal but not the exact action id
-2. **Get action spec** when it needs the exact fields, examples, and hints
-3. **Resolve action options** when it needs valid dynamic values such as backends or session modes
-4. **Execute** the action with validated input
+1. **搜索操作规格**：当智能体明确目标但不知晓确切的操作 ID 时使用
+2. **获取操作规格**：当需要查询确切的字段、示例与提示时使用
+3. **解析操作选项**：当需要获取后端或会话模式等有效的动态参数值时使用
+4. **执行**：使用校验通过的输入参数执行操作
 
-This reduces prompt overload and keeps the available tool surface aligned with the real current runtime.
+这种机制减轻了提示词负载，同时确保可用工具界面始终与当前实际运行时保持一致。
 
-This is the default posture for in-session agents. Kaiwu-managed review, plan, delegate, and execution-run launch actions stay discoverable, but they are not promoted into the session agent’s direct tool list unless the default or your settings make them direct. External MCP clients and CLI workflows keep direct named tools by default where those tools are configured, so existing automations can continue to use them.
+这也是会话内智能体的默认运行姿态。由 Kaiwu 托管的审查、计划、委托以及运行启动操作均保持可被发现，但除非默认规则或你的设置将其指定为直接工具，否则它们不会出现在会话智能体的直接工具列表中。外部 MCP 客户端与 CLI 工作流在配置了对应工具的情况下，默认仍保留具名直接工具，以确保现有自动化流程正常运转。
 
-Discoverability is not authorization to choose Kaiwu-managed delegation. For an ordinary request to delegate work, use the current Agent's native subagent or parallel-agent facility when it has one. Discover and start a Kaiwu-managed run only when the user explicitly asks for a Kaiwu run, Kaiwu delegation run, or Kaiwu subagent; asks for another Agent backend, model provider, model, account, or service that the native facility cannot satisfy; or has enabled a custom rule that requires Kaiwu.
+具备可发现性并不代表获得选择 Kaiwu 托管委托的授权。对于常规的任务委托请求，若当前智能体自带原生子智能体或并行智能体功能，应优先使用该能力。仅在以下情况才去发现并启动 Kaiwu 托管运行：用户明确要求发起 Kaiwu 运行、Kaiwu 委托运行或 Kaiwu 子智能体；用户要求使用原生功能无法满足的其他智能体后端、模型提供商、模型、账户或服务；或者用户启用了强制要求 Kaiwu 的自定义规则。
 
-These choices create different things:
+这些选择所创建的对象截然不同：
 
-- **Provider-native subagents** stay inside the current Agent's own delegation system and are the normal choice for ordinary parallel work.
-- **Kaiwu-managed execution runs** include Kaiwu review, plan, and delegate subagents. Kaiwu owns their launch, lifecycle, transcript access, and controls.
-- **Independent Kaiwu sessions** are top-level sessions created with `session.spawn_new`. They are not routine delegation and do not replace a subagent run.
+- **提供商原生子智能体**：完全保留在当前智能体自身的委托系统内部，是处理常规并行任务的通用选择。
+- **Kaiwu 托管执行运行**：包含 Kaiwu 的审查、计划和委托子智能体。其启动、生命周期、会话记录访问及控制权限全部由 Kaiwu 接管。
+- **独立 Kaiwu 会话**：通过 `session.spawn_new` 创建的顶级会话。这不属于常规委托，也不能取代子智能体运行。
 
-### Starting and observing a Kaiwu-managed run
+### 启动与观测 Kaiwu 托管运行
 
-For an action invoked by an agent inside a session, `sessionId` is optional. Omit it to host the run in the invoking session. Supply an explicit `sessionId` only when deliberately targeting another authorized session; explicit cross-session hosting remains supported.
+对于会话内智能体调用的操作，`sessionId` 为选填项。将其省略即可将运行直接托管在当前发起调用的会话中。仅在明确需要指定另一处已授权会话时，才需传入具体的 `sessionId`；显式跨会话托管机制依然受支持。
 
-Before starting a run, inspect its current action spec, then resolve selectable fields through the action-options flow. The spec and option resolver are the source of truth for current Agent targets, models, configuration, accounts, connected services, and accepted input shapes. This avoids depending on recipes or option-source names that may no longer match the installed build.
+在启动运行之前，请先检查其当前的操作规格，随后通过操作选项解析流程获取可选字段。规格说明与选项解析器是判定当前智能体目标、模型、配置、账户、关联服务以及所接受输入格式的唯一权威来源。这样可以避免依赖可能与当前安装版本不再匹配的操作配方或选项源名称。
 
-Waiting is only observation. If a bounded wait times out, the run may still be active; the timeout does not stop it or turn it into a failed run. Retry only when the returned provider evidence classifies the failure as retryable, such as a typed transient rate limit. Do not treat every backend failure as transient or silently switch to another backend.
+等待仅用于观测状态。若限时等待发生超时，运行本身可能仍在活动中；超时既不会中止该运行，也不会将其判定为失败。仅当返回的提供商凭据明确将失败归类为可重试错误（例如特定类型的瞬态速率限制）时，方可重试。切勿将所有后端故障都视作偶发错误，也不要悄默声地切换到其他后端。
 
-## Hot-path actions
+## 热路径操作
 
-Kaiwu still keeps a small dynamic hot path for common actions.
+针对高频操作，Kaiwu 依然保留了轻量级的动态热路径。
 
-This hot path is **not** a hard-coded documentation list. It is derived from the canonical `ActionSpec` metadata and the current exposure policy, so when an action’s voice/tool metadata or direct/discoverable setting changes, the hot path changes with it.
+该热路径**并非**硬编码的文档列表。它是依据规范的 `ActionSpec` 元数据及当前的暴露策略动态派生而来的。因此，当某项操作的语音/工具元数据或直接/发现设置发生变更时，热路径也会随之同步更新。
 
-In practice, that means common actions like review, plan, delegate, request responses, and session targeting stay easy to reach without maintaining a second parallel registry.
+在实际使用中，这意味着审查、计划、委托、请求响应和会话定位等高频操作始终触手可及，而无需额外维护一套并行的注册表。
 
-## Plan run vs plan mode
+## 计划运行对比计划模式
 
-These are two different user-facing concepts.
+这是两个在用户层面上完全不同的概念。
 
-### Plan subagent
+### 计划子智能体
 
-Use **Start plan run** when you want Kaiwu to launch a separate planning run or planner-style subagent.
+当你需要 Kaiwu 启动独立的规划运行或计划型子智能体时，请使用**启动计划运行**（Start plan run）。
 
-This creates parallel work in the **Agents** surface.
+这会在**智能体**界面中创建并行任务。
 
-### Session mode
+### 会话模式
 
-Use **Set session mode** when you want the current session itself to switch into a provider-supported mode such as `plan`.
+当你希望当前会话本身切换到提供商支持的特定模式（如 `plan`）时，请使用**设置会话模式**（Set session mode）。
 
-This changes the mode of the current session. It does **not** start a new subagent.
+这只会更改当前会话的模式，**不会**启动新的子智能体。
 
-If the provider does not support session modes, Kaiwu simply does not offer that control.
+若提供商不支持会话模式，Kaiwu 便不会提供该控制项。
 
-## Responding to user actions
+## 响应用户操作
 
-Kaiwu uses one generalized response path for user-action-style requests.
+Kaiwu 采用统一的通用响应路径来处理用户操作类请求。
 
-That includes cases such as:
+覆盖的场景包括：
 
 - `AskUserQuestion`
 - `ExitPlanMode`
-- other structured user-action requests exposed by the provider/runtime
+- 提供商/运行时暴露的其他结构化用户操作请求
 
-The response action can:
+响应操作支持以下行为：
 
-- approve
-- reject
-- request changes
-- return structured question/answer pairs
+- 批准
+- 拒绝
+- 请求修改
+- 返回结构化的问答对
 
-This keeps request handling consistent across UI, voice, and agent-driven flows.
+这保证了请求处理逻辑在图形界面、语音以及智能体驱动的工作流中保持高度一致。
 
-## Where you see these tools in the product
+## 这些工具在产品中的呈现位置
 
-### App
+### 应用内
 
-In the app, Kaiwu tools show up through:
+在应用中，Kaiwu tools 会在以下位置展示：
 
-- **Settings → MCP servers**
-- the session **MCP chip**
-- the transcript **tool timeline**
-- the **Agents** surface for subagent-related actions
-- voice surfaces when voice is enabled
+- **设置 → MCP 服务器**
+- 会话中的 **MCP 标签**
+- 会话记录中的**工具时间线**
+- 子智能体相关操作对应的**智能体**界面
+- 启用语音时的语音交互界面
 
 ### CLI
 
-In the CLI, Kaiwu exposes:
+在命令行中，Kaiwu 提供：
 
 ```bash
 happier tools list
 ```
 
-and:
+以及：
 
 ```bash
 happier tools call --session-id <session-id> --source happier --tool <tool-name> --args-json '<json>'
 ```
 
-Use `list` when you want to inspect the current built-in and custom tool surface.
+若要查看当前可用的内置及自定义工具界面，请使用 `list`。
 
-Use `call` when you want to invoke one built-in Kaiwu tool or one configured custom MCP tool directly.
+若要直接调用某个内置 Kaiwu 工具或已配置的自定义 MCP 工具，请使用 `call`。
 
-## Common workflows
+## 常见工作流
 
-### I want an agent to find the right action instead of guessing
+### 让智能体精准查找操作而非盲目猜测
 
-Use the discovery flow:
+请使用发现流程：
 
-1. search the action catalog
-2. inspect the matching action spec
-3. resolve dynamic options if needed
-4. execute the action
+1. 搜索操作目录
+2. 检查匹配的操作规格
+3. 如有需要，解析动态选项
+4. 执行该操作
 
-### I want plan behavior in the current session
+### 在当前会话中启用规划能力
 
-Switch the session into a supported mode such as `plan`.
+将会话切换至支持的模式（如 `plan`）。
 
-Use a plan subagent only when you want parallel planning work rather than changing the current session’s mode.
+仅当你需要并行规划任务而非改变当前会话模式时，才应使用计划子智能体。
 
-### I want the same tool configuration to work across providers
+### 跨不同提供商复用同一套工具配置
 
-Configure the tool once in Kaiwu.
+只需在 Kaiwu 中配置一次工具即可。
 
-If the provider supports native MCP, Kaiwu uses that. If not, Kaiwu uses the shell bridge automatically when supported.
+若提供商支持原生 MCP，Kaiwu 会直接采用；若不支持，Kaiwu 会在受支持的情况下自动切换为 Shell 桥接模式。
 
-### I want voice to do structured work reliably
+### 通过语音可靠执行结构化任务
 
-Voice can use the same built-in actions as the rest of Kaiwu, including:
+语音界面可以使用 Kaiwu 其余模块通用的内置操作，包括：
 
-- action discovery
-- subagent launch
-- session mode changes
-- permission responses
-- user-action answers
+- 发现操作
+- 启动子智能体
+- 切换会话模式
+- 响应权限请求
+- 回答用户操作
 
-That keeps voice aligned with the normal app and CLI surfaces instead of inventing separate voice-only commands.
+这样能确保语音能力与常规应用界面及 CLI 保持一致，无需另行设计专属于语音的独立命令集。
 
-## Related pages
+## 相关页面
 
-- [MCP servers](/extending/mcp-servers)
-- [Agents & subagents](/extending/subagents)
-- [Permissions](/sessions/permissions)
-- [Inbox and approvals](/sessions/inbox-and-approvals)
-- [Voice](/voice)
+- [MCP 服务器](/extending/mcp-servers)
+- [智能体与子智能体](/extending/subagents)
+- [权限](/sessions/permissions)
+- [收件箱与审批](/sessions/inbox-and-approvals)
+- [语音](/voice)
 - [CLI](/apps/cli)

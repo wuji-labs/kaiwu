@@ -1,57 +1,56 @@
 ---
-title: Permissions
-description: Choose how much access your agent has (CLI + app), and how changes apply mid-session.
+title: 权限
+description: 选择智能体拥有的访问权限（CLI + App），以及更改如何在会话进行中生效。
 ---
+## 权限控制的作用
 
-## What permissions control
+权限决定了智能体在尝试运行工具（如编辑文件或执行命令）时**无极开物请求确认的频次**，同时也决定了会话环境的受限程度。
 
-Permissions determine **how often Kaiwu asks for approval** when an agent wants to run tools (like editing files or running commands), and how restrictive the session environment should be.
+你可以在两处设置权限：
 
-You can set permissions in two places:
+- **CLI**：在启动会话时指定
+- **App 界面**：按会话单独设置（也可配置为新会话的默认值）
 
-- **CLI**: when starting a session
-- **App UI**: per-session (and as defaults for new sessions)
+无极开物会将你的选择保存在会话中，因此在另一台设备上打开同一会话时，设置依然有效。
 
-Kaiwu stores your choice in the session so it stays consistent when you open the same session on another device.
+## 权限模式
 
-## Permission modes
+在 CLI 或 App 中，你会看到以下几种模式：
 
-These are the modes you may see in the CLI and/or the app:
+- **Default（默认）**：采用提供商的标准行为（需要时询问）。
+- **Read-only（只读）**：智能体可以读取和审查，但会拒绝所有写入类操作。
+- **Safe YOLO（安全放行）**：自动允许读取类操作；在执行写入类操作前请求确认。
+- **YOLO（完全放行）**：在提供商允许的最大限度内跳过确认（速度最快，安全性最低）。
 
-- **Default**: uses the provider’s normal behavior (ask when needed).
-- **Read-only**: the agent can read and inspect, but write-like actions are denied.
-- **Safe YOLO**: automatically allows read-like actions; asks for approval before write-like actions.
-- **YOLO**: skips approvals as much as the provider allows (full speed, least safe).
+并非所有提供商都支持全部模式。遇到不支持的模式时，无极开物会**回退**到最接近的可用行为，并在界面中展示实际生效的 **Effective** 策略。
 
-Not every provider supports every mode. When a mode isn’t supported, Kaiwu will **fall back** to the closest supported behavior and show you the **Effective** policy in the UI.
+旧版说明：
 
-Legacy note:
+- 部分旧会话和兼容路径的权限元数据中可能仍包含 `plan`
+- 在当前无极开物版本中，**Plan** 被视作**会话模式**，而非普通权限选项
+- 当无极开物遇到旧版 `permissionMode=plan` 时，会在兼容的提供商上将其映射为 **Mode = Plan**
 
-- some older sessions and compatibility paths may still carry `plan` in permission metadata
-- in current Kaiwu builds, **Plan** is treated as a **session mode**, not a normal permission choice
-- when Kaiwu sees legacy `permissionMode=plan`, it maps that to **Mode = Plan** for compatible providers
+## 会话模式
 
-## Session modes
+部分提供商提供了**会话模式**（例如 `plan` 与 `build`，或 `default` 与 `plan`）。
 
-Some providers expose **session modes** (for example, `plan` vs `build` or `default` vs `plan`).
+会话模式与**权限完全独立**：
 
-Session modes are **separate from permissions**:
+- **权限**控制确认机制与安全边界。
+- **会话模式**控制智能体的工作状态（由提供商定义）。
 
-- **Permissions** control approvals and safety boundaries.
-- **Session modes** control the agent’s operating mode (provider-defined).
+请注意这一重要区别：
 
-Important distinction:
+- 切换 **Mode** 会改变当前会话的状态
+- 启动 **Plan** 子智能体则是在智能体面板中发起并行任务
 
-- changing **Mode** changes the current session
-- starting a **Plan** subagent launches parallel work in the Agents surface
+这两项功能在设计上有着截然不同的定位。
 
-Those are intentionally different features.
+查看面向用户的完整指南，请参阅[会话模式](/sessions/session-modes)。
 
-For the full user-facing guide, see [Session modes](/sessions/session-modes).
+### CLI 用法
 
-### CLI usage
-
-Start a session with a session mode:
+指定会话模式启动会话：
 
 ```bash
 happier claude --agent-mode plan
@@ -60,97 +59,97 @@ happier opencode --agent-mode plan
 happier kilo --agent-mode plan
 ```
 
-### App UI usage
+### App 界面用法
 
-In a session, open the input settings and pick a value from the **Mode** section when it’s available for the current provider.
+在会话中打开输入设置；如果当前提供商支持，即可在 **Mode** 区域选择相应模式。
 
-If the provider does not support session modes, the Mode control is not shown.
+若提供商不支持会话模式，界面将隐藏 Mode 控制项。
 
-When session modes are available, Kaiwu also supports returning to the provider default mode. In the app this appears as the default/no-override option.
+在支持会话模式的提供商上，无极开物也支持切回默认模式。在 App 中，该项显示为默认/不覆盖选项。
 
-### Important: Plan mode does not bypass permissions
+### 重要说明：Plan 模式不会绕过权限
 
-Plan mode changes how the provider behaves. It does **not** mean “auto-approve everything”.
+Plan 模式改变的是提供商的行为逻辑，它**绝不**等同于“自动批准所有操作”。
 
-In current Kaiwu builds:
+在当前无极开物版本中：
 
-- you can be in **Mode = Plan** and still receive permission prompts
-- your selected **permission mode** still matters when the provider/runtime asks for approval
-- when you exit plan mode, Kaiwu returns the session to the normal working mode for that provider
+- 即使处于 **Mode = Plan**，你依然会收到权限确认请求
+- 当提供商或运行时请求确认时，你所选的**权限模式**依然有效
+- 退出 Plan 模式时，无极开物会将该会话恢复为对应提供商的常规工作模式
 
-### Exiting plan mode
+### 退出 Plan 模式
 
-When a provider asks to exit plan mode, Kaiwu surfaces that as a **user-action request**, not as a generic permission prompt.
+当提供商请求退出 Plan 模式时，无极开物会将其作为**用户操作请求**呈现，而非一般的权限确认提示。
 
-Typical actions are:
+常见操作包括：
 
-- **Approve Plan**: exit plan mode and continue
-- **Request changes**: stay in plan mode and ask the provider to revise the plan
-- provider-specific approval variants such as **Accept Edits** or **Bypass All Permissions**
+- **Approve Plan（批准计划）**：退出 Plan 模式并继续执行
+- **Request changes（请求修改）**：留在 Plan 模式并要求提供商修改方案
+- 特定提供商的专属确认选项，如 **Accept Edits（接受编辑）** 或 **Bypass All Permissions（绕过所有权限）**
 
-Claude is the clearest example:
+Claude 是最典型的例子：
 
-- **Approve Plan** returns the session to **Mode: Build**
-- **Approve Plan (Accept Edits)** returns to build mode with a safer edit-friendly permission mode
-- **Approve Plan (Bypass All Permissions)** returns to build mode with a YOLO-style permission mode
+- **Approve Plan** 会将该会话恢复为 **Mode: Build**
+- **Approve Plan (Accept Edits)** 会切回 Build 模式，并启用对编辑更友好的安全权限模式
+- **Approve Plan (Bypass All Permissions)** 会切回 Build 模式，并启用 YOLO 风格的放行权限模式
 
-Those approval variants affect what happens **after** plan mode ends. They do not mean that plan mode itself bypasses approval prompts.
+这些确认选项影响的是退出 Plan 模式**之后**的行为，并不代表 Plan 模式本身可以绕过审批提示。
 
-## Resume support
+## 恢复运行支持
 
-Resume is now a **session-level eligibility decision** in Kaiwu, not a normal runtime-probing flow.
+在无极开物中，会话恢复现已成为一项**会话层面的资格判定**，不再属于常规的运行时探测流程。
 
-In practice, Kaiwu decides resumability from:
+实际上，无极开物会综合以下因素判定会话是否可恢复：
 
-- the session’s agent/provider
-- whether the session has a valid stored provider resume id
-- your account/backend settings
+- 该会话所使用的智能体及提供商
+- 会话内是否存有有效的提供商恢复 ID
+- 你的账户及后端配置
 
-For Codex specifically:
+针对 Codex 的特别说明：
 
-- resume depends on the session metadata and the selected backend path
-- **App Server** is the default resumable path in Kaiwu
-- if Codex is set to plain `mcp`, fresh sessions can still run there, but vendor resume is not available on that path
-- explicit resume remains **fail-closed**: Kaiwu errors instead of silently starting a fresh session
+- 恢复运行取决于会话元数据与选定的后端路径
+- **App Server** 是无极开物默认支持恢复的路径
+- 若 Codex 设为纯 `mcp`，新会话仍可在此运行，但该路径不支持厂商级恢复功能
+- 显式恢复依然遵循**故障关闭（fail-closed）**原则：恢复失败时无极开物会直接报错，绝不静默启动新会话
 
-For the user-facing workflow, see [Resume inactive sessions](/sessions/session-resume).
+查看面向用户的具体流程，请参阅[恢复非活跃会话](/sessions/session-resume)。
 
-## Model selection
+## 模型选择
 
-Some providers let you choose **which model** runs your session.
+部分提供商允许你选择由**哪款模型**运行当前会话。
 
-If model selection is available, you can set it from:
+如果支持模型选择，你可以通过以下方式设置：
 
-- **CLI**: when starting the session
-- **App UI**: from the input settings inside a session
+- **CLI**：在启动会话时指定
+- **App 界面**：在会话内的输入设置中选择
 
-### CLI usage
+### CLI 用法
 
 ```bash
 happier gemini --model gemini-2.5-pro
 ```
 
-### App UI usage
+### App 界面用法
 
-In a session, open the input settings and pick a model from the **Model** section.
+在会话中打开输入设置，即可在 **Model** 区域挑选模型。
 
-For ACP providers that advertise supported models, Kaiwu will show the provider’s live list.
-For providers without a live list (like Claude Code), Kaiwu may allow entering a **custom model id**.
+对于声明了支持模型的 ACP 提供商，无极开物会展示提供商的实时列表。
+对于没有实时列表的提供商（如 Claude Code），无极开物允许手动输入**自定义模型 ID**。
 
-### Model apply behavior (what happens after you change it)
+### 模型生效机制（修改后的触发逻辑）
 
-Model changes are capability-driven and provider-specific:
+模型变更由能力驱动，且因提供商而异：
 
-- **Claude**: applies on the next prompt (no session restart required).
-- **Codex (MCP)**: model is decided when the MCP session starts; changing model means starting a new MCP session.
-- **Codex/OpenCode/Kilo/Auggie (ACP)**: Kaiwu applies model changes live when `session/set_model` is supported; otherwise it falls back to provider config options when available.
-- **Gemini (ACP)**: model changes may require recreating the underlying ACP process; Kaiwu preserves context using replay/history so the session still continues.
+- **Claude**：在下一条提示词时生效（无需重启会话）。
+- **Codex (MCP)**：在 MCP 会话启动时确定模型；更改模型需要启动新的 MCP 会话。
+- **Codex/OpenCode/Kilo/Auggie (ACP)**：若支持 `session/set_model`，无极开物会实时应用模型变更；否则会在有可用配置时回退到提供商配置项。
+- **Gemini (ACP)**：更换模型可能需要重建底层的 ACP 进程；无极开物会通过回放历史记录来保留上下文，确保会话继续。
 
-For the full guide to engine picking, dynamic/static model lists, custom model ids, model-specific options, and favorite models, see [Model and engine selection](/agents/model-and-engine-selection).
+关于引擎选择、动态/静态模型列表、自定义模型 ID、模型专属选项及常用模型的完整指南，请参阅[模型与引擎选择](/agents/model-and-engine-selection)。
 
-## CLI usage
+## CLI 用法
 
-Start a session with a permission mode:
+指定权限模式启动会话：
 
 ```bash
 happier codex --permission-mode read-only
@@ -158,244 +157,229 @@ happier codex --permission-mode safe-yolo
 happier claude --permission-mode yolo
 ```
 
-For new sessions, prefer:
+创建新会话时，建议优先使用：
 
-- `--permission-mode ...` for approval behavior
-- `--agent-mode plan` when you want to start the session itself in plan mode
+- `--permission-mode ...`：用于控制审批行为
+- `--agent-mode plan`：用于直接在 Plan 模式下启动会话本身
 
-### Aliases (you can use the words you already know)
+### 别名（你可以沿用习惯的表达）
 
-The CLI accepts common aliases and resolves each to a canonical mode:
+CLI 支持常见别名，并会自动将其解析为标准模式：
 
-| You pass | You get |
+| 输入内容 | 对应结果 |
 | --- | --- |
-| `ask`, `prompt`, `normal` | `default` |
-| `readonly`, `read`, `ro`, `no-tools` | `read-only` |
+| `ask`、`prompt`、`normal` | `default` |
+| `readonly`、`read`、`ro`、`no-tools` | `read-only` |
 | `accept-edits` | `acceptEdits` |
-| `safe`, `workspace`, `workspace-write`, `auto-edit`, `auto` | `safe-yolo` |
-| `full`, `full-access`, `danger`, `danger-full-access`, `bypass`, `dont-ask` | `yolo` |
+| `safe`、`workspace`、`workspace-write`、`auto-edit`、`auto` | `safe-yolo` |
+| `full`、`full-access`、`danger`、`danger-full-access`、`bypass`、`dont-ask` | `yolo` |
 | `bypass-permissions` | `bypassPermissions` |
 
-`auto` is the row worth reading twice. It resolves to `safe-yolo`, which lets the
-agent write inside the workspace without asking each time. If what you wanted was
-"ask when needed", pass `ask` or `normal`.
+`auto` 这一行值得多看一眼。它会被解析为 `safe-yolo`，
+允许智能体在工作区内直接写入而无需每次询问。如果你原本的意图是
+“需要时询问”，请传入 `ask` 或 `normal`。
 
-There is a second step after this one. An agent that has no distinct mode for a
-canonical value narrows it further when the session starts: both Claude and the
-Codex-like agents fold `acceptEdits` into `safe-yolo` and `bypassPermissions`
-into `yolo`, and Claude additionally treats `plan` as read-only. So the table
-above is what the CLI parses, and what your agent actually runs is that value
-narrowed to the modes it supports.
+解析完成后还有第二步处理。如果智能体对某个标准值没有细分模式，
+会在会话启动时进一步收敛：Claude 和类 Codex 智能体都会将 `acceptEdits`
+折叠为 `safe-yolo`，并将 `bypassPermissions` 折叠为 `yolo`；
+此外 Claude 还会将 `plan` 视为只读。因此，上表体现的是 CLI 的解析逻辑，
+而智能体的实际运行模式则是收敛后所支持的模式。
 
-If you pass an unknown value, Kaiwu prints the supported list and examples.
+如果传入未知的值，无极开物会打印出支持的列表和示例。
 
-## App UI usage
+## App 界面用法
 
-### Change permissions for the current session
+### 修改当前会话的权限
 
-In a session, open the **permission chip** (shield) and pick a mode.
+在会话中打开**权限标志**（盾牌图标），选择所需模式。
 
-The picker shows:
+选择器中包含：
 
-- a short description of each mode, and
-- an **Effective** line that explains what the selected mode means for the current provider/session.
+- 各模式的简短说明，以及
+- 一行 **Effective** 提示，用于解释所选模式在当前提供商与会话下的实际效果。
 
-### Action approvals are separate
+### 操作审批独立运行
 
-Action approvals are configured independently from permission modes.
+操作审批与权限模式是分开配置的。
 
-Use **Settings → Actions** when you want to choose, per action and per surface, whether Kaiwu should:
+如果你需要针对每个操作和每个界面单独配置无极开物的行为，请前往**设置 → 操作**，选择是否：
 
-- make the action available at all
-- route the action through an approval request before it executes
+- 彻底停用该操作
+- 在执行该操作前必须经过审批确认
 
-That same approval model applies across the main action surfaces, including:
+这一审批机制贯穿所有主要的操作界面，包括：
 
-- the session agent surface
-- the CLI surface
-- the external MCP surface
-- voice surfaces
+- 会话智能体界面
+- CLI 界面
+- 外部 MCP 界面
+- 语音界面
 
-For the broader model, see [Kaiwu tools & actions](/extending/happier-tools) and [Inbox and approvals](/sessions/inbox-and-approvals).
+关于整体架构的详细介绍，请参阅[无极开物工具与操作](/extending/happier-tools)及[收件箱与审批](/sessions/inbox-and-approvals)。
 
-### Set defaults for new sessions
+### 设置新会话的默认值
 
-Go to **Settings → Session → Permissions** and set your default permission mode per backend choice.
+前往**设置 → 会话 → 权限**，按后端选项分别设置默认权限模式。
 
-The defaults screen is designed around two separate concerns:
+默认设置界面围绕两项独立的诉求进行设计：
 
-- **Default permissions** for each enabled backend choice
-- **Apply permission changes** for running sessions
+- 针对各启用后端的**默认权限**
+- 针对运行中会话的**应用权限变更**时机
 
-That split matters because those settings solve different problems.
+这两项设置解决的是不同维度的问题，因此分开配置十分必要。
 
-## Dedicated Permissions screen
+## 专属权限设置界面
 
-In the app, the **Permissions** screen is the central place for session-permission defaults.
+在 App 中，**权限**界面是配置会话默认权限的核心入口。
 
-Open:
+打开路径：
 
-1. **Settings**
-2. **Session**
-3. **Permissions**
+1. **设置**
+2. **会话**
+3. **权限**
 
-### Default permissions
+### 默认权限
 
-The **Default permissions** section shows one row per enabled backend choice.
+**默认权限**区域会为每个已启用的后端选项展示一行配置。
 
-Important details:
+核心特性：
 
-- the list is **dynamic**
-- it is generated from the resolved backend catalog
-- it is not hardcoded to specific providers in the UI
+- 该列表完全是**动态生成的**
+- 根据解析出的后端目录自动加载
+- 界面并未对特定提供商进行死板的硬编码
 
-This means:
+这意味着：
 
-- if you enable a new backend, it can appear automatically
-- if a backend is unavailable in your current account/build, it should not appear
-- configured **Custom ACP** backends can appear here alongside built-in providers
+- 启用新后端时，它会自动出现在列表中
+- 当前账户或构建版本不支持的后端不会出现
+- 配置好的**自定义 ACP** 后端会与内置提供商并列展示
 
-### Apply permission changes
+### 应用权限变更
 
-The **Apply permission changes** section is a separate dropdown.
+**应用权限变更**是一个独立的下拉选项。
 
-It controls when a permission change should take effect:
+它决定了权限变更何时生效：
 
-- **Immediate**: publish the new permission mode to the session right away
-- **Next prompt**: arm the change locally and publish it when you send the next message
+- **立即生效**：立刻将会话同步为新的权限模式
+- **下一条提示词**：在本地暂存该变更，发送下一条消息时再行同步
 
-This is useful because some users want a running agent to react immediately, while others want the next turn to be the first one that uses the new permission mode.
+这样的设计很实用：有的用户希望正在运行的智能体立刻响应，有的用户则希望新权限模式从下一轮对话开始生效。
 
-### Prompt surface
+### 提示位置
 
-The same screen also lets you choose where permission requests should appear:
+你还可以在该界面中选择权限请求的展示位置：
 
-- in the composer, or
-- in the transcript
+- 输入框区域，或
+- 会话记录中
 
-That setting changes the UI surface for approvals. It does not change the underlying permission decision.
+此项设置仅更改审批请求的界面展示位置，不会影响底层的权限判定逻辑。
 
-### Remembering approvals for the current session
+### 记住当前会话的审批选择
 
-When Kaiwu shows a permission prompt, some providers can also offer scoped “don’t ask again” choices.
+当无极开物弹出权限提示时，部分提供商支持选定作用域的“不再询问”选项。
 
-Examples:
+例如：
 
-- **don’t ask again for this tool**
-- **don’t ask again for this command**
+- **对此工具不再询问**
+- **对此命令不再询问**
 
-These choices update the current session’s allowlist so later matching requests do not prompt again in that same session.
+做出此类选择后，当前会话的许可列表会随之更新，后续匹配的请求在该会话中将不再弹窗。
 
-Important details:
+核心细节：
 
-- this is **session-scoped**, not a permanent global policy
-- command-scoped approvals are narrower than tool-scoped approvals
-- if the provider/runtime does not support a matching allowlist update, Kaiwu falls back to normal prompting
+- 仅在**当前会话有效**，并非永久性的全局策略
+- 命令级审批的作用域窄于工具级审批
+- 若提供商或运行时不支持对应的许可列表更新，无极开物会回退为常规的逐次提示
 
-### Push notifications for permission and user-action requests
+### 权限与用户操作请求的推送通知
 
-When push notifications are enabled for the account, Kaiwu can also notify you when a session is blocked on either:
+当账户启用推送通知后，若会话因以下原因挂起，无极开物会向你发送通知：
 
-- a **permission request**, or
-- a **user-action request** such as **AskUserQuestion** or **Exit Plan Mode**
+- **权限请求**，或
+- **用户操作请求**（如 **AskUserQuestion** 或 **退出 Plan 模式**）
 
-Current mobile behavior:
+目前移动端的通知机制如下：
 
-- the notification can show the requested tool or request type
-- it may include a short detail hint, such as a file hint or command name
-- it can expose:
-  - `Allow` / `Deny` for permission requests
-  - `Answer` for user-action requests
+- 通知中会标明所请求的工具或请求类型
+- 可能附带简要细节，如文件提示或命令名称
+- 可直接提供快捷操作：
+  - 权限请求对应 `Allow` / `Deny`
+  - 用户操作请求对应 `Answer`
 
-Pressing `Allow` or `Deny` opens the app, sends the response when the target server is already active or already saved on the device, and then returns you to the session.
+点击 `Allow` 或 `Deny` 会打开 App；若目标服务器处于活跃状态或已保存在设备上，系统会直接发送确认响应，随后带你返回会话。
 
-Pressing `Answer` opens the app on the exact session so you can answer in context.
+点击 `Answer` 会在 App 中精确打开对应会话，方便你结合上下文给出回复。
 
-If the notification targets a server that is not already trusted on the device, Kaiwu routes you through the safer add/switch flow instead of auto-approving on an unknown server.
+若通知指向的服务器尚未在设备上建立信任，无极开物会引导你走更安全的“添加/切换”流程，绝不会在未知服务器上自动放行。
 
-### Transcript-storage defaults
+### 会话记录存储默认设置
 
-When your current server/build supports transcript-storage choices, the Permissions screen can also show the default storage mode for new sessions per backend choice.
+当当前服务器或版本支持会话记录存储选项时，权限界面还会按后端选项展示新会话的默认存储模式。
 
-That lives here because it affects the default safety / persistence posture of new sessions.
+该选项放置在此处，是因为它直接关系到新会话的默认安全性与持久化策略。
 
-### When does a change apply?
+### 变更何时生效？
 
-In **Settings → Session**, you can control *when* a permission change takes effect:
+在**设置 → 会话**中，你可以掌控权限变更的具体**生效时机**：
 
-- **Immediate**: publish the new permission mode to the session right away (best when you want the running agent to react without sending a new message).
-- **Next prompt**: apply the new mode to the next message you send, and publish it after that message is committed (best when you want the change to “arm” for the next request without touching the current running turn).
+- **立即生效**：立刻向会话推送新的权限模式（适合希望正在运行的智能体立即响应、无需等待新消息的场景）。
+- **下一条提示词**：在你发送下一条消息时应用新模式，并在该消息提交后推送生效（适合希望为后续请求预设配置、不打扰当前运行轮次的场景）。
 
-If you select **Next prompt** and then **don’t send a message**, the change stays local to your device until you send one.
+若选择了**下一条提示词**但**未发送任何消息**，该修改将始终保留在你的本地设备上，直到发出消息为止。
 
-## What the dropdown rows show
+## 下拉列表项的展示逻辑
 
-In current app builds, permission dropdown rows show the current selection directly in the row itself.
+在当前的 App 版本中，权限下拉菜单的选项行会直接显示当前选中的内容。
 
-That means you can usually see:
+这意味着通常无需重新展开下拉菜单，即可直观看到：
 
-- the selected mode label on the right, and
-- the explanation for the selected option as the row subtitle
+- 右侧标注的当前选中模式标签，以及
+- 作为该行副标题展示的选中项说明文字
 
-without reopening the dropdown.
+## 提供商注意事项（实际表现）
 
-## Provider notes (what to expect)
+### Codex（默认为 App Server，可选 ACP，全新会话可用 MCP）
 
-### Codex (App Server default, ACP optional, MCP for fresh sessions)
+Codex 支持通过不同的后端运行：
 
-Codex can run via different backends:
+- **App Server**：无极开物中的默认后端；在会话包含有效 Codex 恢复元数据时，也是常规的恢复运行路径
+- **ACP**：显式将 Codex 切换到 ACP 模式后依然可用，同样支持恢复运行
+- **MCP**：仍可用于启动常规全新会话，但在当前无极开物版本中，纯 MCP 路径不支持厂商级恢复
 
-- **App Server**: the default backend in Kaiwu and the normal resume path when the session has valid Codex resume metadata
-- **ACP**: still available when you explicitly switch Codex to ACP mode; resume can also work there
-- **MCP**: still usable for normal fresh sessions, but plain MCP is not a vendor-resume path in current Kaiwu builds
+在无极开物中，**权限始终是 Codex 的核心控制项**。无极开物会将你选定的权限意图映射为当前 Codex 后端最接近的本机原生策略。
 
-In Kaiwu, **permissions remain the primary control** for Codex. Kaiwu maps your selected permission intent to the closest backend-native policy for the active Codex backend.
+不同 Codex 构建版本与账户的模型 ID 可能会有所差异。若 App 中未展示该 Codex 会话的模型选择项，你依然可以通过 CLI 进行设置（前提是本地安装的 Codex 后端支持该功能）。
 
-Model IDs can also vary by Codex build and account. If model selection isn’t shown in the app for your Codex session, you can still set it via the CLI (when supported by your installed Codex backend).
-
-The UI’s **Effective** line is the source of truth for what your current session will do.
+当前会话的具体行为，请以界面中的 **Effective** 提示行为准。
 
 ### Claude
 
-Claude supports both:
+Claude 同时支持：
 
-- normal Kaiwu **permission modes**, and
-- a provider-specific **Mode = Plan**
+- 无极开物常规的**权限模式**，以及
+- 提供商专属的 **Mode = Plan**
 
-While Claude is in plan mode:
+在 Claude 处于 Plan 模式期间：
 
-- Claude can still ask for permissions
-- Kaiwu still surfaces permission prompts normally
-- **Exit Plan Mode** is surfaced as a user-action request with plan-specific approval choices
+- Claude 仍可发起权限请求
+- 无极开物会照常弹出权限确认提示
+- **退出 Plan 模式**会作为用户操作请求呈现，并附带针对计划的专属审批选项
 
-If the Effective line is different from what you expected, treat the Effective line as source of truth for that session.
+若 Effective 行的内容与预期不符，请以该行展示的策略作为该会话的行为准则。## 记住 Shell 命令
 
-## Remembering a shell command
+当你允许执行某条 Shell 命令并让 Kaiwu 记住时，实际授予的权限比表面上要更严格——这是有意设计的，因为“记住 `git`”绝不应该变成“允许运行任何以 git 开头的命令”。
 
-When you allow a shell command and ask Kaiwu to remember it, the grant is
-narrower than it looks — deliberately, because "remember `git`" should not
-become "run anything that starts with git".
+整条命令完全匹配时优先级最高，这同样适用于你曾作为整体批准过的链式命令。其他情况下，Kaiwu 会解析该命令并应用以下三项规则：
 
-An exact match on the whole command always wins, including a chained one you
-approved as a unit. Otherwise Kaiwu parses the command and applies three
-rules:
+- **未加引号的重定向会被拒绝。** 只要命令中任意位置出现未加引号的 `<` 或 `>`，任何已记住的授权均不再适用。
+- **每个分段都必须独立匹配。** 包含控制操作符的命令，仅在*每个*顶层分段均单独获批时才允许执行。正是这一机制，防止了对 `git:*` 的授权连带放行 `git status && rm -rf …`。
+- **无法解析的输入遵循默认拒绝原则。** 面对未闭合的引号或末尾的转义符，系统会直接拒绝，而不是试图猜测其意图。
 
-- **Unquoted redirection is refused.** An unquoted `<` or `>` anywhere in the
-  command means no remembered grant applies.
-- **Every segment must match on its own.** A command containing control
-  operators is allowed only if *each* top-level segment is separately allowed.
-  This is what stops a `git:*` grant from also permitting
-  `git status && rm -rf …`.
-- **Unparseable input fails closed.** An unterminated quote or a trailing escape
-  is refused rather than guessed at.
+被拒绝的命令并不会被彻底拦截——系统只是会再次向你请求确认，避免已有的授权被过度泛化，从而覆盖你未曾批准的操作。
 
-A refused command is not blocked outright — you are simply asked again, rather
-than the grant being stretched to cover something you did not approve.
+## 相关内容
 
-## Related
-
-- [Custom ACP](/agents/custom-acp)
-- [Model and engine selection](/agents/model-and-engine-selection)
-- [Profiles](/agents/profiles)
-- [Session modes](/sessions/session-modes)
-- [Session settings](/sessions/session-settings)
+- [自定义 ACP](/agents/custom-acp)
+- [模型与引擎选择](/agents/model-and-engine-selection)
+- [配置方案](/agents/profiles)
+- [会话模式](/sessions/session-modes)
+- [会话设置](/sessions/session-settings)

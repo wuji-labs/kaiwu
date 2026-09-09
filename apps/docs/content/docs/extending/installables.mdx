@@ -1,176 +1,175 @@
 ---
-title: Installables
-description: Let Kaiwu manage machine-local tools like Codex ACP and GitHub CLI, with install and update policies per machine.
+title: 可安装项
+description: 让 Kaiwu 管理设备本地工具（如 Codex ACP 和 GitHub CLI），并支持针对每台设备配置安装与更新策略。
 ---
+Kaiwu 的部分功能依赖连接设备上安装的**本地工具**。
 
-Some Kaiwu features depend on **machine-local tools** being present on the connected machine.
+Kaiwu 将这些工具统称为 **Installables**。
 
-Kaiwu calls these **Installables**.
+目前，主要面向用户的 Installables 包括：
 
-Today, the main user-facing installables are:
+- **Codex ACP**——当你明确以 ACP 模式运行 Codex，而非走默认的 App Server 路径时使用
+- **GitHub CLI (`gh`)**——GitHub 源码版本控制工作流的可选辅助工具，适用于希望使用本地 GitHub CLI 鉴权而非已连接 GitHub 令牌的场景
 
-- **Codex ACP** — used when you explicitly run Codex in ACP mode instead of the default App Server path
-- **GitHub CLI (`gh`)** — optional helper for GitHub source-control workflows when you want to use local GitHub CLI authentication instead of a connected GitHub token
+## 为什么需要 Installables
 
-## Why Installables exist
+部分功能仅靠 Kaiwu 客户端主程序和守护进程还远远不够。例如，当你明确以 ACP 模式而非默认的 App Server 路径运行 Codex 时，Codex ACP 需要设备本地存在 `codex-acp` 二进制文件。
 
-Some features need more than the main Kaiwu app and daemon. For example, Codex ACP needs a machine-local `codex-acp` binary when you explicitly run Codex in ACP mode rather than the default App Server path.
+若没有 Installables 管理机制，通常会带来以下问题：
 
-Without Installables management, this usually turns into:
+- 必须在每台设备上手动配置
+- 各设备之间存在版本差异
+- 需要按需拉取工具时导致冷启动变慢
 
-- manual setup on every machine
-- version drift between machines
-- slower cold starts when a tool has to be fetched on demand
+Installables 为你提供了统一入口，方便在每台设备上查看并管理这些工具。
 
-Installables gives you one place to see and control those tools per machine.
+## 在何处管理
 
-## Where to manage them
+进入路径：
 
-Open:
+- **设备详情 → Installables**
 
-- **Machine Details → Installables**
+该界面会列出 Kaiwu 针对该特定设备支持管理的所有组件。
 
-This screen shows the installables Kaiwu knows how to manage for that specific machine.
+针对每个组件，你可以查看：
 
-For each installable, you can see:
+- 是否已安装
+- 已安装的版本
+- 是否有可用更新
+- 当前已知的最新版本（由 Kaiwu 检查确认）
+- 当前的自动安装与自动更新策略
 
-- whether it is installed
-- the installed version
-- whether an update is available
-- the latest known version (when Kaiwu checks it)
-- the current auto-install and auto-update policy
+## 按需自动安装
 
-## Auto-install when needed
+每个组件都配有“**按需自动安装**”设置项。
 
-Each installable has an **Auto-install when needed** setting.
+启用后，一旦你使用了依赖该工具的功能，Kaiwu 即可在后台自动完成安装。
 
-When this is on, Kaiwu can install the tool in the background when you use a feature that depends on it.
+例如：
 
-Example:
+- 你使用 **ACP 后端**发起新的 Codex 会话
+- Kaiwu 检测到该会话依赖 **Codex ACP**
+- 若尚未安装 Codex ACP 且启用了自动安装，Kaiwu 会在该设备上启动后台安装
 
-- you start a new Codex session with the **ACP backend**
-- Kaiwu sees that **Codex ACP** is relevant for that session
-- if Codex ACP is missing and auto-install is enabled, Kaiwu starts a background install on that machine
+这样设计是为了在不阻塞当前会话的前提下，优化**下一次**相关会话的体验。
 
-This is designed to improve the **next** relevant session without blocking the current one.
+## 自动更新模式
 
-## Auto-update modes
+每个组件还支持配置**自动更新**策略：
 
-Each installable also has an **Auto-update** policy:
+- **关闭（Off）**：从不自动更新
+- **提示（Notify）**：提示有可用更新，但不自动执行升级
+- **自动（Auto）**：当 Kaiwu 检查发现有新版本时，在后台自动完成升级
 
-- **Off**: never update automatically
-- **Notify**: show that an update is available, but do not upgrade automatically
-- **Auto**: upgrade automatically in the background when Kaiwu checks and sees that a newer version is available
+默认策略因组件而异。
 
-Default behavior varies by installable.
+Codex ACP 的默认设置为：
 
-For Codex ACP, the default is:
+- **按需自动安装**：开启
+- **自动更新**：自动
 
-- **Auto-install when needed**: on
-- **Auto-update**: auto
+对于像 `gh` 这类可选辅助工具，Kaiwu 采用更为保守的策略，例如“不自动安装”以及“有更新时提示”。
 
-For optional helper tools such as `gh`, Kaiwu can use a more conservative policy such as "do not auto-install" and "notify about updates."
+## Codex 相关组件的行为说明
 
-## What happens for Codex-related installables
+### App Server 默认路径
 
-### App Server default path
+在默认的 **App Server** 路径下，常规 Codex 会话及其恢复均不依赖 Codex ACP 组件。
 
-Normal Codex sessions and resume on the default **App Server** path do not depend on the Codex ACP installable.
+这意味着：
 
-That means:
+- 仅使用默认的 Codex App Server 会话时，无需安装 Codex ACP
+- 常规 App Server 会话的恢复操作，同样无需任何额外的 Codex 组件
 
-- you do not need Codex ACP installed just to use default Codex App Server sessions
-- you do not need any extra Codex installable for normal App Server resume
+### Codex ACP 模式
 
-### Codex ACP mode
+只有当你明确选择 ACP 后端时，Codex ACP 才会起作用。
 
-Codex ACP still matters only when you explicitly choose the ACP backend.
+### 新建 Codex 会话
 
-### New Codex sessions
+如果你新建 Codex 会话并选择了 ACP 后端：
 
-If you start a new Codex session and select the ACP backend:
+- Kaiwu 会尽量保证会话立即可用
+- 若已安装 Codex ACP，则直接使用已安装的二进制文件
+- 若尚未安装 Codex ACP，Kaiwu 仍可回退到已有的新会话路径，同时在后台安装 Codex ACP 以备后续会话使用
 
-- Kaiwu tries to keep the session usable immediately
-- if Codex ACP is already installed, it uses the installed binary
-- if Codex ACP is missing, Kaiwu can still fall back to the existing fresh-session path while it installs Codex ACP in the background for future sessions
+这意味着设备上首次运行涉及 ACP 的会话时，速度可能仍会稍慢于后续会话。
 
-This means the first ACP-related session on a machine may still be slower than later ones.
+### 在 ACP 模式下恢复 Codex 会话
 
-### Resuming Codex sessions in ACP mode
+Codex 会话恢复的要求更为严格：
 
-Codex resume is stricter:
+- 恢复会话必须依赖 **Codex ACP**
+- 若 ACP 不可用，Kaiwu **不会**静默创建全新会话来替代恢复操作
 
-- resume requires **Codex ACP**
-- if ACP is unavailable, Kaiwu does **not** silently replace resume with a fresh session
+如果某台设备对会话恢复功能依赖较高，建议保持 Codex ACP 的安装状态，并允许 Kaiwu 自动维持更新。
 
-If resume is important on a machine, leave Codex ACP installed and let Kaiwu keep it updated.
+### 纯 MCP 模式注意事项
 
-### Plain MCP note
+若将 Codex 切换至纯 `mcp` 模式，Kaiwu 仍可在该路径下新建 Codex 会话，但在当前构建版本中，该路径暂不支持厂商会话恢复。
 
-If you switch Codex to plain `mcp`, Kaiwu can still start fresh Codex sessions there, but vendor resume is not available on that path in current builds.
+## GitHub CLI (`gh`) 的行为说明
 
-## What happens for GitHub CLI (`gh`)
+GitHub CLI 属于通用的可安装依赖项，并非智能体后端。
 
-GitHub CLI is a generic installable dependency, not an agent backend.
+在以下情况下，Kaiwu 可以在 GitHub 源码版本控制工作流中使用 `gh`：
 
-Kaiwu can use `gh` for GitHub source-control workflows when:
+- 你尚未在 Kaiwu 中连接 GitHub 令牌，或
+- 对于已完成鉴权的设备，直接使用本地 `gh` 路径是最佳方式
 
-- you have not connected a GitHub token in Kaiwu, or
-- the local `gh` path is the most appropriate way to use an already-authenticated machine
+可以使用 `gh` 的工作流包括：
 
-Workflows that can use `gh` include:
+- 将本地仓库推送到 GitHub
+- 创建或复用 GitHub Pull Request
+- 检出 GitHub Pull Request
 
-- publishing a local repository to GitHub
-- opening or reusing a GitHub pull request
-- checking out a GitHub pull request
+解析优先级如下：
 
-Resolution order:
+1. 若系统中已安装且可正常运行 `gh`，Kaiwu 会优先使用系统自带版本。
+2. 若设备上存在由 Kaiwu 管理的 `gh`，Kaiwu 则会使用该版本。
+3. 若两者均不存在，Kaiwu 可显示安装或修复指引。
 
-1. Kaiwu prefers a working system `gh` if it is already installed.
-2. If a Kaiwu-managed `gh` exists for the machine, Kaiwu can use it.
-3. If neither exists, Kaiwu can show installation/remediation guidance.
-
-Installing `gh` does not authenticate it. To use the CLI path, authenticate it on that machine with GitHub CLI's normal auth flow, such as:
+仅安装 `gh` 并不会完成鉴权。若要使用 CLI 路径，请在该设备上遵循 GitHub CLI 的标准流程完成鉴权，例如：
 
 ```bash
 gh auth login
 ```
 
-For cross-machine workflows, a connected GitHub token is usually more portable because it travels through Kaiwu's connected-service model. The `gh` path is best when the machine is already set up and authenticated.
+对于跨设备工作流，连接 GitHub 令牌通常更为便携，因为它可以借助 Kaiwu 的互联服务模型在设备间同步。而 `gh` 路径更适合设备已经配置妥当且已完成鉴权的场景。
 
-Default policy for `gh` differs from Codex ACP:
+`gh` 的默认策略与 Codex ACP 不同：
 
-- **Auto-install when needed**: off
-- **Auto-update**: notify
+- **按需自动安装**：关闭
+- **自动更新**：提示
 
-That keeps GitHub CLI installation explicit. Kaiwu does not silently install a new GitHub CLI binary just because you opened a source-control screen.
+这保证了 GitHub CLI 的安装必须经过明确确认。Kaiwu 绝不会仅仅因为你打开了版本控制界面，就悄悄在后台安装新的 GitHub CLI 二进制文件。
 
-GitLab note: GitLab merge-request workflows can use an authenticated `glab` CLI when it is already available, but `glab` is not currently a Kaiwu-managed installable.
+GitLab 说明：若已配置鉴权的 `glab` CLI 可用，GitLab 合并请求工作流可以直接使用它；但 `glab` 目前暂不属于 Kaiwu 托管的组件。
 
-## Scope and expectations
+## 作用范围与预期机制
 
-Installables are managed **per machine**.
+Installables 均以**单台设备**为维度进行管理。
 
-That means:
+这意味着：
 
-- one machine can have Codex ACP installed while another does not
-- policies are stored per machine
-- updates happen on the machine that owns the installable
+- 某台设备上可以安装 Codex ACP，而另一台设备则可以不安装
+- 各项策略按设备独立保存
+- 组件更新只会在拥有该组件的目标设备上执行
 
-This is especially useful if you use:
+当你在以下场景中切换使用时，该机制尤为实用：
 
-- a laptop and a desktop
-- multiple remote devboxes
-- separate personal and work machines
+- 同时使用笔记本电脑和台式机
+- 拥有多台远程开发机
+- 区分个人设备与工作设备
 
-## What Installables do not change
+## Installables 不会改变的行为
 
-Installables management does **not** force you to use a managed copy when you already have your own tool installed.
+当设备上已经安装了你自己的工具时，Installables 管理功能**绝不会**强迫你使用托管版本。
 
-In general, Kaiwu still prefers a working user/system install by default when the provider resolution logic supports that.
+通常情况下，只要提供商的解析逻辑支持，Kaiwu 默认仍会优先使用系统或用户自行安装且运行正常的工具。
 
-Installables mainly gives Kaiwu a reliable managed path so that:
+Installables 的核心价值在于为 Kaiwu 提供了一条可靠的托管路径，从而确保：
 
-- required tools can be present without manual setup
-- supported features keep working on fresh machines
-- background installs and updates reduce cold-start surprises
+- 无需手动配置即可备齐所需工具
+- 在全新设备上也能让支持的功能正常运作
+- 通过后台静默安装与更新，减少冷启动时可能带来的等待与意外

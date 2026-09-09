@@ -6,10 +6,10 @@ import { createCliCapabilitiesService } from '@/rpc/handlers/capabilities';
 
 function usage(): string {
   return [
-    `${chalk.bold('happier capabilities')} - Inspect local capability metadata`,
+    `${chalk.bold('kaiwu capabilities')} - Inspect local capability metadata`,
     '',
     `${chalk.bold('Usage:')}`,
-    '  happier capabilities [describe] [--json]',
+    '  kaiwu capabilities [describe] [--json]',
     '',
   ].join('\n');
 }

@@ -1,101 +1,96 @@
 ---
-title: Pull requests
-description: Publish a branch and open or reuse a pull request from inside a session, using a connected credential or your local gh.
+title: 拉取请求
+description: 在会话内发布分支，并通过已连接的凭据或本地 gh 创建或复用拉取请求。
 ---
-
-When the work is done, the next step is usually a pull request. Kaiwu can
-publish the branch and open or reuse the request without you switching to a
-browser or a terminal.
+开发工作完成后，下一步通常是创建 Pull Request。Kaiwu 无需你切换到浏览器或终端，即可直接发布分支，并创建或复用该请求。
 
 <Callout type="warn">
-  Pull-request actions are Git write operations, so they need
-  **Settings → Features → Source control operations**, which is experimental and
-  **off by default**.
+  Pull Request 相关操作属于 Git 写操作，因此需要开启 **Settings → Features → Source control operations**。该功能目前为实验性功能，**默认处于关闭状态**。
 </Callout>
 
-## Pull requests and merge requests
+## Pull Request 与 Merge Request
 
-The Git tab includes a pull request / merge request surface for the current branch when Kaiwu can detect a hosting provider from the repository remotes.
+当 Kaiwu 能够从仓库的远程地址中识别出代码托管提供商时，Git 标签页便会为当前分支提供 Pull Request / Merge Request 操作界面。
 
-It can show:
+界面支持展示：
 
-- an existing pull request or merge request for the current branch
-- the target repository and branch direction
-- whether the branch is ready to open a request
-- blocked reasons and the next safe action when a request cannot be opened yet
+- 当前分支现有的 Pull Request 或 Merge Request
+- 目标仓库及分支合并方向
+- 当前分支是否已满足创建请求的条件
+- 暂未满足条件时的受阻原因，以及下一步的安全操作
 
-### Provider support
+### 提供商支持
 
-| Provider | Current support |
+| 提供商 | 当前支持情况 |
 | --- | --- |
-| GitHub | Remote detection, compare URLs, connected-account REST read/write, optional authenticated `gh` fallback, repository publishing, PR checkout, and PR worktree preparation. |
-| GitLab | Remote detection, compare URLs, optional authenticated `glab` read/write/checkout, and MR worktree preparation. GitLab connected accounts are not yet supported. |
-| Bitbucket | Remote detection and compare URLs. Authenticated Bitbucket PR creation is not currently supported. |
-| Unknown remotes | Safe unsupported state with no write actions. |
+| GitHub | 远程地址识别、对比 URL、已关联账户的 REST 读写、可选的已认证 `gh` 回退方案、仓库发布、PR 检出以及 PR 工作树准备。 |
+| GitLab | 远程地址识别、对比 URL、可选的已认证 `glab` 读/写/检出，以及 MR 工作树准备。暂不支持 GitLab 关联账户。 |
+| Bitbucket | 远程地址识别与对比 URL。暂不支持通过身份认证直接创建 Bitbucket PR。 |
+| 未知远程地址 | 处于安全的不支持状态，不执行任何写操作。 |
 
-GitHub Enterprise-style remotes can be detected. Connected-account REST operations are designed for GitHub.com; enterprise/self-hosted cases usually depend on CLI auth or compare URLs.
+Kaiwu 支持识别 GitHub Enterprise 风格的远程地址。关联账户的 REST 操作专为 GitHub.com 设计；企业版或自托管场景通常依赖 CLI 认证或对比 URL。
 
-GitLab self-managed remotes keep their detected base URL. When `glab` is used, Kaiwu checks authentication for the detected host when possible.
+GitLab 自建实例（self-managed）远程地址会保留其识别到的基准 URL。在使用 `glab` 时，Kaiwu 会在条件允许的情况下验证该主机的身份认证状态。
 
-### Opening or reusing a request
+### 创建或复用请求
 
-When the current branch is ready, Kaiwu can open or reuse a pull request / merge request from the Git tab.
+当当前分支准备就绪后，你可以直接在 Git 标签页中通过 Kaiwu 创建或复用 Pull Request / Merge Request。
 
-Authentication order:
+认证优先级：
 
-- **GitHub**: connected GitHub account first, then authenticated `gh`, then no-auth compare URL.
-- **GitLab**: authenticated `glab`, then no-auth compare URL.
-- **Bitbucket**: no-auth compare URL.
+- **GitHub**：优先使用已关联的 GitHub 账户，其次使用已认证的 `gh`，最后使用免认证的对比 URL。
+- **GitLab**：优先使用已认证的 `glab`，其次使用免认证的对比 URL。
+- **Bitbucket**：使用免认证的对比 URL。
 
-If Kaiwu cannot create a request directly, it opens the provider's compare page so you can finish in the browser.
+若 Kaiwu 无法直接创建请求，则会打开提供商的对比页面，方便你在浏览器中继续完成。
 
-### Default branch guard
+### 默认分支防护
 
-If the current branch is the repository's default branch, Kaiwu avoids opening a request directly from that branch when the backend policy requires a feature branch.
+如果当前分支是仓库的默认分支，且后端策略要求必须使用特性分支（feature branch），Kaiwu 会阻止直接从该分支创建请求。
 
-Instead, the UI offers the safe next step:
+此时，界面会提供安全可靠的下一步指引：
 
-- create a feature branch first, or
-- when local commits and capabilities allow it, create the feature branch and continue the pull-request flow as one guided action
+- 先创建一个特性分支；或者
+- 在本地提交与环境权限允许时，通过单次引导操作直接创建特性分支并继续完成 Pull Request 流程
 
-This keeps the user in Kaiwu instead of blocking them with an instruction to go to the terminal.
+这让用户无需离开 Kaiwu，避免了被直接打断并要求前往终端操作的繁琐体验。
 
-### Dirty and unpublished branches
+### 未提交改动与未发布分支
 
-Kaiwu does not silently create a pull request from a dirty unpublished branch.
+若分支包含未提交的工作，或尚未发布至远端，Kaiwu 不会静默创建 Pull Request。
 
-If the branch has uncommitted work or no published upstream, commit and publish the branch first. The stacked action can combine supported steps such as commit, push, and create request when the repository state allows it.
+如果分支存在未提交改动或缺少已发布的上游分支，请先完成提交并发布分支。在仓库状态允许的情况下，快捷操作可将提交、推送以及创建请求等步骤合并执行。
 
-### Checkout a PR or MR
+### 检出 PR 或 MR
 
-The branch menu can checkout a pull request or merge request into the current worktree.
+通过分支菜单，你可以将 Pull Request 或 Merge Request 检出到当前工作树中。
 
-Accepted references include:
+支持的引用格式包括：
 
 - `42`
 - `#42`
-- a GitHub pull request URL
-- a GitLab merge request URL
+- GitHub Pull Request 的 URL
+- GitLab Merge Request 的 URL
 - `gh pr checkout 42`
 - `glab mr checkout 17`
-- a branch name when the text is not a URL or numeric request id
+- 分支名称（当输入的文本既非 URL 也非数字请求 ID 时）
 
-Local checkout uses the existing Git protections for dirty worktrees and conflicts. Kaiwu does not discard local changes to make checkout succeed.
+本地检出严格遵循 Git 现有的安全机制，妥善处理工作树改动及冲突。Kaiwu 绝不会为了检出成功而丢弃本地修改。
 
-### Open a PR or MR in a worktree
+### 在独立工作树中打开 PR 或 MR
 
-You can also open a pull request or merge request in a separate worktree-backed session.
+你也可以在基于独立工作树的会话中打开 Pull Request 或 Merge Request。
 
-Kaiwu resolves the request through the hosting-provider adapter, prepares the checkout through the existing worktree/source-controller path, and opens a new session at that worktree path.
+Kaiwu 会通过代码托管提供商适配器解析该请求，沿用既有的工作树/源码控制路径完成检出准备，并在该工作树路径下开启新会话。
 
-Use this when:
+适用于以下场景：
 
-- you want to review a request without disturbing your current branch
-- you want to test someone else's branch in isolation
-- you want to keep your current worktree clean while opening an external PR/MR
+- 想要评审代码变更，同时不想打乱当前分支的上下文
+- 需要在隔离环境中独立测试其他人的分支
+- 在打开外部 PR/MR 的同时，希望当前工作树保持干净整洁
 
-## Related
+## 相关内容
 
-- [Git](/code/git) — branches, commits and remotes.
-- [Diffs and review](/code/diffs)
-- [Review comments](/code/review-comments)
+- [Git](/code/git) —— 分支、提交与远程仓库。
+- [差异对比与评审](/code/diffs)
+- [评审评论](/code/review-comments)

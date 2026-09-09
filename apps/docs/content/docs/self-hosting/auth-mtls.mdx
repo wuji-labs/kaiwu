@@ -1,203 +1,193 @@
 ---
-title: mTLS Auth
-description: Enterprise authentication using client certificates (MDM-issued). Includes auto-provisioning and multi-device identity mapping.
+title: mTLS 认证
+description: 基于客户端证书（MDM 签发）的企业级认证。包含自动预配与多设备身份映射。
 ---
+mTLS（双向 TLS）是一种企业级身份验证模式。在握手阶段，客户端设备会向服务端提供公司颁发的 TLS 证书。
 
-mTLS (mutual TLS) is an enterprise authentication mode where a client device presents a company-issued TLS certificate during the handshake.
+Kaiwu 支持通过 mTLS 实现以下能力：
 
-Kaiwu can use mTLS to:
+- 无需 OAuth 重定向即可完成用户身份验证；
+- 用户首次登录时，可按需自动配置账号；
+- 强制实施严格的“仅限公司设备”访问策略。
 
-- authenticate users without OAuth redirects,
-- optionally auto-provision accounts on first login,
-- enforce strict “only company devices” access policies.
+重要提示：
 
-Important:
+- mTLS 解决的是**身份验证**，而非端到端加密（E2EE）。
+- 若停用 E2EE（选择不加密 / 明文存储），服务器便可读取并索引会话内容，从而支持服务端搜索等功能。详见：[加密与明文存储](/self-hosting/encryption)。
 
-- mTLS is **authentication**, not end-to-end encryption (E2EE).
-- If you disable E2EE (encryption opt-out / plaintext storage), the server can read and index session content (enabling features like server-side search). See: [Encryption & plaintext storage](/self-hosting/encryption).
+## mTLS 与 OIDC 的选型场景
 
-## When to choose mTLS vs OIDC
+- 若企业已通过 MDM 分发设备证书，且希望实现“凭设备证书登录”，请选择 **mTLS**。
+- 若需要身份提供商的用户体验、基于用户组的策略或浏览器端单点登录（SSO）流程，请选择 **OIDC**（Okta/Azure AD/Auth0/Keycloak）。
 
-- Choose **mTLS** when your enterprise already distributes device certificates (MDM) and wants “login with device certificate”.
-- Choose **OIDC** (Okta/Azure AD/Auth0/Keycloak) when you want identity provider UX, group-based policies, or SSO workflows in the browser.
+## 两种部署模式
 
-## Two deployment modes
+Kaiwu 支持以下两种模式，运维人员可通过环境变量进行选择。
 
-Kaiwu supports both modes; operators choose using environment variables.
+### 模式 A：转发 mTLS（推荐）
 
-### Mode A: Forwarded mTLS (recommended)
+在此模式下，反向代理或负载均衡器负责终结 TLS、校验客户端证书，并将**受信任的身份标识**（例如证书指纹或用户主体）转发给 Kaiwu。
 
-In this mode, a reverse proxy / load balancer terminates TLS, enforces client certificates, and forwards a **trusted identity** to Kaiwu (for example, a certificate fingerprint or a user principal).
+推荐理由：
 
-Why this is recommended:
+- 在边缘节点集中管理 TLS 策略；
+- 应用服务器无需配置 HTTPS 即可运行；
+- 符合多数生产环境既有的架构模式。
 
-- centralizes TLS policy at the edge,
-- avoids running the app server with HTTPS configuration,
-- matches how many production setups already work.
+安全须知：
 
-Security note:
+- 转发身份的请求头必须**在边缘节点剥离并重写**，以防客户端伪造。
 
-- forwarded identity headers must be **stripped and overwritten at the edge** so clients cannot spoof them.
+### 模式 B：直连 mTLS（暂未实现）
 
-### Mode B: Direct mTLS — not implemented
+直连模式由 Kaiwu API 自行终结 TLS，并依据配置的 CA 证书包验证客户端证书链。**开源版服务器目前不支持该模式。** 配置 `HAPPIER_FEATURE_AUTH_MTLS__MODE=direct` 并不会启动该模式——服务器会记录 `auth_mtls_not_configured` 且不在服务中公布该认证方式，因此界面上不会出现 mTLS 登录入口。
 
-Direct mode would have the Kaiwu API terminate TLS itself and verify the client
-certificate chain against a configured CA bundle. **The open-source server does not
-support it.** Setting `HAPPIER_FEATURE_AUTH_MTLS__MODE=direct` does not start it —
-the server records `auth_mtls_not_configured` and leaves the method unadvertised,
-so mTLS login never appears in the UI.
+请使用转发模式。如果当前尚未部署反向代理，部署一个反向代理是官方支持的合规方案，而非权宜之计。
 
-Use forwarded mode. If you have no reverse proxy today, adding one is the
-supported path, not a workaround.
+## 稳定身份映射（多设备行为）
 
-## Stable identity mapping (multi-device behavior)
+企业通常希望同一用户在不同设备上对应“同一个账号”。
 
-Enterprises typically want a user to be the “same account” across devices.
+为此，Kaiwu 提供了可配置的策略，从证书中派生出 `mtls` 身份 ID：
 
-To support this, Kaiwu derives an `mtls` identity id from the certificate using a configurable strategy:
+- 首选策略：**SAN email** 或 **SAN UPN**（在设备证书轮换时保持稳定）。
+- 备选策略：**使用者 CN（subject CN）**（仅当 PKI 体系能够保证唯一性与稳定性时适用）。
+- 兜底策略：**证书指纹**（每个证书唯一；除非引入账号关联流程，否则通常会导致每台设备生成一个账号）。
 
-- Preferred: **SAN email** or **SAN UPN** (stable across device certificate rotation).
-- Fallback: **subject CN** (only when your PKI guarantees uniqueness and stability).
-- Last resort: **certificate fingerprint** (unique per certificate; usually produces one account per device unless you add a linking process).
+建议：
 
-Recommendation:
+- 使用 `SAN email` 或 `SAN UPN`，并强制启用签发者与域名允许列表。
 
-- Use `SAN email` or `SAN UPN`, and enforce issuer + domain allowlists.
+## 自动配置账号
 
-## Auto-provisioning
+自动配置（Auto-provisioning）的流程如下：
 
-Auto-provisioning means:
+1. 客户端提供有效的证书。
+2. Kaiwu 派生出稳定的身份 ID（见上文）。
+3. 若尚无账号关联该身份，Kaiwu 会创建新账号并完成关联。
+4. Kaiwu 返回标准的 Bearer 令牌，后续所有请求均携带 `Authorization: Bearer ...`。
 
-1. The client presents a valid certificate.
-2. Kaiwu derives the stable identity id (see above).
-3. If no existing account is linked to that identity, Kaiwu creates a new account and links the identity.
-4. Kaiwu returns a standard bearer token, and all subsequent requests use `Authorization: Bearer ...`.
+若停用自动配置：
 
-If auto-provisioning is disabled:
+- 未知证书将被直接拒绝（运维人员可通过管理流程预先配置账号或身份）。
 
-- unknown certificates are rejected (operators can pre-provision accounts / identities via an admin process).
+## 仅无密钥模式特性（重要）
 
-## Keyless-only behavior (important)
+在当前的 Kaiwu 中，mTLS 属于**无密钥（keyless）**登录方式：
 
-mTLS is a **keyless** login method in Kaiwu today:
+- mTLS 自动配置新账号时，创建的是**无密钥/明文**账号（不生成设备密钥）。
+- 若 mTLS 身份映射到的账号当前启用了 **E2EE**，服务器将拒绝签发令牌，转而要求走**恢复 / 密钥质询**流程。
 
-- When mTLS provisions new accounts, it creates **keyless/plain** accounts (no device keys).
-- If an mTLS identity maps to an account that is currently **E2EE**, the server will refuse to mint a token and will require a **restore / key-challenge** flow instead.
+这保证了核心约束不变：**E2EE 账号必须持有私钥**方可登录。
 
-This preserves the core invariant: **E2EE accounts require possession of the secret key** to log in.
+## 选择不加密（企业推荐搭配）
 
-## Encryption opt-out (recommended pairing for enterprise)
+若企业有以下需求：
 
-If your enterprise wants:
+- 不希望用户自行管理加密密钥；
+- 需要服务端搜索与索引功能；
+- 简化多设备协同逻辑；
 
-- no user-managed encryption keys,
-- server-side search/indexing,
-- simpler multi-device behavior,
+建议将 mTLS 与**明文存储模式**（选择不加密）搭配使用。在该模式下，新会话存储时无需经过端到端加密。
 
-then pair mTLS with **plaintext storage mode** (encryption opt-out). In that mode, new sessions can be stored without E2EE.
+注意：切换加密模式不会对历史数据进行追溯性的解密或重新加密。
 
-Note: switching encryption mode does not retroactively decrypt or re-encrypt historical data.
+## 环境变量（概览）
 
-## Environment variables (overview)
+### 前提条件
 
-### Prerequisites
+mTLS 配置的是无密钥账号，而无密钥账号默认处于禁用状态。以下两项配置必须同时设置，否则自动配置将拒绝所有身份并报错 `e2ee-required`：
 
-mTLS provisions keyless accounts, and keyless accounts are off by default. Both of
-these must be set or auto-provisioning refuses every identity with `e2ee-required`:
-
-| Variable | Required value | Default |
+| 变量 | 必需值 | 默认值 |
 | --- | --- | --- |
 | `HAPPIER_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED` | `1` | off |
-| `HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY` | `optional` or `plaintext_only` | `required_e2ee` |
+| `HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY` | `optional` 或 `plaintext_only` | `required_e2ee` |
 
-Leaving the storage policy at its default is the most common reason mTLS appears
-configured and still does not work. See [Keyless-only behavior](#keyless-only-behavior-important)
-for what that means for your users' accounts.
+存储策略保持默认值，是 mTLS 配好后仍然无法生效的最常见原因。关于这对用户账号的具体影响，请参阅[仅无密钥模式特性](#keyless-only-behavior-important)。
 
-### Enable mTLS
+### 启用 mTLS
 
 - `HAPPIER_FEATURE_AUTH_MTLS__ENABLED` (`0`/`1`)
 - `HAPPIER_FEATURE_AUTH_MTLS__MODE` (`forwarded` | `direct`)
 - `HAPPIER_FEATURE_AUTH_MTLS__AUTO_PROVISION` (`0`/`1`)
 
-### Identity mapping
+### 身份映射
 
 - `HAPPIER_FEATURE_AUTH_MTLS__IDENTITY_SOURCE` (`san_email` | `san_upn` | `subject_cn` | `fingerprint`)
-- `HAPPIER_FEATURE_AUTH_MTLS__ALLOWED_EMAIL_DOMAINS` (CSV; recommended with `san_email` / `san_upn`)
-- `HAPPIER_FEATURE_AUTH_MTLS__ALLOWED_ISSUERS` (recommended; supports CN or exact DN matching)
+- `HAPPIER_FEATURE_AUTH_MTLS__ALLOWED_EMAIL_DOMAINS`（CSV 格式；建议与 `san_email` / `san_upn` 配合使用）
+- `HAPPIER_FEATURE_AUTH_MTLS__ALLOWED_ISSUERS`（推荐；支持 CN 或精确 DN 匹配）
 
-Notes:
-- CN allowlist entries (most common) can be either `cn=...` or bare CN strings (e.g. `Example Root CA`). Multiple CN entries can be comma-separated.
-- Exact DN allowlist entries can be provided as full issuer DNs (e.g. `C=US, O=Example Corp, CN=Example Root CA`). If you want multiple DN entries, separate them with **newlines** or `;` (DN strings include commas).
-- Forwarded issuer strings can be either a simple `CN=...` value or a full DN. Kaiwu performs case/whitespace-insensitive normalization.
-- Matching behavior:
-  - if an allowlist entry is CN-only, Kaiwu compares it against the extracted issuer CN.
-  - if an allowlist entry is a full DN, Kaiwu requires an exact DN match (after normalization).
+说明：
+- CN 允许列表项（最常用）既可写为 `cn=...`，也可直接写 CN 字符串（例如 `Example Root CA`）。多个 CN 项之间用逗号分隔。
+- 精确 DN 允许列表项可传入完整的签发者 DN（例如 `C=US, O=Example Corp, CN=Example Root CA`）。若需配置多个 DN 项，请使用**换行符**或 `;` 进行分隔（因 DN 字符串本身包含逗号）。
+- 转发过来的签发者字符串既可为简单的 `CN=...` 值，也可为完整的 DN。Kaiwu 会对其执行大小写与空格不敏感的归一化处理。
+- 匹配规则：
+  - 若允许列表项仅包含 CN，Kaiwu 会将其与提取出的签发者 CN 进行比对；
+  - 若允许列表项为完整 DN，Kaiwu 要求（归一化后）精确匹配整个 DN。
 
-### Forwarded-header configuration (forwarded mode only)
+### 转发请求头配置（仅限转发模式）
 
 - `HAPPIER_FEATURE_AUTH_MTLS__TRUST_FORWARDED_HEADERS` (`0`/`1`)
-- `HAPPIER_FEATURE_AUTH_MTLS__FORWARDED_EMAIL_HEADER` (default `x-happier-client-cert-email`)
-- `HAPPIER_FEATURE_AUTH_MTLS__FORWARDED_UPN_HEADER` (default `x-happier-client-cert-upn`)
-- `HAPPIER_FEATURE_AUTH_MTLS__FORWARDED_SUBJECT_HEADER` (default `x-happier-client-cert-subject`)
-- `HAPPIER_FEATURE_AUTH_MTLS__FORWARDED_FINGERPRINT_HEADER` (default `x-happier-client-cert-sha256`)
-- `HAPPIER_FEATURE_AUTH_MTLS__FORWARDED_ISSUER_HEADER` (default `x-happier-client-cert-issuer`)
+- `HAPPIER_FEATURE_AUTH_MTLS__FORWARDED_EMAIL_HEADER`（默认 `x-happier-client-cert-email`）
+- `HAPPIER_FEATURE_AUTH_MTLS__FORWARDED_UPN_HEADER`（默认 `x-happier-client-cert-upn`）
+- `HAPPIER_FEATURE_AUTH_MTLS__FORWARDED_SUBJECT_HEADER`（默认 `x-happier-client-cert-subject`）
+- `HAPPIER_FEATURE_AUTH_MTLS__FORWARDED_FINGERPRINT_HEADER`（默认 `x-happier-client-cert-sha256`）
+- `HAPPIER_FEATURE_AUTH_MTLS__FORWARDED_ISSUER_HEADER`（默认 `x-happier-client-cert-issuer`）
 
-### Native app handoff (mobile)
+### 原生应用交接（移动端）
 
-- `HAPPIER_FEATURE_AUTH_MTLS__RETURN_TO_ALLOW_PREFIXES` (CSV; defaults to `happier://` and `HAPPIER_WEBAPP_URL`)
-- `HAPPIER_FEATURE_AUTH_MTLS__CLAIM_TTL_SECONDS` (default `60`)
+- `HAPPIER_FEATURE_AUTH_MTLS__RETURN_TO_ALLOW_PREFIXES`（CSV 格式；默认为 `happier://` 与 `HAPPIER_WEBAPP_URL`）
+- `HAPPIER_FEATURE_AUTH_MTLS__CLAIM_TTL_SECONDS`（默认 `60`）
 
-Notes:
+说明：
 
-- For `http://` / `https://` entries, Kaiwu validates `returnTo` by **origin** (scheme + host + port), with an optional path-prefix constraint if you include a path in the allowlist entry. This prevents “prefix” open-redirect bypasses like `https://app.example.com.evil.com/...`.
-- For deep links, use a scheme prefix like `happier://` (or a more specific prefix like `happier:///mtls`).
+- 对于 `http://` / `https://` 条目，Kaiwu 按**源（Origin）**（协议 + 主机 + 端口）校验 `returnTo`；若在允许列表条目中包含了路径，还会附加路径前缀约束。此举可防止诸如 `https://app.example.com.evil.com/...` 等“前缀拼接型”开放重定向绕过漏洞。
+- 对于深度链接（Deep Link），请使用类似 `happier://` 的协议前缀（或更具体的类似 `happier:///mtls` 的前缀）。
 
-### Auto-redirect (skip the connection screen)
+### 自动重定向（跳过连接界面）
 
-If mTLS is the only supported login flow for your deployment, you can enable auto-redirect so users don’t have to tap “Sign in with certificate”.
+若当前部署环境下 mTLS 为唯一的登录方式，可启用自动重定向，免去用户手动点击“使用证书登录”的操作。
 
 - `HAPPIER_FEATURE_AUTH_UI__AUTO_REDIRECT_ENABLED=1`
 - `HAPPIER_FEATURE_AUTH_UI__AUTO_REDIRECT_PROVIDER_ID=mtls`
-- Disable anonymous signup: `AUTH_ANONYMOUS_SIGNUP_ENABLED=0`
+- 停用匿名注册：`AUTH_ANONYMOUS_SIGNUP_ENABLED=0`
 
-On mobile, this will open the system browser to start the certificate-authenticated flow.
+在移动端，该配置会调起系统浏览器以启动证书验证流程。
 
-For the full canonical list, see [Deployment → Environment variables](/self-hosting/env).
+完整官方列表请参阅[部署 → 环境变量](/self-hosting/env)。
 
-## Setup checklist
+## 配置检查清单
 
-### Forwarded mode (recommended)
+### 转发模式（推荐）
 
-1. Configure your reverse proxy / load balancer to require a valid client certificate.
-2. Configure your proxy to forward a stable identity (fingerprint and/or user principal).
-3. Ensure the proxy strips any incoming identity headers from the public internet and overwrites them with verified values.
-4. Enable forwarded mode in Kaiwu and enable auto-provisioning if desired.
+1. 配置反向代理或负载均衡器，要求提供有效的客户端证书。
+2. 配置代理服务器转发稳定的身份标识（证书指纹和/或用户主体）。
+3. 确保代理服务器剥离来自公网的所有身份请求头，并用校验通过的值重写相应字段。
+4. 在 Kaiwu 中启用转发模式；如需自动建号，同步开启自动配置。
 
+## 故障排查
 
-## Troubleshooting
+### “界面上未提供 mTLS 登录选项”
 
-### “mTLS login isn’t offered in the UI”
+- 确认 `GET /v1/features` 返回的结果已声明启用 mTLS。
+- 确认修改环境变量后已重启服务器。
 
-- Confirm `GET /v1/features` advertises mTLS as enabled.
-- Confirm you restarted the server after changing env vars.
+### “自动配置未创建账号”
 
-### “Auto-provisioning doesn’t create accounts”
+- 确认 `HAPPIER_FEATURE_AUTH_MTLS__AUTO_PROVISION=1`。
+- 确认身份映射能生成稳定的 ID（建议优先使用 `san_email`/`san_upn`）。
+- 确认证书未被域名允许列表拦截。
 
-- Confirm `HAPPIER_FEATURE_AUTH_MTLS__AUTO_PROVISION=1`.
-- Confirm your identity mapping is producing a stable id (use `san_email`/`san_upn` when possible).
-- Confirm domain allowlists are not rejecting the cert.
-
-Also confirm that plaintext storage is allowed if you want keyless auto-provisioning:
+此外，若要使用无密钥自动配置，请确认已允许明文存储：
 
 - `HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY=optional|plaintext_only`
 
-### “Users get multiple accounts across devices”
+### “同一用户在不同设备上生成了多个账号”
 
-- You are likely using `fingerprint` identity mapping.
-- Switch to `san_email`/`san_upn`, and enforce issuer + domain allowlists.
+- 这通常是因为身份映射配置为了 `fingerprint`。
+- 请切换为 `san_email`/`san_upn`，并强制启用签发者与域名允许列表。
 
-### Identity normalization notes
+### 身份归一化说明
 
-- `san_email` and `san_upn` are normalized to lowercase.
-- Issuer comparisons are case-insensitive and whitespace-insensitive (but you must still configure the allowlist with comma-separated issuer strings).
+- `san_email` 与 `san_upn` 会统一归一化为小写。
+- 签发者比对不区分大小写与空格（但配置允许列表时仍须使用逗号分隔多个签发者字符串）。

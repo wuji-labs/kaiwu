@@ -1,43 +1,42 @@
 ---
-title: GitHub auth
-description: Configure GitHub OAuth (signup + connect) and optional GitHub allowlists for a self-hosted server.
+title: GitHub 认证
+description: 为自托管服务器配置 GitHub OAuth（注册与连接）及可选的 GitHub 白名单。
 ---
+本指南介绍 Kaiwu 服务器上的 GitHub 认证配置：
+- GitHub OAuth（注册与关联）
+- 强制将 GitHub 作为必选登录提供商
+- 可选白名单（用户/组织）及人员离职下线机制
 
-This guide covers GitHub auth on the Kaiwu server:
-- GitHub OAuth (signup + connect)
-- Enforcing GitHub as a required login provider
-- Optional allowlists (users/orgs) and offboarding behavior
+## 快速入门：GitHub 注册（公网服务器推荐配置）
 
-## Quick start: GitHub signup (recommended for public servers)
+当希望用户**通过 GitHub 注册**并**禁用匿名注册**时，可采用此方案。
 
-Use this when you want users to **sign up with GitHub** and you want to **disable anonymous signup**.
+注意：Kaiwu 账户本质上仍是**设备密钥**账户。GitHub 仅作为绑定的身份提供商（用于注册、关联及策略管控），并不能替代设备密钥登录。
 
-Note: Kaiwu accounts are still **device-key** accounts. GitHub acts as an attached identity provider (used for signup, connect, and policy enforcement), not as a replacement for device-key login.
+界面提示：
+- 若同时启用了匿名注册与 GitHub 注册，欢迎界面会显示**创建账户**与**通过 GitHub 继续**。
+- 若禁用了匿名注册，欢迎界面仅显示**通过 GitHub 继续**（不再提供匿名的“创建账户”选项）。
 
-UI note:
-- If both anonymous signup and GitHub signup are enabled, the welcome screen shows **Create account** and **Continue with GitHub**.
-- If anonymous signup is disabled, the welcome screen shows **Continue with GitHub** (and no anonymous “Create account” option).
+### 1) 创建 GitHub OAuth App
 
-### 1) Create a GitHub OAuth App
+Kaiwu 的 OAuth 重定向流程基于 **GitHub OAuth App**（而非 GitHub App）。
 
-Kaiwu uses a **GitHub OAuth App** (not a GitHub App) for the OAuth redirect flow.
-
-1. In GitHub, go to **Settings → Developer settings → OAuth Apps → New OAuth App**.
-2. Set **Authorization callback URL** to:
+1. 打开 GitHub，前往 **Settings → Developer settings → OAuth Apps → New OAuth App**。
+2. 将 **Authorization callback URL** 设置为：
    - `https://YOUR_SERVER/v1/oauth/github/callback`
-3. Create the app and copy:
+3. 创建应用并保存以下凭据：
    - **Client ID**
    - **Client secret**
 
-Notes:
-- The Kaiwu server currently talks to `github.com` / `api.github.com` directly, so this setup is for **GitHub.com** (not GitHub Enterprise Server).
-- The callback URL must match exactly (scheme/host/path) what you put in `GITHUB_REDIRECT_URL`.
-- GitHub generally requires `https://` callback URLs, except for loopback development URLs like `http://localhost:PORT/...`.
-- You do **not** need GitHub’s “Device Flow / device authentication flow”. Our server uses the standard browser redirect OAuth flow, so you can leave “Enable Device Flow” **disabled**.
+注意事项：
+- Kaiwu 服务器目前直接与 `github.com` / `api.github.com` 通信，因此该配置仅适用于 **GitHub.com**（不适用于 GitHub Enterprise Server）。
+- 回调 URL 的协议、主机名和路径必须与 `GITHUB_REDIRECT_URL` 中的配置完全一致。
+- GitHub 通常要求使用 `https://` 回调 URL，仅 `http://localhost:PORT/...` 等本地环回开发地址例外。
+- **无需**启用 GitHub 的“Device Flow / 设备认证流”。Kaiwu 服务器采用标准的浏览器重定向 OAuth 流程，保持“Enable Device Flow”处于**禁用**状态即可。
 
-### 2) Configure the server
+### 2) 配置服务器
 
-Set these environment variables on `apps/server` (see `apps/server/.env.example`):
+在 `apps/server` 上设置以下环境变量（参见 `apps/server/.env.example`）：
 
 ```bash
 # GitHub OAuth (OAuth App)
@@ -56,32 +55,32 @@ AUTH_SIGNUP_PROVIDERS=github
 AUTH_REQUIRED_LOGIN_PROVIDERS=github
 ```
 
-Alternative (mobile deep link return):
+备选配置（移动端 Deep Link 返回）：
 - `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE=myapp://oauth`
 - `HAPPIER_OAUTH_RETURN_ALLOWED_SCHEMES=myapp`
 
-### 3) Validate it works
+### 3) 验证配置是否生效
 
-1. Restart the server.
-2. Check `GET /v1/features` and confirm:
-   - `capabilities.oauth.providers.github.configured` is `true`
-3. Open the Kaiwu app and confirm “Continue with GitHub” is available.
-4. If your GitHub login is already taken (or doesn’t match the username rules), Kaiwu will ask you to choose a username during signup. This is expected.
-   - Important: this is **signup** (creating a new Kaiwu account). If you’re trying to use GitHub to “log in” to an existing Kaiwu account from another device, you must use **device-key restore** (for example **Add your phone** / **Restore account**) and then connect GitHub from **Settings → Account**.
+1. 重启服务器。
+2. 检查 `GET /v1/features`，确认：
+   - `capabilities.oauth.providers.github.configured` 为 `true`
+3. 打开 Kaiwu 应用，确认界面已出现“通过 GitHub 继续”选项。
+4. 若你的 GitHub 用户名已被占用（或不符合用户名格式规范），Kaiwu 会在注册过程中提示你另选用户名，这属于正常现象。
+   - 重要提示：该流程属于**注册**（创建新的 Kaiwu 账户）。若需在另一台设备上通过 GitHub“登录”已有的 Kaiwu 账户，必须使用**设备密钥恢复**（例如选择**添加手机** / **恢复账户**），随后在**设置 → 账户**中关联 GitHub。
 
-Troubleshooting:
-- If you see an error like “provider already linked”, it means this GitHub identity is already connected to an existing Kaiwu account on that server.
-  - Use **device-key restore** on this device/browser, then continue.
+排错指南：
+- 若出现类似“provider already linked”的错误，说明该 GitHub 身份已与当前服务器上的某个 Kaiwu 账户绑定。
+  - 请在该设备或浏览器中使用**设备密钥恢复**登入该账户，之后即可继续使用。
 
-## Keyless GitHub login (optional, enterprise)
+## 免密钥 GitHub 登录（可选，企业特性）
 
-Kaiwu can also use GitHub OAuth as a **keyless login method** (no device keys).
+Kaiwu 还支持将 GitHub OAuth 作为一种**免密钥登录方式**（无需设备密钥）。
 
-This is intended for enterprise deployments where:
-- you want seamless sign-in across devices (no restore key prompts), and
-- you are comfortable storing new session content as plaintext on the server (or you already run with plaintext-only storage).
+该方案适用于以下企业部署场景：
+- 希望实现跨设备无缝登录（无需提示输入恢复密钥）；且
+- 接受将新增会话内容以明文形式存储在服务器上（或本身已采用全明文存储运行）。
 
-Minimum prerequisites:
+最低前置要求：
 
 ```bash
 # Keyless accounts require a storage policy that allows plaintext
@@ -95,20 +94,20 @@ HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_ENABLED=1
 HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_PROVIDERS=github
 ```
 
-To allow GitHub sign-in to **create** a new keyless/plain account on first login:
+若要允许用户在首次通过 GitHub 登录时自动**创建**免密钥/明文账户：
 
 ```bash
 HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_AUTO_PROVISION=1
 ```
 
-Notes:
-- Keyless GitHub login is **separate** from keyed GitHub signup. You can enable either or both.
-- `HAPPIER_FEATURE_ENCRYPTION__DEFAULT_ACCOUNT_MODE` controls only the default for **keyed** accounts under `optional`; it does not gate keyless provisioning.
-- On `HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY=optional`, the client may offer a **choice** on first login (E2EE vs plaintext) when GitHub is enabled for both keyed provisioning and keyless auto-provisioning. See [Server Auth](/self-hosting/auth).
+注意事项：
+- 免密钥 GitHub 登录与带密钥的 GitHub 注册是**相互独立**的机制，可单独或同时开启。
+- `HAPPIER_FEATURE_ENCRYPTION__DEFAULT_ACCOUNT_MODE` 仅控制 `optional` 下**带密钥**账户的默认设置，不会限制免密钥账户的置备。
+- 在 `HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY=optional` 模式下，若 GitHub 同时启用了带密钥置备与免密钥自动置备，客户端可能会在首次登录时提供**选项**（端到端加密 vs 明文）。详见[服务器认证](/self-hosting/auth)。
 
-### Auto-redirect (GitHub-only deployments)
+### 自动重定向（仅支持 GitHub 部署）
 
-If GitHub is your only supported login/signup flow, you can enable auto-redirect so users don’t have to tap the button:
+若 GitHub 是系统中唯一支持的登录与注册流程，可启用自动重定向，免去用户手动点击按钮的操作：
 
 ```bash
 HAPPIER_FEATURE_AUTH_UI__AUTO_REDIRECT_ENABLED=1
@@ -116,103 +115,103 @@ HAPPIER_FEATURE_AUTH_UI__AUTO_REDIRECT_PROVIDER_ID=github
 AUTH_ANONYMOUS_SIGNUP_ENABLED=0
 ```
 
-## Server env (GitHub OAuth)
+## 服务器环境变量（GitHub OAuth）
 
-Required:
+必选：
 - `GITHUB_CLIENT_ID`
 - `GITHUB_CLIENT_SECRET`
-- `GITHUB_REDIRECT_URL` (preferred) or legacy `GITHUB_REDIRECT_URI`
-  - Must be: `https://YOUR_SERVER/v1/oauth/github/callback`
+- `GITHUB_REDIRECT_URL`（推荐）或旧版配置 `GITHUB_REDIRECT_URI`
+  - 必须设置为：`https://YOUR_SERVER/v1/oauth/github/callback`
 
-Required **unless** you are using the hosted client at `https://kaiwu.chengqiyun.com`:
-- `HAPPIER_WEBAPP_URL` (default `https://kaiwu.chengqiyun.com`)
+必选（**除非**直接使用托管于 `https://kaiwu.chengqiyun.com` 的官方客户端）：
+- `HAPPIER_WEBAPP_URL`（默认值 `https://kaiwu.chengqiyun.com`）
 
-Optional (typically only needed for mobile deep links / custom schemes):
+可选（通常仅在支持移动端 Deep Link 或自定义 URL Scheme 时需要）：
 - `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE`
 - `HAPPIER_OAUTH_RETURN_ALLOWED_SCHEMES`
-- `OAUTH_STATE_TTL_SECONDS` (default `600`, clamp 60–3600)
-- `OAUTH_PENDING_TTL_SECONDS` (default `600`, clamp 60–3600; legacy fallback: `GITHUB_OAUTH_PENDING_TTL_SECONDS`)
-- `GITHUB_HTTP_TIMEOUT_SECONDS` (default `10`, clamp 1–120)
+- `OAUTH_STATE_TTL_SECONDS`（默认值 `600`，取值区间限制在 60–3600）
+- `OAUTH_PENDING_TTL_SECONDS`（默认值 `600`，取值区间限制在 60–3600；旧版降级配置：`GITHUB_OAUTH_PENDING_TTL_SECONDS`）
+- `GITHUB_HTTP_TIMEOUT_SECONDS`（默认值 `10`，取值区间限制在 1–120）
 
-Notes:
-- `GITHUB_REDIRECT_URL` must be reachable by GitHub (it’s where GitHub redirects the browser after the user approves OAuth).
-- If your server is behind a reverse proxy, `GITHUB_REDIRECT_URL` should be the **public** URL (not an internal container hostname).
-- `HAPPIER_WEBAPP_URL` / `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE` are only “optional” if you are using the hosted client at `https://kaiwu.chengqiyun.com`.
-  - If you are self-hosting the web app, or using a local dev web UI, you must set one of these so the server can redirect back to your client after OAuth.
+注意事项：
+- `GITHUB_REDIRECT_URL` 必须能够被 GitHub 访问（用户完成 OAuth 授权后，GitHub 会将浏览器重定向至该地址）。
+- 若服务器部署在反向代理之后，`GITHUB_REDIRECT_URL` 应填写**公网可访问**的 URL（而非容器内部主机名）。
+- 只有在使用托管于 `https://kaiwu.chengqiyun.com` 的官方客户端时，`HAPPIER_WEBAPP_URL` / `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE` 才是“可选”的。
+  - 若自托管 Web 应用或在本地开发 Web 界面，则必须配置其中之一，以便服务器在 OAuth 流程完成后能重定向回客户端。
 
-## OAuth return URL to the client (advanced)
+## OAuth 客户端返回 URL（高级）
 
-After the server handles the GitHub callback, it redirects the browser back to the client so the client can finish the flow.
+服务器处理完 GitHub 的回调后，会将浏览器重定向回客户端以完成整个流程。
 
-- Default return base: `HAPPIER_WEBAPP_URL` (`https://kaiwu.chengqiyun.com`)
-  - The server redirects to `${HAPPIER_WEBAPP_URL}/oauth/github?...` unless you override it.
-- Override return base (without provider suffix): `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE`
-  - Example: `https://app.example.com/custom-oauth` → redirects to `https://app.example.com/custom-oauth/github?...`
-- Allow additional URL schemes for the return redirect: `HAPPIER_OAUTH_RETURN_ALLOWED_SCHEMES`
-  - Use this for mobile deep links (e.g. `myapp`)
-  - `http://` is only allowed for loopback hosts like `localhost`, `127.0.0.1`, and `*.localhost`, and is not allowed for non-loopback hosts.
+- 默认返回基础路径：`HAPPIER_WEBAPP_URL`（`https://kaiwu.chengqiyun.com`）
+  - 除非主动覆盖，否则服务器默认重定向至 `${HAPPIER_WEBAPP_URL}/oauth/github?...`。
+- 覆盖返回基础路径（不包含提供商后缀）：`HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE`
+  - 示例：`https://app.example.com/custom-oauth` → 重定向至 `https://app.example.com/custom-oauth/github?...`
+- 允许返回重定向使用其他 URL Scheme：`HAPPIER_OAUTH_RETURN_ALLOWED_SCHEMES`
+  - 用于移动端 Deep Link（例如 `myapp`）
+  - `http://` 仅允许用于 `localhost`、`127.0.0.1` 及 `*.localhost` 等本地环回主机，非环回主机禁止使用。
 
-Troubleshooting:
-- If you get redirected to `https://kaiwu.chengqiyun.com` even after setting `HAPPIER_WEBAPP_URL`, the server likely rejected your configured return URL as unsafe. For local web dev, use `http://localhost:PORT` or `http://*.localhost:PORT` (or use `https://`).
+排错指南：
+- 若配置了 `HAPPIER_WEBAPP_URL` 后仍被重定向至 `https://kaiwu.chengqiyun.com`，多半是因为服务器判定所配置的返回 URL 存在安全隐患并进行了拦截。本地 Web 开发请使用 `http://localhost:PORT` 或 `http://*.localhost:PORT`（亦可使用 `https://`）。
 
-## OAuth scopes
+## OAuth 权限范围（Scopes）
 
-OAuth scopes requested by the server:
-- Default: `read:user`
-- Adds `read:org` only when you enable org allowlists **and** set `AUTH_GITHUB_ORG_MEMBERSHIP_SOURCE=oauth_user_token`
+服务器请求的 OAuth Scope 如下：
+- 默认请求：`read:user`
+- 仅当启用组织白名单**且**配置了 `AUTH_GITHUB_ORG_MEMBERSHIP_SOURCE=oauth_user_token` 时，才会追加申请 `read:org`
 
-## GitHub allowlists (eligibility)
+## GitHub 白名单（准入资格）
 
-Important:
-- All values are normalized to lowercase.
-- Allowlists affect access only when GitHub is included in `AUTH_REQUIRED_LOGIN_PROVIDERS`.
+重要说明：
+- 所有配置值均会统一转换为小写处理。
+- 白名单仅在 `AUTH_REQUIRED_LOGIN_PROVIDERS` 中包含 GitHub 时才会对访问权限生效。
 
-### User allowlist
-- `AUTH_GITHUB_ALLOWED_USERS` (CSV of GitHub logins)
+### 用户白名单
+- `AUTH_GITHUB_ALLOWED_USERS`（以逗号分隔的 GitHub 用户名列表）
 
-If set and GitHub is required for login, the user must match this list or they get `403 not-eligible`.
+若配置了该项且登录强制要求 GitHub，用户必须位于此列表中，否则会收到 `403 not-eligible`。
 
-### Org allowlist
-- `AUTH_GITHUB_ALLOWED_ORGS` (CSV of org slugs)
-- `AUTH_GITHUB_ORG_MATCH` (`any`/`all`, default `any`)
+### 组织白名单
+- `AUTH_GITHUB_ALLOWED_ORGS`（以逗号分隔的组织 Slug 列表）
+- `AUTH_GITHUB_ORG_MATCH`（`any`/`all`，默认值 `any`）
 
-If set and GitHub is required for login, the user must be in the allowed org(s). Membership is re-checked using the offboarding interval.
+若配置了该项且登录强制要求 GitHub，用户必须隶属于允许的组织。系统会按照离职下线检查周期定期复核成员资格。
 
-### Org membership source (important)
+### 组织成员资格验证源（重要）
 
-`AUTH_GITHUB_ORG_MEMBERSHIP_SOURCE` controls how the server verifies org membership:
-- `github_app` (recommended)
-- `oauth_user_token` (uses the user’s OAuth token and requires `read:org`)
+`AUTH_GITHUB_ORG_MEMBERSHIP_SOURCE` 控制服务器如何验证用户的组织成员资格：
+- `github_app`（推荐方案）
+- `oauth_user_token`（使用用户的 OAuth 令牌，需要 `read:org` 权限）
 
-Default behavior:
-- If `AUTH_GITHUB_ALLOWED_ORGS` is empty → `oauth_user_token` (no org checks happen)
-- If `AUTH_GITHUB_ALLOWED_ORGS` is set → defaults to `github_app`
+默认行为：
+- 若 `AUTH_GITHUB_ALLOWED_ORGS` 为空 → `oauth_user_token`（不进行组织检查）
+- 若配置了 `AUTH_GITHUB_ALLOWED_ORGS` → 默认采用 `github_app`
 
-This means: if you set `AUTH_GITHUB_ALLOWED_ORGS` but you do **not** configure GitHub App mode, users will be treated as **ineligible**.
+这意味着：如果配置了 `AUTH_GITHUB_ALLOWED_ORGS` 却**未**配置 GitHub App 模式，所有用户都将被判定为**不具备准入资格**。
 
-## GitHub App mode (recommended for org enforcement)
+## GitHub App 模式（组织管控推荐方案）
 
-GitHub App mode avoids relying on user OAuth tokens and keeps org enforcement working even if a user revokes OAuth consent.
+GitHub App 模式无需依赖用户的 OAuth 令牌。即便用户撤销了 OAuth 授权，组织的管控策略依然能够稳定执行。
 
-### Server environment variables (GitHub App mode)
+### 服务器环境变量（GitHub App 模式）
 - `AUTH_GITHUB_APP_ID`
-- `AUTH_GITHUB_APP_PRIVATE_KEY` (PEM)
-- `AUTH_GITHUB_APP_INSTALLATION_ID_BY_ORG` (CSV mapping like `acme=123,other=456`)
+- `AUTH_GITHUB_APP_PRIVATE_KEY`（PEM 格式）
+- `AUTH_GITHUB_APP_INSTALLATION_ID_BY_ORG`（CSV 格式映射，形如 `acme=123,other=456`）
 
-### GitHub setup steps (GitHub App)
-1. Create a **GitHub App**: **Settings → Developer settings → GitHub Apps → New GitHub App**.
-2. Generate a **private key** and copy the PEM into `AUTH_GITHUB_APP_PRIVATE_KEY`.
-3. Set the minimal permission needed for membership checks:
+### GitHub 配置步骤（GitHub App）
+1. 创建 **GitHub App**：前往 **Settings → Developer settings → GitHub Apps → New GitHub App**。
+2. 生成**私钥**（Private Key），将 PEM 内容复制到 `AUTH_GITHUB_APP_PRIVATE_KEY` 中。
+3. 配置验证成员资格所需的最低权限：
    - **Organization permissions → Members: Read**
-4. Install the app into each org you plan to allow.
-5. Capture the **installation id** for each org and set `AUTH_GITHUB_APP_INSTALLATION_ID_BY_ORG`.
+4. 将该应用安装到所有需要允许访问的组织中。
+5. 获取每个组织的 **Installation ID**，并配置到 `AUTH_GITHUB_APP_INSTALLATION_ID_BY_ORG` 中。
 
-Installation id tips:
-- After installing the app, click **Configure** on the installation; the URL usually contains `installations/<id>`.
+获取 Installation ID 小贴士：
+- 安装应用后，在安装管理页点击 **Configure**，页面 URL 中通常包含 `installations/⟦K9⟧`。
 
-## Org enforcement via user OAuth tokens (alternative)
+## 基于用户 OAuth 令牌验证组织资格（备选方案）
 
-If you can’t use GitHub App mode, you can verify org membership using the user’s OAuth token:
+若无法采用 GitHub App 模式，也可以利用用户的 OAuth 令牌来验证组织成员资格：
 
 ```bash
 AUTH_GITHUB_ALLOWED_ORGS=acme
@@ -220,30 +219,30 @@ AUTH_GITHUB_ORG_MEMBERSHIP_SOURCE=oauth_user_token
 GITHUB_STORE_ACCESS_TOKEN=true
 ```
 
-Notes:
-- Users will be prompted for `read:org` during OAuth.
-- Token storage is required for periodic org re-checks; if you disable token storage, org checks will fail and users can become ineligible.
-- If you switch to this mode after users already connected GitHub, they may need to disconnect/reconnect so the server can store a token for membership checks.
+注意事项：
+- 用户在 OAuth 授权期间会收到申请 `read:org` 权限的提示。
+- 定期复核组织资格需要持久化存储令牌；若禁用了令牌存储，组织检查将会失败，导致用户失去准入资格。
+- 若在用户已关联 GitHub 后才切换为该模式，用户可能需要先解绑再重新关联，以便服务器能够保存用于检查成员资格的令牌。
 
-## Token storage (advanced)
+## 令牌存储（高级）
 
-`GITHUB_STORE_ACCESS_TOKEN` controls whether the server persists GitHub access tokens (encrypted-at-rest).
+`GITHUB_STORE_ACCESS_TOKEN` 用于控制服务器是否持久化存储 GitHub 访问令牌（静态加密存储）。
 
-- Default: `false` for typical setups (Friends / basic GitHub connect)
-- Default: effectively `true` when you enable org checks via `oauth_user_token` (token required for offboarding)
+- 常规配置下默认为：`false`（如 Friends 模式或基础 GitHub 关联）
+- 当通过 `oauth_user_token` 启用组织检查时，实际默认为：`true`（离职下线检查必须依赖该令牌）
 
-## Example configurations
+## 配置示例
 
-### GitHub-only signup + GitHub required for login
+### 仅允许 GitHub 注册 + 强制使用 GitHub 登录
 ```bash
 AUTH_ANONYMOUS_SIGNUP_ENABLED=false
 AUTH_SIGNUP_PROVIDERS=github
 AUTH_REQUIRED_LOGIN_PROVIDERS=github
 ```
 
-### Hybrid (anonymous + GitHub signup)
+### 混合模式（匿名 + GitHub 注册）
 
-This is useful for **private servers** (VPN / Tailscale / LAN), where you want to keep anonymous accounts available but also offer “Continue with GitHub”.
+适用于**私有服务器**（如通过 VPN、Tailscale 或局域网访问）。该模式下既保留匿名账户，同时提供“通过 GitHub 继续”的登录选项。
 
 ```bash
 AUTH_ANONYMOUS_SIGNUP_ENABLED=true
@@ -251,7 +250,7 @@ AUTH_SIGNUP_PROVIDERS=github
 AUTH_REQUIRED_LOGIN_PROVIDERS=
 ```
 
-### GitHub-only + restrict to an org (GitHub App mode)
+### 仅允许 GitHub + 限制特定组织（GitHub App 模式）
 ```bash
 AUTH_ANONYMOUS_SIGNUP_ENABLED=false
 AUTH_SIGNUP_PROVIDERS=github

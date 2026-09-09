@@ -1,84 +1,79 @@
 ---
-title: Feature matrix
-description: User-facing feature coverage across clients and runtimes.
+title: 功能矩阵
+description: 各客户端与运行时面向用户的功能覆盖情况。
 ---
+本文汇总了无极开物（Kaiwu）当前面向用户呈现的核心功能。
 
-This page summarizes the main user-facing capabilities currently surfaced in Kaiwu.
+状态说明：
 
-Status legend:
+- **稳定**：适合日常使用
+- **实验性**：已提供，仍在持续打磨
+- **能力依赖**：取决于后端或提供商的能力支持
 
-- **Stable**: intended for regular use
-- **Experimental**: available, still being hardened
-- **Capability-driven**: depends on backend/provider support
+## 核心功能
 
-## Core capabilities
-
-| Capability | Status | Where it works | Notes |
+| 功能 | 状态 | 适用端 | 说明 |
 | --- | --- | --- | --- |
-| Multi-server profiles + switching | Stable | App, Web, CLI | Accounts and runtime state are scoped per server. |
-| Session sharing + collaboration | Stable | App, Web | Share sessions with friends/teammates and manage access. |
-| Session read/unread state | Stable | App, Web, Mobile app | Unread badges plus Mark as unread/read actions in session lists, context menus, headers, and Session info. |
-| Kaiwu sessions + resume | Stable | App, Web, CLI | Resume inactive Kaiwu-managed sessions when the provider/backend supports vendor resume for that session. |
-| New session shortcuts | Stable | App, Web, Mobile app | Start a new session from a project or Session info while reusing the relevant session setup; existing composer draft content is preserved while launch selections are replaced. |
-| Session handoff between machines | Capability-driven | App, Web | Move a live session to another machine while keeping the same session id. Claude and OpenCode are supported; Codex is experimental. |
-| Direct provider sessions | Experimental | App, Web | Browse provider-native sessions, open them directly, and optionally sync them into Kaiwu. |
-| Mobile session cockpit | Stable | Mobile app, mobile web | Default phone session layout with bottom tabs for agent chat, Files, Git, open details tabs, and Terminal when available. |
-| Embedded terminal | Experimental | App, Web, Mobile app | Session-owned terminal dockable to bottom/sidebar/details; requires a connected daemon and reachable machine. |
-| Pending queue | Stable | App, Web, CLI runtime | Queue, reorder, edit, remove, and send-now workflows. |
-| In-flight steering while busy | Capability-driven | App, Web, CLI runtime | When supported by backend/runtime, messages can steer an active turn instead of waiting in queue. |
-| Git/file manager | Stable | App, Web, Mobile app | Browse/search files, upload/download, rename/delete, open previews/editors, inspect metadata, open markdown file links, initialize Git repositories, and review changed files from the session UI. |
-| Git write operations | Experimental | App, Web, Mobile app | Stage/unstage/commit/pull/push/revert plus selected-for-commit, branch publish/switch/stash, branch checkout recovery, and commit-message-generation workflows behind the Git operations feature toggle. |
-| Turn/session/selected changed-file scopes | Capability-driven | App, Web, Mobile app | Git changed-files scope dropdown can show repository changes, latest-turn changes, session-attributed changes, and selected-for-commit files when data is available. |
-| SCM hosting providers | Experimental | App, Web, daemon | Detect GitHub/GitLab/Bitbucket remotes, publish local repositories to GitHub, and open/reuse/checkout PRs or MRs where provider auth is available. |
-| Review comments | Experimental | App, Web | Add line-specific comments to file/diff lines, select which comments are sent, reuse saved workspace comments in new sessions, and jump back to commented files from the transcript. |
-| Tool timeline normalization | Stable | App, Web, CLI runtime | Provider tools are normalized to canonical UI tool types. |
-| Subagent timeline visibility | Capability-driven | App, Web | When providers expose subagents, Kaiwu shows their activity in-session. |
-| Tool detail controls (title/summary/full) | Stable | App, Web | Configure default/per-tool timeline detail levels. |
-| Turn-level change summaries | Capability-driven | App, Web | Per-turn summary and diff rendering quality depends on provider/runtime payloads. |
-| Permission modes | Capability-driven | App, Web, CLI | Effective behavior varies by provider/backend capabilities. |
-| Model/mode selection + favorites | Capability-driven | App, Web, CLI | Model lists can be dynamic or static; favorites are available from the new-session engine picker. |
-| Connected services | Stable | App, Web, CLI, daemon | Connect provider subscriptions, API keys, and GitHub tokens once, then reuse them across supported backends, sessions, and source-control workflows. |
-| Connected-services auth picker | Stable | App, Web | New-session auth picker shows only backend-compatible connected services and profiles. |
-| Connected-services quotas | Capability-driven | App, Web, daemon | Quota badges and profile detail meters currently exist for `openai-codex`, `claude-subscription`, and `gemini`. |
-| Local memory search | Experimental | App, Web, daemon | Opt-in machine-local transcript search with light/deep indexing, backfill controls, and optional embeddings reranking. |
-| Pets | Experimental | App, Web, Mobile app, Desktop app, daemon | Optional pet companions with built-in pets, Codex-compatible imports, desktop overlay bubbles, mobile/native drag, per-device size, and server-side feature controls. |
-| ACP backends | Experimental | App, Web, CLI runtime | Add arbitrary ACP-compatible CLIs through Custom ACP and use each configured backend as a first-class backend choice. |
-| Installables | Stable | App, Web, daemon | Manage machine-local tools such as Codex ACP and optional GitHub CLI (`gh`) with per-machine install/update policy. |
-| Server feature flags | Stable | App, Web, Server | Server can disable features (for example social/voice/bug reports) and clients adapt UI accordingly. |
-| Notification routing to session/server | Stable | App, Web | Notification taps route to the correct session/server; mobile also supports permission `Allow` / `Deny` and action-request `Answer` buttons with safe server-aware routing. |
-| In-app bug reports + diagnostics | Stable | App | Submit issue reports with optional diagnostics; server can disable upload/report UI. |
-| Voice: Kaiwu Voice | Capability-driven | App, Web | Managed realtime ElevenLabs voice; requires server voice config and feature enablement. |
-| Voice: BYO ElevenLabs | Stable | App, Web | Uses your own ElevenLabs account/API key, supports voice previews, and can provision/update a Kaiwu-compatible ElevenLabs agent. |
-| Voice: Local voice | Experimental | App, Web | Mix device, OpenAI-compatible, Google, and local-neural STT/TTS providers; supports direct-to-session and agent conversation modes. |
-| Voice: Local neural speech | Experimental | App, Web | Kokoro local neural TTS works on web and native; Sherpa local neural STT currently requires a native build. |
+| 多服务器配置与切换 | 稳定 | 客户端、Web、CLI | 账号与运行时状态均按服务器隔离。 |
+| 会话分享与协作 | 稳定 | 客户端、Web | 与好友或团队成员分享会话，并管理访问权限。 |
+| 会话已读/未读状态 | 稳定 | 客户端、Web、移动端 | 会话列表、右键菜单、顶栏及“会话信息”中均提供未读徽标与“标为未读/已读”操作。 |
+| Kaiwu 会话与恢复 | 稳定 | 客户端、Web、CLI | 当提供商或后端支持恢复该会话时，可恢复非活跃的 Kaiwu 托管会话。 |
+| 新建会话快捷方式 | 稳定 | 客户端、Web、移动端 | 从项目或“会话信息”发起新会话，同时复用原会话的相关配置；启动参数会按新选择替换，输入框中已有的草稿内容则予以保留。 |
+| 跨设备会话交接 | 能力依赖 | 客户端、Web | 在保持会话 ID 不变的情况下，将正在进行的会话迁移到另一台设备。已支持 Claude 和 OpenCode；Codex 处于实验性阶段。 |
+| 直连提供商原生会话 | 实验性 | 客户端、Web | 浏览提供商原生会话，直接打开，并可选择将其同步至 Kaiwu。 |
+| 移动端会话控制台 | 稳定 | 移动端、移动端 Web | 手机端的默认会话布局，底部标签栏集成智能体对话、文件、Git、已打开的详情标签页，以及终端（可用时）。 |
+| 内嵌终端 | 实验性 | 客户端、Web、移动端 | 隶属于会话的终端，可吸附固定在底部、侧边栏或详情区；需要已连接的守护进程且设备网络可达。 |
+| 待发送队列 | 稳定 | 客户端、Web、CLI 运行时 | 支持加入队列、重新排序、编辑、移除以及立即发送等操作流。 |
+| 繁忙时动态介入调整 | 能力依赖 | 客户端、Web、CLI 运行时 | 当后端或运行时支持时，新消息可直接干预正在进行的轮次，无需在队列中等待。 |
+| Git 与文件管理器 | 稳定 | 客户端、Web、移动端 | 直接在会话界面中浏览/搜索文件、上传/下载、重命名/删除、打开预览/编辑器、查看元数据、打开 Markdown 文件链接、初始化 Git 仓库以及审查变更文件。 |
+| Git 写入操作 | 实验性 | 客户端、Web、移动端 | 受 Git 操作特性开关控制，支持暂存/取消暂存/提交/拉取/推送/回退，以及挑选文件提交、分支发布/切换/暂存、分支检出恢复和自动生成提交信息等操作流。 |
+| 按轮次/会话/选中范围查看变更文件 | 能力依赖 | 客户端、Web、移动端 | 在数据可用时，Git 变更文件范围下拉菜单可展示整个仓库的变更、最新一轮的变更、当前会话产生的变更，以及选定准备提交的文件。 |
+| 代码托管平台集成 | 实验性 | 客户端、Web、守护进程 | 自动识别 GitHub/GitLab/Bitbucket 远端仓库；在完成提供商认证的前提下，支持将本地仓库发布到 GitHub，以及打开、复用或检出 PR/MR。 |
+| 审查评论 | 实验性 | 客户端、Web | 针对文件或 Diff 逐行添加评论，自主选择发送哪些评论；可在新会话中复用已保存的工作区评论，也能从会话记录快速跳转回被评论的文件。 |
+| 工具时间线归一化 | 稳定 | 客户端、Web、CLI 运行时 | 将不同提供商的工具调用统一归一化为规范的 UI 工具类型。 |
+| 子智能体时间线透出 | 能力依赖 | 客户端、Web | 当提供商暴露子智能体时，Kaiwu 会在会话内展示其活动。 |
+| 工具详情粒度控制（标题/摘要/完整） | 稳定 | 客户端、Web | 支持配置时间线的默认展示粒度，也可按工具单独指定。 |
+| 轮次级变更摘要 | 能力依赖 | 客户端、Web | 单轮摘要和 Diff 渲染效果取决于提供商或运行时返回的数据负载。 |
+| 权限模式 | 能力依赖 | 客户端、Web、CLI | 实际生效行为取决于提供商或后端的能力支持。 |
+| 模型/模式选择与收藏 | 能力依赖 | 客户端、Web、CLI | 模型列表支持动态或静态呈现；在新建会话的引擎选择器中可直接使用收藏夹。 |
+| 已连接服务 | 稳定 | 客户端、Web、CLI、守护进程 | 只需一次性连接提供商订阅、API Key 和 GitHub Token，即可在受支持的后端、会话及版本控制流程中统一复用。 |
+| 已连接服务认证选择器 | 稳定 | 客户端、Web | 新建会话时的认证选择器仅展示与当前后端兼容的已连接服务及配置。 |
+| 已连接服务额度 | 能力依赖 | 客户端、Web、守护进程 | 目前已为 `openai-codex`、`claude-subscription` 和 `gemini` 提供配额徽标与详细配置计量仪表盘。 |
+| 本地记忆搜索 | 实验性 | 客户端、Web、守护进程 | 可选开启的设备本地会话记录搜索，支持轻量/深度索引、历史数据补录控制，以及可选的 Embeddings 重排。 |
+| 桌宠伙伴 | 实验性 | 客户端、Web、移动端、桌面端、守护进程 | 可选的桌宠伴侣功能；提供内置桌宠，支持 Codex 兼容导入、桌面悬浮气泡、移动端/原生端拖拽交互、按设备调整尺寸以及服务端特性开关控制。 |
+| ACP 后端 | 实验性 | 客户端、Web、CLI 运行时 | 支持通过“自定义 ACP”添加任意兼容 ACP 的 CLI 工具，并将每个配置好的后端作为一等后端选项来使用。 |
+| 可安装工具 | 稳定 | 客户端、Web、守护进程 | 管理设备本地工具（如 Codex ACP 和可选的 GitHub CLI（`gh`）），并支持按设备配置安装与更新策略。 |
+| 服务端特性开关 | 稳定 | 客户端、Web、服务端 | 服务端可关闭特定功能（如社交、语音、错误报告等），各客户端会随之自适应调整界面。 |
+| 通知路由至会话/服务器 | 稳定 | 客户端、Web | 点击通知可精准跳转至对应的会话与服务器；移动端还支持权限 `Allow` / `Deny` 以及操作请求 `Answer` 按钮，具备安全的服务端感知路由能力。 |
+| 应用内错误报告与诊断 | 稳定 | 客户端 | 提交问题报告并可附带诊断信息；服务端可关闭上传与报告入口界面。 |
+| 语音：Kaiwu Voice | 能力依赖 | 客户端、Web | 托管式实时 ElevenLabs 语音；需要服务端配置语音并开启对应功能。 |
+| 语音：自备 ElevenLabs | 稳定 | 客户端、Web | 使用您自己的 ElevenLabs 账号或 API Key，支持声音试听预览，并可配置或更新兼容 Kaiwu 的 ElevenLabs 智能体。 |
+| 语音：本地语音 | 实验性 | 客户端、Web | 自由组合设备内置、OpenAI 兼容、Google 以及本地神经网络 STT/TTS 提供商；支持直入会话和智能体对话两种模式。 |
+| 语音：本地神经语音 | 实验性 | 客户端、Web | Kokoro 本地神经 TTS 同时支持 Web 和原生环境；Sherpa 本地神经 STT 当前仅支持原生构建版本。 |
 
-## Which agent supports what
+## 各智能体功能支持矩阵
 
-Agent-by-agent capabilities — resume, fork, steering, plan mode, media, models,
-authentication — live in [Agent capabilities](/agents/capabilities), which is
-generated from the agent manifest so it cannot drift from the build you are
-running. Setup and known limits for each one are on its own page under
-[Coding agents](/agents).
+各智能体的细分能力——包括恢复、分叉、动态介入、计划模式、多媒体、模型以及认证等——均收录在[智能体能力](/agents/capabilities)中。该页面根据智能体清单自动生成，确保与当前运行的版本完全保持同步。各个智能体的安装配置与已知限制，请参阅[编程智能体](/agents)下的专属页面。
 
-## Related
+## 相关内容
 
-- [Permissions](/sessions/permissions)
-- [Custom ACP](/agents/custom-acp)
-- [Model and engine selection](/agents/model-and-engine-selection)
-- [New session shortcuts](/sessions/new-session-shortcuts)
-- [Session handoff](/sessions/session-handoff)
-- [Session read and unread state](/organize/session-read-state)
-- [Pending queue](/sessions/pending-queue)
-- [Steering while busy](/sessions/steering)
-- [Embedded terminal](/extras/embedded-terminal)
-- [Tool timeline & normalization](/organize/tool-timeline)
-- [Server feature flags](/extras/feature-flags)
-- [Bug reports](/extras/bug-reports)
-- [Git & file browser](/code/git)
-- [Connected services](/accounts/connected-services)
-- [Installables](/extending/installables)
-- [Review comments](/code/review-comments)
-- [Local memory search](/organize/local-memory-search)
-- [Pets](/extras/pets)
-- [Notifications](/extras/notifications-setup)
-- [Update channels and update behavior](/releases/updates)
+- [权限](/sessions/permissions)
+- [自定义 ACP](/agents/custom-acp)
+- [模型与引擎选择](/agents/model-and-engine-selection)
+- [新建会话快捷方式](/sessions/new-session-shortcuts)
+- [会话交接](/sessions/session-handoff)
+- [会话已读与未读状态](/organize/session-read-state)
+- [待发送队列](/sessions/pending-queue)
+- [繁忙时动态介入调整](/sessions/steering)
+- [内嵌终端](/extras/embedded-terminal)
+- [工具时间线与归一化](/organize/tool-timeline)
+- [服务端特性开关](/extras/feature-flags)
+- [错误报告](/extras/bug-reports)
+- [Git 与文件浏览器](/code/git)
+- [已连接服务](/accounts/connected-services)
+- [可安装工具](/extending/installables)
+- [审查评论](/code/review-comments)
+- [本地记忆搜索](/organize/local-memory-search)
+- [桌宠伙伴](/extras/pets)
+- [通知](/extras/notifications-setup)
+- [更新通道与更新机制](/releases/updates)

@@ -47,7 +47,7 @@ export async function handleConnectCommand(args: string[]): Promise<void> {
       const hiddenTarget = targetById.get(normalized);
       if (hiddenTarget && hiddenTarget.status === 'experimental' && !includeExperimental) {
         console.error(chalk.yellow(`Connect target '${hiddenTarget.id}' is experimental and not enabled by default.`));
-        console.error(chalk.gray(`Run: happier connect --all ${hiddenTarget.id}`));
+        console.error(chalk.gray(`Run: kaiwu connect --all ${hiddenTarget.id}`));
         process.exit(1);
       }
       console.error(chalk.red(`Unknown connect target: ${subcommand}`));
@@ -73,23 +73,23 @@ function showConnectHelp(targets: ReadonlyArray<CloudConnectTarget>, opts: Reado
       ? targets.map((t) => formatTargetLine(t)).join('\n')
       : '  (no connect targets registered)';
     console.log(`
-${chalk.bold('happier connect')} - Connect AI vendor subscriptions and API keys to Kaiwu cloud
+${chalk.bold('kaiwu connect')} - Connect AI vendor subscriptions and API keys to Kaiwu cloud
 
 ${chalk.bold('Usage:')}
 ${targetLines}
-  happier connect status       Show connection status for all vendors
-  happier connect help         Show this help message
-  happier connect --all ...    Include experimental providers
-  happier connect <target> --profile <id>      Store under a specific profile (default: default)
-  happier connect <target> --paste             Headless mode: paste redirect URL
-  happier connect <target> --device            Use device-code auth (Codex)
-  happier connect codex --api-key              Store an OpenAI API key
-  happier connect claude --api-key             Store an Anthropic API key (not Claude subscription)
-  happier connect claude --setup-token         Store a Claude setup-token (default for claude)
-  happier connect claude --oauth               Store Claude subscription OAuth (advanced)
-  happier connect github --token               Store a GitHub access token
-  happier connect <target> --no-open           Do not attempt to open a browser
-  happier connect <target> --timeout <seconds> Override OAuth timeout
+  kaiwu connect status       Show connection status for all vendors
+  kaiwu connect help         Show this help message
+  kaiwu connect --all ...    Include experimental providers
+  kaiwu connect <target> --profile <id>      Store under a specific profile (default: default)
+  kaiwu connect <target> --paste             Headless mode: paste redirect URL
+  kaiwu connect <target> --device            Use device-code auth (Codex)
+  kaiwu connect codex --api-key              Store an OpenAI API key
+  kaiwu connect claude --api-key             Store an Anthropic API key (not Claude subscription)
+  kaiwu connect claude --setup-token         Store a Claude setup-token (default for claude)
+  kaiwu connect claude --oauth               Store Claude subscription OAuth (advanced)
+  kaiwu connect github --token               Store a GitHub access token
+  kaiwu connect <target> --no-open           Do not attempt to open a browser
+  kaiwu connect <target> --timeout <seconds> Override OAuth timeout
 
 ${chalk.bold('Description:')}
   The connect command allows you to securely store your connected-service credentials
@@ -97,20 +97,20 @@ ${chalk.bold('Description:')}
   without exposing credentials locally.
 
 ${chalk.bold('Examples:')}
-  happier connect ${targets[0]?.id ?? 'gemini'}
-  happier connect status
+  kaiwu connect ${targets[0]?.id ?? 'gemini'}
+  kaiwu connect status
 
 ${chalk.bold('Notes:')} 
-  • You must be authenticated with Kaiwu first (run 'happier auth login')
+  • You must be authenticated with Kaiwu first (run 'kaiwu auth login')
   • Credentials are encrypted and stored securely in Kaiwu cloud
-  • You can manage your stored keys at app.happier.dev
+  • You can manage your stored keys at kaiwu.chengqiyun.com
   ${opts.includeExperimental ? '' : '• Some providers are experimental; use --all to show them'}
 `);
 }
 
 function formatTargetLine(target: CloudConnectTarget): string {
   const statusSuffix = target.status === 'wired' ? '' : chalk.gray(' (experimental)');
-  return `  happier connect ${target.id.padEnd(12)} ${target.vendorDisplayName}${statusSuffix}`;
+  return `  kaiwu connect ${target.id.padEnd(12)} ${target.vendorDisplayName}${statusSuffix}`;
 }
 
 async function handleConnectVendor(target: CloudConnectTarget, options: ConnectParsedOptions): Promise<void> {
@@ -120,7 +120,7 @@ async function handleConnectVendor(target: CloudConnectTarget, options: ConnectP
     const credentials = await readCredentials();
     if (!credentials) {
         console.log(chalk.yellow('⚠️  Not authenticated with Kaiwu'));
-        console.log(chalk.gray('  Please run "happier auth login" first'));
+        console.log(chalk.gray('  Please run "kaiwu auth login" first'));
         process.exit(1);
     }
 
@@ -201,7 +201,7 @@ async function handleConnectStatus(targets: ReadonlyArray<CloudConnectTarget>): 
     const credentials = await readCredentials();
     if (!credentials) {
         console.log(chalk.yellow('⚠️  Not authenticated with Kaiwu'));
-        console.log(chalk.gray('  Please run "happier auth login" first'));
+        console.log(chalk.gray('  Please run "kaiwu auth login" first'));
         process.exit(1);
     }
 
@@ -244,8 +244,8 @@ async function handleConnectStatus(targets: ReadonlyArray<CloudConnectTarget>): 
     }
 
     console.log('');
-    console.log(chalk.gray('To connect a vendor, run: happier connect <vendor>'));
-    console.log(chalk.gray('Example: happier connect gemini'));
+    console.log(chalk.gray('To connect a vendor, run: kaiwu connect <vendor>'));
+    console.log(chalk.gray('Example: kaiwu connect gemini'));
     console.log('');
 }
 

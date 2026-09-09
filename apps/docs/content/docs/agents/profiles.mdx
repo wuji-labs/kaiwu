@@ -1,130 +1,129 @@
 ---
-title: Profiles
-description: Use backend profiles to reuse environment variables, secret bindings, and startup defaults across the app and CLI.
+title: 配置方案
+description: 使用后端配置方案，在 App 与 CLI 之间复用环境变量、机密绑定以及启动默认值。
 ---
+后端配置文件可将**具名后端配置**保存下来，并在每次启动会话时直接复用。
 
-Backend profiles let you save a **named backend configuration** and reuse it whenever you start a session.
+适合使用配置文件的场景：
 
-Use profiles when you want to:
+- 将提供商切换到其他端点或认证方案
+- 在多个会话间复用相同的环境变量
+- 一次性绑定所需机密，免去重复输入的麻烦
+- 让客户端 UI、守护进程和 CLI 始终使用**随账户同步的同一套配置文件定义**
+- 使用同一套配置文件模型，对接内置提供商或已配置的 **Custom ACP** 后端
 
-- switch a provider to a different endpoint or auth scheme
-- reuse the same environment variables across multiple sessions
-- bind required secrets once and avoid re-entering them
-- keep the app UI, daemon, and CLI using the **same account-synced profile definitions**
-- target either built-in providers or configured **Custom ACP** backends with the same profile model
+应用示例：
 
-Examples:
+- 将 Claude 指向 **DeepSeek** 或 **Z.AI** 运行
+- 让 Codex 使用 **OpenAI API 密钥**或 **Azure OpenAI** 运行
+- 让 Gemini 使用 **API 密钥**或 **Vertex AI** 运行
+- 创建包含专属环境变量的自定义配置文件，例如 “Work Codex” 或 “Staging Claude”
 
-- run Claude against **DeepSeek** or **Z.AI**
-- run Codex against **OpenAI API keys** or **Azure OpenAI**
-- run Gemini with an **API key** or **Vertex AI**
-- create a custom “Work Codex” or “Staging Claude” profile with your own env vars
+## 配置文件包含的内容
 
-## What a profile contains
+配置文件可包含以下内容：
 
-A profile can include:
+- 会话启动时注入的**环境变量**
+- 会话启动前必须就绪的变量**依赖项**
+- 针对所需机密的**已保存机密绑定**
+- 与一个或多个后端的**兼容性设置**，包括已配置的 ACP 后端
+- **各后端的默认启动偏好设置**，例如支持的默认权限和会话记录存储设置
 
-- **environment variables** to inject at session start
-- **requirements** for variables that must exist before the session starts
-- **saved secret bindings** for required secrets
-- **compatibility** with one or more backend choices, including configured ACP backends
-- **default per-backend startup preferences**, such as permission and transcript-storage defaults where supported
+配置文件**仅在启动新会话时生效**。
+会话一旦启动，其配置文件即**固定不变**。若要切换配置文件，请启动新会话。
 
-Profiles are applied **only when starting a new session**.
-They are **fixed per session** after launch. If you want a different profile, start a new session.
+## 内置配置文件与自定义配置文件
 
-## Built-in vs custom profiles
+Kaiwu 预置了针对常见环境的内置配置文件，同时也支持创建自定义配置文件。
 
-Kaiwu ships with built-in profiles for common setups, plus your own custom profiles.
+内置示例包括：
 
-Built-in examples include:
+- 面向 CLI 登录环境的 **Anthropic (Default)**、**Codex (Default)** 和 **Gemini (Default)**
+- 用于兼容 Claude 路由的 **DeepSeek (Reasoner)** 和 **Z.AI (GLM-4.6)**
+- 面向 Codex 的 **OpenAI (GPT-5)** 和 **Azure OpenAI**
+- **Gemini (API key)** 与 **Gemini (Vertex AI)**
 
-- **Anthropic (Default)**, **Codex (Default)**, **Gemini (Default)** for CLI-login-based setups
-- **DeepSeek (Reasoner)** and **Z.AI (GLM-4.6)** for Claude-compatible routing
-- **OpenAI (GPT-5)** and **Azure OpenAI** for Codex
-- **Gemini (API key)** and **Gemini (Vertex AI)**
+你也可以针对自定义端点、模型和环境变量创建专属的配置文件。
 
-You can also create custom profiles for your own endpoints, models, and environment variables.
+注意：在 UI 中编辑内置配置文件会生成一份**自定义副本**，内置版本本身保持不变。
 
-Note: editing a built-in profile in the UI creates a **custom copy**. The built-in stays unchanged.
+## 启用配置文件
 
-## Enable profiles
+配置文件功能在客户端 UI 中默认关闭，需手动开启：
 
-Profiles are opt-in in the app UI.
+1. 打开 **Settings → Features**
+2. 开启 **Profiles**
+3. 打开 **Settings → Profiles**
 
-1. Open **Settings → Features**
-2. Turn on **Profiles**
-3. Open **Settings → Profiles**
+若未开启 Profiles，客户端将直接回退到设备本地环境，无法选择配置文件。
 
-If Profiles is turned off, the app falls back to the machine environment without profile selection.
+## 在客户端中创建配置文件
 
-## Create a profile in the app
+1. 打开 **Settings → Profiles**
+2. 点击 **Add Profile**
+3. 输入清晰易辨的配置名称
+4. 选择该配置兼容的后端
+5. 添加 Kaiwu 在会话启动时需要注入的环境变量
+6. 将所需变量标记为相应类型：
+   - **Secret**：由 Kaiwu 通过已保存的机密、设备环境变量或交互式提示输入流程来提供
+   - **Config**：目标设备上必须预先存在的环境变量
+7. 保存配置文件
 
-1. Open **Settings → Profiles**
-2. Click **Add Profile**
-3. Give the profile a clear name
-4. Choose which backend choices it should be compatible with
-5. Add the environment variables Kaiwu should inject when the session starts
-6. Mark any required values as:
-   - **Secret** when Kaiwu should satisfy them from a saved secret, machine env, or prompt flow
-   - **Config** when the variable must already exist on the target machine
-7. Save the profile
+推荐实践：
 
-Recommended pattern:
+- 将提供商选择、Base URL 和模型 ID 直接写入配置文件
+- 将 API 密钥/令牌标记为**必要机密**
+- 针对跨设备复用的凭据，建议使用已保存的机密进行管理
 
-- put provider selection, base URLs, and model ids directly in the profile
-- mark API keys/tokens as **required secrets**
-- use saved secrets for credentials you want to reuse across devices
+## 在客户端 UI 中使用配置文件
 
-## Use profiles in the app UI
+启用 Profiles 后：
 
-When Profiles is enabled:
+1. 从客户端启动新会话
+2. 选择要运行的后端
+3. 选择所需的配置文件
+4. 若 Kaiwu 提示缺少必要配置，按提示补齐
 
-1. Start a new session from the app
-2. Choose the backend you want to run
-3. Pick a profile
-4. Complete any missing requirements if Kaiwu asks
+对于从 UI 启动或远程启动的会话，Kaiwu 可通过以下途径获取所需机密：
 
-For UI-started or remote-started sessions, Kaiwu can satisfy required secrets from:
+- 守护进程所在主机上的**设备环境变量**
+- 绑定到该配置文件的**已保存机密**
+- 在会话启动时输入的**仅当前会话有效的临时机密**
 
-- the **machine environment** on the daemon host
-- a **saved secret** bound to that profile
-- a **session-only secret** entered at start time
+若目标设备缺少必要的配置环境变量，客户端会阻止启动，避免运行异常会话。
 
-If a required config variable is missing on the target machine, the app blocks the start instead of launching a broken session.
+会话启动后，所选配置文件会显示在 **Session Info → AI Profile** 中。
 
-After the session starts, the chosen profile is shown in **Session Info → AI Profile**.
+已配置的 ACP 后端与内置后端遵循相同的处理流程。如果某个配置文件专为特定后端设计，Kaiwu 会直接保持两者的对应关系。
 
-Configured ACP backends participate in this flow the same way built-in backends do. If a profile is intended for one specific backend, Kaiwu preserves that relationship directly.
+## 在 CLI 中使用配置文件
 
-## Use profiles in the CLI
+CLI 会读取与客户端相同的账户设置，登录后即可直接使用已保存的自定义配置文件。
 
-The CLI reads the same account settings as the app, so the same saved custom profiles are available there after login.
-
-### List available profiles
+### 列出可用配置文件
 
 ```bash
 happier profiles list
 happier profile list
 ```
 
-For scripting:
+脚本调用方式：
 
 ```bash
 happier profiles list --json
 ```
 
-If you want to force a fresh settings fetch:
+若需要强制刷新设置：
 
 ```bash
 happier profiles list --refresh-settings
 ```
 
-If you are not logged in, the CLI shows built-in profiles only.
+若未登录，CLI 仅会显示内置配置文件。
 
-### Start a session with a profile
+### 使用指定配置文件启动会话
 
-Pass `--profile <id-or-name>` when starting a session:
+启动会话时传入 `--profile ⟦K6⟧`：
 
 ```bash
 happier --profile anthropic
@@ -134,119 +133,119 @@ happier codex --profile "Work Codex"
 happier gemini --profile gemini-vertex
 ```
 
-Profile lookup rules:
+配置文件匹配规则：
 
-- exact **profile id** match wins first
-- otherwise Kaiwu matches by **case-insensitive name**
-- if more than one profile has the same name, Kaiwu asks you to use the id
+- 优先完全匹配 **配置文件 ID**
+- 若未命中，则按**不区分大小写的名称**进行匹配
+- 若存在同名配置文件，Kaiwu 会提示改用 ID 指定
 
-The CLI does **not** auto-apply your last-used profile. Use `--profile` explicitly.
+CLI **不会**自动沿用上次使用的配置文件，必须显式指定 `--profile`。
 
-### How CLI secret resolution works
+### CLI 的机密解析机制
 
-When a profile requires secrets, the CLI resolves them in this order:
+当配置文件需要机密时，CLI 会按以下顺序依次解析：
 
-1. current shell environment
-2. saved secret binding from your Kaiwu settings
-3. interactive prompt in a TTY session
+1. 当前 Shell 环境变量
+2. Kaiwu 设置中绑定的已保存机密
+3. TTY 交互式会话中的终端提示输入
 
-If the CLI is running non-interactively and a required secret is still missing, it fails with guidance instead of starting a broken session.
+如果在非交互模式下运行 CLI 且缺少所需机密，CLI 会直接报错并给出引导提示，避免启动异常会话。
 
-Required config environment variables must already exist in the shell environment for local CLI starts.
+在本地通过 CLI 启动时，所需的配置环境变量必须已存在于 Shell 环境中。
 
-## Saved secrets and bindings
+## 已保存的机密与绑定
 
-Profiles work best with saved secrets:
+配合已保存的机密使用，能最大化发挥配置文件的优势：
 
-- save a secret once in the app
-- bind it to a profile’s required env var
-- reuse that binding from both the app and CLI
+- 在客户端中保存一次机密
+- 将其绑定到配置文件所需的对应环境变量
+- 在客户端和 CLI 中均可直接复用该绑定关系
 
-This is especially useful for:
+这在以下场景中尤为实用：
 
 - `OPENAI_API_KEY`
 - `DEEPSEEK_AUTH_TOKEN`
 - `GEMINI_API_KEY`
-- other provider tokens you do not want to type repeatedly
+- 其他不想频繁重复输入的提供商令牌
 
-See also:
+另请参阅：
 
 - [Connected services](/accounts/connected-services)
 - [Provider integrations](/agents/provider-integrations)
 
-## Practical examples
+## 实用示例
 
-### Example: Claude via DeepSeek
+### 示例：通过 DeepSeek 运行 Claude
 
-Use the built-in **DeepSeek (Reasoner)** profile when you want Claude sessions to run through DeepSeek’s Anthropic-compatible endpoint.
+如果希望 Claude 会话通过 DeepSeek 的 Anthropic 兼容端点运行，可直接使用内置的 **DeepSeek (Reasoner)** 配置文件。
 
-- App UI: start a Claude session and choose **DeepSeek (Reasoner)**
-- CLI: `happier claude --profile deepseek`
+- 客户端 UI：启动 Claude 会话并选择 **DeepSeek (Reasoner)**
+- CLI：`happier claude --profile deepseek`
 
-Kaiwu will apply the required auth token and the Claude-compatible env mapping for you.
+Kaiwu 会自动应用所需的认证令牌以及 Claude 兼容的环境变量映射。
 
-### Example: Codex via OpenAI API key
+### 示例：通过 OpenAI API 密钥运行 Codex
 
-Use **OpenAI (GPT-5)** when you want Codex to use an OpenAI API key instead of a machine login.
+若希望 Codex 使用 OpenAI API 密钥而非设备登录凭据，请使用 **OpenAI (GPT-5)**。
 
-- App UI: start a Codex session and choose **OpenAI (GPT-5)**
-- CLI: `happier codex --profile openai`
+- 客户端 UI：启动 Codex 会话并选择 **OpenAI (GPT-5)**
+- CLI：`happier codex --profile openai`
 
-### Example: custom work profile
+### 示例：自定义工作配置文件
 
-Create a custom profile such as **Work Codex** when you want:
+在需要以下配置时，可创建如 **Work Codex** 这样的自定义配置文件：
 
-- a fixed endpoint
-- a fixed model
-- a reusable token binding
-- a clear label in session history and Session Info
+- 固定端点
+- 固定模型
+- 可复用的令牌绑定
+- 在会话历史与 Session Info 中显示清晰的标识
 
-### Example: profile for a Custom ACP backend
+### 示例：为 Custom ACP 后端创建配置文件
 
-If you have a custom ACP backend such as **Review Bot**, you can create a profile that is compatible only with that backend.
+如果配置了诸如 **Review Bot** 等自定义 ACP 后端，可以为其创建专属的兼容配置文件。
 
-This is useful when you want:
+该做法适用于以下场景：
 
-- a backend-specific endpoint or env setup
-- a backend-specific permission default
-- a backend-specific transcript-storage default
-- a profile that should not appear for unrelated backend choices
+- 需要针对特定后端设置端点或环境变量
+- 需要设置该后端专属的默认权限
+- 需要设置该后端专属的默认会话记录存储策略
+- 避免该配置文件出现在其他无关后端的选项中
 
-## Troubleshooting
+## 故障排查
 
-### “My profile does not appear in the CLI”
+### “CLI 中未显示我的配置文件”
 
-Check:
+请检查：
 
-- you are logged in with `happier auth login`
-- the profile exists in **Settings → Profiles**
-- the profile is saved in the same Kaiwu account/server you are targeting
+- 是否已通过 `happier auth login` 完成登录
+- 配置文件是否存在于 **Settings → Profiles** 中
+- 配置文件是否保存在当前连接的同一 Kaiwu 账户或服务器下
 
-Use:
+运行以下命令检查：
 
 ```bash
 happier profiles list --refresh-settings
 ```
 
-### “The CLI says a secret is missing”
+### “CLI 提示缺少机密”
 
-Either:
+解决方法（任选其一）：
 
-- export the required env var in your shell
-- bind a saved secret to the profile in the app
-- rerun the command in an interactive terminal so Kaiwu can prompt for it
+- 在 Shell 中导出所需的环境变量
+- 在客户端中将已保存的机密绑定到该配置文件
+- 在交互式终端中重新运行该命令，根据 Kaiwu 的提示手动输入
 
-### “The app says a profile is not ready”
+### “客户端提示配置文件未就绪”
 
-That usually means one of these is missing on the selected machine:
+这通常意味着所选设备上缺少以下某项依赖：
 
-- a required secret
-- a required config env var
-- a required CLI login for a machine-login-based profile
+- 所需的机密
+- 所需的配置环境变量
+- 基于设备登录的配置文件所需的 CLI 登录状态
 
-Open the profile in **Settings → Profiles** to review its requirements.
+请在 **Settings → Profiles** 中打开该配置文件，检查具体的依赖项要求。
 
-## Related guides
+## 相关指南
 
 - [Custom ACP](/agents/custom-acp)
 - [Provider authentication](/agents/provider-authentication)

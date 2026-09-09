@@ -1,40 +1,39 @@
 ---
-title: Self-host runtime (installer vs runner)
-description: Understand the supported ways to run a self-hosted Kaiwu Server, and what each option installs/manages.
+title: 自托管运行时（安装程序与运行程序）
+description: 了解运行自托管 Kaiwu Server 所支持的方式，以及各选项分别安装与管理的内容。
 ---
+Kaiwu 目前支持三种**不同**的自托管形态：
 
-Kaiwu currently supports three **different** self-host “shapes”:
+1) 由 `happier relay host …` 驱动的**托管安装**（服务 + 配置）
+2) **Docker 镜像**：已将经过验证的服务器运行时与 UI-web 产物预先打包至镜像中
+3) **Runner**：在启动时下载并校验产物，随后启动服务器进程（`@happier-dev/relay-server`）
 
-1) a **managed install** (service + config) driven by `happier relay host …`
-2) a **Docker image** that bakes verified server-runtime + UI-web artifacts into the image
-3) a **runner** that downloads/verifies artifacts on startup and starts the server process (`@happier-dev/relay-server`)
+这三种形态互为补充，但定位各不相同。
 
-They are complementary, but they are not the same thing.
+若需了解所有已发布产物（桌面端/移动端/Web 端、CLI 安装程序、Docker 镜像以及 Runner）的完整“自动更新与手动更新对比表”，请参阅：[更新机制](/releases/updates)。
 
-For a complete “what updates automatically vs manually” matrix across all shipped assets (desktop/mobile/web, CLI installers, Docker images, and runners), see: [Updates](/releases/updates).
+## 方案 A：托管自托管安装（需要系统服务时推荐）
 
-## Option A: Managed self-host install (recommended when you want a service)
+在以下场景中，建议使用 `happier relay host install`：
 
-Use `happier relay host install` when you want:
+- 需要将服务器作为**托管服务**安装（支持用户模式与系统模式）
+- 针对所选通道，拥有一条可重复执行的**安装或更新**命令
 
-- the server installed as a **managed service** (user/system mode)
-- a repeatable **install-or-update** command for your selected channel
+首先安装 Kaiwu CLI，具体请参阅 [CLI 安装](/apps/cli)。
 
-First, install the Kaiwu CLI: see [CLI install](/apps/cli).
-
-Install locally:
+本地安装：
 
 ```bash
 happier relay host install --mode system
 ```
 
-Install remotely over SSH:
+通过 SSH 远程安装：
 
 ```bash
 happier relay host install --ssh user@host --mode system
 ```
 
-After install, you manage it with:
+安装完成后，可通过以下命令进行管理：
 
 ```bash
 happier relay host status
@@ -43,54 +42,54 @@ happier relay host stop
 happier relay host restart
 ```
 
-To update, rerun `happier relay host install` (it installs or updates to the latest version in that channel).
+如需更新，重新运行 `happier relay host install` 即可（该命令会安装或更新至对应通道的最新版本）。
 
-### Auth compatibility during this update
+### 本次更新中的身份验证兼容性
 
-Keep `HANDY_MASTER_SECRET` unchanged. Persistent auth tokens and encrypted server data are both derived from it, so rotating it is not an auth-repair procedure and can make existing data unreadable.
+请务必保持 `HANDY_MASTER_SECRET` 不变。持久化身份验证令牌与服务器加密数据均派生自该项；因此轮换它并不能修复身份验证问题，反而会导致现有数据无法读取。
 
-When updating from a preview relay that used Bun 1.3.5, stop or drain every old relay process before starting the new version. Do not run old and new relay binaries behind the same endpoint during the rollout: the corrected version accepts both the canonical historical key and the Bun-retry key, but an old process may reject tokens newly issued with the canonical key. A complete restart removes that mixed-version direction while preserving existing sessions.
+若要从使用 Bun 1.3.5 的预览版中继进行更新，在启动新版本之前，请先停止或排空所有旧版中继进程。在灰度发布期间，切勿在同一个端点后同时运行新旧版本的中继二进制文件：修复后的版本可同时兼容标准历史密钥和 Bun 重试密钥，但旧版进程可能会拒绝使用标准密钥新签发的令牌。彻底重启服务可以消除版本混用引发的异常，同时完整保留既有会话。
 
-## Option B: Docker image (recommended starting point)
+## 方案 B：Docker 镜像（入门推荐）
 
-The `happierdev/relay-server` image is built from the same signed server-runtime and UI-web release artifacts, but they are fetched and verified during the Docker image build. The running container starts the embedded `happier-server` binary directly.
+`happierdev/relay-server` 镜像基于相同的已签名 server-runtime 和 UI-web 发布产物构建，但在 Docker 镜像构建期间就已完成拉取与校验。容器运行时会直接启动内置的 `happier-server` 二进制文件。
 
-This is ideal when:
+在以下场景中最为适用：
 
-- you run the server in **Docker**, Compose, Nomad, or Kubernetes
-- you want image-pull based updates
-- you do not want the container to download new application artifacts on every restart
+- 在 **Docker**、Compose、Nomad 或 Kubernetes 中运行服务器
+- 希望通过拉取镜像来完成更新
+- 不希望容器在每次重启时都重新下载应用产物
 
-See: [Docker](/self-hosting/docker).
+详情请参阅：[Docker](/self-hosting/docker)。
 
-## Option C: Runner (`@happier-dev/relay-server`)
+## 方案 C：Runner（`@happier-dev/relay-server`）
 
-The relay server package is a **server runner**:
+中继服务器包本质上是一个**服务器 Runner**：
 
-- it fetches the server runtime by rolling tag (`server-stable` / `server-preview` / `server-dev`)
-- verifies and extracts it into a cache
-- optionally fetches the UI web bundle (`ui-web-stable` / `ui-web-preview` / `ui-web-dev`)
-- sets `HAPPIER_SERVER_UI_DIR` (if UI is enabled)
-- then starts the extracted `happier-server` binary
+- 按照滚动标签（`server-stable` / `server-preview` / `server-dev`）拉取服务器运行时
+- 校验产物并解压至缓存目录
+- 可选拉取 UI web 资源包（`ui-web-stable` / `ui-web-preview` / `ui-web-dev`）
+- 设置 `HAPPIER_SERVER_UI_DIR`（若启用了 UI）
+- 随后启动解压后的 `happier-server` 二进制文件
 
-This is ideal when:
+在以下场景中最为适用：
 
-- you already have a process supervisor
-- you want updates to happen on **restart** (no managed install / no scheduler)
-- you do not want `hstack` installing services/timers/tasks on the host
+- 本地已有进程管理器
+- 希望在**重启**时自动完成更新（无需托管安装，也无需调度器）
+- 不希望 `hstack` 在宿主机上安装系统服务、定时器或计划任务
 
-Example (local runner):
+示例（本地 Runner）：
 
 ```bash
 npx --yes --package @happier-dev/relay-server happier-server --help
 ```
 
-Important: because this is a runner, `happier relay host …` service controls do **not** apply to it.
+重要提示：由于该方案采用 Runner 模式，`happier relay host …` 的服务管理命令对其**不适用**。
 
-## Choosing between them
+## 方案选型建议
 
-- If you want a **service** and managed lifecycle → use **Option A**.
-- If you want a self-contained container image → use **Option B**.
-- If you already have a process manager and want artifact downloads on restart → use **Option C**.
+- 如果需要**系统服务**以及托管生命周期 → 选择**方案 A**。
+- 如果需要自包含的独立容器镜像 → 选择**方案 B**。
+- 如果已有进程管理器，并希望在重启时拉取产物更新 → 选择**方案 C**。
 
-If you’re unsure, start with Docker and switch to a managed install later.
+如果一时无法确定，建议先从 Docker 方案入手，后续再按需切换为托管安装。

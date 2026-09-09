@@ -5,10 +5,10 @@ import { printJsonEnvelope, wantsJson } from '@/cli/output/jsonEnvelope';
 
 function usage(): string {
   return [
-    `${chalk.bold('happier plugins')} - Plugin compatibility commands`,
+    `${chalk.bold('kaiwu plugins')} - Plugin compatibility commands`,
     '',
     `${chalk.bold('Usage:')}`,
-    '  happier plugins list [--json]',
+    '  kaiwu plugins list [--json]',
     '',
     'This Kaiwu version does not support installing plugins.',
   ].join('\n');

@@ -1,31 +1,30 @@
 ---
-title: Onboarding
-description: Pick hosted vs self-hosted, choose your Relay, then use the app to get your machines ready.
+title: 新手引导
+description: 选择托管或自托管，选定你的中继，然后使用 App 让设备准备就绪。
 ---
+Kaiwu 的核心使用流程始终保持一致：
 
-Kaiwu always follows the same high-level flow:
+1. **选择中继**（默认使用 Kaiwu Cloud，也可选择自托管）。
+2. 在该中继上**登录或注册账号**。
+3. **将桌面客户端作为主控制台**（推荐方案；Web 端更适合查看状态与日常管理）。
+4. **就绪目标设备**：
+   - **本机**：直接在客户端中配置本地后台服务。
+   - **远程设备**：在客户端中通过 SSH 完成初始化配置。
+5. **按需开启私有网络访问**（例如使用 Tailscale），以便其他设备访问自托管或本地中继。
 
-1. **Choose a Relay** (Kaiwu Cloud by default; self-hosting is optional).
-2. **Sign in / create an account** on that Relay.
-3. **Use the desktop app as your control panel** (recommended; the web UI is best for status/management).
-4. **Get a machine ready**:
-   - **This computer**: configure the local background service from the app.
-   - **Remote machine**: bootstrap it over SSH from the app.
-5. **Optionally enable private access** (for example Tailscale) for self-hosted/local Relay access from other devices.
+## 选择适合你的部署方案
 
-## Choose your setup
+### 方案 A — 云端托管（新手推荐）
+直接使用 Kaiwu Cloud 作为中继。
 
-### Option A — Hosted (recommended to start)
-You use Kaiwu Cloud as your Relay.
+1. 打开桌面客户端（推荐）或 Web 端（仅用于查看状态与管理）。
+2. 当客户端询问使用哪个中继时，选择 **Kaiwu Cloud**。
+3. 登录账号。
+4. 在桌面客户端中打开 `/setup`，并选择 **Set up this computer**。
+   - 此操作会面向刚选定的中继配置本地后台服务。
+   - 后续若客户端检测到中继配置漂移，会主动提示修复操作，避免守护进程在不知情的情况下仍连接到其他中继。
 
-1. Open the desktop app (recommended) or web app (status/management only).
-2. Choose **Kaiwu Cloud** when the app asks you which Relay to use.
-3. Sign in.
-4. In the desktop app, open `/setup` and choose **Set up this computer**.
-   - This configures the local background service against the Relay you just selected.
-   - If the app detects Relay drift later, it shows a repair action instead of silently leaving the daemon on another Relay.
-
-Optional CLI path:
+可选的 CLI 流程：
 
 ```bash
 # Node-free (recommended): install the CLI binary via the official installer
@@ -33,41 +32,38 @@ curl -fsSL https://kaiwu.chengqiyun.com/install | bash
 happier setup
 ```
 
-`happier setup` chooses the relay before authentication, then signs in,
-registers this machine, and reconciles automatic startup. The lower-level
-`happier auth login` command remains available when the relay profile and
-machine lifecycle are already configured.
+`happier setup` 会在认证前先选择中继，随后完成登录、注册本机并协调配置开机自启。当中继配置文件与设备生命周期已配置就绪时，仍可直接使用更底层的 `happier auth login` 命令。
 
-Notes:
-- The desktop app and the installer-installed CLI are self-contained; you do not need system Node/Yarn installed.
-- If you prefer an npm workflow, see [CLI install](/apps/cli) (requires Node).
+说明：
+- 桌面客户端以及通过安装包安装的 CLI 均为独立运行环境，系统无需预装 Node 或 Yarn。
+- 若更倾向于使用 npm 工作流，请参阅 [CLI 安装](/apps/cli)（需具备 Node 环境）。
 
-### Option B — Self-host Relay only (background service on your laptop)
-You run your own Relay (remote machine, LAN box, or even your own computer), but keep the background service on another machine.
+### 方案 B — 仅自托管中继（后台服务运行在笔记本电脑上）
+自行运行中继（可部署在远程设备、局域网主机甚至本机上），而后台服务保留在另一台设备上。
 
-1. Install your Relay (examples):
-   - Proxmox: see [Proxmox deployment](/self-hosting/proxmox).
-   - Any machine (managed service): install the CLI, then run `happier relay host install --mode system` (or remote: `happier relay host install --ssh user@host --mode system`)
-   - Docker: see [Deployment → Docker](/self-hosting/docker).
+1. 安装中继（参考示例）：
+   - Proxmox：参阅 [Proxmox 部署](/self-hosting/proxmox)。
+   - 任意设备（托管服务）：安装 CLI 后运行 `happier relay host install --mode system`（远程执行则运行：`happier relay host install --ssh user@host --mode system`）
+   - Docker：参阅 [部署 → Docker](/self-hosting/docker)。
 
-2. Open the desktop app (recommended) or web UI (status/management only) and choose that Relay.
-   - Some installers print one-click links/QRs that prefill the Relay URL.
-   - Otherwise, open the app and add/select it in **Relay settings**.
+2. 打开桌面客户端（推荐）或 Web 端（仅用于查看状态与管理），并选择该中继。
+   - 部分安装程序会输出一键链接或二维码，可直接预填中继 URL。
+   - 亦可打开客户端，在 **Relay settings** 中手动添加或选择。
 
-3. Create an account / sign in on that Relay.
+3. 在该中继上注册账号或登录。
 
-4. In the desktop app, decide which machine should run the background service:
-   - **This computer**: use `/setup` → **Set up this computer**.
-   - **Another machine**: use **Add machine over SSH** from the Machines settings screen.
+4. 在桌面客户端中，指定由哪台设备运行后台服务：
+   - **本机**：依次点击 `/setup` → **Set up this computer**。
+   - **其他设备**：在设备设置页面中选择 **Add machine over SSH**。
 
-If you need an advanced CLI fallback for the daemon host:
+若守护进程所在主机需要备用的高级 CLI 方案：
 
 ```bash
 # Recommended remote-machine setup:
 happier machine setup --ssh user@host --install-relay-runtime
 ```
 
-Troubleshooting-only (manual daemon setup on the remote host):
+仅供排错使用（在远程主机上手动配置守护进程）：
 
 ```bash
 happier server add --name company --server-url https://YOUR_SERVER_URL --webapp-url https://YOUR_WEBAPP_URL --use
@@ -75,44 +71,44 @@ happier auth login
 happier daemon service install
 ```
 
-`--use` sets the default Relay profile for that CLI installation, but the app-first flow is preferred because it keeps Relay/account selection visible.
+`--use` 会为该 CLI 安装指定默认中继配置文件；但依然推荐优先使用客户端流程，以便直观掌控中继与账号的选择状态。
 
-### Option C — Devbox (server + daemon on the same machine)
-You install both the Relay and the background service on one box.
+### 方案 C — Devbox（同一设备同时运行服务器与守护进程）
+在单台主机上同时部署中继与后台服务。
 
-1. Install the stack (for example via `hstack setup-from-source --profile=selfhost` or the Proxmox “devbox” option).
-2. Open the desktop app (recommended) or web UI (status/management only) and choose that Relay (use the printed configure-server link/QR if available).
-3. Sign in / create an account.
-4. In the app, use `/setup` → **Set up this computer** if you are on that machine, or set up the box over SSH if you are operating it remotely.
-5. If the Relay is local/self-hosted, optionally enable private access so phones and other devices can reach it without exposing it publicly.
+1. 安装栈（例如通过 `hstack setup-from-source --profile=selfhost` 或 Proxmox 的“devbox”选项）。
+2. 打开桌面客户端（推荐）或 Web 端（仅用于查看状态与管理）并选择该中继（若终端打印了服务器配置链接或二维码，可直接使用）。
+3. 登录或注册账号。
+4. 在客户端中操作：若直接在该主机上操作，进入 `/setup` → **Set up this computer**；若为远程操作，则通过 SSH 完成该主机的配置。
+5. 若中继部署在本地或内网自托管，可按需开启私有网络访问，使手机等其他设备无需公网暴露即可顺畅连接。
 
-Recommended for first setup:
+初次配置建议：
 
-- Use the same Relay on every device before linking more machines.
-- Use the desktop app as the main control panel for daemon setup, Relay runtime control, and repair actions.
+- 关联更多设备之前，请确保所有设备均连接至同一个中继。
+- 建议将桌面客户端作为主控制台，统一处理守护进程配置、中继运行时控制以及修复操作。
 
-## Multiple Relays (personal + company)
+## 多个中继（个人 + 公司）
 
-- The app and CLI support **multiple saved Relay profiles**.
-- Credentials/state are **scoped per Relay**, so switching does not overwrite other accounts.
-- Accounts are per Relay. Using the same login provider on two Relays still creates two independent server-side account contexts.
-- Web: you can switch the Relay **for this tab** or **make it the device default**.
+- 客户端与 CLI 均支持**保存多个中继配置文件**。
+- 凭据与状态均**在中继级别实现作用域隔离**，切换中继不会覆盖其他账号的数据。
+- 账号归属于各自的中继。即便在两个中继上使用同一个登录提供商，服务端依然会创建两个相互独立的账号上下文。
+- Web 端：可以**仅针对当前标签页**切换中继，也可以**将其设为本设备的全局默认中继**。
 
-### CLI: target a server per invocation
+### CLI：单次执行指定目标服务器
 
 ```bash
 happier --server company auth login
 happier --server company daemon start
 ```
 
-### CLI: run multiple daemons on one machine (one per Relay)
+### CLI：在单台设备上运行多个守护进程（每个中继各运行一个）
 
 ```bash
 happier --server personal daemon service install
 happier --server company daemon service install
 ```
 
-Then verify (cross-platform):
+随后进行验证（跨平台通用）：
 
 ```bash
 happier daemon status --all
@@ -120,4 +116,4 @@ happier --server personal daemon service status
 happier --server company daemon service status
 ```
 
-For complete profile/switching behavior and CLI reference, see [Features → Multi-server](/accounts/multi-server).
+如需了解完整的配置文件机制、切换逻辑及 CLI 参考手册，请参阅 [功能特性 → 多服务器](/accounts/multi-server)。

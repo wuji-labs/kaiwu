@@ -1,44 +1,36 @@
 ---
-title: Apps and interface
-description: The surfaces Kaiwu gives you — the app, the desktop control panel, the CLI and the daemon — and the parts of the interface worth knowing about.
+title: 应用与界面
+description: Kaiwu 提供的各类交互形态——应用、桌面控制面板、CLI 与守护进程——以及界面中值得了解的部分。
 ---
+无论身在何处，Kaiwu 始终对应同一个账号与同一批会话。不同的只是你接入会话的前端界面，以及该界面能访问到的设备范围。
 
-Kaiwu is the same account and the same sessions everywhere. What changes is
-the surface you reach them through, and how much of the machine that surface
-can see.
+## Kaiwu 的运行环境
 
-## Where Kaiwu runs
+- [应用](/apps/app) — 覆盖桌面端、Web 端与移动端，也是你的主要日常使用环境。
+- [桌面端控制面板](/apps/control-panel) — 负责处理依赖物理设备任务的桌面应用：中继、守护进程及安全访问配置。
+- [Windows](/apps/windows) — 仅适用于该平台的专属行为与问题排查。
+- [移动端自构建版本](/apps/custom-mobile-build) — 无需通过应用商店，自行构建面向自托管服务器的移动端应用。
 
-- [App](/apps/app) — desktop, web and mobile. The one you will spend your time in.
-- [Desktop control panel](/apps/control-panel) — the desktop app doing the jobs that need a real machine: relay, daemon and secure-access setup.
-- [Windows](/apps/windows) — the behaviour and troubleshooting that only applies there.
-- [Custom mobile build](/apps/custom-mobile-build) — building your own app against a self-hosted server, without going through the stores.
+## 终端环境
 
-## From a terminal
+- [CLI](/apps/cli) — 安装、登录以及选择连接的服务器。
+- [CLI 会话](/apps/cli-sessions) — 创建、列出、发送、恢复和接入会话，全部支持脚本化操作。
+- [守护进程](/apps/daemon) — 无需打开终端窗口，持续保持远程控制可用。
 
-- [CLI](/apps/cli) — installing, signing in, and choosing which server you are talking to.
-- [CLI sessions](/apps/cli-sessions) — creating, listing, sending, resuming and attaching, all scriptable.
-- [Daemon](/apps/daemon) — keeping remote control available with no terminal open.
+## 界面功能
 
-## Inside the interface
+- [附件与图片预览](/apps/attachments)
+- [Markdown 与图表](/apps/markdown) — 会话记录的渲染效果，以及 Markdown 文件编辑器。
+- [主题](/apps/themes) — 内置主题、自定义主题以及多设备间的主题迁移。
+- [快捷键](/apps/keyboard-shortcuts) — 所有支持重新绑定的快捷键及命令面板。
 
-- [Attachments and image previews](/apps/attachments)
-- [Markdown and diagrams](/apps/markdown) — how a transcript renders, and the editor for Markdown files.
-- [Themes](/apps/themes) — built-ins, your own, and moving them between devices.
-- [Keyboard shortcuts](/apps/keyboard-shortcuts) — every rebindable shortcut and the command palette.
+## 跨界面的通用能力
 
-## What every surface shares
+无论使用哪种界面，底层的控制平面都完全一致：统一的账号与服务器选择，Agent 或用户可调用的同一套操作目录，针对各界面的独立操作设置，以及操作受控时完全相同的审批流程。
 
-Whichever one you use, the control plane underneath is the same: the same
-account and server selection, the same catalog of actions an agent or a person
-can invoke, the same per-surface settings for those actions, and the same
-approval flow when an action is gated.
+正因如此，笔记本电脑上的会话发起的审批，可以直接在手机上处理；语音指令和外部 MCP 宿主，也能驱动与应用完全相同的操作。
 
-That is why an approval raised by a session on your laptop can be answered from
-your phone, and why voice and an external MCP host can drive the same actions
-the app exposes.
+## 相关内容
 
-## Related
-
-- [Kaiwu as an MCP server](/extending/happier-as-mcp-server) — letting an editor or an automation drive Kaiwu.
-- [Multiple relays](/accounts/multi-server) — server selection and profile switching.
+- [将 Kaiwu 用作 MCP 服务器](/extending/happier-as-mcp-server) — 允许编辑器或自动化工作流驱动 Kaiwu。
+- [多中继管理](/accounts/multi-server) — 服务器选择与配置文件切换。

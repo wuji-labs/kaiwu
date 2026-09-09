@@ -1,99 +1,98 @@
 ---
-title: Encryption model
-description: How Kaiwu session encryption, secret-key restore, and plaintext storage mode work from a user perspective.
+title: 加密模型
+description: 从用户视角了解 Kaiwu 会话加密、密钥恢复与明文存储模式的工作原理。
 ---
+Kaiwu 支持两种账户/存储模式：
 
-Kaiwu supports two account/storage models:
+- **设备密钥账户（默认）**：会话内容先在设备端加密，再由服务器存储
+- **明文存储部署**：服务器直接以明文形式存储新会话内容，而非静态加密存储
 
-- **Device-key accounts (default)**: session content is encrypted before the server stores it
-- **Plaintext storage deployments**: the server stores new session content in plaintext instead of encrypted-at-rest form
+本文将向您说明：这对用户意味着什么、您的私钥有何用途，以及部署环境启用明文存储后会发生哪些变化。
 
-This page explains what that means as a user, what your secret key is for, and what changes when a deployment enables plaintext storage.
+## 默认模式：设备密钥账户
 
-## Default model: device-key accounts
+对于设备密钥账户：
 
-For device-key accounts:
+- 加密密钥在您的设备本地生成；
+- Kaiwu 会先对支持的会话内容进行加密，随后才保存到服务器；
+- 其他设备或浏览器必须显式完成恢复，才能读取您现有的加密数据。
 
-- encryption keys are created on your device,
-- Kaiwu encrypts supported session content before it is stored on the server,
-- another device or browser must be explicitly restored before it can read your existing encrypted data.
+正因如此，在全新的浏览器或设备上，系统可能会要求您先恢复访问权限，随后才能查看历史会话。
 
-This is why a brand-new browser or device may ask you to restore access before older sessions become readable there.
+## 私钥的用途
 
-## What your secret key is for
+私钥是设备密钥账户的灾难恢复凭据。
 
-Your secret key is the recovery path for device-key accounts.
+当您需要在新浏览器或新设备上恢复访问权限时，就会用到它，例如：
 
-You use it when you need to restore access on a new browser or device, for example:
+- 清除浏览器存储后；
+- 在第二台电脑上登录后；
+- 在新手机上重新安装应用后。
 
-- after clearing browser storage,
-- after signing in on a second computer,
-- after reinstalling the app on a new phone.
+如果不执行恢复，新设备虽仍可正常登录并完成账户认证，但暂时无法解密以往的加密会话数据。
 
-Without restore, the new device can still authenticate to your account, but it cannot decrypt older encrypted session data yet.
+## 在何处执行恢复
 
-## Where restore happens
+恢复操作在 Kaiwu 的应用流程中完成，而非在常规提供商 CLI 中。
 
-Restore happens in Kaiwu’s app flows, not in normal provider CLIs.
+常见的恢复流程包括：
 
-Common restore flows include:
+- 在已登录的桌面端/Web 端应用中点击**添加手机**，随后在手机上点击**恢复账户**；
+- 在新浏览器/新电脑上点击**恢复账户**，并在另一台已登录设备上审批通过；
+- 需要手动恢复路径时，选择**改用私钥恢复**。
 
-- **Add your phone** on a signed-in desktop/web app, then **Restore account** on the phone,
-- **Restore account** on a new browser/computer and approving it from another already-signed-in device,
-- **Restore with Secret Key Instead** when you need a manual recovery path.
+Kaiwu CLI 通常不需要直接使用您的私钥，它依赖应用及账户的恢复流程。
 
-The Kaiwu CLI does not usually need your secret key directly. It relies on the app/account restore flow.
+有关具体的二维码与按钮操作流程，请参见 [功能 → 设备关联与恢复](/accounts/device-linking-and-restore)。
 
-For the concrete QR/button flows, see [Features → Device linking & restore](/accounts/device-linking-and-restore).
+## 跨设备保持一致的体验
 
-## What stays the same across devices
+设备恢复完成后：
 
-After a device is restored:
+- 同样的加密会话即可在该设备上解密读取；
+- 同一账户可以继续使用 Web 端应用、桌面端应用和 CLI；
+- 会话共享仍沿用 Kaiwu 常规的访问控制机制。
 
-- the same encrypted sessions become readable there,
-- the same account can continue using the web app, desktop app, and CLI,
-- session sharing continues to work through Kaiwu’s normal access controls.
+## 明文存储模式
 
-## Plaintext storage mode
+部分部署环境会选择将**新**会话内容以明文形式存储在服务器上，而非采用静态加密。
 
-Some deployments choose to store **new** session content as plaintext on the server instead of encrypted-at-rest.
+这是一项服务器级别的策略，通常不由普通用户针对每条消息单独切换。
 
-This is a server policy, not something individual users normally toggle per message.
+每个会话都会保留其创建时所用的存储模式。在实际使用中，这意味着即便同一部署上的新会话已采用明文存储，早期创建的加密会话仍会保持加密状态。
 
-Each session keeps the storage mode it was created with. In practice, that means an older encrypted session stays encrypted even if newer sessions on the same deployment use plaintext storage.
+如果您的部署启用了明文存储模式：
 
-When plaintext storage mode is enabled for your deployment:
+- 新建的明文模式会话无需在每台设备上逐一解密会话记录；
+- 恢复流程可能会更简单，因为存储的会话内容不再与单设备的解密状态绑定；
+- 身份验证、访问控制和传输安全机制仍与以往完全相同，发挥同等重要的作用。
 
-- new plaintext-mode sessions do not require transcript decryption on each device,
-- restore flows may be simpler because stored session content is not tied to a per-device decryption state,
-- authentication, access control, and transport security still matter exactly as before.
+## 明文存储不代表什么
 
-## What plaintext storage does not mean
+明文存储**并不**意味着：
 
-Plaintext storage does **not** mean:
+- 会话完全公开；
+- 任何人都能随意读取；
+- 登录与身份认证模式发生改变；
+- TLS 或服务器端访问控制失去作用。
 
-- the session is public,
-- anyone can read it,
-- the login/authentication model changes,
-- TLS or server-side access controls stop mattering.
+它改变的仅仅是会话内容在服务器上的静态存储方式。
 
-It only changes how session content is stored at rest on the server.
+## 共享与协作
 
-## Sharing and collaboration
+从用户视角来看，共享会话的使用方式没有变化：
 
-From a user perspective, shared sessions still behave like shared sessions:
+- 拥有权限的成员均可打开同一会话；
+- 会话历史仍呈现为一份统一共享的会话记录；
+- 待发送消息与附件依然归属于该会话。
 
-- people with access can open the same session,
-- session history remains a single shared transcript,
-- pending messages and attachments still belong to the session.
+唯一的区别仅在于后台底层的存储模式。
 
-The difference is the storage mode behind the scenes.
+## 我正在使用哪种模式？
 
-## Which mode am I using?
+这取决于您的 Kaiwu 服务器配置：
 
-That depends on how your Kaiwu server is configured.
+- 在标准 Kaiwu 部署中，除非管理员或服务器文档另有明确说明，否则默认采用**设备密钥加密存储**。
+- 在企业级或特殊部署中，服务器可能会声明采用**可选**或**仅明文**存储机制。
 
-- On standard Kaiwu deployments, assume **device-key encrypted storage** unless your admin/server explicitly documents otherwise.
-- On enterprise or special deployments, the server may advertise **optional** or **plaintext-only** storage behavior.
-
-If you operate the server yourself, see [Server → Encryption & plaintext storage](/self-hosting/encryption).
+如果您自行运维服务器，请参见 [服务器 → 加密与明文存储](/self-hosting/encryption)。

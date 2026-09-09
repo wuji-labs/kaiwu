@@ -42,13 +42,13 @@ type SelfChannel = PublicReleaseRingId;
 
 function usage(): string {
   return [
-    `${chalk.bold('happier self')} - Self update + update checks`,
+    `${chalk.bold('kaiwu self')} - Self update + update checks`,
     '',
     `${chalk.bold('Usage:')}`,
-    `  happier self check [--preview|--dev|--channel=<preview|dev>] [--quiet]`,
-    `  happier self update [--preview|--dev|--channel=<preview|dev>] [--to <versionOrTag>]`,
-    `  happier self migrate [--yes] [--json]`,
-    `  happier self-update [--check] [--preview|--dev|--channel=<preview|dev>] [--to <versionOrTag>]`,
+    `  kaiwu self check [--preview|--dev|--channel=<preview|dev>] [--quiet]`,
+    `  kaiwu self update [--preview|--dev|--channel=<preview|dev>] [--to <versionOrTag>]`,
+    `  kaiwu self migrate [--yes] [--json]`,
+    `  kaiwu self-update [--check] [--preview|--dev|--channel=<preview|dev>] [--to <versionOrTag>]`,
     '',
     `${chalk.bold('Channels:')}`,
     `  stable  → npm dist-tag ${chalk.cyan('latest')}`,
@@ -517,7 +517,7 @@ async function cmdInternalInstallPayload(argv: string[], rawArgv: readonly strin
         toVersion: promotion.currentVersionId,
         hadLegacyCurrentInstallWithoutVersionMarkers: promotion.hadLegacyCurrentInstallWithoutVersionMarkers,
         argv: ['repair'],
-        commandPath: 'happier doctor',
+        commandPath: 'kaiwu doctor',
         // Install-payload promotion is spawned by installer scripts with no
         // controlling TTY — migration must run headlessly here.
         forceNonInteractive: true,

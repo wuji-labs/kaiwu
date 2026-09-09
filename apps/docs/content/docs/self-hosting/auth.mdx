@@ -1,28 +1,27 @@
 ---
-title: Auth
-description: Overview of server authentication and policy configuration.
+title: 认证
+description: 服务器认证与策略配置概述。
 ---
+本指南面向**服务器运维人员**，旨在介绍核心身份验证模型，以及用于控制注册与登录鉴权策略的环境变量。
 
-This guide is for **server operators**. It explains the core auth model and the policy env vars that control signup/login enforcement.
+有关各提供商的具体配置指南，请参阅：
+- [GitHub 身份验证](/self-hosting/auth-github)
+- [OIDC 身份验证](/self-hosting/auth-oidc)
+- [mTLS 身份验证](/self-hosting/auth-mtls)
+- [自定义身份验证提供商](/self-hosting/auth-custom-providers)
 
-For provider-specific setup guides, see:
-- [GitHub auth](/self-hosting/auth-github)
-- [OIDC auth](/self-hosting/auth-oidc)
-- [mTLS auth](/self-hosting/auth-mtls)
-- [Custom auth providers](/self-hosting/auth-custom-providers)
+## 选择身份验证方案（私网服务器与公网服务器）
 
-## Choosing an auth setup (private vs public servers)
+具体配置主要取决于**哪些人能够访问您的服务器**。
 
-What you should configure depends mostly on **who can reach your server**.
+### 私网服务器（仅限 Tailscale / VPN / 局域网）
 
-### Private server (Tailscale/VPN/LAN only)
+若服务器仅能通过私有网络访问（例如经由 Tailscale），通常无需基于提供商的身份验证：
 
-If your server is only reachable from a private network (for example via Tailscale), you often don’t need provider-based auth:
+- 推荐做法：保持**启用匿名注册**（默认），依靠网络层访问控制来保障安全。
+- 请务必确保服务器**无法**从公网直接访问（通过防火墙、安全组或反向代理控制）。
 
-- Recommended: keep **anonymous signup enabled** (default) and rely on network access control.
-- Make sure your server is **not** reachable from the public internet (firewall / security group / reverse proxy).
-
-Example config:
+配置示例：
 
 ```bash
 AUTH_ANONYMOUS_SIGNUP_ENABLED=true
@@ -30,7 +29,7 @@ AUTH_SIGNUP_PROVIDERS=
 AUTH_REQUIRED_LOGIN_PROVIDERS=
 ```
 
-Optional (private servers): you can also enable GitHub/OIDC **in addition** to anonymous signup, to offer multiple signup options:
+可选方案（私网服务器）：在匿名注册的**基础之上**，您也可以同时启用 GitHub 或 OIDC，以提供多样化的注册方式：
 
 ```bash
 AUTH_ANONYMOUS_SIGNUP_ENABLED=true
@@ -38,15 +37,15 @@ AUTH_SIGNUP_PROVIDERS=github
 AUTH_REQUIRED_LOGIN_PROVIDERS=
 ```
 
-### Public server (reachable from the internet)
+### 公网服务器（可从互联网访问）
 
-If your server is publicly reachable, leaving anonymous signup enabled makes it easy for anyone to create an account. In that setup, it’s usually better to require an identity provider:
+若服务器暴露在公网上，保持匿名注册会导致任何人都能随意创建账户。在这种场景下，通常建议强制使用身份提供商：
 
-- Recommended: **disable anonymous signup**
-- Recommended: require a provider for ongoing access (`AUTH_REQUIRED_LOGIN_PROVIDERS`)
-- Optional: restrict eligibility with allowlists (for example “must be in GitHub org X”)
+- 推荐做法：**禁用匿名注册**
+- 推荐做法：强制要求关联提供商方可维持访问权限（`AUTH_REQUIRED_LOGIN_PROVIDERS`）
+- 可选方案：通过白名单限制准入资格（例如“必须属于 GitHub 组织 X”）
 
-Example (GitHub):
+配置示例（以 GitHub 为例）：
 
 ```bash
 AUTH_ANONYMOUS_SIGNUP_ENABLED=false
@@ -54,91 +53,91 @@ AUTH_SIGNUP_PROVIDERS=github
 AUTH_REQUIRED_LOGIN_PROVIDERS=github
 ```
 
-Then follow the provider setup guide:
-- GitHub: [GitHub auth](/self-hosting/auth-github)
-- OIDC: [OIDC auth](/self-hosting/auth-oidc)
+随后请参考对应提供商的配置指南：
+- GitHub：[GitHub 身份验证](/self-hosting/auth-github)
+- OIDC：[OIDC 身份验证](/self-hosting/auth-oidc)
 
-## Standard authentication (device-key accounts)
+## 标准身份验证（设备密钥账户）
 
-Kaiwu uses a **device-key** account model (each account is tied to a device secret).
+Kaiwu 采用**设备密钥**账户模型（每个账户均与一个设备私钥绑定）。
 
-- Default behavior: users can create accounts via device-key signup (`POST /v1/auth`).
-- You can optionally require external providers (GitHub and/or OIDC) for signup and/or ongoing access.
-- External providers are **not** “password login”: if a user is trying to access an *existing* Kaiwu account from a new device/browser, they still need to **restore** the account (for example via **Add your phone** / **Restore account**), then connect providers from settings.
+- 默认行为：用户可通过设备密钥注册创建账户（`POST /v1/auth`）。
+- 可选配置：您可以强制要求通过外部提供商（GitHub 或 OIDC）进行注册，或要求其维持后续访问权限。
+- 外部提供商**并非**传统意义上的“密码登录”：若用户想在新的设备或浏览器中访问*现有*的 Kaiwu 账户，仍需**恢复**该账户（例如通过**添加手机**或**恢复账户**），随后在设置中关联各提供商。
 
-### Keyed vs keyless (how providers show up in the UI)
+### 有密钥与无密钥模式（提供商在 UI 中的呈现方式）
 
-The same OAuth provider (for example GitHub or an OIDC provider) can appear in the UI in two different roles:
+同一个 OAuth 提供商（例如 GitHub 或 OIDC 提供商）在 UI 中可以充当两种不同的角色：
 
-- **Keyed provisioning** (“Continue with GitHub”): creates a **device-key** account.
-  - Users must back up a secret key and **restore** on new devices/browsers.
-  - This is the standard Kaiwu model and works on E2EE-only servers.
-- **Keyless login** (“Sign in with GitHub”): signs in to a **keyless/plain** account (no device keys).
-  - Sign-in can be **seamless across devices**, but it is intended for enterprise deployments and usually paired with plaintext storage.
+- **有密钥配置**（“通过 GitHub 继续”）：创建**设备密钥**账户。
+  - 用户必须备份私钥，并在新设备或新浏览器上进行**恢复**。
+  - 这是 Kaiwu 的标准模型，可在纯端到端加密（E2EE）服务器上正常运行。
+- **无密钥登录**（“使用 GitHub 登录”）：登录**无密钥/明文**账户（不生成设备密钥）。
+  - 该模式可实现**跨设备无缝登录**，但专为企业部署设计，通常搭配明文存储使用。
 
-Server operators control which role(s) are enabled via `/v1/features` (policy + feature env vars). Clients should not guess.
+服务器运维人员可通过 `/v1/features`（策略与功能环境变量）控制启用哪种角色。客户端不应自行推测。
 
-## Auth methods (discovery)
+## 身份验证方式（发现机制）
 
-Clients should treat `GET /v1/features` as the source of truth for “what auth flows are available”.
+客户端应以 `GET /v1/features` 作为判断“当前可用身份验证流程”的权威依据。
 
-Kaiwu advertises auth entrypoints via:
+Kaiwu 通过以下途径对外声明身份验证入口：
 
-- `capabilities.auth.methods[]` (preferred; method + action + mode)
-- plus legacy surfaces like `capabilities.auth.signup.methods[]` for older clients
+- `capabilities.auth.methods[]`（首选途径；包含方式、操作与模式）
+- 以及诸如 `capabilities.auth.signup.methods[]` 等旧版入口，供老版本客户端兼容使用
 
-Each method can advertise multiple actions:
+每种方式均可声明多种操作：
 
-- `login` (sign in to an existing account)
-- `provision` (create an account)
-- `connect` (link an identity provider to an already-authenticated account)
+- `login`（登录现有账户）
+- `provision`（创建新账户）
+- `connect`（将身份提供商关联至已认证的账户）
 
-And each action declares its account key mode:
+并且每项操作都会声明其账户密钥模式：
 
-- `keyed`: device-key account (default Kaiwu model)
-- `keyless`: no device keys (enterprise mode; typically paired with plaintext storage)
+- `keyed`：设备密钥账户（Kaiwu 默认模型）
+- `keyless`：无设备密钥（企业模式；通常搭配明文存储使用）
 
-## Keyless authentication (enterprise)
+## 无密钥身份验证（企业版）
 
-Some deployments want accounts to exist **without device keys** (for example: company-managed identity, server-side indexing/search, and simpler multi-device behavior).
+某些部署场景希望账户**无需设备密钥**即可存在（例如：由企业统一托管身份、需要服务端索引与搜索支持，或追求更简便的多设备协同体验）。
 
-Kaiwu currently supports keyless login via:
+Kaiwu 目前支持通过以下方式进行无密钥登录：
 
-- [mTLS auth](/self-hosting/auth-mtls)
-- keyless OAuth login (GitHub/OIDC) when enabled by feature env vars
+- [mTLS 身份验证](/self-hosting/auth-mtls)
+- 通过功能环境变量启用的 OAuth 无密钥登录（GitHub/OIDC）
 
-Keyless account auto-provisioning is intentionally guarded:
+无密钥账户的自动置备受到严格的门禁控制：
 
-- enable keyless accounts: `HAPPIER_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED=1`
-- allow plaintext storage (required for keyless accounts): `HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY=optional|plaintext_only`
-- for OAuth keyless login:
-  - enable: `HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_ENABLED=1`
-  - allowlist providers: `HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_PROVIDERS=github,okta,...`
-  - allow first-login account creation: `HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_AUTO_PROVISION=1`
-- for mTLS keyless login: see [mTLS auth](/self-hosting/auth-mtls)
+- 启用无密钥账户：`HAPPIER_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED=1`
+- 允许明文存储（无密钥账户所必需）：`HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY=optional|plaintext_only`
+- 针对 OAuth 无密钥登录：
+  - 启用开关：`HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_ENABLED=1`
+  - 允许的提供商白名单：`HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_PROVIDERS=github,okta,...`
+  - 允许首次登录时自动创建账户：`HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_AUTO_PROVISION=1`
+- 针对 mTLS 无密钥登录：请参阅 [mTLS 身份验证](/self-hosting/auth-mtls)
 
-Recommended hardening for plaintext/keyless deployments:
+针对明文/无密钥部署的推荐加固措施：
 
-- seal plaintext account settings at rest: `HAPPIER_FEATURE_ENCRYPTION__PLAIN_ACCOUNT_SETTINGS_AT_REST=server_sealed` (default)
-- seal plaintext account connected-service credentials at rest: `HAPPIER_FEATURE_ENCRYPTION__PLAIN_ACCOUNT_CREDENTIALS_AT_REST=server_sealed` (default)
+- 静态落盘时封印明文账户设置：`HAPPIER_FEATURE_ENCRYPTION__PLAIN_ACCOUNT_SETTINGS_AT_REST=server_sealed`（默认开启）
+- 静态落盘时封印明文账户已连接服务的凭据：`HAPPIER_FEATURE_ENCRYPTION__PLAIN_ACCOUNT_CREDENTIALS_AT_REST=server_sealed`（默认开启）
 
-Note: `HAPPIER_FEATURE_ENCRYPTION__DEFAULT_ACCOUNT_MODE` controls only the default mode for **keyed** accounts and new sessions when the storage policy is `optional`. It does not gate keyless auto-provisioning.
+注意：当存储策略设为 `optional` 时，`HAPPIER_FEATURE_ENCRYPTION__DEFAULT_ACCOUNT_MODE` 仅用于控制**有密钥**账户与新会话的默认模式，并不会限制无密钥账户的自动置备。
 
-### OAuth keyless provisioning choice (optional encryption servers)
+### OAuth 无密钥置备选择（可选加密服务器）
 
-When the server storage policy is `optional`, new users coming back from OAuth (GitHub/OIDC) may be prompted to choose:
+当服务器存储策略设为 `optional` 时，通过 OAuth（GitHub/OIDC）完成认证返回的新用户可能会看到如下选择：
 
-- **End-to-end encrypted (E2EE)**: creates a device-key account; users must back up a secret key to restore on new devices.
-- **Not encrypted (plaintext)**: creates a keyless/plain account; sign-in is seamless across devices, but the server can read stored content.
+- **端到端加密（E2EE）**：创建设备密钥账户；用户必须备份私钥，以便在新设备上恢复。
+- **不加密（明文）**：创建无密钥/明文账户；可实现跨设备无缝登录，但服务端能够读取所存储的内容。
 
-When the provider is enabled for **both** modes (keyed provisioning + keyless auto-provisioning), the client should show the choice.
-When only one mode is available, the client should auto-select it (no extra screen).
+当某个提供商**同时**启用了这两种模式（有密钥置备与无密钥自动置备）时，客户端应展示该选择界面。
+若仅有一种模式可用，客户端应自动选中该模式，无需展示多余页面。
 
-On `plaintext_only` servers, clients should automatically choose plaintext. On `required_e2ee` servers, clients should not offer plaintext/keyless choices.
+在 `plaintext_only` 服务器上，客户端应自动选择明文模式。在 `required_e2ee` 服务器上，客户端则不应提供明文或无密钥选项。
 
-### Operator recipes (recommended)
+### 运维推荐配置示例
 
-**E2EE-only (public server) + GitHub required**
+**纯端到端加密（公网服务器）+ 必须使用 GitHub**
 
 ```bash
 HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY=required_e2ee
@@ -148,7 +147,7 @@ AUTH_SIGNUP_PROVIDERS=github
 AUTH_REQUIRED_LOGIN_PROVIDERS=github
 ```
 
-**Keyless-only (enterprise) + plaintext-only + GitHub required**
+**纯无密钥（企业级）+ 纯明文 + 必须使用 GitHub**
 
 ```bash
 HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY=plaintext_only
@@ -163,7 +162,7 @@ HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_PROVIDERS=github
 HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_AUTO_PROVISION=1
 ```
 
-**Optional encryption (enterprise) + OAuth provisioning choice (GitHub)**
+**可选加密（企业级）+ OAuth 置备选择（GitHub）**
 
 ```bash
 HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY=optional
@@ -178,74 +177,74 @@ HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_PROVIDERS=github
 HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_AUTO_PROVISION=1
 ```
 
-Optional: allow users to switch existing accounts (`e2ee ↔ plain`) when storage policy is `optional`:
+可选配置：当存储策略设为 `optional` 时，允许用户切换现有账户（`e2ee ↔ plain`）：
 
 ```bash
 HAPPIER_FEATURE_ENCRYPTION__ALLOW_ACCOUNT_OPTOUT=1
 ```
 
-## Upgrade notes (operator guidance)
+## 升级注意事项（运维指引）
 
-- **Clients first is usually safe** for keyed accounts (device-key model), because older servers still accept the core `/v1/auth` login flow.
-- **Do not enable `plaintext_only`** until you have clients that support plaintext storage (older clients will fail because encrypted writes are rejected).
-- If you enable **keyless OAuth auto-provisioning**, ensure your clients are new enough to understand the keyless flows advertised by `/v1/features` (otherwise users may see missing buttons or failed sign-in attempts).
+- 针对有密钥账户（设备密钥模型），**通常可以先升级客户端**，因为旧版服务器仍兼容核心的 `/v1/auth` 登录流程。
+- 在拥有支持明文存储的客户端之前，**切勿启用 `plaintext_only`**（否则旧版客户端会因加密写入被拒而报错）。
+- 若启用了 **OAuth 无密钥自动置备**，请确保客户端版本足够新，能够识别 `/v1/features` 声明的无密钥流程（否则用户可能会遇到按钮缺失或登录失败的问题）。
 
-## OAuth return URL (required for GitHub/OIDC self-hosting)
+## OAuth 回调 URL（自托管 GitHub/OIDC 必需）
 
-If you enable any external OAuth providers (GitHub and/or OIDC), the server must know where to redirect the browser **back to the client app** after OAuth completes.
+若启用了任何外部 OAuth 提供商（GitHub 或 OIDC），服务器必须明确在 OAuth 认证完成后，应将浏览器重定向**回客户端应用的哪个地址**。
 
-- If you use the hosted web app, you don’t need to set anything (default is `https://kaiwu.chengqiyun.com`).
-- If you self-host the web app (or you’re using a local dev UI), you **must** configure one of:
-  - `HAPPIER_WEBAPP_URL` (most common for web)
-  - `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE` (often used for mobile deep links or custom paths)
+- 若使用官方托管的 Web 应用，无需进行任何设置（默认为 `https://kaiwu.chengqiyun.com`）。
+- 若自托管 Web 应用（或使用本地开发界面），则**必须**配置以下项之一：
+  - `HAPPIER_WEBAPP_URL`（Web 端最常用）
+  - `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE`（常用于移动端深度链接或自定义路径）
 
-Otherwise, users will be redirected to the wrong place (or the redirect may be rejected as unsafe).
+否则，用户将被重定向至错误地址，或者重定向请求可能因不安全而被直接拒绝。
 
-## Auth policy (env vars)
+## 身份验证策略（环境变量）
 
-Use these env vars to control who can create accounts and whether provider identity is enforced for ongoing access.
+使用以下环境变量控制账户创建权限，并决定是否强制要求提供商身份方可维持访问。
 
-### Signup / login policy
+### 注册与登录策略
 
-- `AUTH_ANONYMOUS_SIGNUP_ENABLED` (default `true`)
-  - If `false`, anonymous account creation is disabled (`POST /v1/auth` will return `403 signup-disabled` for new users).
-- `AUTH_SIGNUP_PROVIDERS` (CSV, default empty)
-  - Enables provider-based signup (e.g. `github`, `okta`).
-- `AUTH_REQUIRED_LOGIN_PROVIDERS` (CSV, default empty)
-  - Enforces providers for ongoing access (e.g. `github`, `okta`).
+- `AUTH_ANONYMOUS_SIGNUP_ENABLED`（默认值为 `true`）
+  - 若设为 `false`，则禁用匿名账户创建（新用户请求 `POST /v1/auth` 将返回 `403 signup-disabled`）。
+- `AUTH_SIGNUP_PROVIDERS`（逗号分隔值，默认为空）
+  - 启用基于提供商的注册（例如 `github`、`okta`）。
+- `AUTH_REQUIRED_LOGIN_PROVIDERS`（逗号分隔值，默认为空）
+  - 强制要求提供商身份方可维持访问权限（例如 `github`、`okta`）。
 
-### What enforcement applies to
+### 鉴权生效范围
 
-When `AUTH_REQUIRED_LOGIN_PROVIDERS` is set, eligibility is enforced for:
-- Authenticated HTTP routes (via the `authenticate` pre-handler)
-- Socket.IO handshake (`/v1/updates`)
+当配置了 `AUTH_REQUIRED_LOGIN_PROVIDERS` 时，系统将对以下操作强制执行资格审查：
+- 需认证的 HTTP 路由（通过 `authenticate` 前置处理器）
+- Socket.IO 握手连接（`/v1/updates`）
 
-If a required provider is missing:
-- Requests are rejected with `403 provider-required`.
+若缺失必需的提供商身份：
+- 请求将被拒绝，并返回 `403 provider-required`。
 
-### Offboarding / eligibility checks
+### 权限收回与资格复核
 
-If you use allowlists (GitHub org allowlists or OIDC allow rules), the server can re-check eligibility periodically and cache results on the identity record.
+若配置了白名单（GitHub 组织白名单或 OIDC 准入规则），服务器可定期复核用户的准入资格，并将结果缓存至身份记录中。
 
 - `AUTH_OFFBOARDING_ENABLED`
-  - Defaults to `true` when any *membership-based* allowlists are configured (GitHub org allowlist and/or OIDC allow rules); otherwise `false`.
-- `AUTH_OFFBOARDING_INTERVAL_SECONDS` (default `86400`, clamp 60–86400)
-- `AUTH_OFFBOARDING_STRICT` (default `false`)
-  - When `true`, the server **fails closed** if it cannot re-check eligibility due to upstream downtime (enterprise lock-down mode).
+  - 若配置了任何*基于成员关系*的白名单（GitHub 组织白名单或 OIDC 准入规则），该项默认设为 `true`；否则默认为 `false`。
+- `AUTH_OFFBOARDING_INTERVAL_SECONDS`（默认值为 `86400`，取值限制在 60 至 86400 之间）
+- `AUTH_OFFBOARDING_STRICT`（默认值为 `false`）
+  - 若设为 `true`，一旦因上游服务故障导致无法复核资格，服务器将采取**故障关闭（直接阻断）**策略（适用于企业严格管控模式）。
 
-## Common configurations (examples)
+## 常用配置（示例）
 
-### Default (anonymous signup)
+### 默认配置（匿名注册）
 ```bash
 AUTH_ANONYMOUS_SIGNUP_ENABLED=true
 AUTH_SIGNUP_PROVIDERS=
 AUTH_REQUIRED_LOGIN_PROVIDERS=
 ```
 
-### GitHub-only signup + GitHub required for login
+### 仅限 GitHub 注册 + 登录必须使用 GitHub
 
-See [GitHub auth](/self-hosting/auth-github) for full setup steps.
+完整配置步骤请参阅 [GitHub 身份验证](/self-hosting/auth-github)。
 
-### OIDC-only signup (example: Okta) + OIDC required for login
+### 仅限 OIDC 注册（例如 Okta）+ 登录必须使用 OIDC
 
-See [OIDC auth](/self-hosting/auth-oidc) for provider configuration.
+有关提供商的详细配置，请参阅 [OIDC 身份验证](/self-hosting/auth-oidc)。

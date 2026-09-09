@@ -14,7 +14,7 @@ export async function cmdSessionSetTitle(
   const json = wantsJson(argv);
   const [idOrPrefix = '', title = ''] = readCommandPositionals(argv, { startIndex: 1 });
   if (!idOrPrefix || !title) {
-    throw new Error('Usage: happier session set-title <session-id-or-prefix> <title> [--json]');
+    throw new Error('Usage: kaiwu session set-title <session-id-or-prefix> <title> [--json]');
   }
 
   const credentials = await deps.readCredentialsFn();
@@ -23,7 +23,7 @@ export async function cmdSessionSetTitle(
       await printJsonEnvelope({ ok: false, kind: 'session_set_title', error: { code: 'not_authenticated' } });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "happier auth login" first.');
+    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
     process.exit(1);
   }
 

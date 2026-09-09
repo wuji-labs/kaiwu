@@ -1,85 +1,84 @@
 ---
-title: Session sharing
-description: Share a session with someone in Kaiwu, or publish a read-only link — and know what gets logged when you do.
+title: 会话分享
+description: 在 Kaiwu 中与他人分享会话，或发布只读链接——并了解在此过程中会记录哪些内容。
 ---
+通过共享功能，他人可以查看你正在运行的会话。目前提供两种独立机制，二者并非互为变体：**直接共享**可以邀请指定用户加入会话，并赋予你设定的权限级别；**公开链接**则会发布一个只读视图，任何持有该 URL 的人均可访问。
 
-Sharing lets someone else see a session you are running. Two mechanisms, and they are not variations of each other: a **direct share** invites a specific person into the session with a level of access you choose, and a **public link** publishes a read-only view to anyone holding the URL.
+<Callout type="warn" title="可用性">
+直接共享依赖**好友**功能。该功能目前处于实验阶段，默认关闭。你可以在**设置 → 功能**中将其开启。该功能特意未接入“实验性功能”总开关，因此仅开启全局实验功能并不会启用它。
 
-<Callout type="warn" title="Availability">
-Direct sharing needs **Friends**, which is experimental and off by default. Turn it on under **Settings → Features**. It is deliberately not switched on by the Experiments master toggle, so enabling experiments generally does not enable it.
-
-Public links do not depend on Friends and are available without turning anything on.
+公开链接不依赖好友功能，开箱即用，无需开启任何开关。
 </Callout>
 
-## What gets logged
+## 记录内容
 
-Worth knowing before you share anything, because it is about other people's data, not yours.
+在共享任何内容前，了解这些记录很有必要，因为这涉及他人的数据，而非仅你自己的数据。
 
-**Every access to a shared session is logged with the viewer's IP address and user agent** — for direct shares and public links alike. For a public link you can decide whether the viewer is told: **Require consent** shows them *"This link requires your consent to log your IP address and user agent"* and makes them accept before the session opens.
+**无论是直接共享还是公开链接，每次访问共享会话都会记录访问者的 IP 地址和 User-Agent。** 对于公开链接，你可以决定是否告知访问者：开启**需要同意**后，系统会向访问者展示 *“此链接需要您同意记录您的 IP 地址和 User-Agent”*，访问者必须点击接受才能打开会话。
 
-Turning consent off does not stop the logging. It removes the notice. If you are sending a link outside your team, leaving consent on is the honest default.
+关闭同意选项并不会停止日志记录，只是不再显示提示信息。如果链接要发送给团队外部人员，保持开启提示是合乎规范且坦诚的默认做法。
 
-## Direct sharing
+## 直接共享
 
-From a session's sharing screen, pick a person and give them one of three levels:
+在会话的共享界面中，选择指定成员并为其分配以下三个权限级别之一：
 
-| Level | What they can do |
+| 级别 | 权限说明 |
 | --- | --- |
-| **View only** | Read the session. Cannot send messages. |
-| **Can edit** | Send messages, and take part in session-wide things like the pending queue. |
-| **Can manage** | Everything above, plus manage the session's sharing — other people's shares and the public link. |
+| **仅查看** | 查看会话内容，无法发送消息。 |
+| **可编辑** | 发送消息，并参与待处理队列等会话全局操作。 |
+| **可管理** | 包含上述全部权限，且能管理该会话的共享设置（包括其他人的共享权限和公开链接）。 |
 
-### Letting someone approve permissions
+### 委托他人审批权限
 
-Separately from the access level, a **Can edit** or **Can manage** recipient can be allowed to approve permission prompts: *"Allows this user to approve permission prompts and run tools on your machine."*
+除了访问级别之外，你还可以允许拥有**可编辑**或**可管理**权限的用户审批权限提示词：*“允许该用户审批权限提示词并在你的设备上运行工具。”*
 
-Read that literally. The session runs on your machine, so this hands someone else the ability to authorise tool runs there. It is worth it when a collaborator needs to keep work moving while you are away, and it is not something to grant casually.
+字面意思即其实际行为：由于会话运行在你的设备上，开启此项相当于将本地工具运行的授权许可交给了他人。当你不在设备前、需要协作者推进工作时，这个功能非常实用，但切勿随意授予该权限。
 
-It is a per-person setting, not a fourth access level, and you can turn it on when you add the share or later. Kaiwu tells you when it is unavailable and why — public links are read-only, view-only access cannot approve, an inactive session has nothing to approve, or the owner simply did not grant it.
+这是一项针对个人的独立设置，并非第四种访问级别；你可以在添加共享时开启，也可以在后续随时调整。当该选项不可用时，Kaiwu 会明确提示原因——例如公开链接为只读、仅查看权限无法审批、非活跃会话无需审批，或是所有者未授予该权限。
 
-### Managing shares
+### 管理共享成员
 
-From the same screen you can see everyone the session is shared with, change a level, turn approval delegation on or off, and stop sharing with someone — which revokes their access immediately.
+在同一界面中，你可以查看该会话已共享给哪些人、调整他们的权限级别、开启或关闭审批委托，也可以直接停止对某人的共享——这会立即撤销其访问权限。
 
-People without **Can manage** can open the session but do not get the management surface.
+未获得**可管理**权限的用户可以打开会话，但看不到管理界面。
 
-## Public links
+## 公开链接
 
-A public link is view-only. Anyone holding it can read messages and tool output; nobody can interact or approve anything.
+公开链接均为只读属性。任何持有链接的人都可以查看消息和工具输出；任何人均无法进行交互或审批操作。
 
-When you create or regenerate one, you choose:
+在创建或重新生成链接时，你可以配置以下选项：
 
-- **Expires in** — 7 days, 30 days, or Never
-- **Maximum uses** — Unlimited, 10 uses, or 50 uses
-- **Require consent** — whether viewers are told their access is logged
+- **有效期**——7 天、30 天或永久有效
+- **最大使用次数**——无限制、10 次或 50 次
+- **需要同意**——是否告知访问者其访问行为会被记录
 
-Afterwards Kaiwu shows a QR code, the URL, the expiry, the usage count, and whether consent is required.
+生成完成后，Kaiwu 会展示二维码、URL、有效期、使用次数以及是否需要同意。
 
-**The token is shown once.** Tokens are stored hashed and cannot be recovered — if you lose the URL, regenerate the link, which creates a new token and revokes the old one. Deleting the link revokes access for everyone.
+**Token 仅展示一次。** Token 均经哈希处理后存储，无法找回；如果不慎遗失 URL，请重新生成链接，这会创建一个新 Token 并废除旧 Token。删除链接则会立即撤销所有人的访问权限。
 
-## Where shared sessions appear
+## 共享会话的展示位置
 
-A session shared with you is a normal session, not an inbox item. It lands in your session list in a **Shared sessions** subgroup, inside whichever section the list is showing — Active, Inactive, or the combined Sessions layout on narrower screens.
+共享给你的会话属于常规会话，而非收件箱条目。它会出现在你当前会话列表的**共享会话**子分组下，具体归入“活跃”、“非活跃”分区，或窄屏模式下的合并会话视图中。
 
-So you can open it, pin it, and work with it exactly like your own. Unread state, permission prompts and pending messages all behave normally, subject to your access level. Attention that genuinely needs a decision still reaches you through the usual surfaces.
+因此，你可以像对待自己的会话一样打开、置顶并开展工作。在你的访问级别范围内，未读状态、权限提示词和待处理消息均表现如常。凡是确实需要你决策的事项，仍会通过常规途径通知到你。
 
-## Encrypted deployments
+## 加密部署
 
-On an encrypted deployment, the person you are sharing with needs sharing keys on their account before an encrypted session can be shared with them. Until then Kaiwu shows that they have not registered encryption keys yet, and they cannot be picked.
+在端到端加密部署环境中，被共享者的账户必须先配置共享密钥，才能接收加密会话。在此之前，Kaiwu 会提示对方尚未注册加密密钥，且不可被选中。
 
-This is a readiness state, not a permanent block — it resolves once their device has the keys. On plaintext-storage deployments the sharing model is identical; only the storage mode behind it differs. See [Encryption model](/security/encryption).
+这只是一种就绪状态，并非永久受限——一旦其设备配置了密钥，限制便会自动解除。在明文存储部署中，共享机制完全相同，仅底层存储方式有所区别。详情请参阅[加密模型](/security/encryption)。
 
-## When it goes wrong
+## 常见排障
 
-**Someone is missing from the share picker.** Either Friends is off for you, or their account has not registered encryption keys yet on an encrypted deployment.
+**共享选择器中找不到某人。** 可能是你尚未开启好友功能，或者在加密部署环境中对方账户尚未注册加密密钥。
 
-**A collaborator cannot approve a prompt.** Check that they have Can edit or Can manage *and* that approval delegation is on for them specifically. The disabled reason Kaiwu shows names which of the two is missing.
+**协作者无法审批提示词。** 请确认对方具备“可编辑”或“可管理”权限，*且*已为其单独启用了审批委托。Kaiwu 显示的置灰原因会指明缺少哪一项。
 
-**The link stopped working.** Check expiry and the usage count against the maximum. Both are shown on the link's own screen. A regenerated link invalidates the previous token.
+**链接失效。** 请检查是否已过期，或使用次数是否已达上限。这两项均显示在链接本身的详情界面中。重新生成的链接会立即使先前的 Token 失效。
 
-## Related
+## 相关文档
 
-- [Friends](/accounts/friends) — the direct-sharing prerequisite
-- [Inbox and approvals](/sessions/inbox-and-approvals)
-- [Session read and unread state](/organize/session-read-state)
-- [Encryption model](/security/encryption)
+- [好友功能](/accounts/friends) —— 直接共享的前置条件
+- [收件箱与审批](/sessions/inbox-and-approvals)
+- [会话已读与未读状态](/organize/session-read-state)
+- [加密模型](/security/encryption)

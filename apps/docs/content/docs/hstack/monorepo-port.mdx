@@ -1,37 +1,36 @@
 ---
-title: Monorepo port (legacy split repos)
-description: Use `hstack monorepo port` to port commits from split repos into the Kaiwu monorepo (conflict-friendly).
+title: Monorepo 移植（历史拆分仓库）
+description: 使用 `hstack monorepo port` 将提交从拆分仓库移植到 Kaiwu monorepo（冲突友好）。
+---
+本文档介绍 `hstack monorepo port`。该辅助工具可将一个或多个“独立仓库”源的提交应用至目标 Kaiwu monorepo 分支。
+
+其工作原理是先生成补丁（`git format-patch`），再通过 `git am` 将补丁应用到目标仓库中。
+
+当你需要将早期工作成果或外部补丁合入 monorepo 目录结构时，该工具尤为适用。
+
 ---
 
-This page documents `hstack monorepo port`, a helper that can apply commits from one or more “split repo” sources into a target Kaiwu monorepo branch.
+## 快速上手
 
-It works by generating patches (`git format-patch`) and applying them with `git am` into the target repo.
-
-This is primarily useful when you need to import older work or external patches into the monorepo layout.
-
----
-
-## Quickstart
-
-Show help:
+查看帮助信息：
 
 ```bash
 hstack monorepo port --help
 ```
 
-Interactive guide (recommended; TTY required):
+交互式引导（推荐；需要 TTY）：
 
 ```bash
 hstack monorepo port guide
 ```
 
-Non-interactive port (advanced; best-effort):
+非交互式移植（进阶；尽力而为）：
 
 ```bash
 hstack monorepo port --target=/abs/path/to/happier-monorepo --branch=port/my-changes
 ```
 
-Status/continue helpers (when `git am` is in progress):
+状态查看与继续执行辅助命令（当 `git am` 正在进行时）：
 
 ```bash
 hstack monorepo port status --target=/abs/path/to/monorepo
@@ -40,48 +39,48 @@ hstack monorepo port continue --target=/abs/path/to/monorepo
 
 ---
 
-## What it maps
+## 路径映射说明
 
-`hstack monorepo port` is designed to port into the Kaiwu monorepo layout by applying patches into:
+`hstack monorepo port` 专为迁移至 Kaiwu monorepo 目录结构设计，会将补丁应用至以下目录：
 
-- UI: `apps/ui/` (legacy supported: `expo-app/`)
-- CLI: `apps/cli/` (legacy supported: `cli/`)
-- server: `apps/server/` (legacy supported: `server/`)
+- UI：`apps/ui/`（兼容旧路径：`expo-app/`）
+- CLI：`apps/cli/`（兼容旧路径：`cli/`）
+- 服务端：`apps/server/`（兼容旧路径：`server/`）
 
-This means you can port from:
+这意味着支持从以下源进行移植：
 
-- legacy split repos (separate UI/CLI/server repos), or
-- another monorepo checkout (e.g. cherry-pickable change series you want to rebase onto a different base)
+- 旧版独立仓库（UI、CLI、服务端各自独立的仓库），或
+- 另一个 monorepo 检出副本（例如希望变基到其他基准分支上的一系列可 cherry-pick 变更）
 
 ---
 
-## Recommended workflow (interactive, safest)
+## 推荐工作流（交互式，最安全）
 
-1) Start from a clean monorepo checkout/worktree (do not run ports in a dirty repo):
+1) 从干净的 monorepo 检出副本或工作树开始（切勿在存在未提交更改的脏仓库中运行移植）：
 
 ```bash
 hstack wt new tmp/monorepo-port --from=upstream --use
 ```
 
-2) In that worktree, create a target branch:
+2) 在该工作树中创建目标分支：
 
 ```bash
 git checkout -b port/<name>
 ```
 
-3) Run the guide (TTY):
+3) 运行引导程序（需要 TTY）：
 
 ```bash
 hstack monorepo port guide --target="$(pwd)"
 ```
 
-If the port stops on conflicts, you are in a normal `git am` session:
+如果移植因冲突中断，此时处于常规的 `git am` 会话中：
 
-- resolve conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`)
+- 解决冲突标记（`<<<<<<<`、`=======`、`>>>>>>>`）
 - `git add <files...>`
 - `git am --continue`
 
-If you need to abort:
+如需中止操作：
 
 ```bash
 git am --abort
@@ -89,26 +88,26 @@ git am --abort
 
 ---
 
-## Port helpers (guide / preflight / status / continue)
+## 移植辅助命令（引导 / 预检 / 状态 / 继续）
 
-The command family:
+命令族包含：
 
-- `hstack monorepo port guide` — interactive wizard (TTY only)
-- `hstack monorepo port preflight` — verifies the target is clean and ready (best-effort)
-- `hstack monorepo port status` — reports which patch/conflicts are currently blocking `git am`
-- `hstack monorepo port continue` — runs `git am --continue` (and optionally stages files when supported)
+- `hstack monorepo port guide` —— 交互式向导（仅限 TTY）
+- `hstack monorepo port preflight` —— 验证目标仓库是否干净且准备就绪（尽力而为）
+- `hstack monorepo port status` —— 报告当前阻塞 `git am` 的补丁及冲突
+- `hstack monorepo port continue` —— 运行 `git am --continue`（支持时可一并暂存文件）
 
 ---
 
-## LLM-assisted conflict resolution (optional)
+## LLM 辅助冲突解决（可选）
 
-When a port stops on conflicts, you can ask an LLM to help resolve them:
+当移植因冲突中断时，可以请求大语言模型辅助解决：
 
 ```bash
 hstack monorepo port llm --target=/abs/path/to/monorepo --launch
 ```
 
-Or copy a prompt for copy/paste:
+或者复制提示词以便手动粘贴：
 
 ```bash
 hstack monorepo port llm --target=/abs/path/to/monorepo --copy
@@ -116,15 +115,15 @@ hstack monorepo port llm --target=/abs/path/to/monorepo --copy
 
 ---
 
-## Common failures (expected) and what to do
+## 常见故障（预期内）及应对策略
 
 ### “target repo is not clean”
 
-The target must be clean. Fix by committing/stashing changes in the target, then re-run.
+目标仓库必须保持干净。请先在目标仓库中提交或暂存更改，然后重新运行。
 
 ### “a git am operation is already in progress”
 
-Resolve/abort the in-progress `git am` first:
+请先解决或中止正在进行的 `git am`：
 
 ```bash
 git -C /abs/path/to/target am --continue
@@ -134,63 +133,63 @@ git -C /abs/path/to/target am --abort
 
 ### “patch does not apply”
 
-This usually means the patch no longer matches the target base (renames/i18n churn/reformatted files).
+通常表示该补丁与当前目标基准不匹配（如存在重命名、国际化频繁变动、代码格式化变更等）。
 
-Options:
+可选方案：
 
-- re-run on a different base (`--base=<ref>`)
-- enable 3-way fallback (`--3way`)
-- continue-on-failure (records failures but finishes): `--continue-on-failure`
+- 基于其他基准重新运行（`--base=⟦K14⟧`）
+- 启用三方合并回退（`--3way`）
+- 失败时继续执行（记录失败项但保持运行直至完成）：`--continue-on-failure`
 
-### Missing file path errors / double-prefixing
+### 文件路径缺失错误 / 双重前缀问题
 
-Use `guide` mode and make sure your source is recognized correctly (monorepo sources should not get re-prefixed).
+请使用 `guide` 模式，并确保正确识别源仓库类型（来自 monorepo 的源不应被重复添加前缀）。
 
 ---
 
-## Flags (high-signal)
+## 常用参数选项
 
-These are the flags you’ll most commonly use:
+以下是最高频使用的参数：
 
-- `--target=/abs/path/to/monorepo` (defaults to current repo root)
-- `--target-repo=<git-url>` + `--clone-target` (clone the target into a new directory)
-- `--branch=port/<name>` (create a new branch for the port)
-- `--base=<ref>` (choose the target base ref; defaults to a best-effort remote HEAD)
-- `--onto-current` (apply onto the currently checked-out branch; don’t switch branches)
-- `--dry-run` (compute/preview without applying)
-- `--skip-applied` (skip already-present patches when detected)
-- `--json` (machine-readable output)
+- `--target=/abs/path/to/monorepo`（默认为当前仓库根目录）
+- `--target-repo=⟦K15⟧` + `--clone-target`（将目标克隆至新目录）
+- `--branch=port/⟦K16⟧`（为本次移植创建新分支）
+- `--base=⟦K17⟧`（选择目标基准引用；默认尽力对齐远程 HEAD）
+- `--onto-current`（直接应用到当前检出的分支，不切换分支）
+- `--dry-run`（仅计算并预览，不实际应用）
+- `--skip-applied`（检测到已存在的补丁时直接跳过）
+- `--json`（输出机器可读格式）
 
-## Port strategy (recommended)
+## 移植策略（推荐）
 
-1. Create an isolated stack (so you don’t touch `main`):
+1. 创建独立的栈（避免改动 `main`）：
 
 ```bash
 hstack stack new monorepo-port
 ```
 
-2. Create a clean worktree for the target monorepo branch:
+2. 为目标 monorepo 分支创建干净的工作树：
 
 ```bash
 hstack wt new tmp/monorepo-port --from=upstream --use
 ```
 
-3. Create a new branch in that worktree and port onto it (`--onto-current`).
+3. 在该工作树中创建新分支并将变更移植至该分支（`--onto-current`）。
 
-If the port stops on conflicts, you are in a normal `git am` session:
+如果移植因冲突中断，此时处于常规的 `git am` 会话中：
 
-- resolve conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`)
+- 解决冲突标记（`<<<<<<<`、`=======`、`>>>>>>>`）
 - `git add <files...>`
 - `git am --continue`
 
-## Layout mapping
+## 目录结构映射
 
-The Kaiwu monorepo uses:
+Kaiwu monorepo 采用如下目录划分：
 
-- UI: `apps/ui`
-- CLI: `apps/cli`
-- server: `apps/server`
+- UI：`apps/ui`
+- CLI：`apps/cli`
+- 服务端：`apps/server`
 
-If you are porting from older sources, you generally want your patches to land under those directories.
+若从旧版源码移植，补丁通常需要落入上述目录中。
 
-Use the `guide` mode to avoid double-prefixing paths and to preview where patches will apply.
+使用 `guide` 模式可避免路径重复添加前缀，并能预览补丁的应用目标路径。

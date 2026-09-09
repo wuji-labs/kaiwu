@@ -1,84 +1,80 @@
 ---
 title: Kiro
-description: Configure Kiro in Kaiwu, including local CLI login, machine-specific authentication behavior, and how Kiro differs from Custom ACP.
+description: 在 Kaiwu 中配置 Kiro，包括本地 CLI 登录、特定设备的认证行为，以及 Kiro 与 Custom ACP 的区别。
 ---
+Kaiwu 支持将 **Kiro** 作为基于本地 CLI 的提供商。
 
-Kaiwu supports **Kiro** as a local CLI-backed provider.
+Kiro 本身即为一个内置提供商，它**不同于** **Custom ACP**。
 
-Kiro is a built-in provider in its own right. It is **not** the same thing as **Custom ACP**.
+- **Kiro**：Kaiwu 专属的内置 Kiro 集成
+- **Custom ACP**：面向各类兼容 ACP 的 CLI 与用户自定义后端的通用提供商体系
 
-- **Kiro**: Kaiwu's dedicated built-in Kiro integration
-- **Custom ACP**: the generic provider family for arbitrary ACP-compatible CLIs and user-defined backends
-
-That means custom ACP backends do **not** run through the Kiro provider path.
+这意味着自定义 ACP 后端**不会**通过 Kiro 提供商路径运行。
 
 <Callout type="info">
-  Kiro is an **experimental** integration. It works and people use it
-  daily, but its surface is younger than Claude, Codex or OpenCode and is
-  more likely to change. What it supports today is in
-  [Agent capabilities](/agents/capabilities).
+  Kiro 是一项**实验性**集成。它功能完备且可用于日常工作，但其接口成熟度不及 Claude、Codex 或 OpenCode，后续也更可能发生变动。当前支持的功能详见[智能体能力](/agents/capabilities)。
 </Callout>
 
-## Requirements
+## 环境要求
 
-- Kiro CLI installed locally
-- binary available on `PATH` (or set `HAPPIER_KIRO_PATH` if needed)
+- 本地已安装 Kiro CLI
+- 二进制文件位于 `PATH` 路径下（或根据需要配置 `HAPPIER_KIRO_PATH`）
 
-## Install Kiro
+## 安装 Kiro
 
-Install Kiro using the official Kiro CLI guide, then verify:
+请按照 Kiro CLI 官方指南完成安装，随后进行验证：
 
 ```bash
 kiro-cli --version
 ```
 
-## Local authentication in Kaiwu
+## 在 Kaiwu 中进行本地认证
 
-Kiro supports launching its native login flow from:
+Kiro 支持通过以下路径启动其原生登录流程：
 
 - **Settings → AI & Agents → AI backends → Kiro**
 
-From there you can:
+在该界面中，你可以：
 
-- open `kiro-cli login` directly inside Kaiwu
-- use **Check now** to re-run auth detection on the selected machine
+- 直接在 Kaiwu 内打开 `kiro-cli login`
+- 点击 **Check now**，在选定设备上重新检测认证状态
 
-Auth-status detection for Kiro is currently conservative, so Kaiwu may still show **Unknown** even though the login flow is available.
+目前对 Kiro 认证状态的检测策略较为保守，因此即便登录流程可用，Kaiwu 仍可能显示为 **Unknown**。
 
-For the shared user guide, see [Provider authentication](/agents/provider-authentication).
+通用用户指南请参阅[提供商认证](/agents/provider-authentication)。
 
-## Kiro and ACP
+## Kiro 与 ACP
 
-Kiro also appears in Kaiwu's **ACP Backends** settings screen because it is a built-in ACP-capable provider.
+由于 Kiro 是内置且支持 ACP 的提供商，它也会出现在 Kaiwu 的 **ACP Backends** 设置界面中。
 
-That screen is useful when you want to understand how ACP backends work in general, but you do **not** need to configure Kiro there for normal Kiro usage.
+该界面有助于了解 ACP 后端的一般工作机制；但若只是正常使用 Kiro，你**无需**在此处进行配置。
 
-Use:
+使用原则：
 
-- **Kiro provider page** when you want Kiro itself
-- **Custom ACP / ACP Backends** when you want to add arbitrary ACP-compatible CLIs or create your own backend choices
+- 需要使用 Kiro 本身时，请前往 **Kiro 提供商页面**
+- 需要接入其他兼容 ACP 的 CLI 或创建自定义后端时，请使用 **Custom ACP / ACP Backends**
 
-See:
+参阅：
 
 - [Custom ACP](/agents/custom-acp)
 - [Custom ACP](/agents/custom-acp)
 
-## Notes
+## 注意事项
 
-- Kiro runs locally on your machine through the real Kiro CLI.
-- When Kiro exposes more reliable non-interactive auth signals, Kaiwu can surface richer status details here without changing the login flow.
+- Kiro 通过真实的 Kiro CLI 在你的设备本地运行。
+- 一旦 Kiro 提供更可靠的非交互式认证信号，Kaiwu 即可在不改动登录流程的前提下展示更详尽的状态细节。
 
-## Troubleshooting
+## 故障排查
 
-If Kiro is not detected:
+若 Kaiwu 未检测到 Kiro：
 
-1. Verify `kiro-cli --version` works.
-2. Restart Kaiwu.
-3. Re-open the provider settings page and use **Check now**.
+1. 验证 `kiro-cli --version` 是否可正常运行。
+2. 重启 Kaiwu。
+3. 重新打开提供商设置页面，并点击 **Check now**。
 
-## Related
+## 相关内容
 
-- [Agent capabilities](/agents/capabilities) — what this agent supports, generated from the manifest.
-- [Choosing an agent](/agents)
-- [Model and engine selection](/agents/model-and-engine-selection)
-- [Agent authentication](/agents/provider-authentication)
+- [智能体能力](/agents/capabilities) — 该智能体支持的功能，基于清单生成。
+- [选择智能体](/agents)
+- [模型与引擎选择](/agents/model-and-engine-selection)
+- [智能体认证](/agents/provider-authentication)

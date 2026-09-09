@@ -59,17 +59,17 @@ async function handleNotifyCommand(args: string[]): Promise<void> {
 ${chalk.bold('happy notify')} - Send notification
 
 ${chalk.bold('Usage:')}
-  happier notify -p <message> [-t <title>]    Send notification with custom message and optional title
-  happier notify -h, --help                   Show this help
+  kaiwu notify -p <message> [-t <title>]    Send notification with custom message and optional title
+  kaiwu notify -h, --help                   Show this help
 
 ${chalk.bold('Options:')}
   -p <message>    Notification message (required)
   -t <title>      Notification title (optional, defaults to "Kaiwu")
 
 ${chalk.bold('Examples:')}
-  happier notify -p "Deployment complete!"
-  happier notify -p "System update complete" -t "Server Status"
-  happier notify -t "Alert" -p "Database connection restored"
+  kaiwu notify -p "Deployment complete!"
+  kaiwu notify -p "System update complete" -t "Server Status"
+  kaiwu notify -t "Alert" -p "Database connection restored"
 `);
     return;
   }
@@ -78,13 +78,13 @@ ${chalk.bold('Examples:')}
     console.error(
       chalk.red('Error: Message is required. Use -p "your message" to specify the notification text.'),
     );
-    console.log(chalk.gray('Run "happier notify --help" for usage information.'));
+    console.log(chalk.gray('Run "kaiwu notify --help" for usage information.'));
     process.exit(1);
   }
 
   const credentials = await readCredentials();
   if (!credentials) {
-    console.error(chalk.red('Error: Not authenticated. Please run "happier auth login" first.'));
+    console.error(chalk.red('Error: Not authenticated. Please run "kaiwu auth login" first.'));
     process.exit(1);
   }
 

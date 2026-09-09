@@ -288,14 +288,14 @@ export function formatAttachIneligibilityFooter(hint: AttachSelectionFooterHint)
       return `${ineligible} ${sessionWord} ${beVerb} running on this computer under a different Kaiwu machine identity, but no tmux target or local attachment marker is available. `
         + `Use the same Kaiwu app or daemon that started ${ineligible === 1 ? 'it' : 'them'}, or start a new tmux-backed session from this CLI profile.`;
     case 'remote_machine':
-      return `${ineligible} ${sessionWord} ${beVerb} running on other machines. Use \`happier session list --active\` to see all running sessions.`;
+      return `${ineligible} ${sessionWord} ${beVerb} running on other machines. Use \`kaiwu session list --active\` to see all running sessions.`;
     case 'no_local_state':
       return `${ineligible} ${sessionWord} ${beVerb} running but ${ineligible === 1 ? 'its' : 'their'} local attachment state isn't visible. `
-        + `Try \`happier daemon start\` and re-run, or attach from the original terminal.`;
+        + `Try \`kaiwu daemon start\` and re-run, or attach from the original terminal.`;
     case 'archived_or_inactive':
-      return `${ineligible} ${sessionWord} ${beVerb} no longer active. Use \`happier resume\` to revive a stopped session.`;
+      return `${ineligible} ${sessionWord} ${beVerb} no longer active. Use \`kaiwu resume\` to revive a stopped session.`;
     case 'metadata_unreadable':
-      return `${ineligible} ${sessionWord} can't be decrypted on this machine. Sign in on the original device or pair this one with \`happier auth pair-remote\`.`;
+      return `${ineligible} ${sessionWord} can't be decrypted on this machine. Sign in on the original device or pair this one with \`kaiwu auth pair-remote\`.`;
     case 'unsupported_agent':
       return `${ineligible} ${sessionWord} use an agent that doesn't support local terminal attach.`;
     default:

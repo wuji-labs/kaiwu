@@ -2321,7 +2321,7 @@ export const zhHans: TranslationStructure = {
     },
     serverProbe: {
       title: "服务器诊断",
-      httpError: ({ status }: { status: number }) => `HTTP ${status}`,
+      httpError: ({ status }: { status: string }) => `HTTP ${status}`,
     },
     findings: {
       notRun: "运行诊断以查看结果",
@@ -6502,7 +6502,7 @@ export const zhHans: TranslationStructure = {
   tools: {
     common: {
       more: ({ count }: { count: number }) => `+${count} 更多`,
-      elapsedSeconds: ({ seconds }: { seconds: number }) => `${seconds}秒`,
+      elapsedSeconds: ({ seconds }: { seconds: string }) => `${seconds}秒`,
       unknownToolTitle: "工具",
     },
     taskOutputView: {

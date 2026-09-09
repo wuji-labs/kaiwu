@@ -1,53 +1,35 @@
 ---
-title: Markdown and diagrams
-description: How Kaiwu renders Markdown and Mermaid diagrams in a transcript, and the rich editor for Markdown files.
+title: Markdown 与图表
+description: Kaiwu 如何在会话记录中渲染 Markdown 与 Mermaid 图表，以及 Markdown 文件的富文本编辑器。
 ---
+Agent 习惯使用 Markdown 编写内容，因此你在 Kaiwu 中阅读的大多数文本都经过了渲染，而非直接展示原始内容。这里有两点值得了解：图表渲染支持，以及自行编辑 Markdown 文件时的处理机制。
 
-Agents write Markdown, so most of what you read in Kaiwu is Markdown that has
-been rendered rather than shown raw. Two parts of that are worth knowing about:
-diagrams, and what happens when you edit a Markdown file yourself.
+## Mermaid 图表
 
-## Mermaid diagrams
+会话记录中的 Mermaid 图表会直接渲染成图形，包括 iOS 和 Android 在内的全端客户端均已支持。
 
-Mermaid diagrams in a transcript render as diagrams, on every client including
-iOS and Android.
+Mermaid 运行时**随 App 一同打包内置**，而非从 CDN 动态拉取。在实际使用中，这保障了两种关键场景的体验：即使设备处于受限网络中，图表仍可正常渲染；同时，图表渲染绝不会向任何第三方泄露你正在查看的内容。图表源码在渲染前均经过安全过滤，原生渲染器也严格限制了其 Web 视图的权限，杜绝与 App 的网络、消息及导航环境产生交互。
 
-The Mermaid runtime is **bundled with the app** rather than fetched from a CDN.
-That matters in two situations people actually hit: a machine on a restricted
-network still renders diagrams, and rendering a diagram never tells a third
-party what you are looking at. Diagram source is sanitized before rendering, and
-the native renderers keep their web view away from the app's network, message
-and navigation surfaces.
+## Markdown 富文本编辑器
 
-## The rich Markdown editor
-
-When you open a Markdown file in Kaiwu's editor, you can edit it as formatted
-text instead of raw syntax — headings, emphasis, inline code, task lists,
-blockquotes, code blocks, rules and links, with Notion-style slash commands for
-inserting them. A formatted preview updates as you type.
+在 Kaiwu 编辑器中打开 Markdown 文件时，你可以像编辑排版文本一样直接修改内容，无需编写原始语法——标题、强调、行内代码、任务列表、引用块、代码块、分割线与链接一应俱全，且支持类似 Notion 的斜杠（/）命令快捷插入。排版预览会随输入实时更新。
 
 <Callout type="info">
-  The rich editor is experimental and off by default. Turn on
-  **Settings → Features → Rich markdown editor** — and note that experimental
-  toggles only appear once the experiments switch at the top of that screen is
-  on. See [Feature flags](/extras/feature-flags) for `files.markdownRichEditor`.
+  富文本编辑器目前为实验性功能，默认处于关闭状态。如需启用，请前往 **设置 → 功能 → Markdown 富文本编辑器**；需要注意的是，只有开启该界面顶部的实验功能总开关后，相关实验性选项才会显示。详情请参阅 [功能标志](/extras/feature-flags) 中的 `files.markdownRichEditor` 说明。
 </Callout>
 
-It falls back to raw Markdown rather than risking your file when:
+为避免文件内容受损，遇到以下情况时它会自动回退到原始 Markdown：
 
-- round-tripping the document would lose content,
-- the file is too large,
-- or the editor bundle is unavailable on that client.
+- 文档双向转换可能丢失内容；
+- 文件体积过大；
+- 当前客户端未包含该编辑器资源包。
 
-Switching between raw and rich preserves what you have written; the editor
-flushes pending changes synchronously at the boundary rather than letting the
-two views drift.
+在原始语法与富文本视图之间切换不会丢失已写内容；编辑器会在切换的临界点同步刷写待保存的更改，避免两种视图内容出现分歧。
 
-Tables, math, Mermaid diagrams and images are not yet editable in the rich view.
-Files containing them still open — you edit them as raw Markdown.
+表格、数学公式、Mermaid 图表与图片目前暂不支持在富文本视图中直接编辑。包含这些元素的文件依然可以正常打开，但需在原始 Markdown 模式下编辑。
 
-## Related
+## 相关内容
 
-- [Git and files](/code/git) — browsing and editing the rest of a workspace.
-- [Attachments and image previews](/apps/attachments)
-- [Navigating a transcript](/organize/transcript-navigation)
+- [Git 与文件](/code/git) —— 浏览并编辑工作区中的其他文件。
+- [附件与图片预览](/apps/attachments)
+- [浏览会话记录](/organize/transcript-navigation)

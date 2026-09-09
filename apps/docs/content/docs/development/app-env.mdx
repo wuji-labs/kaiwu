@@ -1,43 +1,42 @@
 ---
-title: App environment variables (Expo)
-description: Local `.env.local` workflow for build-time `EXPO_PUBLIC_*` flags.
+title: 应用环境变量 (Expo)
+description: 用于构建时 `EXPO_PUBLIC_*` 标志的本地 `.env.local` 工作流。
 ---
+Kaiwu 应用（`apps/ui`）基于 Expo 构建。Expo 支持在**本地**开发阶段加载 `.env*` 文件，并在打包/构建期间将 `EXPO_PUBLIC_*` 变量直接内联到 JS bundle 中。
 
-The Kaiwu app (`apps/ui`) uses Expo. Expo supports loading `.env*` files for **local** development and then inlining `EXPO_PUBLIC_*` variables into the JS bundle at bundle/build time.
+## 本地配置覆盖（推荐）
 
-## Local overrides (recommended)
-
-To keep repo-local settings out of Git, use a local env file:
+为避免将本地专用的配置提交到 Git，请使用本地环境文件：
 
 ```bash
 cd apps/ui
 cp .env.local.example .env.local
 ```
 
-Then edit `apps/ui/.env.local` and restart the dev server (Metro) so the bundle is rebuilt with the new values.
+随后编辑 `apps/ui/.env.local` 并重启开发服务器（Metro），即可应用新配置重新构建 bundle。
 
-## Disabling features at build time
+## 在构建时禁用功能
 
-You can disable specific UI features at build time by setting:
+你可以在构建时通过设置以下变量来禁用特定的 UI 功能：
 
 - `EXPO_PUBLIC_HAPPIER_BUILD_FEATURES_DENY`
 
-Example:
+示例：
 
 ```bash
 EXPO_PUBLIC_HAPPIER_BUILD_FEATURES_DENY=voice,social.friends
 ```
 
-This is a comma-separated list of **feature ids** (for example `voice`, `social.friends`, `bugReports`, `connectedServices`, `connectedServices.quotas`).
+该变量是由逗号分隔的**功能 ID** 列表（例如 `voice`、`social.friends`、`bugReports`、`connectedServices`、`connectedServices.quotas`）。
 
-### Connected services build gates
+### 关联服务的构建开关
 
-Connected services also has explicit build-time gates:
+关联服务也提供了显式的构建期开关：
 
-- `EXPO_PUBLIC_HAPPIER_FEATURE_CONNECTED_SERVICES__ENABLED` (default: `true`)
-- `EXPO_PUBLIC_HAPPIER_FEATURE_CONNECTED_SERVICES_QUOTAS__ENABLED` (default: `false`)
+- `EXPO_PUBLIC_HAPPIER_FEATURE_CONNECTED_SERVICES__ENABLED`（默认值：`true`）
+- `EXPO_PUBLIC_HAPPIER_FEATURE_CONNECTED_SERVICES_QUOTAS__ENABLED`（默认值：`false`）
 
-Examples:
+示例：
 
 ```bash
 # Completely disable Connected Services in the UI bundle
@@ -49,29 +48,29 @@ EXPO_PUBLIC_HAPPIER_FEATURE_CONNECTED_SERVICES__ENABLED=0
 EXPO_PUBLIC_HAPPIER_FEATURE_CONNECTED_SERVICES_QUOTAS__ENABLED=1
 ```
 
-## Socket transport override (rare)
+## 覆盖 Socket 传输方式（极少使用）
 
-By default, the app uses Socket.IO / Engine.IO defaults (HTTP long-polling, then upgrade to WebSocket when possible). This is the most compatible option for corporate proxies and restrictive networks.
+默认情况下，应用遵循 Socket.IO / Engine.IO 的默认机制（先使用 HTTP 长轮询，可行时再升级为 WebSocket）。对于企业代理和受限网络环境，这是兼容性最好的方案。
 
-If you need to force WebSocket-only (for example: you run a multi-server deployment without sticky sessions and you prefer failing fast over long-polling), set:
+如果你需要强制仅使用 WebSocket（例如：在没有粘性会话的多服务器集群部署中，你希望快速失败而不是回退到长轮询），请设置：
 
 - `EXPO_PUBLIC_HAPPIER_SOCKET_FORCE_WEBSOCKET=1`
 
-## Security note (important)
+## 安全说明（重要）
 
-Only `EXPO_PUBLIC_*` variables are inlined into the app bundle. Treat all `EXPO_PUBLIC_*` values as **public** (never store secrets here).
+只有 `EXPO_PUBLIC_*` 变量会被内联到应用 bundle 中。请务必将所有 `EXPO_PUBLIC_*` 的值视为**公开数据**（切勿在此存储任何机密敏感信息）。
 
-## EAS builds (cloud)
+## EAS 构建（云端）
 
-EAS build workers do not use your local `.env.local`. For cloud builds, set these variables in one of:
+EAS 构建机不会读取本地的 `.env.local`。对于云端构建，请通过以下任一方式配置这些变量：
 
-- `apps/ui/eas.json` under `build.<profile>.env`, or
-- the Expo project’s EAS environment variables UI (and ensure the build profile sets the matching `"environment"`).
+- 位于 `apps/ui/eas.json` 内的 `build.⟦K6⟧.env` 下，或者
+- 在 Expo 项目的 EAS 环境变量界面中配置（并确保构建 Profile 设置了匹配的 `"environment"`）。
 
-If you’re using `hstack` stacks and you’ve set **non-public** Expo config env vars (for example `EXPO_APP_*`, `EXPO_EAS_PROJECT_ID`, `EXPO_UPDATES_URL`) in a stack env file, you can sync them into EAS with:
+如果你正在使用 `hstack` 栈，并在栈的环境文件中配置了**非公开**的 Expo 配置环境变量（例如 `EXPO_APP_*`、`EXPO_EAS_PROJECT_ID`、`EXPO_UPDATES_URL`），可以通过以下命令将它们同步到 EAS：
 
 ```bash
 hstack stack eas <stack> env:sync --environment production
 ```
 
-See: [Mobile (iOS)](/hstack/mobile-ios) (EAS builds per stack).
+参见：[Mobile (iOS)](/hstack/mobile-ios)（各栈的 EAS 构建）。

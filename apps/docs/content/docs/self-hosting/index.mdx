@@ -1,122 +1,98 @@
 ---
-title: Self-hosting
-description: Running your own Kaiwu relay — how to deploy it, how to configure who may sign in, and what the server keeps.
+title: 自托管
+description: 运行你自己的 Kaiwu 中继——如何部署、如何配置允许登录的用户，以及服务器会保留哪些数据。
 ---
+本节介绍如何搭建**自己的 Kaiwu 中继**（供客户端与设备连接的同步后端）。此处内容完全可选：Kaiwu Cloud 的存在正是为了让你不必自建。
 
-This section is about running **your own Kaiwu relay** (the sync backend that
-clients and machines connect to). Everything here is optional: Kaiwu Cloud
-exists so you do not have to.
+配置完成后，你的客户端和设备将指向你自己的 URL（例如 `https://api.example.com`），而非云端地址。除此之外，Kaiwu 的使用方式没有任何改变。
 
-Your clients and machines then point at your URL — say `https://api.example.com`
-— instead of the Cloud one. Nothing else about how you use Kaiwu changes.
-
-## Pick how to run it
+## 选择运行方式
 
 <Cards>
-  <Card title="Server quickstart" href="/self-hosting/quickstart" description="The minimum production configuration, and which env vars actually matter." />
-  <Card title="Docker" href="/self-hosting/docker" description="Compose files for single-container and split API/worker deployments." />
-  <Card title="Self-host runtime" href="/self-hosting/self-host-runtime" description="A managed service on a host or VPS — what the installer and the runner each own." />
-  <Card title="Run from a monorepo clone" href="/self-hosting/repo-local" description="Repo-local mode, for developing or customizing from source." />
-  <Card title="Proxmox VE" href="/self-hosting/proxmox" description="Deploying with the community helper scripts." />
+  <Card title="服务端快速入门" href="/self-hosting/quickstart" description="生产环境的最小配置，以及哪些环境变量真正起作用。" />
+  <Card title="Docker" href="/self-hosting/docker" description="用于单容器以及 API/worker 分离部署的 Compose 文件。" />
+  <Card title="自托管运行时" href="/self-hosting/self-host-runtime" description="主机或 VPS 上的托管服务——安装程序与运行程序各自负责的内容。" />
+  <Card title="从 monorepo 克隆运行" href="/self-hosting/repo-local" description="本地仓库模式，适用于从源码开发或进行二次定制。" />
+  <Card title="Proxmox VE" href="/self-hosting/proxmox" description="使用社区辅助脚本进行部署。" />
 </Cards>
 
-If you are unsure: **Docker** if you already run a supervisor, the
-**self-host runtime** if you want a managed service on a plain host, and
-**repo-local** if you are changing the server itself.
+如果不确定该如何选择：若已有进程管理器，推荐使用 **Docker**；若希望在普通主机上运行托管服务，建议使用**自托管运行时**；若要对服务端本身进行代码修改，请使用**本地仓库**方式。
 
-## Configure it
+## 配置服务
 
-- [Environment variables](/self-hosting/env) — the complete server runtime surface. The canonical template is `apps/server/.env.example`.
-- [API rate limits](/self-hosting/rate-limits) — every limited endpoint, its default, and the two variables that change it.
+- [环境变量](/self-hosting/env) —— 完整的服务端运行时配置面。标准模板为 `apps/server/.env.example`。
+- [API 速率限制](/self-hosting/rate-limits) —— 汇总所有受限端点、默认限制值，以及用于调整限制的两个变量。
 
-## Decide who may sign in
+## 配置登录权限
 
-This is the part that takes the longest and is the easiest to get subtly wrong,
-so it has a page per provider rather than one long one.
+这一环节耗时最长，也最容易出现不易察觉的疏漏。因此，我们针对每个提供商单独提供了一篇指南，而不是堆砌在长篇文档中。
 
-- [Auth overview](/self-hosting/auth) — the policy model, and how the pieces below combine.
-- [GitHub](/self-hosting/auth-github) — OAuth for signup and connect, plus allowlists.
-- [OIDC](/self-hosting/auth-oidc) — Okta, Auth0, Entra ID, Keycloak and anything else generic.
-- [mTLS](/self-hosting/auth-mtls) — client certificates from your MDM, auto-provisioning, and mapping one person's devices to one identity.
-- [Custom providers](/self-hosting/auth-custom-providers) — adding your own without forking the core auth logic.
+- [认证概览](/self-hosting/auth) —— 策略模型，以及下列各组件如何协同工作。
+- [GitHub](/self-hosting/auth-github) —— 用于注册和连接的 OAuth，以及允许列表。
+- [OIDC](/self-hosting/auth-oidc) —— 支持 Okta、Auth0、Entra ID、Keycloak 及其他通用协议。
+- [mTLS](/self-hosting/auth-mtls) —— 来自 MDM 的客户端证书、自动配置，以及将单人的多台设备映射至统一身份。
+- [自定义提供商](/self-hosting/auth-custom-providers) —— 无需 fork 核心认证逻辑即可添加自有的提供商。
 
-## Decide what the server keeps
+## 确定服务端保留的数据
 
-- [Encryption and plaintext storage](/self-hosting/encryption) — whether session content is stored end-to-end encrypted or readable by the server.
-- [Retention](/self-hosting/retention) — automatic cleanup. The default is to keep everything forever.
+- [加密与明文存储](/self-hosting/encryption) —— 会话内容是端到端加密存储，还是对服务端可读。
+- [保留策略](/self-hosting/retention) —— 自动清理机制。默认永久保留所有内容。
 
-## Understand what you are running
+## 理解运行机制
 
-- [How Kaiwu fits together](/self-hosting/how-it-works) — the three moving parts, and what that means for a proxy in front of them.
-- [Protocol](/self-hosting/protocol) — the event contract between clients, the relay and your machines.
+- [Kaiwu 架构总览](/self-hosting/how-it-works) —— 三大核心组件，以及它们对其前端代理的具体要求。
+- [协议规范](/self-hosting/protocol) —— 客户端、中继与设备之间的事件契约。
 
-## Flavors
+## 部署版本
 
-Both flavors run the same API and the same logic. The difference is only which
-storage backends they use.
+两种版本运行相同的 API 和业务逻辑，差异仅在于使用的存储后端不同。
 
-- **Full** — external Postgres (default) or MySQL 8.0.16+, with S3 or a
-  compatible store (default; `HAPPIER_FILES_BACKEND=local` switches to disk).
-  Redis is optional and only needed for multi-replica realtime.
-- **Light** — SQLite (default) or embedded Postgres (PGlite) on disk, with local
-  file storage served by the server at `GET /files/*`.
+- **完整版（Full）** —— 采用外部 Postgres（默认）或 MySQL 8.0.16+，搭配 S3 或兼容存储（默认配置；可通过 `HAPPIER_FILES_BACKEND=local` 切换为本地磁盘）。Redis 为可选项，仅在多副本实时同步时才需要。
+- **轻量版（Light）** —— 基于磁盘的 SQLite（默认）或嵌入式 Postgres（PGlite），本地文件存储由服务端直接通过 `GET /files/*` 提供服务。
 
-Use **full** for a shared server; use **light** for the easiest single node.
+若是多用户共享的服务端，请使用**完整版**；若追求最简便的单节点部署，请使用**轻量版**。
 
 <Callout>
-  With SQLite and no `DATABASE_URL`, the server requires
-  `HAPPIER_SERVER_LIGHT_DATA_DIR` and refuses to start without it.
+  在搭配 SQLite 且未配置 `DATABASE_URL` 的情况下，服务端必须设置 `HAPPIER_SERVER_LIGHT_DATA_DIR`，否则将拒绝启动。
 </Callout>
 
-## Roles and scaling
+## 角色划分与扩容
 
-One process is the simple case. To split it, set `SERVER_ROLE`:
+单进程运行是最简单的方式。若要拆分角色，可设置 `SERVER_ROLE`：
 
-| `SERVER_ROLE` | What the process does |
+| `SERVER_ROLE` | 进程职责 |
 | --- | --- |
-| unset (default `all`) | API, realtime and background work together |
-| `api` | API and realtime only — this is what clients connect to |
-| `worker` | background work only, no HTTP listener |
+| 未设置（默认 `all`） | 同时处理 API、实时通信和后台任务 |
+| `api` | 仅处理 API 和实时通信 —— 客户端连接此角色 |
+| `worker` | 仅处理后台任务，不监听 HTTP 请求 |
 
-Two things about that table are worth knowing before you rely on it:
+在根据上表进行部署前，有两点需要特别注意：
 
-- **An unrecognized value is not an error.** Anything other than `api` or
-  `worker` — including a typo — silently resolves to `all`. A misspelled
-  `SERVER_ROLE=wroker` gives you a second full server, not a worker.
-- **`worker` requires the Redis adapter.** The process throws at startup unless
-  `REDIS_URL` is set and `HAPPIER_SOCKET_ADAPTER=redis-streams`, because a
-  worker publishes to rooms it has no direct sockets for.
+- **无法识别的值不会报错。** 任何非 `api` 或 `worker` 的取值（包括拼写错误），都会静默回退为 `all`。例如将 `SERVER_ROLE=wroker` 拼写错误，启动的将是第二个完整服务端，而不是 Worker。
+- **`worker` 必须配合 Redis 适配器。** 除非已设置 `REDIS_URL` 且配置了 `HAPPIER_SOCKET_ADAPTER=redis-streams`，否则进程会在启动时抛出异常。这是因为 Worker 需要向自身未直接建立 Socket 连接的房间发布消息。
 
-The converse also holds: once the Redis adapter is on, durable machine-presence
-writes move to a worker. An all-`api` deployment with Redis enabled will log
-that it needs one, and presence will not be written durably until you run one.
+反之亦然：一旦启用了 Redis 适配器，持久化设备在线状态（presence）的写入操作就会转交由 Worker 处理。如果部署全部为 `api` 且启用了 Redis，系统会记录日志提示需要 Worker，并且在 Worker 运行之前，在线状态将无法持久化写入。
 
-For multi-replica API deployments, enable Redis fanout and configure sticky
-sessions at your load balancer. [Docker](/self-hosting/docker) has a working
-example.
+对于多副本 API 部署，请启用 Redis 扇出（fanout），并在负载均衡器上配置会话保持（sticky sessions）。[Docker](/self-hosting/docker) 文档中提供了一个可用的配置示例。
 
-## Reverse proxy basics
+## 反向代理基础
 
-In production, run the API behind a proxy that:
+在生产环境中，应将 API 部署在满足以下条件的反向代理之后：
 
-- terminates TLS,
-- supports WebSocket upgrades — Socket.IO realtime lives at `/v1/updates`,
-- uses timeouts long enough for a long-lived connection,
-- and keeps secrets in your platform's env or secret manager rather than in git.
+- 负责 TLS 终结；
+- 支持 WebSocket 协议升级 —— Socket.IO 实时通信位于 `/v1/updates`；
+- 设置足够长的超时时间以支持长连接；
+- 敏感信息保存在平台的环境变量或机密管理器中，而非存入 git。
 
-If you serve `/files/*` from the server (light flavor), allow those routes too.
+如果由服务端托管 `/files/*`（轻量版），还需放行这些路由。
 
 <Callout type="warn">
-  Broken `/v1/updates` upgrades are the single most common self-hosting failure,
-  and they do not look like a networking problem: machines register fine and
-  then sit there offline, reported as `machine.none_online`. See
-  [Environment variables → Networking](/self-hosting/env#websockets-required-for-realtime--machine-online).
+  `/v1/updates` 升级失败是自托管过程中最常见的故障，且表象通常不像网络问题：设备可以正常注册，但随后始终处于离线状态，并显示为 `machine.none_online`。详情请参阅[环境变量 → 网络](/self-hosting/env#websockets-required-for-realtime--machine-online)。
 </Callout>
 
-## Related
+## 相关内容
 
-The local stack CLI can also bootstrap a remote host over SSH, which is often
-faster than doing it by hand:
+本地 stack CLI 还支持通过 SSH 引导配置远程主机，这通常比手动操作更快：
 
-- [Remote server setup (SSH)](/hstack/remote-server) — installing the self-host server on a remote host.
-- [Remote daemon setup (SSH)](/hstack/remote-daemon) — installing Kaiwu and pairing credentials on one.
+- [远程服务端配置 (SSH)](/hstack/remote-server) —— 在远程主机上安装自托管服务端。
+- [远程守护进程配置 (SSH)](/hstack/remote-daemon) —— 在远程主机上安装 Kaiwu 并配置配对凭据。
