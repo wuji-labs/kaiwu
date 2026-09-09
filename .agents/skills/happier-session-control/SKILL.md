@@ -1,19 +1,19 @@
 ---
 name: happier-session-control
-description: Manage Happier sessions and execution runs through the CLI JSON contract, and create independent Happier diagnosis sessions with explicit ownership, safe options, and fire-and-forget presentation semantics.
-metadata: {"openclaw":{"requires":{"bins":["happier"]},"homepage":"https://github.com/happier-dev/happier"}}
+description: Manage Kaiwu / Happier sessions and execution runs through the CLI JSON contract, and create independent Kaiwu diagnosis sessions with explicit ownership, safe options, and fire-and-forget presentation semantics.
+metadata: {"openclaw":{"requires":{"bins":["kaiwu","happier"]},"homepage":"https://github.com/happier-dev/happier"}}
 ---
 
-# Happier Session Control (CLI JSON)
+# Kaiwu / Happier Session Control (CLI JSON)
 
-This skill enables an agent framework (for example OpenClaw) to control Happier sessions using the **existing** `happier` CLI in `--json` mode.
+This skill enables an agent framework (for example OpenClaw) to control Kaiwu / Happier sessions using the `kaiwu` / `happier` CLI in `--json` mode.
 
 ## Prerequisites
 
-- The `happier` CLI is installed and authenticated.
+- The `kaiwu` (or `happier`) CLI is installed and authenticated.
 - If using multiple servers/profiles, pass server selection flags **before** `session` (prefix-only):
-  - `happier --server <profile-id-or-name> session list --json`
-  - `happier --server-url <url> --webapp-url <url> session list --json`
+  - `kaiwu --server <profile-id-or-name> session list --json`
+  - `kaiwu --server-url <url> --webapp-url <url> session list --json`
 
 ## Contract
 
