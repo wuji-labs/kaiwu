@@ -50,6 +50,7 @@ function getPluginOptions(exp: ReturnType<typeof getPublicConfig>, pluginName: s
 function withCleanEnv<T>(fn: () => T): T {
     const keys = [
         'APP_ENV',
+        'APP_VARIANT',
         'HAPPIER_APP_VARIANT_OVERRIDE',
         'EXPO_PUBLIC_EAS_PROJECT_ID',
         'EAS_PROJECT_ID',
@@ -102,13 +103,13 @@ describe('app.config.js', () => {
 
         expect(exp.extra?.eas?.projectId).toBe(DEFAULT_EAS_PROJECT_ID);
         expect(exp.updates?.url).toBe(DEFAULT_UPDATES_URL);
-        expect(exp.extra?.app?.variant).toBe('development');
-        expect(exp.extra?.app?.identityVariant).toBe('internaldev');
-        expect(exp.owner).toBe('happier-dev');
-        expect(exp.slug).toBe('happier');
-        expect(exp.ios?.bundleIdentifier).toBe('dev.happier.app.dev.internal');
-        expect(exp.android?.package).toBe('dev.happier.app.internaldev');
-        expect(exp.scheme).toBe('happier-internaldev');
+        expect(exp.extra?.app?.variant).toBe('production');
+        expect(exp.extra?.app?.identityVariant).toBe('production');
+        expect(exp.owner).toBe('wuji-labs');
+        expect(exp.slug).toBe('kaiwu');
+        expect(exp.ios?.bundleIdentifier).toBe('com.wujilabs.kaiwu');
+        expect(exp.android?.package).toBe('com.wujilabs.kaiwu');
+        expect(exp.scheme).toEqual(['kaiwu', 'happier']);
     });
 
     it('exposes variant under extra.app when APP_ENV is set', () => {
@@ -133,10 +134,10 @@ describe('app.config.js', () => {
 
         expect(exp.extra?.app?.variant).toBe('preview');
         expect(exp.extra?.app?.identityVariant).toBe('publicdev');
-        expect(exp.name).toBe('Happier (dev)');
-        expect(exp.ios?.bundleIdentifier).toBe('dev.happier.app.publicdev');
-        expect(exp.android?.package).toBe('dev.happier.app.publicdev');
-        expect(exp.scheme).toBe('happier-dev');
+        expect(exp.name).toBe('无极开物 (dev)');
+        expect(exp.ios?.bundleIdentifier).toBe('com.wujilabs.kaiwu.publicdev');
+        expect(exp.android?.package).toBe('com.wujilabs.kaiwu.publicdev');
+        expect(exp.scheme).toEqual(['kaiwu', 'happier']);
         expect(featurePolicyEnv).toBe('preview');
         expect(exp.updates?.requestHeaders?.['expo-channel-name']).toBe('dev');
     });
@@ -148,7 +149,7 @@ describe('app.config.js', () => {
         });
 
         expect(exp.ios?.bundleIdentifier).toBe('com.happier.local.leeroy.dev');
-        expect(exp.android?.package).toBe('dev.happier.app.internaldev');
+        expect(exp.android?.package).toBe('com.wujilabs.kaiwu');
     });
 
     it('uses explicit Android package overrides independently from iOS bundle id overrides', () => {
@@ -206,10 +207,10 @@ describe('app.config.js', () => {
 
         expect(exp.extra?.app?.variant).toBe('preview');
         expect(exp.extra?.app?.identityVariant).toBe('internalpreview');
-        expect(exp.name).toBe('Happier (internal preview)');
-        expect(exp.ios?.bundleIdentifier).toBe('dev.happier.app.internalpreview');
-        expect(exp.android?.package).toBe('dev.happier.app.internalpreview');
-        expect(exp.scheme).toBe('happier-internalpreview');
+        expect(exp.name).toBe('无极开物 (internal preview)');
+        expect(exp.ios?.bundleIdentifier).toBe('com.wujilabs.kaiwu.internalpreview');
+        expect(exp.android?.package).toBe('com.wujilabs.kaiwu.internalpreview');
+        expect(exp.scheme).toEqual(['kaiwu', 'happier']);
         expect(featurePolicyEnv).toBe('preview');
         expect(exp.updates?.requestHeaders?.['expo-channel-name']).toBe('internalpreview');
     });
@@ -223,10 +224,10 @@ describe('app.config.js', () => {
 
         expect(exp.extra?.app?.variant).toBe('preview');
         // Production identity still enables universal links / app links.
-        expect(exp.ios?.associatedDomains).toEqual(['applinks:app.happier.dev']);
+        expect(exp.ios?.associatedDomains).toEqual(['applinks:app.chengqiyun.com']);
         const data = exp.android?.intentFilters?.[0]?.data;
         const dataItems = Array.isArray(data) ? data : data ? [data] : [];
-        expect(dataItems[0]?.host).toBe('app.happier.dev');
+        expect(dataItems[0]?.host).toBe('app.chengqiyun.com');
     });
 
     it('uses the ui package.json version for expo.version by default', () => {

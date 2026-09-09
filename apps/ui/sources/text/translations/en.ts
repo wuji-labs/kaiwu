@@ -94,7 +94,7 @@ const mcpServersUxTranslationExtension = {
   mcpServersDeliveryNativeTitle: 'Native MCP',
   mcpServersDeliveryNativeSubtitle: 'This backend receives Kaiwu tools as native MCP servers.',
   mcpServersDeliveryShellBridgeTitle: 'Kaiwu shell bridge',
-  mcpServersDeliveryShellBridgeSubtitle: 'This backend calls Kaiwu tools through the `happier tools` bridge.',
+  mcpServersDeliveryShellBridgeSubtitle: 'This backend calls Kaiwu tools through the `kaiwu tools` bridge.',
   mcpServersDeliveryUnsupportedTitle: 'Unsupported',
   mcpServersDeliveryUnsupportedSubtitle: 'This backend does not currently receive Kaiwu tools.',
 } as const;
@@ -269,7 +269,7 @@ const settingsAppearanceTranslationExtension = {
     previewSubtitle: 'A local sandbox preview of surfaces, text, controls, state, and syntax colors.',
     previewButton: 'Primary action',
     previewStatus: 'Ready',
-    previewCode: 'const theme = "happier";',
+    previewCode: 'const theme = "kaiwu";',
     colorInputPlaceholder: '#RRGGBB, rgba(...), transparent',
     tokenSubtitle: 'Public color token override',
     recentColors: 'Recent colors',
@@ -1237,8 +1237,8 @@ export const en = {
         generateNewQrCode: 'Generate new QR code',
         pairingQrExpired: 'This QR code expired. Generate a new one.',
         openMachine: 'Open machine',
-        terminalUrlPlaceholder: 'happier://terminal?...',
-        accountUrlPlaceholder: 'happier:///account?...',
+        terminalUrlPlaceholder: 'kaiwu://terminal?...',
+        accountUrlPlaceholder: 'kaiwu:///account?...',
         restoreQrInstructions: "On a device that's already signed in, go to Settings → Account and scan this QR code.",
         externalAuthVerifiedTitle: ({ provider }: { provider: string }) => `${provider} verified`,
         externalAuthVerifiedBody: ({ provider }: { provider: string }) =>
@@ -1264,7 +1264,7 @@ export const en = {
             runCommandInTerminal: 'Run the following command in your terminal:',
             runCommandInTerminalWithCommand: ({ command }: { command: string }) =>
                 `Run the following command in your terminal:\n\n${command}`,
-            command: ({ name }: { name: string }) => `happier connect ${name}`,
+            command: ({ name }: { name: string }) => `kaiwu connect ${name}`,
         },
     },
 
@@ -1292,7 +1292,7 @@ export const en = {
                 disabledByServerSuffix: ' (disabled by server)',
                 pasteDoctorJson: {
                     title: 'CLI doctor JSON (optional)',
-                    subtitle: 'If your machine is unreachable from the UI, run `happier doctor --json` on your computer and paste it here.',
+                    subtitle: 'If your machine is unreachable from the UI, run `kaiwu doctor --json` on your computer and paste it here.',
                     placeholder: '{ "capturedAt": "...", ... }',
                     invalid: ({ error }: { error: string }) => `Invalid doctor JSON: ${error}`,
                     valid: 'Doctor JSON looks valid and will be attached to the report.',
@@ -2162,7 +2162,7 @@ export const en = {
             copyReportSubtitle: 'Copy a redacted JSON report for support',
         },
         pasteDoctorJson: {
-            footer: 'Tip: run `happier doctor --json` on your computer and paste it here.',
+            footer: 'Tip: run `kaiwu doctor --json` on your computer and paste it here.',
             placeholder: '{ "capturedAt": "...", ... }',
             parse: 'Validate pasted JSON',
             ok: 'Pasted doctor JSON looks valid.',
@@ -2948,7 +2948,7 @@ export const en = {
                 promptTitle: 'Uploads directory',
                 promptMessage: 'Enter a workspace-relative directory (no absolute paths, no ..).',
                 invalidDirectoryTitle: 'Invalid directory',
-                invalidDirectoryMessage: 'Use a relative path like `.happier/uploads`.',
+                invalidDirectoryMessage: 'Use a relative path like `.kaiwu/uploads`.',
             },
         },
         sourceControlIgnore: {
@@ -5977,7 +5977,7 @@ export const en = {
         unpinSession: 'Unpin session',
         pinLimitExceeded: ({ count }: { count: number }) => `You can pin up to ${count.toLocaleString()} sessions. Unpin another session and try again.`,
         copyResumeCommand: 'Copy resume command',
-        resumeCommand: ({ sessionId }: { sessionId: string }) => `happier resume ${sessionId}`,
+        resumeCommand: ({ sessionId }: { sessionId: string }) => `kaiwu resume ${sessionId}`,
         viewMachine: 'View Machine',
         viewMachineSubtitle: 'View machine details and sessions',
         manageSharing: 'Manage sharing',
@@ -6018,7 +6018,7 @@ export const en = {
         cliVersionOutdated: 'CLI Update Required',
         cliVersionOutdatedMessage: ({ currentVersion, requiredVersion }: { currentVersion: string; requiredVersion: string }) =>
             `Version ${currentVersion} installed. Update to ${requiredVersion} or later`,
-        updateCliInstructions: 'Please run happier self update',
+        updateCliInstructions: 'Please run kaiwu self update',
         deleteSession: 'Delete Session',
         deleteSessionSubtitle: 'Permanently remove this session',
         deleteSessionConfirm: 'Delete Session Permanently?',
@@ -6062,7 +6062,7 @@ export const en = {
             runIt: 'Run it',
             scanQrCode: 'Scan the QR code',
             openCamera: 'Open Camera',
-            runCommand: '$ happier',
+            runCommand: '$ kaiwu',
         },
         emptyMessages: {
             noMessagesYet: 'No messages yet',
@@ -8075,7 +8075,7 @@ settingsSession: {
             title: 'Windows',
             defaultModeTitle: 'Default Windows remote session mode',
             windowNameTitle: 'Windows Terminal window name',
-            windowNamePlaceholder: 'happier',
+            windowNamePlaceholder: 'kaiwu',
             windowNameHint: 'Sessions opened in Windows Terminal use this named window so new sessions can appear as tabs.',
         },
     },
@@ -9388,7 +9388,7 @@ settingsSession: {
     machine: {
         launchNewSessionInDirectory: 'Launch New Session in Directory',
         offlineUnableToSpawn: 'Launcher disabled while machine is offline',
-        offlineHelp: '• Make sure your computer is online\n• Run `happier daemon status` to diagnose\n• Are you running the latest CLI version? Run `happier self update`',
+        offlineHelp: '• Make sure your computer is online\n• Run `kaiwu daemon status` to diagnose\n• Are you running the latest CLI version? Run `kaiwu self update`',
         customPathPlaceholder: 'Enter custom path',
         tools: {
             title: 'Tools',

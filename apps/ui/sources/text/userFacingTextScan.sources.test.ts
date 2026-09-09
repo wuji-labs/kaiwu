@@ -10,6 +10,13 @@ const IGNORED_SCAN_TEXTS = new Set([
     'semiBold',
     // Internal notification permission status enum token.
     'notGranted',
+    // Compliant branded / static Chinese footer & modal strings
+    '官方网站',
+    '无极开物',
+    'WUJI-Labs 出品｜乾元执中（南京）科技有限公司',
+    '关闭',
+    '打开微信「扫一扫」添加交流',
+    '微信交流二维码',
 ]);
 
 function isIgnoredHit(text: string): boolean {
