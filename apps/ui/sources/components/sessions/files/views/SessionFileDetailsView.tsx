@@ -50,6 +50,9 @@ import { useSessionImagePreview } from '@/components/sessions/files/content/imag
 import { useSessionMediaPreview } from '@/components/sessions/files/content/mediaPreview/useSessionMediaPreview';
 import { AudioPreviewPanel } from '@/components/sessions/files/content/mediaPreview/AudioPreviewPanel';
 import { PdfPreviewPanel } from '@/components/sessions/files/content/documentPreview/PdfPreviewPanel';
+import { DocxPreviewPanel } from '@/components/sessions/files/content/documentPreview/DocxPreviewPanel';
+import { XlsxPreviewPanel } from '@/components/sessions/files/content/documentPreview/XlsxPreviewPanel';
+import { PptxPreviewPanel } from '@/components/sessions/files/content/documentPreview/PptxPreviewPanel';
 import { getMediaKind, getLegacyOfficeKind } from '@/scm/utils/filePresentation';
 import { extractSelectedDiffLineKeysFromPatch } from '@/scm/scmPatchSelection';
 export type SessionFileDeepLinkAnchor = Readonly<{
@@ -764,6 +767,78 @@ export function SessionFileDetailsView(props: SessionFileDetailsViewProps) {
                                 theme={theme}
                                 filePath={filePath}
                                 customMessage={binaryMediaPreview.error ?? t('files.pdfPreviewFailed')}
+                                actionButton={
+                                    <FileDownloadButton
+                                        testID="file-media-download"
+                                        sessionId={sessionId}
+                                        path={filePath}
+                                        asZip={false}
+                                    />
+                                }
+                            />
+                        )
+                    ) : mediaKind === 'docx' ? (
+                        binaryMediaPreview.status === 'loaded' ? (
+                            <DocxPreviewPanel
+                                uri={binaryMediaPreview.uri}
+                                theme={theme}
+                                fileName={fileName}
+                            />
+                        ) : binaryMediaPreview.status === 'loading' ? (
+                            <FileLoadingState theme={theme} filePath={filePath} />
+                        ) : (
+                            <FileBinaryState
+                                theme={theme}
+                                filePath={filePath}
+                                customMessage={binaryMediaPreview.error ?? t('files.officePreviewFailed')}
+                                actionButton={
+                                    <FileDownloadButton
+                                        testID="file-media-download"
+                                        sessionId={sessionId}
+                                        path={filePath}
+                                        asZip={false}
+                                    />
+                                }
+                            />
+                        )
+                    ) : mediaKind === 'xlsx' ? (
+                        binaryMediaPreview.status === 'loaded' ? (
+                            <XlsxPreviewPanel
+                                uri={binaryMediaPreview.uri}
+                                theme={theme}
+                                fileName={fileName}
+                            />
+                        ) : binaryMediaPreview.status === 'loading' ? (
+                            <FileLoadingState theme={theme} filePath={filePath} />
+                        ) : (
+                            <FileBinaryState
+                                theme={theme}
+                                filePath={filePath}
+                                customMessage={binaryMediaPreview.error ?? t('files.officePreviewFailed')}
+                                actionButton={
+                                    <FileDownloadButton
+                                        testID="file-media-download"
+                                        sessionId={sessionId}
+                                        path={filePath}
+                                        asZip={false}
+                                    />
+                                }
+                            />
+                        )
+                    ) : mediaKind === 'pptx' ? (
+                        binaryMediaPreview.status === 'loaded' ? (
+                            <PptxPreviewPanel
+                                uri={binaryMediaPreview.uri}
+                                theme={theme}
+                                fileName={fileName}
+                            />
+                        ) : binaryMediaPreview.status === 'loading' ? (
+                            <FileLoadingState theme={theme} filePath={filePath} />
+                        ) : (
+                            <FileBinaryState
+                                theme={theme}
+                                filePath={filePath}
+                                customMessage={binaryMediaPreview.error ?? t('files.officePreviewFailed')}
                                 actionButton={
                                     <FileDownloadButton
                                         testID="file-media-download"
