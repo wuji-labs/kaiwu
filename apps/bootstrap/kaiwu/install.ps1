@@ -119,8 +119,7 @@ if (-not (Test-Path $tarGzFile)) {
 Write-Info "正在展开并配置开物运行时..."
 $extractTemp = Join-Path $tempDir "extract"
 if (Test-Path $extractTemp) {
-    Get-ChildItem -Path $extractTemp -Recurse | Remove-Item -Force -ErrorAction SilentlyContinue
-    Remove-Item -Force -Path $extractTemp -ErrorAction SilentlyContinue
+    Remove-Item -LiteralPath $extractTemp -Recurse -Force -ErrorAction SilentlyContinue
 }
 New-Item -ItemType Directory -Force -Path $extractTemp | Out-Null
 
