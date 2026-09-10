@@ -5,37 +5,37 @@ description: 查看 Kaiwu 认为此设备存在哪些问题，并让它修复能
 当设备无法上线、会话拒绝启动，或是 App 显示某台电脑离线但你确信它正在运行时，只需一条命令即可排查原因：
 
 ```bash
-happier status
+kaiwu status
 ```
 
 该命令只读取状态，不做任何修改。你可以在任何设备上随时运行，完全无需担心它会在会话进行中重启任何组件。
 
 ## 检查范围
 
-`happier status` 会对你与正常会话之间的整条链路进行全面排查：
+`kaiwu status` 会对你与正常会话之间的整条链路进行全面排查：
 
 - **账户状态**——当前设备是否已登录，以及登录凭证是否已过期。
 - **中继**——配置了哪些中继配置项、当前处于激活状态的是哪一个，以及设备是否已在中继上注册。设备可能处于已登录状态却未完成注册，这也是电脑始终不显示在 App 中的最常见原因。
 - **自动启动**——后台服务是否已安装且处于运行状态、是否指向正确的通道，以及是否存在重复实例。
-- **CLI 本身**——当前处于哪个通道（`happier`、`hprev`、`hdev`）、是否有待安装的更新，以及正在运行的守护进程版本是否与刚刚调用的 CLI 版本不一致。
+- **CLI 本身**——当前处于哪个通道（`kaiwu`、`hprev`、`hdev`）、是否有待安装的更新，以及正在运行的守护进程版本是否与刚刚调用的 CLI 版本不一致。
 
 它能识别上述领域的 27 类具体问题，其中大多数都极难人工排查：切换通道后残留的后台服务、两个开机启动项争抢同一个中继、旧版 CLI 遗留的守护进程仍在运行、本地中继版本与客户端发生偏离等。
 
 ## 修复检测到的问题
 
-`happier status` 绝不会擅自修改任何内容——它会直接拒绝 `--yes`，并提示你改用修复命令。准备就绪后，直接运行：
+`kaiwu status` 绝不会擅自修改任何内容——它会直接拒绝 `--yes`，并提示你改用修复命令。准备就绪后，直接运行：
 
 ```bash
-happier doctor repair
+kaiwu doctor repair
 ```
 
 该命令会依序检查上述问题并逐项提供修复方案，在执行操作前会征求你的确认。添加 `--yes` 参数可以无需提示直接应用所有支持的修复操作，非常适合在脚本或 SSH 场景下使用：
 
 ```bash
-happier doctor repair --yes
+kaiwu doctor repair --yes
 ```
 
-添加 `--report-only` 参数可以只预览修复方案而不实际应用。这正是 `happier status` 底层执行的操作，因此若只是排查查看，两者完全等价。
+添加 `--report-only` 参数可以只预览修复方案而不实际应用。这正是 `kaiwu status` 底层执行的操作，因此若只是排查查看，两者完全等价。
 
 部分问题无法自动修复，诊断报告会如实说明，不会掩盖情况。最常见的就是认证过期：Kaiwu 可以告知你登录已失效，但重新登录必须由你亲自完成。
 
@@ -44,22 +44,22 @@ happier doctor repair --yes
 `status` 报告的大部分内容都与自动启动相关，因为正是该机制保证了设备在没有终端打开时依然保持可达状态。你可以直接控制它：
 
 ```bash
-happier service status      # the default if you pass nothing
-happier service install
-happier service start
-happier service stop
-happier service restart
-happier service uninstall
-happier service logs
-happier service list
-happier service paths
-happier service repair
+kaiwu service status      # the default if you pass nothing
+kaiwu service install
+kaiwu service start
+kaiwu service stop
+kaiwu service restart
+kaiwu service uninstall
+kaiwu service logs
+kaiwu service list
+kaiwu service paths
+kaiwu service repair
 ```
 
-建议尽早了解 `happier service logs`：当设备频繁掉线时，服务日志通常会记录具体原因，直接查阅日志远比手动复现故障更高效。
+建议尽早了解 `kaiwu service logs`：当设备频繁掉线时，服务日志通常会记录具体原因，直接查阅日志远比手动复现故障更高效。
 
 <Callout type="info">
-  `happier daemon …` 依然可用，但二者分工不同：
+  `kaiwu daemon …` 依然可用，但二者分工不同：
   `service` 用于管理操作系统的开机自启注册项，而 `daemon`
   用于管理当前正在运行的进程。如果设备在重启后处于离线状态，
   `service` 才是你需要使用的命令。
@@ -70,8 +70,8 @@ happier service repair
 这两条命令均支持输出 JSON 格式，方便在 CI 或健康检查流程中集成：
 
 ```bash
-happier doctor --json
-happier doctor repair --report-only --json
+kaiwu doctor --json
+kaiwu doctor repair --report-only --json
 ```
 
 ## 清理残留进程
@@ -79,7 +79,7 @@ happier doctor repair --report-only --json
 在极少数情况下，异常崩溃可能会残留进程，占用端口并导致守护进程无法启动：
 
 ```bash
-happier doctor clean
+kaiwu doctor clean
 ```
 
 该命令会显示已终止的进程数量。当 `status` 报告端口被占用或存在冲突的手动守护进程，且普通修复未能解决时，即可使用此命令。

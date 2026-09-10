@@ -1,88 +1,100 @@
 ---
-title: 键盘快捷键
-description: 所有可重新绑定的快捷键与命令面板，包含 Web 端与原生端的默认设置。
+title: Keyboard shortcuts
+description: Every rebindable shortcut and the command palette, with the defaults for web and native.
 ---
-Kaiwu 拥有 33 个键盘命令，全部支持重新绑定。若操作系统的快捷键已被占用，Web 端与原生客户端的默认键位会有所不同。
+
+Kaiwu has 33 keyboard commands. Every one can be rebound, and the defaults
+differ between the web client and the native apps where the platform already
+claims a key.
 
 <Callout type="warn">
-  两项功能**默认处于关闭状态**：下文中的快捷键生效前，须先在**设置 → 快捷键**中开启快捷键注册表与命令面板。
+  Both features are **off by default**: turn on the shortcut registry and the command palette under **Settings → Keyboard shortcuts** before any binding below does anything.
 </Callout>
 
-`Mod` 在 macOS 和 iOS 上对应 Command 键，在其他平台对应 Control 键。若某项绑定字面直接写为 `Ctrl`，则在包括 macOS 在内的所有平台上均指 Control 键——此处系有意设计，用于遵循特定平台惯例，而非泛指“修饰键”。
+`Mod` means Command on macOS and iOS, and Control everywhere else. Where a
+binding is written literally as `Ctrl`, it is Control on every platform
+including macOS — that is deliberate, because the key is standing in for a
+platform convention rather than for "the modifier key".
 
-## 命令面板
+## The command palette
 
-无需记忆快捷键即可执行各项操作的最快捷径。它将内置命令、自定义提示词以及 Kaiwu 操作汇集在同一个列表中供检索调用。
+The fastest way to reach anything without remembering a binding. It searches
+built-in commands, your custom prompts and Kaiwu actions in one list.
 
-`Alt+K`（Web 端）· `Mod+K`（其他客户端）
+`Alt+K` (web) · `Mod+K` (everywhere else)
 
-## 快捷键
+## Shortcuts
 
-### 会话切换
+### Moving between sessions
 
-| 操作 | 默认值 |
+| Action | Default |
 | --- | --- |
-| 新建会话 | `Alt+N`（Web 端）· `Mod+Shift+N`（其他客户端） |
-| 下一个最近使用的会话 | `Alt+PageDown`（Web 端）· `Ctrl+Tab`（其他客户端） |
-| 上一个最近使用的会话 | `Alt+PageUp`（Web 端）· `Ctrl+Shift+Tab`（其他客户端） |
-| 列表中的下一个会话 | `Alt+ArrowDown` |
-| 列表中的上一个会话 | `Alt+ArrowUp` |
+| Start a new session | `Alt+N` (web) · `Mod+Shift+N` (everywhere else) |
+| Next recently used session | `Alt+PageDown` (web) · `Ctrl+Tab` (everywhere else) |
+| Previous recently used session | `Alt+PageUp` (web) · `Ctrl+Shift+Tab` (everywhere else) |
+| Next session in the list | `Alt+ArrowDown` |
+| Previous session in the list | `Alt+ArrowUp` |
 
-### 会话列表
+### The session list
 
-| 操作 | 默认值 |
+| Action | Default |
 | --- | --- |
-| 上移当前聚焦的会话 | `Alt+Shift+ArrowUp` |
-| 下移当前聚焦的会话 | `Alt+Shift+ArrowDown` |
-| 移动到文件夹 | `Alt+Shift+F` |
-| 移出至工作区根目录 | `Alt+Shift+R` |
-| 选中或取消选中当前聚焦行 | `Space`（Web 端） |
-| 向上扩展选中范围 | `Shift+ArrowUp`（Web 端） |
-| 向下扩展选中范围 | `Shift+ArrowDown`（Web 端） |
-| 全选会话 | `Mod+A`（Web 端） |
-| 取消选中 | `Escape`（Web 端） |
+| Move the focused session up | `Alt+Shift+ArrowUp` |
+| Move the focused session down | `Alt+Shift+ArrowDown` |
+| Move to a folder | `Alt+Shift+F` |
+| Move out to the workspace root | `Alt+Shift+R` |
+| Select or deselect the focused row | `Space` (web) |
+| Extend the selection up | `Shift+ArrowUp` (web) |
+| Extend the selection down | `Shift+ArrowDown` (web) |
+| Select every session | `Mod+A` (web) |
+| Clear the selection | `Escape` (web) |
 
-### 编写与发送
+### Writing and sending
 
-| 操作 | 默认值 |
+| Action | Default |
 | --- | --- |
-| 跳转至输入框 | `Mod+I` |
-| 立即发送 | `Mod+Enter` |
-| 加入队列（不展开输入框） | `Mod+Shift+Enter` |
-| 终止当前轮次 | `Mod+.`（Web 端）· `Shift+Escape`（其他客户端） |
-| 切换会话模式 | `Alt+Shift+M` |
-| 切换权限模式 | _默认未绑定_ |
+| Jump to the composer | `Mod+I` |
+| Send now | `Mod+Enter` |
+| Queue without opening the composer | `Mod+Shift+Enter` |
+| Stop the current turn | `Mod+.` (web) · `Shift+Escape` (everywhere else) |
+| Cycle session mode | `Alt+Shift+M` |
+| Cycle permission mode | _Unbound by default_ |
 
-### 查看会话记录
+### Reading the transcript
 
-| 操作 | 默认值 |
+| Action | Default |
 | --- | --- |
-| 下一条消息 | _默认未绑定_ |
-| 上一条消息 | _默认未绑定_ |
-| 跳至顶部 | `Home` |
-| 跳至实时末尾 | `End` |
-| 向上翻页 | `PageUp` |
-| 向下翻页 | `PageDown` |
-| 全选消息 | `Alt+Shift+A` |
-| 复制所选消息 | `Alt+Shift+C` |
-| 将所选内容发送至其他会话 | `Alt+Shift+S` |
-| 取消选择 | `Escape` |
+| Next message | _Unbound by default_ |
+| Previous message | _Unbound by default_ |
+| Jump to the top | `Home` |
+| Jump to the live tail | `End` |
+| Page up | `PageUp` |
+| Page down | `PageDown` |
+| Select every message | `Alt+Shift+A` |
+| Copy the selected messages | `Alt+Shift+C` |
+| Send the selection to another session | `Alt+Shift+S` |
+| Cancel the selection | `Escape` |
 
-### 其他操作
+### Everything else
 
-| 操作 | 默认值 |
+| Action | Default |
 | --- | --- |
-| 打开命令面板 | `Alt+K`（Web 端）· `Mod+K`（其他客户端） |
-| 在应用中显示此列表 | `?` |
-| 打开设置 | _默认未绑定_ |
+| Open the command palette | `Alt+K` (web) · `Mod+K` (everywhere else) |
+| Show this list in the app | `?` |
+| Open settings | _Unbound by default_ |
 
-快捷键会遵循当前的焦点状态。在输入框中键入内容时，绝大多数快捷键不会响应；因此发送操作拥有独立且可安全用于编辑场景的按键绑定，无需先移出输入框焦点。
+Shortcuts respect focus. Most do nothing while you are typing in the composer,
+which is why sending has its own explicitly editable-safe binding rather than
+relying on you leaving the field first.
 
-## 修改快捷键
+## Changing them
 
-前往**设置 → 快捷键**，可以查看每个命令及其当前绑定的按键并进行自定义设置。设置快捷键时系统会自动检测冲突。配置按设备单独存储，不会在多端间同步，因此笔记本与台式机可以保持不同的键位方案。
+**Settings → Keyboard shortcuts** lists every command with its current binding
+and lets you set your own. Conflicts are detected as you assign them, and your
+choices are stored per device rather than synced, so a laptop and a desktop can
+differ.
 
-## 相关内容
+## Related
 
-- [会话设置](/sessions/session-settings)
-- [提示词、技能、模板与注册表](/extending/prompts-and-skills) —— 命令面板还能调用的其他功能。
+- [Session settings](/sessions/session-settings)
+- [Prompts, skills, templates, and registries](/extending/prompts-and-skills) — what else the palette can reach.

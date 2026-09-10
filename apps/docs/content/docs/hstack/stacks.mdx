@@ -299,19 +299,19 @@ hstack stack wt exp1 -- use default
 
 此操作会更新栈 env 文件（`~/.happier/stacks/⟦K57⟧/env`），而非代码仓的 `env.local`（旧路径仍受支持）。
 
-## 针对特定栈运行 Kaiwu CLI（`stack happier`）
+## 针对特定栈运行 Kaiwu CLI（`stack kaiwu`）
 
-若要针对特定栈运行 `happier` CLI 命令（而非当前 shell 环境变量所指向的栈），请运行：
+若要针对特定栈运行 `kaiwu` CLI 命令（而非当前 shell 环境变量所指向的栈），请运行：
 
 ```bash
-hstack stack happier exp1 -- status
-hstack stack happier exp1 -- daemon status
+hstack stack kaiwu exp1 -- status
+hstack stack kaiwu exp1 -- daemon status
 ```
 
 也可以使用栈的简写形式：
 
 ```bash
-hstack exp1 happier status
+hstack exp1 kaiwu status
 ```
 
 ## 可用的栈封装命令
@@ -325,7 +325,7 @@ hstack exp1 happier status
 - `hstack stack doctor ⟦K62⟧`
 - `hstack stack mobile ⟦K63⟧`
 - `hstack stack eas ⟦K64⟧ [subcommand...]`
-- `hstack stack happier ⟦K65⟧ [-- ...]`
+- `hstack stack kaiwu ⟦K65⟧ [-- ...]`
 - `hstack stack srv ⟦K66⟧ -- status|use ...`
 - `hstack stack wt ⟦K67⟧ -- ⟦K68⟧`
 - `hstack stack tailscale:status|enable|disable|url ⟦K69⟧`

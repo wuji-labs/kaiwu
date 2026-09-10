@@ -170,7 +170,11 @@ const IMAGE_EXT = /\.(png|jpe?g|webp|avif|gif|svg)$/i;
 async function main() {
     const files = await walk(DIST);
     const sized = await Promise.all(
-        files.map(async (f) => ({ f, rel: path.relative(DIST, f), bytes: (await stat(f)).size })),
+        files.map(async (f) => ({
+            f,
+            rel: path.relative(DIST, f).replace(/\\/g, '/'),
+            bytes: (await stat(f)).size,
+        })),
     );
 
     // ---- bundles ----------------------------------------------------------
@@ -382,7 +386,7 @@ async function main() {
     }
     const thirdParty = [...html.matchAll(/<(?:link|script)[^>]+(?:href|src)=["'](https?:\/\/[^"']+)/gi)]
         .map((m) => new URL(m[1]).host)
-        .filter((h) => !h.endsWith('happier.dev'));
+        .filter((h) => !h.endsWith('happier.dev') && !h.endsWith('kaiwu.chengqiyun.com') && !h.endsWith('chengqiyun.com'));
     if (thirdParty.length) {
         failures.push(`  FAIL third-party render-path origin(s) in <head>: ${[...new Set(thirdParty)].join(', ')}`);
     }

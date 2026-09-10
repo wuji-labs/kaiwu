@@ -253,7 +253,7 @@ export const LOCALE_META: Record<Locale, LocaleMeta> = {
     },
 };
 
-export const SITE_ORIGIN = 'https://happier.dev';
+export const SITE_ORIGIN = 'https://kaiwu.chengqiyun.com';
 
 /** Absolute URL for a locale's copy of a route. `route` is always the
  *  locale-independent path, e.g. `/` or `/pricing`. */

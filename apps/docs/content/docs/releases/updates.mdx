@@ -35,14 +35,14 @@ Kaiwu（无极开物）包含多个应用与工具，**具体的更新机制取�
 | **桌面端应用**（Tauri，“Tori” / Kaiwu 桌面版） | 已安装的应用包（`.app` / 安装程序） | 应用检查经签名的更新源，并在应用内提示更新 | **自动检查**，由**用户手动确认**安装 | 确认应用内的更新提示即可；所跟踪的通道由最初安装的构建版本决定 |
 | **移动端应用**（iOS/Android） | App Store / Play Store | (1) 可能拉取 JS/静态资源 OTA 更新；(2) 原生更新来自应用商店 | OTA 更新支持**自动下载 + 用户手动应用**；原生更新**由应用商店统一管理** | 点击应用内“有可用更新”横幅即可应用 OTA 更新（并重载应用）。原生更新则需在应用商店中安装新版本 |
 | **Web 端应用**（托管版） | 直接打开托管的 Web UI | 新版本上线后，用户刷新页面即可获取 | 是（刷新后生效） | 刷新页面即可（如果浏览器缓存严重，请执行强制刷新） |
-| **自托管 Web UI 静态包**（`happier-ui-web`） | 由自托管服务器、Docker 镜像或运行器内置/提供服务 | 随服务端运行时更新而变化（或在运行器下载更新的 UI 静态包时变更） | 取决于宿主方式（见下文） | 通过宿主方式控制更新（执行 Docker pull、`happier relay host install`、重启运行器，或锁定标签） |
+| **自托管 Web UI 静态包**（`kaiwu-ui-web`） | 由自托管服务器、Docker 镜像或运行器内置/提供服务 | 随服务端运行时更新而变化（或在运行器下载更新的 UI 静态包时变更） | 取决于宿主方式（见下文） | 通过宿主方式控制更新（执行 Docker pull、`kaiwu relay host install`、重启运行器，或锁定标签） |
 | **中继服务器 Docker 镜像**（`happierdev/relay-server`） | `docker run … happierdev/relay-server:⟦K15⟧` | 拉取更新的镜像标签并重启容器时更新 | 否 | 执行 `docker pull …`，随后重启或重建容器；如需严格受控，可固定为不可变标签或摘要 |
 | **中继服务器 Docker 镜像内置 UI** | 包含在 Docker 镜像构建产物中 | 随 Docker 镜像一同更新 | 否 | 与 Docker 镜像更新方式相同（拉取新镜像并重启） |
-| **中继服务器 npm 包**（`@happier-dev/relay-server`） | `npx … @happier-dev/relay-server happier-server …` | 运行器启动时，会拉取所选滚动标签对应的最新服务端运行时与 UI 静态包 | 是（重启后生效） | 重启运行器即可拉取最新的滚动标签；可通过 `--tag server-vX.Y.Z` 与 `--ui-tag ui-web-vX.Y.Z` 锁定版本；通过 `--without-ui` 或 `HAPPIER_SERVER_UI_DIR=` 禁用 UI |
-| **中继服务器 npm 运行器“内置” UI** | 由运行器动态下载并缓存（未直接打包在 npm tarball 中） | 运行器在需要时自动下载 UI 静态包 | 是（重启后生效） | 控制方式与运行器相同：使用 `--ui-tag …`、`--without-ui`，或将 `HAPPIER_SERVER_UI_DIR` 指向固定目录 |
-| **托管中继运行时**（`happier relay host …`） | 安装 Kaiwu CLI 后运行 `happier relay host install …` | 重新运行 `happier relay host install` 时更新 | 否 | 运行 `happier relay host install`（在本地执行或配合 `--ssh user@host` 执行） |
-| **CLI 安装程序**（`https://kaiwu.chengqiyun.com/install`） | `curl …install \| bash` / `irm …install.ps1` | 重新运行安装程序（或通过 CLI 的自我更新功能进行更新） | 否 | 重新运行安装程序，或使用 `self update` 配合运行对应通道的专用命令（`happier`、`hprev` 或 `hdev`） |
-| **CLI 安装程序产物** | 安装于 `~/.happier/cli{,-preview,-dev}/{versions,current,previous}` 下，并在 `~/.happier/bin` 和 `~/.local/bin`（或 Windows 对应路径）中提供通道专属 shim 脚本 | 运行 `happier self update`、`hprev self update`、`hdev self update` 或重新运行安装程序时更新 | 否（但会显示更新提示） | 安装程序对应的通道包括 `stable`（`happier`）、`preview`（`hprev`）和 `dev`（`hdev`）。你仍可显式指定 `--channel preview|dev` 或 `--to versionOrTag` 进行更新。 |
+| **中继服务器 npm 包**（`@happier-dev/relay-server`） | `npx … @happier-dev/relay-server happier-server …` | 运行器启动时，会拉取所选滚动标签对应的最新服务端运行时与 UI 静态包 | 是（重启后生效） | 重启运行器即可拉取最新的滚动标签；可通过 `--tag server-vX.Y.Z` 与 `--ui-tag ui-web-vX.Y.Z` 锁定版本；通过 `--without-ui` 或 `KAIWU_SERVER_UI_DIR=` 禁用 UI |
+| **中继服务器 npm 运行器“内置” UI** | 由运行器动态下载并缓存（未直接打包在 npm tarball 中） | 运行器在需要时自动下载 UI 静态包 | 是（重启后生效） | 控制方式与运行器相同：使用 `--ui-tag …`、`--without-ui`，或将 `KAIWU_SERVER_UI_DIR` 指向固定目录 |
+| **托管中继运行时**（`kaiwu relay host …`） | 安装 Kaiwu CLI 后运行 `kaiwu relay host install …` | 重新运行 `kaiwu relay host install` 时更新 | 否 | 运行 `kaiwu relay host install`（在本地执行或配合 `--ssh user@host` 执行） |
+| **CLI 安装程序**（`https://kaiwu.chengqiyun.com/install`） | `curl …install \| bash` / `irm …install.ps1` | 重新运行安装程序（或通过 CLI 的自我更新功能进行更新） | 否 | 重新运行安装程序，或使用 `self update` 配合运行对应通道的专用命令（`kaiwu`、`hprev` 或 `hdev`） |
+| **CLI 安装程序产物** | 安装于 `~/.kaiwu/cli{,-preview,-dev}/{versions,current,previous}` 下（兼容读取 `~/.happier`），并在 `~/.kaiwu/bin` 和 `~/.local/bin`（或 Windows 对应路径）中提供通道专属 shim 脚本 | 运行 `kaiwu self update`、`hprev self update`、`hdev self update` 或重新运行安装程序时更新 | 否（但会显示更新提示） | 安装程序对应的通道包括 `stable`（`kaiwu`）、`preview`（`hprev`）和 `dev`（`hdev`）。你仍可显式指定 `--channel preview|dev` 或 `--to versionOrTag` 进行更新。 |
 | **CLI npm 包**（`@happier-dev/cli`） | `npm install -g @happier-dev/cli` | 升级该 npm 包时更新 | 否（但会显示更新提示） | 运行 `npm install -g @happier-dev/cli@latest`（预览版运行 `@next`） |
 | **栈 npm 包**（`@happier-dev/stack`） | `npm install -g @happier-dev/stack` | 升级该 npm 包（或使用 `hstack self update` 运行时安装）时更新 | 否（但会显示更新提示） | 运行 `hstack self update`（在栈内部推荐使用）或 `npm install -g @happier-dev/stack@latest` |
 
@@ -87,16 +87,16 @@ CLI 可在 TTY 交互式会话中定期打印“有可用更新”提示，并�
 
 提示信息中会包含执行更新的命令：
 
-- `happier self update`
+- `kaiwu self update`
 
 禁用更新检查与提示：
 
-- `HAPPIER_CLI_UPDATE_CHECK=0`
+- `KAIWU_CLI_UPDATE_CHECK=0`（兼容 `HAPPIER_CLI_UPDATE_CHECK=0`）
 
 调整检查频率：
 
-- `HAPPIER_CLI_UPDATE_CHECK_INTERVAL_MS`
-- `HAPPIER_CLI_UPDATE_NOTIFY_INTERVAL_MS`
+- `KAIWU_CLI_UPDATE_CHECK_INTERVAL_MS`
+- `KAIWU_CLI_UPDATE_NOTIFY_INTERVAL_MS`
 
 `hstack`（栈工具）遵循相同的更新模式：
 
@@ -108,14 +108,14 @@ CLI 可在 TTY 交互式会话中定期打印“有可用更新”提示，并�
 检查 / 更新：
 
 ```bash
-happier self check
-happier self update
+kaiwu self check
+kaiwu self update
 ```
 
 预览版通道：
 
 ```bash
-happier self update --channel=preview
+kaiwu self update --channel=preview
 ```
 
 开发版通道：
@@ -127,7 +127,7 @@ hdev self update
 锁定到特定版本（或类似 `latest`/`next` 的滚动标签）：
 
 ```bash
-happier self update --to 0.1.2
+kaiwu self update --to 0.1.2
 ```
 
 重新运行安装程序同样是有效的更新途径：
@@ -138,7 +138,7 @@ curl -fsSL https://kaiwu.chengqiyun.com/install | bash
 
 ### 如果是通过 npm 安装 CLI
 
-使用 npm 进行更新（运行 `happier self update` 时 CLI 会打印出确切的命令）：
+使用 npm 进行更新（运行 `kaiwu self update` 时 CLI 会打印出确切的命令）：
 
 ```bash
 npm install -g @happier-dev/cli@latest
@@ -157,7 +157,7 @@ npm install -g @happier-dev/cli@next
 其中*自动执行*的部分：
 
 - 交互式 CLI 会话（TTY）中的**更新提示**：
-  - `happier` 会打印提示，引导你运行 `happier self update`
+  - `kaiwu` 会打印提示，引导你运行 `kaiwu self update`
   - `hstack` 会打印提示，引导你运行 `hstack self update`
 
 需要*手动执行*的部分：
@@ -181,38 +181,38 @@ curl -fsSL https://kaiwu.chengqiyun.com/install | bash
 
 Windows（PowerShell）下的更新方式与此相同（重新运行安装程序）。
 
-### 托管中继运行时（`happier relay host …`）
+### 托管中继运行时（`kaiwu relay host …`）
 
 运行以下命令安装或更新托管中继运行时：
 
 ```bash
-happier relay host install --mode system
+kaiwu relay host install --mode system
 ```
 
 远程主机（通过 SSH）：
 
 ```bash
-happier relay host install --ssh user@host --mode system
+kaiwu relay host install --ssh user@host --mode system
 ```
 
-随后即可使用 `happier relay host status` 与 `happier relay host start|stop|restart` 进行管理。
+随后即可使用 `kaiwu relay host status` 与 `kaiwu relay host start|stop|restart` 进行管理。
 
 ## 服务端 / 自托管更新
 
 目前支持多种自托管部署形态。另请参阅：[自托管运行时（安装程序与运行器对比）](/self-hosting/self-host-runtime)。
 
-### 托管中继运行时（`happier relay host …`）
+### 托管中继运行时（`kaiwu relay host …`）
 
 更新 / 重新安装（即 install-or-update）：
 
 ```bash
-happier relay host install --mode system
+kaiwu relay host install --mode system
 ```
 
 随后根据需要重启：
 
 ```bash
-happier relay host restart --mode system
+kaiwu relay host restart --mode system
 ```
 
 ### 中继服务器运行器（`@happier-dev/relay-server`）

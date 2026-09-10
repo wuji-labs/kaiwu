@@ -28,13 +28,13 @@ hstack setup-from-source --profile=dev
 自托管配置（稳定/类生产环境）：
 
 ```bash
-happier relay host install --mode system
+kaiwu relay host install --mode system
 ```
 
 旧版包装脚本（仍受支持）：
 
 ```bash
-hstack self-host install # forwards to `happier relay host install` when supported
+hstack self-host install # forwards to `kaiwu relay host install` when supported
 ```
 
 在安装时启用自动更新（需手动开启）：
@@ -80,13 +80,13 @@ hstack setup-from-source --profile=selfhost --stable-branch=preview
 可以显式指定目录：
 
 ```bash
-hstack setup-from-source --profile=dev --workspace-dir=~/Documents/Development/happier
+hstack setup-from-source --profile=dev --workspace-dir=~/Documents/Development/kaiwu
 ```
 
 或者通过环境变量设置：
 
 ```bash
-export HAPPIER_STACK_WORKSPACE_DIR=~/Documents/Development/happier
+export HAPPIER_STACK_WORKSPACE_DIR=~/Documents/Development/kaiwu
 ```
 
 ## 开发 hstack 本身（本地 CLI 根目录）
@@ -94,7 +94,7 @@ export HAPPIER_STACK_WORKSPACE_DIR=~/Documents/Development/happier
 在 monorepo 内迭代 hstack 源码时，可以将已安装的垫片（shim）指向本地检出的代码：
 
 ```bash
-export HAPPIER_STACK_CLI_ROOT_DIR=~/Documents/Development/happier/dev/apps/stack
+export HAPPIER_STACK_CLI_ROOT_DIR=~/Documents/Development/kaiwu/dev/apps/stack
 hstack help
 ```
 

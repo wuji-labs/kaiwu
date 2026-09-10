@@ -35,7 +35,7 @@ describe('website public surface links', () => {
 
         expect(openSourceLinks).toContainEqual(expect.objectContaining({
             label: 'Self-host',
-            href: 'https://docs.happier.dev/deployment/self-host-runtime',
+            href: 'https://kaiwu.chengqiyun.com/docs/self-hosting/self-host-runtime',
         }));
     });
 

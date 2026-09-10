@@ -31,7 +31,7 @@ import type { Messages } from './en';
  */
 export const zhHans: Messages = {
     meta: {
-        title: 'Happier — 一个客户端，管理所有 AI 编程代理',
+        title: '无极开物 — 一个客户端，管理所有 AI 编程代理',
         // Qwen and Kimi are named on purpose and named EARLY. They are in the
         // shipped provider list (src/data/providers.tsx:121-122), they are what
         // this audience actually runs, and they are the one thing Anthropic's
@@ -39,7 +39,7 @@ export const zhHans: Messages = {
         // description leads with Claude/Codex; the Chinese one must not.
         description:
             '在自己的电脑上运行 Claude Code、Codex、OpenCode、Qwen、Kimi 等 12 种 AI 编程代理，然后从手机、浏览器或桌面端继续。一个客户端管理全部，不绑定任何厂商。开源、端到端加密、可自托管，用你自己的订阅账号。',
-        ogTitle: 'Happier — 一个客户端，管理所有 AI 编程代理',
+        ogTitle: '无极开物 — 一个客户端，管理所有 AI 编程代理',
         ogDescription:
             'Claude Code、Codex、OpenCode、Qwen、Kimi —— 一个跨设备客户端全部管理。开源，端到端加密，可自托管。',
         ogLocale: 'zh_CN',
@@ -98,7 +98,7 @@ export const zhHans: Messages = {
         // advanced/updates.mdx:156；hstack/remote-server.mdx:86）。请与
         // src/sections/SelfHost.tsx 的 HIGHLIGHTS 保持一致。
         operationBody:
-            '作为托管服务运行，用 happier relay host status 启动、停止和查看状态。主机上没有任何东西会自动更新——需要更新时，由你重新运行安装命令。',
+            '作为托管服务运行，用 kaiwu relay host status 启动、停止和查看状态。主机上没有任何东西会自动更新——需要更新时，由你重新运行安装命令。',
         remoteTitle: '远程访问',
         remoteBody: '随时随地访问你的会话。SSH 隧道、Tailscale，或直接使用 HTTPS。',
         nodeDevice: '你的设备',
@@ -117,14 +117,14 @@ export const zhHans: Messages = {
         // notes on the funnel. The CLI step leads, because the failure mode for
         // this audience is installing the app with no machine to pair.
         stepDownloadTitle: '下载应用',
-        stepDownloadBody: '从 App Store 或 Google Play 获取 Happier，也可以使用桌面端。',
+        stepDownloadBody: '从 App Store 或 Google Play 获取无极开物，也可以使用桌面端。',
         stepInstallTitle: '安装 CLI',
         stepInstallBody: '一条命令搞定。支持 macOS、Linux 和 Windows。',
         stepPairTitle: '配对设备',
         stepPairBody: '扫描终端中显示的二维码，连接你的手机或浏览器。',
         stepCodeTitle: '开始编程',
-        stepCodeBody: '用 happier 代替 claude 或 codex 运行。你的会话会立刻同步到所有设备。',
-        runHappierLabel: '用 happier 代替 claude 运行',
+        stepCodeBody: '用 kaiwu 代替 claude 或 codex 运行。你的会话会立刻同步到所有设备。',
+        runHappierLabel: '用 kaiwu 代替 claude 运行',
     },
 
     cta: {

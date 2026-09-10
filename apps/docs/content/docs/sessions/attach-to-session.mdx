@@ -7,7 +7,7 @@ description: 从 Kaiwu 应用启动会话，稍后在终端中接入，并在远
 该工作流主要用于：
 
 - 在离开终端时，从客户端界面启动会话；
-- 稍后使用 `happier attach ⟦K2⟧` 重新连接；
+- 稍后使用 `kaiwu attach ⟦K2⟧` 重新连接；
 - 在**远程控制**（来自 Kaiwu）与**本地控制**（来自终端中的提供商 TUI）之间切换同一会话。
 
 ## 适用场景
@@ -23,16 +23,16 @@ description: 从 Kaiwu 应用启动会话，稍后在终端中接入，并在远
 
 - 从客户端启动 **Codex** 或 **Claude** 会话，稍后从终端接入；
 - 从客户端启动 **OpenCode** 会话，之后在本地重新打开，无需创建第二个 Kaiwu 会话；
-- 从界面开始任务，需要直接使用提供商原生 TUI 时运行 `happier attach ⟦K3⟧`；
+- 从界面开始任务，需要直接使用提供商原生 TUI 时运行 `kaiwu attach ⟦K3⟧`；
 - 让会话在后台运行，稍后重新连接，而无需启动新会话。
 
 ## 接入机制
 
-`happier attach` 用于重新连接正在运行的会话。
+`kaiwu attach` 用于重新连接正在运行的会话。
 
 ```bash
-happier attach
-happier attach <session-id>
+kaiwu attach
+kaiwu attach <session-id>
 ```
 
 具体行为取决于会话的启动方式：
@@ -42,15 +42,15 @@ happier attach <session-id>
 - **Windows 控制台会话**：Kaiwu 会将现有的控制台宿主窗口置于前台
 - **提供商原生接入会话**：Kaiwu 会使用提供商自带的接入流程连接该会话
 
-`happier attach` 仅重连现有会话，不会启动新会话。
+`kaiwu attach` 仅重连现有会话，不会启动新会话。
 
-若在受支持的终端中运行不带会话 ID 的 `happier attach`，Kaiwu 会打开活动会话的交互式列表：
+若在受支持的终端中运行不带会话 ID 的 `kaiwu attach`，Kaiwu 会打开活动会话的交互式列表：
 
 - 当前设备上可接入的会话可供选择
 - 可见但不可接入的活动会话将保持禁用状态，并附有说明
 - 支持远程的提供商会话会标记为 remote；在接入前按 `P` 可检查连通性
 
-已停止的会话不会显示在此选择器中。非活动会话请参阅 [`happier resume`](/sessions/session-resume)。
+已停止的会话不会显示在此选择器中。非活动会话请参阅 [`kaiwu resume`](/sessions/session-resume)。
 
 ## 环境要求
 
@@ -77,7 +77,7 @@ happier attach <session-id>
 - **Windows Terminal**——适合稍后返回并在 Windows Terminal 窗口中继续操作
 - **Console**——在常规的可见控制台宿主中启动会话
 
-如果会话以 **Windows Terminal** 或 **Console** 模式启动，`happier attach ⟦K4⟧` 会聚焦该现有交互式宿主，而无需使用 tmux。
+如果会话以 **Windows Terminal** 或 **Console** 模式启动，`kaiwu attach ⟦K4⟧` 会聚焦该现有交互式宿主，而无需使用 tmux。
 
 ### 提供商原生接入会话
 
@@ -127,12 +127,12 @@ happier attach <session-id>
 
 1. 在 Kaiwu 客户端中启动会话
 2. 在**远程**模式下正常使用
-3. 在所属设备上运行 `happier attach ⟦K5⟧`
+3. 在所属设备上运行 `kaiwu attach ⟦K5⟧`
 4. 需要直接使用提供商 TUI 时，切换到**本地**模式
 5. 在终端中继续工作
 6. 稍后切回**远程**模式，在客户端中继续操作
 
-接管本地控制由终端驱动。如需接管本地控制，请在所属设备上的终端中运行 `happier attach ⟦K6⟧` 进行接入。
+接管本地控制由终端驱动。如需接管本地控制，请在所属设备上的终端中运行 `kaiwu attach ⟦K6⟧` 进行接入。
 
 当 Claude 或 Codex 会话处于本地模式时，如果你从客户端发送消息，Kaiwu 会先将其加入队列，而不会直接键入终端。若本地轮次仍在运行，Kaiwu 会等待当前轮次结束、中止或达到安全边界后，再将会话切回远程处理并投递队列中的消息。
 
@@ -145,7 +145,7 @@ happier attach <session-id>
 
 这是同一会话内部的控制权切换，并非新建会话。会话记录、会话 ID 和会话设置均保持不变。
 
-从远程切换到本地控制需在终端中运行 `happier attach` 发起。当会话处于本地控制时，可从客户端请求切回远程控制。Kaiwu 可能会等待当前本地轮次执行完毕后再接管远程控制，因为强行向繁忙的终端 TUI 输入提示词可能会打断或中止提供商当前的工作。
+从远程切换到本地控制需在终端中运行 `kaiwu attach` 发起。当会话处于本地控制时，可从客户端请求切回远程控制。Kaiwu 可能会等待当前本地轮次执行完毕后再接管远程控制，因为强行向繁忙的终端 TUI 输入提示词可能会打断或中止提供商当前的工作。
 
 ## 支持的提供商
 
@@ -195,7 +195,7 @@ Kaiwu 维护单一的标准会话状态。在模式切换期间：
 
 ## 故障排查
 
-### `happier attach` 找不到会话
+### `kaiwu attach` 找不到会话
 
 请检查以下几项：
 

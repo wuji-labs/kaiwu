@@ -116,7 +116,7 @@ describe('route table', () => {
     it('emits a self-referencing canonical in every head', () => {
         for (const route of ROUTES) {
             const head = headTagsFor(route);
-            expect(head).toContain(`<link rel="canonical" href="https://happier.dev${route.path}" />`);
+            expect(head).toContain(`<link rel="canonical" href="https://kaiwu.chengqiyun.com${route.path}" />`);
             expect(head).toContain('property="og:url"');
             expect(head).toContain('application/ld+json');
         }
