@@ -21,16 +21,16 @@ const fs = require('fs');
 
 const VARIANTS = {
   stable: {
-    homeDir: path.join(os.homedir(), '.happier'),
+    homeDir: path.join(os.homedir(), '.kaiwu'),
     color: '\x1b[32m', // Green
     label: '✅ STABLE',
-    serverUrl: process.env.HAPPIER_SERVER_URL || 'https://api.happier.dev'
+    serverUrl: process.env.KAIWU_SERVER_URL || process.env.HAPPIER_SERVER_URL || 'https://kaiwu.chengqiyun.com'
   },
   dev: {
-    homeDir: path.join(os.homedir(), '.happier-dev'),
+    homeDir: path.join(os.homedir(), '.kaiwu-dev'),
     color: '\x1b[33m', // Yellow
     label: '🔧 DEV',
-    serverUrl: process.env.HAPPIER_SERVER_URL || 'https://api.happier.dev'
+    serverUrl: process.env.KAIWU_SERVER_URL || process.env.HAPPIER_SERVER_URL || 'https://kaiwu.chengqiyun.com'
   }
 };
 
@@ -39,24 +39,24 @@ const command = process.argv[3];
 const args = process.argv.slice(4);
 
 if (!variant || !VARIANTS[variant]) {
-  console.error('Usage: node scripts/env-wrapper.js <stable|dev> <command> [...args]');
+  console.error('Usage: node scripts/env-wrapper.cjs <stable|dev> <command> [...args]');
   console.error('');
   console.error('Variants:');
-  console.error('  stable - Production-ready version (data: ~/.happier/)');
-  console.error('  dev    - Development version (data: ~/.happier-dev/)');
+  console.error('  stable - Production-ready version (data: ~/.kaiwu/)');
+  console.error('  dev    - Development version (data: ~/.kaiwu-dev/)');
   console.error('');
   console.error('Examples:');
-  console.error('  node scripts/env-wrapper.js stable daemon start');
-  console.error('  node scripts/env-wrapper.js dev auth login');
+  console.error('  node scripts/env-wrapper.cjs stable daemon start');
+  console.error('  node scripts/env-wrapper.cjs dev auth login');
   process.exit(1);
 }
 
 if (!command) {
-  console.error('Usage: node scripts/env-wrapper.js <stable|dev> <command> [...args]');
+  console.error('Usage: node scripts/env-wrapper.cjs <stable|dev> <command> [...args]');
   console.error('');
   console.error('Examples:');
-  console.error('  node scripts/env-wrapper.js stable daemon start');
-  console.error('  node scripts/env-wrapper.js dev auth login');
+  console.error('  node scripts/env-wrapper.cjs stable daemon start');
+  console.error('  node scripts/env-wrapper.cjs dev auth login');
   process.exit(1);
 }
 
@@ -68,17 +68,17 @@ if (!fs.existsSync(config.homeDir)) {
 }
 
 // Visual feedback
-console.log(`${config.color}${config.label}\x1b[0m Happier CLI (data: ${config.homeDir})`);
+console.log(`${config.color}${config.label}\x1b[0m Kaiwu CLI (data: ${config.homeDir})`);
 
 // Set environment and execute command
 const env = {
   ...process.env,
-  HAPPIER_HOME_DIR: config.homeDir,
-  HAPPIER_SERVER_URL: config.serverUrl,
-  HAPPIER_VARIANT: variant, // For internal validation
+  KAIWU_HOME_DIR: config.homeDir,
+  KAIWU_SERVER_URL: config.serverUrl,
+  KAIWU_VARIANT: variant, // For internal validation
 };
 
-const binPath = path.join(__dirname, '..', 'bin', 'happier.mjs');
+const binPath = path.join(__dirname, '..', 'bin', 'kaiwu.mjs');
 const proc = spawn('node', [binPath, command, ...args], {
   env,
   stdio: 'inherit',

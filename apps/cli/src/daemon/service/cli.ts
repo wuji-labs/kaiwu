@@ -995,14 +995,20 @@ function mapDaemonServiceListEntriesToInventory(
         const marker = `${String.raw`/.config/systemd/user/`}`;
         const index = installedPath.indexOf(marker);
         if (index > 0) {
-          return join(installedPath.slice(0, index), '.happier');
+          const userHome = installedPath.slice(0, index);
+          const defaultDir = join(userHome, '.kaiwu');
+          const fallbackDir = join(userHome, '.happier');
+          return fs.existsSync(fallbackDir) && !fs.existsSync(defaultDir) ? fallbackDir : defaultDir;
         }
       }
       if (entry.platform === 'darwin') {
         const marker = `${String.raw`/Library/LaunchAgents/`}`;
         const index = installedPath.indexOf(marker);
         if (index > 0) {
-          return join(installedPath.slice(0, index), '.happier');
+          const userHome = installedPath.slice(0, index);
+          const defaultDir = join(userHome, '.kaiwu');
+          const fallbackDir = join(userHome, '.happier');
+          return fs.existsSync(fallbackDir) && !fs.existsSync(defaultDir) ? fallbackDir : defaultDir;
         }
       }
       if (entry.platform === 'win32') {

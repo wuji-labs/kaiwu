@@ -10,10 +10,10 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const STABLE_DIR = path.join(os.homedir(), '.happier');
-const DEV_DIR = path.join(os.homedir(), '.happier-dev');
+const STABLE_DIR = path.join(os.homedir(), '.kaiwu');
+const DEV_DIR = path.join(os.homedir(), '.kaiwu-dev');
 
-console.log('🔧 Setting up Happier CLI development environment...\n');
+console.log('🔧 Setting up Kaiwu CLI development environment...\n');
 
 // Create directories
 [STABLE_DIR, DEV_DIR].forEach(dir => {
@@ -26,12 +26,12 @@ console.log('🔧 Setting up Happier CLI development environment...\n');
 });
 
 // Create .envrc for direnv users (optional)
-const envrcContent = `# Happier CLI environment (for direnv users)
-# Automatically sets HAPPIER_HOME_DIR based on directory
+const envrcContent = `# Kaiwu CLI environment (for direnv users)
+# Automatically sets KAIWU_HOME_DIR based on directory
 #
-# To use: cd to happier-cli-dev directory, run: direnv allow
-export HAPPIER_HOME_DIR="$HOME/.happier-dev"
-export HAPPIER_VARIANT="dev"
+# To use: cd to kaiwu-cli-dev directory, run: direnv allow
+export KAIWU_HOME_DIR="$HOME/.kaiwu-dev"
+export KAIWU_VARIANT="dev"
 `;
 
 const envrcPath = path.join(__dirname, '..', '.envrc.example');

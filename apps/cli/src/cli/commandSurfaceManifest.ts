@@ -6,99 +6,99 @@ export type CliCommandSurfaceEntry = Readonly<{
   allowTmux: boolean;
 }>;
 
-export const RESUME_COMMAND_USAGE = 'happier resume [<session-id-or-prefix>]';
+export const RESUME_COMMAND_USAGE = 'kaiwu resume [<session-id-or-prefix>]';
 
 const COMMAND_SURFACE_MANIFEST: readonly CliCommandSurfaceEntry[] = [
   {
     command: null,
-    rootHelpLabel: 'happier [options]',
+    rootHelpLabel: 'kaiwu [options]',
     rootHelpDescription: 'Start the default backend with mobile control',
     allowTmux: true,
   },
   {
     command: 'setup',
-    rootHelpLabel: 'happier setup',
+    rootHelpLabel: 'kaiwu setup',
     rootHelpDescription: 'Connect this computer to your Kaiwu account',
     rootHelpDetail: 'choose where your relay lives, then sign in',
     allowTmux: false,
   },
   {
     command: 'auth',
-    rootHelpLabel: 'happier auth',
+    rootHelpLabel: 'kaiwu auth',
     rootHelpDescription: 'Manage authentication',
     allowTmux: false,
   },
   {
     command: 'automation',
-    rootHelpLabel: 'happier automation',
+    rootHelpLabel: 'kaiwu automation',
     rootHelpDescription: 'Trigger and manage automations',
     allowTmux: false,
   },
   {
     command: 'mcp',
-    rootHelpLabel: 'happier mcp',
+    rootHelpLabel: 'kaiwu mcp',
     rootHelpDescription: 'Expose the MCP server and manage MCP clients',
     allowTmux: false,
   },
   {
     command: 'codex',
-    rootHelpLabel: 'happier codex',
+    rootHelpLabel: 'kaiwu codex',
     rootHelpDescription: 'Start Codex mode',
     allowTmux: true,
   },
   {
     command: 'opencode',
-    rootHelpLabel: 'happier opencode',
+    rootHelpLabel: 'kaiwu opencode',
     rootHelpDescription: 'Start OpenCode mode (ACP)',
     allowTmux: true,
   },
   {
     command: 'gemini',
-    rootHelpLabel: 'happier gemini',
+    rootHelpLabel: 'kaiwu gemini',
     rootHelpDescription: 'Start Gemini mode (ACP)',
     allowTmux: true,
   },
   {
     command: 'connect',
-    rootHelpLabel: 'happier connect',
+    rootHelpLabel: 'kaiwu connect',
     rootHelpDescription: 'Connect AI vendor API keys',
     allowTmux: false,
   },
   {
     command: 'notify',
-    rootHelpLabel: 'happier notify',
+    rootHelpLabel: 'kaiwu notify',
     rootHelpDescription: 'Send push notification',
     allowTmux: false,
   },
   {
     command: 'install',
-    rootHelpLabel: 'happier install',
+    rootHelpLabel: 'kaiwu install',
     rootHelpDescription: 'Install provider CLIs and helpers',
     allowTmux: false,
   },
   {
     command: 'status',
-    rootHelpLabel: 'happier status',
+    rootHelpLabel: 'kaiwu status',
     rootHelpDescription: 'Show system status and recommended repairs',
     allowTmux: false,
   },
   {
     command: 'service',
-    rootHelpLabel: 'happier service',
+    rootHelpLabel: 'kaiwu service',
     rootHelpDescription: 'Manage automatic startup',
     rootHelpDetail: 'background services on this computer',
     allowTmux: false,
   },
   {
     command: 'daemon',
-    rootHelpLabel: 'happier daemon',
+    rootHelpLabel: 'kaiwu daemon',
     rootHelpDescription: 'Manage the local daemon process',
     rootHelpDetail: 'started manually or via automatic startup',
     allowTmux: false,
   },
   {
     command: 'doctor',
-    rootHelpLabel: 'happier doctor',
+    rootHelpLabel: 'kaiwu doctor',
     rootHelpDescription: 'System diagnostics & troubleshooting',
     allowTmux: false,
   },
@@ -125,7 +125,7 @@ const COMMAND_SURFACE_MANIFEST: readonly CliCommandSurfaceEntry[] = [
   {
     command: 'session',
     allowTmux: false,
-    rootHelpLabel: 'happier session',
+    rootHelpLabel: 'kaiwu session',
     rootHelpDescription: 'Manage sessions and execution runs',
   },
   {
