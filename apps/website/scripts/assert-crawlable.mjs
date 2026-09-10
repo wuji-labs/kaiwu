@@ -49,6 +49,12 @@ const SITE_SCOPED_IDS = new Set([
     'https://happier.dev/#app-ios',
     'https://happier.dev/#app-android',
     'https://happier.dev/#source',
+    'https://kaiwu.chengqiyun.com/#org',
+    'https://kaiwu.chengqiyun.com/#site',
+    'https://kaiwu.chengqiyun.com/#app',
+    'https://kaiwu.chengqiyun.com/#app-ios',
+    'https://kaiwu.chengqiyun.com/#app-android',
+    'https://kaiwu.chengqiyun.com/#source',
 ]);
 
 /** Substrings that must survive into every shipped page. */
@@ -197,8 +203,8 @@ for (const page of pages.sort()) {
     const canonical = html.match(/<link[^>]+rel=["']canonical["'][^>]*href=["']([^"']+)["']/i);
     const expectedUrl =
         page === 'index.html'
-            ? 'https://happier.dev/'
-            : `https://happier.dev/${page.replace(/\/index\.html$/, '')}`;
+            ? 'https://kaiwu.chengqiyun.com/'
+            : `https://kaiwu.chengqiyun.com/${page.replace(/\/index\.html$/, '')}`;
     if (canonical && canonical[1] !== expectedUrl) {
         failures.push(
             `${where}: canonical points at ${canonical[1]}, not its own URL ${expectedUrl}.`,

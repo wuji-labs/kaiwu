@@ -2,7 +2,7 @@
 title: 移动端 (iOS)
 description: 适用于本地栈的可选 iOS 开发及 dev-client 工作流。
 ---
-本步骤为可选项。多数用户直接在移动端通过 Tailscale 访问 Web UI，或者将 Kaiwu 应用指向自托管中继即可（参见 [App → Relay selection](/apps/app#relay-selection)）。
+本步骤为可选项。多数用户直接在移动端通过 Tailscale 访问 Web UI，或者将 Kaiwu 应用指向自托管中继即可（参见 [App → Relay selection](/apps/app#中继选择)）。
 
 ## 前提条件（一次性配置）
 
@@ -210,18 +210,18 @@ HAPPIER_STACK_IOS_APP_NAME="Kaiwu"
 
 ### 1) 创建（或选择）栈并绑定工作树
 
-以栈名称 `happier` 为例。
+以栈名称 `kaiwu` 为例。
 
 从你的 Fork 分支创建单体仓库工作树（示例）：
 
 ```bash
-hstack wt new local/happier-eas --from=origin --base=origin/dev --use
+hstack wt new local/kaiwu-eas --from=origin --base=origin/dev --use
 ```
 
-将 `happier` 栈绑定到该工作树：
+将 `kaiwu` 栈绑定到该工作树：
 
 ```bash
-hstack stack wt happier -- use local/happier-eas
+hstack stack wt kaiwu -- use local/kaiwu-eas
 ```
 
 ### 2) 在栈环境变量中设置应用标识（本地与构建期配置）
@@ -229,13 +229,13 @@ hstack stack wt happier -- use local/happier-eas
 构建期间，`apps/ui/app.config.js` 会读取并评估这些变量：
 
 ```bash
-hstack stack env happier set \
+hstack stack env kaiwu set \
   APP_ENV=production \
   EXPO_APP_NAME="Kaiwu" \
-  EXPO_APP_BUNDLE_ID="dev.happier.app" \
-  EXPO_APP_SCHEME="happier" \
-  EXPO_APP_SLUG="happier" \
-  EXPO_APP_OWNER="happier-dev"
+  EXPO_APP_BUNDLE_ID="com.wujilabs.kaiwu" \
+  EXPO_APP_SCHEME="kaiwu" \
+  EXPO_APP_SLUG="kaiwu" \
+  EXPO_APP_OWNER="wuji-labs"
 ```
 
 注意事项：
@@ -248,9 +248,9 @@ hstack stack env happier set \
 修改 Bundle ID、Scheme 或配置插件后，建议执行一次干净的预构建，以确保原生工程与最新配置同步：
 
 ```bash
-hstack stack mobile happier --prebuild --platform=ios --clean --no-metro
+hstack stack mobile kaiwu --prebuild --platform=ios --clean --no-metro
 # or:
-hstack stack mobile happier --prebuild --platform=all --clean --no-metro
+hstack stack mobile kaiwu --prebuild --platform=all --clean --no-metro
 ```
 
 ### 4) 确保云端构建机能够读取环境变量（EAS 环境变量）
@@ -265,14 +265,14 @@ EAS 项目环境变量配置流程：
 推荐做法（使用栈作用域同步工具）：
 
 ```bash
-hstack stack eas happier env:sync --environment production
+hstack stack eas kaiwu env:sync --environment production
 # preview/development:
-hstack stack eas happier env:sync --environment preview
-hstack stack eas happier env:sync --environment development
+hstack stack eas kaiwu env:sync --environment preview
+hstack stack eas kaiwu env:sync --environment development
 
 # Safety knobs:
-hstack stack eas happier env:sync --environment production --dry-run
-hstack stack eas happier env:sync --environment production --hide-values
+hstack stack eas kaiwu env:sync --environment production --dry-run
+hstack stack eas kaiwu env:sync --environment production --hide-values
 ```
 
 注意事项：
@@ -283,7 +283,7 @@ hstack stack eas happier env:sync --environment production --hide-values
 手动查看 EAS 配置（调试单个变量时依然实用）：
 
 ```bash
-hstack stack eas happier env:list --environment production
+hstack stack eas kaiwu env:list --environment production
 ```
 
 提示：
@@ -295,14 +295,14 @@ hstack stack eas happier env:list --environment production
 若遇到权限报错，请核实当前登录的 Expo 账号：
 
 ```bash
-hstack stack eas happier whoami
-hstack stack eas happier login
+hstack stack eas kaiwu whoami
+hstack stack eas kaiwu login
 ```
 
 若该项目尚未在你的账号下初始化或关联：
 
 ```bash
-hstack stack eas happier project:init
+hstack stack eas kaiwu project:init
 ```
 
 ### 6) 构建（iOS / Android）
@@ -310,14 +310,14 @@ hstack stack eas happier project:init
 首次配置 iOS 签名凭据通常需要采用交互模式：
 
 ```bash
-hstack stack eas happier ios --profile production --interactive
+hstack stack eas kaiwu ios --profile production --interactive
 ```
 
 凭据配置完成后，即可运行非交互式构建：
 
 ```bash
-hstack stack eas happier ios --profile production --no-wait --non-interactive
-hstack stack eas happier android --profile production --no-wait --non-interactive
+hstack stack eas kaiwu ios --profile production --no-wait --non-interactive
+hstack stack eas kaiwu android --profile production --no-wait --non-interactive
 ```
 
 ### 常见问题排查

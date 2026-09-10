@@ -58,7 +58,7 @@ Kaiwu 支持两种交付模式：
 
 ### Shell 桥接
 
-对于能够执行 Shell 命令但无法直接使用原生 MCP 的提供商，Kaiwu 会通过 `happier tools` CLI 桥接来暴露同一套工具界面。
+对于能够执行 Shell 命令但无法直接使用原生 MCP 的提供商，Kaiwu 会通过 `kaiwu tools` CLI 桥接来暴露同一套工具界面。
 
 目前采用 Shell 桥接的提供商包括：
 
@@ -130,8 +130,8 @@ Kaiwu tools 有意将以下两类工具融合在一起：
 各项内置操作均可按**交互界面**（即操作生效的场合）分别配置，例如：
 
 - 会话智能体
-- CLI（`happier session ...` 与 `happier tools ...`）
-- 外部 MCP 服务器（`happier mcp serve`）
+- CLI（`kaiwu session ...` 与 `kaiwu tools ...`）
+- 外部 MCP 服务器（`kaiwu mcp serve`）
 - 语音工具
 
 这些界面均由同一个操作目录驱动。因此，你可以在不为每个客户端单独构建操作体系的前提下，对某个界面的操作进行文档说明、开启审批或直接禁用。
@@ -247,13 +247,13 @@ Kaiwu 采用统一的通用响应路径来处理用户操作类请求。
 在命令行中，Kaiwu 提供：
 
 ```bash
-happier tools list
+kaiwu tools list
 ```
 
 以及：
 
 ```bash
-happier tools call --session-id <session-id> --source happier --tool <tool-name> --args-json '<json>'
+kaiwu tools call --session-id <session-id> --source happier --tool <tool-name> --args-json '<json>'
 ```
 
 若要查看当前可用的内置及自定义工具界面，请使用 `list`。

@@ -29,10 +29,10 @@ Kaiwu 的核心使用流程始终保持一致：
 ```bash
 # Node-free (recommended): install the CLI binary via the official installer
 curl -fsSL https://kaiwu.chengqiyun.com/install | bash
-happier setup
+kaiwu setup
 ```
 
-`happier setup` 会在认证前先选择中继，随后完成登录、注册本机并协调配置开机自启。当中继配置文件与设备生命周期已配置就绪时，仍可直接使用更底层的 `happier auth login` 命令。
+`kaiwu setup` 会在认证前先选择中继，随后完成登录、注册本机并协调配置开机自启。当中继配置文件与设备生命周期已配置就绪时，仍可直接使用更底层的 `kaiwu auth login` 命令。
 
 说明：
 - 桌面客户端以及通过安装包安装的 CLI 均为独立运行环境，系统无需预装 Node 或 Yarn。
@@ -43,7 +43,7 @@ happier setup
 
 1. 安装中继（参考示例）：
    - Proxmox：参阅 [Proxmox 部署](/self-hosting/proxmox)。
-   - 任意设备（托管服务）：安装 CLI 后运行 `happier relay host install --mode system`（远程执行则运行：`happier relay host install --ssh user@host --mode system`）
+   - 任意设备（托管服务）：安装 CLI 后运行 `kaiwu relay host install --mode system`（远程执行则运行：`kaiwu relay host install --ssh user@host --mode system`）
    - Docker：参阅 [部署 → Docker](/self-hosting/docker)。
 
 2. 打开桌面客户端（推荐）或 Web 端（仅用于查看状态与管理），并选择该中继。
@@ -60,15 +60,15 @@ happier setup
 
 ```bash
 # Recommended remote-machine setup:
-happier machine setup --ssh user@host --install-relay-runtime
+kaiwu machine setup --ssh user@host --install-relay-runtime
 ```
 
 仅供排错使用（在远程主机上手动配置守护进程）：
 
 ```bash
-happier server add --name company --server-url https://YOUR_SERVER_URL --webapp-url https://YOUR_WEBAPP_URL --use
-happier auth login
-happier daemon service install
+kaiwu server add --name company --server-url https://YOUR_SERVER_URL --webapp-url https://YOUR_WEBAPP_URL --use
+kaiwu auth login
+kaiwu daemon service install
 ```
 
 `--use` 会为该 CLI 安装指定默认中继配置文件；但依然推荐优先使用客户端流程，以便直观掌控中继与账号的选择状态。
@@ -97,23 +97,23 @@ happier daemon service install
 ### CLI：单次执行指定目标服务器
 
 ```bash
-happier --server company auth login
-happier --server company daemon start
+kaiwu --server company auth login
+kaiwu --server company daemon start
 ```
 
 ### CLI：在单台设备上运行多个守护进程（每个中继各运行一个）
 
 ```bash
-happier --server personal daemon service install
-happier --server company daemon service install
+kaiwu --server personal daemon service install
+kaiwu --server company daemon service install
 ```
 
 随后进行验证（跨平台通用）：
 
 ```bash
-happier daemon status --all
-happier --server personal daemon service status
-happier --server company daemon service status
+kaiwu daemon status --all
+kaiwu --server personal daemon service status
+kaiwu --server company daemon service status
 ```
 
 如需了解完整的配置文件机制、切换逻辑及 CLI 参考手册，请参阅 [功能特性 → 多服务器](/accounts/multi-server)。

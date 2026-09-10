@@ -301,7 +301,10 @@ export function checkFeatureEnvCoverage({
     .map((file) => readFileSync(file, 'utf8'))
     .join('\n');
   return declared
-    .filter((name) => !published.includes(name))
+    .filter((name) => {
+      const kaiwuName = name.replace(/^HAPPIER_/, 'KAIWU_');
+      return !published.includes(name) && !published.includes(kaiwuName);
+    })
     .sort()
     .map((name) => ({
       at: 'deployment/env.mdx',
@@ -350,7 +353,7 @@ export function checkCliCommandCoverage({
     .join('\n');
   return commands
     .filter((command) => !allow.has(command))
-    .filter((command) => !published.includes(`happier ${command}`))
+    .filter((command) => !published.includes(`happier ${command}`) && !published.includes(`kaiwu ${command}`))
     .sort()
     .map((command) => ({
       at: 'clients/cli.mdx',

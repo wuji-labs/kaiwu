@@ -50,13 +50,14 @@ export const metadata = {
   // results and share cards fell back to whatever the crawler scraped.
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
-  openGraph: { type: 'website', siteName: SITE_NAME, locale: 'en_US' },
+  icons: { icon: '/docs/favicon.ico' },
+  openGraph: { type: 'website', siteName: SITE_NAME, locale: 'zh_CN' },
   twitter: { card: 'summary_large_image' },
 };
 
 export default function Layout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang="en" className={`${inter.variable} ${interTight.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
+    <html lang="zh-CN" className={`${inter.variable} ${interTight.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <body className="flex flex-col min-h-screen">
         {/* `type: 'static'` is not a preference — it is what the deployment can
             serve. The site is a static export on Cloudflare Workers assets, so

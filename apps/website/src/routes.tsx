@@ -42,7 +42,7 @@ import { preloadTagsFor } from './components/Picture';
  * `https://happier.dev/#webpage`.
  */
 
-export const SITE = 'https://happier.dev';
+export const SITE = 'https://kaiwu.chengqiyun.com';
 
 export type Route = {
     /** Origin-relative path. Always starts with `/`; only `/` ends with one. */
@@ -115,17 +115,17 @@ const HOME: Route = {
     // do — instead of on "OpenCode", a navigational query owned by sst that
     // yields structurally zero here. (It does NOT claim no vendor will ship a
     // client for a rival's CLI: Zed already does, over ACP.)
-    title: 'Happier — open-source app for Claude Code, Codex & 11 more',
+    title: 'Kaiwu — open-source app for Claude Code, Codex & 11 more',
     description:
         'Run Claude Code, Codex and 11 more agents from your phone, browser or desktop. Open-source, end-to-end encrypted, self-hostable. Your own subscriptions.',
-    ogTitle: 'Happier — One client for every AI coding agent.',
+    ogTitle: 'Kaiwu — One client for every AI coding agent.',
     ogDescription:
         'Claude Code, Codex, OpenCode, Cursor and 9 more — in one end-to-end encrypted app, on every device, on your own subscriptions. Open-source and self-hostable.',
     ogImage: '/images/og.png',
     ogImageAlt:
-        'The Happier wordmark over the words: One client for every AI coding agent. Claude Code, Codex, OpenCode, Cursor, Gemini, Copilot and 7 more.',
+        'The Kaiwu wordmark over the words: One client for every AI coding agent. Claude Code, Codex, OpenCode, Cursor, Gemini, Copilot and 7 more.',
     jsonLd: [
-        webPage('/', 'webpage', 'Happier — open-source app for Claude Code, Codex & 11 more', {
+        webPage('/', 'webpage', 'Kaiwu — open-source app for Claude Code, Codex & 11 more', {
             primaryImageOfPage: `${SITE}/images/og.png`,
         }),
     ],
@@ -134,21 +134,21 @@ const HOME: Route = {
 
 const AGENTS_INDEX: Route = {
     path: '/agents',
-    title: 'Every AI coding agent Happier runs — 13 and counting',
+    title: 'Every AI coding agent Kaiwu runs — 13 and counting',
     description:
         'One open-source app for 13 command-line coding agents — Claude Code, Codex, OpenCode, Pi and nine more — on your own computers, with your own accounts.',
-    ogTitle: 'Every AI coding agent Happier runs',
+    ogTitle: 'Every AI coding agent Kaiwu runs',
     ogDescription:
         'Thirteen command-line coding agents, one app on your phone, browser and desktop. Each runs on your own computer, under your own subscription or API key.',
     ogImage: '/images/og.png',
-    ogImageAlt: 'The Happier wordmark over the words: One client for every AI coding agent.',
+    ogImageAlt: 'The Kaiwu wordmark over the words: One client for every AI coding agent.',
     jsonLd: [
-        webPage('/agents', 'webpage', 'Every AI coding agent Happier runs'),
+        webPage('/agents', 'webpage', 'Every AI coding agent Kaiwu runs'),
         {
             '@context': 'https://schema.org',
             '@type': 'ItemList',
             '@id': `${SITE}/agents#agent-list`,
-            name: 'AI coding agents Happier runs',
+            name: 'AI coding agents Kaiwu runs',
             numberOfItems: AGENTS.length,
             itemListOrder: 'https://schema.org/ItemListUnordered',
             itemListElement: AGENTS.map((agent, index) => ({
@@ -174,7 +174,7 @@ const AGENT_ROUTES: Route[] = AGENTS.map((agent) => {
         ogTitle: agent.h1,
         ogDescription: agent.standfirst,
         ogImage: '/images/og.png',
-        ogImageAlt: 'The Happier wordmark over the words: One client for every AI coding agent.',
+        ogImageAlt: 'The Kaiwu wordmark over the words: One client for every AI coding agent.',
         // One WebPage node and nothing else. The capability ItemList that used
         // to be here was generated from the nine-column matrix and went with it.
         //
@@ -196,7 +196,7 @@ const VS_REMOTE_CONTROL: Route = {
     // cannot check the claim, and the two words spend a SERP slot a specific
     // promise uses better. What makes the page honest is the sourcing rule in
     // src/data/comparison.ts, not an adjective in the <title>.
-    title: 'Claude Code Remote Control vs Happier: what each covers',
+    title: 'Claude Code Remote Control vs Kaiwu: what each covers',
     // Vertex is deliberately NOT in this list. Anthropic's named unavailability
     // list is Bedrock / Google Cloud's Agent Platform / Microsoft Foundry; a
     // Vertex session is turned away by the separate api.anthropic.com rule, and
@@ -213,7 +213,7 @@ const VS_REMOTE_CONTROL: Route = {
     // is Anthropic's own published behaviour, verified August 2026.
     description:
         'Remote Control is free and good. It is also unavailable for API keys, gateways, Bedrock, Foundry and ZDR orgs. What each one covers, side by side.',
-    ogTitle: 'Claude Code Remote Control vs Happier',
+    ogTitle: 'Claude Code Remote Control vs Kaiwu',
     // The share card is not the place to send the reader to a competitor. "When
     // you should use it instead of Happier" was the old tail of this string and
     // it is what a link preview would have led with.
@@ -226,20 +226,20 @@ const VS_REMOTE_CONTROL: Route = {
     ogDescription:
         'What Anthropic’s own remote does well, the five situations it turns itself off in, and what one client for thirteen agents does instead.',
     ogImage: '/images/og.png',
-    ogImageAlt: 'The Happier wordmark over the words: One client for every AI coding agent.',
+    ogImageAlt: 'The Kaiwu wordmark over the words: One client for every AI coding agent.',
     jsonLd: [
-        webPage('/vs/claude-code-remote-control', 'webpage', 'Claude Code Remote Control vs Happier'),
+        webPage('/vs/claude-code-remote-control', 'webpage', 'Claude Code Remote Control vs Kaiwu'),
         {
             '@context': 'https://schema.org',
             '@type': 'ItemList',
             '@id': `${SITE}/vs/claude-code-remote-control#comparison`,
-            name: 'Claude Code Remote Control compared with Happier',
+            name: 'Claude Code Remote Control compared with Kaiwu',
             numberOfItems: COMPARISON_ROWS.length,
             itemListElement: COMPARISON_ROWS.map((row, index) => ({
                 '@type': 'ListItem',
                 position: index + 1,
                 name: row.capability,
-                description: `Claude Code Remote Control: ${row.rc}. Happier: ${row.happier}.`,
+                description: `Claude Code Remote Control: ${row.rc}. Kaiwu: ${row.happier}.`,
             })),
         },
     ],
@@ -265,7 +265,7 @@ const VS_REMOTE_CONTROL: Route = {
  */
 const VS_CODEX_REMOTE: Route = {
     path: '/vs/codex-remote',
-    title: 'Codex from your phone — Codex Remote vs Happier',
+    title: 'Codex from your phone — Codex Remote vs Kaiwu',
     // "the conditions in OpenAI's own docs" was the middle clause, and it is the
     // same evidence-as-prose defect as the eyebrow this page used to carry: the
     // snippet named its source instead of naming the thing. Attribution is made
@@ -274,30 +274,30 @@ const VS_CODEX_REMOTE: Route = {
     // of src/data/codexRemote.ts. Every condition is OpenAI's own published
     // requirement, verified August 2026.
     description:
-        'OpenAI pairs the ChatGPT app to a Mac or Windows PC running Codex. What Remote covers, the five conditions it runs under, and what Happier does instead.',
+        'OpenAI pairs the ChatGPT app to a Mac or Windows PC running Codex. What Remote covers, the five conditions it runs under, and what Kaiwu does instead.',
     // "…and where Happier fits" is gone from both the snippet and the share
     // card, for the reason it is gone from the H1: "fits" names no outcome, and
     // the phrase is legible only to a reader who already knows the product.
-    ogTitle: 'Codex Remote and Happier, compared',
+    ogTitle: 'Codex Remote and Kaiwu, compared',
     // Not "why Codex Remote is not enough". The share card is read by people who
     // like Codex, and the page's whole method is conceding accurately first.
     ogDescription:
         'What OpenAI’s own remote does well, the five conditions it runs under, and what one client for every coding agent does instead.',
     ogImage: '/images/og.png',
-    ogImageAlt: 'The Happier wordmark over the words: One client for every AI coding agent.',
+    ogImageAlt: 'The Kaiwu wordmark over the words: One client for every AI coding agent.',
     jsonLd: [
-        webPage('/vs/codex-remote', 'webpage', 'Codex Remote compared with Happier'),
+        webPage('/vs/codex-remote', 'webpage', 'Codex Remote compared with Kaiwu'),
         {
             '@context': 'https://schema.org',
             '@type': 'ItemList',
             '@id': `${SITE}/vs/codex-remote#comparison`,
-            name: 'Codex Remote and Codex cloud compared with Happier',
+            name: 'Codex Remote and Codex cloud compared with Kaiwu',
             numberOfItems: CODEX_COMPARISON_ROWS.length,
             itemListElement: CODEX_COMPARISON_ROWS.map((row, index) => ({
                 '@type': 'ListItem',
                 position: index + 1,
                 name: row.capability,
-                description: `Codex: ${row.codex}. Happier: ${row.happier}.`,
+                description: `Codex: ${row.codex}. Kaiwu: ${row.happier}.`,
             })),
         },
     ],
@@ -351,14 +351,14 @@ const USAGE_LIMITS: Route = {
     ogDescription:
         'The session holds its place through a usage limit, waits out the reset and picks the work back up — on one account, or across the accounts you pool.',
     ogImage: '/images/og.png',
-    ogImageAlt: 'The Happier wordmark over the words: One client for every AI coding agent.',
+    ogImageAlt: 'The Kaiwu wordmark over the words: One client for every AI coding agent.',
     jsonLd: [
-        webPage('/features/usage-limits', 'webpage', 'Usage limits and account pooling in Happier'),
+        webPage('/features/usage-limits', 'webpage', 'Usage limits and account pooling in Kaiwu'),
         {
             '@context': 'https://schema.org',
             '@type': 'ItemList',
             '@id': `${SITE}/features/usage-limits#services`,
-            name: 'Provider accounts Happier can pool, and where it can switch between them',
+            name: 'Provider accounts Kaiwu can pool, and where it can switch between them',
             numberOfItems: SERVICE_SUPPORT.length,
             itemListElement: SERVICE_SUPPORT.map((row, index) => ({
                 '@type': 'ListItem',
@@ -382,16 +382,16 @@ const TERMINAL: Route = {
         'Run Claude Code, Codex or OpenCode in their own TUI and follow the same session from your phone. Attach over tmux, or hand control back to the app.',
     ogTitle: 'Keep your Claude Code, Codex and OpenCode terminals, or work from the app',
     ogDescription:
-        'One session, two front ends: the provider’s own TUI in your shell and Happier on your phone. Same session id, same transcript, same queue on both sides of the switch.',
+        'One session, two front ends: the provider’s own TUI in your shell and Kaiwu on your phone. Same session id, same transcript, same queue on both sides of the switch.',
     ogImage: '/images/og.png',
-    ogImageAlt: 'The Happier wordmark over the words: One client for every AI coding agent.',
+    ogImageAlt: 'The Kaiwu wordmark over the words: One client for every AI coding agent.',
     jsonLd: [
-        webPage('/features/terminal', 'webpage', 'Terminal and TUI control in Happier'),
+        webPage('/features/terminal', 'webpage', 'Terminal and TUI control in Kaiwu'),
         {
             '@context': 'https://schema.org',
             '@type': 'ItemList',
             '@id': `${SITE}/features/terminal#local-control`,
-            name: 'Agents whose sessions move between a terminal TUI and the Happier app',
+            name: 'Agents whose sessions move between a terminal TUI and the Kaiwu app',
             numberOfItems: CONTROL_ROWS.length,
             itemListElement: CONTROL_ROWS.map((row, index) => ({
                 '@type': 'ListItem',
@@ -414,21 +414,21 @@ const TERMINAL: Route = {
  */
 const ENTERPRISE: Route = {
     path: '/enterprise',
-    title: 'Self-hosted Happier for teams — SSO, mTLS, your data',
+    title: 'Self-hosted Kaiwu for teams — SSO, mTLS, your data',
     description:
-        'Run the Happier relay yourself: GitHub org and OIDC group gating, forwarded mTLS, offboarding re-checks, storage policy, retention, Docker with Postgres.',
-    ogTitle: 'Self-host the Happier relay behind your own SSO',
+        'Run the Kaiwu relay yourself: GitHub org and OIDC group gating, forwarded mTLS, offboarding re-checks, storage policy, retention, Docker with Postgres.',
+    ogTitle: 'Self-host the Kaiwu relay behind your own SSO',
     ogDescription:
         'A relay you host, locked to your GitHub org or OIDC groups, with client certificates, offboarding re-checks and a storage policy you choose. MIT-licensed, all of it.',
     ogImage: '/images/og.png',
-    ogImageAlt: 'The Happier wordmark over the words: One client for every AI coding agent.',
+    ogImageAlt: 'The Kaiwu wordmark over the words: One client for every AI coding agent.',
     jsonLd: [
-        webPage('/enterprise', 'webpage', 'Self-hosting Happier for an organisation'),
+        webPage('/enterprise', 'webpage', 'Self-hosting Kaiwu for an organisation'),
         {
             '@context': 'https://schema.org',
             '@type': 'ItemList',
             '@id': `${SITE}/enterprise#controls`,
-            name: 'Server controls available on a self-hosted Happier relay',
+            name: 'Server controls available on a self-hosted Kaiwu relay',
             numberOfItems: ENTERPRISE_ACCESS.length + ENTERPRISE_DATA.length,
             itemListElement: [...ENTERPRISE_ACCESS, ...ENTERPRISE_DATA].map((item, index) => ({
                 '@type': 'ListItem',
@@ -456,7 +456,7 @@ const ENTERPRISE: Route = {
  *                  No environment variables anywhere on it.
  *   - /enterprise — what an operator can enforce, in the operator's vocabulary.
  * The storage policy is the one subject both must cover, and it is written from
- * opposite ends on each. They link to each other exactly once, in each
+ * opposite ends on each. They link to each other excitingly once, in each
  * direction, and nowhere else.
  *
  * NO CERTIFICATION IS CLAIMED HERE OR ON THE PAGE. SOC 2, ISO 27001, HIPAA and
@@ -466,21 +466,21 @@ const ENTERPRISE: Route = {
  */
 const SECURITY: Route = {
     path: '/security',
-    title: 'End-to-end encryption in Happier — what the relay sees',
+    title: 'End-to-end encryption in Kaiwu — what the relay sees',
     description:
         'Session content is sealed on the device that wrote it. The keys, the columns a relay can still read, and what changes under a plaintext storage policy.',
     ogTitle: 'End-to-end encryption, with the keys on your own devices',
     ogDescription:
         'Your session is encrypted under a per-session key on the device that made it, and the relay is handed a sealed copy it has nothing to open. Here is what it can still see — named, not glossed.',
     ogImage: '/images/og.png',
-    ogImageAlt: 'The Happier wordmark over the words: One client for every AI coding agent.',
+    ogImageAlt: 'The Kaiwu wordmark over the words: One client for every AI coding agent.',
     jsonLd: [
-        webPage('/security', 'webpage', 'Encryption and the Happier relay'),
+        webPage('/security', 'webpage', 'Encryption and the Kaiwu relay'),
         {
             '@context': 'https://schema.org',
             '@type': 'ItemList',
             '@id': `${SITE}/security#message-path`,
-            name: 'The path a message takes through a Happier relay',
+            name: 'The path a message takes through a Kaiwu relay',
             itemListOrder: 'https://schema.org/ItemListOrderAscending',
             numberOfItems: SECURITY_HOPS.length,
             itemListElement: SECURITY_HOPS.map((hop, index) => ({
@@ -494,7 +494,7 @@ const SECURITY: Route = {
             '@context': 'https://schema.org',
             '@type': 'ItemList',
             '@id': `${SITE}/security#relay-visibility`,
-            name: 'What a Happier relay holds, and what it does not',
+            name: 'What a Kaiwu relay holds, and what it does not',
             numberOfItems: SECURITY_VISIBLE.length + SECURITY_INVISIBLE.length,
             itemListElement: [
                 ...SECURITY_VISIBLE.map((item) => ({ item, holds: true })),

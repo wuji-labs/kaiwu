@@ -23,13 +23,13 @@ description: 通过 CLI 创建、列出、控制会话并编写脚本。
 当会话仍在运行、需要重新连接到运行中的本地或提供商进程时，使用 **attach**：
 
 ```bash
-happier attach <session-id>
+kaiwu attach <session-id>
 ```
 
 当会话处于非活跃状态，但提供商支持重新激活时，使用 **resume**：
 
 ```bash
-happier resume <session-id>
+kaiwu resume <session-id>
 ```
 
 简要说明：
@@ -42,13 +42,13 @@ happier resume <session-id>
 ## 创建会话
 
 ```bash
-happier session create --title "My session" --message "Hello"
+kaiwu session create --title "My session" --message "Hello"
 ```
 
 指定其他目录：
 
 ```bash
-happier session create --path /path/to/repo --title "Repo session"
+kaiwu session create --path /path/to/repo --title "Repo session"
 ```
 
 ### 指定后端（`--backend`）
@@ -56,46 +56,46 @@ happier session create --path /path/to/repo --title "Repo session"
 `--backend` 需要传入一个**后端目标标识键**：
 
 ```bash
-happier session create --backend "agent:<agent-id>"
-happier session create --backend "acpBackend:<backend-id>"
+kaiwu session create --backend "agent:<agent-id>"
+kaiwu session create --backend "acpBackend:<backend-id>"
 ```
 
 如有疑问，可通过操作目录查看规范 Schema 及可用选项：
 
 ```bash
-happier session actions describe session.spawn_new --json
+kaiwu session actions describe session.spawn_new --json
 ```
 
 ## 列出会话
 
 ```bash
-happier session list
+kaiwu session list
 ```
 
 便于脚本处理的用法：
 
 ```bash
-happier session list --json
+kaiwu session list --json
 ```
 
 常用过滤条件：
 
 ```bash
-happier session list --active
-happier session list --archived
-happier session list --resumable
+kaiwu session list --active
+kaiwu session list --archived
+kaiwu session list --resumable
 ```
 
 ## 查看状态
 
 ```bash
-happier session status <session-id-or-prefix>
+kaiwu session status <session-id-or-prefix>
 ```
 
 实时状态（若支持）：
 
 ```bash
-happier session status <session-id-or-prefix> --live
+kaiwu session status <session-id-or-prefix> --live
 ```
 
 ## 发送消息
@@ -103,19 +103,19 @@ happier session status <session-id-or-prefix> --live
 发送用户消息：
 
 ```bash
-happier session send <session-id-or-prefix> "ping"
+kaiwu session send <session-id-or-prefix> "ping"
 ```
 
 等待智能体进入空闲状态：
 
 ```bash
-happier session send <session-id-or-prefix> "ping" --wait --timeout 60
+kaiwu session send <session-id-or-prefix> "ping" --wait --timeout 60
 ```
 
 或者仅等待而不发送消息：
 
 ```bash
-happier session wait <session-id-or-prefix> --timeout 60
+kaiwu session wait <session-id-or-prefix> --timeout 60
 ```
 
 说明：
@@ -130,15 +130,15 @@ happier session wait <session-id-or-prefix> --timeout 60
 获取最近的会话记录条目：
 
 ```bash
-happier session history <session-id-or-prefix> --limit 20
+kaiwu session history <session-id-or-prefix> --limit 20
 ```
 
 用于脚本或调试的变体命令：
 
 ```bash
-happier session history <session-id-or-prefix> --json
-happier session history <session-id-or-prefix> --format raw --include-meta --json
-happier session history <session-id-or-prefix> --format raw --include-meta --include-structured-payload --json
+kaiwu session history <session-id-or-prefix> --json
+kaiwu session history <session-id-or-prefix> --format raw --include-meta --json
+kaiwu session history <session-id-or-prefix> --format raw --include-meta --include-structured-payload --json
 ```
 
 若希望获得更简洁、偏重文本的视图，请使用 `compact`。
@@ -149,22 +149,22 @@ happier session history <session-id-or-prefix> --format raw --include-meta --inc
 停止会话：
 
 ```bash
-happier session stop <session-id-or-prefix>
+kaiwu session stop <session-id-or-prefix>
 ```
 
 归档或取消归档：
 
 ```bash
-happier session archive <session-id-or-prefix>
-happier session unarchive <session-id-or-prefix>
+kaiwu session archive <session-id-or-prefix>
+kaiwu session unarchive <session-id-or-prefix>
 ```
 
 更新元数据：
 
 ```bash
-happier session set-title <session-id-or-prefix> "New title"
-happier session set-model <session-id-or-prefix> <model-id>
-happier session set-permission-mode <session-id-or-prefix> <mode>
+kaiwu session set-title <session-id-or-prefix> "New title"
+kaiwu session set-model <session-id-or-prefix> <model-id>
+kaiwu session set-permission-mode <session-id-or-prefix> <mode>
 ```
 
 ### 权限意图（`set-permission-mode` 与 `--permission-mode`）
@@ -182,8 +182,8 @@ Kaiwu 会为每个会话存储一个与提供商无关的**权限意图**字符�
 两种使用方式均可：
 
 ```bash
-happier session set-permission-mode <session-id-or-prefix> read_only
-happier session send <session-id-or-prefix> "ping" --permission-mode safe-yolo
+kaiwu session set-permission-mode <session-id-or-prefix> read_only
+kaiwu session send <session-id-or-prefix> "ping" --permission-mode safe-yolo
 ```
 
 说明：
@@ -232,10 +232,10 @@ happier session send <session-id-or-prefix> "ping" --permission-mode safe-yolo
 
 ```bash
 # 1) run an approval-gated command
-happier session set-title <session-id> "New title" --json
+kaiwu session set-title <session-id> "New title" --json
 
 # 2) approve it through the generic action path
-happier session actions execute <session-id> approval.request.decide \
+kaiwu session actions execute <session-id> approval.request.decide \
   --input-json '{"artifactId":"<approval-artifact-id>","decision":"approve"}' \
   --json
 ```
@@ -247,14 +247,14 @@ happier session actions execute <session-id> approval.request.decide \
 发现操作：
 
 ```bash
-happier session actions list --json
-happier session actions describe <action-id> --json
+kaiwu session actions list --json
+kaiwu session actions describe <action-id> --json
 ```
 
 执行操作：
 
 ```bash
-happier session actions execute <session-id> <action-id> --input-json '<json>' --json
+kaiwu session actions execute <session-id> <action-id> --input-json '<json>' --json
 ```
 
 当前的 JSON 外层封装结构：
@@ -268,19 +268,19 @@ happier session actions execute <session-id> <action-id> --input-json '<json>' -
 执行运行（Execution runs）是面向多步骤流程（审查 / 规划 / 委派 / 语音智能体）的结构化“运行”层：
 
 ```bash
-happier session run start <session-id> --intent <intent> --backend <backend-target-key> --json
-happier session run list <session-id> --json
-happier session run get <session-id> <run-id> --json
-happier session run send <session-id> <run-id> "message" --json
-happier session run stop <session-id> <run-id> --json
-happier session run wait <session-id> <run-id> --timeout 300 --json
+kaiwu session run start <session-id> --intent <intent> --backend <backend-target-key> --json
+kaiwu session run list <session-id> --json
+kaiwu session run get <session-id> <run-id> --json
+kaiwu session run send <session-id> <run-id> "message" --json
+kaiwu session run stop <session-id> <run-id> --json
+kaiwu session run wait <session-id> <run-id> --timeout 300 --json
 ```
 
 高级运行控制：
 
 ```bash
-happier session run action <session-id> <run-id> <action-id> --input-json '<json>' --json
-happier session run stream-start <session-id> <run-id> "message" --json
-happier session run stream-read <session-id> <run-id> <stream-id> --cursor 0 --json
-happier session run stream-cancel <session-id> <run-id> <stream-id> --json
+kaiwu session run action <session-id> <run-id> <action-id> --input-json '<json>' --json
+kaiwu session run stream-start <session-id> <run-id> "message" --json
+kaiwu session run stream-read <session-id> <run-id> <stream-id> --cursor 0 --json
+kaiwu session run stream-cancel <session-id> <run-id> <stream-id> --json
 ```

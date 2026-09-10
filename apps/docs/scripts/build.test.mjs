@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { resolve } from 'node:path';
 import test from 'node:test';
 
 import { runDocsBuild } from './build.mjs';
@@ -35,7 +36,7 @@ test('writes the redirects file and typechecks before invoking the local Next bu
   assert.deepEqual(calls, [
     {
       kind: 'write',
-      path: '/repo/apps/docs/public/_redirects',
+      path: resolve('/repo/apps/docs', 'public', '_redirects'),
       contents: '/old /new 301\n',
     },
     {
@@ -54,7 +55,7 @@ test('writes the redirects file and typechecks before invoking the local Next bu
       },
     },
     // AFTER the build, not before: it rearranges what the export produced.
-    { kind: 'relocate', options: { outDir: '/repo/apps/docs/out' } },
+    { kind: 'relocate', options: { outDir: resolve('/repo/apps/docs', 'out') } },
   ]);
 });
 

@@ -22,10 +22,10 @@
 export const en = {
     /** Document head. One entry per locale, consumed by the prerender step. */
     meta: {
-        title: 'Happier — One session. Every device.',
+        title: 'Kaiwu — One session. Every device.',
         description:
-            'Happier is the cross-device control room for your AI coding agents. Run Claude Code, Codex, OpenCode and more — on every device, in one inbox, with your own subscriptions.',
-        ogTitle: 'Happier — One session. Every device.',
+            'Kaiwu is the cross-device control room for your AI coding agents. Run Claude Code, Codex, OpenCode and more — on every device, in one inbox, with your own subscriptions.',
+        ogTitle: 'Kaiwu — One session. Every device.',
         ogDescription:
             'The mobile-native control layer for AI coding agents. See the UI. Act on it. No hacks.',
         ogLocale: 'en_US',
@@ -105,7 +105,7 @@ export const en = {
         // advanced/updates.mdx:156; hstack/remote-server.mdx:86). Keep in step
         // with HIGHLIGHTS in src/sections/SelfHost.tsx.
         operationBody:
-            'A managed service you start, stop and check with happier relay host status. Nothing on the host updates itself — you update by rerunning the install command, when you decide to.',
+            'A managed service you start, stop and check with kaiwu relay host status. Nothing on the host updates itself — you update by rerunning the install command, when you decide to.',
         remoteTitle: 'Remote access',
         remoteBody: 'Access your sessions from anywhere. SSH tunnels, Tailscale, or direct HTTPS.',
         nodeDevice: 'Your device',
@@ -122,15 +122,15 @@ export const en = {
     getStarted: {
         heading: 'Up and running\nin under a minute.',
         stepDownloadTitle: 'Download the app',
-        stepDownloadBody: 'Grab Happier from the App Store, Google Play, or as a desktop app.',
+        stepDownloadBody: 'Grab Kaiwu from the App Store, Google Play, or as a desktop app.',
         stepInstallTitle: 'Install the CLI',
         stepInstallBody: 'One command. Works on macOS, Linux, and Windows.',
         stepPairTitle: 'Pair your device',
         stepPairBody: 'Scan the QR code in your terminal to connect your phone or browser.',
         stepCodeTitle: 'Start coding',
         stepCodeBody:
-            'Run happier instead of claude or codex. Your sessions sync everywhere instantly.',
-        runHappierLabel: 'Run happier instead of claude',
+            'Run kaiwu instead of claude or codex. Your sessions sync everywhere instantly.',
+        runHappierLabel: 'Run kaiwu instead of claude',
     },
 
     /** src/sections/CallToAction.tsx:37 */

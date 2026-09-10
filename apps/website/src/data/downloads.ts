@@ -103,7 +103,7 @@ export const INSTALL_COMMAND_WINDOWS = downloads.installCommandWindows;
 
 /** The two-step, nothing-piped-to-a-shell version, for readers who want it. */
 export const INSTALL_COMMAND_UNIX_INSPECTABLE = [
-    'curl -fsSL https://happier.dev/install.sh -o happier-install.sh',
-    'less happier-install.sh   # read it first',
-    'bash happier-install.sh',
+    'curl -fsSL https://kaiwu.chengqiyun.com/install.sh -o kaiwu-install.sh',
+    'less kaiwu-install.sh   # read it first',
+    'bash kaiwu-install.sh',
 ].join('\n');
