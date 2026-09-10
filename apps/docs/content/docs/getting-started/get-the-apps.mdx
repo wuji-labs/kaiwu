@@ -1,12 +1,16 @@
 ---
-title: 获取应用
-description: 适用于 iPhone、Android、桌面端与浏览器的 Kaiwu 下载指引，以及新手推荐从哪个版本开始体验。
+title: Get the apps
+description: Where to download Kaiwu for iPhone, Android, desktop and the browser, and which one to start with.
 ---
-Kaiwu 会在你所控制的计算机上运行编程智能体，并支持你从其他位置远程操控它们。因此，你需要准备两样东西：负责执行任务的设备上的 CLI，以及用于进行操控的客户端。
 
-建议先从客户端开始。没有客户端，你将无法完成 CLI 的登录流程——终端会输出一段验证码，需要你在已登录的浏览器或手机上进行确认。
+Kaiwu runs your coding agents on a computer you control and gives you a way to
+drive them from somewhere else. So you need two things: the CLI on the machine
+that will do the work, and a client to drive it from.
 
-## 手机端
+Start with the client. You cannot finish the CLI's login without one — the
+terminal prints a code for a browser or phone you are already signed in on.
+
+## On your phone
 
 <Cards>
   <Card title="iOS" href="https://kaiwu.chengqiyun.com/download/ios" description="未签名安装包（需自签或 TestFlight），亦可通过 Safari 打开 https://kaiwu.chengqiyun.com 点击分享添加到主屏幕。" />
@@ -15,13 +19,16 @@ Kaiwu 会在你所控制的计算机上运行编程智能体，并支持你从�
 
 iOS 客户端提供未签名安装包（需自签或 TestFlight）；同时推荐使用 Web 应用方式：在 iPhone / iPad 上使用 Safari 打开 [kaiwu.chengqiyun.com](https://kaiwu.chengqiyun.com)，点击底部「分享」按钮选择「添加到主屏幕」，即可获得如同原生应用的完整体验。
 
-## 浏览器端
+## In a browser
 
-[kaiwu.chengqiyun.com](https://kaiwu.chengqiyun.com) 是功能完备的全功能客户端——无需安装，也是体验 Kaiwu 是否契合你需求的最快方式。它同时也是完成 CLI 登录最便捷的途径，因为在当前正在配置的设备上，你的浏览器很可能已经处于登录状态。
+[kaiwu.chengqiyun.com](https://kaiwu.chengqiyun.com) is the
+full client — no install, and the fastest way to see whether Kaiwu suits you.
+It is also the easiest place to complete the CLI login, because you are probably
+already signed in to a browser on the machine you are setting up.
 
-## 桌面端
+## On your desktop
 
-当前桌面端发布渠道为「安装 CLI + 浏览器 / 添加到主屏幕应用」。在桌面设备上安装运行 CLI，并搭配浏览器即可驱动智能体：
+当前桌面端发布渠道为「安装 CLI + 浏览器 / 添加到主屏幕应用」。在桌面机器上安装运行 CLI，并搭配浏览器即可驱动代理：
 
 在 macOS / Linux 上安装 CLI：
 
@@ -37,23 +44,25 @@ irm https://kaiwu.chengqiyun.com/install.ps1 | iex
 
 更多版本及发布信息可在 [Releases](https://github.com/wuji-labs/kaiwu/releases) 页面查看。
 
-## 运行智能体的设备
+## On the machine that runs your agents
 
-这是实际承载任务执行的部分，它是一个 CLI（命令行工具），而非图形应用：
+This is the part that does the work, and it is a CLI rather than an app:
 
 ```bash
 curl -fsSL https://kaiwu.chengqiyun.com/install | bash
 ```
 
-在 Windows 上使用 PowerShell 安装：
+On Windows, in PowerShell:
 
 ```powershell
 irm https://kaiwu.chengqiyun.com/install.ps1 | iex
 ```
 
-安装程序会在解包前验证每个版本的签名。关于其他安装方式、发布通道以及安装后提示命令未找到时的排查方法，请参阅 [CLI](/apps/cli)。
+The installer verifies every release signature before unpacking. See
+[CLI](/apps/cli) for the other install routes, release channels, and what to
+do when the command is not found afterwards.
 
-## 相关内容
+## Related
 
-- [Onboarding](/getting-started/onboarding) —— 连接两端。
-- [Check your setup](/getting-started/check-your-setup) —— 确认配置是否生效。
+- [Onboarding](/getting-started/onboarding) — connecting the two halves.
+- [Check your setup](/getting-started/check-your-setup) — confirming it worked.

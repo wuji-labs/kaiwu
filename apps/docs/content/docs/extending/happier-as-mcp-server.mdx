@@ -27,7 +27,7 @@ Kaiwu 可以运行自身的**外部 MCP 服务**，方便其他 MCP 宿主（如
 
 ## 授予的权限
 
-`happier mcp serve` 会使用 CLI 的已认证凭据，并以**与 MCP 宿主进程相同的本地权限**运行。配置宿主来生成该进程实质上是一次授权行为，而非单纯的连接设置。
+`kaiwu mcp serve` 会使用 CLI 的已认证凭据，并以**与 MCP 宿主进程相同的本地权限**运行。配置宿主来生成该进程实质上是一次授权行为，而非单纯的连接设置。
 
 该宿主可以执行已启用的 Kaiwu 操作，请求审批（对于无需审批的界面则立即执行），并访问当前账号权限内的所有会话。
 
@@ -40,17 +40,17 @@ Kaiwu 可以运行自身的**外部 MCP 服务**，方便其他 MCP 宿主（如
 外部 MCP 服务是一个 **stdio 模式的 MCP 服务**（设计上由 MCP 宿主负责启动）：
 
 ```bash
-happier mcp serve
+kaiwu mcp serve
 ```
 
-`happier mcp start` 可作为兼顾兼容性的别名使用。
+`kaiwu mcp start` 可作为兼顾兼容性的别名使用。
 
 如果正在接入新宿主，建议在配置中保留规范命令名 `serve`，以便后续协作者能一目了然地理解其意图。
 
 针对支持推导“当前会话”的工具，你也可以选择设置默认的会话上下文：
 
 ```bash
-happier mcp serve --session <session-id>
+kaiwu mcp serve --session <session-id>
 ```
 
 ## 配置 MCP 宿主
@@ -62,8 +62,8 @@ happier mcp serve --session <session-id>
 ```json
 {
   "mcpServers": {
-    "happier": {
-      "command": "happier",
+    "kaiwu": {
+      "command": "kaiwu",
       "args": ["mcp", "serve"]
     }
   }
@@ -72,10 +72,10 @@ happier mcp serve --session <session-id>
 
 注意事项：
 
-- 请确保 `happier` 位于 `PATH` 中，或者直接使用二进制文件的绝对路径——许多宿主运行时的 shell 环境与终端并不一致。运行 `which happier` 即可获取可供粘贴的完整路径。
-- **务必与实际使用的版本通道保持一致。** 预览版或开发版的命令各不相同：`happier`（稳定版）、`hprev`（预览版）、`hdev`（开发版）。给宿主配置了未实际使用的通道，往往会导致各种令人困惑的问题。
+- 请确保 `kaiwu` 位于 `PATH` 中，或者直接使用二进制文件的绝对路径——许多宿主运行时的 shell 环境与终端并不一致。运行 `which kaiwu` 即可获取可供粘贴的完整路径。
+- **务必与实际使用的版本通道保持一致。** 预览版或开发版的命令各不相同：`kaiwu`（稳定版）、`hprev`（预览版）、`hdev`（开发版）。给宿主配置了未实际使用的通道，往往会导致各种令人困惑的问题。
 - MCP 宿主必须运行在已完成 Kaiwu 认证的设备上，否则服务启动会报错 `not_authenticated`。
-- 出于安全考虑，`happier mcp serve` **不会**读取用于指定服务器的*环境变量*（如 `HAPPIER_SERVER_URL`）。如需连接非默认服务器，请在 `args` 中传入 CLI 服务器标志（见下文），或者在 CLI 主目录中切换当前的服务器配置文件。
+- 出于安全考虑，`kaiwu mcp serve` **不会**读取用于指定服务器的*环境变量*（如 `KAIWU_SERVER_URL`）。如需连接非默认服务器，请在 `args` 中传入 CLI 服务器标志（见下文），或者在 CLI 主目录中切换当前的服务器配置文件。
 
 ### 指定特定服务器
 
@@ -84,8 +84,8 @@ happier mcp serve --session <session-id>
 ```json
 {
   "mcpServers": {
-    "happier": {
-      "command": "happier",
+    "kaiwu": {
+      "command": "kaiwu",
       "args": ["--server", "company", "mcp", "serve"]
     }
   }
@@ -97,8 +97,8 @@ happier mcp serve --session <session-id>
 ```json
 {
   "mcpServers": {
-    "happier": {
-      "command": "happier",
+    "kaiwu": {
+      "command": "kaiwu",
       "args": ["--server-url", "https://api.company.example", "--webapp-url", "https://app.company.example", "mcp", "serve"]
     }
   }
@@ -109,7 +109,7 @@ happier mcp serve --session <session-id>
 
 若要验证服务接入是否正常，可以使用任意 MCP 宿主或 Inspector 连接以下配置：
 
-- `command`: `happier`
+- `command`: `kaiwu`
 - `args`: `["mcp", "serve"]`
 
 接着优先测试会话控制类工具：
@@ -269,7 +269,7 @@ happier mcp serve --session <session-id>
 
 - 许多会话控制工具都支持显式传入 `sessionId` 参数。
 - 如果工具支持自动推导会话，而你并未传入 `sessionId`，Kaiwu 会采用以下逻辑：
-  1) 优先使用在 `happier mcp serve` 启动时传入的 `--session ⟦K20⟧` 值（如果有）；
+  1) 优先使用在 `kaiwu mcp serve` 启动时传入的 `--session ⟦K20⟧` 值（如果有）；
   2) 否则使用全局“未选择会话”上下文（此时部分工具会报错 `session_not_selected`）。
 
 为了保证自动化流程的行为确定性，建议显式传入 `sessionId`。
@@ -390,10 +390,10 @@ Kaiwu 将**操作**组织在一个统合目录中，可按不同的“界面”�
 请先完成 CLI 认证：
 
 ```bash
-happier auth login
+kaiwu auth login
 ```
 
-如果要连接自托管服务器，请确保 MCP 宿主以正确的服务器配置文件（或服务器 URL 标志）启动 Kaiwu。详见 [CLI → Server profiles](/apps/cli#server-profiles)。
+如果要连接自托管服务器，请确保 MCP 宿主以正确的服务器配置文件（或服务器 URL 标志）启动 Kaiwu。详见 [CLI → Server profiles](/apps/cli#服务器配置)。
 
 ### `No daemon running` / 创建会话失败
 
@@ -402,13 +402,13 @@ happier auth login
 如果工具调用失败并提示类似 `No daemon running` 的错误，请运行：
 
 ```bash
-happier daemon start
+kaiwu daemon start
 ```
 
 若想获得更顺畅的常驻运行体验（推荐），可将其安装为用户服务：
 
 ```bash
-happier daemon install
+kaiwu daemon install
 ```
 
 ### 工具未显示

@@ -34,7 +34,7 @@ Kaiwu 会根据当前设备的已有配置采取不同的处理方式：
 
 安装程序和配置命令可输出一键配置链接：
 
-- `happier://server?url=<ENCODED_SERVER_URL>`
+- `kaiwu://server?url=<ENCODED_SERVER_URL>`
 - `<WEBAPP_URL>/?server=<ENCODED_SERVER_URL>`（推荐）
 - `<WEBAPP_URL>/server?url=<ENCODED_SERVER_URL>&auto=1`（旧版）
 
@@ -47,12 +47,12 @@ Kaiwu 会根据当前设备的已有配置采取不同的处理方式：
 使用服务器配置文件管理命令：
 
 ```bash
-happier server list
-happier server current
-happier server add --name company --server-url https://api.company.example --webapp-url https://app.company.example --use
-happier server use company
-happier server remove company
-happier server test company
+kaiwu server list
+kaiwu server current
+kaiwu server add --name company --server-url https://api.company.example --webapp-url https://app.company.example --use
+kaiwu server use company
+kaiwu server remove company
+kaiwu server test company
 ```
 
 ### 单次命令指定服务器（不切换默认值）
@@ -60,14 +60,14 @@ happier server test company
 仅对单条命令指定目标服务器：
 
 ```bash
-happier --server company auth login
-happier --server personal daemon status
+kaiwu --server company auth login
+kaiwu --server personal daemon status
 ```
 
 也可以在单次调用时直接传入明确的 URL：
 
 ```bash
-happier --server-url https://api.company.example --webapp-url https://app.company.example auth login
+kaiwu --server-url https://api.company.example --webapp-url https://app.company.example auth login
 ```
 
 ## 单设备运行多个守护进程
@@ -75,16 +75,16 @@ happier --server-url https://api.company.example --webapp-url https://app.compan
 为各个服务器配置文件分别安装/启动独立的守护进程服务：
 
 ```bash
-happier --server personal daemon service install
-happier --server company daemon service install
+kaiwu --server personal daemon service install
+kaiwu --server company daemon service install
 ```
 
 检查状态：
 
 ```bash
-happier daemon status --all
-happier --server personal daemon service status
-happier --server company daemon service status
+kaiwu daemon status --all
+kaiwu --server personal daemon service status
+kaiwu --server company daemon service status
 ```
 
 ## 推荐流程

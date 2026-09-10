@@ -46,12 +46,12 @@ tmp="$(mktemp)" \
    - **Tailscale**（推荐）：无需在公网开放端口即可获得 HTTPS URL。
    - **反向代理**：适合已部署 Caddy、Nginx 或 Traefik 的环境。
 3. 在需要运行守护进程/终端的电脑上执行：
-   - `happier server add --server-url https://⟦K6⟧ --use`
-   - `happier auth login --method=mobile`
+   - `kaiwu server add --server-url https://⟦K6⟧ --use`
+   - `kaiwu auth login --method=mobile`
 4. 在手机上扫描二维码（或打开深层链接）。App 会提示切换服务器（如需要），随后即可登录或注册账号，并确认批准终端连接。
 5. 如果安装了 **Dev box**，请通过 SSH 进入容器并运行：
-   - `sudo -u happier -H happier auth login`
-   - （必要时）`systemctl restart 'happier-daemon.*.service'`
+   - `sudo -u kaiwu -H kaiwu auth login`
+   - （必要时）`systemctl restart 'kaiwu-daemon.*.service'`
 
 ## 安装后：推荐上手流程
 
@@ -73,10 +73,10 @@ Proxmox 安装程序**不会**替你自动完成认证，但会输出完整流�
 
 若使用反向代理，Proxmox 安装程序会提示输入公网 HTTPS URL，并将其保存到：
 
-- 默认（推荐的安装方式）：写入 `/etc/happier/server.env`，分别配置为：
-  - `HAPPIER_PUBLIC_SERVER_URL=https://⟦K7⟧`（规范/共享 URL，用于二维码和深层链接）
-  - `HAPPIER_WEBAPP_URL=https://⟦K8⟧`（在容器提供 Web UI 服务时生效）
-- 源码安装（`HAPPIER_PVE_INSTALL_METHOD=from_source`）：写入 `/home/happier/.happier/stacks/main/env`
+- 默认（推荐的安装方式）：写入 `/etc/kaiwu/server.env`（兼容 `/etc/happier/server.env`），分别配置为：
+  - `KAIWU_PUBLIC_SERVER_URL=https://⟦K7⟧`（规范/共享 URL，用于二维码和深层链接）
+  - `KAIWU_WEBAPP_URL=https://⟦K8⟧`（在容器提供 Web UI 服务时生效）
+- 源码安装（`KAIWU_PVE_INSTALL_METHOD=from_source`）：写入 `/home/kaiwu/.kaiwu/stacks/main/env`
 
 日后如需修改，编辑对应文件并重启栈或服务即可。
 
@@ -95,22 +95,22 @@ Proxmox 安装程序**不会**替你自动完成认证，但会输出完整流�
 
 同时确保该栈能够识别自身的公网 URL（以生成正确的深层链接与二维码）：
 
-- 默认（推荐的安装方式）：在 `/etc/happier/server.env` 中配置 `HAPPIER_PUBLIC_SERVER_URL=https://⟦K10⟧`
-- 源码安装：在 `/home/happier/.happier/stacks/main/env` 中配置 `HAPPIER_PUBLIC_SERVER_URL=https://⟦K11⟧`
+- 默认（推荐的安装方式）：在 `/etc/kaiwu/server.env` 中配置 `KAIWU_PUBLIC_SERVER_URL=https://⟦K10⟧`
+- 源码安装：在 `/home/kaiwu/.kaiwu/stacks/main/env` 中配置 `KAIWU_PUBLIC_SERVER_URL=https://⟦K11⟧`
 
 配置完成后重启：
 
-- 默认（推荐的安装方式）：`systemctl restart happier-server`
+- 默认（推荐的安装方式）：`systemctl restart kaiwu-server`
 - 源码安装：
-  - `su - happier -c "/home/happier/.happier-stack/bin/hstack service restart --mode=system"`（已启用开机自启）
-  - `su - happier -c "/home/happier/.happier-stack/bin/hstack start --restart"`（手动启动）
+  - `su - kaiwu -c "/home/kaiwu/.kaiwu-stack/bin/hstack service restart --mode=system"`（已启用开机自启）
+  - `su - kaiwu -c "/home/kaiwu/.kaiwu-stack/bin/hstack start --restart"`（手动启动）
 
 **Caddy**（推荐，配置 HTTPS 最为简单）
 
 `Caddyfile`：
 
 ```
-happier.example.com {
+kaiwu.example.com {
   reverse_proxy http://<container-ip>:3005
 }
 ```
@@ -124,7 +124,7 @@ server 块配置片段：
 ```nginx
 server {
   listen 443 ssl http2;
-  server_name happier.example.com;
+  server_name kaiwu.example.com;
 
   # TLS config omitted (use certbot, or your existing TLS setup)
 
@@ -161,7 +161,7 @@ server {
 
 ### 3) 连接终端/守护进程
 
-继续按照 `happier auth login` 的输出进行操作：
+继续按照 `kaiwu auth login` 的输出进行操作：
 
 - 使用移动端 App：扫描二维码或打开移动端深层链接
 - 使用 Web 应用：在已登录的浏览器中打开该 URL
@@ -176,11 +176,11 @@ server {
 
 - 默认（推荐的安装方式）：
   - 若已启用开机自启，守护进程将作为容器内的 systemd 系统服务运行。
-  - 必要时可重启该服务：`systemctl restart 'happier-daemon.*.service'`
+  - 必要时可重启该服务：`systemctl restart 'kaiwu-daemon.*.service'`
 - 源码安装：
   - 若已启用开机自启，服务检测到凭据就绪后会自动启动守护进程。
   - 否则（手动启动）需要手动重启，以便守护进程加载新凭据启动：
-    - `/home/happier/.happier-stack/bin/hstack start --restart`
+    - `/home/kaiwu/.kaiwu-stack/bin/hstack start --restart`
 
 ## 从其他设备使用 Kaiwu（常见架构）
 
@@ -189,9 +189,9 @@ server {
 在你的笔记本/台式电脑上：
 
 - 保存并切换至自托管服务器：
-  - `happier server add --server-url https://⟦K14⟧ --use`
+  - `kaiwu server add --server-url https://⟦K14⟧ --use`
 - 随后连接终端/守护进程：
-  - `happier auth login`
+  - `kaiwu auth login`
 
 该命令会将服务器 URL 保存到本地，随后输出：
 
@@ -199,7 +199,7 @@ server {
 
 如需在 App 或 Web UI 中显式配置或切换服务器（通常无需此操作），可运行：
 
-- `happier auth login --print-configure-links`
+- `kaiwu auth login --print-configure-links`
 
 有关配置文件切换及多服务器日常使用的详细说明，请参阅[特性 → 多服务器](/accounts/multi-server)。
 
@@ -241,22 +241,22 @@ Tailscale 的设备接入操作是可选的，取决于你的 tailnet 安全策�
 
 ```bash
 tailscale up
-tailscale set --operator=happier
+tailscale set --operator=kaiwu
 tailscale serve --bg http://127.0.0.1:3005
 tailscale serve status
 ```
 
 ### HStack 发布通道
 
-默认情况下，Proxmox 辅助脚本使用托管的**中继运行时**（底层基于 `happier relay host`）安装 Kaiwu，支持 stable、preview 和 dev 通道，并支持就地热更新。
+默认情况下，Proxmox 辅助脚本使用托管的**中继运行时**（底层基于 `kaiwu relay host`）安装 Kaiwu，支持 stable、preview 和 dev 通道，并支持就地热更新。
 
 若倾向于使用 `npx ... hstack setup-from-source` 从源码编译安装，可通过环境变量进行设置（见下文）。
 
 非交互式参数替换：
 
-- `HAPPIER_PVE_INSTALL_METHOD=installers|from_source`（默认值：`installers`）
-- `HAPPIER_PVE_HSTACK_CHANNEL=stable|preview|dev`（`preview` 对应 npm `@next`）
-- `HAPPIER_PVE_HSTACK_PACKAGE='@happier-dev/stack@⟦K15⟧'`（仅限源码安装；优先级最高）
+- `KAIWU_PVE_INSTALL_METHOD=installers|from_source`（兼容 `HAPPIER_PVE_INSTALL_METHOD`，默认值：`installers`）
+- `KAIWU_PVE_HSTACK_CHANNEL=stable|preview|dev`（兼容 `HAPPIER_PVE_HSTACK_CHANNEL`，`preview` 对应 npm `@next`）
+- `KAIWU_PVE_HSTACK_PACKAGE='@happier-dev/stack@⟦K15⟧'`（仅限源码安装；优先级最高）
 
 ## HTTPS 配置指南（重要）
 
@@ -274,17 +274,17 @@ tailscale serve status
 服务管理（推荐的安装方式）：
 
 - 服务器：
-  - `systemctl status happier-server`
-  - `journalctl -u happier-server -f`
+  - `systemctl status kaiwu-server`
+  - `journalctl -u kaiwu-server -f`
 - Dev box 守护进程（如已安装）：
-  - `systemctl status 'happier-daemon.*.service'`
-  - `journalctl -u 'happier-daemon.*.service' -f`
+  - `systemctl status 'kaiwu-daemon.*.service'`
+  - `journalctl -u 'kaiwu-daemon.*.service' -f`
 
 服务管理（源码安装）：
 
-- `su - happier -c "/home/happier/.happier-stack/bin/hstack service status --mode=system"`
-- `su - happier -c "/home/happier/.happier-stack/bin/hstack service logs --mode=system"`
-- `su - happier -c "/home/happier/.happier-stack/bin/hstack service tail"`
+- `su - kaiwu -c "/home/kaiwu/.kaiwu-stack/bin/hstack service status --mode=system"`
+- `su - kaiwu -c "/home/kaiwu/.kaiwu-stack/bin/hstack service logs --mode=system"`
+- `su - kaiwu -c "/home/kaiwu/.kaiwu-stack/bin/hstack service tail"`
 
 ## Dev box 模式：连接守护进程（推荐）
 
@@ -292,28 +292,28 @@ tailscale serve status
 
 1. 进入容器：
    - `pct enter ⟦K18⟧`
-2. 以 `happier` 用户身份执行登录（推荐在移动端操作）：
-   - `sudo -u happier -H happier auth login`
+2. 以 `kaiwu` 用户身份执行登录（推荐在移动端操作）：
+   - `sudo -u kaiwu -H kaiwu auth login`
 
 登录成功后：
 
 - 推荐的安装方式：
   - 若已安装守护进程系统服务，它会持续重试，并在凭据就绪后自动连接。
-  - 必要时可手动重启：`systemctl restart 'happier-daemon.*.service'`
+  - 必要时可手动重启：`systemctl restart 'kaiwu-daemon.*.service'`
 - 源码安装：
   - 若已启用开机自启，服务检测到新凭据后会自动启动守护进程（通常只需数秒）。
   - 若采用手动启动栈（未配置服务），需重启以使守护进程加载新凭据：
-    - `/home/happier/.happier-stack/bin/hstack start --restart`
+    - `/home/kaiwu/.kaiwu-stack/bin/hstack start --restart`
 
 可通过以下命令检查运行状态：
 
-- 推荐的安装方式：`sudo -u happier -H happier auth status`
-- 源码安装：`/home/happier/.happier-stack/bin/hstack auth status`
+- 推荐的安装方式：`sudo -u kaiwu -H kaiwu auth status`
+- 源码安装：`/home/kaiwu/.kaiwu-stack/bin/hstack auth status`
 
 若启用了 Tailscale 但在安装时跳过了密钥，后续可按如下方式接入：
 
 - `tailscale up`
-- `tailscale set --operator=happier`
+- `tailscale set --operator=kaiwu`
 - `tailscale serve --bg http://127.0.0.1:3005`
 - `tailscale serve status`
 
@@ -321,10 +321,10 @@ tailscale serve status
 
 推荐的安装方式：
 
-- 使用 Proxmox 辅助脚本自带的“Update”更新操作（该操作会执行 `happier relay host install`，若已安装 Kaiwu CLI，也会一并更新）。
+- 使用 Proxmox 辅助脚本自带的“Update”更新操作（该操作会执行 `kaiwu relay host install`，若已安装 Kaiwu CLI，也会一并更新）。
 - 或在容器内部直接更新：
-  - `happier relay host install --mode system --channel stable|preview|dev`
-  - `happier self update --channel stable|preview|dev`（仅限 Dev box）
+  - `kaiwu relay host install --mode system --channel stable|preview|dev`
+  - `kaiwu self update --channel stable|preview|dev`（仅限 Dev box）
 
 源码安装：
 

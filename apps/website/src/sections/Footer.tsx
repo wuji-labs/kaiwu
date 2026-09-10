@@ -110,7 +110,7 @@ export function Footer({ isHome = true }: { isHome?: boolean } = {}) {
                     */}
                     <div className="flex items-center gap-5">
                         <LocaleSwitcher />
-                        <span className="font-mono text-[12px]">happier.dev</span>
+                        <span className="font-mono text-[12px]">kaiwu.chengqiyun.com</span>
                     </div>
                 </div>
             </div>

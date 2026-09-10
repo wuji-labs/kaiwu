@@ -73,11 +73,11 @@ App 内的内置终端同样依赖守护进程。
 ## 常用命令
 
 ```bash
-happier daemon status
-happier daemon start
-happier daemon stop
-happier daemon list
-happier daemon logs
+kaiwu daemon status
+kaiwu daemon start
+kaiwu daemon stop
+kaiwu daemon list
+kaiwu daemon logs
 ```
 
 ## 发布通道
@@ -91,7 +91,7 @@ happier daemon logs
 这意味着各公开通道对应的命令为：
 
 ```bash
-happier daemon install
+kaiwu daemon install
 hprev daemon install
 hdev daemon install
 ```
@@ -99,7 +99,7 @@ hdev daemon install
 同样，更新命令也与通道一一对应：
 
 ```bash
-happier self update
+kaiwu self update
 hprev self update
 hdev self update
 ```
@@ -108,13 +108,13 @@ hdev self update
 
 ### 多版本并行安装（stable / preview / dev）
 
-你可以并行安装全部三个公开通道（`happier`、`hprev` 与 `hdev`），它们彼此独立，不会相互覆盖。
+你可以并行安装全部三个公开通道（`kaiwu`、`hprev` 与 `hdev`），它们彼此独立，不会相互覆盖。
 
 守护进程的运行时状态以通道为隔离作用域，其系统服务（LaunchAgent / systemd / 计划任务）也使用通道专用的服务标识符。
 如需查看当前平台上具体对应的服务名称、标签或单元，请运行：
 
 ```bash
-happier daemon service paths
+kaiwu daemon service paths
 hprev daemon service paths
 hdev daemon service paths
 ```
@@ -126,15 +126,15 @@ hdev daemon service paths
 为当前默认的服务器配置文件安装：
 
 ```bash
-happier daemon install
+kaiwu daemon install
 ```
 
 高级生命周期管理（及试运行预览）：
 
 ```bash
-happier daemon service status
-happier daemon service install --dry-run
-happier daemon service restart
+kaiwu daemon service status
+kaiwu daemon service install --dry-run
+kaiwu daemon service restart
 ```
 
 各平台说明：
@@ -146,17 +146,17 @@ happier daemon service restart
 卸载服务：
 
 ```bash
-happier daemon uninstall
+kaiwu daemon uninstall
 ```
 
-在 Windows 上，`happier daemon service paths` 会输出计划任务的名称以及包装脚本的路径。
+在 Windows 上，`kaiwu daemon service paths` 会输出计划任务的名称以及包装脚本的路径。
 
 ## 无头环境认证（无 TTY）
 
 在无头服务器（或任何无法使用交互式 TTY 的环境）中，请运行：
 
 ```bash
-happier auth login --no-open --method web
+kaiwu auth login --no-open --method web
 ```
 
 该命令会打印授权 URL，并等待你在浏览器中完成授权（授权请求可能会超时；若超时，请重新执行该命令）。
@@ -166,13 +166,13 @@ happier auth login --no-open --method web
 如果你拥有 SSH 访问权限，并希望获得端到端全自动体验（包含发起请求、授权审批以及凭据写入），可以在已通过认证的设备上运行：
 
 ```bash
-happier auth pair-remote --ssh user@host --json
+kaiwu auth pair-remote --ssh user@host --json
 ```
 
 这在配置无头服务器时尤为高效：直接在已登录的设备上完成连接授权，无需手动复制和粘贴 URL。
 
 ## 故障排查
 
-- **查看状态**：`happier daemon status`
-- **查看日志**：`happier daemon logs`
-- **服务路径**：`happier daemon service paths`
+- **查看状态**：`kaiwu daemon status`
+- **查看日志**：`kaiwu daemon logs`
+- **服务路径**：`kaiwu daemon service paths`

@@ -1,6 +1,6 @@
-# https://happier.dev/robots.txt
+# https://kaiwu.chengqiyun.com/robots.txt
 #
-# Happier is an open-source client for AI coding agents. Source: MIT, public.
+# Kaiwu is an open-source client for AI coding agents. Source: MIT, public.
 # There is nothing on this site worth withholding from a crawler.
 #
 # ------------------------------------------------------------------------
@@ -137,4 +137,4 @@ Allow: /
 # returns THIS file and that no injected `ai-train=no` contradicts the line below.
 Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
-Sitemap: https://happier.dev/sitemap.xml
+Sitemap: https://kaiwu.chengqiyun.com/sitemap.xml
