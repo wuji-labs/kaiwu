@@ -81,7 +81,7 @@ Kaiwu 采用唯一的标识符进行用户发现：`account.username`。
 
 - `HAPPIER_WEBAPP_URL`（默认 `https://kaiwu.chengqiyun.com`）：客户端的基础 URL / scheme。服务器回调完成后，会将请求重定向至 `${HAPPIER_WEBAPP_URL}/oauth/github`。
   - 只有在使用 `https://kaiwu.chengqiyun.com` 上的托管客户端时，该项才属“可选”。如果您自托管了 Web 应用（或使用本地开发的 Web UI），请设置 `HAPPIER_WEBAPP_URL`（或 `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE`），以便 OAuth 能正确跳回您的客户端。
-- `GITHUB_STORE_ACCESS_TOKEN`（`true`/`false`，默认 `false`）：是否在服务器上持久化存储 GitHub 访问令牌（好友功能不需要此项）。如果您通过 `AUTH_GITHUB_ORG_MEMBERSHIP_SOURCE=oauth_user_token` 强制校验组织成员身份（通过用户 OAuth 令牌模式进行成员校验），则必须存储令牌以执行离职/成员退出检查。详见[组织成员身份来源](/self-hosting/auth-github#org-membership-source-important)。
+- `GITHUB_STORE_ACCESS_TOKEN`（`true`/`false`，默认 `false`）：是否在服务器上持久化存储 GitHub 访问令牌（好友功能不需要此项）。如果您通过 `AUTH_GITHUB_ORG_MEMBERSHIP_SOURCE=oauth_user_token` 强制校验组织成员身份（通过用户 OAuth 令牌模式进行成员校验），则必须存储令牌以执行离职/成员退出检查。详见[组织成员身份来源](/self-hosting/auth-github#组织成员资格验证源重要)。
 - `OAUTH_PENDING_TTL_SECONDS`（默认 `600`，最小 `60`，最大 `3600`）：“待完成 OAuth（pending OAuth finalize）”（例如等待用户选择用户名）允许被完成的最长保留时间。
   - 旧版别名：`GITHUB_OAUTH_PENDING_TTL_SECONDS`（未设置 `OAUTH_PENDING_TTL_SECONDS` 时生效）。
 

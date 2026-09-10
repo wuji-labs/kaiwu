@@ -46,7 +46,7 @@ import path from 'node:path';
  * ignores lastmod it does not trust.
  */
 
-const SITE = 'https://happier.dev';
+const SITE = 'https://kaiwu.chengqiyun.com';
 
 function buildXml(routes, lastmod) {
     const urls = routes
@@ -94,7 +94,7 @@ export function writeSitemap({ dist, routes }) {
     const built = fs
         .readdirSync(dist, { withFileTypes: true, recursive: true })
         .filter((entry) => entry.isFile() && entry.name.endsWith('.html'))
-        .map((entry) => path.relative(dist, path.join(entry.parentPath ?? entry.path, entry.name)))
+        .map((entry) => path.relative(dist, path.join(entry.parentPath ?? entry.path, entry.name)).replace(/\\/g, '/'))
         .filter((rel) => rel !== '404.html');
 
     const declared = new Set(routes.map((route) => route.file));

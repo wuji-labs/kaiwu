@@ -1,8 +1,8 @@
 {
-    "name": "Happier — one client for every AI coding agent",
-    "short_name": "Happier",
+    "name": "无极开物",
+    "short_name": "Kaiwu",
     "description": "Open-source, end-to-end encrypted client for Claude Code, Codex, OpenCode and 10 more AI coding agents.",
-    "id": "https://happier.dev/",
+    "id": "https://kaiwu.chengqiyun.com/",
     "start_url": "/",
     "scope": "/",
     "lang": "en",

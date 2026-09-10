@@ -14,27 +14,27 @@ Kaiwu 在应用设置中内置了问题报告流程。
 
 在 Kaiwu 服务端上可配置以下环境变量：
 
-- `HAPPIER_FEATURE_BUG_REPORTS__ENABLED`（默认值：`1`）
-- `HAPPIER_FEATURE_BUG_REPORTS__PROVIDER_URL`（默认值：`https://kaiwu.chengqiyun.com`）
+- `KAIWU_FEATURE_BUG_REPORTS__ENABLED`（兼容 `HAPPIER_FEATURE_BUG_REPORTS__ENABLED`，默认值：`1`）
+- `KAIWU_FEATURE_BUG_REPORTS__PROVIDER_URL`（兼容 `HAPPIER_FEATURE_BUG_REPORTS__PROVIDER_URL`，默认值：`https://kaiwu.chengqiyun.com`）
   - 若配置为无效 URL，系统将直接禁用提供商提交功能，而不会回退到中心默认地址。
-- `HAPPIER_FEATURE_BUG_REPORTS__DEFAULT_INCLUDE_DIAGNOSTICS`（默认值：`1`）
-- `HAPPIER_FEATURE_BUG_REPORTS__MAX_ARTIFACT_BYTES`（默认值：`10485760`）
-- `HAPPIER_FEATURE_BUG_REPORTS__UPLOAD_TIMEOUT_MS`（默认值：`120000`）
-- `HAPPIER_FEATURE_BUG_REPORTS__CONTEXT_WINDOW_MS`（默认值：`1800000`；最小值：`1000`，最大值：`86400000`）
-- `HAPPIER_FEATURE_BUG_REPORTS__ACCEPTED_ARTIFACT_KINDS`（以逗号分隔的白名单）
-- `HAPPIER_BUG_REPORTS_SERVER_DIAGNOSTICS_ENABLED`（默认值：`0`）
-- `HAPPIER_BUG_REPORTS_SERVER_DIAGNOSTICS_ACCESS_MODE`（默认值：`owner`，可选值：`authenticated`、`owner`）
-- `HAPPIER_SERVER_OWNER_USER_IDS`（以逗号分隔的服务端所有者账户 ID，用于仅限所有者使用的功能）
-- `HAPPIER_BUG_REPORTS_SERVER_LOG_PATH`（可选，显式指定服务端日志路径）
-- `HAPPIER_BUG_REPORTS_SERVER_LOG_MAX_BYTES`（默认值：`262144`，服务端日志快照读取的最大末尾字节数）
-- `HAPPIER_DIAGNOSTICS_BUG_REPORT_SNAPSHOT_RATE_LIMIT_MAX`（默认值：`30`）
-- `HAPPIER_DIAGNOSTICS_BUG_REPORT_SNAPSHOT_RATE_LIMIT_WINDOW`（默认值：`1 minute`）
+- `KAIWU_FEATURE_BUG_REPORTS__DEFAULT_INCLUDE_DIAGNOSTICS`（默认值：`1`）
+- `KAIWU_FEATURE_BUG_REPORTS__MAX_ARTIFACT_BYTES`（默认值：`10485760`）
+- `KAIWU_FEATURE_BUG_REPORTS__UPLOAD_TIMEOUT_MS`（默认值：`120000`）
+- `KAIWU_FEATURE_BUG_REPORTS__CONTEXT_WINDOW_MS`（默认值：`1800000`；最小值：`1000`，最大值：`86400000`）
+- `KAIWU_FEATURE_BUG_REPORTS__ACCEPTED_ARTIFACT_KINDS`（以逗号分隔的白名单）
+- `KAIWU_BUG_REPORTS_SERVER_DIAGNOSTICS_ENABLED`（默认值：`0`）
+- `KAIWU_BUG_REPORTS_SERVER_DIAGNOSTICS_ACCESS_MODE`（默认值：`owner`，可选值：`authenticated`、`owner`）
+- `KAIWU_SERVER_OWNER_USER_IDS`（以逗号分隔的服务端所有者账户 ID，用于仅限所有者使用的功能）
+- `KAIWU_BUG_REPORTS_SERVER_LOG_PATH`（可选，显式指定服务端日志路径）
+- `KAIWU_BUG_REPORTS_SERVER_LOG_MAX_BYTES`（默认值：`262144`，服务端日志快照读取的最大末尾字节数）
+- `KAIWU_DIAGNOSTICS_BUG_REPORT_SNAPSHOT_RATE_LIMIT_MAX`（默认值：`30`）
+- `KAIWU_DIAGNOSTICS_BUG_REPORT_SNAPSHOT_RATE_LIMIT_WINDOW`（默认值：`1 minute`）
 
-如需强制禁止向外导出服务端日志，请保留 `HAPPIER_BUG_REPORTS_SERVER_DIAGNOSTICS_ENABLED=0`，或从 `HAPPIER_FEATURE_BUG_REPORTS__ACCEPTED_ARTIFACT_KINDS` 中移除 `server`（或两者同时执行）。
+如需强制禁止向外导出服务端日志，请保留 `KAIWU_BUG_REPORTS_SERVER_DIAGNOSTICS_ENABLED=0`，或从 `KAIWU_FEATURE_BUG_REPORTS__ACCEPTED_ARTIFACT_KINDS` 中移除 `server`（或两者同时执行）。
 
-对于共享服务器，建议保留 `HAPPIER_BUG_REPORTS_SERVER_DIAGNOSTICS_ACCESS_MODE=owner`（或保持未设置状态）并配置 `HAPPIER_SERVER_OWNER_USER_IDS`，确保仅指定的所有者可以获取服务端诊断快照。
+对于共享服务器，建议保留 `KAIWU_BUG_REPORTS_SERVER_DIAGNOSTICS_ACCESS_MODE=owner`（或保持未设置状态）并配置 `KAIWU_SERVER_OWNER_USER_IDS`，确保仅指定的所有者可以获取服务端诊断快照。
 
-`HAPPIER_SERVER_OWNER_USER_IDS` 接收的是 Kaiwu 账户 ID（而非用户名）。所有者可在客户端中通过“设置 → 账户”复制该 ID。
+`KAIWU_SERVER_OWNER_USER_IDS` 接收的是 Kaiwu 账户 ID（而非用户名）。所有者可在客户端中通过“设置 → 账户”复制该 ID。
 
 ## 隐私与控制
 
@@ -58,13 +58,13 @@ Kaiwu 在应用设置中内置了问题报告流程。
 你也可以通过 CLI 提交报告：
 
 ```bash
-happier bug-report \
+kaiwu bug-report \
   --title "CLI crash while starting daemon" \
   --github-username "@octocat" \
   --summary "Daemon start exits immediately" \
-  --current-behavior "happier daemon start exits with unknown error" \
+  --current-behavior "kaiwu daemon start exits with unknown error" \
   --expected-behavior "daemon starts successfully" \
-  --repro-step "Run happier daemon start" \
+  --repro-step "Run kaiwu daemon start" \
   --accept-privacy-notice
 ```
 

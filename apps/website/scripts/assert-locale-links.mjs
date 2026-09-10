@@ -44,7 +44,7 @@ const DIST = join(ROOT, 'dist');
 const home = readFileSync(join(DIST, 'index.html'), 'utf8');
 const PREFIXES = [
     ...new Set(
-        [...home.matchAll(/<link rel="alternate" hreflang="(?!x-default)[^"]+" href="[^"]*?happier\.dev(\/[^"]*)?"/g)]
+        [...home.matchAll(/<link rel="alternate" hreflang="(?!x-default)[^"]+" href="[^"]*?(?:happier\.dev|kaiwu\.chengqiyun\.com)(\/[^"]*)?"/g)]
             .map((m) => m[1] ?? '')
             .filter((prefix) => prefix && prefix !== '/'),
     ),
@@ -64,7 +64,7 @@ function walk(dir, out = []) {
 
 /** The locale prefix a prerendered file sits under, or '' for English. */
 function prefixOf(file) {
-    const rel = `/${relative(DIST, file).replace(/\/index\.html$/, '').replace(/^index\.html$/, '')}`;
+    const rel = `/${relative(DIST, file).replace(/\\/g, '/').replace(/\/index\.html$/, '').replace(/^index\.html$/, '')}`;
     return PREFIXES.find((p) => rel === p || rel.startsWith(`${p}/`)) ?? '';
 }
 

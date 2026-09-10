@@ -12,7 +12,7 @@ function useGitHubStars(): string | null {
     const [stars, setStars] = useState<string | null>(null);
 
     useEffect(() => {
-        fetch('https://api.github.com/repos/happier-dev/happier', {
+        fetch('https://api.github.com/repos/wuji-labs/kaiwu', {
             headers: { Accept: 'application/vnd.github.v3+json' },
         })
             .then((r) => r.json())
@@ -69,7 +69,7 @@ export function Nav({ variant = 'overlay', isHome = true }: NavProps) {
 
                 <div className="flex items-center gap-4 md:gap-5">
                     <a
-                        href="https://github.com/happier-dev/happier"
+                        href="https://github.com/wuji-labs/kaiwu"
                         target="_blank"
                         rel="noreferrer"
                         className="inline-flex items-center gap-2 text-[14px] font-medium transition-opacity hover:opacity-100"
@@ -120,7 +120,7 @@ export function Nav({ variant = 'overlay', isHome = true }: NavProps) {
                         style={{ color: 'var(--fg)', opacity: 0.85 }}
                     >{rich(PAGE_PROSE.nav.p3)}</a>
                     <a
-                        href="https://docs.happier.dev"
+                        href="https://kaiwu.chengqiyun.com/docs"
                         target="_blank"
                         rel="noreferrer"
                         className="text-[14px] font-medium transition-opacity hover:opacity-100"
@@ -133,7 +133,7 @@ export function Nav({ variant = 'overlay', isHome = true }: NavProps) {
                         36% reach a session). #get-started scrolls to the stepper
                         whose first action is the copyable install line. */}
                     <a
-                        onClick={() => trackCtaClicked({ location: 'hero-nav', label: 'Install Happier' })}
+                        onClick={() => trackCtaClicked({ location: 'hero-nav', label: 'Install Kaiwu' })}
                         href={isHome ? '#get-started' : localeHref('/#get-started')}
                         className="hidden items-center gap-2 rounded-full px-4 py-2 text-[14px] font-medium transition-transform hover:-translate-y-[1px] md:inline-flex"
                         style={{ background: 'var(--fg)', color: 'var(--bg)' }}

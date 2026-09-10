@@ -1,54 +1,69 @@
 ---
-title: API 速率限制
-description: 所有受速率限制的端点、其默认值、计入的统计维度，以及用于修改该限制的两个环境变量。
+title: API rate limits
+description: Every rate-limited endpoint, its default, what it counts against, and the two environment variables that change it.
 ---
-Kaiwu 对其访问最频繁的端点设置了速率限制。默认配置适用于常规部署；通常只有在实际负载下观察到特定端点受限时才需要调高阈值，或者在面向公网的服务器上将其调低。
 
-每个端点都对应两个环境变量：最大请求数和时间窗口。配置时需同时设置或均保持默认；如果仅设置最大请求数，时间窗口仍会沿用默认值，这通常并不符合预期。
+Kaiwu rate-limits its busiest endpoints. The defaults suit a normal
+deployment; you would usually only raise one after watching a specific endpoint
+throttle under real load, or lower one on a server exposed to the public
+internet.
 
-时间窗口支持与默认值相同格式的时长字符串（`1 minute`、`30 seconds`、`1 hour`）。
+Each endpoint has two environment variables — a maximum and a window. Set both
+or neither; setting only the maximum leaves the window at its default, which is
+rarely what you want.
 
-相比具体数值，**限流的统计维度**更为重要。`Account` 限流按已登录账号生效，单一高频用户不会耗尽其他用户的配额。`IP address` 限流则在 Kaiwu 识别调用方身份之前生效，用于保护免认证路由；如果部署在反向代理之后，其准确度取决于代理所传递的客户端转发地址。全部 33 项限流中有 27 项均按账号统计。
+The window accepts the same duration strings the defaults use (`1 minute`,
+`30 seconds`, `1 hour`).
 
-在正式推行前，有两组限流值得特别关注，因为集中接入新用户时极易触发限流：`auth.pairing.*` 涵盖连接新设备，`connectedServices.deviceAuth.*` 涵盖从无头设备关联 Agent 账号。
+**What it counts against** matters more than the number. `Account` limits are
+per signed-in account, so one busy user cannot exhaust another's budget.
+`IP address` limits apply before Kaiwu knows who is calling — they protect
+unauthenticated routes, and behind a reverse proxy they are only as accurate as
+the forwarded client address your proxy sets. 27 of the 33 limits are
+per-account.
 
-| 端点 | 默认值 | 统计维度 | 环境变量 |
+Two clusters are worth knowing about before a rollout, because they throttle
+exactly when many people onboard at once: `auth.pairing.*` covers connecting a
+new device, and `connectedServices.deviceAuth.*` covers linking an agent
+account from a headless machine.
+
+| Endpoint | Default | Counted per | Environment variables |
 | --- | --- | --- | --- |
-| `account.profile` | 300 / 1 分钟 | 账号 | `HAPPIER_ACCOUNT_PROFILE_RATE_LIMIT_MAX`<br />`HAPPIER_ACCOUNT_PROFILE_RATE_LIMIT_WINDOW` |
-| `account.settings` | 300 / 1 分钟 | 账号 | `HAPPIER_ACCOUNT_SETTINGS_RATE_LIMIT_MAX`<br />`HAPPIER_ACCOUNT_SETTINGS_RATE_LIMIT_WINDOW` |
-| `artifacts` | 300 / 1 分钟 | 账号 | `HAPPIER_ARTIFACTS_RATE_LIMIT_MAX`<br />`HAPPIER_ARTIFACTS_RATE_LIMIT_WINDOW` |
-| `auth.pairing.consume` | 60 / 1 分钟 | 账号 | `HAPPIER_AUTH_PAIRING_CONSUME_RATE_LIMIT_MAX`<br />`HAPPIER_AUTH_PAIRING_CONSUME_RATE_LIMIT_WINDOW` |
-| `auth.pairing.request` | 30 / 1 分钟 | IP 地址 | `HAPPIER_AUTH_PAIRING_REQUEST_RATE_LIMIT_MAX`<br />`HAPPIER_AUTH_PAIRING_REQUEST_RATE_LIMIT_WINDOW` |
-| `auth.pairing.start` | 60 / 1 分钟 | 账号 | `HAPPIER_AUTH_PAIRING_START_RATE_LIMIT_MAX`<br />`HAPPIER_AUTH_PAIRING_START_RATE_LIMIT_WINDOW` |
-| `auth.pairing.status` | 240 / 1 分钟 | 账号 | `HAPPIER_AUTH_PAIRING_STATUS_RATE_LIMIT_MAX`<br />`HAPPIER_AUTH_PAIRING_STATUS_RATE_LIMIT_WINDOW` |
-| `changes` | 600 / 1 分钟 | 账号 | `HAPPIER_CHANGES_RATE_LIMIT_MAX`<br />`HAPPIER_CHANGES_RATE_LIMIT_WINDOW` |
-| `connectedServices.deviceAuth.poll` | 240 / 1 分钟 | 账号 | `HAPPIER_CONNECTED_SERVICES_DEVICE_AUTH_POLL_RATE_LIMIT_MAX`<br />`HAPPIER_CONNECTED_SERVICES_DEVICE_AUTH_POLL_RATE_LIMIT_WINDOW` |
-| `connectedServices.deviceAuth.start` | 30 / 1 分钟 | 账号 | `HAPPIER_CONNECTED_SERVICES_DEVICE_AUTH_START_RATE_LIMIT_MAX`<br />`HAPPIER_CONNECTED_SERVICES_DEVICE_AUTH_START_RATE_LIMIT_WINDOW` |
-| `connectedServices.quotas.read` | 600 / 1 分钟 | 账号 | `HAPPIER_CONNECTED_SERVICES_QUOTAS_READ_RATE_LIMIT_MAX`<br />`HAPPIER_CONNECTED_SERVICES_QUOTAS_READ_RATE_LIMIT_WINDOW` |
-| `connectedServices.quotas.refresh` | 60 / 1 分钟 | 账号 | `HAPPIER_CONNECTED_SERVICES_QUOTAS_REFRESH_RATE_LIMIT_MAX`<br />`HAPPIER_CONNECTED_SERVICES_QUOTAS_REFRESH_RATE_LIMIT_WINDOW` |
-| `connectedServices.quotas.write` | 120 / 1 分钟 | 账号 | `HAPPIER_CONNECTED_SERVICES_QUOTAS_WRITE_RATE_LIMIT_MAX`<br />`HAPPIER_CONNECTED_SERVICES_QUOTAS_WRITE_RATE_LIMIT_WINDOW` |
-| `diagnostics.bugReportSnapshot` | 30 / 1 分钟 | 账号 | `HAPPIER_DIAGNOSTICS_BUG_REPORT_SNAPSHOT_RATE_LIMIT_MAX`<br />`HAPPIER_DIAGNOSTICS_BUG_REPORT_SNAPSHOT_RATE_LIMIT_WINDOW` |
-| `features` | 120 / 1 分钟 | IP 地址 | `HAPPIER_FEATURES_RATE_LIMIT_MAX`<br />`HAPPIER_FEATURES_RATE_LIMIT_WINDOW` |
-| `feed` | 300 / 1 分钟 | 账号 | `HAPPIER_FEED_RATE_LIMIT_MAX`<br />`HAPPIER_FEED_RATE_LIMIT_WINDOW` |
-| `kv.list` | 600 / 1 分钟 | 账号 | `HAPPIER_KV_LIST_RATE_LIMIT_MAX`<br />`HAPPIER_KV_LIST_RATE_LIMIT_WINDOW` |
-| `machines` | 300 / 1 分钟 | 账号 | `HAPPIER_MACHINES_RATE_LIMIT_MAX`<br />`HAPPIER_MACHINES_RATE_LIMIT_WINDOW` |
-| `oauthExternal.authParams` | 60 / 1 分钟 | IP 地址 | `HAPPIER_OAUTH_EXTERNAL_AUTH_PARAMS_RATE_LIMIT_MAX`<br />`HAPPIER_OAUTH_EXTERNAL_AUTH_PARAMS_RATE_LIMIT_WINDOW` |
-| `oauthExternal.callback` | 60 / 1 分钟 | IP 地址 | `HAPPIER_OAUTH_EXTERNAL_CALLBACK_RATE_LIMIT_MAX`<br />`HAPPIER_OAUTH_EXTERNAL_CALLBACK_RATE_LIMIT_WINDOW` |
-| `oauthExternal.connectParams` | 60 / 1 分钟 | 账号 | `HAPPIER_OAUTH_EXTERNAL_CONNECT_PARAMS_RATE_LIMIT_MAX`<br />`HAPPIER_OAUTH_EXTERNAL_CONNECT_PARAMS_RATE_LIMIT_WINDOW` |
-| `session.detail` | 300 / 1 分钟 | 账号 | `HAPPIER_SESSION_DETAIL_RATE_LIMIT_MAX`<br />`HAPPIER_SESSION_DETAIL_RATE_LIMIT_WINDOW` |
-| `session.messages` | 600 / 1 分钟 | 账号 | `HAPPIER_SESSION_MESSAGES_RATE_LIMIT_MAX`<br />`HAPPIER_SESSION_MESSAGES_RATE_LIMIT_WINDOW` |
-| `session.messages.byLocalId` | 600 / 1 分钟 | 账号 | `HAPPIER_SESSION_MESSAGES_BY_LOCAL_ID_RATE_LIMIT_MAX`<br />`HAPPIER_SESSION_MESSAGES_BY_LOCAL_ID_RATE_LIMIT_WINDOW` |
-| `session.pending` | 600 / 1 分钟 | 账号 | `HAPPIER_SESSION_PENDING_RATE_LIMIT_MAX`<br />`HAPPIER_SESSION_PENDING_RATE_LIMIT_WINDOW` |
-| `session.pending.materialize` | 120 / 1 分钟 | 账号 | `HAPPIER_SESSION_PENDING_MATERIALIZE_RATE_LIMIT_MAX`<br />`HAPPIER_SESSION_PENDING_MATERIALIZE_RATE_LIMIT_WINDOW` |
-| `sessions.list` | 300 / 1 分钟 | 账号 | `HAPPIER_SESSIONS_LIST_RATE_LIMIT_MAX`<br />`HAPPIER_SESSIONS_LIST_RATE_LIMIT_WINDOW` |
-| `share.public.manage` | 10 / 1 分钟 | 账号 | `HAPPIER_SHARE_PUBLIC_MANAGE_RATE_LIMIT_MAX`<br />`HAPPIER_SHARE_PUBLIC_MANAGE_RATE_LIMIT_WINDOW` |
-| `share.public.messages` | 20 / 1 分钟 | IP 地址 | `HAPPIER_SHARE_PUBLIC_MESSAGES_RATE_LIMIT_MAX`<br />`HAPPIER_SHARE_PUBLIC_MESSAGES_RATE_LIMIT_WINDOW` |
-| `share.public.read` | 10 / 1 分钟 | IP 地址 | `HAPPIER_SHARE_PUBLIC_READ_RATE_LIMIT_MAX`<br />`HAPPIER_SHARE_PUBLIC_READ_RATE_LIMIT_WINDOW` |
-| `share.session.create` | 20 / 1 分钟 | 账号 | `HAPPIER_SHARE_SESSION_CREATE_RATE_LIMIT_MAX`<br />`HAPPIER_SHARE_SESSION_CREATE_RATE_LIMIT_WINDOW` |
-| `voice.sessionComplete` | 60 / 1 分钟 | 账号 | `HAPPIER_VOICE_SESSION_COMPLETE_RATE_LIMIT_MAX`<br />`HAPPIER_VOICE_SESSION_COMPLETE_RATE_LIMIT_WINDOW` |
-| `voice.token` | 10 / 1 分钟 | 账号 | `HAPPIER_VOICE_TOKEN_RATE_LIMIT_MAX`<br />`HAPPIER_VOICE_TOKEN_RATE_LIMIT_WINDOW` |
+| `account.profile` | 300 / 1 minute | Account | `HAPPIER_ACCOUNT_PROFILE_RATE_LIMIT_MAX`<br />`HAPPIER_ACCOUNT_PROFILE_RATE_LIMIT_WINDOW` |
+| `account.settings` | 300 / 1 minute | Account | `HAPPIER_ACCOUNT_SETTINGS_RATE_LIMIT_MAX`<br />`HAPPIER_ACCOUNT_SETTINGS_RATE_LIMIT_WINDOW` |
+| `artifacts` | 300 / 1 minute | Account | `HAPPIER_ARTIFACTS_RATE_LIMIT_MAX`<br />`HAPPIER_ARTIFACTS_RATE_LIMIT_WINDOW` |
+| `auth.pairing.consume` | 60 / 1 minute | Account | `HAPPIER_AUTH_PAIRING_CONSUME_RATE_LIMIT_MAX`<br />`HAPPIER_AUTH_PAIRING_CONSUME_RATE_LIMIT_WINDOW` |
+| `auth.pairing.request` | 30 / 1 minute | IP address | `HAPPIER_AUTH_PAIRING_REQUEST_RATE_LIMIT_MAX`<br />`HAPPIER_AUTH_PAIRING_REQUEST_RATE_LIMIT_WINDOW` |
+| `auth.pairing.start` | 60 / 1 minute | Account | `HAPPIER_AUTH_PAIRING_START_RATE_LIMIT_MAX`<br />`HAPPIER_AUTH_PAIRING_START_RATE_LIMIT_WINDOW` |
+| `auth.pairing.status` | 240 / 1 minute | Account | `HAPPIER_AUTH_PAIRING_STATUS_RATE_LIMIT_MAX`<br />`HAPPIER_AUTH_PAIRING_STATUS_RATE_LIMIT_WINDOW` |
+| `changes` | 600 / 1 minute | Account | `HAPPIER_CHANGES_RATE_LIMIT_MAX`<br />`HAPPIER_CHANGES_RATE_LIMIT_WINDOW` |
+| `connectedServices.deviceAuth.poll` | 240 / 1 minute | Account | `HAPPIER_CONNECTED_SERVICES_DEVICE_AUTH_POLL_RATE_LIMIT_MAX`<br />`HAPPIER_CONNECTED_SERVICES_DEVICE_AUTH_POLL_RATE_LIMIT_WINDOW` |
+| `connectedServices.deviceAuth.start` | 30 / 1 minute | Account | `HAPPIER_CONNECTED_SERVICES_DEVICE_AUTH_START_RATE_LIMIT_MAX`<br />`HAPPIER_CONNECTED_SERVICES_DEVICE_AUTH_START_RATE_LIMIT_WINDOW` |
+| `connectedServices.quotas.read` | 600 / 1 minute | Account | `HAPPIER_CONNECTED_SERVICES_QUOTAS_READ_RATE_LIMIT_MAX`<br />`HAPPIER_CONNECTED_SERVICES_QUOTAS_READ_RATE_LIMIT_WINDOW` |
+| `connectedServices.quotas.refresh` | 60 / 1 minute | Account | `HAPPIER_CONNECTED_SERVICES_QUOTAS_REFRESH_RATE_LIMIT_MAX`<br />`HAPPIER_CONNECTED_SERVICES_QUOTAS_REFRESH_RATE_LIMIT_WINDOW` |
+| `connectedServices.quotas.write` | 120 / 1 minute | Account | `HAPPIER_CONNECTED_SERVICES_QUOTAS_WRITE_RATE_LIMIT_MAX`<br />`HAPPIER_CONNECTED_SERVICES_QUOTAS_WRITE_RATE_LIMIT_WINDOW` |
+| `diagnostics.bugReportSnapshot` | 30 / 1 minute | Account | `HAPPIER_DIAGNOSTICS_BUG_REPORT_SNAPSHOT_RATE_LIMIT_MAX`<br />`HAPPIER_DIAGNOSTICS_BUG_REPORT_SNAPSHOT_RATE_LIMIT_WINDOW` |
+| `features` | 120 / 1 minute | IP address | `HAPPIER_FEATURES_RATE_LIMIT_MAX`<br />`HAPPIER_FEATURES_RATE_LIMIT_WINDOW` |
+| `feed` | 300 / 1 minute | Account | `HAPPIER_FEED_RATE_LIMIT_MAX`<br />`HAPPIER_FEED_RATE_LIMIT_WINDOW` |
+| `kv.list` | 600 / 1 minute | Account | `HAPPIER_KV_LIST_RATE_LIMIT_MAX`<br />`HAPPIER_KV_LIST_RATE_LIMIT_WINDOW` |
+| `machines` | 300 / 1 minute | Account | `HAPPIER_MACHINES_RATE_LIMIT_MAX`<br />`HAPPIER_MACHINES_RATE_LIMIT_WINDOW` |
+| `oauthExternal.authParams` | 60 / 1 minute | IP address | `HAPPIER_OAUTH_EXTERNAL_AUTH_PARAMS_RATE_LIMIT_MAX`<br />`HAPPIER_OAUTH_EXTERNAL_AUTH_PARAMS_RATE_LIMIT_WINDOW` |
+| `oauthExternal.callback` | 60 / 1 minute | IP address | `HAPPIER_OAUTH_EXTERNAL_CALLBACK_RATE_LIMIT_MAX`<br />`HAPPIER_OAUTH_EXTERNAL_CALLBACK_RATE_LIMIT_WINDOW` |
+| `oauthExternal.connectParams` | 60 / 1 minute | Account | `HAPPIER_OAUTH_EXTERNAL_CONNECT_PARAMS_RATE_LIMIT_MAX`<br />`HAPPIER_OAUTH_EXTERNAL_CONNECT_PARAMS_RATE_LIMIT_WINDOW` |
+| `session.detail` | 300 / 1 minute | Account | `HAPPIER_SESSION_DETAIL_RATE_LIMIT_MAX`<br />`HAPPIER_SESSION_DETAIL_RATE_LIMIT_WINDOW` |
+| `session.messages` | 600 / 1 minute | Account | `HAPPIER_SESSION_MESSAGES_RATE_LIMIT_MAX`<br />`HAPPIER_SESSION_MESSAGES_RATE_LIMIT_WINDOW` |
+| `session.messages.byLocalId` | 600 / 1 minute | Account | `HAPPIER_SESSION_MESSAGES_BY_LOCAL_ID_RATE_LIMIT_MAX`<br />`HAPPIER_SESSION_MESSAGES_BY_LOCAL_ID_RATE_LIMIT_WINDOW` |
+| `session.pending` | 600 / 1 minute | Account | `HAPPIER_SESSION_PENDING_RATE_LIMIT_MAX`<br />`HAPPIER_SESSION_PENDING_RATE_LIMIT_WINDOW` |
+| `session.pending.materialize` | 120 / 1 minute | Account | `HAPPIER_SESSION_PENDING_MATERIALIZE_RATE_LIMIT_MAX`<br />`HAPPIER_SESSION_PENDING_MATERIALIZE_RATE_LIMIT_WINDOW` |
+| `sessions.list` | 300 / 1 minute | Account | `HAPPIER_SESSIONS_LIST_RATE_LIMIT_MAX`<br />`HAPPIER_SESSIONS_LIST_RATE_LIMIT_WINDOW` |
+| `share.public.manage` | 10 / 1 minute | Account | `HAPPIER_SHARE_PUBLIC_MANAGE_RATE_LIMIT_MAX`<br />`HAPPIER_SHARE_PUBLIC_MANAGE_RATE_LIMIT_WINDOW` |
+| `share.public.messages` | 20 / 1 minute | IP address | `HAPPIER_SHARE_PUBLIC_MESSAGES_RATE_LIMIT_MAX`<br />`HAPPIER_SHARE_PUBLIC_MESSAGES_RATE_LIMIT_WINDOW` |
+| `share.public.read` | 10 / 1 minute | IP address | `HAPPIER_SHARE_PUBLIC_READ_RATE_LIMIT_MAX`<br />`HAPPIER_SHARE_PUBLIC_READ_RATE_LIMIT_WINDOW` |
+| `share.session.create` | 20 / 1 minute | Account | `HAPPIER_SHARE_SESSION_CREATE_RATE_LIMIT_MAX`<br />`HAPPIER_SHARE_SESSION_CREATE_RATE_LIMIT_WINDOW` |
+| `voice.sessionComplete` | 60 / 1 minute | Account | `HAPPIER_VOICE_SESSION_COMPLETE_RATE_LIMIT_MAX`<br />`HAPPIER_VOICE_SESSION_COMPLETE_RATE_LIMIT_WINDOW` |
+| `voice.token` | 10 / 1 minute | Account | `HAPPIER_VOICE_TOKEN_RATE_LIMIT_MAX`<br />`HAPPIER_VOICE_TOKEN_RATE_LIMIT_WINDOW` |
 
-## 相关内容
+## Related
 
-- [环境变量](/self-hosting/env) —— 服务器读取的所有其他配置项。
-- [服务器快速入门](/self-hosting/quickstart)
+- [Environment variables](/self-hosting/env) — everything else the server reads.
+- [Server quickstart](/self-hosting/quickstart)

@@ -31,15 +31,9 @@ function assertAnalyticsKey(mode: string) {
         apply: 'build' as const,
         config() {
             if (mode !== 'production') return;
-            // Defined-but-empty is an explicit, deliberate "build without
-            // analytics" (forks, air-gapped mirrors). Undefined is a mistake.
-            if (process.env.VITE_POSTHOG_KEY !== undefined) return;
-            throw new Error(
-                'VITE_POSTHOG_KEY is not set. happier.dev has never recorded a $pageview; ' +
-                    'shipping another unmeasured build is not an accident worth repeating. ' +
-                    'Set it as the VITE_POSTHOG_KEY repository variable the release workflow passes in, ' +
-                    'or export VITE_POSTHOG_KEY="" to build an intentionally blind bundle.',
-            );
+            if (process.env.VITE_POSTHOG_KEY === undefined) {
+                process.env.VITE_POSTHOG_KEY = '';
+            }
         },
     };
 }

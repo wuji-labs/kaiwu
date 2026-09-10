@@ -33,10 +33,10 @@ export const UI_ORIGIN = 'https://eu.posthog.com';
  * Stamped on every event so happier.dev, docs.*, guides.* and app.* can share
  * one project and still be told apart, without sharing an identity.
  */
-export const SITE = 'docs.happier.dev' as const;
+export const SITE = 'kaiwu.chengqiyun.com/docs' as const;
 
 /** The visitor's refusal. The only key this site ever writes. */
-export const OPT_OUT_STORAGE_KEY = 'happier:analytics';
+export const OPT_OUT_STORAGE_KEY = 'kaiwu:analytics';
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY ?? '';
 

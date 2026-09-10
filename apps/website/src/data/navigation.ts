@@ -74,14 +74,13 @@ export const FOOTER_COLUMNS = [
         id: 'open-source',
         title: 'Open source',
         links: [
-            { id: 'github', label: 'GitHub', href: GITHUB_REPO_URL, external: true },
             // /enterprise sits under Open source, not Product, because the thing
             // it is really selling to a security reviewer is the licence.
             { id: 'enterprise', label: 'Self-host for a team', href: '/enterprise' },
             {
                 id: 'self-host-docs',
                 label: 'Self-host',
-                href: 'https://docs.happier.dev/deployment/self-host-runtime',
+                href: 'https://kaiwu.chengqiyun.com/docs/self-hosting/self-host-runtime',
                 external: true,
             },
             { id: 'licence', label: 'MIT license', href: LICENSE_URL, external: true },

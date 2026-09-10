@@ -39,12 +39,12 @@ MCP 服务器是更宏大的 **Kaiwu 工具**体系中的一部分。
 在 CLI 中，常用命令示例如下：
 
 ```bash
-happier mcp servers list
-happier mcp servers test --mcp-server <name-or-id>
-happier mcp servers detect --provider codex
+kaiwu mcp servers list
+kaiwu mcp servers test --mcp-server <name-or-id>
+kaiwu mcp servers detect --provider codex
 ```
 
-运行 `happier mcp servers --help` 可查看当前的子命令与参数列表。
+运行 `kaiwu mcp servers --help` 可查看当前的子命令与参数列表。
 
 桌面端 UI、守护进程与 CLI 均使用同一套基于账号同步的 MCP 配置。
 
@@ -53,7 +53,7 @@ happier mcp servers detect --provider codex
 除了管理*其他* MCP 服务器外，Kaiwu 自身也能作为 **MCP 服务器**运行，以便外部 MCP 客户端控制会话并执行 Kaiwu 操作：
 
 ```bash
-happier mcp serve
+kaiwu mcp serve
 ```
 
 指南：[Kaiwu MCP（外部）](/extending/happier-as-mcp-server)
