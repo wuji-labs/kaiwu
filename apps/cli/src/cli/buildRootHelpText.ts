@@ -11,7 +11,7 @@ function formatHelpEntry(label: string, description: string): string {
 export function buildRootHelpText(): string {
   const helpEntries = listRootHelpCommands();
   return `
-${chalk.bold('happier')} - AI CLI On the Go
+${chalk.bold('kaiwu')} - AI CLI On the Go
 
 ${chalk.bold('Usage:')}
 ${helpEntries.map((entry) => {
@@ -23,22 +23,22 @@ ${helpEntries.map((entry) => {
   }).join('\n')}
 
 ${chalk.bold('Examples:')}
-  happier                    Start session
-  happier --refresh-settings  Force-refresh account settings before starting
-  happier --launch-profile <id-or-name> Start with a launch profile from your settings
-  happier --auth cs:<id>    Start with an exact Connected Services profile or pool
-  happier --auth native     Start with native provider authentication
-  happier --yolo             Start with bypassing permissions
-                              happier sugar for --dangerously-skip-permissions
-  happier --chrome           Enable Chrome browser access for this session
-  happier --no-chrome        Disable Chrome even if default is on
-  happier --js-runtime bun   Use bun instead of node to spawn JavaScript-backed CLIs
-  happier auth login --force Authenticate
-  happier profiles list      List available backend profiles
-  happier doctor             Run diagnostics
+  kaiwu                    Start session
+  kaiwu --refresh-settings  Force-refresh account settings before starting
+  kaiwu --launch-profile <id-or-name> Start with a launch profile from your settings
+  kaiwu --auth cs:<id>    Start with an exact Connected Services profile or pool
+  kaiwu --auth native     Start with native provider authentication
+  kaiwu --yolo             Start with bypassing permissions
+                              kaiwu sugar for --dangerously-skip-permissions
+  kaiwu --chrome           Enable Chrome browser access for this session
+  kaiwu --no-chrome        Disable Chrome even if default is on
+  kaiwu --js-runtime bun   Use bun instead of node to spawn JavaScript-backed CLIs
+  kaiwu auth login --force Authenticate
+  kaiwu profiles list      List available backend profiles
+  kaiwu doctor             Run diagnostics
 
 ${chalk.bold('Server selection (global flags; prefix-only; no persistence):')}
-  happier --server <name-or-id> ...
-  happier --server-url <url> [--webapp-url <url>] [--public-server-url <url>] ...
+  kaiwu --server <name-or-id> ...
+  kaiwu --server-url <url> [--webapp-url <url>] [--public-server-url <url>] ...
 `;
 }

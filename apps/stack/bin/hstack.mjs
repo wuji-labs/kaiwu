@@ -80,13 +80,16 @@ function maybeReexecToCliRoot(cliRootDir) {
 }
 
 function resolveHomeDir() {
-  const fromEnv = (process.env.HAPPIER_STACK_HOME_DIR ?? '').trim();
+  const fromEnv = (process.env.KAIWU_STACK_HOME_DIR ?? process.env.HAPPIER_STACK_HOME_DIR ?? '').trim();
   if (fromEnv) return expandHome(fromEnv);
 
   // Stable pointer file: even if the real home dir is elsewhere, `hstack init` writes the pointer here.
   const canonicalEnv = getCanonicalHomeEnvPathFromEnv(process.env);
-  const v = dotenvGetQuick(canonicalEnv, 'HAPPIER_STACK_HOME_DIR') || '';
-  return v ? expandHome(v) : join(homedir(), '.happier-stack');
+  const v = dotenvGetQuick(canonicalEnv, 'KAIWU_STACK_HOME_DIR') || dotenvGetQuick(canonicalEnv, 'HAPPIER_STACK_HOME_DIR') || '';
+  if (v) return expandHome(v);
+  const defaultDir = join(homedir(), '.kaiwu-stack');
+  const fallbackDir = join(homedir(), '.happier-stack');
+  return existsSync(fallbackDir) && !existsSync(defaultDir) ? fallbackDir : defaultDir;
 }
 
 function stripGlobalOpt(argv, { name, aliases = [] }) {

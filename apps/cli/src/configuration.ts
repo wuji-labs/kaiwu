@@ -73,16 +73,32 @@ export function isDaemonProcessArgv(args: readonly string[]): boolean {
   return args[1] === 'start' || args[1] === 'start-sync'
 }
 
+let warnedCliHomeDirDeprecated = false
+
+export function resetCliHomeDirWarningsForTests(): void {
+  warnedCliHomeDirDeprecated = false
+}
+
 function resolveCliHappyHomeDir(env: NodeJS.ProcessEnv): string {
-  const override = typeof env.HAPPIER_HOME_DIR === 'string' ? env.HAPPIER_HOME_DIR.trim() : ''
+  const overrideRaw = env.KAIWU_HOME_DIR ?? env.HAPPIER_HOME_DIR
+  const override = typeof overrideRaw === 'string' ? overrideRaw.trim() : ''
   if (!override) {
     const sudoInvokerHomeDir = resolveSudoInvokerHomeDir(env)
     const baseHomeDir = sudoInvokerHomeDir ?? expandHomeDirPath('~', env)
-    return join(baseHomeDir, '.happier')
+    const kaiwuDir = join(baseHomeDir, '.kaiwu')
+    const happierDir = join(baseHomeDir, '.happier')
+    if (!existsSync(kaiwuDir) && existsSync(happierDir)) {
+      if (!warnedCliHomeDirDeprecated) {
+        warnedCliHomeDirDeprecated = true
+        console.warn('[kaiwu] ~/.happier is deprecated, use ~/.kaiwu')
+      }
+      return happierDir
+    }
+    return kaiwuDir
   }
   const expandedOverride = expandHomeDirPath(override, env)
   if (process.platform !== 'win32' && isWindowsShapedAbsolutePath(expandedOverride)) {
-    throw new Error(`Windows-shaped HAPPIER_HOME_DIR overrides are not supported on ${process.platform}`)
+    throw new Error(`Windows-shaped KAIWU_HOME_DIR overrides are not supported on ${process.platform}`)
   }
   return isAbsolute(expandedOverride) ? expandedOverride : resolvePath(expandedOverride)
 }

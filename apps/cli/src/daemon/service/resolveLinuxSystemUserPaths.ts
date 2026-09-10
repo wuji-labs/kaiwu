@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 export type LinuxSystemUserPaths = Readonly<{
@@ -61,8 +61,12 @@ export function resolveLinuxSystemUserPaths(params: Readonly<{
   const userHomeDir = userHomeDirOverride || resolveLinuxSystemUserHomeDir(params.systemUser);
   const happierHomeDirOverride = String(params.happierHomeDirOverride ?? '').trim();
 
+  const defaultDir = join(userHomeDir, '.kaiwu');
+  const fallbackDir = join(userHomeDir, '.happier');
+  const effectiveHomeDir = happierHomeDirOverride || (existsSync(fallbackDir) && !existsSync(defaultDir) ? fallbackDir : defaultDir);
+
   return {
     userHomeDir,
-    happierHomeDir: happierHomeDirOverride || join(userHomeDir, '.happier'),
+    happierHomeDir: effectiveHomeDir,
   };
 }
