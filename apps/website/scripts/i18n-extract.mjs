@@ -3,7 +3,7 @@
  *
  * WHY IT BUNDLES AND IMPORTS RATHER THAN PARSING THE AST.
  * A static walk sees `title: 'Codex cloud runs tasks…'` but not
- * `` `Remote drives Codex. Happier drives ${AGENTS.length} agents.` `` — and the
+ * `` `Remote drives Codex. Kaiwu drives ${AGENTS.length} agents.` `` — and the
  * second kind is 36 strings carrying real claims. Bundling with esbuild and
  * importing the result yields the VALUES, so a computed string extracts as the
  * sentence a reader actually sees. The cost is that the modules must be
@@ -64,7 +64,7 @@ function sourceModules() {
 
 /** Bundle every module behind one entry so a single import gets us all values. */
 async function loadModules(modules) {
-    const tmp = mkdtempSync(join(scratchRoot(), 'happier-i18n-'));
+    const tmp = mkdtempSync(join(scratchRoot(), 'Kaiwu-i18n-'));
     try {
         const entry = join(tmp, 'entry.mjs');
         writeFileSync(
@@ -93,12 +93,12 @@ async function loadModules(modules) {
 
 /** Tokens that must survive translation byte-identical. */
 /**
- * The words that can actually follow `happier` on a command line.
+ * The words that can actually follow `Kaiwu` on a command line.
  *
- * Matching `happier` followed by any lowercase word was too greedy: it caught
- * the prose "N happier
+ * Matching `Kaiwu` followed by any lowercase word was too greedy: it caught
+ * the prose "N Kaiwu
  * developers on Discord" and then demanded that a Chinese translation keep the
- * English phrase "happier developers" byte-identical inside an otherwise
+ * English phrase "Kaiwu developers" byte-identical inside an otherwise
  * Chinese sentence. Two translators independently reported it as reading wrong,
  * which is the right outcome for a rule that was wrong. Anything genuinely
  * risky is written in backticks and caught by the pattern above this one.
@@ -124,7 +124,7 @@ const DNT_PATTERNS = [
 function dntTokens(value) {
     const found = new Set();
     for (const re of DNT_PATTERNS) for (const m of value.matchAll(re)) found.add(m[0]);
-    for (const m of value.matchAll(/\bhappier\s+([a-z][\w-]*)/g)) {
+    for (const m of value.matchAll(/\bKaiwu\s+([a-z][\w-]*)/g)) {
         if (CLI_SUBCOMMANDS.has(m[1])) found.add(m[0]);
     }
     return [...found];
@@ -133,7 +133,7 @@ function dntTokens(value) {
 const { walkStrings } = await import(pathToFileURL(join(ROOT, 'src/i18n/overlay.ts')).href).catch(
     async () => {
         // overlay.ts is TypeScript; bundle it the same way as the data modules.
-        const tmp = mkdtempSync(join(scratchRoot(), 'happier-i18n-ov-'));
+        const tmp = mkdtempSync(join(scratchRoot(), 'Kaiwu-i18n-ov-'));
         const outfile = join(tmp, 'overlay.mjs');
         await build({
             entryPoints: [join(ROOT, 'src/i18n/overlay.ts')],

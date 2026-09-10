@@ -11,13 +11,13 @@ description: 使用 Docker / Docker Compose 部署 Kaiwu 服务器。
 我们在 Docker Hub 上发布了预览版 Docker 镜像（推荐）：
 
 ```bash
-docker pull happierdev/relay-server:preview
+docker pull KAIWUdev/relay-server:preview
 ```
 
 此外，相同的镜像也会同步发布到 GitHub Container Registry (GHCR)：
 
 ```bash
-docker pull ghcr.io/happier-dev/relay-server:preview
+docker pull ghcr.io/KAIWU-dev/relay-server:preview
 ```
 
 已发布的镜像：
@@ -40,7 +40,7 @@ docker pull ghcr.io/happier-dev/relay-server:preview
 Docker 镜像**不会**自动更新。升级时，只需拉取更新的标签版本，并重启或重新创建容器即可：
 
 ```bash
-docker pull happierdev/relay-server:preview
+docker pull KAIWUdev/relay-server:preview
 docker compose up -d --force-recreate
 ```
 
@@ -53,7 +53,7 @@ docker compose up -d --force-recreate
 ```bash
 docker run --rm -p 3005:3005 \
   -v kaiwu-server-data:/data \
-  happierdev/relay-server:preview
+  KAIWUdev/relay-server:preview
 ```
 
 配置文档：
@@ -88,7 +88,7 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   relay:
-    image: happierdev/relay-server:preview
+    image: KAIWUdev/relay-server:preview
     ports:
       - "3005:3005"
     environment:
@@ -126,7 +126,7 @@ volumes:
 ```yaml
 services:
   relay:
-    image: happierdev/relay-server:preview
+    image: KAIWUdev/relay-server:preview
     environment:
       PORT: "3005"
       # Optional:
@@ -187,10 +187,10 @@ docker build -t kaiwu-server-worker --target server-worker .
 
 ```bash
 docker build -t kaiwu-relay-server --target relay-server \
-  --build-arg HAPPIER_RELAY_SERVER_RELEASE_TAG=server-preview \
-  --build-arg HAPPIER_RELAY_SERVER_VERSION=<server-runtime-version> \
-  --build-arg HAPPIER_RELAY_UI_WEB_RELEASE_TAG=ui-web-preview \
-  --build-arg HAPPIER_RELAY_UI_WEB_VERSION=<ui-web-version> \
+  --build-arg KAIWU_RELAY_SERVER_RELEASE_TAG=server-preview \
+  --build-arg KAIWU_RELAY_SERVER_VERSION=<server-runtime-version> \
+  --build-arg KAIWU_RELAY_UI_WEB_RELEASE_TAG=ui-web-preview \
+  --build-arg KAIWU_RELAY_UI_WEB_VERSION=<ui-web-version> \
   .
 ```
 
@@ -205,12 +205,12 @@ docker build -t kaiwu-relay-server --target relay-server \
 ```bash
 # Build with only Postgres (includes pglite support since it uses the Postgres client)
 docker build -t kaiwu-server --target server \
-  --build-arg HAPPIER_BUILD_DB_PROVIDERS='postgres' \
+  --build-arg KAIWU_BUILD_DB_PROVIDERS='postgres' \
   .
 
 # Build with Postgres + MySQL (no SQLite client)
 docker build -t kaiwu-server --target server \
-  --build-arg HAPPIER_BUILD_DB_PROVIDERS='postgres|mysql' \
+  --build-arg KAIWU_BUILD_DB_PROVIDERS='postgres|mysql' \
   .
 ```
 
@@ -249,7 +249,7 @@ Kaiwu Server 提供两种预设，二者共用相同的 API 与运行时环境�
 
 数据库提供商可通过以下方式配置：
 
-- `KAIWU_DB_PROVIDER`（推荐）或旧版 `HAPPIER_DB_PROVIDER` / `HAPPY_DB_PROVIDER`
+- `KAIWU_DB_PROVIDER`（推荐）或旧版 `KAIWU_DB_PROVIDER` / `HAPPY_DB_PROVIDER`
 
 两种预设下均支持以下取值：`postgres`、`mysql`（MySQL 8.0.16+）、`sqlite` 与 `pglite`。Full 预设默认采用 Postgres；Light 预设默认采用 SQLite。
 

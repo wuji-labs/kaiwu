@@ -34,7 +34,7 @@ const CODE = (c: ReactNode) => <code className="font-mono">{c}</code>;
  *
  *   lead                  authored per agent, first on the page, and now the
  *                         section that carries most of the weight: 200-350
- *                         words about what happens when Happier starts THIS
+ *                         words about what happens when KAIWU starts THIS
  *                         binary. It was one 55-120 word paragraph, which left
  *                         the page one paragraph of difference followed by five
  *                         sections of shared argument.
@@ -43,7 +43,7 @@ const CODE = (c: ReactNode) => <code className="font-mono">{c}</code>;
  *                         connected service; absent for the other eight.
  *   TerminalHandoff       three shapes, from `runtime.localControl` — see its
  *                         own docblock for the sentence it replaced.
- *   tool delivery         native MCP or the `happier tools` shell bridge.
+ *   tool delivery         native MCP or the `KAIWU tools` shell bridge.
  *
  * What remains shared is shared on purpose. One app, one session list, one
  * install command — repeating that is not duplication, it is the product.
@@ -103,7 +103,7 @@ function docsHref(path: string): string {
  * `backticks` in an authored string become real <code> spans.
  *
  * The copy in src/data/agents.ts writes commands and package names the way
- * anyone writing them down does — `happier codex`, `@google/gemini-cli` — and
+ * anyone writing them down does — `KAIWU codex`, `@google/gemini-cli` — and
  * the old page rendered those backticks as literal punctuation, so every page
  * shipped visible grave accents. Doing it here rather than storing JSX keeps
  * the data file a data file: agents.test.ts reads those strings for the
@@ -143,13 +143,13 @@ function InstallReality({ agent }: { agent: AgentRecord }) {
     const values = {
         binary: agent.binary,
         source: agent.managedSource ?? '',
-        path: `~/.happier/tools/providers/${agent.id}/`,
+        path: `~/.KAIWU/tools/providers/${agent.id}/`,
     };
 
     switch (agent.installKind) {
-        case 'happier-managed-package':
+        case 'KAIWU-managed-package':
             return <P>{rich(PAGE_PROSE.agentDetail.p14, { 1: CODE, 2: CODE, 3: CODE }, values)}</P>;
-        case 'happier-managed-release':
+        case 'KAIWU-managed-release':
             return <P>{rich(PAGE_PROSE.agentDetail.p15, { 1: CODE, 2: CODE, 3: CODE }, values)}</P>;
         case 'vendor-script':
             return (
@@ -165,11 +165,11 @@ function InstallReality({ agent }: { agent: AgentRecord }) {
 /**
  * The hand-off sentence, per agent, from `runtime.localControl`.
  *
- * The old page rendered one template on all thirteen: "Typing happier {id}
+ * The old page rendered one template on all thirteen: "Typing KAIWU {id}
  * gives you {vendor}'s own interface … and the same session is simultaneously
  * in the app." Both halves were wrong nearly everywhere.
  *
- *   • `happier <id>` draws HAPPIER's display, not the vendor's TUI. The shipped
+ *   • `KAIWU <id>` draws KAIWU's display, not the vendor's TUI. The shipped
  *     backends ship their own renderers — apps/cli/src/backends/claude/ui/
  *     RemoteModeDisplay.tsx, backends/codex/ui/CodexTerminalDisplay.tsx and the
  *     equivalents for the rest — and the ACP providers launch a stdio process
@@ -182,7 +182,7 @@ function InstallReality({ agent }: { agent: AgentRecord }) {
  *   • "Simultaneously in the app" is wrong for the tmux pair as well: their
  *     topology is `exclusive`, so app messages queue while the TUI holds the
  *     session — "If you send a message from the app while Claude is locally
- *     controlled, Happier stores it in the pending queue first"
+ *     controlled, KAIWU stores it in the pending queue first"
  *     (apps/docs/content/docs/providers/claude.mdx:32).
  *   • OpenCode is not exclusive, and the shipped docs say so outright: "the
  *     session stays writable from the app even when a terminal is attached"
@@ -193,14 +193,14 @@ function InstallReality({ agent }: { agent: AgentRecord }) {
  *     localControl/buildClaudeAgentState.ts:31-48). What is still only true of
  *     OpenCode is that it needs no multiplexer and no setting turned on, so that
  *     is what the sentence says now.
- *   • For the ten with no strategy, `happier attach` still runs — it lists what
+ *   • For the ten with no strategy, `KAIWU attach` still runs — it lists what
  *     is on that computer and leaves what it cannot reattach disabled, with the
  *     reason (apps/docs/content/docs/features/attach-to-session.mdx:47-52).
  */
 function TerminalHandoff({ agent }: { agent: AgentRecord }) {
     const { pageProse: { PAGE_PROSE } } = useSiteData();
 
-    const values = { name: agent.name, attach: 'happier attach <session-id>' };
+    const values = { name: agent.name, attach: 'KAIWU attach <session-id>' };
 
     switch (agent.runtime.localControl.kind) {
         case 'tmux':
@@ -303,9 +303,9 @@ export function AgentDetail({ slug }: { slug: string }) {
     const setupLink = setupLinkFor(agent);
     const hasSetupGuide = agent.vendorSetupGuide !== null;
     // Bound to a const because the link below is built inside a rich() slot
-    // callback, and TypeScript drops the narrowing from `agent.happierDocsPath ?`
+    // callback, and TypeScript drops the narrowing from `agent.KAIWUDocsPath ?`
     // once the check and the use sit either side of a closure.
-    const happierDocsPath = agent.happierDocsPath;
+    const KAIWUDocsPath = agent.KAIWUDocsPath;
 
     return (
         <PageShell>
@@ -330,7 +330,7 @@ export function AgentDetail({ slug }: { slug: string }) {
               * extra words could not come from anywhere else without turning
               * thirteen pages into a doorway set.
               */}
-            <Prose heading={`How Happier runs ${agent.name}`} data-section="agent-lead">
+            <Prose heading={`How KAIWU runs ${agent.name}`} data-section="agent-lead">
                 {agent.lead.map((paragraph) => (
                     <P key={paragraph.slice(0, 32)}>
                         <Ticks text={paragraph} />
@@ -339,7 +339,7 @@ export function AgentDetail({ slug }: { slug: string }) {
             </Prose>
 
             <Prose
-                heading={`What ${agent.name} does, and what Happier adds`}
+                heading={`What ${agent.name} does, and what KAIWU adds`}
                 data-section="agent-what-it-does"
             >
                 {agent.whatItDoes.map((paragraph) => (
@@ -355,7 +355,7 @@ export function AgentDetail({ slug }: { slug: string }) {
                         <span aria-hidden style={{ color: 'var(--muted)' }}>
                             $
                         </span>
-                        <code>happier {agent.id}</code>
+                        <code>KAIWU {agent.id}</code>
                     </div>
                 </div>
             </Prose>
@@ -394,18 +394,18 @@ export function AgentDetail({ slug }: { slug: string }) {
             {/*
                 One heading for thirteen pages read as an instruction to go and
                 install it yourself, which is wrong on the majority: eight of the
-                thirteen are `happier-managed-*`, where Happier fetches the agent
-                into ~/.happier/tools/providers/ when PATH has no copy. It is
+                thirteen are `KAIWU-managed-*`, where KAIWU fetches the agent
+                into ~/.KAIWU/tools/providers/ when PATH has no copy. It is
                 right on the other five — Claude Code among them, which ships as a
-                vendor install script Happier refuses to execute unasked. So the
+                vendor install script KAIWU refuses to execute unasked. So the
                 heading follows installKind, and the pages stop being identical
                 here as a side effect.
             */}
             <Prose
                 heading={
-                    agent.installKind === 'happier-managed-package' ||
-                    agent.installKind === 'happier-managed-release'
-                        ? `Happier can install ${agent.name} for you`
+                    agent.installKind === 'KAIWU-managed-package' ||
+                    agent.installKind === 'KAIWU-managed-release'
+                        ? `KAIWU can install ${agent.name} for you`
                         : `Installing ${agent.name} the way ${agent.vendor} documents it`
                 }
                 data-section="agent-your-computer"
@@ -419,7 +419,7 @@ export function AgentDetail({ slug }: { slug: string }) {
                     all: Auggie's is augmentcode.com, a product homepage with no
                     install steps on it, and Kiro's is kiro.dev/docs/cli/acp/,
                     an ACP protocol page that assumes the CLI is already there —
-                    on the one agent Happier cannot install for you. Introducing
+                    on the one agent KAIWU cannot install for you. Introducing
                     either as "the install and sign-in guide" is the class of
                     sentence a reader disproves in one click.
                 */}
@@ -448,9 +448,9 @@ export function AgentDetail({ slug }: { slug: string }) {
                         )}
                     </P>
                 ) : null}
-                {happierDocsPath ? (
+                {KAIWUDocsPath ? (
                     <P>{rich(PAGE_PROSE.agentDetail.p4, { 1: (c: ReactNode) => <a
-                            href={docsHref(happierDocsPath)}
+                            href={docsHref(KAIWUDocsPath)}
                             target="_blank"
                             rel="noreferrer"
                             className="underline underline-offset-2"
@@ -475,8 +475,8 @@ export function AgentDetail({ slug }: { slug: string }) {
                     ) : (
                         <>
                             You define an MCP server once, and because {agent.name} does not consume
-                            MCP directly, Happier hands the same tool surface to it through the{' '}
-                            <code className="font-mono">happier tools</code> shell bridge instead —
+                            MCP directly, KAIWU hands the same tool surface to it through the{' '}
+                            <code className="font-mono">KAIWU tools</code> shell bridge instead —
                             the same tools, delivered as commands it can run. The app previews the
                             effective tool surface before a session starts, so which one you got is
                             visible rather than inferred.
@@ -528,7 +528,7 @@ export function AgentDetail({ slug }: { slug: string }) {
               * "in two commands" is countable on the page rather than a
               * flourish: the block below is the install one-liner
               * (<Island name="install-command" component={InstallCommand} /> renders exactly one, per platform) and then
-              * `happier <id>` in the repository. If a third step ever appears
+              * `KAIWU <id>` in the repository. If a third step ever appears
               * here, the number in this heading is wrong.
               */}
             <Prose

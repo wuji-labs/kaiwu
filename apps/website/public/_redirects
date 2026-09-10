@@ -5,11 +5,11 @@
 # #  DO NOT ADD  `/*  /index.html  200`  TO THIS FILE.                      #
 # ###########################################################################
 #
-# That single line is what makes happier.dev answer HTTP 200 for every URL that
+# That single line is what makes kaiwu.chengqiyun.com answer HTTP 200 for every URL that
 # does not exist. Verified on 2026-08-08:
 #
-#   curl -sI https://happier.dev/zzz-nope-123   ->  HTTP/2 200, the homepage HTML
-#   curl -sI https://happier.dev/robots.txt     ->  HTTP/2 200, the homepage HTML
+#   curl -sI https://kaiwu.chengqiyun.com/zzz-nope-123   ->  HTTP/2 200, the homepage HTML
+#   curl -sI https://kaiwu.chengqiyun.com/robots.txt     ->  HTTP/2 200, the homepage HTML
 #
 # That is a "soft 404", and it is actively harmful, not merely untidy:
 #
@@ -50,17 +50,17 @@
 # Short links. These are the only rules that belong in this file: finite,
 # explicit, one destination each.
 # ---------------------------------------------------------------------------
-/docs        https://docs.happier.dev/                                      301
-/docs/*      https://docs.happier.dev/:splat                                301
-/guides      https://guides.happier.dev/                                    301
-/guides/*    https://guides.happier.dev/:splat                              301
-/app         https://app.happier.dev/                                       301
-/github      https://github.com/happier-dev/happier                         301
+/docs        https://kaiwu.chengqiyun.com/docs/                                      301
+/docs/*      https://kaiwu.chengqiyun.com/docs/:splat                                301
+/guides      https://guides.kaiwu.chengqiyun.com/                                    301
+/guides/*    https://guides.kaiwu.chengqiyun.com/:splat                              301
+/app         https://kaiwu.chengqiyun.com/                                       301
+/github      https://github.com/KAIWU-dev/KAIWU                         301
 /discord     https://discord.gg/W6Pb8KuHfg                                  301
-/releases    https://github.com/happier-dev/happier/releases                301
-/license     https://github.com/happier-dev/happier/blob/main/LICENCE       301
-/security    https://github.com/happier-dev/happier/security/policy         301
-/self-host   https://docs.happier.dev/deployment/self-host-runtime          301
+/releases    https://github.com/KAIWU-dev/KAIWU/releases                301
+/license     https://github.com/KAIWU-dev/KAIWU/blob/main/LICENCE       301
+/security    https://github.com/KAIWU-dev/KAIWU/security/policy         301
+/self-host   https://kaiwu.chengqiyun.com/docs/deployment/self-host-runtime          301
 
 # ---------------------------------------------------------------------------
 # Aliases for real pages. These are shapes people (and competitors' sitemaps)

@@ -6,22 +6,22 @@ import { useEffect, useState } from 'react';
  *
  * Every one of them has the same shape: a static fallback compiled into the
  * bundle so the number is never blank or zero, replaced at runtime by a JSON
- * document published to stats.happier.dev. A failed or malformed fetch keeps
+ * document published to stats.kaiwu.chengqiyun.com. A failed or malformed fetch keeps
  * the fallback rather than degrading the page.
  */
 
 /**
  * Where published stats are read from.
  *
- * stats.happier.dev returns `Access-Control-Allow-Origin` only for
- * https://happier.dev and https://www.happier.dev, so a browser on localhost can
+ * stats.kaiwu.chengqiyun.com returns `Access-Control-Allow-Origin` only for
+ * https://kaiwu.chengqiyun.com and https://www.kaiwu.chengqiyun.com, so a browser on localhost can
  * never read it directly — the request is blocked and every counter silently
  * sits on its compiled-in fallback, which makes the loaded state impossible to
  * see or test in dev. Development goes through the Vite proxy declared in
  * vite.config.ts so the request is same-origin; production hits the real host.
  */
 export function statsUrl(file: string): string {
-    return import.meta.env.DEV ? `/__stats/${file}` : `https://stats.happier.dev/${file}`;
+    return import.meta.env.DEV ? `/__stats/${file}` : `https://stats.kaiwu.chengqiyun.com/${file}`;
 }
 
 /**

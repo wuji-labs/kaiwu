@@ -62,7 +62,7 @@ hstack menubar mode dev
 如果创建了多个栈（参见 `docs/stacks.md`），插件会呈现：
 
 - **主栈**（默认栈，名称为 `main`）
-- **Stacks** 区域，列出在 `~/.happier/stacks/⟦K16⟧/env` 下找到的每个栈
+- **Stacks** 区域，列出在 `~/.Kaiwu/stacks/⟦K16⟧/env` 下找到的每个栈
 
 每个栈条目均呈现相同的“迷你控制面板”（包含服务器、守护进程、自启服务、日志及部分操作项），并针对各栈显示专属的端口、目录和 LaunchAgent 标识。
 
@@ -127,7 +127,7 @@ hstack menubar install --stack=dev-built --mode=selfhost
 如需在安装时指定不同的默认刷新间隔：
 
 ```bash
-HAPPIER_STACK_SWIFTBAR_INTERVAL=15m hstack menubar install
+Kaiwu_STACK_SWIFTBAR_INTERVAL=15m hstack menubar install
 ```
 
 ### 3) 打开当前生效的 SwiftBar 插件目录
@@ -165,7 +165,7 @@ SwiftBar 的刷新周期由**文件名**后缀控制：
 在栈数量较多时，检查 Git 与工作树是菜单中最耗时的操作。
 插件默认运行在**缓存模式**下：
 
-- 插件会从 `~/.happier-stack/cache/swiftbar/git` 下的本地磁盘缓存中读取并渲染 Git 及工作树信息。
+- 插件会从 `~/.Kaiwu-stack/cache/swiftbar/git` 下的本地磁盘缓存中读取并渲染 Git 及工作树信息。
 - 常规的菜单刷新**不会**调用 Git 命令，从而保持刷新响应敏捷。
 - 缓存支持通过菜单操作手动刷新，也可以设置为到达 TTL 过期时间后自动更新。
 
@@ -175,9 +175,9 @@ SwiftBar 的刷新周期由**文件名**后缀控制：
   - “Refresh now (main components)”
   - “Refresh now (all stacks/components)”
   - 或在指定栈的 Components 菜单中点击 “Refresh now (this stack)”
-- **TTL（有效时长）**：`HAPPIER_STACK_SWIFTBAR_GIT_TTL_SEC`（默认 `21600` 秒 = 6 小时）
-- **模式**：`HAPPIER_STACK_SWIFTBAR_GIT_MODE=cached|live`（默认为 `cached`）
-- （可选）**后台自动刷新**：`HAPPIER_STACK_SWIFTBAR_GIT_AUTO_REFRESH_SCOPE=main|all|off`（默认为 `main`）
+- **TTL（有效时长）**：`Kaiwu_STACK_SWIFTBAR_GIT_TTL_SEC`（默认 `21600` 秒 = 6 小时）
+- **模式**：`Kaiwu_STACK_SWIFTBAR_GIT_MODE=cached|live`（默认为 `cached`）
+- （可选）**后台自动刷新**：`Kaiwu_STACK_SWIFTBAR_GIT_AUTO_REFRESH_SCOPE=main|all|off`（默认为 `main`）
 
 补充说明：
 
@@ -188,7 +188,7 @@ SwiftBar 的刷新周期由**文件名**后缀控制：
 
 在**自托管**模式下，菜单包含一个 **Maintenance** 维护区域，支持：
 
-- 显示是否有 `hstack` 更新（读取缓存中的 `~/.happier-stack/cache/update.json`）
+- 显示是否有 `hstack` 更新（读取缓存中的 `~/.Kaiwu-stack/cache/update.json`）
 - 执行：
   - `hstack self check`
   - `hstack self update`
@@ -198,7 +198,7 @@ SwiftBar 的刷新周期由**文件名**后缀控制：
 许多菜单操作需要打开终端窗口（例如交互式向导、长时间运行的开发服务器等）。
 插件借助辅助脚本在常用终端中运行这些任务，环境变量规则与 `wt shell` 一致：
 
-- `HAPPIER_STACK_WT_TERMINAL=auto|ghostty|iterm|terminal|current`
+- `Kaiwu_STACK_WT_TERMINAL=auto|ghostty|iterm|terminal|current`
 
 补充说明：
 - `auto` 会依次尝试 Ghostty → iTerm → Terminal → 当前终端。
@@ -229,7 +229,7 @@ SwiftBar 的启动与 hstack 的 LaunchAgent 或后台服务彼此独立。
 
 - 守护进程将凭据保存在 CLI 主目录下的 `access.key` 中。
 - 对于各个栈（包含主栈），该路径通常为：
-  - `~/.happier/stacks/⟦K23⟧/cli/access.key`
+  - `~/.Kaiwu/stacks/⟦K23⟧/cli/access.key`
 - 若缺少 `access.key`，守护进程会进入交互式认证流程；在认证完成前，它不会注册为“设备”。
   - 在 `launchd`（开机自启）管理下，这会表现为 **no machine**，守护进程看起来可能处于“已停止”状态。
 

@@ -9,7 +9,7 @@
  * WHY IT PARSES SOURCE RATHER THAN IMPORTING IT
  * ---------------------------------------------
  * The released tree is a separate checkout with its own workspace, its own
- * `@happier-dev/protocol` and its own `.js`-suffixed ESM imports. Wiring
+ * `@Kaiwu-dev/protocol` and its own `.js`-suffixed ESM imports. Wiring
  * vitest to resolve all of that would make this site's test run depend on a
  * second install being present and healthy. Reading four well-known constants
  * out of the source text does not, and the shapes being read are stable

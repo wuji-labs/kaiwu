@@ -19,7 +19,7 @@ import { AGENTS } from './agents';
  *     ChatGPT mobile app. Describe it — "Codex reaches your phone through the
  *     ChatGPT app" — never christen it. A capitalised product name we invented
  *     is the single fastest way to lose a reader who uses the thing daily.
- *   • "computer" is the reader's device. "machine" is the Happier UI noun.
+ *   • "computer" is the reader's device. "machine" is the Kaiwu UI noun.
  *
  * EVIDENCE RULE — the same one comparison.ts runs under.
  *   • Every Codex statement restates OpenAI's own published documentation:
@@ -28,7 +28,7 @@ import { AGENTS } from './agents';
  *     inferred, benchmarked, or characterised for quality, and nothing here
  *     comes from press coverage of the May 2026 launch — several widely
  *     repeated details in that coverage are not in OpenAI's docs.
- *   • Every Happier statement is traceable to SHIPPED source in remote-dev.
+ *   • Every Kaiwu statement is traceable to SHIPPED source in remote-dev.
  *     Anchors are named inline. Nothing from the unreleased tree appears on
  *     this page in the present tense.
  *
@@ -61,7 +61,7 @@ export const CODEX_SECTION = {
      *
      * Every entry survives a read of the source page, including the one that
      * costs us something: Codex cloud is a real product with a real advantage
-     * Happier does not have, and saying so is the reason the rest is credible.
+     * Kaiwu does not have, and saying so is the reason the rest is credible.
      */
     strengths: [
         {
@@ -88,14 +88,14 @@ export const CODEX_SECTION = {
         },
         {
             id: 'cloud',
-            // The old title was about Happier's shortfall, on a card whose job
+            // The old title was about Kaiwu's shortfall, on a card whose job
             // is to say what Codex cloud does. The concession still stands in
             // the body, where it is argued rather than asserted in a heading.
             // Its replacement, "with no computer of your own", fixed the subject
             // but kept defining the capability by what the reader lacks. This
             // one states the thing itself, in OpenAI's own terms.
             title: 'Codex cloud runs tasks in parallel, in isolated environments',
-            body: 'Separately from Remote, Codex runs tasks in isolated cloud environments, in parallel, with per-repository setup steps, dependencies and variables — started from the web, from GitHub, from Linear or from Slack. Happier has no equivalent and is not going to pretend otherwise: every Happier session runs on a computer you own. Work on a repository you have not cloned anywhere is what a cloud environment is for.',
+            body: 'Separately from Remote, Codex runs tasks in isolated cloud environments, in parallel, with per-repository setup steps, dependencies and variables — started from the web, from GitHub, from Linear or from Slack. Kaiwu has no equivalent and is not going to pretend otherwise: every Kaiwu session runs on a computer you own. Work on a repository you have not cloned anywhere is what a cloud environment is for.',
         },
         {
             id: 'plan',
@@ -105,13 +105,13 @@ export const CODEX_SECTION = {
     ],
 
     /**
-     * The documented conditions, each paired with what Happier does instead.
+     * The documented conditions, each paired with what Kaiwu does instead.
      *
      * These are requirements OpenAI publishes, not limitations found by
      * testing, and the pairing is deliberately not a scoreboard: the third one
-     * concedes that Happier has exactly the same problem, because it does. The
-     * playbook's hard constraint is explicit — never claim Happier fixes
-     * something Happier can also experience.
+     * concedes that Kaiwu has exactly the same problem, because it does. The
+     * playbook's hard constraint is explicit — never claim Kaiwu fixes
+     * something Kaiwu can also experience.
      */
     conditions: [
         {
@@ -132,29 +132,29 @@ export const CODEX_SECTION = {
             id: 'hostOs',
             when: 'There is no Mac or Windows PC in the chain.',
             codex: 'Per OpenAI’s docs, Remote supports hosts running the ChatGPT desktop app on macOS and Windows, and that desktop app is what the phone pairs with. A Linux computer is reachable from it as an SSH target — OpenAI’s remote-connections page asks you to confirm you can SSH to the host from the computer running the app, and that `codex` is on the remote host’s PATH — so the Mac or PC stays in the chain even when the code does not live on it.',
-            happier:
-                'The Happier CLI installs on macOS, Linux and Windows, and every computer you install it on becomes a machine a session can be started on directly. The Linux box in the corner is a machine in its own right rather than something reached through a laptop that also has to be awake.',
+            Kaiwu:
+                'The Kaiwu CLI installs on macOS, Linux and Windows, and every computer you install it on becomes a machine a session can be started on directly. The Linux box in the corner is a machine in its own right rather than something reached through a laptop that also has to be awake.',
         },
         {
             id: 'setupPath',
             when: 'You live in the terminal and want the session you already started.',
             codex: 'Per OpenAI’s docs, mobile setup starts from the app: “you can’t set it up from the Codex CLI or IDE extension.” Pairing is a desktop-app flow.',
-            happier:
-                'Start a session with `happier codex` in a repository and it is already reachable from the app, the web and your phone — there is no second pairing step per session, because the pairing is between you and your own machines rather than between two apps.',
+            Kaiwu:
+                'Start a session with `Kaiwu codex` in a repository and it is already reachable from the app, the web and your phone — there is no second pairing step per session, because the pairing is between you and your own machines rather than between two apps.',
         },
         {
             id: 'awake',
             when: 'Your computer is asleep.',
             codex: 'OpenAI’s setup steps say to keep your computer awake and online, and the host must stay signed in to the same account and workspace.',
-            happier:
-                'Happier does not solve this, and a page that claimed otherwise would be lying to you: a session runs on a real computer, and a sleeping computer runs nothing. What changes is which computer has to be awake. Sessions are created against a machine, so the always-on box can hold the long run while the laptop in your bag is shut.',
+            Kaiwu:
+                'Kaiwu does not solve this, and a page that claimed otherwise would be lying to you: a session runs on a real computer, and a sleeping computer runs nothing. What changes is which computer has to be awake. Sessions are created against a machine, so the always-on box can hold the long run while the laptop in your bag is shut.',
         },
         {
             id: 'workspace',
             when: 'You are inside a managed ChatGPT workspace.',
             codex: 'Per OpenAI’s docs: “If you use Codex through a ChatGPT workspace, your admin may need to enable Remote Control access before you can connect from your phone.”',
-            happier:
-                'The equivalent switch is one your organisation holds rather than one it asks for: `happier relay host install` puts the relay on hardware you own, gated by your GitHub org or OIDC groups, and the transcript is end-to-end encrypted before it reaches it.',
+            Kaiwu:
+                'The equivalent switch is one your organisation holds rather than one it asks for: `Kaiwu relay host install` puts the relay on hardware you own, gated by your GitHub org or OIDC groups, and the transcript is end-to-end encrypted before it reaches it.',
         },
         {
             id: 'cloudHandoff',
@@ -162,14 +162,14 @@ export const CODEX_SECTION = {
             codex: 'Per OpenAI’s docs, “Handoff to a Codex cloud environment isn’t supported.” Remote drives the computer you connected; Codex cloud is a separate surface with its own environments.',
             // "…which is how our own docs put it" was the old tail, and it cited
             // our own source material about our own product — the sentence
-            // sounded like someone reporting on Happier rather than someone who
+            // sounded like someone reporting on Kaiwu rather than someone who
             // builds it. The caveat stays; the citation moved here, and it now
             // points at the code rather than the docs page:
             // packages/agents/src/manifest.ts — handoff.vendorStateTransfer is
             // 'supported' for claude (:55) and opencode (:195), 'experimental'
             // for codex (:139).
-            happier:
-                'Happier has no cloud environments to hand off to. What it moves is a live session between computers you own, keeping the same session id — which works for Claude Code and OpenCode, and is experimental on Codex.',
+            Kaiwu:
+                'Kaiwu has no cloud environments to hand off to. What it moves is a live session between computers you own, keeping the same session id — which works for Claude Code and OpenCode, and is experimental on Codex.',
         },
     ],
 
@@ -191,7 +191,7 @@ export const CODEX_SECTION = {
             // Claude page's version of this card on purpose: it is the same
             // argument, and two wordings of one claim is how one of them drifts.
             title: 'Every agent in one inbox.',
-            body: 'Codex reaches your phone through the ChatGPT app. Claude Code’s remote opens in claude.ai/code or the Claude app. Each vendor’s remote lands inside that vendor’s product, which is fine right up until you use two of them and the approval you are waiting on is in the other one. Happier is a single inbox: every session, on every agent, on every computer you have connected, with one place to answer the permission requests they are all blocked on.',
+            body: 'Codex reaches your phone through the ChatGPT app. Claude Code’s remote opens in claude.ai/code or the Claude app. Each vendor’s remote lands inside that vendor’s product, which is fine right up until you use two of them and the approval you are waiting on is in the other one. Kaiwu is a single inbox: every session, on every agent, on every computer you have connected, with one place to answer the permission requests they are all blocked on.',
         },
         {
             id: 'mixAndMatch',
@@ -202,7 +202,7 @@ export const CODEX_SECTION = {
             // Same edit as the matching card in comparison.ts, and for the same
             // reason: name what is being mixed.
             title: 'Mix and match agents inside one workspace.',
-            body: 'A Codex session can hand the review to a delegate run on Claude Code while a third agent reads a stack trace, and you can steer any of them mid-run. Happier’s plan, review and delegate runs take an explicit list of provider targets rather than whichever provider you happen to be sitting in. A remote built by one vendor drives that vendor’s agent; that is what it is for.',
+            body: 'A Codex session can hand the review to a delegate run on Claude Code while a third agent reads a stack trace, and you can steer any of them mid-run. Kaiwu’s plan, review and delegate runs take an explicit list of provider targets rather than whichever provider you happen to be sitting in. A remote built by one vendor drives that vendor’s agent; that is what it is for.',
         },
         {
             id: 'accounts',
@@ -235,13 +235,13 @@ export const CODEX_SECTION = {
         {
             id: 'terminal',
             // remote-dev/apps/docs/content/docs/providers/codex.mdx: "start the
-            // session from the Happier app… later run `happier attach
+            // session from the Kaiwu app… later run `Kaiwu attach
             // <session-id>` from a terminal on that same machine… switch into
             // local control". Codex local control is exclusive and tmux-backed
             // (packages/agents/src/manifest.ts:140), and a message sent from the
             // app while the TUI owns the session waits in the pending queue.
             title: 'Switch between the terminal and the app, mid-session.',
-            body: 'Start a Codex session from your phone, then run `happier attach <session-id>` on that computer and you are in Codex’s own TUI, in the same session, with the history already there. Or start it in the terminal and pick it up in the app. Codex’s local control is exclusive, so while the TUI has the session a message from the app waits in the pending queue until that turn finishes, aborts or exits — Happier will not type into a running turn, because that is how you lose work you wanted.',
+            body: 'Start a Codex session from your phone, then run `Kaiwu attach <session-id>` on that computer and you are in Codex’s own TUI, in the same session, with the history already there. Or start it in the terminal and pick it up in the app. Codex’s local control is exclusive, so while the TUI has the session a message from the app waits in the pending queue until that turn finishes, aborts or exits — Kaiwu will not type into a running turn, because that is how you lose work you wanted.',
         },
         {
             id: 'machines',
@@ -258,7 +258,7 @@ export const CODEX_SECTION = {
             id: 'reviewComments',
             // THE SIXTH CARD. Identical wording to the matching card in
             // comparison.ts, on purpose and for the same reason the `oneApp`
-            // card is: it is one claim about Happier, it is not vendor-specific,
+            // card is: it is one claim about Kaiwu, it is not vendor-specific,
             // and two wordings of one claim is how one of them drifts.
             //
             // The full evidence trail — the line affordance, what a draft
@@ -273,7 +273,7 @@ export const CODEX_SECTION = {
             // wrote the diff, and the notes you leave on it can go to a Claude
             // Code session in the same project without being retyped.
             title: 'Mark the lines. Send them to any agent.',
-            body: 'Open a file or a diff — the changed-files review, or the diff the agent just wrote into the transcript — and leave a comment on the exact line. Happier saves the path, the line, a snippet and a hash of that line’s contents, so the note still finds its code after the file moves underneath it. Pick which comments to send and they go in as structured review context: back into the same session, or into a new one on a different agent, because the comments are held against the workspace and any session you open there finds them waiting.',
+            body: 'Open a file or a diff — the changed-files review, or the diff the agent just wrote into the transcript — and leave a comment on the exact line. Kaiwu saves the path, the line, a snippet and a hash of that line’s contents, so the note still finds its code after the file moves underneath it. Pick which comments to send and they go in as structured review context: back into the same session, or into a new one on a different agent, because the comments are held against the workspace and any session you open there finds them waiting.',
         },
     ],
 } as const;
@@ -289,8 +289,8 @@ export const CODEX_SCOPE_LIMIT = {
     // "And the job it was never meant to do" defined the section by a negative
     // and named no product. The section is about scope — which agent each
     // client drives — and the count comes from the registry, like the body's.
-    heading: `Remote drives Codex. Happier drives ${AGENTS.length} agents.`,
-    body: `Remote drives Codex, and Codex cloud runs Codex. That is what a vendor remote is: every vendor that ships one ships it for its own agent, and there is nothing strange about that. The cross-vendor case gets built on an open protocol instead — Zed runs Claude, Codex, OpenCode, Copilot, Cursor and Pi Coding Agent in the editor over ACP, and Happier speaks ACP too, across your devices rather than inside one editor. Reaching one vendor’s agent from your phone and running ${AGENTS.length} vendors’ agents out of one inbox are different jobs. Happier is built for the second one.`,
+    heading: `Remote drives Codex. Kaiwu drives ${AGENTS.length} agents.`,
+    body: `Remote drives Codex, and Codex cloud runs Codex. That is what a vendor remote is: every vendor that ships one ships it for its own agent, and there is nothing strange about that. The cross-vendor case gets built on an open protocol instead — Zed runs Claude, Codex, OpenCode, Copilot, Cursor and Pi Coding Agent in the editor over ACP, and Kaiwu speaks ACP too, across your devices rather than inside one editor. Reaching one vendor’s agent from your phone and running ${AGENTS.length} vendors’ agents out of one inbox are different jobs. Kaiwu is built for the second one.`,
 } as const;
 
 export type CodexComparisonRow = {
@@ -299,8 +299,8 @@ export type CodexComparisonRow = {
     capability: string;
     /** What OpenAI's public docs say. Never an opinion. */
     codex: string;
-    /** What Happier does. Traceable to shipped source. */
-    happier: string;
+    /** What Kaiwu does. Traceable to shipped source. */
+    Kaiwu: string;
 };
 
 /**
@@ -316,48 +316,48 @@ export const CODEX_COMPARISON_ROWS: ReadonlyArray<CodexComparisonRow> = [
         id: 'agents',
         capability: 'Agents it drives',
         codex: 'Codex',
-        happier: `${AGENTS.length} agents + any ACP CLI`,
+        Kaiwu: `${AGENTS.length} agents + any ACP CLI`,
     },
     {
         id: 'hostOs',
         capability: 'Operating systems it runs the work on',
         codex: 'macOS or Windows host app, plus its SSH targets (per OpenAI docs)',
-        happier: 'macOS, Windows and Linux, each on its own',
+        Kaiwu: 'macOS, Windows and Linux, each on its own',
     },
     {
         id: 'setup',
         capability: 'Where the connection is set up',
         codex: 'Desktop app; not the CLI or IDE extension (per OpenAI docs)',
-        happier: 'One install per computer, then `happier codex` in a repository',
+        Kaiwu: 'One install per computer, then `Kaiwu codex` in a repository',
     },
     {
         id: 'ssh',
         capability: 'Remote SSH hosts',
         codex: 'Discovered from `~/.ssh/config` (per OpenAI docs)',
-        happier: 'Install Happier on the host and it becomes a machine like any other',
+        Kaiwu: 'Install Kaiwu on the host and it becomes a machine like any other',
     },
     {
         id: 'cloud',
         capability: 'Running work in a hosted environment',
         codex: 'Codex cloud: isolated cloud environments (per OpenAI docs)',
-        happier: 'Not offered — every session runs on a computer you own',
+        Kaiwu: 'Not offered — every session runs on a computer you own',
     },
     {
         id: 'workspace',
         capability: 'Who holds the switch in an organisation',
         codex: 'Workspace admin may need to enable Remote Control access (per OpenAI docs)',
-        happier: 'You do, on a relay you can self-host',
+        Kaiwu: 'You do, on a relay you can self-host',
     },
     {
         id: 'price',
         capability: 'Price',
         codex: 'Codex included with ChatGPT subscriptions (per OpenAI docs)',
-        happier: 'Free and MIT-licensed',
+        Kaiwu: 'Free and MIT-licensed',
     },
     {
         id: 'firstParty',
         capability: 'Made by the vendor of the agent',
         codex: 'Yes — first-party',
-        happier: 'No — independent client',
+        Kaiwu: 'No — independent client',
     },
 ];

@@ -15,22 +15,22 @@ hstack where
 ## 术语速查
 
 - **CLI 根目录（CLI root dir）**
-  - 存放当前 `hstack` 命令所执行的 `@happier-dev/stack` 脚本（`scripts/*.mjs`）的目录。
+  - 存放当前 `hstack` 命令所执行的 `@Kaiwu-dev/stack` 脚本（`scripts/*.mjs`）的目录。
   - 该目录*不一定*是当前 shell 的 `cwd`。
   - 它可以是：
-    - 克隆的代码仓库检出目录（例如 `/Users/⟦K4⟧/.../happier-dev`），或
-    - 安装在 `~/.happier-stack/runtime/node_modules/@happier-dev/stack` 下的运行时包（参见“运行时目录”）。
+    - 克隆的代码仓库检出目录（例如 `/Users/⟦K4⟧/.../Kaiwu-dev`），或
+    - 安装在 `~/.Kaiwu-stack/runtime/node_modules/@Kaiwu-dev/stack` 下的运行时包（参见“运行时目录”）。
 
-- **Home 目录（Home dir）**（`HAPPIER_STACK_HOME_DIR`）
-  - 默认路径：`~/.happier-stack`
+- **Home 目录（Home dir）**（`Kaiwu_STACK_HOME_DIR`）
+  - 默认路径：`~/.Kaiwu-stack`
   - 用于存储**全局用户配置**及缓存，可能包含运行时安装。
 
-- **运行时目录（Runtime dir）**（`HAPPIER_STACK_RUNTIME_DIR`）
-  - 默认路径：`~/.happier-stack/runtime`
-  - 供 `hstack self update` 安装或升级锁定的 `@happier-dev/stack` 运行时包使用。
+- **运行时目录（Runtime dir）**（`Kaiwu_STACK_RUNTIME_DIR`）
+  - 默认路径：`~/.Kaiwu-stack/runtime`
+  - 供 `hstack self update` 安装或升级锁定的 `@Kaiwu-dev/stack` 运行时包使用。
 
-- **工作区目录（Workspace dir）**（`HAPPIER_STACK_WORKSPACE_DIR`）
-  - 默认路径：`~/.happier-stack/workspace`（存在时）。
+- **工作区目录（Workspace dir）**（`Kaiwu_STACK_WORKSPACE_DIR`）
+  - 默认路径：`~/.Kaiwu-stack/workspace`（存在时）。
   - hstack 用于**存储 Kaiwu monorepo 检出与工作树的存储工作区**。
   - 通常包含：
     - `⟦K5⟧/main`（稳定版 monorepo 检出）
@@ -39,7 +39,7 @@ hstack where
     - `⟦K8⟧/local/⟦K9⟧/...`（本地工作树）
     - `⟦K10⟧/tmp/⟦K11⟧/...`（临时工作树）
 
-- **仓库目录（Repo dir）**（`HAPPIER_STACK_REPO_DIR`）
+- **仓库目录（Repo dir）**（`Kaiwu_STACK_REPO_DIR`）
   - 默认路径：`⟦K12⟧/main`
   - 当前激活的 Kaiwu monorepo 检出目录（`main`、`dev` 或某个工作树）。
   - `hstack wt use ...` 与 `hstack stack wt ⟦K13⟧ -- use ...` 会更新该值。
@@ -50,9 +50,9 @@ hstack where
   - 临时：`⟦K17⟧/tmp/⟦K18⟧/...`
 
 - **栈存储目录（Stacks storage dir）**
-  - 默认路径：`~/.happier/stacks`
-  - 每个栈存放在 `~/.happier/stacks/⟦K19⟧/...` 下，并拥有独立的环境变量文件：
-    - `~/.happier/stacks/⟦K20⟧/env`
+  - 默认路径：`~/.Kaiwu/stacks`
+  - 每个栈存放在 `~/.Kaiwu/stacks/⟦K19⟧/...` 下，并拥有独立的环境变量文件：
+    - `~/.Kaiwu/stacks/⟦K20⟧/env`
 
 ---
 
@@ -83,23 +83,23 @@ hstack 在 `scripts/utils/env.mjs` 中加载环境变量。
 
 ### 0) “规范指针”环境文件（用于发现路径）
 
-若*未*设置 `HAPPIER_STACK_HOME_DIR`，系统会先尝试读取**规范指针（canonical pointer）**环境文件以发现目标 home 目录（适用于 LaunchAgents、SwiftBar 或极简 shell 环境）。
+若*未*设置 `Kaiwu_STACK_HOME_DIR`，系统会先尝试读取**规范指针（canonical pointer）**环境文件以发现目标 home 目录（适用于 LaunchAgents、SwiftBar 或极简 shell 环境）。
 
-- 默认规范指针路径：`~/.happier-stack/.env`
+- 默认规范指针路径：`~/.Kaiwu-stack/.env`
 - 覆盖规范指针位置：
-  - `HAPPIER_STACK_CANONICAL_HOME_DIR=/some/dir`（指针变为 `⟦K21⟧/.env`）
+  - `Kaiwu_STACK_CANONICAL_HOME_DIR=/some/dir`（指针变为 `⟦K21⟧/.env`）
 
 ### 1) 全局默认配置（home 配置）或克隆仓库默认配置
 
 若存在 home 配置，将加载：
 
-- `~/.happier-stack/.env`（**默认值**）
-- `~/.happier-stack/env.local`（**覆盖项**，支持 `HAPPIER_STACK_*` 前缀匹配）
+- `~/.Kaiwu-stack/.env`（**默认值**）
+- `~/.Kaiwu-stack/env.local`（**覆盖项**，支持 `Kaiwu_STACK_*` 前缀匹配）
 
 若*不*存在 home 配置（即运行 `hstack init` 之前的克隆仓库使用场景），将加载：
 
 - `<cliRootDir>/.env`
-- `<cliRootDir>/env.local`（支持 `HAPPIER_STACK_*` 前缀匹配）
+- `<cliRootDir>/env.local`（支持 `Kaiwu_STACK_*` 前缀匹配）
 
 ### 2) 仓库 `.env` 回退项（便于本地开发）
 
@@ -107,7 +107,7 @@ hstack 在 `scripts/utils/env.mjs` 中加载环境变量。
 
 - `<cliRootDir>/.env`（非覆盖式回退项）
 
-此机制让仓库本地开发配置（例如 `HAPPIER_CODEX_ACP_BIN`）直接生效，无需每个人重复复制到 `~/.happier-stack/env.local` 中。
+此机制让仓库本地开发配置（例如 `Kaiwu_CODEX_ACP_BIN`）直接生效，无需每个人重复复制到 `~/.Kaiwu-stack/env.local` 中。
 
 注意：
 - 这**仅作为回退项**（`override: false`）：不会覆盖环境变量或 home 配置中已有的值。
@@ -117,7 +117,7 @@ hstack 在 `scripts/utils/env.mjs` 中加载环境变量。
 
 最后，系统加载当前激活的栈环境文件（override = true）：
 
-- `HAPPIER_STACK_ENV_FILE`
+- `Kaiwu_STACK_ENV_FILE`
 - 若二者均未设置，系统会自动选择当前栈对应的环境文件（默认为 `main`，如果存在）
 
 栈环境文件允许包含**无前缀的配置项**（如 `DATABASE_URL`），这是实现单栈隔离所必需的。
@@ -126,9 +126,9 @@ hstack 在 `scripts/utils/env.mjs` 中加载环境变量。
 
 ## 各项配置该写在哪里？（经验法则）
 
-- **全局且整台设备生效的默认项**，请写入 `~/.happier-stack/.env`。
-- **个人本地覆盖项**，请写入 `~/.happier-stack/env.local`。
-- **单栈隔离配置**，请写入对应的栈环境文件 `~/.happier/stacks/⟦K22⟧/env`（这也是 `hstack stack edit` 与 `hstack stack wt` 所修改的文件）。
+- **全局且整台设备生效的默认项**，请写入 `~/.Kaiwu-stack/.env`。
+- **个人本地覆盖项**，请写入 `~/.Kaiwu-stack/env.local`。
+- **单栈隔离配置**，请写入对应的栈环境文件 `~/.Kaiwu/stacks/⟦K22⟧/env`（这也是 `hstack stack edit` 与 `hstack stack wt` 所修改的文件）。
 - **仅限仓库本地的开发默认项**，请写入 `<cliRootDir>/.env`（在该检出目录作为 CLI 根目录运行时效果最佳）。
 
 ---
@@ -138,7 +138,7 @@ hstack 在 `scripts/utils/env.mjs` 中加载环境变量。
 若需完整测试安装与配置流程，且不影响真实安装环境，可运行：
 
 ```bash
-npx @happier-dev/stack@latest --sandbox-dir /tmp/hstack-sandbox where
+npx @Kaiwu-dev/stack@latest --sandbox-dir /tmp/hstack-sandbox where
 ```
 
 在沙箱模式下，hstack 会将 **home/workspace/runtime/storage** 重定向到沙箱目录内（直接 `rm -rf` 该目录即可彻底重置）。
@@ -146,7 +146,7 @@ npx @happier-dev/stack@latest --sandbox-dir /tmp/hstack-sandbox where
 沙箱模式下**默认禁用**全局系统级副作用（修改 PATH、安装 SwiftBar 插件、注册 LaunchAgents/systemd 服务）。
 如需在测试中显式启用这些操作，请设置：
 
-- `HAPPIER_STACK_SANDBOX_ALLOW_GLOBAL=1`
+- `Kaiwu_STACK_SANDBOX_ALLOW_GLOBAL=1`
 
 ---
 

@@ -27,7 +27,7 @@ import autoprefixer from 'autoprefixer';
  */
 function assertAnalyticsKey(mode: string) {
     return {
-        name: 'happier:assert-analytics-key',
+        name: 'Kaiwu:assert-analytics-key',
         apply: 'build' as const,
         config() {
             if (mode !== 'production') return;
@@ -225,13 +225,13 @@ export default defineConfig(({ isSsrBuild, mode }) => ({
         port: 5173,
         host: true,
         allowedHosts: ['localhost', '127.0.0.1', '100.79.179.31', 'leeroy-mbp'],
-        // stats.happier.dev allowlists only the production origins for CORS, so a
+        // stats.kaiwu.chengqiyun.com allowlists only the production origins for CORS, so a
         // direct fetch from localhost is always blocked and the counters can only
         // ever show their fallbacks in dev. Proxying makes it same-origin.
         // See statsUrl() in src/components/publicStats.ts.
         proxy: {
             '/__stats': {
-                target: 'https://stats.happier.dev',
+                target: 'https://stats.kaiwu.chengqiyun.com',
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/__stats/, ''),
             },

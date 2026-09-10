@@ -40,7 +40,7 @@ Kaiwu 支持以下两种模式，运维人员可通过环境变量进行选择�
 
 ### 模式 B：直连 mTLS（暂未实现）
 
-直连模式由 Kaiwu API 自行终结 TLS，并依据配置的 CA 证书包验证客户端证书链。**开源版服务器目前不支持该模式。** 配置 `HAPPIER_FEATURE_AUTH_MTLS__MODE=direct` 并不会启动该模式——服务器会记录 `auth_mtls_not_configured` 且不在服务中公布该认证方式，因此界面上不会出现 mTLS 登录入口。
+直连模式由 Kaiwu API 自行终结 TLS，并依据配置的 CA 证书包验证客户端证书链。**开源版服务器目前不支持该模式。** 配置 `KAIWU_FEATURE_AUTH_MTLS__MODE=direct` 并不会启动该模式——服务器会记录 `auth_mtls_not_configured` 且不在服务中公布该认证方式，因此界面上不会出现 mTLS 登录入口。
 
 请使用转发模式。如果当前尚未部署反向代理，部署一个反向代理是官方支持的合规方案，而非权宜之计。
 
@@ -100,22 +100,22 @@ mTLS 配置的是无密钥账号，而无密钥账号默认处于禁用状态。
 
 | 变量 | 必需值 | 默认值 |
 | --- | --- | --- |
-| `HAPPIER_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED` | `1` | off |
-| `HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY` | `optional` 或 `plaintext_only` | `required_e2ee` |
+| `KAIWU_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED` | `1` | off |
+| `KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY` | `optional` 或 `plaintext_only` | `required_e2ee` |
 
 存储策略保持默认值，是 mTLS 配好后仍然无法生效的最常见原因。关于这对用户账号的具体影响，请参阅[仅无密钥模式特性](#keyless-only-behavior-important)。
 
 ### 启用 mTLS
 
-- `HAPPIER_FEATURE_AUTH_MTLS__ENABLED` (`0`/`1`)
-- `HAPPIER_FEATURE_AUTH_MTLS__MODE` (`forwarded` | `direct`)
-- `HAPPIER_FEATURE_AUTH_MTLS__AUTO_PROVISION` (`0`/`1`)
+- `KAIWU_FEATURE_AUTH_MTLS__ENABLED` (`0`/`1`)
+- `KAIWU_FEATURE_AUTH_MTLS__MODE` (`forwarded` | `direct`)
+- `KAIWU_FEATURE_AUTH_MTLS__AUTO_PROVISION` (`0`/`1`)
 
 ### 身份映射
 
-- `HAPPIER_FEATURE_AUTH_MTLS__IDENTITY_SOURCE` (`san_email` | `san_upn` | `subject_cn` | `fingerprint`)
-- `HAPPIER_FEATURE_AUTH_MTLS__ALLOWED_EMAIL_DOMAINS`（CSV 格式；建议与 `san_email` / `san_upn` 配合使用）
-- `HAPPIER_FEATURE_AUTH_MTLS__ALLOWED_ISSUERS`（推荐；支持 CN 或精确 DN 匹配）
+- `KAIWU_FEATURE_AUTH_MTLS__IDENTITY_SOURCE` (`san_email` | `san_upn` | `subject_cn` | `fingerprint`)
+- `KAIWU_FEATURE_AUTH_MTLS__ALLOWED_EMAIL_DOMAINS`（CSV 格式；建议与 `san_email` / `san_upn` 配合使用）
+- `KAIWU_FEATURE_AUTH_MTLS__ALLOWED_ISSUERS`（推荐；支持 CN 或精确 DN 匹配）
 
 说明：
 - CN 允许列表项（最常用）既可写为 `cn=...`，也可直接写 CN 字符串（例如 `Example Root CA`）。多个 CN 项之间用逗号分隔。
@@ -127,29 +127,29 @@ mTLS 配置的是无密钥账号，而无密钥账号默认处于禁用状态。
 
 ### 转发请求头配置（仅限转发模式）
 
-- `HAPPIER_FEATURE_AUTH_MTLS__TRUST_FORWARDED_HEADERS` (`0`/`1`)
-- `HAPPIER_FEATURE_AUTH_MTLS__FORWARDED_EMAIL_HEADER`（默认 `x-happier-client-cert-email`）
-- `HAPPIER_FEATURE_AUTH_MTLS__FORWARDED_UPN_HEADER`（默认 `x-happier-client-cert-upn`）
-- `HAPPIER_FEATURE_AUTH_MTLS__FORWARDED_SUBJECT_HEADER`（默认 `x-happier-client-cert-subject`）
-- `HAPPIER_FEATURE_AUTH_MTLS__FORWARDED_FINGERPRINT_HEADER`（默认 `x-happier-client-cert-sha256`）
-- `HAPPIER_FEATURE_AUTH_MTLS__FORWARDED_ISSUER_HEADER`（默认 `x-happier-client-cert-issuer`）
+- `KAIWU_FEATURE_AUTH_MTLS__TRUST_FORWARDED_HEADERS` (`0`/`1`)
+- `KAIWU_FEATURE_AUTH_MTLS__FORWARDED_EMAIL_HEADER`（默认 `x-KAIWU-client-cert-email`）
+- `KAIWU_FEATURE_AUTH_MTLS__FORWARDED_UPN_HEADER`（默认 `x-KAIWU-client-cert-upn`）
+- `KAIWU_FEATURE_AUTH_MTLS__FORWARDED_SUBJECT_HEADER`（默认 `x-KAIWU-client-cert-subject`）
+- `KAIWU_FEATURE_AUTH_MTLS__FORWARDED_FINGERPRINT_HEADER`（默认 `x-KAIWU-client-cert-sha256`）
+- `KAIWU_FEATURE_AUTH_MTLS__FORWARDED_ISSUER_HEADER`（默认 `x-KAIWU-client-cert-issuer`）
 
 ### 原生应用交接（移动端）
 
-- `HAPPIER_FEATURE_AUTH_MTLS__RETURN_TO_ALLOW_PREFIXES`（CSV 格式；默认为 `happier://` 与 `HAPPIER_WEBAPP_URL`）
-- `HAPPIER_FEATURE_AUTH_MTLS__CLAIM_TTL_SECONDS`（默认 `60`）
+- `KAIWU_FEATURE_AUTH_MTLS__RETURN_TO_ALLOW_PREFIXES`（CSV 格式；默认为 `KAIWU://` 与 `KAIWU_WEBAPP_URL`）
+- `KAIWU_FEATURE_AUTH_MTLS__CLAIM_TTL_SECONDS`（默认 `60`）
 
 说明：
 
 - 对于 `http://` / `https://` 条目，Kaiwu 按**源（Origin）**（协议 + 主机 + 端口）校验 `returnTo`；若在允许列表条目中包含了路径，还会附加路径前缀约束。此举可防止诸如 `https://app.example.com.evil.com/...` 等“前缀拼接型”开放重定向绕过漏洞。
-- 对于深度链接（Deep Link），请使用类似 `happier://` 的协议前缀（或更具体的类似 `happier:///mtls` 的前缀）。
+- 对于深度链接（Deep Link），请使用类似 `KAIWU://` 的协议前缀（或更具体的类似 `KAIWU:///mtls` 的前缀）。
 
 ### 自动重定向（跳过连接界面）
 
 若当前部署环境下 mTLS 为唯一的登录方式，可启用自动重定向，免去用户手动点击“使用证书登录”的操作。
 
-- `HAPPIER_FEATURE_AUTH_UI__AUTO_REDIRECT_ENABLED=1`
-- `HAPPIER_FEATURE_AUTH_UI__AUTO_REDIRECT_PROVIDER_ID=mtls`
+- `KAIWU_FEATURE_AUTH_UI__AUTO_REDIRECT_ENABLED=1`
+- `KAIWU_FEATURE_AUTH_UI__AUTO_REDIRECT_PROVIDER_ID=mtls`
 - 停用匿名注册：`AUTH_ANONYMOUS_SIGNUP_ENABLED=0`
 
 在移动端，该配置会调起系统浏览器以启动证书验证流程。
@@ -174,13 +174,13 @@ mTLS 配置的是无密钥账号，而无密钥账号默认处于禁用状态。
 
 ### “自动配置未创建账号”
 
-- 确认 `HAPPIER_FEATURE_AUTH_MTLS__AUTO_PROVISION=1`。
+- 确认 `KAIWU_FEATURE_AUTH_MTLS__AUTO_PROVISION=1`。
 - 确认身份映射能生成稳定的 ID（建议优先使用 `san_email`/`san_upn`）。
 - 确认证书未被域名允许列表拦截。
 
 此外，若要使用无密钥自动配置，请确认已允许明文存储：
 
-- `HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY=optional|plaintext_only`
+- `KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY=optional|plaintext_only`
 
 ### “同一用户在不同设备上生成了多个账号”
 

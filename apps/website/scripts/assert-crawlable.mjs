@@ -17,7 +17,7 @@
  *     its siblings for the same query.
  *   * No two routes may share a page-scoped JSON-LD `@id`. This was a live bug
  *     the moment a second page existed: the WebPage node's `@id` was hardcoded
- *     to `https://happier.dev/#webpage`, so every page would have claimed to be
+ *     to `https://kaiwu.chengqiyun.com/#webpage`, so every page would have claimed to be
  *     the same document. Site-scoped nodes (#org, #site, #app, #source) are
  *     SUPPOSED to be shared — that is how a schema graph refers to one
  *     organisation from many pages — so they are exempt by name.
@@ -43,12 +43,12 @@ const MAX_DESCRIPTION = 155;
  * it rather than a duplication defect.
  */
 const SITE_SCOPED_IDS = new Set([
-    'https://happier.dev/#org',
-    'https://happier.dev/#site',
-    'https://happier.dev/#app',
-    'https://happier.dev/#app-ios',
-    'https://happier.dev/#app-android',
-    'https://happier.dev/#source',
+    'https://kaiwu.chengqiyun.com/#org',
+    'https://kaiwu.chengqiyun.com/#site',
+    'https://kaiwu.chengqiyun.com/#app',
+    'https://kaiwu.chengqiyun.com/#app-ios',
+    'https://kaiwu.chengqiyun.com/#app-android',
+    'https://kaiwu.chengqiyun.com/#source',
     'https://kaiwu.chengqiyun.com/#org',
     'https://kaiwu.chengqiyun.com/#site',
     'https://kaiwu.chengqiyun.com/#app',
@@ -231,7 +231,7 @@ for (const page of pages.sort()) {
 if (failures.length > 0) {
     console.error('assert-crawlable FAILED:');
     for (const f of failures) console.error(`  - ${f}`);
-    console.error('\n  Fix before deploying — publishing this would zero out happier.dev SEO.');
+    console.error('\n  Fix before deploying — publishing this would zero out kaiwu.chengqiyun.com SEO.');
     process.exit(1);
 }
 

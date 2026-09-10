@@ -122,7 +122,7 @@ describe('localePath', () => {
     });
 
     it('leaves anything that is not our own route alone', () => {
-        for (const href of ['https://docs.happier.dev', 'mailto:a@b.c', '//cdn.example/x']) {
+        for (const href of ['https://kaiwu.chengqiyun.com/docs', 'mailto:a@b.c', '//cdn.example/x']) {
             expect(localePath('ru', href)).toBe(href);
         }
     });

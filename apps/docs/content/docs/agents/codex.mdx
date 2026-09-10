@@ -9,7 +9,7 @@ description: 在 Kaiwu 中配置 Codex，包括默认 App Server 后端、可安
 Kaiwu 可以代为安装：
 
 ```bash
-happier install provider codex
+Kaiwu install provider codex
 ```
 
 也可以自行安装后重启 Kaiwu：
@@ -49,13 +49,13 @@ Codex 可通过 Kaiwu 关联服务进行认证：
 
 ```bash
 # Subscription auth (recommended): device code flow
-happier connect codex --device
+Kaiwu connect codex --device
 
 # Headless fallback: paste the redirect URL
-happier connect codex --paste
+Kaiwu connect codex --paste
 
 # API key mode
-happier connect codex --api-key
+Kaiwu connect codex --api-key
 ```
 
 注意事项：
@@ -164,12 +164,12 @@ Codex 支持 Kaiwu 对 App 启动会话的接入（attach）工作流：
 
 - 在 Kaiwu App 中启动会话，
 - 让其在设备后台远程运行，
-- 后续在同一台设备的终端中运行 `happier attach ⟦K7⟧`，
+- 后续在同一台设备的终端中运行 `Kaiwu attach ⟦K7⟧`，
 - 需要直接使用 Codex 终端 UI 时，切换至本地控制。
 
 稍后你还可以切换回远程控制，继续在 Kaiwu 中使用该会话。
 
-本地控制从终端发起。在宿主设备上使用 `happier attach ⟦K8⟧` 即可。
+本地控制从终端发起。在宿主设备上使用 `Kaiwu attach ⟦K8⟧` 即可。
 
 在 Codex 处于本地控制期间，若从 App 发送消息，Kaiwu 会先将其放入待处理队列中。若 Codex 处于空闲状态，Kaiwu 可切回远程控制并处理该消息；若 Codex 仍在执行本地轮次，Kaiwu 会等待当前轮次完成、中止或退出后再执行切换，避免打断当前 Codex TUI 的轮次。
 
@@ -190,13 +190,13 @@ Kaiwu 中的 Codex 恢复通常走默认的 App Server 路径。显式选择 ACP
 在 CLI 中，使用：
 
 ```bash
-happier resume
+Kaiwu resume
 ```
 
 或：
 
 ```bash
-happier resume <session-id>
+Kaiwu resume <session-id>
 ```
 
 在 App 或 Web 界面中，非活跃 Codex 会话同样只有通过上述检查后方可恢复。

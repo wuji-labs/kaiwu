@@ -23,7 +23,7 @@ Kaiwu 以子进程形式运行 **提供商 CLI**（例如 **Claude Code** 与 **
 
 如果直接从终端启动会话，Kaiwu 会继承当前 shell 的环境变量，并透传给提供商进程。
 
-这意味着像 `eval "$(…)"` 这样仅导出环境变量的“激活”命令可以很好地工作：先执行激活命令，再运行 `happier` 即可。
+这意味着像 `eval "$(…)"` 这样仅导出环境变量的“激活”命令可以很好地工作：先执行激活命令，再运行 `Kaiwu` 即可。
 
 ### 从客户端 / 远程启动的会话（守护进程）
 
@@ -44,7 +44,7 @@ Claude Code Router 会启动一个本地服务，并通过设置 `ANTHROPIC_BASE
 1) 安装并配置 `claude-code-router`。
 2) 启动路由服务（`ccr start`）。
 3) 为 Claude Code 配置环境变量：
-   - 终端流程：执行路由服务的激活命令（例如 `eval "$(ccr activate)"`），然后启动 Kaiwu（`happier`）。
+   - 终端流程：执行路由服务的激活命令（例如 `eval "$(ccr activate)"`），然后启动 Kaiwu（`Kaiwu`）。
    - 远程 / 客户端流程：创建一个 **Claude** 配置文件，并配置：
      - `ANTHROPIC_BASE_URL` → 你的路由服务地址（例如 `http://127.0.0.1:3456`）
      - `ANTHROPIC_AUTH_TOKEN` → 路由服务的 API 密钥/Token（若已配置）
@@ -67,7 +67,7 @@ Claude Code Router 会启动一个本地服务，并通过设置 `ANTHROPIC_BASE
 2) 在当前 shell 中切换提供商（示例）：
    - `eval "$(ccm glm global)"`
 3) 正常启动 Kaiwu：
-   - `happier`
+   - `Kaiwu`
 
 在 Kaiwu 中**请勿**使用 `ccc …`。`ccc` 会直接启动 `claude`（绕过 Kaiwu）。正确做法应是由 Kaiwu 来生成已注入切换后环境变量的 `claude` 进程。
 

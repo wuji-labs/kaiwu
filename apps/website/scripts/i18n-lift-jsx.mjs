@@ -1,7 +1,7 @@
 /**
  * Lift prose out of JSX and into src/data/pageProse.ts.
  *
- *   -<P>Then <code>happier codex</code> in a repository.</P>
+ *   -<P>Then <code>Kaiwu codex</code> in a repository.</P>
  *   +<P>{rich(PAGE_PROSE.codexRemotePage.p3, { 1: (c) => <code>{c}</code> })}</P>
  *
  *   -<Prose heading="Read the encryption code yourself">
@@ -76,7 +76,7 @@ const only = argv.filter((a) => !a.startsWith('--'));
 /**
  * Tags that are never taken WHOLE, however much text they hold.
  *
- * `<code>happier tools</code>` is a command, not a sentence, and a page that
+ * `<code>Kaiwu tools</code>` is a command, not a sentence, and a page that
  * lets a translator at it ships a command nobody can run. They are still SLOTS
  * inside a surrounding sentence — that is the entire point of a slot — so
  * excluding them here removes them as blocks and nothing else. The SVG tags are
@@ -160,8 +160,8 @@ const files = only.length
 /**
  * JSX decodes HTML entities at compile time; the TypeScript AST does not.
  *
- * `node.text` for `happier &lt;agent&gt;` is the literal string `happier
- * &lt;agent&gt;`, but what JSX renders is `happier <agent>`. Copying the raw
+ * `node.text` for `Kaiwu &lt;agent&gt;` is the literal string `Kaiwu
+ * &lt;agent&gt;`, but what JSX renders is `Kaiwu <agent>`. Copying the raw
  * form into a message means React escapes the ampersand on the way out and the
  * page ships `&amp;lt;agent&amp;gt;` — the entity visible as text. Same for
  * `can&apos;t`. Decode here so the message holds the characters a translator
@@ -216,7 +216,7 @@ const proseOf = (message) => message.replace(/<\/?\d+>/g, '').replace(/\{[a-zA-Z
  * Is this string worth a translator's time, and safe to give one?
  *
  * `$` (a shell prompt), `·` (a separator) and `.` (the full stop after an
- * interpolated verb) are text nodes with no language in them. `happier.dev` is a
+ * interpolated verb) are text nodes with no language in them. `kaiwu.chengqiyun.com` is a
  * domain: one token, no spaces, punctuated like an address — translating it
  * breaks a link, and there is nothing in it to translate.
  */
@@ -444,9 +444,9 @@ for (const file of files) {
     /**
      * `font-mono` is `<code>` wearing a `<div>`.
      *
-     * `<div className="mt-1 font-mono text-[12px]">{agent.vendor} · happier
+     * `<div className="mt-1 font-mono text-[12px]">{agent.vendor} · Kaiwu
      * {agent.id}</div>` is a command, and the only English in it is the name of
-     * the binary you type. Lifting it puts `happier` in front of a translator
+     * the binary you type. Lifting it puts `Kaiwu` in front of a translator
      * with nothing to say it must not be translated, and the reward for getting
      * it right is a string that renders identically in every locale.
      */

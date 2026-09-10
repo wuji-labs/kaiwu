@@ -43,7 +43,7 @@ export type LocaleMeta = {
     /**
      * URL path prefix, without a trailing slash. The default locale is served
      * from the bare root (`''`) so the canonical English URL stays
-     * `https://happier.dev/` — no redirect, no lost link equity.
+     * `https://kaiwu.chengqiyun.com/` — no redirect, no lost link equity.
      */
     pathPrefix: string;
     /** Endonym, used in the locale switcher. Never translate this. */

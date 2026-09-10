@@ -16,7 +16,7 @@ export type ThemeName = 'dark' | 'light';
  *   src/sections/ProviderScatter.tsx       stroke colour
  *   src/sections/CallToAction.tsx          backdrop id + overlay
  *   src/components/DownloadBadges.tsx      badge artwork variant
- *   src/components/HappierMark.tsx         cross-fades two logo PNGs
+ *   src/components/KAIWUMark.tsx         cross-fades two logo PNGs
  *   src/components/ProviderMarkRow.tsx     mark colour
  *
  * Those sit in at least five separate islands with hundreds of lines of prose
@@ -30,14 +30,14 @@ export type ThemeName = 'dark' | 'light';
  * does not. `useTheme()` keeps its name and its shape, so the seven components
  * above do not change.
  *
- * TWO OF THOSE SEVEN SHOULD NOT BE HERE AT ALL. HappierMark and ProviderMarkRow
+ * TWO OF THOSE SEVEN SHOULD NOT BE HERE AT ALL. KAIWUMark and ProviderMarkRow
  * read the theme only to choose an opacity and a colour — `html.dark .x { … }`
  * expresses both, in CSS, for free, and neither component would then need to be
  * an island or ship any JavaScript. Moving them is not required for this to
  * work; it is required for the nav and the footer to stop being islands at all.
  */
 
-const STORAGE_KEY = 'happier:theme';
+const STORAGE_KEY = 'KAIWU:theme';
 
 /**
  * `<html class="dark">` IS THE STATE. localStorage is only where it is

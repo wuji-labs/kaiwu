@@ -91,8 +91,8 @@ export type GridFeature = {
  * 'machines' and 'surfaces' are one row (5 + 7) and belong together: the first
  * answers "which computer executes this", the second "what can tell it to". They
  * sit immediately before 'mcp' on purpose, so the two MCP sentences on the page
- * are neighbours and read as the pair they are — Happier CONSUMING your MCP
- * servers, then Happier BEING one.
+ * are neighbours and read as the pair they are — Kaiwu CONSUMING your MCP
+ * servers, then Kaiwu BEING one.
  *
  * Copy is grounded in the shipped implementation; terminology is checked
  * against real product strings (e.g. the "Needs attention" / "Working"
@@ -129,7 +129,7 @@ export const PRIMARY_FEATURES: ReadonlyArray<Feature> = [
         availability: 'shipped',
         eyebrow: 'Stay in the terminal',
         title: 'You love the terminal? We do too.',
-        body: 'Keep running Claude Code, Codex, or OpenCode in their native TUI. Happier mirrors them to every device, so you can follow along, send messages, and approve permissions from anywhere — and switch between the terminal and Happier whenever you like.',
+        body: 'Keep running Claude Code, Codex, or OpenCode in their native TUI. Kaiwu mirrors them to every device, so you can follow along, send messages, and approve permissions from anywhere — and switch between the terminal and Kaiwu whenever you like.',
         visual: 'desktop',
         accent: 'coral',
         image: {
@@ -343,7 +343,7 @@ export const PRIMARY_FEATURES: ReadonlyArray<Feature> = [
         //                 selectable: false — which is exactly "marks which are
         //                 online, and starts sessions on those". MachineSelector
         //                 renders the unselectable ones rather than hiding them.
-        //   over SSH      `happier machine setup --ssh <user@host>`
+        //   over SSH      `Kaiwu machine setup --ssh <user@host>`
         //                 (apps/cli/src/cli/commands/machine/help.ts:8) and, in
         //                 the app, RemoteSshMachineSetupSection /
         //                 MachineSetupFlowScreen under settings/machines. Both
@@ -396,15 +396,15 @@ export const PRIMARY_FEATURES: ReadonlyArray<Feature> = [
         // enable/disable control exists. That is why the sentence says approval
         // is chosen per surface rather than "on every button".
         //
-        // THE MCP SERVER IS `happier mcp serve`, NOT `happier mcp`.
-        // `happier mcp` alone prints usage; `serve` is the stdio server, with
+        // THE MCP SERVER IS `Kaiwu mcp serve`, NOT `Kaiwu mcp`.
+        // `Kaiwu mcp` alone prints usage; `serve` is the stdio server, with
         // `start` kept as a compatibility alias
         // (apps/cli/src/cli/commands/mcp.ts:17-23, and the released
         // apps/docs/content/docs/clients/mcp.mdx says the same).
         // THE TITLE NAMES THE VERBS, NOT THE ARCHITECTURE. It read "The app,
         // voice, the CLI, and MCP run the same actions." — true, and abstract:
         // "the same actions" is a sameness claim about a mechanism, and a
-        // reader who does not already know what a Happier action is gets
+        // reader who does not already know what a Kaiwu action is gets
         // nothing from it. What they can do with it is spawn a session and run
         // it from whichever surface is in reach, so that is what it says.
         //
@@ -413,31 +413,31 @@ export const PRIMARY_FEATURES: ReadonlyArray<Feature> = [
         // ui_button/voice/session_agent/mcp/cli true (actionSpecs.ts), and the
         // CLI form of both is in the `code` block below.
         title: 'Spawn and manage sessions from the app, voice, the CLI and MCP.',
-        body: 'Every action Happier can take — create a session, send it a message, set the model, start a review — is defined once, in one registry. The app, slash commands, voice, in-session agents, the CLI, and an external MCP host all call the same definition, and for each action you choose which of those surfaces can run it and which have to ask you first.',
+        body: 'Every action Kaiwu can take — create a session, send it a message, set the model, start a review — is defined once, in one registry. The app, slash commands, voice, in-session agents, the CLI, and an external MCP host all call the same definition, and for each action you choose which of those surfaces can run it and which have to ask you first.',
         // VERIFIED, LINE BY LINE, AGAINST THE RELEASED CLI'S OWN USAGE STRINGS.
-        //   happier mcp serve
+        //   Kaiwu mcp serve
         //     apps/cli/src/cli/commands/mcp.ts:17
-        //     "happier mcp serve [--session <session-id>]"
-        //   happier session list --json
+        //     "Kaiwu mcp serve [--session <session-id>]"
+        //   Kaiwu session list --json
         //     apps/cli/src/cli/commands/session/handleSessionCommand.ts:82
-        //     "happier session list [--active] … [--json]"
-        //   happier session send <id> "…"
+        //     "Kaiwu session list [--active] … [--json]"
+        //   Kaiwu session send <id> "…"
         //     handleSessionCommand.ts:85
-        //     "happier session send <session-id-or-prefix> <message> …"
-        //   happier session actions list
-        //     handleSessionCommand.ts:98  "happier session actions list [--json]"
-        //   happier session actions execute <id> session.spawn_new
+        //     "Kaiwu session send <session-id-or-prefix> <message> …"
+        //   Kaiwu session actions list
+        //     handleSessionCommand.ts:98  "Kaiwu session actions list [--json]"
+        //   Kaiwu session actions execute <id> session.spawn_new
         //     handleSessionCommand.ts:100
-        //     "happier session actions execute <session-id> <action-id>
+        //     "Kaiwu session actions execute <session-id> <action-id>
         //      [--input-json <json>] …" — --input-json is optional, so the short
         //     form is a command that runs. `session.spawn_new` is a real
         //     ACTION_IDS entry, and the same string the other surfaces use.
         code: [
-            'happier mcp serve',
-            'happier session list --json',
-            'happier session send <id> "rerun the failing test"',
-            'happier session actions list',
-            'happier session actions execute <id> session.spawn_new',
+            'Kaiwu mcp serve',
+            'Kaiwu session list --json',
+            'Kaiwu session send <id> "rerun the failing test"',
+            'Kaiwu session actions list',
+            'Kaiwu session actions execute <id> session.spawn_new',
         ],
         visual: 'desktop',
         accent: 'sun',
@@ -460,7 +460,7 @@ export const PRIMARY_FEATURES: ReadonlyArray<Feature> = [
         availability: 'shipped',
         eyebrow: 'Parallel work',
         title: 'Run several agents on one repo. No collisions.',
-        body: 'Start each session in its own Git worktree — a real checkout, its own branch, the same repository. Pick any local or remote branch and Happier creates the worktree, suggests a name, and offers to reuse an existing one rather than duplicating it. Or start in the folder you’re already in: it’s a choice per session, not a mode you switch on.',
+        body: 'Start each session in its own Git worktree — a real checkout, its own branch, the same repository. Pick any local or remote branch and Kaiwu creates the worktree, suggests a name, and offers to reuse an existing one rather than duplicating it. Or start in the folder you’re already in: it’s a choice per session, not a mode you switch on.',
         visual: 'desktop',
         accent: 'indigo',
     },
@@ -487,7 +487,7 @@ export const PRIMARY_FEATURES: ReadonlyArray<Feature> = [
         availability: 'shipped',
         eyebrow: 'Move machines',
         title: 'Move a running session to another machine.',
-        body: 'Hand a Claude Code or OpenCode session to your desktop, a VPS, or a dev box and pick up where it stopped. Bring the working tree along if you want it — a full snapshot, or only the changes — and Happier writes a sibling copy instead of overwriting, leaves your git-ignored files behind unless you name them, and keeps the whole transfer off until you turn it on.',
+        body: 'Hand a Claude Code or OpenCode session to your desktop, a VPS, or a dev box and pick up where it stopped. Bring the working tree along if you want it — a full snapshot, or only the changes — and Kaiwu writes a sibling copy instead of overwriting, leaves your git-ignored files behind unless you name them, and keeps the whole transfer off until you turn it on.',
         visual: 'mobileAndDesktop',
         accent: 'blue',
     },
@@ -496,7 +496,7 @@ export const PRIMARY_FEATURES: ReadonlyArray<Feature> = [
         availability: 'shipped',
         eyebrow: 'Configure once',
         title: 'Your MCP servers. Every provider, every machine.',
-        body: 'Define your MCP servers once. Happier makes them available across every backend — even ones with no native MCP support — and on every machine you connect. No reinstalling per provider, per device.',
+        body: 'Define your MCP servers once. Kaiwu makes them available across every backend — even ones with no native MCP support — and on every machine you connect. No reinstalling per provider, per device.',
         visual: 'desktop',
         accent: 'blue',
         image: {
@@ -508,7 +508,7 @@ export const PRIMARY_FEATURES: ReadonlyArray<Feature> = [
         availability: 'shipped',
         eyebrow: 'Bring your own keys',
         title: 'Use the subscriptions you already pay for.',
-        body: 'Happier reuses the subscriptions and logins your existing CLIs already use — Claude, Codex, Cursor, Gemini, OpenCode. No new bill. No double billing.',
+        body: 'Kaiwu reuses the subscriptions and logins your existing CLIs already use — Claude, Codex, Cursor, Gemini, OpenCode. No new bill. No double billing.',
         visual: 'mobile',
         accent: 'indigo',
         image: {
@@ -548,7 +548,7 @@ export const PRIMARY_FEATURES: ReadonlyArray<Feature> = [
         availability: 'shipped',
         eyebrow: 'Make it yours',
         title: 'Configure (almost) everything.',
-        body: 'Modes, models, and permissions per session. Tool-timeline detail levels. Notification routing. Custom themes you can build, import, and share. Tune Happier to exactly how you work.',
+        body: 'Modes, models, and permissions per session. Tool-timeline detail levels. Notification routing. Custom themes you can build, import, and share. Tune Kaiwu to exactly how you work.',
         visual: 'desktop',
         accent: 'sun',
     },
@@ -620,7 +620,7 @@ export const GRID_FEATURES: ReadonlyArray<GridFeature> = [
         id: 'agentActions',
         availability: 'shipped',
         title: 'Agents do what you do.',
-        body: 'Through the Happier actions spec, agents create and manage sessions and navigate your workspace — with approvals when it matters.',
+        body: 'Through the Kaiwu actions spec, agents create and manage sessions and navigate your workspace — with approvals when it matters.',
     },
     {
         id: 'multiSelect',

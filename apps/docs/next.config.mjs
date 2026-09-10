@@ -18,7 +18,7 @@ const config = {
     root: repoRoot,
   },
   /**
-   * docs.happier.dev is a fully static export served by Cloudflare Workers.
+   * kaiwu.chengqiyun.com/docs is a fully static export served by Cloudflare Workers.
    *
    * WHY EXPORT AND NOT THE OPENNEXT ADAPTER. Every page is content known at
    * build time. The only route that genuinely needs a server is /ingest/* (the
