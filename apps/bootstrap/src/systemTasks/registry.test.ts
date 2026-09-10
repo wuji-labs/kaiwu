@@ -94,8 +94,8 @@ function createFakeHappierCli(scenario: Readonly<{
   writeFileSync(cliPath, `#!/usr/bin/env node
 const { appendFileSync, readFileSync, writeFileSync } = require('node:fs');
 
-const statePath = process.env.HAPPIER_FAKE_CLI_STATE_PATH;
-const logPath = process.env.HAPPIER_FAKE_CLI_LOG_PATH;
+const statePath = process.env.KAIWU_FAKE_CLI_STATE_PATH;
+const logPath = process.env.KAIWU_FAKE_CLI_LOG_PATH;
 const argv = process.argv.slice(2);
 appendFileSync(logPath, JSON.stringify(argv) + '\\n');
 
@@ -276,8 +276,8 @@ function createFakeTailscaleCli(scenario: Readonly<{
   writeFileSync(cliPath, `#!/usr/bin/env node
 const { appendFileSync, readFileSync, writeFileSync } = require('node:fs');
 
-const statePath = process.env.HAPPIER_FAKE_TAILSCALE_STATE_PATH;
-const logPath = process.env.HAPPIER_FAKE_TAILSCALE_LOG_PATH;
+const statePath = process.env.KAIWU_FAKE_TAILSCALE_STATE_PATH;
+const logPath = process.env.KAIWU_FAKE_TAILSCALE_LOG_PATH;
 const argv = process.argv.slice(2);
 appendFileSync(logPath, JSON.stringify(argv) + '\\n');
 
@@ -381,14 +381,14 @@ async function executeSetupThisComputerTask(): Promise<Awaited<ReturnType<typeof
 describe('createHsetupSystemTaskRegistry', () => {
   it('runs setup.thisComputer.v1 with deterministic step ids and returns a machine id', async () => {
     const fakeCli = createFakeHappierCli({});
-    const previousCliPath = process.env.HAPPIER_BOOTSTRAP_CLI_PATH;
-    const previousStatePath = process.env.HAPPIER_FAKE_CLI_STATE_PATH;
-    const previousLogPath = process.env.HAPPIER_FAKE_CLI_LOG_PATH;
+    const previousCliPath = process.env.KAIWU_BOOTSTRAP_CLI_PATH;
+    const previousStatePath = process.env.KAIWU_FAKE_CLI_STATE_PATH;
+    const previousLogPath = process.env.KAIWU_FAKE_CLI_LOG_PATH;
     const events: unknown[] = [];
     try {
-      process.env.HAPPIER_BOOTSTRAP_CLI_PATH = fakeCli.cliPath;
-      process.env.HAPPIER_FAKE_CLI_STATE_PATH = join(fakeCli.cliPath, '..', 'scenario.json');
-      process.env.HAPPIER_FAKE_CLI_LOG_PATH = join(fakeCli.cliPath, '..', 'invocations.log');
+      process.env.KAIWU_BOOTSTRAP_CLI_PATH = fakeCli.cliPath;
+      process.env.KAIWU_FAKE_CLI_STATE_PATH = join(fakeCli.cliPath, '..', 'scenario.json');
+      process.env.KAIWU_FAKE_CLI_LOG_PATH = join(fakeCli.cliPath, '..', 'invocations.log');
 
       const result = await executeSystemTask({
         spec: {
@@ -432,9 +432,9 @@ describe('createHsetupSystemTaskRegistry', () => {
         ['daemon', 'status', '--json'],
       ]);
     } finally {
-      restoreEnvVar('HAPPIER_BOOTSTRAP_CLI_PATH', previousCliPath);
-      restoreEnvVar('HAPPIER_FAKE_CLI_STATE_PATH', previousStatePath);
-      restoreEnvVar('HAPPIER_FAKE_CLI_LOG_PATH', previousLogPath);
+      restoreEnvVar('KAIWU_BOOTSTRAP_CLI_PATH', previousCliPath);
+      restoreEnvVar('KAIWU_FAKE_CLI_STATE_PATH', previousStatePath);
+      restoreEnvVar('KAIWU_FAKE_CLI_LOG_PATH', previousLogPath);
       fakeCli.cleanup();
     }
   });
@@ -479,14 +479,14 @@ describe('createHsetupSystemTaskRegistry', () => {
         },
       ],
     });
-    const previousCliPath = process.env.HAPPIER_BOOTSTRAP_CLI_PATH;
-    const previousStatePath = process.env.HAPPIER_FAKE_CLI_STATE_PATH;
-    const previousLogPath = process.env.HAPPIER_FAKE_CLI_LOG_PATH;
+    const previousCliPath = process.env.KAIWU_BOOTSTRAP_CLI_PATH;
+    const previousStatePath = process.env.KAIWU_FAKE_CLI_STATE_PATH;
+    const previousLogPath = process.env.KAIWU_FAKE_CLI_LOG_PATH;
     const events: unknown[] = [];
     try {
-      process.env.HAPPIER_BOOTSTRAP_CLI_PATH = fakeCli.cliPath;
-      process.env.HAPPIER_FAKE_CLI_STATE_PATH = join(fakeCli.cliPath, '..', 'scenario.json');
-      process.env.HAPPIER_FAKE_CLI_LOG_PATH = join(fakeCli.cliPath, '..', 'invocations.log');
+      process.env.KAIWU_BOOTSTRAP_CLI_PATH = fakeCli.cliPath;
+      process.env.KAIWU_FAKE_CLI_STATE_PATH = join(fakeCli.cliPath, '..', 'scenario.json');
+      process.env.KAIWU_FAKE_CLI_LOG_PATH = join(fakeCli.cliPath, '..', 'invocations.log');
 
       const result = await executeSystemTask({
         spec: {
@@ -534,9 +534,9 @@ describe('createHsetupSystemTaskRegistry', () => {
         ['daemon', 'status', '--json'],
       ]);
     } finally {
-      restoreEnvVar('HAPPIER_BOOTSTRAP_CLI_PATH', previousCliPath);
-      restoreEnvVar('HAPPIER_FAKE_CLI_STATE_PATH', previousStatePath);
-      restoreEnvVar('HAPPIER_FAKE_CLI_LOG_PATH', previousLogPath);
+      restoreEnvVar('KAIWU_BOOTSTRAP_CLI_PATH', previousCliPath);
+      restoreEnvVar('KAIWU_FAKE_CLI_STATE_PATH', previousStatePath);
+      restoreEnvVar('KAIWU_FAKE_CLI_LOG_PATH', previousLogPath);
       fakeCli.cleanup();
     }
   });
@@ -555,13 +555,13 @@ describe('createHsetupSystemTaskRegistry', () => {
         {},
       ],
     });
-    const previousCliPath = process.env.HAPPIER_BOOTSTRAP_CLI_PATH;
-    const previousStatePath = process.env.HAPPIER_FAKE_CLI_STATE_PATH;
-    const previousLogPath = process.env.HAPPIER_FAKE_CLI_LOG_PATH;
+    const previousCliPath = process.env.KAIWU_BOOTSTRAP_CLI_PATH;
+    const previousStatePath = process.env.KAIWU_FAKE_CLI_STATE_PATH;
+    const previousLogPath = process.env.KAIWU_FAKE_CLI_LOG_PATH;
     try {
-      process.env.HAPPIER_BOOTSTRAP_CLI_PATH = fakeCli.cliPath;
-      process.env.HAPPIER_FAKE_CLI_STATE_PATH = join(fakeCli.cliPath, '..', 'scenario.json');
-      process.env.HAPPIER_FAKE_CLI_LOG_PATH = join(fakeCli.cliPath, '..', 'invocations.log');
+      process.env.KAIWU_BOOTSTRAP_CLI_PATH = fakeCli.cliPath;
+      process.env.KAIWU_FAKE_CLI_STATE_PATH = join(fakeCli.cliPath, '..', 'scenario.json');
+      process.env.KAIWU_FAKE_CLI_LOG_PATH = join(fakeCli.cliPath, '..', 'invocations.log');
 
       const result = await executeSetupThisComputerTask();
 
@@ -581,9 +581,9 @@ describe('createHsetupSystemTaskRegistry', () => {
         ['auth', 'request', '--json'],
       ]);
     } finally {
-      restoreEnvVar('HAPPIER_BOOTSTRAP_CLI_PATH', previousCliPath);
-      restoreEnvVar('HAPPIER_FAKE_CLI_STATE_PATH', previousStatePath);
-      restoreEnvVar('HAPPIER_FAKE_CLI_LOG_PATH', previousLogPath);
+      restoreEnvVar('KAIWU_BOOTSTRAP_CLI_PATH', previousCliPath);
+      restoreEnvVar('KAIWU_FAKE_CLI_STATE_PATH', previousStatePath);
+      restoreEnvVar('KAIWU_FAKE_CLI_LOG_PATH', previousLogPath);
       fakeCli.cleanup();
     }
   });
@@ -634,14 +634,14 @@ describe('createHsetupSystemTaskRegistry', () => {
         },
       ],
     });
-    const previousCliPath = process.env.HAPPIER_BOOTSTRAP_CLI_PATH;
-    const previousStatePath = process.env.HAPPIER_FAKE_CLI_STATE_PATH;
-    const previousLogPath = process.env.HAPPIER_FAKE_CLI_LOG_PATH;
+    const previousCliPath = process.env.KAIWU_BOOTSTRAP_CLI_PATH;
+    const previousStatePath = process.env.KAIWU_FAKE_CLI_STATE_PATH;
+    const previousLogPath = process.env.KAIWU_FAKE_CLI_LOG_PATH;
     const events: unknown[] = [];
     try {
-      process.env.HAPPIER_BOOTSTRAP_CLI_PATH = fakeCli.cliPath;
-      process.env.HAPPIER_FAKE_CLI_STATE_PATH = join(fakeCli.cliPath, '..', 'scenario.json');
-      process.env.HAPPIER_FAKE_CLI_LOG_PATH = join(fakeCli.cliPath, '..', 'invocations.log');
+      process.env.KAIWU_BOOTSTRAP_CLI_PATH = fakeCli.cliPath;
+      process.env.KAIWU_FAKE_CLI_STATE_PATH = join(fakeCli.cliPath, '..', 'scenario.json');
+      process.env.KAIWU_FAKE_CLI_LOG_PATH = join(fakeCli.cliPath, '..', 'invocations.log');
 
       const result = await executeSetupThisComputerTask();
 
@@ -665,9 +665,9 @@ describe('createHsetupSystemTaskRegistry', () => {
         ['daemon', 'status', '--json'],
       ]);
     } finally {
-      restoreEnvVar('HAPPIER_BOOTSTRAP_CLI_PATH', previousCliPath);
-      restoreEnvVar('HAPPIER_FAKE_CLI_STATE_PATH', previousStatePath);
-      restoreEnvVar('HAPPIER_FAKE_CLI_LOG_PATH', previousLogPath);
+      restoreEnvVar('KAIWU_BOOTSTRAP_CLI_PATH', previousCliPath);
+      restoreEnvVar('KAIWU_FAKE_CLI_STATE_PATH', previousStatePath);
+      restoreEnvVar('KAIWU_FAKE_CLI_LOG_PATH', previousLogPath);
       fakeCli.cleanup();
     }
   });
@@ -697,17 +697,17 @@ describe('createHsetupSystemTaskRegistry', () => {
         },
       })),
     });
-    const previousCliPath = process.env.HAPPIER_BOOTSTRAP_CLI_PATH;
-    const previousStatePath = process.env.HAPPIER_FAKE_CLI_STATE_PATH;
-    const previousLogPath = process.env.HAPPIER_FAKE_CLI_LOG_PATH;
-    const previousTimeoutMs = process.env.HAPPIER_BOOTSTRAP_SETUP_THIS_COMPUTER_SERVICE_READY_TIMEOUT_MS;
-    const previousPollMs = process.env.HAPPIER_BOOTSTRAP_SETUP_THIS_COMPUTER_SERVICE_READY_POLL_MS;
+    const previousCliPath = process.env.KAIWU_BOOTSTRAP_CLI_PATH;
+    const previousStatePath = process.env.KAIWU_FAKE_CLI_STATE_PATH;
+    const previousLogPath = process.env.KAIWU_FAKE_CLI_LOG_PATH;
+    const previousTimeoutMs = process.env.KAIWU_BOOTSTRAP_SETUP_THIS_COMPUTER_SERVICE_READY_TIMEOUT_MS;
+    const previousPollMs = process.env.KAIWU_BOOTSTRAP_SETUP_THIS_COMPUTER_SERVICE_READY_POLL_MS;
     try {
-      process.env.HAPPIER_BOOTSTRAP_CLI_PATH = fakeCli.cliPath;
-      process.env.HAPPIER_FAKE_CLI_STATE_PATH = join(fakeCli.cliPath, '..', 'scenario.json');
-      process.env.HAPPIER_FAKE_CLI_LOG_PATH = join(fakeCli.cliPath, '..', 'invocations.log');
-      process.env.HAPPIER_BOOTSTRAP_SETUP_THIS_COMPUTER_SERVICE_READY_TIMEOUT_MS = '150';
-      process.env.HAPPIER_BOOTSTRAP_SETUP_THIS_COMPUTER_SERVICE_READY_POLL_MS = '20';
+      process.env.KAIWU_BOOTSTRAP_CLI_PATH = fakeCli.cliPath;
+      process.env.KAIWU_FAKE_CLI_STATE_PATH = join(fakeCli.cliPath, '..', 'scenario.json');
+      process.env.KAIWU_FAKE_CLI_LOG_PATH = join(fakeCli.cliPath, '..', 'invocations.log');
+      process.env.KAIWU_BOOTSTRAP_SETUP_THIS_COMPUTER_SERVICE_READY_TIMEOUT_MS = '150';
+      process.env.KAIWU_BOOTSTRAP_SETUP_THIS_COMPUTER_SERVICE_READY_POLL_MS = '20';
 
       const result = await executeSetupThisComputerTask();
 
@@ -722,11 +722,11 @@ describe('createHsetupSystemTaskRegistry', () => {
       });
       expect(fakeCli.readInvocations()).toContainEqual(['daemon', 'status', '--json']);
     } finally {
-      restoreEnvVar('HAPPIER_BOOTSTRAP_CLI_PATH', previousCliPath);
-      restoreEnvVar('HAPPIER_FAKE_CLI_STATE_PATH', previousStatePath);
-      restoreEnvVar('HAPPIER_FAKE_CLI_LOG_PATH', previousLogPath);
-      restoreEnvVar('HAPPIER_BOOTSTRAP_SETUP_THIS_COMPUTER_SERVICE_READY_TIMEOUT_MS', previousTimeoutMs);
-      restoreEnvVar('HAPPIER_BOOTSTRAP_SETUP_THIS_COMPUTER_SERVICE_READY_POLL_MS', previousPollMs);
+      restoreEnvVar('KAIWU_BOOTSTRAP_CLI_PATH', previousCliPath);
+      restoreEnvVar('KAIWU_FAKE_CLI_STATE_PATH', previousStatePath);
+      restoreEnvVar('KAIWU_FAKE_CLI_LOG_PATH', previousLogPath);
+      restoreEnvVar('KAIWU_BOOTSTRAP_SETUP_THIS_COMPUTER_SERVICE_READY_TIMEOUT_MS', previousTimeoutMs);
+      restoreEnvVar('KAIWU_BOOTSTRAP_SETUP_THIS_COMPUTER_SERVICE_READY_POLL_MS', previousPollMs);
       fakeCli.cleanup();
     }
   });
@@ -758,13 +758,13 @@ describe('createHsetupSystemTaskRegistry', () => {
         },
       ],
     });
-    const previousCliPath = process.env.HAPPIER_BOOTSTRAP_CLI_PATH;
-    const previousStatePath = process.env.HAPPIER_FAKE_CLI_STATE_PATH;
-    const previousLogPath = process.env.HAPPIER_FAKE_CLI_LOG_PATH;
+    const previousCliPath = process.env.KAIWU_BOOTSTRAP_CLI_PATH;
+    const previousStatePath = process.env.KAIWU_FAKE_CLI_STATE_PATH;
+    const previousLogPath = process.env.KAIWU_FAKE_CLI_LOG_PATH;
     try {
-      process.env.HAPPIER_BOOTSTRAP_CLI_PATH = fakeCli.cliPath;
-      process.env.HAPPIER_FAKE_CLI_STATE_PATH = join(fakeCli.cliPath, '..', 'scenario.json');
-      process.env.HAPPIER_FAKE_CLI_LOG_PATH = join(fakeCli.cliPath, '..', 'invocations.log');
+      process.env.KAIWU_BOOTSTRAP_CLI_PATH = fakeCli.cliPath;
+      process.env.KAIWU_FAKE_CLI_STATE_PATH = join(fakeCli.cliPath, '..', 'scenario.json');
+      process.env.KAIWU_FAKE_CLI_LOG_PATH = join(fakeCli.cliPath, '..', 'invocations.log');
 
       const result = await executeSystemTask({
         spec: {
@@ -795,9 +795,9 @@ describe('createHsetupSystemTaskRegistry', () => {
       });
       expect(fakeCli.readInvocations()).toContainEqual(['daemon', 'status', '--json']);
     } finally {
-      restoreEnvVar('HAPPIER_BOOTSTRAP_CLI_PATH', previousCliPath);
-      restoreEnvVar('HAPPIER_FAKE_CLI_STATE_PATH', previousStatePath);
-      restoreEnvVar('HAPPIER_FAKE_CLI_LOG_PATH', previousLogPath);
+      restoreEnvVar('KAIWU_BOOTSTRAP_CLI_PATH', previousCliPath);
+      restoreEnvVar('KAIWU_FAKE_CLI_STATE_PATH', previousStatePath);
+      restoreEnvVar('KAIWU_FAKE_CLI_LOG_PATH', previousLogPath);
       fakeCli.cleanup();
     }
   });
@@ -851,13 +851,13 @@ describe('createHsetupSystemTaskRegistry', () => {
         },
       ],
     });
-    const previousCliPath = process.env.HAPPIER_BOOTSTRAP_CLI_PATH;
-    const previousStatePath = process.env.HAPPIER_FAKE_CLI_STATE_PATH;
-    const previousLogPath = process.env.HAPPIER_FAKE_CLI_LOG_PATH;
+    const previousCliPath = process.env.KAIWU_BOOTSTRAP_CLI_PATH;
+    const previousStatePath = process.env.KAIWU_FAKE_CLI_STATE_PATH;
+    const previousLogPath = process.env.KAIWU_FAKE_CLI_LOG_PATH;
     try {
-      process.env.HAPPIER_BOOTSTRAP_CLI_PATH = fakeCli.cliPath;
-      process.env.HAPPIER_FAKE_CLI_STATE_PATH = join(fakeCli.cliPath, '..', 'scenario.json');
-      process.env.HAPPIER_FAKE_CLI_LOG_PATH = join(fakeCli.cliPath, '..', 'invocations.log');
+      process.env.KAIWU_BOOTSTRAP_CLI_PATH = fakeCli.cliPath;
+      process.env.KAIWU_FAKE_CLI_STATE_PATH = join(fakeCli.cliPath, '..', 'scenario.json');
+      process.env.KAIWU_FAKE_CLI_LOG_PATH = join(fakeCli.cliPath, '..', 'invocations.log');
 
       const result = await executeSystemTask({
         spec: {
@@ -892,9 +892,9 @@ describe('createHsetupSystemTaskRegistry', () => {
         ['daemon', 'status', '--json'],
       ]);
     } finally {
-      restoreEnvVar('HAPPIER_BOOTSTRAP_CLI_PATH', previousCliPath);
-      restoreEnvVar('HAPPIER_FAKE_CLI_STATE_PATH', previousStatePath);
-      restoreEnvVar('HAPPIER_FAKE_CLI_LOG_PATH', previousLogPath);
+      restoreEnvVar('KAIWU_BOOTSTRAP_CLI_PATH', previousCliPath);
+      restoreEnvVar('KAIWU_FAKE_CLI_STATE_PATH', previousStatePath);
+      restoreEnvVar('KAIWU_FAKE_CLI_LOG_PATH', previousLogPath);
       fakeCli.cleanup();
     }
   });
@@ -1099,13 +1099,13 @@ describe('createHsetupSystemTaskRegistry', () => {
         },
       ],
     });
-    const previousCliPath = process.env.HAPPIER_BOOTSTRAP_CLI_PATH;
-    const previousStatePath = process.env.HAPPIER_FAKE_CLI_STATE_PATH;
-    const previousLogPath = process.env.HAPPIER_FAKE_CLI_LOG_PATH;
+    const previousCliPath = process.env.KAIWU_BOOTSTRAP_CLI_PATH;
+    const previousStatePath = process.env.KAIWU_FAKE_CLI_STATE_PATH;
+    const previousLogPath = process.env.KAIWU_FAKE_CLI_LOG_PATH;
     try {
-      process.env.HAPPIER_BOOTSTRAP_CLI_PATH = fakeCli.cliPath;
-      process.env.HAPPIER_FAKE_CLI_STATE_PATH = join(fakeCli.cliPath, '..', 'scenario.json');
-      process.env.HAPPIER_FAKE_CLI_LOG_PATH = join(fakeCli.cliPath, '..', 'invocations.log');
+      process.env.KAIWU_BOOTSTRAP_CLI_PATH = fakeCli.cliPath;
+      process.env.KAIWU_FAKE_CLI_STATE_PATH = join(fakeCli.cliPath, '..', 'scenario.json');
+      process.env.KAIWU_FAKE_CLI_LOG_PATH = join(fakeCli.cliPath, '..', 'invocations.log');
 
       const result = await executeSystemTask({
         spec: {
@@ -1147,9 +1147,9 @@ describe('createHsetupSystemTaskRegistry', () => {
         ['daemon', 'status', '--json'],
       ]);
     } finally {
-      restoreEnvVar('HAPPIER_BOOTSTRAP_CLI_PATH', previousCliPath);
-      restoreEnvVar('HAPPIER_FAKE_CLI_STATE_PATH', previousStatePath);
-      restoreEnvVar('HAPPIER_FAKE_CLI_LOG_PATH', previousLogPath);
+      restoreEnvVar('KAIWU_BOOTSTRAP_CLI_PATH', previousCliPath);
+      restoreEnvVar('KAIWU_FAKE_CLI_STATE_PATH', previousStatePath);
+      restoreEnvVar('KAIWU_FAKE_CLI_LOG_PATH', previousLogPath);
       fakeCli.cleanup();
     }
   });
@@ -1324,14 +1324,14 @@ describe('createHsetupSystemTaskRegistry', () => {
         ].join('\n'),
       ],
     });
-    const previousTailscaleBin = process.env.HAPPIER_TAILSCALE_BIN;
-    const previousStatePath = process.env.HAPPIER_FAKE_TAILSCALE_STATE_PATH;
-    const previousLogPath = process.env.HAPPIER_FAKE_TAILSCALE_LOG_PATH;
+    const previousTailscaleBin = process.env.KAIWU_TAILSCALE_BIN;
+    const previousStatePath = process.env.KAIWU_FAKE_TAILSCALE_STATE_PATH;
+    const previousLogPath = process.env.KAIWU_FAKE_TAILSCALE_LOG_PATH;
     const events: unknown[] = [];
     try {
-      process.env.HAPPIER_TAILSCALE_BIN = fakeCli.cliPath;
-      process.env.HAPPIER_FAKE_TAILSCALE_STATE_PATH = join(fakeCli.cliPath, '..', 'scenario.json');
-      process.env.HAPPIER_FAKE_TAILSCALE_LOG_PATH = join(fakeCli.cliPath, '..', 'invocations.log');
+      process.env.KAIWU_TAILSCALE_BIN = fakeCli.cliPath;
+      process.env.KAIWU_FAKE_TAILSCALE_STATE_PATH = join(fakeCli.cliPath, '..', 'scenario.json');
+      process.env.KAIWU_FAKE_TAILSCALE_LOG_PATH = join(fakeCli.cliPath, '..', 'invocations.log');
 
       const result = await executeSystemTask({
         spec: {
@@ -1370,9 +1370,9 @@ describe('createHsetupSystemTaskRegistry', () => {
         ['serve', 'status'],
       ]);
     } finally {
-      restoreEnvVar('HAPPIER_TAILSCALE_BIN', previousTailscaleBin);
-      restoreEnvVar('HAPPIER_FAKE_TAILSCALE_STATE_PATH', previousStatePath);
-      restoreEnvVar('HAPPIER_FAKE_TAILSCALE_LOG_PATH', previousLogPath);
+      restoreEnvVar('KAIWU_TAILSCALE_BIN', previousTailscaleBin);
+      restoreEnvVar('KAIWU_FAKE_TAILSCALE_STATE_PATH', previousStatePath);
+      restoreEnvVar('KAIWU_FAKE_TAILSCALE_LOG_PATH', previousLogPath);
       fakeCli.cleanup();
     }
   });
@@ -1412,20 +1412,20 @@ describe('createHsetupSystemTaskRegistry', () => {
         },
       ],
     });
-    const previousTailscaleBin = process.env.HAPPIER_TAILSCALE_BIN;
-    const previousStatePath = process.env.HAPPIER_FAKE_TAILSCALE_STATE_PATH;
-    const previousLogPath = process.env.HAPPIER_FAKE_TAILSCALE_LOG_PATH;
-    const previousPollTimeout = process.env.HAPPIER_TAILSCALE_APPROVAL_POLL_TIMEOUT_MS;
-    const previousPollInterval = process.env.HAPPIER_TAILSCALE_APPROVAL_POLL_INTERVAL_MS;
+    const previousTailscaleBin = process.env.KAIWU_TAILSCALE_BIN;
+    const previousStatePath = process.env.KAIWU_FAKE_TAILSCALE_STATE_PATH;
+    const previousLogPath = process.env.KAIWU_FAKE_TAILSCALE_LOG_PATH;
+    const previousPollTimeout = process.env.KAIWU_TAILSCALE_APPROVAL_POLL_TIMEOUT_MS;
+    const previousPollInterval = process.env.KAIWU_TAILSCALE_APPROVAL_POLL_INTERVAL_MS;
     const events: unknown[] = [];
     try {
-      process.env.HAPPIER_TAILSCALE_BIN = fakeCli.cliPath;
-      process.env.HAPPIER_FAKE_TAILSCALE_STATE_PATH = join(fakeCli.cliPath, '..', 'scenario.json');
-      process.env.HAPPIER_FAKE_TAILSCALE_LOG_PATH = join(fakeCli.cliPath, '..', 'invocations.log');
+      process.env.KAIWU_TAILSCALE_BIN = fakeCli.cliPath;
+      process.env.KAIWU_FAKE_TAILSCALE_STATE_PATH = join(fakeCli.cliPath, '..', 'scenario.json');
+      process.env.KAIWU_FAKE_TAILSCALE_LOG_PATH = join(fakeCli.cliPath, '..', 'invocations.log');
       // Avoid long approval polling in this registry integration test. The handler still returns the approval URL,
       // and the UX layer can re-run or poll separately if desired.
-      process.env.HAPPIER_TAILSCALE_APPROVAL_POLL_TIMEOUT_MS = '0';
-      process.env.HAPPIER_TAILSCALE_APPROVAL_POLL_INTERVAL_MS = '0';
+      process.env.KAIWU_TAILSCALE_APPROVAL_POLL_TIMEOUT_MS = '0';
+      process.env.KAIWU_TAILSCALE_APPROVAL_POLL_INTERVAL_MS = '0';
 
       const result = await executeSystemTask({
         spec: {
@@ -1490,22 +1490,22 @@ describe('createHsetupSystemTaskRegistry', () => {
         ['serve', '--bg', 'http://127.0.0.1:3005'],
       ]);
     } finally {
-      restoreEnvVar('HAPPIER_TAILSCALE_BIN', previousTailscaleBin);
-      restoreEnvVar('HAPPIER_FAKE_TAILSCALE_STATE_PATH', previousStatePath);
-      restoreEnvVar('HAPPIER_FAKE_TAILSCALE_LOG_PATH', previousLogPath);
-      restoreEnvVar('HAPPIER_TAILSCALE_APPROVAL_POLL_TIMEOUT_MS', previousPollTimeout);
-      restoreEnvVar('HAPPIER_TAILSCALE_APPROVAL_POLL_INTERVAL_MS', previousPollInterval);
+      restoreEnvVar('KAIWU_TAILSCALE_BIN', previousTailscaleBin);
+      restoreEnvVar('KAIWU_FAKE_TAILSCALE_STATE_PATH', previousStatePath);
+      restoreEnvVar('KAIWU_FAKE_TAILSCALE_LOG_PATH', previousLogPath);
+      restoreEnvVar('KAIWU_TAILSCALE_APPROVAL_POLL_TIMEOUT_MS', previousPollTimeout);
+      restoreEnvVar('KAIWU_TAILSCALE_APPROVAL_POLL_INTERVAL_MS', previousPollInterval);
       fakeCli.cleanup();
     }
   });
 
   it('returns prompt_required with a structured install prompt when installIfMissing is requested but tailscale is unavailable', async () => {
-    const previousTailscaleBin = process.env.HAPPIER_TAILSCALE_BIN;
-    const previousInstallMode = process.env.HAPPIER_TAILSCALE_INSTALL_MODE;
+    const previousTailscaleBin = process.env.KAIWU_TAILSCALE_BIN;
+    const previousInstallMode = process.env.KAIWU_TAILSCALE_INSTALL_MODE;
     const events: unknown[] = [];
     try {
-      process.env.HAPPIER_TAILSCALE_BIN = join(tmpdir(), `missing-tailscale-${Date.now()}`);
-      process.env.HAPPIER_TAILSCALE_INSTALL_MODE = 'manual';
+      process.env.KAIWU_TAILSCALE_BIN = join(tmpdir(), `missing-tailscale-${Date.now()}`);
+      process.env.KAIWU_TAILSCALE_INSTALL_MODE = 'manual';
 
       const result = await executeSystemTask({
         spec: {
@@ -1550,8 +1550,8 @@ describe('createHsetupSystemTaskRegistry', () => {
         }),
       ]);
     } finally {
-      restoreEnvVar('HAPPIER_TAILSCALE_BIN', previousTailscaleBin);
-      restoreEnvVar('HAPPIER_TAILSCALE_INSTALL_MODE', previousInstallMode);
+      restoreEnvVar('KAIWU_TAILSCALE_BIN', previousTailscaleBin);
+      restoreEnvVar('KAIWU_TAILSCALE_INSTALL_MODE', previousInstallMode);
       vi.unstubAllGlobals();
     }
   });

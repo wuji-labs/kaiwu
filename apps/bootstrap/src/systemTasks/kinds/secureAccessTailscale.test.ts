@@ -277,10 +277,10 @@ describe('createSecureAccessTailscaleHandler', () => {
     });
 
     it('stops serve approval polling at the wall-clock deadline', async () => {
-        const originalTimeout = process.env.HAPPIER_TAILSCALE_APPROVAL_POLL_TIMEOUT_MS;
-        const originalInterval = process.env.HAPPIER_TAILSCALE_APPROVAL_POLL_INTERVAL_MS;
-        process.env.HAPPIER_TAILSCALE_APPROVAL_POLL_TIMEOUT_MS = '25';
-        process.env.HAPPIER_TAILSCALE_APPROVAL_POLL_INTERVAL_MS = '10';
+        const originalTimeout = process.env.KAIWU_TAILSCALE_APPROVAL_POLL_TIMEOUT_MS;
+        const originalInterval = process.env.KAIWU_TAILSCALE_APPROVAL_POLL_INTERVAL_MS;
+        process.env.KAIWU_TAILSCALE_APPROVAL_POLL_TIMEOUT_MS = '25';
+        process.env.KAIWU_TAILSCALE_APPROVAL_POLL_INTERVAL_MS = '10';
         let now = 0;
         const sleep = vi.fn(async () => undefined);
 
@@ -337,14 +337,14 @@ describe('createSecureAccessTailscaleHandler', () => {
             }));
         } finally {
             if (originalTimeout === undefined) {
-                delete process.env.HAPPIER_TAILSCALE_APPROVAL_POLL_TIMEOUT_MS;
+                delete process.env.KAIWU_TAILSCALE_APPROVAL_POLL_TIMEOUT_MS;
             } else {
-                process.env.HAPPIER_TAILSCALE_APPROVAL_POLL_TIMEOUT_MS = originalTimeout;
+                process.env.KAIWU_TAILSCALE_APPROVAL_POLL_TIMEOUT_MS = originalTimeout;
             }
             if (originalInterval === undefined) {
-                delete process.env.HAPPIER_TAILSCALE_APPROVAL_POLL_INTERVAL_MS;
+                delete process.env.KAIWU_TAILSCALE_APPROVAL_POLL_INTERVAL_MS;
             } else {
-                process.env.HAPPIER_TAILSCALE_APPROVAL_POLL_INTERVAL_MS = originalInterval;
+                process.env.KAIWU_TAILSCALE_APPROVAL_POLL_INTERVAL_MS = originalInterval;
             }
         }
     });

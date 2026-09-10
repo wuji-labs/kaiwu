@@ -82,7 +82,7 @@ function resolveRepoLocalFirstPartyCommandPath(params: Readonly<{
 }
 
 function resolveRepoRootForFirstPartyComponent(processEnv: NodeJS.ProcessEnv): string | null {
-  const explicitRepoRoot = String(processEnv.HAPPIER_STACK_REPO_DIR ?? processEnv.HAPPIER_STACK_CLI_ROOT_DIR ?? '').trim();
+  const explicitRepoRoot = String(processEnv.KAIWU_STACK_REPO_DIR ?? processEnv.KAIWU_STACK_CLI_ROOT_DIR ?? '').trim();
   const startDir = explicitRepoRoot || process.cwd();
   if (!startDir) {
     return null;

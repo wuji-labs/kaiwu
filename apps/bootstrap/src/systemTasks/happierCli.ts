@@ -10,14 +10,14 @@ import {
 import { parseFirstJsonObject, runCommandCapture } from './taskRuntime.js';
 
 const DEFAULT_ENV_VAR_NAMES = [
-  'HAPPIER_BOOTSTRAP_CLI_PATH',
-  'HAPPIER_BOOTSTRAP_HAPPIER_PATH',
+  'KAIWU_BOOTSTRAP_CLI_PATH',
+  'KAIWU_BOOTSTRAP_KAIWU_PATH',
 ] as const;
 
 function resolveRepoLocalHappierCommand(processEnv: NodeJS.ProcessEnv): string | null {
   const explicitRepoRoot = String(
-    processEnv.HAPPIER_STACK_REPO_DIR ??
-      processEnv.HAPPIER_STACK_CLI_ROOT_DIR ??
+    processEnv.KAIWU_STACK_REPO_DIR ??
+      processEnv.KAIWU_STACK_CLI_ROOT_DIR ??
       ''
   ).trim();
   const startDir = explicitRepoRoot || process.cwd();

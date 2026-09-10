@@ -196,12 +196,12 @@ export async function waitForReadyDaemon(params: Readonly<{
   signal: AbortSignal;
 }>): Promise<DaemonStatusSnapshot> {
   const timeoutMs = readPositiveIntEnv(
-    'HAPPIER_BOOTSTRAP_SETUP_THIS_COMPUTER_SERVICE_READY_TIMEOUT_MS',
+    'KAIWU_BOOTSTRAP_SETUP_THIS_COMPUTER_SERVICE_READY_TIMEOUT_MS',
     DEFAULT_DAEMON_READY_TIMEOUT_MS,
     { min: 100, max: 120_000 },
   );
   const pollMs = readPositiveIntEnv(
-    'HAPPIER_BOOTSTRAP_SETUP_THIS_COMPUTER_SERVICE_READY_POLL_MS',
+    'KAIWU_BOOTSTRAP_SETUP_THIS_COMPUTER_SERVICE_READY_POLL_MS',
     DEFAULT_DAEMON_READY_POLL_MS,
     { min: 50, max: 5_000 },
   );
