@@ -1,0 +1,181 @@
+import { Platform } from 'react-native';
+
+import {
+    downloadDaemonSessionFileToDestination,
+    type BulkTransferFileDestination,
+} from '@/sync/domains/transfers/runtime/bulkTransferPipeline';
+import { createNativeCacheFileSink } from '@/sync/runtime/files/nativeCacheFileSink';
+
+const PREVIEW_CACHE_DIRECTORY_NAME = 'happier-media-previews';
+const PREVIEW_SIZE_LIMIT_ERROR = 'File exceeds preview size limit';
+
+let previewMediaFileCounter = 0;
+
+export type SessionMediaPreviewSource = Readonly<{
+    uri: string;
+    sizeBytes: number;
+    cacheSizeBytes: number;
+    cleanup: () => void | Promise<void>;
+}>;
+
+type SessionMediaPreviewDestination = BulkTransferFileDestination & Readonly<{
+    cleanup: () => Promise<void>;
+    buildSource: (input: Readonly<{
+        name: string;
+        sizeBytes: number;
+        mimeType: string;
+    }>) => Promise<SessionMediaPreviewSource>;
+}>;
+
+type SessionMediaPreviewDestinationResult =
+    | Readonly<{ ok: true; destination: SessionMediaPreviewDestination }>
+    | Readonly<{ ok: false; error: string }>;
+
+export type CreateSessionMediaPreviewSourceResult =
+    | Readonly<{ ok: true; source: SessionMediaPreviewSource }>
+    | Readonly<{ ok: false; error: string }>;
+
+function normalizeMaxBytes(value: number | null | undefined): number | null {
+    if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) return null;
+    return Math.floor(value);
+}
+
+function basename(path: string): string {
+    const normalized = String(path ?? '').replace(/\\/g, '/');
+    return normalized.split('/').filter(Boolean).at(-1) ?? 'preview';
+}
+
+function sanitizePreviewFileName(filePath: string): string {
+    previewMediaFileCounter += 1;
+    const base = basename(filePath);
+    const ext = base.includes('.') ? '.' + base.split('.').pop() : '';
+    const nameWithoutExt = base.includes('.') ? base.slice(0, base.lastIndexOf('.')) : base;
+    const safeBase = nameWithoutExt
+        .replace(/[\\/:*?"<>|-]+/g, '_')
+        .replace(/^\.+/g, '_')
+        .slice(0, 100) || 'media';
+    return `${Date.now()}-${previewMediaFileCounter}-${safeBase}${ext}`;
+}
+
+function createWebObjectUrlPreviewDestination(input: Readonly<{ mimeType: string }>): SessionMediaPreviewDestinationResult {
+    const chunks: Uint8Array[] = [];
+    let bufferedBytes = 0;
+    let objectUrl: string | null = null;
+
+    return {
+        ok: true,
+        destination: {
+            writeBytes: async (bytes) => {
+                bufferedBytes += bytes.byteLength;
+                chunks.push(new Uint8Array(bytes));
+            },
+            close: async () => {},
+            cleanup: async () => {
+                chunks.length = 0;
+                bufferedBytes = 0;
+                if (objectUrl) {
+                    URL.revokeObjectURL(objectUrl);
+                    objectUrl = null;
+                }
+            },
+            buildSource: async (download) => {
+                const blob = new Blob(chunks as BlobPart[], { type: input.mimeType });
+                chunks.length = 0;
+                objectUrl = URL.createObjectURL(blob);
+                return {
+                    uri: objectUrl,
+                    sizeBytes: download.sizeBytes,
+                    cacheSizeBytes: download.sizeBytes,
+                    cleanup: () => {
+                        if (!objectUrl) return;
+                        URL.revokeObjectURL(objectUrl);
+                        objectUrl = null;
+                    },
+                };
+            },
+        },
+    };
+}
+
+async function createNativeFilePreviewDestination(input: Readonly<{
+    filePath: string;
+    mimeType: string;
+}>): Promise<SessionMediaPreviewDestinationResult> {
+    const sinkResult = await createNativeCacheFileSink({
+        directoryName: PREVIEW_CACHE_DIRECTORY_NAME,
+        name: sanitizePreviewFileName(input.filePath),
+    });
+    if (!sinkResult.ok) return sinkResult;
+
+    const sink = sinkResult.sink;
+
+    return {
+        ok: true,
+        destination: {
+            writeBytes: async (bytes) => {
+                await sink.writeBytes(bytes);
+            },
+            close: sink.close,
+            cleanup: sink.cleanup,
+            buildSource: async (download) => ({
+                uri: sink.fileUri,
+                sizeBytes: download.sizeBytes,
+                cacheSizeBytes: download.sizeBytes,
+                cleanup: sink.cleanup,
+            }),
+        },
+    };
+}
+
+export async function createSessionMediaPreviewSource(input: Readonly<{
+    sessionId: string;
+    filePath: string;
+    mimeType: string;
+    maxBytes?: number | null;
+    signal?: AbortSignal | null;
+}>): Promise<CreateSessionMediaPreviewSourceResult> {
+    const maxBytes = normalizeMaxBytes(input.maxBytes);
+    const destinationResult = Platform.OS === 'web'
+        ? createWebObjectUrlPreviewDestination({ mimeType: input.mimeType })
+        : await createNativeFilePreviewDestination({ filePath: input.filePath, mimeType: input.mimeType });
+
+    if (!destinationResult.ok) return destinationResult;
+
+    const destination = destinationResult.destination;
+    let downloadedBytes = 0;
+    const download = await downloadDaemonSessionFileToDestination({
+        sessionId: input.sessionId,
+        request: { path: input.filePath, asZip: false },
+        destination: {
+            writeBytes: async (bytes) => {
+                downloadedBytes += bytes.byteLength;
+                if (maxBytes !== null && downloadedBytes > maxBytes) {
+                    throw new Error(PREVIEW_SIZE_LIMIT_ERROR);
+                }
+                await destination.writeBytes(bytes);
+            },
+            close: destination.close,
+            cleanup: destination.cleanup,
+        },
+        onInit: async (init) => {
+            if (maxBytes !== null && init.sizeBytes > maxBytes) {
+                return { success: false, error: PREVIEW_SIZE_LIMIT_ERROR };
+            }
+        },
+        signal: input.signal ?? null,
+    });
+
+    if (!download.ok) {
+        await destination.cleanup();
+        return { ok: false, error: download.error };
+    }
+
+    return {
+        ok: true,
+        source: await destination.buildSource({
+            name: download.name,
+            sizeBytes: download.sizeBytes,
+            mimeType: input.mimeType,
+        }),
+    };
+}
