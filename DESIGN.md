@@ -1,6 +1,6 @@
-# Happier Product Design Doctrine
+# Kaiwu Product Design Doctrine
 
-This document is the canonical product-design and experience doctrine for Happier. It applies to every user-facing surface in `apps/ui`, including mobile, web, and desktop, and to product copy, interaction, motion, onboarding, empty states, errors, recovery, and cross-device flows.
+This document is the canonical product-design and experience doctrine for Kaiwu (无极开物). It applies to every user-facing surface in `apps/ui`, including mobile, web, and desktop, and to product copy, interaction, motion, onboarding, empty states, errors, recovery, and cross-device flows.
 
 Read this document in full before:
 
@@ -23,7 +23,7 @@ This is a direction and decision framework, not permission to redesign unrelated
 
 ## The experience in one phrase
 
-**Happier is a Warm and Fluid Companion.**
+**Kaiwu is a Warm and Fluid Companion.**
 
 It should feel:
 
@@ -35,7 +35,7 @@ It should feel:
 - trustworthy about privacy, security, state, and consequences;
 - equally considered on mobile, web, and desktop.
 
-“Quietly premium” describes the confidence of the experience, not a lack of personality or motion. Happier must not become basic, static, generic, sterile, or visually timid in the name of simplicity. Premium quality comes from a coherent point of view, strong hierarchy, beautiful composition, responsive interaction, natural motion, thoughtful copy, and countless well-resolved details.
+“Quietly premium” describes the confidence of the experience, not a lack of personality or motion. Kaiwu must not become basic, static, generic, sterile, or visually timid in the name of simplicity. Premium quality comes from a coherent point of view, strong hierarchy, beautiful composition, responsive interaction, natural motion, thoughtful copy, and countless well-resolved details.
 
 Delight is not decoration added after the interface works. It is the result of purpose, clarity, continuity, agency, performance, accessibility, and craft working together.
 
@@ -43,14 +43,14 @@ Delight is not decoration added after the interface works. It is the result of p
 
 We need to cook hard. Aim for top 1% human-design craft and Apple Design Award-level quality. Sweat every pixel, every meaningful state, and every transition frame by frame. Make it feel absurdly good, absolutely stellar, and truly DELIGHTFUL: super clean, minimalist, design-forward, premium, smooth, fluid, and unique, like something Alan Dye would genuinely want to use.
 
-Preserve clarity, accessibility, performance, state continuity, and repeated-use speed. Use Happier’s canonical components, tokens, and motion owners.
+Preserve clarity, accessibility, performance, state continuity, and repeated-use speed. Use Kaiwu’s canonical components, tokens, and motion owners.
 
 ## Desired user feelings
 
 Important flows should help people feel:
 
 1. **Oriented** — I know where I am, what changed, and how to leave.
-2. **Confident** — I understand what Happier is doing and what will happen next.
+2. **Confident** — I understand what Kaiwu is doing and what will happen next.
 3. **In control** — I can interrupt, reverse, retry, skip, undo, defer, or choose an advanced path when appropriate.
 4. **Capable** — sophisticated workflows feel approachable without being reduced to toy functionality.
 5. **Accompanied** — copy and feedback feel like a thoughtful colleague, not a machine issuing instructions.
@@ -62,7 +62,7 @@ When visual beauty conflicts with orientation, truth, control, accessibility, or
 
 ### 1. Warm recognition
 
-Happier acknowledges where a person is, what they were doing, and what they are likely trying to do next.
+Kaiwu acknowledges where a person is, what they were doing, and what they are likely trying to do next.
 
 - First-time users need orientation, confidence, and a clear invitation.
 - Returning users need recognition, continuity, and a fast route back to their work.
@@ -90,7 +90,7 @@ Continuity is both visual and semantic. A user should not need to reconstruct wh
 
 ### 3. Calm power
 
-Happier coordinates sessions, agents, providers, machines, tools, code review, and remote work. The domain is powerful and sometimes inherently complex; the interface should make that power understandable without pretending it is simple.
+Kaiwu coordinates sessions, agents, providers, machines, tools, code review, and remote work. The domain is powerful and sometimes inherently complex; the interface should make that power understandable without pretending it is simple.
 
 - Lead with the common path and the decision the user must make now.
 - Reveal advanced controls progressively, near the context they affect.
@@ -130,7 +130,7 @@ Design platform-specific compositions deliberately. Do not branch merely to crea
 
 ### 6. Crafted delight
 
-Happier should be enjoyable to use, not merely functional.
+Kaiwu should be enjoyable to use, not merely functional.
 
 Delight can come from:
 
@@ -267,7 +267,7 @@ Reduced motion is a functional requirement, not an optional polish pass.
 
 ### Product identity
 
-Happier should be recognizable without relying solely on its logo.
+Kaiwu should be recognizable without relying solely on its logo.
 
 - Use the established warm cosmic identity, palette relationships, typography, iconography, and compositional rhythm where appropriate.
 - Let distinctive atmosphere support a moment rather than cover every surface.
@@ -288,7 +288,7 @@ Art-directed imagery and narrative surfaces may need locally owned visual tokens
 
 ### Typography
 
-- Use Happier’s canonical text primitives and typography tokens so scaling, platform rendering, theme, and localization continue to work.
+- Use Kaiwu’s canonical text primitives and typography tokens so scaling, platform rendering, theme, and localization continue to work.
 - Build hierarchy from size, weight, leading, tracking, color, and spacing as a coherent set.
 - Large display text may use tighter leading and tracking; body and dense UI text prioritize legibility.
 - Keep headings concise and balance short headings on platforms that support it.
@@ -368,7 +368,7 @@ Do not allow nested surfaces to create competing Back, Next, Skip, or Done decis
 
 ### Voice
 
-Happier sounds like a warm, capable collaborator:
+Kaiwu sounds like a warm, capable collaborator:
 
 - direct but not abrupt;
 - confident but not boastful;
@@ -489,11 +489,11 @@ Do not over-generalize coincidental visual similarity. Share a component when it
 
 Start with the binding implementation rules and owner paths that `apps/ui/AGENTS.md` does name, then search the actual code and nearest package instructions for concepts it does not enumerate. Do not assume that file is an exhaustive inventory, and do not copy a mutable owner list into this doctrine that can drift as the repository evolves.
 
-External design skills and examples are inspiration and review aids. They do not override Happier’s canonical primitives, tokens, architecture, platform contracts, accessibility rules, or measured evidence. Do not paste generic magic values or add a new dependency when the existing system owns the behavior.
+External design skills and examples are inspiration and review aids. They do not override Kaiwu’s canonical primitives, tokens, architecture, platform contracts, accessibility rules, or measured evidence. Do not paste generic magic values or add a new dependency when the existing system owns the behavior.
 
 ## Onboarding as a reference, not a universal template
 
-Happier’s current and evolved onboarding direction establishes the product-wide principles below. Not every repository version implements every technique yet; inspect the actual local code before treating an example as reusable infrastructure.
+Kaiwu’s current and evolved onboarding direction establishes the product-wide principles below. Not every repository version implements every technique yet; inspect the actual local code before treating an example as reusable infrastructure.
 
 - a warm brand introduction followed by a clear functional workflow;
 - persistent wordmark, atmosphere, and composition anchors;
@@ -599,7 +599,7 @@ For motion, inspect at normal speed and frame-by-frame or slowed down. Look for 
 Ask:
 
 - Is the primary purpose immediately clear?
-- Does this feel warm, fluid, calm, and distinctly Happier?
+- Does this feel warm, fluid, calm, and distinctly Kaiwu?
 - Is it premium through craft, or merely decorated?
 - Does motion explain and respond, or distract and delay?
 - Did we preserve agency, state, focus, and continuity?
@@ -613,7 +613,7 @@ Ask:
 
 Reject or revisit designs that exhibit:
 
-- generic assistant-product aesthetics with no Happier-specific point of view;
+- generic assistant-product aesthetics with no Kaiwu-specific point of view;
 - “minimalism” that removes hierarchy, context, or discoverability;
 - excessive cards, pills, glass, borders, glows, or gradients without semantic purpose;
 - dense settings or dashboards where every control has equal emphasis;

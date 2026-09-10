@@ -1,8 +1,8 @@
-# Contributing to Happier
+# Contributing to Kaiwu (无极开物)
 
-Thanks for taking the time to improve Happier. Contributions are welcome, and we really appreciate the help.
+Thanks for taking the time to improve Kaiwu. Contributions are welcome, and we really appreciate the help.
 
-Happier is currently **pre-release** and in a phase of **rapid iteration** (deep changes, new features, lots of WIP). Expect churn: APIs, flows, structure, code, and preferred patterns may shift as the foundations stabilize.
+Kaiwu is currently in active product evolution and in a phase of rapid iteration (deep changes, new features, lots of WIP). Expect churn: APIs, flows, structure, code, and preferred patterns may shift as the foundations stabilize.
 
 These guidelines are here to:
 - help you avoid spending time on changes we can't merge, and
@@ -12,7 +12,7 @@ These guidelines are here to:
 
 ## The most valuable contribution: a great issue
 
-You don't need to write code to make a meaningful contribution to Happier.
+You don't need to write code to make a meaningful contribution to Kaiwu.
 
 A well-written issue, clear repro steps, platform context, observed vs expected behavior, and optionally a hypothesis about the cause, is often *more* useful than a PR. It lets us understand the problem on its own terms and address it in a way that fits the current architecture and direction, without the overhead of reviewing code that may need to be rewritten anyway.
 
@@ -109,7 +109,7 @@ git clone --branch preview https://github.com/happier-dev/happier.git
 
 ## AI-assisted contributions
 
-Happier is built with AI agents and we have no issue with AI-assisted contributions. What we care about is the human reasoning behind it. If you used AI to write, debug, or substantially shape your contribution:
+Kaiwu is built with AI agents and we have no issue with AI-assisted contributions. What we care about is the human reasoning behind it. If you used AI to write, debug, or substantially shape your contribution:
 - Say which tool you used
 - Explain what *you* were trying to solve and why you approached it this way
 - Explain *your* reasoning and the instructions you gave the AI

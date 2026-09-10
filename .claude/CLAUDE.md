@@ -8,25 +8,25 @@ Background subagents cannot prompt for missing tool permissions. If a tool call 
 
 Run commands in the foreground when interactive approval may be required.
 
-## Agent routing and Happier-managed runs
+## Agent routing and Kaiwu-managed runs
 
 Use the current provider's native subagent facility for ordinary subagent, delegation, and parallel-agent requests. Native provider subagents remain the default.
 
-Use a Happier-managed execution/delegation run only when:
+Use a Kaiwu-managed execution/delegation run only when:
 
-- the user explicitly asks for a Happier-managed run, delegation, or subagent—including natural wording such as “Happier subagent,” “Happier delegation run,” or “Happier execution run”;
+- the user explicitly asks for a Kaiwu-managed run, delegation, or subagent—including natural wording such as “Kaiwu subagent,” “Kaiwu delegation run,” “Kaiwu execution run,” or legacy “Happier subagent”;
 - the user explicitly requests another backend, provider, model, account, or service that the current provider's native facility cannot satisfy; or
-- an enabled custom rule explicitly requires Happier.
+- an enabled custom rule explicitly requires Kaiwu or Happier.
 
-Do not silently change backend, provider, model, account, or execution topology. A generic request remains native even if a Happier action is discoverable. If a native or Happier run fails, do not substitute another backend unless the user request or an enabled custom rule authorizes it.
+Do not silently change backend, provider, model, account, or execution topology. A generic request remains native even if a Kaiwu action is discoverable. If a native or Kaiwu run fails, do not substitute another backend unless the user request or an enabled custom rule authorizes it.
 
-Runtime prompt guidance and runtime action discovery are authoritative. After a Happier authorization condition applies, use `action_spec_search` / `action_spec_get` to discover the current action contract and `action_options_resolve` with the action's partial draft to resolve valid backend, model, configuration, and connected-service values. Do not duplicate the runtime action catalog here, guess values, or rely on hard-coded option-source ids.
+Runtime prompt guidance and runtime action discovery are authoritative. After a Kaiwu authorization condition applies, use `action_spec_search` / `action_spec_get` to discover the current action contract and `action_options_resolve` with the action's partial draft to resolve valid backend, model, configuration, and connected-service values. Do not duplicate the runtime action catalog here, guess values, or rely on hard-coded option-source ids.
 
-For bounded Happier delegation, discover and use `subagents.delegate.start`; use `execution.run.start` when the requested work needs its lower-level controls. In an in-session call, omit `sessionId` to host the run in the current invoking session. An explicit `sessionId` remains supported for a deliberate authorized cross-session target.
+For bounded Kaiwu delegation, discover and use `subagents.delegate.start`; use `execution.run.start` when the requested work needs its lower-level controls. In an in-session call, omit `sessionId` to host the run in the current invoking session. An explicit `sessionId` remains supported for a deliberate authorized cross-session target.
 
 Monitor runs through the discovered action contract: use start-and-wait or `execution.run.wait` for bounded observation, and use the action-based list/send/stop surfaces when needed. A wait timeout is observational and the run may still be active. Do not create filesystem watchers, completion ledgers, marker files, or report-file conventions to infer execution-run completion.
 
-`session.spawn_new` creates an independent, persistent top-level Happier session. It remains valid for that purpose, but it is not routine delegation.
+`session.spawn_new` creates an independent, persistent top-level Kaiwu session. It remains valid for that purpose, but it is not routine delegation.
 
 ## Orchestration economy
 
@@ -84,7 +84,7 @@ Use the active root `AGENTS.md` rules ("Risk-weighted execution" and "Testing: c
 
 Use `.agents/skills/happier-implement-plan` for generic approved-plan execution, parallelism, dirty-worktree
 coordination, uncertainty resolution, status/evidence, QA/review boundaries, amendments, and
-completion. This file owns only the Claude/Happier execution-run mechanics above and the
+completion. This file owns only the Claude/Kaiwu execution-run mechanics above and the
 program-specific facts below; do not maintain a second copy of the cross-tool workflow here.
 
 Use Git safety and the existing plan/review workspace as the normal recovery surface. Snapshot only

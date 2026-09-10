@@ -1,411 +1,207 @@
-> **本仓是 [happier-dev/happier](https://github.com/happier-dev/happier) 的下游二次开发分支。**  
-> **This repository is a downstream fork of [happier-dev/happier](https://github.com/happier-dev/happier) with Kaiwu branding.**
-
 <div align="center">
   <img src="/.github/hero.png" title="Kaiwu" alt="Kaiwu (无极开物) - Mobile, Web and Desktop client for Claude Code, Codex, OpenCode, Pi, Cursor" width="850" />
 
+  # 无极开物 (Kaiwu)
+
+  ### 移动端、网页端与桌面端 AI 编程全平台伴侣
   ### Mobile, Web and Desktop client for Claude Code, Codex, OpenCode, Pi, Cursor, ...
   
-  Run Claude Code, Codex, Gemini, OpenCode (and more) on your computer and continue seamlessly from your phone, browser, or desktop app.
+  在您的工作站、服务器与云主机上运行 Claude Code、Codex、Gemini、OpenCode 等 AI Agent，随时随地从手机、浏览器或桌面端无缝协同接续。
 
-  **End-to-end encrypted. Self-hostable.<br />
-  Built by developers, for developers.**
+  **端到端加密 · 100% 自托管 · 原生免环境架构**<br />
+  **End-to-end encrypted. Self-hostable. Built by developers, for developers.**
 </div>
 
-## What is Happier?
+## 什么是无极开物 (What is Kaiwu)?
 
-**Happier** is an open-source, end-to-end encrypted, cross-device companion app and client for your AI coding agents.
+**无极开物 (Kaiwu)** 是一个开源、端到端加密的跨设备 AI 编程助手与客户端。
 
-It lets you run AI coding sessions **locally on your computer**, then **continue and control them remotely** — from your phone, web UI, or desktop app, without losing context.
+它允许您在**本地计算机或云端主机**上运行 AI 编程会话，并在任何时刻通过**手机端、Web 控制台或桌面应用**进行实时监控、审批控制、远程转向与上下文无缝接续。
 
-Whether you’re stepping away for a coffee or switching devices mid-task, Happier keeps your AI coding sessions alive and accessible.
+无论是离开工位还是在多台设备间切换工作流，无极开物都能保持您的 AI 编程会话持续在线、即时响应。
 
-**[Join the Discord](https://discord.gg/W6Pb8KuHfg)** to hear all of the latest news about Happier, report issues, discuss new ideas and request features. It would truly make us _happier_ to hear your thoughts and feedback! ;)
+---
 
-<h3 align="center"><a href="https://github.com/happier-dev/happier/discussions/226">Latest Happier project update</a></h3>
+## 快速安装 (Installation)
 
-## Installation
+### 第一步：在计算机上安装 CLI
 
-### Step 1: Download App
-
-#### iOS
-
-<a href="https://apps.apple.com/us/app/happier-claude-codex-opencode/id6758554297"><img width="135" height="39" alt="appstore" src="https://github.com/user-attachments/assets/45e31a11-cf6b-40a2-a083-6dc8d1f01291" /></a>
-
-#### Play Store
-
-Play Store app is in private beta, to access it:
-1. Join the [Happier Google Group](https://groups.google.com/g/happier-dev)
-2. Join the private beta [from Android](https://play.google.com/store/apps/details?id=dev.happier.app) or [from the web](https://play.google.com/apps/testing/dev.happier.app)
-
-#### Android APK
-
-[Download the APK](https://github.com/happier-dev/happier/releases/download/ui-mobile-preview/happier-preview.apk)
-
-### Step 2: Install the CLI on your computer
-
+#### Linux / macOS
 ```bash
-curl -fsSL https://happier.dev/install | bash
+curl -fsSL https://kaiwu.chengqiyun.com/install | bash
 ```
 
-Windows:
-```
-iwr https://happier.dev/install.ps1 -useb | iex
+#### Windows (PowerShell)
+```powershell
+iwr https://kaiwu.chengqiyun.com/install.ps1 -useb | iex
 ```
 
-If you specifically want the npm package instead of the installer-managed lanes:
+> **说明**：Windows 采用免 Node.js 原生绿色架构，通过国内腾讯云 BGP 高速通道极速部署。提供 `kaiwu` 主命令与 `happier` 兼容别名。
 
+若需要通过 npm 全局安装：
 ```bash
 npm install -g @happier-dev/cli
 ```
 
-### Step 3: Authenticate (recommended: mobile-first)
+### 第二步：配对与认证登录
 
 ```bash
-happier auth login
+kaiwu auth login
 ```
 
-Recommended first run:
-- Prefer **mobile** when asked about it, so your account and secret key are then securely stored on your mobile device.
-- If you already use Happier on another device, sign in with that same account.
-- If you open the terminal-connect link while logged out, Happier will send you through sign in/create account and then return you to terminal approval.
+- 推荐通过手机扫码快速配对登录，账户与密钥将安全加密存储在您的移动设备上。
+- 在任何新设备登录同一账户即可实现所有机器工作流互联。
 
-### Step 4: Start using `happier` instead of `claude`, `codex` or `opencode`
+### 第三步：在任何项目目录中启动 AI 编程会话
 
 ```bash
-# Instead of: claude
-# Use: happier
-happier
+# 启动开物默认 AI 会话
+kaiwu
 
-# Instead of: codex
-# Use: happier codex
-happier codex
-
-# Instead of: opencode
-# Use: happier opencode
-happier opencode
-
-# More providers:
-happier gemini
-happier kilo
-happier kimi
-happier qwen
+# 或指定底层 Agent 引擎：
+kaiwu codex
+kaiwu opencode
+kaiwu gemini
+kaiwu kilo
+kaiwu kimi
+kaiwu qwen
 ```
 
-### Step 5: Be a Happier developer
+### 第四步：随时随地协同与接续
 
-Code solo, or invite a friend to jump into the session with you.
-Happier acts as a secure bridge between your local development environment and your other devices.
+单人高效编程，或邀请团队成员加入会话协同。无极开物在您的本地开发环境与移动设备之间搭建安全的高速通道。
 
-## We want to hear your feedback!
+---
 
-Happier is in alpha preview stage and might be buggy here and there.
-We are iterating fast and adding new features, improvements and bug fixes constantly.
+## 核心特性 (Key Features)
 
-You can also **[join the Discord](https://discord.gg/W6Pb8KuHfg) to ask any questions or report any issues that you might have**.
+- **多模型与 Agent 全面支持 (Broad provider support)**<br />
+  统一接入 **Claude Code, Codex, OpenCode, Gemini, GitHub Copilot, Kiro, Pi, Kilo, Kimi, Qwen, Augment** 以及任意符合 ACP 规范的自定义 CLI 工具。
 
-This project exists because we needed it ourselves, and **we want it to evolve through real feedback**. We aim to keep the community welcoming, and contributor-friendly, whether you’re signaling an issue or proposing a larger idea.
+- **实时浏览、跟进并接管本地已有会话**<br />
+  直接在开物中打开机器上现有的 Codex、Claude 或 OpenCode 会话，实时同步外部启动的会话，或一键接管并无缝接入开物生态。
 
-If something feels broken, missing, or awkward, **we really want to hear about it**.
-Happier grows through shared experience and collaboration.
+- **会话分支与回放 (Session forking and replay)**<br />
+  在任意历史消息处创建会话分支（Fork），保留完整上下文。原生支持 OpenCode/Codex 分支，其余模型支持开物智能回放。
 
-Learn more about the best ways to contribute in [CONTRIBUTING.md](CONTRIBUTING.md).
+- **跨机器会话交接 (Session handoff between machines)**<br />
+  将正在进行的会话（包含 Provider 状态与项目目录）无缝转移到另一台机器，保持相同 Session ID 与执行连续性。
 
-## Why “Happier”?
+- **终端与远程接续 (Attach to a running session)**<br />
+  在 App 中启动会话后，随时在终端使用 `kaiwu attach` 重连并接管，亦可随时切回 App 远程控制。
 
-We originally started as contributors to [Happy](https://github.com/slopus/happy), submitting fixes, improvements, and new features upstream. 
+- **持久化会话机制 (Persistent sessions)**<br />
+  支持重启后自动恢复会话、归档与稍后查阅；支持 tmux 托管终端会话。
 
-We were using it daily for work and genuinely loved the concept.  
-Over time, we realized that our own needs required faster iteration that we could not comfortably explore within the main project.
+- **多端流转无缝切换 (Seamless switching)**<br />
+  在终端、桌面客户端、Web 控制台与手机移动端之间自由切换，上下文与输入队列始终保持最新状态。
 
-So we started building them for ourselves.
+- **团队实时协同 (Collaborative sessions)**<br />
+  与团队成员共享正在运行的会话，或通过只读链接公开分享，支持按用户名直接邀请协同。
 
-After weeks of refining, fixing, and extending the foundation, we decided to share Happier so others could try it, use it, and help shape what comes next.
+- **并行 Agent 与 Claude 团队协作**<br />
+  在任一会话中发起并行 Review、规划或委托执行；创建与调度多 Agent 团队，全景监控子代理运行进展。
 
-Happier is about exploring a faster-moving, more collaborative direction, while remaining deeply grateful for the foundation Happy provided. We loved and still love Happy. ❤️ Happier would not exist without it.
+- **语音伴侣助手 (Voice assistant)**<br />
+  不仅是语音转文字，而是具备系统级 Action 控制权限的 AI 同事：监控所有会话状态、朗读并代为回复审批请求、听写下发指令，支持 ElevenLabs、Kokoro 神经语音合成及系统级端侧语音识别。
 
-## Key Features
+- **全局收件箱 (Inbox)**<br />
+  跨所有会话和机器的集中控制台，集中呈现权限请求、交互提示（`AskUserQuestion`、`ExitPlanMode`）与待办审批。
 
-- **Broad provider support**<br />
-  Works with **Claude Code, Codex, OpenCode, Gemini, GitHub Copilot, Kiro, Pi, Kilo, Kimi, Qwen, Augment**, and any custom ACP-compatible CLI — all from one unified interface.
+- **消息暂存队列 (Pending queue)**<br />
+  在 Agent 执行繁忙或离线时提前暂存多条消息，支持随时编辑、调序与删除。
 
-- **Browse, follow, and take over existing sessions**<br />
-  Open any existing Codex, Claude, or OpenCode session on your machine directly in Happier, follow a live session started outside the app in real time, or take control and import it into Happier with full continuity.
+- **实时转向与中断 (Steering and interrupts)**<br />
+  在 Agent 运行中下发调整指令，支持兼容后端直接注入当前 Turn，保持精确执行控制。
 
-- **Session forking and replay**<br />
-  Fork a session at any message without losing context. Uses provider-native forking when available (OpenCode, Codex); falls back to Happier Replay for any provider.
+- **内置 Git 与代码浏览器**<br />
+  内置完整版本控制能力：查看 Diff、修改文件、提交、分支、暂存、Worktree 与远程分支操作，无需离开界面。
 
-- **Session handoff between machines**<br />
-  Move a live session — including provider state and project directory — to another machine. The same session ID stays in place; the active machine changes.
+- **项目与 Worktree 管理**<br />
+  持久化项目工作空间，支持浏览代码库、收集代码评审意见并在特定 Worktree 独立上下文中快速启动会话。
 
-- **Attach to a running session**<br />
-  Start a session from the app and later reconnect to it in your terminal with `happier attach`, or the other way around — switch between local CLI control and remote app control at any time.
+- **内置交互终端 (Embedded terminal)**<br />
+  依托受控机器的实时交互 Shell，支持底部停靠、侧边栏或全屏使用。
 
-- **Persistent sessions**<br />
-  Resume sessions after restarts; archive and return to them later. Supports tmux-backed resume for terminal-started sessions.
+- **附件与多模态**<br />
+  支持在各端会话中上传图片与文件上下文。
 
-- **Seamless switching**<br />
-  Move between terminal, desktop app, web, and mobile while keeping full session context. Multi-device continuity is built in.
+- **MCP 服务生态支持**<br />
+  一次性配置 MCP（Model Context Protocol）服务器，跨所有模型、机器与会话复用。
 
-- **Collaborative sessions**<br />
-  Share a live session with teammates or via view-only public links. Friends can be added by username directly in the app.
+- **企业级与自托管就绪**<br />
+  支持独立部署开物中继服务（Relay Server），支持 GitHub OAuth、OIDC、mTLS 证书认证及组织/团队权限管控，全面适配 Docker、PostgreSQL、SQLite 等基础设施。
 
-- **Agents, subagents, and Claude teams**<br />
-  Launch parallel review, plan, or delegate runs from any session. Create and manage Claude teams, send messages to individual teammates, and monitor all subagents from the Agents panel.
+---
 
-- **Voice assistant — a real AI colleague, not just speech-to-text**<br />
-  The voice agent is a first-class assistant backed by the same action system as the UI and CLI. It monitors all your running sessions, can switch focus between them, reads pending permission requests and answers them on your behalf, sends messages to any session you dictate to, and discusses what your agents are doing with full access to recent session context. Every action it can take maps to a Happier action that can be individually approval-gated. Runs on a daemon-backed AI brain (Claude or any configured backend) or a local OpenAI-compatible endpoint, with ElevenLabs realtime, BYO ElevenLabs, Kokoro neural TTS, and device/Google STT as the voice layer.
+## 安全与隐私 (Security & Privacy)
 
-- **Inbox**<br />
-  A global attention center for permission requests, user-action prompts (`AskUserQuestion`, `ExitPlanMode`), approval-gated actions, and unread sessions — across all sessions and machines at once.
+无极开物始终将数据安全与隐私保护置于核心架构：
 
-- **Pending queue**<br />
-  Queue messages while the agent is busy, offline, or not yet ready. Edit, reorder, and remove queued messages before they run. The queue is session-wide and shared with collaborators.
+- **端到端加密 (End-to-End Encryption)**  
+  基于 TweetNaCl 等现代密码学体系构建。
+- **零知识架构 (Zero-Knowledge Architecture)**  
+  您的代码与会话在发送至网络前已在本地完成加密，中继服务器无权且无法解密您的数据，密钥仅保存在您的可信设备中。
 
-- **Steering and interrupts**<br />
-  Steer compatible sessions while they are running. New messages are injected into the active turn when the backend supports it; otherwise they queue safely.
+---
 
-- **Git and file browser**<br />
-  Full repository-aware workspace inside sessions and projects: browse files, review diffs, edit files, and run complete Git operations (commit, pull, push, branch, stash, worktrees, remotes) without leaving the app.
+## 架构与核心组件 (Architecture)
 
-- **Projects and worktrees**<br />
-  Persistent repository surfaces outside sessions. Browse a repo, inspect source control state, collect review comments, switch between worktrees, and then launch a session into the exact checkout context.
+- **中继服务端 (Relay Server)**:
+  - 负责存储加密会话、消息与用户配置
+  - 协调移动端/Web端与受控机器 Daemon 间的安全长连接
+  - 支持官方公开服务与私有化自托管
+- **机器守护进程 (Machine Daemon)**:
+  - 运行在开发机上的常驻后台进程，调度本地环境、终端与模型 CLI
+  - 通过中继服务接收各端指令并同步会话状态
+- **用户客户端 (UI / App)**:
+  - 跨平台原生移动 App（iOS / Android）
+  - Web 控制台界面
+  - 桌面客户端（Windows / macOS / Linux）
 
-- **Embedded terminal**<br />
-  A live shell backed by your connected machine, dockable in the bottom panel, sidebar, or as a full-screen — shared across session and project views.
+---
 
-- **Attachments**<br />
-  Attach files and images to any message in new or existing sessions. Works across desktop, web, and mobile.
+## 私有化自托管 (Self-Hosting)
 
-- **MCP servers**<br />
-  Define MCP servers once in Happier and reuse them across all providers, all machines, and all sessions. Previews the effective tool surface before you start. Works with native-MCP and shell-bridge providers alike.
+无极开物完全支持 100% 私有化自建部署：
 
-- **Prompts and skills**<br />
-  Manage reusable system prompts and skill bundles in one synced library. Attach them to coding agents, voice, or profiles; install/export to provider-native locations; integrate with `skills.sh` registries.
-
-- **Connected services and quota monitoring**<br />
-  Link Codex, Claude, and other provider subscriptions once; reuse credentials across backends and machines. Monitor usage and quota snapshots directly in the app.
-
-- **Profiles**<br />
-  Save named backend configurations (endpoint, auth scheme, environment variables, secrets) and select them at session start or via `--profile` from the CLI.
-
-- **Custom ACP backends**<br />
-  Add any ACP-compatible CLI as a selectable backend — internal tools, review bots, planning agents — without modifying Happier's source.
-
-- **Local memory search**<br />
-  Build a machine-local index from your decrypted transcripts and search past session context from the app, or let coding and voice agents use memory tools for recall.
-
-- **Mode, model, and permission controls**<br />
-  Pick model, engine, mode (plan/build), reasoning effort, and permission level per session. Session-only overrides are separate from account defaults.
-
-- **Multi-server support**<br />
-  Use Happier Cloud, personal self-host, and company self-host side by side. Auth is scoped per server; daemon state is isolated per server profile.
-
-- **Smart notification routing**<br />
-  Notification taps open the exact session and server that needs attention. Permission actions and approvals are routed safely, never silently applied to the wrong server.
-
-- **Server feature toggles**<br />
-  Server owners can selectively disable capabilities (voice, social, bug reports, etc.) so users only see what is appropriate for their deployment.
-
-- **In-app bug reports and diagnostics**<br />
-  Submit bug reports with attached diagnostics, Sentry artifacts, and `happier doctor --json` snapshots. Crash recovery shows a safe fallback screen with pre-crash diagnostics preserved.
-
-- **Enterprise-ready**<br />
-  Run your own relay server and lock it down to your organization. Supports **GitHub OAuth with org/team membership gating**, **OIDC** (Okta, any provider, with per-provider user/email/group allowlists and RFC 9207 `iss` passthrough), **mTLS** (certificate-based auth via reverse proxy or direct, with SAN email/UPN identity mapping), and **keyless external auth** for SSO-only environments.<br /><br />Configurable auto-provisioning, offboarding re-checks at configurable intervals, and strict vs. permissive enforcement.<br /><br />Storage policy is independently configurable: end-to-end encrypted (default), mixed, or plaintext-only (for organizations that manage encryption at the infrastructure layer).<br /><br />Server-level feature flags let you enable or disable voice, automations, social, attachments, bug report uploads, embedded terminal, session handoff, and more — all via environment variables, advertised to clients at runtime so the UI adapts automatically.<br /><br />Rate limiting, file transfer size limits, session retention policies, and a diagnostics endpoint with configurable access control (owner-only or all authenticated users) are all included. Deployable via Docker, with PostgreSQL, SQLite or MySQL as the database backend.
-
-
-## Security & Privacy
-
-Happier is designed with privacy as a foundation, not an afterthought.
-
-- **End-to-end encryption**  
-  Built using modern cryptography (TweetNaCl).
-
-- **Zero-knowledge architecture**  
-  Your code is encrypted on your devices before it ever hits the wire.  
-  Servers cannot read your data. Encryption keys never leave your devices.
-
-- **Built with love from Switzerland**  
-  Developed in Switzerland, with a strong focus on data protection and developer transparency.
-
-## Livin' on the edge (nightly dev builds)
-
-If you are feeling adventurous, you can use our nightly dev builds (or run from source).
-
-In that case, you **must** run everything from the dev releases (CLI, app, daemon **and** server). The hosted Happier Cloud server (app.happier.dev / api.happier.dev), is running the `preview` channel currently, so not all the `dev` features might be available from it.
-
-Please note that **`dev` can be highly unstable**. It can contain partial commits and can break at any moment.
-
-### Happier CLI (macOS/Linux) - nightly dev builds:
-```
-curl -fsSL https://happier.dev/install-dev | bash
-```
-
-### Happier CLI (Windows) - nightly dev builds:
-```
-iwr https://happier.dev/install-dev.ps1 -useb | iex
-```
-
-**Important! Then you need to run `hdev` instead of `happier`!**
-This allows installing the different releases alongside eachother.
-
-If you want `happier` to map to `hdev`, add this to your `.bashrc`/`.zshrc`:
-```
-alias happier='hdev'
-```
-
-### Web app
-
-`dev` does not have a hosted web app. To use the `dev` web UI, you must run your own self-hosted server from the `dev` nightly builds/source.
-
-### Mobile apps - nightly dev builds:
-- [iOS TestFlight](https://testflight.apple.com/join/PyRCsaS3)
-- [Android APK](https://github.com/happier-dev/happier/releases/download/ui-mobile-dev/happier-dev-android.apk)
-
-### Server - nightly dev builds:
-- [Docker Hub - happierdev/relay-server:dev](https://hub.docker.com/repository/docker/happierdev/relay-server/tags/dev)
-- [GHCR - happier-dev/relay-server:dev](https://github.com/happier-dev/happier/pkgs/container/relay-server/778977894?tag=dev)
-
-### Dev box (happier CLI + daemon + Claude/Codex/OpenCode/etc) - nightly dev builds
-- [Docker Hub - happierdev/dev-box:dev](https://hub.docker.com/repository/docker/happierdev/dev-box/tags/dev)
-- [GHRC - happier-dev/dev-box:dev](https://github.com/happier-dev/happier/pkgs/container/dev-box/778997073?tag=dev)
-
-### Running from source
-
-[See below](#running-from-source-1)
-
-## Architecture & Components
-
-- Relay Server: 
-  - store the sessions, message and settings
-  - allows to communicate between the UI/app and the machines daemons
-  - can be [self-hosted](https://docs.happier.dev/deployment) or you can use the Happier Cloud relay server at `api.happier.dev` and the hosted web UI at https://app.happier.dev
-- Machine Daemon: 
-  - manage the sessions and LLM processes on a machine
-  - this is the long-running background process that allows you to start new sessios and manage sessions remotely
-  - it communicates with the UI/app through the relay server
-- UI/app: 
-  - native mobile app
-  - web UI (self-hosted or app.happier.dev)
-  - desktop app
-  - it communicates with the daemon through the relay server
-  - it receive daemon updates (sessions updates, messages, etc) through the relay server
-
-## Self-Hosting the Server Relay
-
-Happier is 100% self-hostable. It's even the most recommended way to run it, even if we also offer an end-to-end encrypted cloud server (app.happier.dev / api.happier.dev).
-
-Think of the relay server as the long-running process which allows your mobile device/UI to connect to your machines. It stores all your sessions, messages and settings.
-
-### On your computer - self-install
-
-It is lightweight, and can run as a simple service on your computer. You can then access it from your mobile devices using Tailscale Serve (as long as your computer is running).
-
-Simply run the [self-host guided setup](https://docs.happier.dev/deployment/self-host-runtime) on your computer:
+### 本机一键安装自托管中继服务
 ```bash
-happier relay host install --mode system
+kaiwu relay host install --mode system
 ```
 
-The self-host runtime follows the public release-ring model (`stable`, `preview`, `dev`) via `--channel stable|preview|dev`.
+默认使用嵌入式 SQLite 数据库，并可结合 Tailscale、Caddy 或内网反向代理安全对外暴露。
 
-By default is uses an SQLite database.
+### Docker 容器化部署
+支持预构建 Docker 镜像或从源码构建，详情请参阅官方部署文档。
 
-### Docker
+---
 
-The relay server can also run on a docker container, using the pre-built images or building from source:
-- https://docs.happier.dev/deployment/docker
-
-### Proxmox
-
-Thanks to our community, you can also easily install Happier in Proxmox using helper scripts:
-- https://docs.happier.dev/deployment/proxmox
-
-## Running from source
+## 从源码运行与本地开发 (Running from Source)
 
 ```bash
 npm i -g yarn
-git clone https://github.com/happier-dev/happier.git
-cd happier
+git clone https://github.com/wujilabs/wuji-labs-app.git
+cd wuji-labs-app
 yarn
 yarn build
 yarn cli:activate
 yarn tui
 ```
 
-From the monorepo root, the `yarn` scripts run in **repo-local mode** (stackless + isolated per checkout).
-These scripts wrap `hstack` with repo-local defaults so you can run from source safely.
+常用命令：
+- `yarn dev`: 启动本地开发技术栈（Server + UI + Daemon）
+- `yarn tui`: 在终端交互界面中运行开发技术栈
+- `yarn build`, `yarn start`, `yarn stop`: 生产级构建与启停
+- `yarn auth login`, `yarn daemon`, `yarn kaiwu`: 认证、守护进程与 CLI 流程
+- `yarn logs`: 查看各组件实时日志
 
-Most-used commands:
+---
 
-- `yarn dev`: local dev stack (server + UI + daemon)
-- `yarn tui`, `yarn tui:with-mobile`: dev stack in the integrated TUI (logs + controls)
-- `yarn tui --rescue`: macOS/Linux recovery mode that prioritizes stack controls during severe system load
-- `yarn build`, `yarn start`, `yarn stop`: prod-like build/start/stop flows
-- `yarn auth login`, `yarn daemon`, `yarn happier`: auth + daemon + CLI flows
-- `yarn env list|set|unset`: manage persisted env vars for your repo-local stack
-- `yarn logs`, `yarn logs:all|server|expo|ui|daemon|service`: stream/select logs
-- `yarn service:*`: install/manage OS service
-- `yarn tailscale:*`: configure/query Tailscale Serve URL
-- `yarn mobile`, `yarn mobile:install`, `yarn mobile-dev-client`: mobile workflows
-- `yarn providers`, `yarn eas`, `yarn setup`, `yarn remote`, `yarn self-host`, `yarn menubar`: advanced workflows
+## 开源许可 (License)
 
-[Run from a monorepo clone docs](./apps/docs/content/docs/deployment/repo-local.mdx)
-
-Arguments:
-
-- Forward extra flags/args with `--` (Yarn v1), for example:
-  - `yarn logs -- --component=daemon --lines 200 --no-follow`
-  - `yarn auth login -- --method=mobile --no-open`
-  - `yarn service:enable -- --auth-now -- --method=web --webapp=hosted`
-
-`hstack` and `npx`:
-
-- To run `hstack`/`happier` from any terminal using this clone, run `yarn cli:activate`.
-- You can run published `hstack` via `npx` (for example `npx --yes -p @happier-dev/stack@latest hstack <command>`), but that is **not** the same as repo-local wrappers from this checkout.
-
-## Documentation
-
-- [Getting started](https://docs.happier.dev/getting-started/onboarding)
-- [Installing Claude Code, Codex, OpenCode and other providers CLIs](https://docs.happier.dev/providers)
-- [Installing and using the CLI](https://docs.happier.dev/clients/cli)
-- [What is the daemon and how to install it?](https://docs.happier.dev/clients/daemon)
-- [Happier Voice](https://docs.happier.dev/features/voice)
-- [macOS Menubar](https://docs.happier.dev/hstack/menubar)
-- [Configuring authentication on your self-hosted server](https://docs.happier.dev/server/auth)
-- [Configuring encryption on your self-hosted server](https://docs.happier.dev/server/encryption)
-- hstack workflows: [hstack docs index](./apps/docs/content/docs/hstack/index.mdx)
-- Deployment options:
-  - [Deployment overview](./apps/docs/content/docs/deployment/index.mdx)
-  - [Self-host runtime](./apps/docs/content/docs/deployment/self-host-runtime.mdx)
-  - [Docker](./apps/docs/content/docs/deployment/docker.mdx)
-  - [Proxmox](./apps/docs/content/docs/deployment/proxmox.mdx)
-
-## Community-Driven
-
-**Happier** is completely open-source. We built this because we wanted a more powerful, more social way to interact with AI agents - and we want to build it in the open, shaped by the people who actually use it.
-
-This project exists because we needed it ourselves - and we want it to evolve through real feedback. We aim to keep the community welcoming, and contributor-friendly, whether you’re signaling an issue or proposing a larger idea. You are always welcome, whether you’re reporting a small bug or proposing a larger idea.
-
-What that means in practice:
-* **Open development** and transparent discussions
-* **Fast feedback loops** on issues and pull requests
-* A focus on **solving real developer pain**, not chasing hype
-
-If something feels broken, missing, or awkward, **we want to hear about it**.
-Happier grows through shared experience and collaboration.
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
-
-## License
-
-MIT License — see [LICENSE](LICENCE) for details.
+MIT License — 详见 [LICENSE](LICENCE) 文件。
 
 ⸻
 
-Not affiliated with or endorsed by Anthropic, OpenAI, or Google.
-
-Code faster. Code together. Be Happier.
-
-[Mobile, desktop and web app to run Claude Code, Codex, Gemini, OpenCode (and more) on your computer and continue seamlessly from your phone, browser, or desktop app.](https://guides.happier.dev/)
+Code faster. Code together. 乾元执中 · 开物成务。
