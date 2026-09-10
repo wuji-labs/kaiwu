@@ -1,0 +1,27 @@
+import { z } from 'zod';
+export declare const ExecutionRunIntentSchema: any;
+export type ExecutionRunIntent = z.infer<typeof ExecutionRunIntentSchema>;
+export declare const ExecutionRunRetentionPolicySchema: any;
+export type ExecutionRunRetentionPolicy = z.infer<typeof ExecutionRunRetentionPolicySchema>;
+export declare const ExecutionRunClassSchema: any;
+export type ExecutionRunClass = z.infer<typeof ExecutionRunClassSchema>;
+export declare const ExecutionRunIoModeSchema: any;
+export type ExecutionRunIoMode = z.infer<typeof ExecutionRunIoModeSchema>;
+export declare function normalizeLegacyExecutionRunBackendTargetInput(value: unknown): unknown;
+export declare const ExecutionRunResumeHandleVendorSessionV1Schema: any;
+export type ExecutionRunResumeHandleVendorSessionV1 = z.infer<typeof ExecutionRunResumeHandleVendorSessionV1Schema>;
+export declare const ExecutionRunResumeHandleVoiceAgentSessionsV1Schema: any;
+export type ExecutionRunResumeHandleVoiceAgentSessionsV1 = z.infer<typeof ExecutionRunResumeHandleVoiceAgentSessionsV1Schema>;
+export declare const ExecutionRunResumeHandleSchema: any;
+export type ExecutionRunResumeHandle = z.infer<typeof ExecutionRunResumeHandleSchema>;
+export declare const ExecutionRunDisplaySchema: any;
+export type ExecutionRunDisplay = z.infer<typeof ExecutionRunDisplaySchema>;
+export declare const ExecutionRunLaunchOriginSchema: any;
+export type ExecutionRunLaunchOrigin = z.infer<typeof ExecutionRunLaunchOriginSchema>;
+export declare const ExecutionRunReplaySeedRequestSchema: any;
+export type ExecutionRunReplaySeedRequest = z.infer<typeof ExecutionRunReplaySeedRequestSchema>;
+export declare const ExecutionRunStartRequestSchema: any;
+export type ExecutionRunStartRequest = z.infer<typeof ExecutionRunStartRequestSchema>;
+export declare const ExecutionRunStartResponseSchema: any;
+export type ExecutionRunStartResponse = z.infer<typeof ExecutionRunStartResponseSchema>;
+//# sourceMappingURL=executionRunStartRequest.d.ts.map

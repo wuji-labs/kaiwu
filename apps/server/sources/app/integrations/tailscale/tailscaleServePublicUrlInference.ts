@@ -18,7 +18,7 @@ async function runLocalTailscaleServeStatus(params: Readonly<{
     env: NodeJS.ProcessEnv;
     tailscaleBin?: string;
 }>): Promise<string> {
-    const command = String(params.tailscaleBin ?? params.env.HAPPIER_TAILSCALE_BIN ?? "tailscale").trim() || "tailscale";
+    const command = String(params.tailscaleBin ?? params.env.KAIWU_TAILSCALE_BIN ?? "tailscale").trim() || "tailscale";
     const timeoutMs = Math.max(1, Math.min(10_000, Math.trunc(params.timeoutMs)));
     const mergedEnv = { ...process.env, ...params.env };
     const result = await execFileAsync(command, ["serve", "status"], {
@@ -30,7 +30,7 @@ async function runLocalTailscaleServeStatus(params: Readonly<{
 }
 
 function resolveTailscaleServeStatusTimeoutMs(env: NodeJS.ProcessEnv): number {
-    const raw = String(env.HAPPIER_TAILSCALE_SERVE_STATUS_TIMEOUT_MS ?? "").trim();
+    const raw = String(env.KAIWU_TAILSCALE_SERVE_STATUS_TIMEOUT_MS ?? "").trim();
     return parseIntEnv(raw, 750, { min: 1, max: 10_000 });
 }
 
@@ -44,14 +44,14 @@ function resolveInternalServerUrl(port: number): string {
 }
 
 function shouldInferFromEnv(env: NodeJS.ProcessEnv): boolean {
-    return parseBooleanEnv(env.HAPPIER_TAILSCALE_INFER_PUBLIC_URL, true);
+    return parseBooleanEnv(env.KAIWU_TAILSCALE_INFER_PUBLIC_URL, true);
 }
 
 export async function inferAndApplyTailscaleServePublicServerUrl(
     env: NodeJS.ProcessEnv,
     deps?: Readonly<{ runTailscaleServeStatus?: TailscaleServeStatusRunner }>,
 ): Promise<string | null> {
-    if (String(env.HAPPIER_PUBLIC_SERVER_URL ?? "").trim()) return null;
+    if (String(env.KAIWU_PUBLIC_SERVER_URL ?? "").trim()) return null;
     if (!shouldInferFromEnv(env)) return null;
 
     const port = resolveApiPort(env);
@@ -67,8 +67,8 @@ export async function inferAndApplyTailscaleServePublicServerUrl(
             resolveInternalServerUrl(port),
         );
         if (!inferred) return null;
-        if (String(env.HAPPIER_PUBLIC_SERVER_URL ?? "").trim()) return null;
-        env.HAPPIER_PUBLIC_SERVER_URL = inferred;
+        if (String(env.KAIWU_PUBLIC_SERVER_URL ?? "").trim()) return null;
+        env.KAIWU_PUBLIC_SERVER_URL = inferred;
         return inferred;
     } catch {
         return null;

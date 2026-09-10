@@ -1,0 +1,1 @@
+{"version":3,"file":"submit.d.ts","sourceRoot":"","sources":["../../src/bugReports/submit.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAwB,2BAA2B,EAAE,MAAM,YAAY,CAAC;AAOpF,wBAAsB,wBAAwB,CAAC,KAAK,EAAE,2BAA2B,GAAG,OAAO,CAAC;IAC1F,QAAQ,EAAE,MAAM,CAAC;IACjB,WAAW,EAAE,MAAM,CAAC;IACpB,QAAQ,EAAE,MAAM,CAAC;CAClB,CAAC,CAiHD"}

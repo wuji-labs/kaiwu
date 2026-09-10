@@ -22,7 +22,7 @@ Optional: install provider CLIs on first boot via `happier install provider`:
 
 ```bash
 docker run --rm -it \
-  -e HAPPIER_PROVIDER_CLIS=claude,codex \
+  -e KAIWU_PROVIDER_CLIS=claude,codex \
   happierdev/dev-box:preview
 ```
 

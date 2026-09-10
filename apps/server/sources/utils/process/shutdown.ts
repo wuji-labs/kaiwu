@@ -37,7 +37,7 @@ export function isShutdown() {
 }
 
 function resolveShutdownDeadlineMs(env: NodeJS.ProcessEnv = process.env): number {
-    const raw = String(env.HAPPIER_SERVER_SHUTDOWN_DEADLINE_MS ?? "").trim();
+    const raw = String(env.KAIWU_SERVER_SHUTDOWN_DEADLINE_MS ?? "").trim();
     if (!raw) return DEFAULT_SHUTDOWN_DEADLINE_MS;
     const parsed = Number.parseInt(raw, 10);
     return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_SHUTDOWN_DEADLINE_MS;

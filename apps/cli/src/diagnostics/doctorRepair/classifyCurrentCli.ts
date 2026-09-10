@@ -2,6 +2,7 @@ import { join } from 'node:path';
 
 import packageJson from '../../../package.json';
 import {
+  compareVersions,
   readNpmDistTagVersion,
   readUpdateCache,
   resolveNpmPackageNameOverride,
@@ -14,6 +15,7 @@ import { configuration } from '@/configuration';
 import { semverLessThan } from './_shared';
 import { withTimeout } from './_updateCheck';
 import type { CliSelfUpdateAvailable, RepairFinding } from './types';
+import { detectInstallSource } from '@/cli/commands/self';
 
 /**
  * Detect whether a newer CLI is published on the user's release channel.
@@ -21,7 +23,7 @@ import type { CliSelfUpdateAvailable, RepairFinding } from './types';
  * Mechanism:
  *  - `@happier-dev/cli` is distributed via npm, so the canonical "latest for
  *    channel" source is the npm dist-tag (`latest` for stable, `next`
- *    otherwise). This matches what `happier self check` / `happier self update`
+ *    otherwise). This matches what `kaiwu self check` / `kaiwu self update`
  *    use.
  *  - Result is cached in the SAME `~/.happier/cache/update{.channel}.json`
  *    file used by the background auto-update notice — no parallel cache.
@@ -58,6 +60,11 @@ async function readLatestCliVersion(
   const checkedAt = cache?.checkedAt ?? 0;
   const cached = cache?.latest ?? null;
 
+  // Binary installations skip npm queries and don't write cache
+  if (detectInstallSource(process.argv[1] ?? '') === 'binary') {
+    return cached;
+  }
+
   const cacheFresh = cached !== null && checkedAt > 0 && Date.now() - checkedAt < maxAge;
   if (cacheFresh && !opts.forceRefresh) return cached;
 
@@ -76,13 +83,14 @@ async function readLatestCliVersion(
   );
 
   if (latest) {
+    const current = cache?.current ?? configuration.currentCliVersion ?? null;
     writeUpdateCache(cachePath, {
       checkedAt: Date.now(),
       latest,
-      current: cache?.current ?? null,
+      current,
       runtimeVersion: cache?.runtimeVersion ?? null,
       invokerVersion: cache?.invokerVersion ?? null,
-      updateAvailable: true,
+      updateAvailable: Boolean(current && latest && compareVersions(latest, current) > 0),
       notifiedAt: cache?.notifiedAt ?? null,
     });
     return latest;

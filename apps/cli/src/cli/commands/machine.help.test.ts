@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { handleMachineCommand } from './machine';
 import type { MachineCommandDeps } from './machine';
 
-describe('happier machine --help', () => {
+describe('kaiwu machine --help', () => {
   it('prints usage without touching the system task runner', async () => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     const deps: Partial<MachineCommandDeps> = {
@@ -19,8 +19,8 @@ describe('happier machine --help', () => {
 
       expect(deps.createRunner?.().start).not.toHaveBeenCalled();
       const output = logSpy.mock.calls.flat().join('\n');
-      expect(output).toContain('happier machine');
-      expect(output).toContain('happier machine setup');
+      expect(output).toContain('kaiwu machine');
+      expect(output).toContain('kaiwu machine setup');
     } finally {
       logSpy.mockRestore();
     }

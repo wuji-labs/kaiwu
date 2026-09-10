@@ -349,7 +349,7 @@ jobs:
           APP_ENV: ${{ needs.prepare.outputs.app_env }}
           EXPO_UPDATES_CHANNEL: ${{ needs.prepare.outputs.expo_updates_channel }}
           EXPO_APP_SCHEME: ${{ needs.prepare.outputs.app_scheme }}
-          HAPPIER_EMBEDDED_POLICY_ENV: ${{ needs.prepare.outputs.embedded_policy_env }}
+          KAIWU_EMBEDDED_POLICY_ENV: ${{ needs.prepare.outputs.embedded_policy_env }}
         uses: ./.github/actions/install-yarn-dependencies
         with:
           args: --frozen-lockfile --ignore-engines
@@ -372,7 +372,7 @@ jobs:
           APP_ENV: ${{ needs.prepare.outputs.app_env }}
           EXPO_UPDATES_CHANNEL: ${{ needs.prepare.outputs.expo_updates_channel }}
           EXPO_APP_SCHEME: ${{ needs.prepare.outputs.app_scheme }}
-          HAPPIER_EMBEDDED_POLICY_ENV: ${{ needs.prepare.outputs.embedded_policy_env }}
+          KAIWU_EMBEDDED_POLICY_ENV: ${{ needs.prepare.outputs.embedded_policy_env }}
           CHANNEL: ${{ inputs.channel }}
           VERSION: ${{ needs.prepare.outputs.version }}
           EXPO_PUBLIC_SENTRY_RELEASE: ${{ needs.prepare.outputs.version }}
@@ -498,7 +498,7 @@ jobs:
           GH_REPO: ${{ github.repository }}
           MINISIGN_SECRET_KEY: ${{ secrets.MINISIGN_SECRET_KEY }}
           MINISIGN_PASSPHRASE: ${{ secrets.MINISIGN_PASSPHRASE }}
-          HAPPIER_EMBEDDED_POLICY_ENV: ${{ needs.prepare.outputs.embedded_policy_env }}
+          KAIWU_EMBEDDED_POLICY_ENV: ${{ needs.prepare.outputs.embedded_policy_env }}
           CHANNEL: ${{ inputs.channel }}
           ALLOW_STABLE: ${{ inputs.allow_stable }}
           RELEASE_MESSAGE: ${{ inputs.release_message }}

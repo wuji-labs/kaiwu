@@ -139,7 +139,7 @@ async function runInstall(extraArgs: readonly string[] = []): Promise<string[]> 
     return await runRelay(['host', 'install', ...extraArgs]);
 }
 
-describe('happier relay background service reconciliation', () => {
+describe('kaiwu relay background service reconciliation', () => {
     let home = '';
     let preparedPayloadRoot = '';
     let envScope = createEnvKeyScope(['HAPPIER_HOME_DIR']);
@@ -178,7 +178,7 @@ describe('happier relay background service reconciliation', () => {
 
         const logs = await runInstall();
 
-        expect(logs.join('\n')).toContain('happier service restart');
+        expect(logs.join('\n')).toContain('kaiwu service restart');
         expect(logs.join('\n')).toContain('http://127.0.0.1:3005');
     });
 
@@ -199,7 +199,7 @@ describe('happier relay background service reconciliation', () => {
 
         const logs = await runInstall();
 
-        expect(logs.join('\n')).not.toContain('happier service restart');
+        expect(logs.join('\n')).not.toContain('kaiwu service restart');
         expect(spawnedCliActions).toEqual([]);
     });
 
@@ -208,7 +208,7 @@ describe('happier relay background service reconciliation', () => {
 
         const logs = await runInstall(['--preserve-active-server']);
 
-        expect(logs.join('\n')).not.toContain('happier service restart');
+        expect(logs.join('\n')).not.toContain('kaiwu service restart');
         expect(spawnedCliActions).toEqual([]);
     });
 
@@ -217,7 +217,7 @@ describe('happier relay background service reconciliation', () => {
 
         const logs = await runRelay(['use', 'https://switched.example.test']);
 
-        expect(logs.join('\n')).toContain('happier service restart');
+        expect(logs.join('\n')).toContain('kaiwu service restart');
         expect(logs.join('\n')).toContain('https://switched.example.test');
     });
 
@@ -226,7 +226,7 @@ describe('happier relay background service reconciliation', () => {
 
         const logs = await runRelay(['add', 'https://saved-only.example.test']);
 
-        expect(logs.join('\n')).not.toContain('happier service restart');
+        expect(logs.join('\n')).not.toContain('kaiwu service restart');
         expect(spawnedCliActions).toEqual([]);
     });
 });

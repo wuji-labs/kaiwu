@@ -178,7 +178,7 @@ describe('doctor cleanup ownership summary', () => {
       expect(output.text()).toContain('Local relay installs:');
       expect(output.text()).toContain('http://127.0.0.1:4400');
       expect(output.text()).toContain('Current status:');
-      expect(output.text()).toContain('happier doctor repair');
+      expect(output.text()).toContain('kaiwu doctor repair');
       expect(readDaemonStateMock).not.toHaveBeenCalled();
       expect(checkIfDaemonRunningAndCleanupStaleStateMock).not.toHaveBeenCalled();
     } finally {

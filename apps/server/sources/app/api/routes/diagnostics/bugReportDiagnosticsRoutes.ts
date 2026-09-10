@@ -11,9 +11,9 @@ import { expandHomeDirPath } from "@/utils/path/expandHomeDirPath";
 import { type Fastify } from "../../types";
 
 function resolveServerLogPath(): string | null {
-    const explicit = expandHomeDirPath((process.env.HAPPIER_BUG_REPORTS_SERVER_LOG_PATH ?? "").trim(), process.env);
+    const explicit = expandHomeDirPath((process.env.KAIWU_BUG_REPORTS_SERVER_LOG_PATH ?? "").trim(), process.env);
     if (explicit) return explicit;
-    const logDir = expandHomeDirPath((process.env.HAPPIER_SELF_HOST_LOG_DIR ?? "").trim(), process.env);
+    const logDir = expandHomeDirPath((process.env.KAIWU_SELF_HOST_LOG_DIR ?? "").trim(), process.env);
     if (logDir) return join(logDir, "server.log");
     return null;
 }
@@ -73,13 +73,13 @@ export function bugReportDiagnosticsRoutes(app: Fastify) {
             rateLimit: resolveApiHotEndpointRateLimit(process.env, "diagnostics.bugReportSnapshot"),
         },
     }, async (request, reply) => {
-        const enabled = parseBooleanEnv(process.env.HAPPIER_BUG_REPORTS_SERVER_DIAGNOSTICS_ENABLED, false);
+        const enabled = parseBooleanEnv(process.env.KAIWU_BUG_REPORTS_SERVER_DIAGNOSTICS_ENABLED, false);
         if (!enabled) {
             return reply.code(404).send({
                 error: "Server diagnostics snapshot is disabled",
             });
         }
-        const diagnosticsAccess = resolveDiagnosticsAccessMode(process.env.HAPPIER_BUG_REPORTS_SERVER_DIAGNOSTICS_ACCESS_MODE);
+        const diagnosticsAccess = resolveDiagnosticsAccessMode(process.env.KAIWU_BUG_REPORTS_SERVER_DIAGNOSTICS_ACCESS_MODE);
         if (diagnosticsAccess.invalid) {
             return reply.code(403).send({
                 error: "Invalid diagnostics access mode configuration",
@@ -102,7 +102,7 @@ export function bugReportDiagnosticsRoutes(app: Fastify) {
         const query = request.query as { lines?: string | number | undefined };
         const linesRaw = typeof query?.lines === "number" ? String(query.lines) : query?.lines;
         const lines = parseIntEnv(linesRaw, 120, { min: 10, max: 500 });
-        const maxBytes = resolveServerLogMaxBytes(process.env.HAPPIER_BUG_REPORTS_SERVER_LOG_MAX_BYTES);
+        const maxBytes = resolveServerLogMaxBytes(process.env.KAIWU_BUG_REPORTS_SERVER_LOG_MAX_BYTES);
         const logPath = resolveServerLogPath();
         let tail = "";
         if (logPath && existsSync(logPath)) {
@@ -124,7 +124,7 @@ export function bugReportDiagnosticsRoutes(app: Fastify) {
                 uptimeSeconds: Math.floor(process.uptime()),
                 env: {
                     nodeEnv: process.env.NODE_ENV ?? null,
-                    serverHost: process.env.HAPPIER_SERVER_HOST ?? process.env.HAPPY_SERVER_HOST ?? null,
+                    serverHost: process.env.KAIWU_SERVER_HOST ?? process.env.HAPPY_SERVER_HOST ?? null,
                     serverPort: process.env.PORT ?? null,
                 },
             },

@@ -1,0 +1,1 @@
+{"version":3,"file":"featureGate.js","sourceRoot":"","sources":["../../../src/features/payload/featureGate.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,CAAC,EAAE,MAAM,KAAK,CAAC;AAExB,MAAM,CAAC,MAAM,iBAAiB,GAAG,CAAC,CAAC,MAAM,CAAC;IACxC,OAAO,EAAE,CAAC,CAAC,OAAO,EAAE;CACrB,CAAC,CAAC"}

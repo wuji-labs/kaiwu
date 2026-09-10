@@ -1,0 +1,1 @@
+{"version":3,"file":"installables.d.ts","sourceRoot":"","sources":["../../../src/providers/codex/installables.ts"],"names":[],"mappings":"AAEA,eAAO,MAAM,gBAAgB;;CAEnB,CAAC;AAEX,MAAM,MAAM,cAAc,GAAG,OAAO,gBAAgB,CAAC,MAAM,OAAO,gBAAgB,CAAC,CAAC;AAEpF,eAAO,MAAM,gBAAgB,iBAAkD,CAAC;AAChF,eAAO,MAAM,kBAAkB,EAAG,QAAiB,CAAC"}

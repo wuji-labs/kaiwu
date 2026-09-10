@@ -172,7 +172,7 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 120
     env:
-      HAPPIER_EMBEDDED_POLICY_ENV: ${{ inputs.channel == 'production' && 'production' || 'preview' }}
+      KAIWU_EMBEDDED_POLICY_ENV: ${{ inputs.channel == 'production' && 'production' || 'preview' }}
     outputs:
       sha: ${{ steps.meta.outputs.sha }}
       source_ref: ${{ steps.meta.outputs.source_ref }}

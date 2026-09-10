@@ -39,7 +39,7 @@ import { registerReleasedUiV021SessionEndSocketEvent } from "@/app/session/compa
 export const DEFAULT_SOCKET_MAX_HTTP_BUFFER_SIZE = 25_000_000;
 
 export function resolveSocketMaxHttpBufferSizeFromEnv(env: Record<string, string | undefined>): number {
-    const raw = (env.HAPPIER_SOCKET_MAX_HTTP_BUFFER_SIZE ?? env.HAPPY_SOCKET_MAX_HTTP_BUFFER_SIZE ?? '').trim();
+    const raw = (env.KAIWU_SOCKET_MAX_HTTP_BUFFER_SIZE ?? env.HAPPY_SOCKET_MAX_HTTP_BUFFER_SIZE ?? '').trim();
     if (!raw) return DEFAULT_SOCKET_MAX_HTTP_BUFFER_SIZE;
     const parsed = Number.parseInt(raw, 10);
     if (!Number.isFinite(parsed) || parsed <= 0) return DEFAULT_SOCKET_MAX_HTTP_BUFFER_SIZE;
@@ -49,7 +49,7 @@ export function resolveSocketMaxHttpBufferSizeFromEnv(env: Record<string, string
 export const DEFAULT_SOCKET_FAST_DISCONNECT_LOG_THRESHOLD_MS = 1_000;
 
 export function resolveSocketFastDisconnectLogThresholdMsFromEnv(env: Record<string, string | undefined>): number {
-    const raw = (env.HAPPIER_SOCKET_FAST_DISCONNECT_LOG_THRESHOLD_MS ?? env.HAPPY_SOCKET_FAST_DISCONNECT_LOG_THRESHOLD_MS ?? '').trim();
+    const raw = (env.KAIWU_SOCKET_FAST_DISCONNECT_LOG_THRESHOLD_MS ?? env.HAPPY_SOCKET_FAST_DISCONNECT_LOG_THRESHOLD_MS ?? '').trim();
     if (!raw) return DEFAULT_SOCKET_FAST_DISCONNECT_LOG_THRESHOLD_MS;
     const parsed = Number.parseInt(raw, 10);
     if (!Number.isFinite(parsed) || parsed < 0) return DEFAULT_SOCKET_FAST_DISCONNECT_LOG_THRESHOLD_MS;
@@ -60,7 +60,7 @@ export const DEFAULT_SOCKET_PLANNED_RESTART_RETRY_AFTER_MS = 10_000;
 
 export function resolveSocketPlannedRestartRetryAfterMsFromEnv(env: Record<string, string | undefined>): number {
     const raw = (
-        env.HAPPIER_SOCKET_PLANNED_RESTART_RETRY_AFTER_MS
+        env.KAIWU_SOCKET_PLANNED_RESTART_RETRY_AFTER_MS
         ?? env.HAPPY_SOCKET_PLANNED_RESTART_RETRY_AFTER_MS
         ?? ''
     ).trim();
@@ -94,7 +94,7 @@ export function startSocket(app: Fastify) {
     // socket can write through it until the canonical presence owner registers that exact socket.
     const sessionPublisherPresence = createSessionPublisherPresence();
 
-    const instanceId = process.env.HAPPIER_INSTANCE_ID?.trim() || process.env.HAPPY_INSTANCE_ID?.trim() || randomUUID();
+    const instanceId = process.env.KAIWU_INSTANCE_ID?.trim() || process.env.HAPPY_INSTANCE_ID?.trim() || randomUUID();
 
     const io = new Server(app.server, {
         cors: {

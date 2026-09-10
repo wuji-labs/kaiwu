@@ -33,7 +33,7 @@ describe('describeRelayBindSignupExposure', () => {
     for (const host of ['192.168.1.24', '100.84.140.109', '10.0.0.5']) {
       const notice = describeRelayBindSignupExposure(host);
       expect(notice?.headline).toContain(host);
-      expect(notice?.details.join(' ')).toContain('https://docs.happier.dev/self-hosting/auth');
+      expect(notice?.details.join(' ')).toContain('https://kaiwu.chengqiyun.com/docs/self-hosting/auth');
     }
   });
 

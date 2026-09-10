@@ -163,7 +163,7 @@ describe('handleDaemonCliCommand ownership conflicts', () => {
                 expect(spawnDetachedDaemonStartSyncMock).not.toHaveBeenCalled();
                 expect(startOutput.text()).toContain('background service');
                 expect(startOutput.text()).toContain('selected relay');
-                expect(startOutput.text()).toContain('happier doctor repair');
+                expect(startOutput.text()).toContain('kaiwu doctor repair');
 
                 const stopOutput = captureConsoleText();
                 try {
@@ -180,7 +180,7 @@ describe('handleDaemonCliCommand ownership conflicts', () => {
 
                 expect(stopDaemonMock).not.toHaveBeenCalled();
                 expect(stopOutput.text()).toContain('background service');
-                expect(stopOutput.text()).toContain('happier service stop');
+                expect(stopOutput.text()).toContain('kaiwu service stop');
 
                 const restartOutput = captureConsoleText();
                 try {
@@ -196,8 +196,8 @@ describe('handleDaemonCliCommand ownership conflicts', () => {
                 }
 
                 expect(restartOutput.text()).toContain('background service');
-                expect(restartOutput.text()).toContain('happier doctor repair');
-                expect(restartOutput.text()).not.toContain('happier service stop');
+                expect(restartOutput.text()).toContain('kaiwu doctor repair');
+                expect(restartOutput.text()).not.toContain('kaiwu service stop');
             } finally {
                 exitSpy.mockRestore();
             }
@@ -443,7 +443,7 @@ describe('handleDaemonCliCommand ownership conflicts', () => {
             expect(spawnDetachedDaemonStartSyncMock).not.toHaveBeenCalled();
             expect(waitForDaemonRunningWithinBudgetMock).not.toHaveBeenCalled();
             expect(output.text()).toContain('background service is already installed');
-            expect(output.text()).toContain('happier doctor repair');
+            expect(output.text()).toContain('kaiwu doctor repair');
         });
     });
 
@@ -751,7 +751,7 @@ describe('handleDaemonCliCommand ownership conflicts', () => {
 
             expect(spawnDetachedDaemonStartSyncMock).not.toHaveBeenCalled();
             expect(output.text()).toContain('background service is already installed');
-            expect(output.text()).toContain('happier service start');
+            expect(output.text()).toContain('kaiwu service start');
             expect(output.text()).toContain('stop or replace the installed background service first');
         });
     });

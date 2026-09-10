@@ -1,0 +1,40 @@
+import { z } from 'zod';
+import { LlmTaskRunnerConfigV1Schema } from './llmTasks/llmTaskRunnerConfigV1.js';
+import { HappierReplayRecentMessagesCountSchema, HappierReplayWireMaxSeedCharsSchema, } from './replaySeedBudget.js';
+export const HappierReplayStrategySchema = z.enum(['recent_messages', 'summary_plus_recent']);
+export const HappierReplayDialogItemSchema = z
+    .object({
+    role: z.enum(['User', 'Assistant']),
+    createdAt: z.number().finite(),
+    text: z.string().min(1).max(50_000),
+})
+    .strict();
+export const HappierReplaySeedModeSchema = z.enum(['draft', 'daemon_initial_prompt']);
+export const SessionContinueWithReplayRequestSchema = z
+    .object({
+    previousSessionId: z.string().min(1),
+    strategy: HappierReplayStrategySchema.optional(),
+    recentMessagesCount: HappierReplayRecentMessagesCountSchema.optional(),
+    maxSeedChars: HappierReplayWireMaxSeedCharsSchema.optional(),
+    seedMode: HappierReplaySeedModeSchema.optional(),
+    summaryRunner: LlmTaskRunnerConfigV1Schema.optional(),
+})
+    .strict();
+export const SessionContinueWithReplayRpcParamsSchema = z
+    .object({
+    directory: z.string().min(1),
+    agent: z.string().min(1),
+    approvedNewDirectoryCreation: z.boolean().optional(),
+    permissionMode: z.string().optional(),
+    permissionModeUpdatedAt: z.number().finite().optional(),
+    modelId: z.string().optional(),
+    modelUpdatedAt: z.number().finite().optional(),
+    replay: SessionContinueWithReplayRequestSchema,
+})
+    .strict();
+export const SessionContinueWithReplayRpcResultSchema = z.union([
+    z.object({ type: z.literal('success'), sessionId: z.string().min(1) }).passthrough(),
+    z.object({ type: z.literal('requestToApproveDirectoryCreation'), directory: z.string().min(1) }).passthrough(),
+    z.object({ type: z.literal('error'), errorCode: z.string().min(1), errorMessage: z.string().min(1) }).passthrough(),
+]);
+//# sourceMappingURL=sessionContinueWithReplay.js.map

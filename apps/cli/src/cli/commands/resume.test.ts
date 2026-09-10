@@ -79,7 +79,7 @@ describe('happier resume', () => {
       expect(exitSpy).not.toHaveBeenCalled();
 
       const output = logSpy.mock.calls.flat().join('\n');
-      expect(output).toContain('happier resume');
+      expect(output).toContain('kaiwu resume');
     } finally {
       logSpy.mockRestore();
       errorSpy.mockRestore();

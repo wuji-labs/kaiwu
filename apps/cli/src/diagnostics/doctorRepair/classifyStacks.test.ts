@@ -15,7 +15,7 @@ function makeService(overrides: Partial<AutomaticStartupEntry> = {}): AutomaticS
     ringId: 'publicdev',
     mode: 'user',
     targetMode: 'default-following',
-    relayUrl: 'https://api.happier.dev',
+    relayUrl: 'https://kaiwu.chengqiyun.com',
     running: false,
     configuredCliVersion: '0.12.3',
     runningCliVersion: null,
@@ -66,7 +66,7 @@ describe('classifyStacks — channel switch', () => {
       currentlyRunning: [previewDaemon],
       localRelays: [],
       currentCliReleaseChannel: 'dev',
-      activeServerUrl: 'https://preview.happier.dev',
+      activeServerUrl: 'https://kaiwu.chengqiyun.com',
     });
     const kinds = findings.map((f) => f.kind);
     expect(kinds).toContain('channel_switch_recommended');
@@ -84,7 +84,7 @@ describe('classifyStacks — channel switch', () => {
       currentlyRunning: [previewDaemon],
       localRelays: [],
       currentCliReleaseChannel: 'dev',
-      activeServerUrl: 'https://api.happier.dev',
+      activeServerUrl: 'https://kaiwu.chengqiyun.com',
     });
     const kinds = findings.map((f) => f.kind);
     expect(kinds).not.toContain('channel_switch_recommended');
@@ -120,14 +120,14 @@ describe('classifyStacks — no active stack yet', () => {
 });
 
 describe('classifyStacks — dev on hosted cloud', () => {
-  it('fires dev_on_hosted_cloud_informational for dev CLI pointing at api.happier.dev without a local dev relay', () => {
+  it('fires dev_on_hosted_cloud_informational for dev CLI pointing at kaiwu.chengqiyun.com without a local dev relay', () => {
     const devService = makeService({ releaseChannel: 'dev' });
     const { findings } = classifyStacks({
       automaticStartup: [devService],
       currentlyRunning: [],
       localRelays: [],
       currentCliReleaseChannel: 'dev',
-      activeServerUrl: 'https://api.happier.dev',
+      activeServerUrl: 'https://kaiwu.chengqiyun.com',
     });
     expect(findings.map((f) => f.kind)).toContain('dev_on_hosted_cloud_informational');
   });
@@ -140,7 +140,7 @@ describe('classifyStacks — dev on hosted cloud', () => {
       currentlyRunning: [],
       localRelays: [devRelay],
       currentCliReleaseChannel: 'dev',
-      activeServerUrl: 'https://api.happier.dev',
+      activeServerUrl: 'https://kaiwu.chengqiyun.com',
     });
     expect(findings.map((f) => f.kind)).not.toContain('dev_on_hosted_cloud_informational');
   });
@@ -152,7 +152,7 @@ describe('classifyStacks — dev on hosted cloud', () => {
       currentlyRunning: [],
       localRelays: [],
       currentCliReleaseChannel: 'preview',
-      activeServerUrl: 'https://api.happier.dev',
+      activeServerUrl: 'https://kaiwu.chengqiyun.com',
     });
     expect(findings.map((f) => f.kind)).not.toContain('dev_on_hosted_cloud_informational');
   });

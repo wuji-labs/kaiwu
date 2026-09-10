@@ -37,7 +37,7 @@ describe('daemonServiceInventory', () => {
             services: [],
         });
 
-        expect(rendered.lines.join(' ')).toContain('happier doctor repair');
+        expect(rendered.lines.join(' ')).toContain('kaiwu doctor repair');
         expect(rendered.lines.join(' ')).toContain('restart the daemon manually');
     });
 

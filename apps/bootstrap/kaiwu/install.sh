@@ -230,7 +230,7 @@ fi
 
 echo
 echo "${COLOR_BOLD}下一步快速指引：${COLOR_RESET}"
-echo "  1. 登录连接开物云服务:"
+echo "  1. 登录连接无极开物:"
 echo "     kaiwu auth login"
 echo "  2. 在项目目录中启动 AI 编程会话:"
 echo "     cd /path/to/project && kaiwu"

@@ -32,7 +32,7 @@ export type ManagedCliReleaseChannelSource =
   | 'default';
 
 export type ManagedCliReleaseChannelMarkerFallback = 'happier-invoker' | 'always' | 'never';
-export type ManagedCliToolName = 'happier' | 'hprev' | 'hdev';
+export type ManagedCliToolName = 'kaiwu' | 'happier' | 'hprev' | 'hdev';
 
 export interface ResolvedManagedCliReleaseChannel {
   ringId: PublicReleaseRingId;
@@ -85,7 +85,7 @@ function resolvePublicReleaseRingIdFromInvokerName(name: string): PublicReleaseR
 export function resolveManagedCliToolNameForRing(ring: PublicReleaseRingId): ManagedCliToolName {
   if (ring === 'preview') return 'hprev';
   if (ring === 'publicdev') return 'hdev';
-  return 'happier';
+  return 'kaiwu';
 }
 
 function buildResolvedManagedCliReleaseChannel(
@@ -140,7 +140,7 @@ function collectCandidateInputs(params: ManagedCliReleaseChannelResolverParams):
 function resolveInvokedToolName(candidates: readonly string[]): string | null {
   for (const candidate of candidates) {
     const name = normalizeInvokerCandidate(candidate);
-    if (name === 'happier' || name === 'hprev' || name === 'hdev') {
+    if (name === 'kaiwu' || name === 'happier' || name === 'hprev' || name === 'hdev') {
       return name;
     }
   }
@@ -174,7 +174,7 @@ function shouldReadDefaultMarker(
 ): boolean {
   if (markerFallback === 'always') return true;
   if (markerFallback === 'never') return false;
-  return invokedToolName === 'happier';
+  return invokedToolName === 'kaiwu' || invokedToolName === 'happier';
 }
 
 function resolveManagedCliReleaseChannelWithoutMarker(

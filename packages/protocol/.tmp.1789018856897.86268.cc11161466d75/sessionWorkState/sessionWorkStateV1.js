@@ -1,0 +1,124 @@
+import { z } from 'zod';
+export const SessionWorkStateStatusV1Schema = z.enum([
+    'pending',
+    'active',
+    'paused',
+    'blocked',
+    'complete',
+    'cancelled',
+    'unknown',
+]);
+// Provider-neutral status reasons (additive, shared across providers):
+//  - `blocked`: provider reported a generic blocked state without a narrower reason (Codex).
+//  - `usageLimited`: provider usage limits currently prevent further work (Codex).
+//  - `budgetLimited`: goal paused/blocked because a token budget was reached (Codex).
+//  - `interrupted`: goal was left `active` when its CLI session tore down gracefully without the
+//    goal being met (G-6). Status stays `active` (the goal may resume); the reason lets the UI mark
+//    it "(interrupted)" and resume-injection distinguish it from a freshly-set goal.
+export const SessionWorkStateStatusReasonV1Schema = z.enum([
+    'blocked',
+    'usageLimited',
+    'budgetLimited',
+    'interrupted',
+]);
+export const SessionWorkStateItemKindV1Schema = z.enum(['goal', 'task', 'todo']);
+export const SessionWorkStateItemOriginV1Schema = z.enum(['vendor', 'happier', 'derived']);
+// Provider-derived goal capabilities. The owning provider computes these from its own
+// signals (Codex from app-server goal mode; Claude from observed `goal_status` + `/goal`
+// support) so generic UI gating stays capability-driven instead of branching on provider id.
+// All members optional + passthrough so the projection is additive and forward-compatible.
+export const SessionWorkStateGoalCapabilitiesV1Schema = z
+    .object({
+    canEdit: z.boolean().optional(),
+    canStop: z.boolean().optional(),
+    canClear: z.boolean().optional(),
+})
+    .passthrough();
+export const SessionWorkStateItemV1Schema = z
+    .object({
+    id: z.string().min(1),
+    kind: SessionWorkStateItemKindV1Schema,
+    origin: SessionWorkStateItemOriginV1Schema,
+    status: SessionWorkStateStatusV1Schema,
+    title: z.string().trim().min(1).max(4000),
+    summary: z.string().trim().max(8000).optional(),
+    backendId: z.string().min(1).optional(),
+    agentId: z.string().min(1).optional(),
+    vendorRef: z.string().min(1).optional(),
+    order: z.number().int().nonnegative().optional(),
+    parentId: z.string().min(1).optional(),
+    priority: z.string().optional(),
+    progress: z.number().finite().min(0).max(1).optional(),
+    statusReason: SessionWorkStateStatusReasonV1Schema.optional(),
+    goalCapabilities: SessionWorkStateGoalCapabilitiesV1Schema.optional(),
+    tokenBudget: z.number().finite().positive().nullable().optional(),
+    tokensUsed: z.number().int().nonnegative().optional(),
+    timeUsedSeconds: z.number().finite().nonnegative().optional(),
+    createdAt: z.number().int().nonnegative().optional(),
+    startedAt: z.number().int().nonnegative().optional(),
+    completedAt: z.number().int().nonnegative().optional(),
+    updatedAt: z.number().int().nonnegative(),
+})
+    .passthrough();
+export const SessionWorkStateTruncationV1Schema = z
+    .object({
+    reason: z.enum(['item_limit', 'provider_limit']),
+    omittedCount: z.number().int().nonnegative().optional(),
+})
+    .passthrough();
+export const SessionWorkStateV1Schema = z
+    .object({
+    v: z.literal(1),
+    backendId: z.string().min(1),
+    agentId: z.string().min(1).optional(),
+    updatedAt: z.number().int().nonnegative(),
+    items: z.array(SessionWorkStateItemV1Schema),
+    primaryItemId: z.string().min(1).nullable().optional(),
+    truncated: SessionWorkStateTruncationV1Schema.optional(),
+})
+    .passthrough();
+function asRecord(value) {
+    return value && typeof value === 'object' && !Array.isArray(value) ? value : null;
+}
+function readNonEmptyString(value) {
+    return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null;
+}
+function readNonNegativeInteger(value) {
+    return typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : null;
+}
+function readPrimaryItemId(value) {
+    if (value === null)
+        return null;
+    const primaryItemId = readNonEmptyString(value);
+    return primaryItemId ?? undefined;
+}
+export function readDisplayableSessionWorkStateV1(value) {
+    const record = asRecord(value);
+    if (!record || record.v !== 1)
+        return null;
+    const backendId = readNonEmptyString(record.backendId);
+    const updatedAt = readNonNegativeInteger(record.updatedAt);
+    if (!backendId || updatedAt === null || !Array.isArray(record.items))
+        return null;
+    const displayableItems = record.items.flatMap((item) => {
+        const parsed = SessionWorkStateItemV1Schema.safeParse(item);
+        return parsed.success ? [parsed.data] : [];
+    });
+    if (record.items.length > 0 && displayableItems.length === 0)
+        return null;
+    const agentId = readNonEmptyString(record.agentId);
+    const primaryItemId = readPrimaryItemId(record.primaryItemId);
+    const truncated = SessionWorkStateTruncationV1Schema.safeParse(record.truncated);
+    const { agentId: _agentId, backendId: _backendId, items: _items, primaryItemId: _primaryItemId, truncated: _truncated, updatedAt: _updatedAt, v: _v, ...passthrough } = record;
+    return {
+        ...passthrough,
+        v: 1,
+        backendId,
+        ...(agentId ? { agentId } : {}),
+        updatedAt,
+        items: displayableItems,
+        ...(primaryItemId !== undefined ? { primaryItemId } : {}),
+        ...(truncated.success ? { truncated: truncated.data } : {}),
+    };
+}
+//# sourceMappingURL=sessionWorkStateV1.js.map

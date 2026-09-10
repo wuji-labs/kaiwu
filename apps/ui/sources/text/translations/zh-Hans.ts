@@ -3046,7 +3046,7 @@ export const zhHans: TranslationStructure = {
       groupUnknownSubtitle: "就绪状态仍在同步",
       groupUnsupportedSubtitle: "此运行时无法切换账号池",
       connectedServicesTitle: "使用已连接服务",
-      connectedServicesSubtitle: "从无极开物云获取并生成",
+      connectedServicesSubtitle: "从无极开物获取并生成",
       notConnectedTitle: "没有已连接的服务",
       notConnectedSubtitle: "点按打开设置",
       profileLabel: "配置文件",

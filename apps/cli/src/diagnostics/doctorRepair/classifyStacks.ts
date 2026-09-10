@@ -13,7 +13,7 @@ import type {
   StackEntry,
 } from './types';
 
-const HOSTED_CLOUD_HOSTNAMES: readonly string[] = ['happier.dev', 'api.happier.dev'];
+const HOSTED_CLOUD_HOSTNAMES: readonly string[] = ['kaiwu.chengqiyun.com'];
 
 function isHostedCloudUrl(url: string | null | undefined): boolean {
   const raw = String(url ?? '').trim().toLowerCase();

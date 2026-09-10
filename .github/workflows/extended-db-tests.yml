@@ -98,16 +98,16 @@ jobs:
 
       - name: Generate server provider client (postgres)
         env:
-          HAPPIER_BUILD_DB_PROVIDERS: postgres
+          KAIWU_BUILD_DB_PROVIDERS: postgres
           DATABASE_URL: postgresql://happier:happier@127.0.0.1:${{ job.services.postgres.ports[5432] }}/happier?sslmode=disable
         run: yarn -s workspace @happier-dev/server generate:providers
 
       - name: Run core e2e database suite (postgres)
         env:
           CI: "1"
-          HAPPIER_E2E_SAVE_ARTIFACTS: "0"
-          HAPPIER_E2E_DB_PROVIDER: postgres
-          HAPPIER_E2E_PROVIDER_SKIP_SERVER_GENERATE: "1"
+          KAIWU_E2E_SAVE_ARTIFACTS: "0"
+          KAIWU_E2E_DB_PROVIDER: postgres
+          KAIWU_E2E_PROVIDER_SKIP_SERVER_GENERATE: "1"
           DATABASE_URL: postgresql://happier:happier@127.0.0.1:${{ job.services.postgres.ports[5432] }}/happier?sslmode=disable
         run: yarn test:e2e:core:fast -- --no-file-parallelism --maxWorkers=1 --minWorkers=1
 
@@ -182,16 +182,16 @@ jobs:
 
       - name: Generate server provider client (mysql)
         env:
-          HAPPIER_BUILD_DB_PROVIDERS: mysql
+          KAIWU_BUILD_DB_PROVIDERS: mysql
           DATABASE_URL: mysql://root:happier@127.0.0.1:${{ job.services.mysql.ports[3306] }}/happier
         run: yarn -s workspace @happier-dev/server generate:providers
 
       - name: Run core e2e database suite (mysql)
         env:
           CI: "1"
-          HAPPIER_E2E_SAVE_ARTIFACTS: "0"
-          HAPPIER_E2E_DB_PROVIDER: mysql
-          HAPPIER_E2E_PROVIDER_SKIP_SERVER_GENERATE: "1"
+          KAIWU_E2E_SAVE_ARTIFACTS: "0"
+          KAIWU_E2E_DB_PROVIDER: mysql
+          KAIWU_E2E_PROVIDER_SKIP_SERVER_GENERATE: "1"
           DATABASE_URL: mysql://root:happier@127.0.0.1:${{ job.services.mysql.ports[3306] }}/happier
         run: yarn test:e2e:core:fast -- --no-file-parallelism --maxWorkers=1 --minWorkers=1
 
@@ -258,7 +258,7 @@ jobs:
 
       - name: Run db contract suite (Postgres)
         env:
-          HAPPIER_DB_PROVIDER: postgres
+          KAIWU_DB_PROVIDER: postgres
           DATABASE_URL: postgresql://happier:happier@127.0.0.1:${{ job.services.postgres.ports[5432] }}/happier?sslmode=disable
         run: yarn --cwd apps/server test:db-contract
 
@@ -311,6 +311,6 @@ jobs:
 
       - name: Run db contract suite (MySQL)
         env:
-          HAPPIER_DB_PROVIDER: mysql
+          KAIWU_DB_PROVIDER: mysql
           DATABASE_URL: mysql://root:happier@127.0.0.1:${{ job.services.mysql.ports[3306] }}/happier
         run: yarn --cwd apps/server test:db-contract

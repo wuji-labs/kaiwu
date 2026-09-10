@@ -45,7 +45,7 @@ export function authRoutes(app: Fastify): void {
     if (!authFeatureEnv.loginKeyChallengeEnabled) {
         if (!hasAnyViableNonKeyChallengeAuthMethod(process.env)) {
             throw new Error(
-                "No login methods are available: HAPPIER_FEATURE_AUTH_LOGIN__KEY_CHALLENGE_ENABLED=0, no viable AUTH_SIGNUP_PROVIDERS are configured, and no other login providers are enabled.",
+                "No login methods are available: KAIWU_FEATURE_AUTH_LOGIN__KEY_CHALLENGE_ENABLED=0, no viable AUTH_SIGNUP_PROVIDERS are configured, and no other login providers are enabled.",
             );
         }
     }

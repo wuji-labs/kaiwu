@@ -1,0 +1,56 @@
+import { z } from 'zod';
+export declare const SESSION_DRAFT_MAX_ID_UTF8_BYTES = 256;
+export declare const SESSION_DRAFT_MAX_FIELDS = 256;
+export declare const SESSION_DRAFT_MAX_PRIVATE_PAYLOAD_BYTES: number;
+export declare const SESSION_DRAFT_MAX_CIPHERTEXT_LENGTH: number;
+export declare const SESSION_DRAFT_SOCKET_EVENT: "session-draft-updated";
+export declare const SESSION_DRAFT_ROUTE_READ: "/v1/account/session-drafts/read";
+export declare const SESSION_DRAFT_ROUTE_LIST: "/v1/account/session-drafts/list";
+export declare const SESSION_DRAFT_ROUTE_MUTATE: "/v1/account/session-drafts/mutate";
+export declare const SessionDraftAddressV1Schema: any;
+export type SessionDraftAddressV1 = z.infer<typeof SessionDraftAddressV1Schema>;
+export declare function canonicalSessionDraftAddressV1(address: SessionDraftAddressV1): string;
+export declare const CanonicalSessionDraftAddressV1Schema: any;
+export type CanonicalSessionDraftAddressV1 = z.infer<typeof CanonicalSessionDraftAddressV1Schema>;
+export interface StrictJsonObject {
+    readonly [key: string]: StrictJsonValue;
+}
+export type StrictJsonValue = null | string | number | boolean | readonly StrictJsonValue[] | StrictJsonObject;
+export declare const StrictJsonValueSchema: z.ZodType<StrictJsonValue>;
+export declare const DraftFieldV1Schema: any;
+export type DraftFieldV1<T extends StrictJsonValue = StrictJsonValue> = Readonly<{
+    mutationId: string;
+    value: T;
+}>;
+export declare const SessionDraftRecipientValueV1Schema: any;
+export type SessionDraftRecipientValueV1 = z.infer<typeof SessionDraftRecipientValueV1Schema>;
+export declare function isMeaningfulSessionDraftRecipientValueV1(value: unknown): value is Exclude<SessionDraftRecipientValueV1, null>;
+export declare const SessionDraftDocumentV1Schema: any;
+export type SessionDraftDocumentV1 = z.infer<typeof SessionDraftDocumentV1Schema>;
+export declare const SessionDraftPrivatePayloadV1Schema: any;
+export type SessionDraftPrivatePayloadV1 = z.infer<typeof SessionDraftPrivatePayloadV1Schema>;
+export declare const SessionDraftStoredContentEnvelopeV1Schema: any;
+export type SessionDraftStoredContentEnvelopeV1 = z.infer<typeof SessionDraftStoredContentEnvelopeV1Schema>;
+export declare const SessionDraftRecordV1Schema: any;
+export type SessionDraftRecordV1 = z.infer<typeof SessionDraftRecordV1Schema>;
+export declare const SessionDraftReadRequestV1Schema: any;
+export type SessionDraftReadRequestV1 = z.infer<typeof SessionDraftReadRequestV1Schema>;
+export declare const SessionDraftReadResponseV1Schema: any;
+export type SessionDraftReadResponseV1 = z.infer<typeof SessionDraftReadResponseV1Schema>;
+export declare const SessionDraftListRequestV1Schema: any;
+export type SessionDraftListRequestV1 = z.infer<typeof SessionDraftListRequestV1Schema>;
+export declare const SessionDraftListResponseV1Schema: any;
+export type SessionDraftListResponseV1 = z.infer<typeof SessionDraftListResponseV1Schema>;
+export declare const SessionDraftExpectedRevisionV1Schema: any;
+export type SessionDraftExpectedRevisionV1 = z.infer<typeof SessionDraftExpectedRevisionV1Schema>;
+export declare const SessionDraftMutateRequestV1Schema: any;
+export type SessionDraftMutateRequestV1 = z.infer<typeof SessionDraftMutateRequestV1Schema>;
+export declare const SessionDraftMutateResponseV1Schema: any;
+export type SessionDraftMutateResponseV1 = z.infer<typeof SessionDraftMutateResponseV1Schema>;
+export declare const SessionDraftRouteErrorResponseV1Schema: any;
+export type SessionDraftRouteErrorResponseV1 = z.infer<typeof SessionDraftRouteErrorResponseV1Schema>;
+export declare const SessionDraftChangeHintV1Schema: any;
+export type SessionDraftChangeHintV1 = z.infer<typeof SessionDraftChangeHintV1Schema>;
+export declare const SessionDraftSocketUpdateV1Schema: any;
+export type SessionDraftSocketUpdateV1 = SessionDraftChangeHintV1;
+//# sourceMappingURL=sessionDrafts.d.ts.map

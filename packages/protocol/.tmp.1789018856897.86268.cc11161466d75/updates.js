@@ -1,0 +1,495 @@
+import { z } from 'zod';
+import { PendingActivationAuthorizationV1Schema } from './sessionControl/pendingActivationAuthorizationV1.js';
+import { AccountSettingsV2GetResponseSchema } from './account/settings/accountSettingsApiV2.js';
+import { DirectTranscriptRawMessageV1Schema } from './directSessions/daemonRpcV1.js';
+import { ExecutionRunPublicStateSchema } from './executionRuns.js';
+import { SessionMessageAttentionImpactSchema, } from './sessionMessages/transcriptRawRecordV1.js';
+import { SessionMessageRoleSchema } from './sessionMessages/sessionMessageRole.js';
+import { SessionStoredMessageContentSchema } from './sessionMessages/sessionStoredMessageContent.js';
+import { SessionTranscriptObservationProvenanceV1Schema } from './sessionMessages/transcriptObservationV1.js';
+import { SessionMessageDeliveryResolutionV1Schema } from './sessionMessages/sessionMessageDeliveryResolutionV1.js';
+import { PrimaryTurnStatusV1Schema, SessionRuntimeIssueV1Schema } from './sessions/control/runtimeIssueV1.js';
+import { parseSessionRuntimeActivityProjectionFields, SessionRuntimeActivityActiveCountSchema, SessionRuntimeActivityStateSchema, } from './sessionRuntimeActivity/projection.js';
+import { ActionOperationRevisionEphemeralV1Schema } from './actions/operations/actionOperationV1.js';
+const TimestampMsSchema = z.number().int().min(0);
+const Base64Schema = z.string();
+const SessionMessageRoleMetadataSchema = SessionMessageRoleSchema.nullable().optional();
+const VersionedNullableStringSchema = z.object({
+    value: z.string().nullable(),
+    version: z.number().int(),
+}).passthrough();
+const VersionedStringSchema = z.object({
+    value: z.string(),
+    version: z.number().int(),
+}).passthrough();
+export const UpdateBodySchema = z.discriminatedUnion('t', [
+    z.object({
+        t: z.literal('new-message'),
+        sid: z.string(),
+        message: z
+            .object({
+            id: z.string(),
+            seq: z.number().int().min(0),
+            content: SessionStoredMessageContentSchema,
+            localId: z.string().nullable(),
+            sidechainId: z.string().nullable().optional(),
+            messageRole: SessionMessageRoleMetadataSchema,
+            attentionImpact: SessionMessageAttentionImpactSchema.optional(),
+            createdAt: TimestampMsSchema,
+            updatedAt: TimestampMsSchema,
+            sourceCreatedAt: TimestampMsSchema.optional(),
+            sourceUpdatedAt: TimestampMsSchema.optional(),
+            transcriptObservationProvenance: SessionTranscriptObservationProvenanceV1Schema.optional(),
+            deliveryResolution: SessionMessageDeliveryResolutionV1Schema.optional(),
+        })
+            .passthrough(),
+    }).passthrough(),
+    z.object({
+        t: z.literal('message-updated'),
+        sid: z.string(),
+        message: z
+            .object({
+            id: z.string(),
+            seq: z.number().int().min(0),
+            content: SessionStoredMessageContentSchema,
+            localId: z.string().nullable(),
+            sidechainId: z.string().nullable().optional(),
+            messageRole: SessionMessageRoleMetadataSchema,
+            attentionImpact: SessionMessageAttentionImpactSchema.optional(),
+            createdAt: TimestampMsSchema,
+            updatedAt: TimestampMsSchema,
+            sourceCreatedAt: TimestampMsSchema.optional(),
+            sourceUpdatedAt: TimestampMsSchema.optional(),
+            transcriptObservationProvenance: SessionTranscriptObservationProvenanceV1Schema.optional(),
+            deliveryResolution: SessionMessageDeliveryResolutionV1Schema.optional(),
+        })
+            .passthrough(),
+    }).passthrough(),
+    z.object({
+        t: z.literal('new-session'),
+        id: z.string(),
+        seq: z.number().int().min(0),
+        metadata: Base64Schema,
+        metadataVersion: z.number().int(),
+        agentState: Base64Schema.nullable(),
+        agentStateVersion: z.number().int(),
+        dataEncryptionKey: Base64Schema.nullable(),
+        active: z.boolean(),
+        activeAt: TimestampMsSchema,
+        createdAt: TimestampMsSchema,
+        updatedAt: TimestampMsSchema,
+        meaningfulActivityAt: TimestampMsSchema.optional(),
+        runtimeActivityState: SessionRuntimeActivityStateSchema.optional(),
+        runtimeActivityActiveCount: SessionRuntimeActivityActiveCountSchema.optional(),
+        runtimeActivityObservedAt: TimestampMsSchema.nullable().optional(),
+        runtimeActivityRevision: z.number().int().nonnegative().safe().optional(),
+    }).passthrough(),
+    z.object({
+        t: z.literal('update-session'),
+        id: z.string(),
+        metadata: VersionedNullableStringSchema.optional(),
+        agentState: VersionedNullableStringSchema.optional(),
+        active: z.boolean().optional(),
+        activeAt: TimestampMsSchema.optional(),
+        lastViewedSessionSeq: z.number().int().min(0).optional(),
+        pendingPermissionRequestCount: z.number().int().min(0).optional(),
+        pendingUserActionRequestCount: z.number().int().min(0).optional(),
+        pendingRequestObservedAt: TimestampMsSchema.nullable().optional(),
+        latestReadyEventSeq: z.number().int().min(0).nullable().optional(),
+        latestReadyEventAt: TimestampMsSchema.nullable().optional(),
+        latestTurnId: z.string().min(1).nullable().optional(),
+        latestTurnStatus: PrimaryTurnStatusV1Schema.nullable().optional(),
+        latestTurnStatusObservedAt: TimestampMsSchema.nullable().optional(),
+        lastRuntimeIssue: SessionRuntimeIssueV1Schema.nullable().optional(),
+        runtimeActivityState: SessionRuntimeActivityStateSchema.optional(),
+        runtimeActivityActiveCount: SessionRuntimeActivityActiveCountSchema.optional(),
+        runtimeActivityObservedAt: TimestampMsSchema.nullable().optional(),
+        runtimeActivityRevision: z.number().int().nonnegative().safe().optional(),
+        meaningfulActivityAt: TimestampMsSchema.optional(),
+        archivedAt: TimestampMsSchema.nullable().optional(),
+    }).passthrough(),
+    z.object({
+        t: z.literal('pending-changed'),
+        sid: z.string(),
+        sessionId: z.string().optional(),
+        pendingVersion: z.number().int().min(0),
+        pendingCount: z.number().int().min(0),
+        pendingBlockedCount: z.number().int().min(0).optional(),
+        meaningfulActivityAt: TimestampMsSchema.optional(),
+        changedByAccountId: z.string().optional(),
+        pendingActivationRequestId: z.string().trim().min(1).optional(),
+        pendingActivationAuthorization: PendingActivationAuthorizationV1Schema.nullable().optional(),
+    }).passthrough(),
+    z.object({
+        t: z.literal('automation-upsert'),
+        automationId: z.string(),
+        version: z.number().int().min(0),
+        enabled: z.boolean(),
+        updatedAt: TimestampMsSchema,
+    }).passthrough(),
+    z.object({
+        t: z.literal('automation-delete'),
+        automationId: z.string(),
+        deletedAt: TimestampMsSchema,
+    }).passthrough(),
+    z.object({
+        t: z.literal('automation-run-updated'),
+        runId: z.string(),
+        automationId: z.string(),
+        state: z.enum(['queued', 'claimed', 'running', 'succeeded', 'failed', 'cancelled', 'expired']),
+        scheduledAt: TimestampMsSchema,
+        startedAt: TimestampMsSchema.nullable().optional(),
+        finishedAt: TimestampMsSchema.nullable().optional(),
+        updatedAt: TimestampMsSchema,
+        machineId: z.string().nullable().optional(),
+    }).passthrough(),
+    z.object({
+        t: z.literal('automation-assignment-updated'),
+        machineId: z.string(),
+        automationId: z.string(),
+        enabled: z.boolean(),
+        updatedAt: TimestampMsSchema,
+    }).passthrough(),
+    z.object({
+        t: z.literal('delete-session'),
+        sid: z.string(),
+    }).passthrough(),
+    z.object({
+        t: z.literal('update-account'),
+        id: z.string(),
+        settingsV2: AccountSettingsV2GetResponseSchema.nullable().optional(),
+    }).passthrough(),
+    z.object({
+        t: z.literal('account-settings-changed'),
+        settingsVersion: z.number().int().min(0),
+    }).passthrough(),
+    z.object({
+        t: z.literal('new-machine'),
+        machineId: z.string(),
+        seq: z.number().int().min(0),
+        metadata: Base64Schema,
+        metadataVersion: z.number().int(),
+        daemonState: Base64Schema.nullable(),
+        daemonStateVersion: z.number().int(),
+        dataEncryptionKey: Base64Schema.nullable(),
+        active: z.boolean(),
+        activeAt: TimestampMsSchema,
+        createdAt: TimestampMsSchema,
+        updatedAt: TimestampMsSchema,
+    }).passthrough(),
+    z.object({
+        t: z.literal('update-machine'),
+        machineId: z.string(),
+        metadata: VersionedStringSchema.optional(),
+        daemonState: VersionedStringSchema.optional(),
+        activeAt: TimestampMsSchema.optional(),
+        active: z.boolean().optional(),
+        revokedAt: TimestampMsSchema.nullable().optional(),
+    }).passthrough(),
+    z.object({
+        t: z.literal('new-artifact'),
+        artifactId: z.string(),
+        seq: z.number().int().min(0),
+        header: Base64Schema,
+        headerVersion: z.number().int(),
+        body: Base64Schema,
+        bodyVersion: z.number().int(),
+        dataEncryptionKey: Base64Schema,
+        createdAt: TimestampMsSchema,
+        updatedAt: TimestampMsSchema,
+    }).passthrough(),
+    z.object({
+        t: z.literal('update-artifact'),
+        artifactId: z.string(),
+        header: VersionedStringSchema.optional(),
+        body: VersionedStringSchema.optional(),
+    }).passthrough(),
+    z.object({
+        t: z.literal('delete-artifact'),
+        artifactId: z.string(),
+    }).passthrough(),
+    z.object({
+        t: z.literal('relationship-updated'),
+        uid: z.string(),
+        status: z.enum(['none', 'requested', 'pending', 'friend', 'rejected']),
+        timestamp: TimestampMsSchema,
+    }).passthrough(),
+    z.object({
+        t: z.literal('new-feed-post'),
+        id: z.string(),
+        body: z.unknown(),
+        cursor: z.string(),
+        createdAt: TimestampMsSchema,
+    }).passthrough(),
+    z.object({
+        t: z.literal('kv-batch-update'),
+        changes: z.array(z.object({
+            key: z.string(),
+            value: z.string().nullable(),
+            version: z.number().int(),
+        }).passthrough()),
+    }).passthrough(),
+    z.object({
+        t: z.literal('session-shared'),
+        sessionId: z.string(),
+        shareId: z.string(),
+        sharedBy: z.object({
+            id: z.string(),
+            firstName: z.string().nullable(),
+            lastName: z.string().nullable(),
+            username: z.string().nullable(),
+            avatar: z.unknown().nullable(),
+        }).passthrough(),
+        accessLevel: z.enum(['view', 'edit', 'admin']),
+        canApprovePermissions: z.boolean().optional(),
+        encryptedDataKey: Base64Schema.optional(),
+        createdAt: TimestampMsSchema,
+    }).passthrough(),
+    z.object({
+        t: z.literal('session-share-updated'),
+        sessionId: z.string(),
+        shareId: z.string(),
+        accessLevel: z.enum(['view', 'edit', 'admin']),
+        canApprovePermissions: z.boolean().optional(),
+        updatedAt: TimestampMsSchema,
+    }).passthrough(),
+    z.object({
+        t: z.literal('session-share-revoked'),
+        sessionId: z.string(),
+        shareId: z.string(),
+    }).passthrough(),
+    z.object({
+        t: z.literal('public-share-created'),
+        sessionId: z.string(),
+        publicShareId: z.string(),
+        token: z.string(),
+        expiresAt: TimestampMsSchema.nullable(),
+        maxUses: z.number().int().nullable(),
+        isConsentRequired: z.boolean(),
+        createdAt: TimestampMsSchema,
+    }).passthrough(),
+    z.object({
+        t: z.literal('public-share-updated'),
+        sessionId: z.string(),
+        publicShareId: z.string(),
+        expiresAt: TimestampMsSchema.nullable(),
+        maxUses: z.number().int().nullable(),
+        isConsentRequired: z.boolean(),
+        updatedAt: TimestampMsSchema,
+    }).passthrough(),
+    z.object({
+        t: z.literal('public-share-deleted'),
+        sessionId: z.string(),
+    }).passthrough(),
+]).superRefine((value, context) => {
+    if (value.t !== 'new-session' && value.t !== 'update-session')
+        return;
+    const projection = parseSessionRuntimeActivityProjectionFields(value);
+    if (projection.kind === 'invalid') {
+        context.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Runtime Activity projection fields must form one complete valid tuple',
+            path: ['runtimeActivityState'],
+        });
+    }
+});
+export const UpdateContainerSchema = z.object({
+    id: z.string(),
+    seq: z.number().int().min(0),
+    createdAt: TimestampMsSchema,
+    body: UpdateBodySchema,
+}).passthrough();
+export const TranscriptStreamSegmentEphemeralMessageSchema = z.object({
+    localId: z.string().min(1),
+    sidechainId: z.string().nullable().optional(),
+    content: SessionStoredMessageContentSchema,
+    messageRole: SessionMessageRoleMetadataSchema,
+    /**
+     * Live-stream tick this full snapshot corresponds to (per-segment, monotonically increasing
+     * across all live emissions). Checkpoint/resync anchor for `transcript-stream-segment-delta`
+     * chaining. Optional: absent from older CLIs and stripped by older servers.
+     */
+    tick: z.number().int().min(0).optional(),
+    createdAt: TimestampMsSchema,
+    updatedAt: TimestampMsSchema,
+}).passthrough();
+/**
+ * Delta form of the live transcript segment stream.
+ *
+ * `content` is the same stored-message envelope as the snapshot form (encrypted or plain), but the
+ * ACP body inside carries ONLY the text appended since the previous live emission for this segment.
+ * Receivers reconstruct the accumulated text from per-segment assembly state and MUST drop the
+ * delta (and wait for the next full-snapshot checkpoint) on any gap: unknown segment, unexpected
+ * `tick`, or `baseLength` mismatch.
+ */
+export const TranscriptStreamSegmentDeltaEphemeralMessageSchema = z.object({
+    localId: z.string().min(1),
+    sidechainId: z.string().nullable().optional(),
+    content: SessionStoredMessageContentSchema,
+    messageRole: SessionMessageRoleMetadataSchema,
+    /** Per-segment live emission sequence (1-based, includes snapshot emissions). */
+    tick: z.number().int().min(1),
+    /** Accumulated text length (UTF-16 code units) BEFORE applying this delta. */
+    baseLength: z.number().int().min(0),
+    createdAt: TimestampMsSchema,
+    updatedAt: TimestampMsSchema,
+}).passthrough();
+export const DirectSessionTranscriptDeltaEphemeralSchema = z.object({
+    type: z.literal('direct-session-transcript-delta'),
+    sessionId: z.string(),
+    items: z.array(DirectTranscriptRawMessageV1Schema),
+    fromCursor: z.string().min(1).nullable().optional(),
+    nextCursor: z.string().min(1).nullable().optional(),
+    truncated: z.boolean(),
+}).passthrough().superRefine((value, ctx) => {
+    const advancesCursor = Object.prototype.hasOwnProperty.call(value, 'nextCursor');
+    if (value.truncated !== true
+        && advancesCursor
+        && (typeof value.fromCursor !== 'string' || value.fromCursor.trim().length === 0)) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'fromCursor is required when nextCursor is present on non-truncated direct-session transcript deltas',
+            path: ['fromCursor'],
+        });
+    }
+});
+export const EphemeralUpdateSchema = z.discriminatedUnion('type', [
+    ActionOperationRevisionEphemeralV1Schema,
+    // Hottest live event first: delta ticks stream at the live cadence (~25Hz per active segment).
+    z.object({
+        type: z.literal('transcript-stream-segment-delta'),
+        sessionId: z.string(),
+        message: TranscriptStreamSegmentDeltaEphemeralMessageSchema,
+    }).passthrough(),
+    z.object({
+        type: z.literal('activity'),
+        id: z.string(),
+        active: z.boolean(),
+        activeAt: TimestampMsSchema,
+        thinking: z.boolean().optional(),
+    }).passthrough(),
+    z.object({
+        type: z.literal('execution-run-updated'),
+        sessionId: z.string(),
+        run: ExecutionRunPublicStateSchema,
+    }).passthrough(),
+    z.object({
+        type: z.literal('transcript-stream-segment'),
+        sessionId: z.string(),
+        message: TranscriptStreamSegmentEphemeralMessageSchema,
+    }).passthrough(),
+    DirectSessionTranscriptDeltaEphemeralSchema,
+    z.object({
+        type: z.literal('machine-activity'),
+        id: z.string(),
+        active: z.boolean(),
+        activeAt: TimestampMsSchema,
+    }).passthrough(),
+    z.object({
+        type: z.literal('usage'),
+        id: z.string(),
+        key: z.string(),
+        tokens: z.record(z.string(), z.number()),
+        cost: z.record(z.string(), z.number()),
+        timestamp: TimestampMsSchema,
+    }).passthrough(),
+    z.object({
+        type: z.literal('machine-status'),
+        machineId: z.string(),
+        online: z.boolean(),
+        timestamp: TimestampMsSchema,
+    }).passthrough(),
+]);
+// Broadcast-safe events (cursorless).
+//
+// These are intended for cases where a single identical payload can be emitted to a shared room (e.g. `session:${sessionId}`)
+// without carrying per-account cursors or recipient-specific secrets.
+//
+// Important: clients must treat these as optional hints/optimizations only, never as the sole source of truth.
+export const SessionBroadcastBodySchema = z.discriminatedUnion('t', [
+    z.object({
+        t: z.literal('session-changed'),
+        sessionId: z.string(),
+    }).passthrough(),
+]);
+export const SessionBroadcastContainerSchema = z.object({
+    id: z.string(),
+    createdAt: TimestampMsSchema,
+    body: SessionBroadcastBodySchema,
+}).passthrough();
+export const MessageAckResponseSchema = z.union([
+    z.object({
+        ok: z.literal(true),
+        id: z.string(),
+        seq: z.number().int().min(0),
+        localId: z.string().nullable(),
+        /**
+         * Whether the server actually created a new transcript row.
+         *
+         * - true: new message created + broadcast emitted (subject to sender-skip rules).
+         * - false: idempotent duplicate (sessionId, localId) already existed; no broadcast is emitted.
+         *
+         * Optional for backward compatibility with older servers.
+         */
+        didWrite: z.boolean().optional(),
+        didUpdate: z.boolean().optional(),
+    }).passthrough(),
+    z.object({
+        ok: z.literal(false),
+        error: z.string(),
+    }).passthrough(),
+]);
+export const SessionEndAckResponseSchema = z.union([
+    z.object({
+        ok: z.literal(true),
+        applied: z.boolean(),
+        time: TimestampMsSchema,
+        active: z.boolean(),
+        activeAt: TimestampMsSchema.nullable(),
+        latestTurnId: z.string().nullable(),
+        latestTurnStatus: PrimaryTurnStatusV1Schema.nullable(),
+        latestTurnStatusObservedAt: TimestampMsSchema.nullable(),
+        lastRuntimeIssue: SessionRuntimeIssueV1Schema.nullable(),
+    }).passthrough(),
+    z.object({
+        ok: z.literal(false),
+        error: z.enum(['invalid-params', 'forbidden', 'session-not-found', 'internal']),
+    }).passthrough(),
+]);
+export const UpdateMetadataAckResponseSchema = z.discriminatedUnion('result', [
+    z.object({
+        result: z.literal('success'),
+        version: z.number().int(),
+        metadata: z.string(),
+    }).passthrough(),
+    z.object({
+        result: z.literal('version-mismatch'),
+        version: z.number().int(),
+        metadata: z.string(),
+    }).passthrough(),
+    z.object({
+        result: z.literal('forbidden'),
+    }).passthrough(),
+    z.object({
+        result: z.literal('error'),
+    }).passthrough(),
+]);
+export const UpdateStateAckResponseSchema = z.discriminatedUnion('result', [
+    z.object({
+        result: z.literal('success'),
+        version: z.number().int(),
+        agentState: z.string().nullable(),
+    }).passthrough(),
+    z.object({
+        result: z.literal('version-mismatch'),
+        version: z.number().int(),
+        agentState: z.string().nullable(),
+    }).passthrough(),
+    z.object({
+        result: z.literal('forbidden'),
+    }).passthrough(),
+    z.object({
+        result: z.literal('error'),
+    }).passthrough(),
+]);
+//# sourceMappingURL=updates.js.map

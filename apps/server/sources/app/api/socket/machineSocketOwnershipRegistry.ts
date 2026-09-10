@@ -120,7 +120,7 @@ function resolveMachineSocketOwnerTtlSeconds(config: MachineSocketOwnershipRegis
     if (typeof config.ttlSeconds === "number" && Number.isFinite(config.ttlSeconds) && config.ttlSeconds > 0) {
         return Math.floor(config.ttlSeconds);
     }
-    const raw = normalizeOptionalString(process.env.HAPPIER_MACHINE_SOCKET_OWNER_TTL_SECONDS);
+    const raw = normalizeOptionalString(process.env.KAIWU_MACHINE_SOCKET_OWNER_TTL_SECONDS);
     if (!raw) return DEFAULT_MACHINE_SOCKET_OWNER_TTL_SECONDS;
     const parsed = Number.parseInt(raw, 10);
     if (!Number.isFinite(parsed) || parsed <= 0) return DEFAULT_MACHINE_SOCKET_OWNER_TTL_SECONDS;

@@ -161,7 +161,7 @@ export function enableServeUi(app: AnyFastifyInstance, ui: UiConfig) {
         } catch (err) {
             warn({ err, indexPath }, 'UI index.html not found (check UI build dir configuration)');
             const isProduction = process.env.NODE_ENV === "production";
-            const revealPathInFallback = !isProduction || process.env.HAPPIER_SERVER_UI_DEBUG_PATH === "1";
+            const revealPathInFallback = !isProduction || process.env.KAIWU_SERVER_UI_DEBUG_PATH === "1";
             const escapedIndexPath = String(indexPath)
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')

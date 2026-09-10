@@ -417,4 +417,78 @@ describe('maybeAutoUpdateNotice', () => {
       }
     });
   });
+
+  it('suppresses notice when effectiveCurrent is null (unknown version)', () => {
+    withUpdateHomeDir((homeDir) => {
+      const output = captureConsoleText();
+      try {
+        const cacheDir = join(homeDir, 'cache');
+        mkdirSync(cacheDir, { recursive: true });
+        writeJson(join(cacheDir, 'update.json'), {
+          checkedAt: 99_000,
+          latest: '0.2.5',
+          current: null,
+          runtimeVersion: null,
+          invokerVersion: null,
+          updateAvailable: true,
+          notifiedAt: null,
+        });
+
+        maybeAutoUpdateNotice({
+          argv: ['start'],
+          isTTY: true,
+          homeDir,
+          cliRootDir: '/repo/apps/cli',
+          env: {},
+          publicReleaseRing: 'stable',
+          nowMs: 100_000,
+          spawnDetached: vi.fn(),
+          notifyIntervalMs: 1000,
+          checkIntervalMs: 1_000_000,
+          currentCliVersion: null,
+        });
+
+        expect(output.lines).toHaveLength(0);
+      } finally {
+        output.restore();
+      }
+    });
+  });
+
+  it('uses currentCliVersion fallback when cache lacks version info', () => {
+    withUpdateHomeDir((homeDir) => {
+      const output = captureConsoleText();
+      try {
+        const cacheDir = join(homeDir, 'cache');
+        mkdirSync(cacheDir, { recursive: true });
+        writeJson(join(cacheDir, 'update.json'), {
+          checkedAt: 1,
+          latest: '0.2.5',
+          current: null,
+          runtimeVersion: null,
+          invokerVersion: null,
+          updateAvailable: true,
+          notifiedAt: null,
+        });
+
+        maybeAutoUpdateNotice({
+          argv: ['start'],
+          isTTY: true,
+          homeDir,
+          cliRootDir: '/repo/apps/cli',
+          env: {},
+          publicReleaseRing: 'stable',
+          nowMs: 100_000,
+          spawnDetached: vi.fn(),
+          notifyIntervalMs: 1000,
+          checkIntervalMs: 1000,
+          currentCliVersion: '0.2.0',
+        });
+
+        expect(output.text()).toContain('update available');
+      } finally {
+        output.restore();
+      }
+    });
+  });
 });

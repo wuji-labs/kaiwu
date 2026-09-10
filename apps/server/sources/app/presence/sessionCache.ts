@@ -22,7 +22,7 @@ interface MachineCacheEntry {
 const DEFAULT_SHUTDOWN_FLUSH_TIMEOUT_MS = 5_000;
 
 function readShutdownFlushTimeoutMs(env: NodeJS.ProcessEnv = process.env): number {
-    const raw = env.HAPPIER_PRESENCE_SHUTDOWN_FLUSH_TIMEOUT_MS;
+    const raw = env.KAIWU_PRESENCE_SHUTDOWN_FLUSH_TIMEOUT_MS;
     if (raw === undefined || raw.trim() === "") {
         return DEFAULT_SHUTDOWN_FLUSH_TIMEOUT_MS;
     }

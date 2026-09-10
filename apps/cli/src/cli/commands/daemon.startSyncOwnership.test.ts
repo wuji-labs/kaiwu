@@ -296,7 +296,7 @@ describe('handleDaemonCliCommand: daemon start-sync', () => {
 
             expect(startDaemonMock).not.toHaveBeenCalled();
             expect(errorSpy.mock.calls.flat().join(' ')).toContain('background service');
-            expect(errorSpy.mock.calls.flat().join(' ')).toContain('happier service start');
+            expect(errorSpy.mock.calls.flat().join(' ')).toContain('kaiwu service start');
             errorSpy.mockRestore();
         });
     });

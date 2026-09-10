@@ -1,0 +1,1 @@
+{"version":3,"file":"socialFriendsCapabilities.d.ts","sourceRoot":"","sources":["../../../../src/features/payload/capabilities/socialFriendsCapabilities.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,CAAC,EAAE,MAAM,KAAK,CAAC;AAExB,eAAO,MAAM,+BAA+B,KAG1C,CAAC;AAEH,MAAM,MAAM,yBAAyB,GAAG,CAAC,CAAC,KAAK,CAAC,OAAO,+BAA+B,CAAC,CAAC;AAExF,eAAO,MAAM,mCAAmC,EAAE,yBAGjD,CAAC"}

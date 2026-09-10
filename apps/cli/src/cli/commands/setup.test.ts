@@ -221,7 +221,7 @@ describe('happier setup — readiness', () => {
 
     expect(commandsRun()).toEqual([]);
     expect(output.text()).toContain('temporarily-unavailable.example.com');
-    expect(output.text()).toContain('happier setup --cloud');
+    expect(output.text()).toContain('kaiwu setup --cloud');
     expect(process.exitCode).toBe(1);
   });
 
@@ -302,7 +302,7 @@ describe('happier setup — unattended runs (--yes)', () => {
     await handleSetupCliCommand(context(['--cloud', '--yes']));
 
     expect(commandsRun()).toEqual(['server use cloud']);
-    expect(output.text()).toContain('happier auth login');
+    expect(output.text()).toContain('kaiwu auth login');
     // Setup did not finish, and the installer reads a zero exit as "you're ready".
     expect(process.exitCode).toBe(1);
   });
@@ -365,7 +365,7 @@ describe('happier setup — unattended runs (--yes)', () => {
     await handleSetupCliCommand(context(['--cloud', '--yes']));
 
     expect(commandsRun()).toEqual([]);
-    expect(output.text()).toContain('happier auth login');
+    expect(output.text()).toContain('kaiwu auth login');
     expect(process.exitCode).toBe(1);
   });
 });

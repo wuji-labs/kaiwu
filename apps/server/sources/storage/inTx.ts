@@ -52,35 +52,35 @@ const DEFAULT_SQLITE_TRANSACTION_TOTAL_RETRY_BUDGET_MS = 25_000;
 
 function readSqliteTransactionConfigFromEnv(env: NodeJS.ProcessEnv): SqliteTransactionConfig {
     const retryBaseDelayMs = parseIntEnv(
-        env.HAPPIER_DB_TX_RETRY_BASE_DELAY_MS ?? env.HAPPY_DB_TX_RETRY_BASE_DELAY_MS,
+        env.KAIWU_DB_TX_RETRY_BASE_DELAY_MS ?? env.HAPPY_DB_TX_RETRY_BASE_DELAY_MS,
         DEFAULT_SQLITE_TRANSACTION_RETRY_BASE_DELAY_MS,
         { min: 0, max: 60_000 },
     );
 
     return {
         maxRetries: parseIntEnv(
-            env.HAPPIER_DB_TX_MAX_RETRIES ?? env.HAPPY_DB_TX_MAX_RETRIES,
+            env.KAIWU_DB_TX_MAX_RETRIES ?? env.HAPPY_DB_TX_MAX_RETRIES,
             DEFAULT_SQLITE_TRANSACTION_MAX_RETRIES,
             { min: 0, max: 100 },
         ),
         maxWaitMs: parseIntEnv(
-            env.HAPPIER_DB_TX_MAX_WAIT_MS ?? env.HAPPY_DB_TX_MAX_WAIT_MS,
+            env.KAIWU_DB_TX_MAX_WAIT_MS ?? env.HAPPY_DB_TX_MAX_WAIT_MS,
             DEFAULT_SQLITE_TRANSACTION_MAX_WAIT_MS,
             { min: 1_000, max: 600_000 },
         ),
         retryBaseDelayMs,
         retryMaxDelayMs: parseIntEnv(
-            env.HAPPIER_DB_TX_RETRY_MAX_DELAY_MS ?? env.HAPPY_DB_TX_RETRY_MAX_DELAY_MS,
+            env.KAIWU_DB_TX_RETRY_MAX_DELAY_MS ?? env.HAPPY_DB_TX_RETRY_MAX_DELAY_MS,
             DEFAULT_SQLITE_TRANSACTION_RETRY_MAX_DELAY_MS,
             { min: retryBaseDelayMs, max: 600_000 },
         ),
         timeoutMs: parseIntEnv(
-            env.HAPPIER_DB_TX_TIMEOUT_MS ?? env.HAPPY_DB_TX_TIMEOUT_MS,
+            env.KAIWU_DB_TX_TIMEOUT_MS ?? env.HAPPY_DB_TX_TIMEOUT_MS,
             DEFAULT_SQLITE_TRANSACTION_TIMEOUT_MS,
             { min: 1_000, max: 600_000 },
         ),
         totalRetryBudgetMs: parseIntEnv(
-            env.HAPPIER_DB_TX_TOTAL_RETRY_BUDGET_MS ?? env.HAPPY_DB_TX_TOTAL_RETRY_BUDGET_MS,
+            env.KAIWU_DB_TX_TOTAL_RETRY_BUDGET_MS ?? env.HAPPY_DB_TX_TOTAL_RETRY_BUDGET_MS,
             DEFAULT_SQLITE_TRANSACTION_TOTAL_RETRY_BUDGET_MS,
             { min: 1, max: 600_000 },
         ),

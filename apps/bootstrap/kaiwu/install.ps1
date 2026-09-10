@@ -5,7 +5,7 @@
 # 1. 纯原生绿色免安装单文件架构：内置所有 runtime 与本地模型调度依赖，无需 Node.js、npm 或 C++ 编译环境。
 # 2. 全程走国内腾讯云上海 BGP 对象存储高速通道，数秒极速完成。
 # 3. 自动解压至 ~/.kaiwu/bin，并注册系统用户 PATH 环境变量（永久生效）。
-# 4. 自动持久化配置开物云端中继服务端 (KAIWU_SERVER_URL / HAPPIER_SERVER_URL)。
+# 4. 自动持久化配置无极开物中继服务端 (KAIWU_SERVER_URL / HAPPIER_SERVER_URL)。
 # 5. 同时提供 kaiwu 与 happier 双命令别名，完全无缝兼容。
 
 [CmdletBinding()]
@@ -143,6 +143,14 @@ if (-not $extractedFolder) {
     exit 1
 }
 
+# 清理 bin 目录下的旧目录，确保整体替换
+foreach ($dir in @("package-dist", "node_modules", "scripts", "tools")) {
+    $dirPath = Join-Path $binDir $dir
+    if (Test-Path $dirPath) {
+        Remove-Item -Path $dirPath -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+
 # 将二进制与 bundle 复制到 bin 目录
 Copy-Item -Path (Join-Path $extractedFolder.FullName "*") -Destination $binDir -Recurse -Force
 
@@ -174,6 +182,13 @@ if ($env:Path -split ';' -notcontains $binDir) {
 $env:KAIWU_SERVER_URL = $KAIWU_SERVER_URL
 $env:HAPPIER_SERVER_URL = $KAIWU_SERVER_URL
 Write-Info "已配置开物服务端连接: $KAIWU_SERVER_URL"
+
+# 创建 happier.exe 兼容别名
+$kaiwuExePath = Join-Path $binDir "kaiwu.exe"
+$happierExePath = Join-Path $binDir "happier.exe"
+if (Test-Path $kaiwuExePath) {
+    Copy-Item -Path $kaiwuExePath -Destination $happierExePath -Force
+}
 
 # 7. 运行验证
 Write-Host ""

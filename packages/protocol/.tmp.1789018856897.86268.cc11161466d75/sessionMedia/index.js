@@ -1,0 +1,2 @@
+export { SESSION_MEDIA_MESSAGE_META_KIND_V1, SESSION_MEDIA_MESSAGE_MAX_ENTRIES_V1, SessionMediaItemV1Schema, SessionMediaMessageMetaEnvelopeV1Schema, SessionMediaMessagePayloadV1Schema, SessionMediaOriginV1Schema, SessionMediaReferenceV1Schema, SessionMediaUnavailableOriginV1Schema, SessionMediaUnavailableV1Schema, } from './sessionMediaSchemas.js';
+//# sourceMappingURL=index.js.map

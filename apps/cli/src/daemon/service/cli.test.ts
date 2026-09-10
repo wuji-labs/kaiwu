@@ -1250,7 +1250,7 @@ describe('runDaemonServiceCliCommand', () => {
         const payload = output.json();
         expect(payload.ok).toBe(false);
         expect(payload.error).toBe('owner_conflict');
-        expect(payload.message).toContain('happier daemon stop');
+        expect(payload.message).toContain('kaiwu daemon stop');
         expect(payload.message).toContain('--takeover');
       } finally {
         output.restore();
@@ -3387,7 +3387,7 @@ describe('runDaemonServiceCliCommand', () => {
         const payload = output.json();
         expect(payload.ok).toBe(true);
         expect(payload.warning).toContain('will not stop the current daemon');
-        expect(payload.warning).toContain('happier daemon stop');
+        expect(payload.warning).toContain('kaiwu daemon stop');
       } finally {
         output.restore();
       }

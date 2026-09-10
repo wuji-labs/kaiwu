@@ -1,0 +1,54 @@
+import { z } from 'zod';
+import { ExecutionRunClassSchema, ExecutionRunDisplaySchema, ExecutionRunIntentSchema, ExecutionRunIoModeSchema, ExecutionRunLaunchOriginSchema, normalizeLegacyExecutionRunBackendTargetInput, ExecutionRunResumeHandleSchema, ExecutionRunRetentionPolicySchema, ExecutionRunStatusSchema, } from './executionRuns.js';
+import { BackendTargetRefSchema } from './backendTargets/backendTargetRef.js';
+/**
+ * Daemon-scoped execution run listing.
+ *
+ * This is a machine-wide view of execution runs discovered via a daemon-readable
+ * file registry. It is intentionally best-effort and may contain stale entries
+ * if session processes crash or the machine reboots.
+ */
+const DaemonExecutionRunMarkerSchemaCore = z.object({
+    // Safety/filtering: only accept markers for the current happyHomeDir.
+    happyHomeDir: z.string().min(1),
+    pid: z.number().int().positive(),
+    processCommandHash: z.string().regex(/^[a-f0-9]{64}$/).optional(),
+    happySessionId: z.string().min(1),
+    runId: z.string().min(1),
+    callId: z.string().min(1),
+    sidechainId: z.string().min(1),
+    startRequestId: z.string().min(1).max(1000).optional(),
+    startRequestFingerprint: z.string().regex(/^[a-f0-9]{64}$/).optional(),
+    intent: ExecutionRunIntentSchema,
+    backendTarget: BackendTargetRefSchema,
+    display: ExecutionRunDisplaySchema.optional(),
+    launchOrigin: ExecutionRunLaunchOriginSchema.optional(),
+    runClass: ExecutionRunClassSchema,
+    ioMode: ExecutionRunIoModeSchema,
+    retentionPolicy: ExecutionRunRetentionPolicySchema,
+    status: ExecutionRunStatusSchema,
+    startedAtMs: z.number().int().nonnegative(),
+    updatedAtMs: z.number().int().nonnegative(),
+    finishedAtMs: z.number().int().nonnegative().optional(),
+    lastActivityAtMs: z.number().int().nonnegative().optional(),
+    summary: z.string().max(20_000).optional(),
+    errorCode: z.string().max(200).optional(),
+    resumeHandle: ExecutionRunResumeHandleSchema.nullable().optional(),
+}).passthrough();
+export const DaemonExecutionRunMarkerSchema = z.preprocess(normalizeLegacyExecutionRunBackendTargetInput, DaemonExecutionRunMarkerSchemaCore);
+export const DaemonExecutionRunProcessInfoSchema = z.object({
+    pid: z.number().int().positive(),
+    name: z.string().optional(),
+    cmd: z.string().optional(),
+    cpu: z.number().optional(),
+    memory: z.number().optional(),
+}).passthrough();
+const DaemonExecutionRunEntrySchemaCore = DaemonExecutionRunMarkerSchemaCore.extend({
+    process: DaemonExecutionRunProcessInfoSchema.optional(),
+}).passthrough();
+export const DaemonExecutionRunEntrySchema = z.preprocess(normalizeLegacyExecutionRunBackendTargetInput, DaemonExecutionRunEntrySchemaCore);
+export const DaemonExecutionRunListRequestSchema = z.object({}).passthrough();
+export const DaemonExecutionRunListResponseSchema = z.object({
+    runs: z.array(DaemonExecutionRunEntrySchema),
+}).passthrough();
+//# sourceMappingURL=daemonExecutionRuns.js.map

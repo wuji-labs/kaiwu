@@ -210,6 +210,48 @@ describe('buildSetupPlan — choosing Happier Cloud', () => {
 
     expect(plan.steps.map((step) => step.kind)).toEqual(['authLogin']);
   });
+
+  it('deduplicates when input URL equals cloud URL with trailing slash', () => {
+    // User provides cloud URL with trailing slash: should select cloud, not create duplicate
+    const plan = buildSetupPlan({
+      ...base,
+      relaySelection: { kind: 'existing', url: 'https://kaiwu.chengqiyun.com/' },
+    });
+
+    expect(plan.steps.map((step) => step.kind)).toEqual(['authLogin']);
+  });
+
+  it('deduplicates when input URL equals cloud URL in uppercase', () => {
+    // User provides cloud URL in uppercase: should select cloud, not create duplicate
+    const plan = buildSetupPlan({
+      ...base,
+      relaySelection: { kind: 'existing', url: 'https://KAIWU.CHENGQIYUN.COM' },
+    });
+
+    expect(plan.steps.map((step) => step.kind)).toEqual(['authLogin']);
+  });
+
+  it('deduplicates and switches from custom relay when input URL equals cloud URL', () => {
+    // User provides cloud URL when custom relay is active: should switch to cloud
+    const plan = buildSetupPlan({
+      ...base,
+      activeRelayUrl: 'https://relay.example.com',
+      relaySelection: { kind: 'existing', url: 'https://kaiwu.chengqiyun.com/' },
+    });
+
+    expect(plan.steps.map((step) => step.kind)).toEqual(['selectCloudRelay', 'authLogin']);
+  });
+
+  it('does not deduplicate other relay URLs', () => {
+    // User provides different relay URL: should create custom profile normally
+    const plan = buildSetupPlan({
+      ...base,
+      relaySelection: { kind: 'existing', url: 'https://relay.example.com' },
+    });
+
+    expect(plan.steps.map((step) => step.kind)).toEqual(['selectRelay', 'authLogin']);
+    expect(plan.steps[0]).toMatchObject({ relayUrl: 'https://relay.example.com' });
+  });
 });
 
 describe('buildSetupPlan — readiness is more than credential bytes', () => {
@@ -228,7 +270,7 @@ describe('buildSetupPlan — readiness is more than credential bytes', () => {
     expect(plan.steps).toEqual([]);
     expect(plan.stop?.reason).toBe('relay-unavailable');
     expect(plan.stop?.detail).toContain('temporarily-unavailable.example.com');
-    expect(plan.stop?.detail).toContain('happier setup --cloud');
+    expect(plan.stop?.detail).toContain('kaiwu setup --cloud');
   });
 
   it('does not call a machine whose credentials the relay rejected already set up', () => {
@@ -307,7 +349,7 @@ describe('buildSetupPlan — unattended runs (--yes)', () => {
 
     expect(plan.steps.map((step) => step.kind)).toEqual(['selectCloudRelay']);
     expect(plan.stop?.reason).toBe('needs-sign-in');
-    expect(plan.stop?.detail).toContain('happier auth login');
+    expect(plan.stop?.detail).toContain('kaiwu auth login');
   });
 
   it('never plans a sign-in that has to be approved on a device', () => {

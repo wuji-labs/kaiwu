@@ -5,7 +5,7 @@ import { enforceLoginEligibility } from "@/app/auth/enforceLoginEligibility";
 import { redactPublicShareCapabilityUrl } from "@happier-dev/protocol";
 
 function shouldLogAuthDecoratorDiagnostics(): boolean {
-    return process.env.HAPPIER_AUTH_DECORATOR_DIAGNOSTIC_LOGS === "1"
+    return process.env.KAIWU_AUTH_DECORATOR_DIAGNOSTIC_LOGS === "1"
         || process.env.HAPPY_AUTH_DECORATOR_DIAGNOSTIC_LOGS === "1";
 }
 

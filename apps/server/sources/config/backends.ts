@@ -10,14 +10,14 @@ function normalizeToken(raw: string): string {
 }
 
 export function resolveServerFlavorFromEnv(env: NodeJS.ProcessEnv, fallback: ServerFlavor): ServerFlavor {
-    const raw = (env.HAPPIER_SERVER_FLAVOR ?? env.HAPPY_SERVER_FLAVOR)?.toString();
+    const raw = (env.KAIWU_SERVER_FLAVOR ?? env.HAPPY_SERVER_FLAVOR)?.toString();
     if (!raw) return fallback;
     const value = normalizeToken(raw);
     return value === "full" || value === "light" ? value : fallback;
 }
 
 export function getFilesBackendFromEnv(env: NodeJS.ProcessEnv, fallback: FilesBackend): FilesBackend {
-    const raw = (env.HAPPIER_FILES_BACKEND ?? env.HAPPY_FILES_BACKEND)?.toString();
+    const raw = (env.KAIWU_FILES_BACKEND ?? env.HAPPY_FILES_BACKEND)?.toString();
     if (!raw) return fallback;
     const v = normalizeToken(raw);
     if (v === "local" || v === "disk" || v === "fs" || v === "file") return "local";
@@ -26,7 +26,7 @@ export function getFilesBackendFromEnv(env: NodeJS.ProcessEnv, fallback: FilesBa
 }
 
 export function getSocketAdapterFromEnv(env: NodeJS.ProcessEnv, fallback: SocketAdapter): SocketAdapter {
-    const raw = (env.HAPPIER_SOCKET_ADAPTER ?? env.HAPPY_SOCKET_ADAPTER)?.toString();
+    const raw = (env.KAIWU_SOCKET_ADAPTER ?? env.HAPPY_SOCKET_ADAPTER)?.toString();
     if (raw && raw.trim()) {
         const v = normalizeToken(raw);
         if (v === "memory" || v === "mem") return "memory";
@@ -35,7 +35,7 @@ export function getSocketAdapterFromEnv(env: NodeJS.ProcessEnv, fallback: Socket
     }
 
     // Back-compat: historical boolean flag enabling redis-streams adapter.
-    if (parseBooleanEnv(env.HAPPIER_SOCKET_REDIS_ADAPTER ?? env.HAPPY_SOCKET_REDIS_ADAPTER, false)) {
+    if (parseBooleanEnv(env.KAIWU_SOCKET_REDIS_ADAPTER ?? env.HAPPY_SOCKET_REDIS_ADAPTER, false)) {
         return "redis-streams";
     }
 

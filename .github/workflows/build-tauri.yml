@@ -246,11 +246,11 @@ jobs:
     permissions:
       contents: read
     env:
-      HAPPIER_EMBEDDED_POLICY_ENV: ${{ inputs.environment == 'production' && 'production' || 'preview' }}
+      KAIWU_EMBEDDED_POLICY_ENV: ${{ inputs.environment == 'production' && 'production' || 'preview' }}
       EXPO_UNSTABLE_WEB_MODAL: "1"
       # Ensure desktop release bundles always bootstrap against Happier Cloud unless explicitly overridden
       # by runtime server profile switching inside the app.
-      EXPO_PUBLIC_HAPPIER_SERVER_URL: https://api.happier.dev
+      EXPO_PUBLIC_KAIWU_SERVER_URL: https://api.happier.dev
       EXPO_PUBLIC_HAPPY_SERVER_URL: https://api.happier.dev
       EXPO_PUBLIC_SERVER_URL: https://api.happier.dev
     strategy:
@@ -334,7 +334,7 @@ jobs:
           npm_config_production: "false"
           # Desktop builds should not require installing backend/CLI workspaces (which can pull native deps
           # that are flaky on Windows runners). Keep installs focused on UI + shared packages.
-          HAPPIER_INSTALL_SCOPE: "ui,protocol,agents,cli-common,release-runtime,transfers,connection-supervisor,audio-stream-native,sherpa-native"
+          KAIWU_INSTALL_SCOPE: "ui,protocol,agents,cli-common,release-runtime,transfers,connection-supervisor,audio-stream-native,sherpa-native"
           # Prefer the npm registry over the Yarn registry to avoid transient 5xx fetch failures
           # that can break long cross-platform build workflows.
           npm_config_registry: https://registry.npmjs.org
@@ -471,7 +471,7 @@ jobs:
         env:
           YARN_PRODUCTION: "false"
           npm_config_production: "false"
-          HAPPIER_INSTALL_SCOPE: "ui,protocol,agents,cli-common,release-runtime,transfers,connection-supervisor,audio-stream-native,sherpa-native"
+          KAIWU_INSTALL_SCOPE: "ui,protocol,agents,cli-common,release-runtime,transfers,connection-supervisor,audio-stream-native,sherpa-native"
           npm_config_registry: https://registry.npmjs.org
         uses: ./.github/actions/install-yarn-dependencies
         with:

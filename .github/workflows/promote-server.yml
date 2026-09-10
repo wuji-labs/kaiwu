@@ -142,9 +142,9 @@ jobs:
       candidate_sha: ${{ steps.candidate.outputs.authorized_sha }}
       source_ref: ${{ steps.resolve.outputs.source_ref }}
     env:
-      RUNTIME_ACTIVITY_ROLLOUT_STAGE: ${{ inputs.environment == 'production' && vars.HAPPIER_PRODUCTION_SERVER_RUNTIME_ACTIVITY_ROLLOUT_STAGE || vars.HAPPIER_PREVIEW_SERVER_RUNTIME_ACTIVITY_ROLLOUT_STAGE }}
-      RUNTIME_ACTIVITY_MINIMUM_FENCE_SHA: ${{ inputs.environment == 'production' && vars.HAPPIER_PRODUCTION_SERVER_FENCE_AWARE_MINIMUM_SHA || vars.HAPPIER_PREVIEW_SERVER_FENCE_AWARE_MINIMUM_SHA }}
-      RUNTIME_ACTIVITY_R2_DRAINED_SHA: ${{ inputs.environment == 'production' && vars.HAPPIER_PRODUCTION_SERVER_SESSION_SYNC_R2_DRAINED_SHA || vars.HAPPIER_PREVIEW_SERVER_SESSION_SYNC_R2_DRAINED_SHA }}
+      RUNTIME_ACTIVITY_ROLLOUT_STAGE: ${{ inputs.environment == 'production' && vars.KAIWU_PRODUCTION_SERVER_RUNTIME_ACTIVITY_ROLLOUT_STAGE || vars.KAIWU_PREVIEW_SERVER_RUNTIME_ACTIVITY_ROLLOUT_STAGE }}
+      RUNTIME_ACTIVITY_MINIMUM_FENCE_SHA: ${{ inputs.environment == 'production' && vars.KAIWU_PRODUCTION_SERVER_FENCE_AWARE_MINIMUM_SHA || vars.KAIWU_PREVIEW_SERVER_FENCE_AWARE_MINIMUM_SHA }}
+      RUNTIME_ACTIVITY_R2_DRAINED_SHA: ${{ inputs.environment == 'production' && vars.KAIWU_PRODUCTION_SERVER_SESSION_SYNC_R2_DRAINED_SHA || vars.KAIWU_PREVIEW_SERVER_SESSION_SYNC_R2_DRAINED_SHA }}
     steps:
       - name: Checkout trusted workflow policy
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -292,7 +292,7 @@ jobs:
         run: |
           set -euo pipefail
           auth="$(printf 'x-access-token:%s' "$APP_TOKEN" | base64 -w0)"
-          export HAPPIER_GIT_AUTHORIZATION_HEADER="AUTHORIZATION: basic $auth"
+          export KAIWU_GIT_AUTHORIZATION_HEADER="AUTHORIZATION: basic $auth"
           node "$RUNNER_TEMP/prepare-server-release-bump.mjs" \
             --bump "$BUMP" \
             --source-branch "$SOURCE_BRANCH" \
@@ -360,7 +360,7 @@ jobs:
         env:
           YARN_PRODUCTION: "false"
           npm_config_production: "false"
-          HAPPIER_EMBEDDED_POLICY_ENV: ${{ inputs.environment == 'production' && 'production' || 'preview' }}
+          KAIWU_EMBEDDED_POLICY_ENV: ${{ inputs.environment == 'production' && 'production' || 'preview' }}
         uses: ./.github/actions/install-yarn-dependencies
         with:
           args: --frozen-lockfile --ignore-engines
@@ -432,9 +432,9 @@ jobs:
     timeout-minutes: 30
     environment: release-shared
     env:
-      RUNTIME_ACTIVITY_ROLLOUT_STAGE: ${{ inputs.environment == 'production' && vars.HAPPIER_PRODUCTION_SERVER_RUNTIME_ACTIVITY_ROLLOUT_STAGE || vars.HAPPIER_PREVIEW_SERVER_RUNTIME_ACTIVITY_ROLLOUT_STAGE }}
-      RUNTIME_ACTIVITY_MINIMUM_FENCE_SHA: ${{ inputs.environment == 'production' && vars.HAPPIER_PRODUCTION_SERVER_FENCE_AWARE_MINIMUM_SHA || vars.HAPPIER_PREVIEW_SERVER_FENCE_AWARE_MINIMUM_SHA }}
-      RUNTIME_ACTIVITY_R2_DRAINED_SHA: ${{ inputs.environment == 'production' && vars.HAPPIER_PRODUCTION_SERVER_SESSION_SYNC_R2_DRAINED_SHA || vars.HAPPIER_PREVIEW_SERVER_SESSION_SYNC_R2_DRAINED_SHA }}
+      RUNTIME_ACTIVITY_ROLLOUT_STAGE: ${{ inputs.environment == 'production' && vars.KAIWU_PRODUCTION_SERVER_RUNTIME_ACTIVITY_ROLLOUT_STAGE || vars.KAIWU_PREVIEW_SERVER_RUNTIME_ACTIVITY_ROLLOUT_STAGE }}
+      RUNTIME_ACTIVITY_MINIMUM_FENCE_SHA: ${{ inputs.environment == 'production' && vars.KAIWU_PRODUCTION_SERVER_FENCE_AWARE_MINIMUM_SHA || vars.KAIWU_PREVIEW_SERVER_FENCE_AWARE_MINIMUM_SHA }}
+      RUNTIME_ACTIVITY_R2_DRAINED_SHA: ${{ inputs.environment == 'production' && vars.KAIWU_PRODUCTION_SERVER_SESSION_SYNC_R2_DRAINED_SHA || vars.KAIWU_PREVIEW_SERVER_SESSION_SYNC_R2_DRAINED_SHA }}
     steps:
       - name: Checkout trusted server promotion policy
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -541,7 +541,7 @@ jobs:
         run: |
           set -euo pipefail
           auth="$(printf 'x-access-token:%s' "$APP_TOKEN" | base64 -w0)"
-          export HAPPIER_GIT_AUTHORIZATION_HEADER="AUTHORIZATION: basic $auth"
+          export KAIWU_GIT_AUTHORIZATION_HEADER="AUTHORIZATION: basic $auth"
           expected="${{ steps.deploy_before.outputs.sha }}"
           if [ -z "${expected}" ]; then expected="missing"; fi
           node "$RUNNER_TEMP/promote-server-deploy-ref.mjs" \
@@ -557,8 +557,8 @@ jobs:
           CF_WEBHOOK_DEPLOY_CLIENT_ID: ${{ secrets.CF_WEBHOOK_DEPLOY_CLIENT_ID }}
           CF_WEBHOOK_DEPLOY_CLIENT_SECRET: ${{ secrets.CF_WEBHOOK_DEPLOY_CLIENT_SECRET }}
           DEPLOY_WEBHOOK_URL: ${{ vars.DEPLOY_WEBHOOK_URL != '' && vars.DEPLOY_WEBHOOK_URL || secrets.DEPLOY_WEBHOOK_URL }}
-          HAPPIER_SERVER_API_DEPLOY_WEBHOOKS: ${{ vars.HAPPIER_SERVER_API_DEPLOY_WEBHOOKS != '' && vars.HAPPIER_SERVER_API_DEPLOY_WEBHOOKS || secrets.HAPPIER_SERVER_API_DEPLOY_WEBHOOKS }}
-          HAPPIER_SERVER_WORKER_DEPLOY_WEBHOOKS: ${{ vars.HAPPIER_SERVER_WORKER_DEPLOY_WEBHOOKS != '' && vars.HAPPIER_SERVER_WORKER_DEPLOY_WEBHOOKS || secrets.HAPPIER_SERVER_WORKER_DEPLOY_WEBHOOKS }}
+          KAIWU_SERVER_API_DEPLOY_WEBHOOKS: ${{ vars.KAIWU_SERVER_API_DEPLOY_WEBHOOKS != '' && vars.KAIWU_SERVER_API_DEPLOY_WEBHOOKS || secrets.KAIWU_SERVER_API_DEPLOY_WEBHOOKS }}
+          KAIWU_SERVER_WORKER_DEPLOY_WEBHOOKS: ${{ vars.KAIWU_SERVER_WORKER_DEPLOY_WEBHOOKS != '' && vars.KAIWU_SERVER_WORKER_DEPLOY_WEBHOOKS || secrets.KAIWU_SERVER_WORKER_DEPLOY_WEBHOOKS }}
           DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
         run: |
           node "$RUNNER_TEMP/trigger-server-deploy-webhooks.mjs" \
