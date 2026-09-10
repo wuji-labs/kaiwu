@@ -101,7 +101,7 @@ async function cleanupLegacyDaemonStateFilesBestEffort(): Promise<void> {
 
 // Settings schema version: Integer for overall Settings structure compatibility.
 // Incremented when Settings structure changes.
-export const SUPPORTED_SCHEMA_VERSION = 6;
+export const SUPPORTED_SCHEMA_VERSION = 7;
 
 export type MachineReplacementCandidate = Readonly<{
   machineId: string;
@@ -196,9 +196,9 @@ const defaultSettings: Settings = {
   servers: {
     cloud: {
       id: 'cloud',
-      name: 'Happier Cloud',
-      serverUrl: 'https://api.happier.dev',
-      webappUrl: 'https://app.happier.dev',
+      name: '无极开物 · 官方中继',
+      serverUrl: 'https://kaiwu.chengqiyun.com',
+      webappUrl: 'https://kaiwu.chengqiyun.com',
       createdAt: 0,
       updatedAt: 0,
       lastUsedAt: 0,
@@ -236,8 +236,8 @@ function migrateSettings(raw: any, fromVersion: number): any {
 
   // Migration from v4 to v5 (server profiles + per-server state)
   if (fromVersion < 5) {
-    const DEFAULT_SERVER_URL = 'https://api.happier.dev';
-    const DEFAULT_WEBAPP_URL = 'https://app.happier.dev';
+    const DEFAULT_SERVER_URL = 'https://kaiwu.chengqiyun.com';
+    const DEFAULT_WEBAPP_URL = 'https://kaiwu.chengqiyun.com';
     const now = Date.now();
 
     const cloudId = 'cloud';
@@ -245,7 +245,7 @@ function migrateSettings(raw: any, fromVersion: number): any {
     migrated.servers = {
       [cloudId]: {
         id: cloudId,
-        name: 'Happier Cloud',
+        name: '无极开物 · 官方中继',
         serverUrl: DEFAULT_SERVER_URL,
         webappUrl: DEFAULT_WEBAPP_URL,
         createdAt: now,
@@ -305,8 +305,111 @@ function migrateSettings(raw: any, fromVersion: number): any {
     migrated.schemaVersion = 6;
   }
 
+  // Migration from v6 to v7 (merge same-address self-hosted servers into cloud, remove flfz.org servers)
+  if (fromVersion < 7) {
+    const servers = migrated?.servers && typeof migrated.servers === 'object' ? migrated.servers : null;
+    if (servers && typeof servers === 'object') {
+      // Get the cloud server URL comparable key
+      const cloudServer = (servers as any).cloud;
+      const cloudComparableKey = cloudServer ? createServerUrlComparableKey(cloudServer.serverUrl) : '';
+
+      // Collect server IDs to delete and merge mappings
+      const serversToDelete: string[] = [];
+      const mergeMapping: Record<string, string> = {}; // from old serverId to 'cloud'
+
+      // Process each server
+      for (const [id, value] of Object.entries(servers as Record<string, any>)) {
+        if (!value || typeof value !== 'object' || id === 'cloud') continue;
+
+        const serverUrl = (value as any).serverUrl;
+        const serverComparableKey = createServerUrlComparableKey(serverUrl);
+
+        // Rule 1: Merge if same address as cloud
+        if (cloudComparableKey && serverComparableKey === cloudComparableKey) {
+          serversToDelete.push(id);
+          mergeMapping[id] = 'cloud';
+        }
+        // Rule 2: Delete if host ends with flfz.org
+        else if (serverUrl) {
+          try {
+            const url = new URL(serverUrl.includes('://') ? serverUrl : `https://${serverUrl}`);
+            if (url.hostname.endsWith('.flfz.org') || url.hostname === 'flfz.org') {
+              serversToDelete.push(id);
+            }
+          } catch {
+            // Invalid URL, skip
+          }
+        }
+      }
+
+      // Merge index states from deleted servers into cloud
+      const indexStates = [
+        'machineIdByServerId',
+        'machineIdByServerIdByAccountId',
+        'machineReplacementCandidatesByServerIdByAccountId',
+        'lastTokenSubByServerId',
+        'machineIdConfirmedByServerByServerId',
+        'lastChangesCursorByServerIdByAccountId',
+      ];
+
+      for (const stateName of indexStates) {
+        const stateKey = stateName as keyof Settings;
+        const state = (migrated as any)[stateKey];
+        if (!state || typeof state !== 'object') continue;
+
+        // For simple maps (machineIdByServerId, lastTokenSubByServerId, machineIdConfirmedByServerByServerId)
+        if (typeof Object.values(state)[0] === 'string' || typeof Object.values(state)[0] === 'boolean' || Object.values(state)[0] === undefined) {
+          for (const id of serversToDelete) {
+            if (id in state) {
+              const value = (state as any)[id];
+              // Only merge if cloud doesn't have a value
+              if (value !== undefined && value !== null && !(('cloud' in state) && (state as any).cloud)) {
+                (state as any).cloud = value;
+              }
+              delete (state as any)[id];
+            }
+          }
+        }
+        // For nested maps (machineIdByServerIdByAccountId, machineReplacementCandidatesByServerIdByAccountId, lastChangesCursorByServerIdByAccountId)
+        else if (typeof Object.values(state)[0] === 'object') {
+          for (const id of serversToDelete) {
+            if (id in state) {
+              const accountMap = (state as any)[id];
+              if (accountMap && typeof accountMap === 'object') {
+                // Merge into cloud's account map
+                if (!('cloud' in state) || !(state as any).cloud) {
+                  (state as any).cloud = {};
+                }
+                const cloudAccountMap = (state as any).cloud;
+                for (const [accountId, value] of Object.entries(accountMap as Record<string, any>)) {
+                  // Only merge if cloud doesn't have this account entry
+                  if (value !== undefined && value !== null && !(accountId in cloudAccountMap)) {
+                    cloudAccountMap[accountId] = value;
+                  }
+                }
+              }
+              delete (state as any)[id];
+            }
+          }
+        }
+      }
+
+      // Remove servers
+      for (const id of serversToDelete) {
+        delete (servers as any)[id];
+      }
+
+      // Update activeServerId if it points to a deleted server
+      if (migrated.activeServerId && serversToDelete.includes(migrated.activeServerId)) {
+        migrated.activeServerId = 'cloud';
+      }
+    }
+
+    migrated.schemaVersion = 7;
+  }
+
   // Future migrations go here:
-  // if (fromVersion < 6) { ... }
+  // if (fromVersion < 8) { ... }
 
   return migrated;
 }

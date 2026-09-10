@@ -13,7 +13,7 @@ export type LocalPrivateFilesBackendOptions = Readonly<{
 
 export function resolveLocalPrivateFilesDir(env: NodeJS.ProcessEnv = process.env): string {
     const explicit = expandHomeDirPath(
-        (env.HAPPY_SERVER_LIGHT_PRIVATE_FILES_DIR ?? env.HAPPIER_SERVER_LIGHT_PRIVATE_FILES_DIR)?.trim() ?? "",
+        (env.HAPPY_SERVER_LIGHT_PRIVATE_FILES_DIR ?? env.KAIWU_SERVER_LIGHT_PRIVATE_FILES_DIR)?.trim() ?? "",
         env,
     );
     if (explicit) {

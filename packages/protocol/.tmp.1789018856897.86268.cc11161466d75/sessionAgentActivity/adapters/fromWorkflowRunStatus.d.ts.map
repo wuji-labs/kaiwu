@@ -1,0 +1,1 @@
+{"version":3,"file":"fromWorkflowRunStatus.d.ts","sourceRoot":"","sources":["../../../src/sessionAgentActivity/adapters/fromWorkflowRunStatus.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,0BAA0B,EAAE,MAAM,+DAA+D,CAAC;AAChH,OAAO,KAAK,EAAE,qBAAqB,EAAE,MAAM,6BAA6B,CAAC;AAEzE;;;;;GAKG;AACH,wBAAgB,qBAAqB,CAAC,MAAM,EAAE,0BAA0B,GAAG,qBAAqB,CAyB/F"}

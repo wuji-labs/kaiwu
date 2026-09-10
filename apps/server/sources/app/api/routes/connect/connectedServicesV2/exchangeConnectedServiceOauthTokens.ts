@@ -92,7 +92,7 @@ function parseRecipientPublicKey(publicKeyB64Url: string): Uint8Array {
 }
 
 function resolveOauthExchangeTimeoutMs(env: NodeJS.ProcessEnv): number {
-    return parseIntEnv(env.HAPPIER_CONNECTED_SERVICES_OAUTH_EXCHANGE_TIMEOUT_MS, 10_000, { min: 1_000, max: 60_000 });
+    return parseIntEnv(env.KAIWU_CONNECTED_SERVICES_OAUTH_EXCHANGE_TIMEOUT_MS, 10_000, { min: 1_000, max: 60_000 });
 }
 
 function createFetchWithTimeout(fetcher: typeof fetch, timeoutMs: number): typeof fetch {

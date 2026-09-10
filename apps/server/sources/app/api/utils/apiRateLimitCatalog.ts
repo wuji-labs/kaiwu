@@ -59,8 +59,8 @@ function toUpperSnakeCase(input: string): string {
 function resolveRateLimitEnvKeysForId(id: string): { maxEnvKey: string; windowEnvKey: string } {
     const prefix = toUpperSnakeCase(id);
     return {
-        maxEnvKey: `HAPPIER_${prefix}_RATE_LIMIT_MAX`,
-        windowEnvKey: `HAPPIER_${prefix}_RATE_LIMIT_WINDOW`,
+        maxEnvKey: `KAIWU_${prefix}_RATE_LIMIT_MAX`,
+        windowEnvKey: `KAIWU_${prefix}_RATE_LIMIT_WINDOW`,
     };
 }
 

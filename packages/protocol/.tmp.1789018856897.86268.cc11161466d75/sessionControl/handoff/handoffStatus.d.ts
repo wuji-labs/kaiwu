@@ -1,0 +1,20 @@
+import { z } from 'zod';
+export declare const SessionHandoffPhaseSchema: any;
+export type SessionHandoffPhase = z.infer<typeof SessionHandoffPhaseSchema>;
+export declare const SessionHandoffStatusCodeSchema: any;
+export type SessionHandoffStatusCode = z.infer<typeof SessionHandoffStatusCodeSchema>;
+export declare const SessionHandoffProgressCheckpointSchema: any;
+export type SessionHandoffProgressCheckpoint = z.infer<typeof SessionHandoffProgressCheckpointSchema>;
+export declare const SESSION_HANDOFF_PROGRESS_FULL_TIMELINE: readonly ["plan", "transfer_blobs", "stage_target", "apply", "import_session", "finalize"];
+export declare const SESSION_HANDOFF_PROGRESS_FULL_TIMELINE_WITH_SOURCE_SCAN: readonly ["scan_source", "plan", "transfer_blobs", "stage_target", "apply", "import_session", "finalize"];
+export declare const SESSION_HANDOFF_PROGRESS_MINIMAL_TIMELINE: readonly ["stage_target", "import_session", "finalize"];
+export declare function resolveSessionHandoffProgressTimeline(checkpoint: SessionHandoffProgressCheckpoint | null | undefined): readonly SessionHandoffProgressCheckpoint[];
+export declare const SessionHandoffProgressWarningCodeSchema: any;
+export type SessionHandoffProgressWarningCode = z.infer<typeof SessionHandoffProgressWarningCodeSchema>;
+export declare const SessionHandoffProgressSchema: any;
+export type SessionHandoffProgress = z.infer<typeof SessionHandoffProgressSchema>;
+export declare const SessionHandoffWorkspacePreflightSummarySchema: any;
+export type SessionHandoffWorkspacePreflightSummary = z.infer<typeof SessionHandoffWorkspacePreflightSummarySchema>;
+export declare const SessionHandoffStatusSchema: any;
+export type SessionHandoffStatus = z.infer<typeof SessionHandoffStatusSchema>;
+//# sourceMappingURL=handoffStatus.d.ts.map

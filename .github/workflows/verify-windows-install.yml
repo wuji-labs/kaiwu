@@ -38,6 +38,6 @@ jobs:
         Write-Host "`n=== kaiwu --help (first 3 lines) ==="
         kaiwu --help | Select-Object -First 3
 
-        Write-Host "`n=== HAPPIER_SERVER_URL ==="
-        $happierServerUrl = [Environment]::GetEnvironmentVariable('HAPPIER_SERVER_URL','User')
-        Write-Host "HAPPIER_SERVER_URL=$happierServerUrl"
+        Write-Host "`n=== KAIWU_SERVER_URL ==="
+        $happierServerUrl = [Environment]::GetEnvironmentVariable('KAIWU_SERVER_URL','User')
+        Write-Host "KAIWU_SERVER_URL=$happierServerUrl"

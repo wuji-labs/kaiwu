@@ -565,7 +565,7 @@ describe('startDaemon ownership preflight', () => {
             logger.flushSync();
             const logContent = await readFile(logger.logFilePath, 'utf8');
             expect(logContent).toContain('Installed background service prevented manual daemon startup');
-            expect(logContent).toContain('happier service start');
+            expect(logContent).toContain('kaiwu service start');
             expect(waitForInitialCredentialsMock).not.toHaveBeenCalled();
         });
     });

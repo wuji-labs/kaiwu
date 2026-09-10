@@ -84,18 +84,18 @@ export function resolveAuthFeature(env: NodeJS.ProcessEnv): FeaturesPayloadDelta
                 message:
                     "mTLS is enabled but direct mode is not supported yet. Use forwarded mode with trusted identity headers.",
                 kind: "auth-mtls-config",
-                envVars: ["HAPPIER_FEATURE_AUTH_MTLS__ENABLED", "HAPPIER_FEATURE_AUTH_MTLS__MODE"],
+                envVars: ["KAIWU_FEATURE_AUTH_MTLS__ENABLED", "KAIWU_FEATURE_AUTH_MTLS__MODE"],
             });
         } else if (!mtlsEnv.trustForwardedHeaders) {
             misconfig.push({
                 code: "auth_mtls_not_configured",
                 message:
-                    "mTLS is enabled but forwarded mode is not configured. Set HAPPIER_FEATURE_AUTH_MTLS__TRUST_FORWARDED_HEADERS=1 and configure forwarded identity headers at the edge.",
+                    "mTLS is enabled but forwarded mode is not configured. Set KAIWU_FEATURE_AUTH_MTLS__TRUST_FORWARDED_HEADERS=1 and configure forwarded identity headers at the edge.",
                 kind: "auth-mtls-config",
                 envVars: [
-                    "HAPPIER_FEATURE_AUTH_MTLS__ENABLED",
-                    "HAPPIER_FEATURE_AUTH_MTLS__MODE",
-                    "HAPPIER_FEATURE_AUTH_MTLS__TRUST_FORWARDED_HEADERS",
+                    "KAIWU_FEATURE_AUTH_MTLS__ENABLED",
+                    "KAIWU_FEATURE_AUTH_MTLS__MODE",
+                    "KAIWU_FEATURE_AUTH_MTLS__TRUST_FORWARDED_HEADERS",
                 ],
             });
         } else {
@@ -105,13 +105,13 @@ export function resolveAuthFeature(env: NodeJS.ProcessEnv): FeaturesPayloadDelta
                         code: "auth_mtls_keyless_unavailable",
                         message:
                             availability.reason === "e2ee-required"
-                            ? "mTLS is enabled, but keyless accounts are unavailable because the server storage policy requires E2EE. Set HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY=optional|plaintext_only and enable HAPPIER_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED=1."
-                            : "mTLS is enabled, but keyless accounts are disabled. Enable HAPPIER_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED=1 and ensure plaintext storage is allowed.",
+                            ? "mTLS is enabled, but keyless accounts are unavailable because the server storage policy requires E2EE. Set KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY=optional|plaintext_only and enable KAIWU_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED=1."
+                            : "mTLS is enabled, but keyless accounts are disabled. Enable KAIWU_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED=1 and ensure plaintext storage is allowed.",
                         kind: "auth-mtls-keyless",
                         envVars: [
-                            "HAPPIER_FEATURE_AUTH_MTLS__ENABLED",
-                            "HAPPIER_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED",
-                            "HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY",
+                            "KAIWU_FEATURE_AUTH_MTLS__ENABLED",
+                            "KAIWU_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED",
+                            "KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY",
                         ],
                     });
                 }

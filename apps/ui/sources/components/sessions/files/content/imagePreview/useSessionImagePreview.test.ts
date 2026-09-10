@@ -7,7 +7,7 @@ import { useSessionImagePreview } from './useSessionImagePreview';
 
 const sessionReadFile = vi.hoisted(() => vi.fn());
 const downloadDaemonSessionFileToDestination = vi.hoisted(() => vi.fn());
-const createObjectURL = vi.hoisted(() => vi.fn(() => 'blob:happier-preview-1'));
+const createObjectURL = vi.hoisted(() => vi.fn(() => 'blob:kaiwu-preview-1'));
 const revokeObjectURL = vi.hoisted(() => vi.fn());
 const originalPlatformOS = Platform.OS;
 
@@ -76,7 +76,7 @@ describe('useSessionImagePreview', () => {
 
         const hook = await renderHook(() => useSessionImagePreview({
             sessionId: 'session-1',
-            filePath: '.happier/uploads/generated/message/image.png',
+            filePath: '.kaiwu/uploads/generated/message/image.png',
             enabled: true,
             cacheKey: 'sha-1',
             mimeType: 'image/png',
@@ -89,7 +89,7 @@ describe('useSessionImagePreview', () => {
 
         expect(hook.getCurrent()).toMatchObject({
             status: 'loaded',
-            uri: 'blob:happier-preview-1',
+            uri: 'blob:kaiwu-preview-1',
         });
         expect(sessionReadFile).not.toHaveBeenCalled();
         expect(downloadDaemonSessionFileToDestination).toHaveBeenCalledTimes(1);

@@ -24,7 +24,7 @@ describe('status command routing', () => {
 
     expect(handleServiceRepairCliCommandMock).toHaveBeenCalledWith({
       argv: ['repair', '--report-only', '--server', 'preview'],
-      commandPath: 'happier status',
+      commandPath: 'kaiwu status',
     });
   });
 
@@ -33,7 +33,7 @@ describe('status command routing', () => {
       args: ['status', '--yes'],
       rawArgv: ['node', 'happier', 'status', '--yes'],
       terminalRuntime: null,
-    })).rejects.toThrow('happier status is read-only');
+    })).rejects.toThrow('kaiwu status is read-only');
 
     expect(handleServiceRepairCliCommandMock).not.toHaveBeenCalled();
   });

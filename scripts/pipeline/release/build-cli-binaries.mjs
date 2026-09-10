@@ -75,7 +75,7 @@ async function main() {
 
   const artifacts = [];
   for (const target of targets) {
-    const stageDir = join(tempDir, `happier-v${version}-${target.os}-${target.arch}`);
+    const stageDir = join(tempDir, `kaiwu-v${version}-${target.os}-${target.arch}`);
     await buildCliBinaryArtifactPayload({
       repoRoot,
       payloadDir: stageDir,
@@ -84,7 +84,7 @@ async function main() {
       releaseVersion: version,
     });
     const artifact = await packagePreparedTargetBinary({
-      product: 'happier',
+      product: 'kaiwu',
       version,
       target,
       stageDir,
@@ -94,21 +94,21 @@ async function main() {
   }
 
   const checksumsPath = await writeChecksumsFile({
-    product: 'happier',
+    product: 'kaiwu',
     version,
     artifacts,
     outDir,
   });
   const signaturePath = await maybeSignFile({
     path: checksumsPath,
-    trustedComment: `happier ${version} ${channel}`,
+    trustedComment: `kaiwu ${version} ${channel}`,
   });
 
   // Best-effort cleanup to avoid unbounded temp build directories.
   await cleanupTempDirBestEffort({ tempDir });
 
   const output = {
-    product: 'happier',
+    product: 'kaiwu',
     channel,
     version,
     outDir,

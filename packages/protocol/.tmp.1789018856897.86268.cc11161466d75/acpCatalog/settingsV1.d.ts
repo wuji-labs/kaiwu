@@ -1,0 +1,22 @@
+import { z } from 'zod';
+import { type McpValueRefV1 } from '../mcpServers/settingsV1.js';
+export declare const AcpCatalogAuthSupportV1Schema: any;
+export type AcpCatalogAuthSupportV1 = z.infer<typeof AcpCatalogAuthSupportV1Schema>;
+export declare const AcpCatalogAuthParserV1Schema: any;
+export type AcpCatalogAuthParserV1 = z.infer<typeof AcpCatalogAuthParserV1Schema>;
+export declare const AcpCatalogTransportProfileV1Schema: any;
+export type AcpCatalogTransportProfileV1 = z.infer<typeof AcpCatalogTransportProfileV1Schema>;
+export declare const AcpCatalogSupportHintV1Schema: any;
+export type AcpCatalogSupportHintV1 = z.infer<typeof AcpCatalogSupportHintV1Schema>;
+export declare const AcpCatalogCommandV1Schema: any;
+export type AcpCatalogCommandV1 = z.infer<typeof AcpCatalogCommandV1Schema>;
+export declare const AcpBackendAuthConfigV1Schema: any;
+export type AcpBackendAuthConfigV1 = z.infer<typeof AcpBackendAuthConfigV1Schema>;
+export declare const AcpBackendCapabilitiesV1Schema: any;
+export type AcpBackendCapabilitiesV1 = z.infer<typeof AcpBackendCapabilitiesV1Schema>;
+export declare const AcpBackendDefinitionV1Schema: any;
+export type AcpBackendDefinitionV1 = z.infer<typeof AcpBackendDefinitionV1Schema>;
+export declare const AcpCatalogSettingsV1Schema: any;
+export type AcpCatalogSettingsV1 = z.infer<typeof AcpCatalogSettingsV1Schema>;
+export type AcpCatalogEnvValueRefV1 = McpValueRefV1;
+//# sourceMappingURL=settingsV1.d.ts.map

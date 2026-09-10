@@ -41,8 +41,8 @@ function isBunRuntime() {
 
 export function resolveServerLogLevelFromEnv(env: NodeJS.ProcessEnv): pino.LevelWithSilent {
     const raw = (
-        env.HAPPIER_SERVER_LOG_LEVEL
-        ?? env.HAPPIER_LOG_LEVEL
+        env.KAIWU_SERVER_LOG_LEVEL
+        ?? env.KAIWU_LOG_LEVEL
         ?? env.LOG_LEVEL
         ?? ""
     ).trim().toLowerCase();

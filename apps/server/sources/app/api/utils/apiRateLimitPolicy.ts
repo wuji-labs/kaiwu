@@ -19,7 +19,7 @@ function resolveApiRateLimitKeyStrategy(
     env: Record<string, string | undefined>,
     opts: { scope: "route" | "global" },
 ): ApiRateLimitKeyStrategy {
-    const key = opts.scope === "global" ? "HAPPIER_API_RATE_LIMITS_GLOBAL_KEY_STRATEGY" : "HAPPIER_API_RATE_LIMITS_ROUTE_KEY_STRATEGY";
+    const key = opts.scope === "global" ? "KAIWU_API_RATE_LIMITS_GLOBAL_KEY_STRATEGY" : "KAIWU_API_RATE_LIMITS_ROUTE_KEY_STRATEGY";
     const raw = String(env[key] ?? "").trim().toLowerCase();
     if (!raw || raw === "default") {
         return opts.scope === "global" ? "ip-only" : "user-or-ip";
@@ -88,7 +88,7 @@ export function gateRateLimitConfig(
     env: Record<string, string | undefined>,
     rateLimit: ApiRouteRateLimitConfig,
 ): ApiRouteRateLimitConfig {
-    const enabled = parseBooleanEnv(env.HAPPIER_API_RATE_LIMITS_ENABLED, true);
+    const enabled = parseBooleanEnv(env.KAIWU_API_RATE_LIMITS_ENABLED, true);
     if (!enabled) return false;
     return rateLimit;
 }
@@ -96,13 +96,13 @@ export function gateRateLimitConfig(
 export function resolveApiRateLimitPluginOptions(
     env: Record<string, string | undefined>,
 ): Readonly<{ global: boolean; max?: number; timeWindow?: string; keyGenerator?: (request: any) => string | Promise<string> }> {
-    const enabled = parseBooleanEnv(env.HAPPIER_API_RATE_LIMITS_ENABLED, true);
+    const enabled = parseBooleanEnv(env.KAIWU_API_RATE_LIMITS_ENABLED, true);
     if (!enabled) {
         return { global: false };
     }
 
-    const globalMax = parseIntEnv(env.HAPPIER_API_RATE_LIMITS_GLOBAL_MAX, 0, { min: 0 });
-    const windowRaw = (env.HAPPIER_API_RATE_LIMITS_GLOBAL_WINDOW ?? "").trim();
+    const globalMax = parseIntEnv(env.KAIWU_API_RATE_LIMITS_GLOBAL_MAX, 0, { min: 0 });
+    const windowRaw = (env.KAIWU_API_RATE_LIMITS_GLOBAL_WINDOW ?? "").trim();
     const timeWindow = windowRaw.length > 0 ? windowRaw : "1 minute";
 
     const keyGenerator = createApiRateLimitKeyGenerator(env, { scope: "global" });
@@ -123,7 +123,7 @@ export function resolveRouteRateLimit(
         keyGenerator?: (request: any) => string | Promise<string>;
     }>,
 ): ApiRouteRateLimitConfig {
-    const enabled = parseBooleanEnv(env.HAPPIER_API_RATE_LIMITS_ENABLED, true);
+    const enabled = parseBooleanEnv(env.KAIWU_API_RATE_LIMITS_ENABLED, true);
     if (!enabled) return false;
 
     const maxRaw = env[params.maxEnvKey];
@@ -141,7 +141,7 @@ export function resolveRouteRateLimit(
 }
 
 export function resolveApiTrustProxy(env: Record<string, string | undefined>): boolean | number | undefined {
-    const raw = (env.HAPPIER_SERVER_TRUST_PROXY ?? "").trim().toLowerCase();
+    const raw = (env.KAIWU_SERVER_TRUST_PROXY ?? "").trim().toLowerCase();
     if (!raw) return undefined;
     if (["true", "yes", "on"].includes(raw)) return true;
     if (["false", "no", "off"].includes(raw)) return false;

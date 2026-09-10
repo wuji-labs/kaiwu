@@ -1,0 +1,17 @@
+import { z } from 'zod';
+import { type ConnectedServiceBindingsV1 } from '../../connect/connectedServiceBindings.js';
+export declare const ConnectedServicesDefaultAuthByAgentIdV1Schema: any;
+export type ConnectedServicesDefaultAuthByAgentIdV1 = z.infer<typeof ConnectedServicesDefaultAuthByAgentIdV1Schema>;
+export declare const DEFAULT_CONNECTED_SERVICES_DEFAULT_AUTH_BY_AGENT_ID_V1: ConnectedServicesDefaultAuthByAgentIdV1;
+export declare const ConnectedServicesProviderConfigSharingModeV1Schema: any;
+export type ConnectedServicesProviderConfigSharingModeV1 = z.infer<typeof ConnectedServicesProviderConfigSharingModeV1Schema>;
+export declare const ConnectedServicesProviderStateSharingModeV1Schema: any;
+export type ConnectedServicesProviderStateSharingModeV1 = z.infer<typeof ConnectedServicesProviderStateSharingModeV1Schema>;
+export declare const ConnectedServicesProviderStateSharingPolicyV1Schema: any;
+export type ConnectedServicesProviderStateSharingPolicyV1 = z.infer<typeof ConnectedServicesProviderStateSharingPolicyV1Schema>;
+export declare const ConnectedServicesProviderStateSharingSettingsV1Schema: any;
+export type ConnectedServicesProviderStateSharingSettingsV1 = z.infer<typeof ConnectedServicesProviderStateSharingSettingsV1Schema>;
+export declare const DEFAULT_CONNECTED_SERVICES_PROVIDER_STATE_SHARING_SETTINGS_V1: ConnectedServicesProviderStateSharingSettingsV1;
+export declare function resolveConnectedServicesProviderStateSharingPolicyV1(settingsLike: unknown, agentId: string): ConnectedServicesProviderStateSharingPolicyV1;
+export type ConnectedServicesDefaultAuthBindingByAgentIdV1 = Record<string, ConnectedServiceBindingsV1>;
+//# sourceMappingURL=connectedServicesSettings.d.ts.map

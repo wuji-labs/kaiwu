@@ -68,7 +68,7 @@ describe('happier server add', () => {
       ]);
 
       const out = output.logs.join('\n');
-      expect(out).toContain('happier --server');
+      expect(out).toContain('kaiwu --server');
       expect(out).toContain('daemon start');
       expect(out).toContain('service install');
       expect(out).not.toContain('daemon service install');
@@ -105,7 +105,7 @@ describe('happier server add', () => {
 
       const out = output.logs.join('\n');
       expect(out).toContain('Next steps');
-      expect(out).toContain('happier --server');
+      expect(out).toContain('kaiwu --server');
       expect(out).toContain('daemon start');
       expect(out).toContain('service install');
       expect(out).not.toContain('daemon service install');
@@ -147,9 +147,9 @@ describe('happier server add', () => {
       ]);
 
       const out = output.logs.join('\n');
-      expect(out).toContain('Authenticate Happier against https://company.example.test');
-      expect(out).toContain('happier auth login');
-      expect(out).toContain('happier service restart');
+      expect(out).toContain('Authenticate Kaiwu against https://company.example.test');
+      expect(out).toContain('kaiwu auth login');
+      expect(out).toContain('kaiwu service restart');
       expect(out).not.toContain('daemon service restart');
     } finally {
       output.restore();
@@ -201,9 +201,9 @@ describe('happier server add', () => {
       await handleServerCommand(['use', 'Beta']);
 
       const out = output.logs.join('\n');
-      expect(out).toContain('Authenticate Happier against https://beta.example.test');
-      expect(out).toContain('happier auth login');
-      expect(out).toContain('happier service restart');
+      expect(out).toContain('Authenticate Kaiwu against https://beta.example.test');
+      expect(out).toContain('kaiwu auth login');
+      expect(out).toContain('kaiwu service restart');
       expect(out).not.toContain('daemon service restart');
     } finally {
       output.restore();

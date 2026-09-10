@@ -62,15 +62,15 @@ describe('configuration env url fallback', () => {
     const homeDir = createTempDirSync('happier-cli-config-');
     tempDirs.push(homeDir);
     process.env.HAPPIER_HOME_DIR = homeDir;
-    process.env.HAPPIER_SERVER_URL = 'https://api.happier.dev';
+    process.env.HAPPIER_SERVER_URL = 'https://kaiwu.chengqiyun.com';
     delete process.env.HAPPIER_WEBAPP_URL;
 
     const output = captureConsoleText();
     try {
       const configMod = await import('./configuration');
       configMod.reloadConfiguration();
-      expect(configMod.configuration.serverUrl).toBe('https://api.happier.dev');
-      expect(configMod.configuration.webappUrl).toBe('https://app.happier.dev');
+      expect(configMod.configuration.serverUrl).toBe('https://kaiwu.chengqiyun.com');
+      expect(configMod.configuration.webappUrl).toBe('https://kaiwu.chengqiyun.com');
     } finally {
       output.restore();
     }

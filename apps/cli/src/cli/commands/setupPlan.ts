@@ -221,8 +221,40 @@ function classifyRelayReachability(
   return { kind: 'tailnet', tailnetName: tailscale.tailnetName };
 }
 
+/**
+ * Internal serverUrl for cloud relay, used for deduplication.
+ */
+const CLOUD_SERVER_URL = 'https://kaiwu.chengqiyun.com';
+
 function normalizeUrl(value: string): string {
-  return value.trim().replace(/\/+$/u, '');
+  let normalized = value.trim();
+
+  // Add https:// if no protocol is specified
+  if (!normalized.startsWith('http://') && !normalized.startsWith('https://')) {
+    normalized = `https://${normalized}`;
+  }
+
+  // Remove trailing slashes
+  normalized = normalized.replace(/\/+$/u, '');
+
+  // Lowercase the host part (domain)
+  try {
+    const url = new URL(normalized);
+    const protocol = url.protocol; // e.g., 'https:'
+    const lowerHost = url.hostname.toLowerCase();
+
+    // Extract the part after the host (pathname, query, hash)
+    // Protocol + '//' length is typically 8 for 'https://'
+    const protocolSlashSlash = protocol + '//';
+    const hostStart = protocolSlashSlash.length;
+    const hostEnd = hostStart + url.hostname.length;
+    const afterHost = normalized.slice(hostEnd);
+
+    return `${protocolSlashSlash}${lowerHost}${afterHost}`;
+  } catch {
+    // If URL parsing fails, return the trimmed value with trailing slashes removed
+    return normalized;
+  }
 }
 
 /**
@@ -349,7 +381,19 @@ export function buildSetupPlan(params: BuildSetupPlanParams): SetupPlan {
       steps.push({ kind: 'offerTailscaleSetup' });
     }
   } else if (selection.kind === 'existing') {
-    steps.push({ kind: 'selectRelay', relayUrl: normalizeUrl(selection.url) });
+    const normalizedUrl = normalizeUrl(selection.url);
+    // Check if the normalized URL equals cloud's serverUrl
+    if (normalizedUrl === CLOUD_SERVER_URL) {
+      // User provided cloud's URL (or equivalent after normalization),
+      // treat it as cloud selection instead of creating a duplicate profile
+      if (activeRelayUrl && normalizeUrl(activeRelayUrl) !== CLOUD_SERVER_URL) {
+        // Current relay is not cloud, need to switch
+        steps.push({ kind: 'selectCloudRelay' });
+      }
+      // Otherwise already at cloud or cloud is default, no step needed
+    } else {
+      steps.push({ kind: 'selectRelay', relayUrl: normalizedUrl });
+    }
   } else if (activeRelayUrl) {
     // Cloud is a choice, not the absence of one. Skipping the step left a
     // machine that already points at a custom relay — a half-finished earlier

@@ -74,7 +74,7 @@ function shouldEnableRedisAdapterFromEnv(env: NodeJS.ProcessEnv, flavor: ServerF
 }
 
 function resolveSqliteSizeWarnBytes(env: NodeJS.ProcessEnv): number | null {
-    const raw = String(env.HAPPIER_SERVER_DB_SIZE_WARN_BYTES ?? '').trim();
+    const raw = String(env.KAIWU_SERVER_DB_SIZE_WARN_BYTES ?? '').trim();
     if (!raw) return null;
     const parsed = Number.parseInt(raw, 10);
     return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
@@ -124,21 +124,21 @@ async function warnIfSqliteDatabaseFilesExceedThreshold(env: NodeJS.ProcessEnv):
 
 export async function startServer(flavor: ServerFlavor): Promise<void> {
     process.env.HAPPY_SERVER_FLAVOR = flavor;
-    process.env.HAPPIER_SERVER_FLAVOR = flavor;
+    process.env.KAIWU_SERVER_FLAVOR = flavor;
     initializeServerSentry(process.env);
     const role = getServerRoleFromEnv(process.env);
     const shouldEnableRedisAdapter = shouldEnableRedisAdapterFromEnv(process.env, flavor);
     const dbProvider = getDbProviderFromEnv(process.env, flavor === 'light' ? 'sqlite' : 'postgres');
     process.env.HAPPY_DB_PROVIDER = dbProvider;
-    process.env.HAPPIER_DB_PROVIDER = dbProvider;
+    process.env.KAIWU_DB_PROVIDER = dbProvider;
 
     const filesBackend = getFilesBackendFromEnv(process.env, resolveDefaultFilesBackend(flavor));
     process.env.HAPPY_FILES_BACKEND = filesBackend;
-    process.env.HAPPIER_FILES_BACKEND = filesBackend;
+    process.env.KAIWU_FILES_BACKEND = filesBackend;
 
     const socketAdapter = getSocketAdapterFromEnv(process.env, resolveDefaultSocketAdapter(flavor));
     process.env.HAPPY_SOCKET_ADAPTER = socketAdapter;
-    process.env.HAPPIER_SOCKET_ADAPTER = socketAdapter;
+    process.env.KAIWU_SOCKET_ADAPTER = socketAdapter;
 
     const shouldApplyLocalDefaults = filesBackend === 'local' || dbProvider === 'pglite' || dbProvider === 'sqlite';
     if (shouldApplyLocalDefaults) {
@@ -157,16 +157,16 @@ export async function startServer(flavor: ServerFlavor): Promise<void> {
     } else if (dbProvider === 'sqlite') {
         if (!process.env.DATABASE_URL || !process.env.DATABASE_URL.trim()) {
             const dataDir = expandHomeDirPath(
-                (process.env.HAPPIER_SERVER_LIGHT_DATA_DIR ?? process.env.HAPPY_SERVER_LIGHT_DATA_DIR ?? '').trim(),
+                (process.env.KAIWU_SERVER_LIGHT_DATA_DIR ?? process.env.HAPPY_SERVER_LIGHT_DATA_DIR ?? '').trim(),
                 process.env,
             );
             if (!dataDir) {
-                throw new Error('HAPPIER_SERVER_LIGHT_DATA_DIR (or HAPPY_SERVER_LIGHT_DATA_DIR) must be set when using sqlite without DATABASE_URL');
+                throw new Error('KAIWU_SERVER_LIGHT_DATA_DIR (or HAPPY_SERVER_LIGHT_DATA_DIR) must be set when using sqlite without DATABASE_URL');
             }
             process.env.DATABASE_URL = resolveLightSqliteDatabaseUrl(dataDir);
         }
         const dataDir = expandHomeDirPath(
-            (process.env.HAPPY_SERVER_LIGHT_DATA_DIR ?? process.env.HAPPIER_SERVER_LIGHT_DATA_DIR ?? '').trim(),
+            (process.env.HAPPY_SERVER_LIGHT_DATA_DIR ?? process.env.KAIWU_SERVER_LIGHT_DATA_DIR ?? '').trim(),
             process.env,
         );
         if (dataDir) {
@@ -175,7 +175,7 @@ export async function startServer(flavor: ServerFlavor): Promise<void> {
         await warnIfSqliteDatabaseFilesExceedThreshold(process.env);
         await initDbSqlite();
     } else {
-        throw new Error(`Unsupported HAPPY_DB_PROVIDER/HAPPIER_DB_PROVIDER: ${dbProvider}`);
+        throw new Error(`Unsupported HAPPY_DB_PROVIDER/KAIWU_DB_PROVIDER: ${dbProvider}`);
     }
 
     if (filesBackend === 'local') {
@@ -183,7 +183,7 @@ export async function startServer(flavor: ServerFlavor): Promise<void> {
     } else if (filesBackend === 's3') {
         await initFilesS3FromEnv(process.env);
     } else {
-        throw new Error(`Unsupported HAPPY_FILES_BACKEND/HAPPIER_FILES_BACKEND: ${String(filesBackend)}`);
+        throw new Error(`Unsupported HAPPY_FILES_BACKEND/KAIWU_FILES_BACKEND: ${String(filesBackend)}`);
     }
 
     const sqliteWalCheckpointIntervalMs = dbProvider === 'sqlite'
@@ -214,7 +214,7 @@ export async function startServer(flavor: ServerFlavor): Promise<void> {
             await sqliteWalCheckpointClient.$connect();
             await applySqliteRuntimePragmas(sqliteWalCheckpointClient, {
                 ...process.env,
-                HAPPIER_SQLITE_BUSY_TIMEOUT_MS: String(sqliteWalCheckpointBusyTimeoutMs),
+                KAIWU_SQLITE_BUSY_TIMEOUT_MS: String(sqliteWalCheckpointBusyTimeoutMs),
                 HAPPY_SQLITE_BUSY_TIMEOUT_MS: String(sqliteWalCheckpointBusyTimeoutMs),
             });
         }
@@ -298,7 +298,7 @@ export async function startServer(flavor: ServerFlavor): Promise<void> {
     if (role === 'worker') {
         if (!shouldEnableRedisAdapter) {
             throw new Error(
-                "SERVER_ROLE=worker requires Redis socket adapter enabled (set REDIS_URL and HAPPIER_SOCKET_ADAPTER=redis-streams) so worker pushes can fan out to connected API sockets",
+                "SERVER_ROLE=worker requires Redis socket adapter enabled (set REDIS_URL and KAIWU_SOCKET_ADAPTER=redis-streams) so worker pushes can fan out to connected API sockets",
             );
         }
         // Create an emitter-only Socket.IO server wired to the Redis adapter, so background jobs can publish

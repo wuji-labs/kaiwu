@@ -30,7 +30,7 @@ function getStreamMaxLen(env: NodeJS.ProcessEnv): number | null {
 
 function getConsumerName(env: NodeJS.ProcessEnv): string {
     // Must be stable per-process; `HAPPY_INSTANCE_ID` is also used for cluster-aware RPC.
-    return env.HAPPIER_INSTANCE_ID?.trim() || env.HAPPY_INSTANCE_ID?.trim() || `worker:${process.pid}:${randomUUID()}`;
+    return env.KAIWU_INSTANCE_ID?.trim() || env.HAPPY_INSTANCE_ID?.trim() || `worker:${process.pid}:${randomUUID()}`;
 }
 
 export async function publishMachineAlive(params: { accountId: string; machineId: string; timestamp: number }): Promise<void> {

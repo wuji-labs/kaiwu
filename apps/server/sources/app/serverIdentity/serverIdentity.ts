@@ -2,7 +2,7 @@ import { db, isPrismaErrorCode } from "@/storage/db";
 import { randomKeyNaked } from "@/utils/keys/randomKeyNaked";
 
 export const SERVER_IDENTITY_CACHE_KEY = "server.identity.v1";
-export const SERVER_IDENTITY_ENV_KEY = "HAPPIER_SERVER_IDENTITY_ID";
+export const SERVER_IDENTITY_ENV_KEY = "KAIWU_SERVER_IDENTITY_ID";
 
 const SERVER_IDENTITY_ID_PATTERN = /^srv_[A-Za-z0-9._-]{1,60}$/;
 

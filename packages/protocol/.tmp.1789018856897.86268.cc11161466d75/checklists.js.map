@@ -1,0 +1,1 @@
+{"version":3,"file":"checklists.js","sourceRoot":"","sources":["../src/checklists.ts"],"names":[],"mappings":"AAAA,MAAM,CAAC,MAAM,aAAa,GAAG;IAC3B,WAAW,EAAE,aAAa;IAC1B,eAAe,EAAE,iBAAiB;CAC1B,CAAC;AAKX,MAAM,UAAU,iBAAiB,CAAgC,OAAiB;IAChF,OAAO,UAAU,OAAO,EAA0B,CAAC;AACrD,CAAC"}

@@ -80,7 +80,7 @@ describe('ensureDaemonRunningForSessionCommand conflict handling', () => {
             expect(spawnDetachedDaemonStartSyncMock).not.toHaveBeenCalled();
             expect(output.text()).toContain('background service');
             expect(output.text()).toContain('selected relay');
-            expect(output.text()).toContain('happier doctor repair');
+            expect(output.text()).toContain('kaiwu doctor repair');
         });
     });
 
@@ -119,7 +119,7 @@ describe('ensureDaemonRunningForSessionCommand conflict handling', () => {
             expect(spawnDetachedDaemonStartSyncMock).not.toHaveBeenCalled();
             expect(output.text()).toContain('manually started daemon');
             expect(output.text()).toContain('without starting another daemon');
-            expect(output.text()).toContain('happier daemon restart');
+            expect(output.text()).toContain('kaiwu daemon restart');
         });
     });
 
@@ -172,6 +172,6 @@ describe('ensureDaemonRunningForSessionCommand conflict handling', () => {
 
         expect(spawnDetachedDaemonStartSyncMock).not.toHaveBeenCalled();
         expect(output.text()).toContain('A background service is already installed');
-        expect(output.text()).toContain('happier service start');
+        expect(output.text()).toContain('kaiwu service start');
     });
 });

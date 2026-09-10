@@ -14,7 +14,7 @@ function buildRepairRecommendedWarning(actionCount: number): DoctorWarning {
     message: actionCount === 1
       ? 'Automatic startup repair is recommended for this installation.'
       : `Automatic startup repair is recommended (${actionCount} actions).`,
-    repairCommands: ['happier doctor repair --yes'],
+    repairCommands: ['kaiwu doctor repair --yes'],
   };
 }
 
@@ -23,7 +23,7 @@ function buildManualRepairWarning(message: string): DoctorWarning {
     code: 'backgroundServiceRepairManual',
     severity: 'warning',
     message,
-    repairCommands: ['happier doctor repair'],
+    repairCommands: ['kaiwu doctor repair'],
   };
 }
 
@@ -44,9 +44,9 @@ function buildRunningDaemonMismatchWarning(params: Readonly<{
   }
 
   const repairCommands = daemon.serviceManaged === true
-    ? ['happier doctor repair']
+    ? ['kaiwu doctor repair']
     : daemon.serviceManaged === false
-      ? ['happier daemon restart']
+      ? ['kaiwu daemon restart']
       : [];
 
   return {

@@ -12,7 +12,7 @@ function parseCsvUserIds(raw: string | undefined): string[] {
 }
 
 export function resolveServerOwnerUserIds(env: NodeJS.ProcessEnv): string[] {
-    return parseCsvUserIds(env.HAPPIER_SERVER_OWNER_USER_IDS);
+    return parseCsvUserIds(env.KAIWU_SERVER_OWNER_USER_IDS);
 }
 
 export function isServerOwnerUserId(env: NodeJS.ProcessEnv, userId: string): boolean {

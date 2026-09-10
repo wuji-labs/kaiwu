@@ -1,0 +1,23 @@
+import { z } from 'zod';
+export declare const McpPreviewAuthModeV1Schema: any;
+export type McpPreviewAuthModeV1 = z.infer<typeof McpPreviewAuthModeV1Schema>;
+export declare const McpPreviewSourceKindV1Schema: any;
+export type McpPreviewSourceKindV1 = z.infer<typeof McpPreviewSourceKindV1Schema>;
+export declare const McpPreviewScopeKindV1Schema: any;
+export type McpPreviewScopeKindV1 = z.infer<typeof McpPreviewScopeKindV1Schema>;
+export declare const McpPreviewEntryAvailabilityV1Schema: any;
+export type McpPreviewEntryAvailabilityV1 = z.infer<typeof McpPreviewEntryAvailabilityV1Schema>;
+export declare const ManagedSessionMcpAvailabilityV1Schema: any;
+export declare const ManagedSessionMcpReasonCodeV1Schema: any;
+export declare const ManagedSessionMcpPortabilityV1Schema: any;
+export declare const ManagedMcpPreviewEntryV1Schema: any;
+export type ManagedMcpPreviewEntryV1 = z.infer<typeof ManagedMcpPreviewEntryV1Schema>;
+export declare const BuiltInMcpPreviewEntryV1Schema: any;
+export type BuiltInMcpPreviewEntryV1 = z.infer<typeof BuiltInMcpPreviewEntryV1Schema>;
+export declare const DetectedMcpPreviewEntryV1Schema: any;
+export type DetectedMcpPreviewEntryV1 = z.infer<typeof DetectedMcpPreviewEntryV1Schema>;
+export declare const DaemonMcpServersPreviewRequestSchema: any;
+export type DaemonMcpServersPreviewRequest = z.infer<typeof DaemonMcpServersPreviewRequestSchema>;
+export declare const DaemonMcpServersPreviewResponseSchema: any;
+export type DaemonMcpServersPreviewResponse = z.infer<typeof DaemonMcpServersPreviewResponseSchema>;
+//# sourceMappingURL=previewV1.d.ts.map

@@ -276,12 +276,12 @@ export async function listSqliteMigrations(migrationsDir: string): Promise<Sqlit
 }
 
 export function shouldAutoMigrateSqliteOnStart(env: NodeJS.ProcessEnv): boolean {
-  return parseBooleanEnv(env.HAPPIER_SQLITE_AUTO_MIGRATE ?? env.HAPPY_SQLITE_AUTO_MIGRATE, false);
+  return parseBooleanEnv(env.KAIWU_SQLITE_AUTO_MIGRATE ?? env.HAPPY_SQLITE_AUTO_MIGRATE, false);
 }
 
 export function resolveSqliteMigrationsDir(env: NodeJS.ProcessEnv, dataDir: string): string {
   const explicit = expandHomeDirPath(
-    String(env.HAPPIER_SQLITE_MIGRATIONS_DIR ?? env.HAPPY_SQLITE_MIGRATIONS_DIR ?? '').trim(),
+    String(env.KAIWU_SQLITE_MIGRATIONS_DIR ?? env.HAPPY_SQLITE_MIGRATIONS_DIR ?? '').trim(),
     env,
   );
   if (explicit) return explicit;

@@ -1,0 +1,246 @@
+export declare const RPC_METHODS: {
+    readonly SPAWN_HAPPY_SESSION: "spawn-happy-session";
+    readonly SPAWN_HAPPY_SESSION_PROVIDER_SAFE: "spawn-happy-session.provider-safe.v1";
+    readonly STOP_SESSION: "stop-session";
+    readonly STOP_DAEMON: "stop-daemon";
+    readonly DAEMON_SPAWN_SESSION_RESOLVE: "daemon.spawnSession.resolve";
+    readonly DAEMON_SPAWN_SESSION_ABANDON: "daemon.spawnSession.abandon";
+    readonly DAEMON_EXECUTION_RUNS_LIST: "daemon.executionRuns.list";
+    readonly DAEMON_TERMINAL_ENSURE: "daemon.terminal.ensure";
+    readonly DAEMON_TERMINAL_STREAM_READ: "daemon.terminal.stream.read";
+    readonly DAEMON_TERMINAL_INPUT: "daemon.terminal.input";
+    readonly DAEMON_TERMINAL_RESIZE: "daemon.terminal.resize";
+    readonly DAEMON_TERMINAL_CLOSE: "daemon.terminal.close";
+    readonly DAEMON_TERMINAL_RESTART: "daemon.terminal.restart";
+    readonly DAEMON_MEMORY_SEARCH: "daemon.memory.search";
+    readonly DAEMON_MEMORY_GET_WINDOW: "daemon.memory.getWindow";
+    readonly DAEMON_MEMORY_ENSURE_UP_TO_DATE: "daemon.memory.ensureUpToDate";
+    readonly DAEMON_MEMORY_STATUS: "daemon.memory.status";
+    readonly DAEMON_SERVER_WORK_STATUS: "daemon.serverWork.status";
+    readonly DAEMON_MEMORY_SETTINGS_GET: "daemon.memory.settings.get";
+    readonly DAEMON_MEMORY_SETTINGS_SET: "daemon.memory.settings.set";
+    readonly DAEMON_MCP_SERVERS_TEST: "daemon.mcpServers.test";
+    readonly DAEMON_MCP_SERVERS_DETECT: "daemon.mcpServers.detect";
+    readonly DAEMON_MCP_SERVERS_PREVIEW: "daemon.mcpServers.preview";
+    readonly DAEMON_BULK_TRANSFER_UPLOAD_INIT: "daemon.bulkTransfer.upload.init";
+    readonly DAEMON_BULK_TRANSFER_UPLOAD_CHUNK: "daemon.bulkTransfer.upload.chunk";
+    readonly DAEMON_BULK_TRANSFER_UPLOAD_FINALIZE: "daemon.bulkTransfer.upload.finalize";
+    readonly DAEMON_BULK_TRANSFER_UPLOAD_ABORT: "daemon.bulkTransfer.upload.abort";
+    readonly DAEMON_BULK_TRANSFER_DOWNLOAD_INIT: "daemon.bulkTransfer.download.init";
+    readonly DAEMON_BULK_TRANSFER_DOWNLOAD_CHUNK: "daemon.bulkTransfer.download.chunk";
+    readonly DAEMON_BULK_TRANSFER_DOWNLOAD_FINALIZE: "daemon.bulkTransfer.download.finalize";
+    readonly DAEMON_BULK_TRANSFER_DOWNLOAD_ABORT: "daemon.bulkTransfer.download.abort";
+    readonly DAEMON_PROMPT_ASSETS_LIST_TYPES: "daemon.promptAssets.listTypes";
+    readonly DAEMON_PROMPT_ASSETS_DISCOVER: "daemon.promptAssets.discover";
+    readonly DAEMON_PROMPT_ASSETS_UPLOAD_INIT: "daemon.promptAssets.upload.init";
+    readonly DAEMON_PROMPT_ASSETS_UPLOAD_CHUNK: "daemon.promptAssets.upload.chunk";
+    readonly DAEMON_PROMPT_ASSETS_UPLOAD_FINALIZE: "daemon.promptAssets.upload.finalize";
+    readonly DAEMON_PROMPT_ASSETS_UPLOAD_ABORT: "daemon.promptAssets.upload.abort";
+    readonly DAEMON_PROMPT_ASSETS_DOWNLOAD_INIT: "daemon.promptAssets.download.init";
+    readonly DAEMON_PROMPT_ASSETS_DOWNLOAD_CHUNK: "daemon.promptAssets.download.chunk";
+    readonly DAEMON_PROMPT_ASSETS_DOWNLOAD_FINALIZE: "daemon.promptAssets.download.finalize";
+    readonly DAEMON_PROMPT_ASSETS_DOWNLOAD_ABORT: "daemon.promptAssets.download.abort";
+    readonly DAEMON_PROMPT_ASSETS_DELETE: "daemon.promptAssets.delete";
+    readonly WORKSPACE_ANCHORS_RESOLVE: "workspace.anchors.resolve";
+    readonly WORKSPACE_FAVICON_RESOLVE: "workspace.favicon.resolve";
+    readonly DAEMON_PROMPT_REGISTRY_LIST_ADAPTERS: "daemon.promptRegistry.listAdapters";
+    readonly DAEMON_PROMPT_REGISTRY_LIST_SOURCES: "daemon.promptRegistry.listSources";
+    readonly DAEMON_PROMPT_REGISTRY_SCAN_SOURCE: "daemon.promptRegistry.scanSource";
+    readonly DAEMON_PROMPT_REGISTRY_DOWNLOAD_INIT: "daemon.promptRegistry.download.init";
+    readonly DAEMON_PROMPT_REGISTRY_DOWNLOAD_CHUNK: "daemon.promptRegistry.download.chunk";
+    readonly DAEMON_PROMPT_REGISTRY_DOWNLOAD_FINALIZE: "daemon.promptRegistry.download.finalize";
+    readonly DAEMON_PROMPT_REGISTRY_DOWNLOAD_ABORT: "daemon.promptRegistry.download.abort";
+    readonly DAEMON_PROMPT_REGISTRY_INSTALL: "daemon.promptRegistry.install";
+    readonly DAEMON_DIRECT_SESSIONS_CANDIDATES_LIST: "daemon.directSessions.candidates.list";
+    readonly DAEMON_DIRECT_SESSION_LINK_ENSURE: "daemon.directSessions.link.ensure";
+    readonly DAEMON_DIRECT_SESSION_ATTACH: "daemon.directSessions.attach";
+    readonly DAEMON_DIRECT_SESSION_DETACH: "daemon.directSessions.detach";
+    readonly DAEMON_DIRECT_SESSION_FOLLOW_POLICY_SET: "daemon.directSessions.followPolicy.set";
+    readonly DAEMON_DIRECT_SESSION_STATUS_GET: "daemon.directSessions.status.get";
+    readonly DAEMON_DIRECT_SESSION_TRANSCRIPT_PAGE: "daemon.directSessions.transcript.page";
+    readonly DAEMON_DIRECT_SESSION_TRANSCRIPT_READ_AFTER: "daemon.directSessions.transcript.readAfter";
+    readonly DAEMON_DIRECT_SESSION_TAKEOVER: "daemon.directSessions.takeover";
+    readonly DAEMON_DIRECT_SESSION_TAKEOVER_PERSIST: "daemon.directSessions.takeoverPersist";
+    readonly DAEMON_SESSION_GOAL_GET: "daemon.sessionGoal.get";
+    readonly DAEMON_SESSION_GOAL_SET: "daemon.sessionGoal.set";
+    readonly DAEMON_SESSION_GOAL_CLEAR: "daemon.sessionGoal.clear";
+    readonly DAEMON_SESSION_VENDOR_PLUGIN_CATALOG_LIST: "daemon.sessionVendorPluginCatalog.list";
+    readonly DAEMON_SESSION_SKILL_CATALOG_LIST: "daemon.sessionSkillCatalog.list";
+    readonly DAEMON_SESSION_USAGE_LIMIT_WAIT_RESUME_ENABLE: "daemon.sessionUsageLimit.waitResume.enable";
+    readonly DAEMON_SESSION_USAGE_LIMIT_WAIT_RESUME_CANCEL: "daemon.sessionUsageLimit.waitResume.cancel";
+    readonly DAEMON_SESSION_USAGE_LIMIT_CHECK_NOW: "daemon.sessionUsageLimit.checkNow";
+    readonly DAEMON_CONNECTED_SERVICE_QUOTA_RECOVERY_CREDIT_CONSUME: "daemon.connectedServiceQuota.recoveryCredit.consume";
+    readonly DAEMON_SESSION_CONNECTED_SERVICE_AUTH_SWITCH: "daemon.sessionConnectedServiceAuth.switch";
+    readonly DAEMON_SESSION_RUNNER_STATUS_GET: "daemon.sessionRunner.status.get";
+    readonly DAEMON_SESSION_RUNNER_RESTART: "daemon.sessionRunner.restart";
+    readonly DAEMON_SESSION_RUNNER_RESTART_ALL: "daemon.sessionRunner.restartAll";
+    readonly DAEMON_SESSION_HANDOFF_START: "daemon.sessionHandoff.start";
+    readonly DAEMON_SESSION_HANDOFF_PREPARE_TARGET: "daemon.sessionHandoff.prepareTarget";
+    readonly DAEMON_SESSION_HANDOFF_PREPARE_TARGET_RESULT_GET: "daemon.sessionHandoff.prepareTargetResult.get";
+    readonly DAEMON_SESSION_HANDOFF_COMMIT: "daemon.sessionHandoff.commit";
+    readonly DAEMON_SESSION_HANDOFF_ABORT: "daemon.sessionHandoff.abort";
+    readonly DAEMON_SESSION_HANDOFF_STATUS_GET: "daemon.sessionHandoff.status.get";
+    readonly DAEMON_SESSION_HANDOFF_CAPABILITY_V2_GET: "daemon.sessionHandoff.capability.v2.get";
+    readonly DAEMON_SESSION_HANDOFF_PREPARE_TARGET_V2: "daemon.sessionHandoff.prepareTarget.v2";
+    readonly DAEMON_SESSION_HANDOFF_PREPARE_TARGET_RESULT_GET_V2: "daemon.sessionHandoff.prepareTargetResult.get.v2";
+    readonly DAEMON_SESSION_HANDOFF_TARGET_RESUME_V2: "daemon.sessionHandoff.targetResume.v2";
+    readonly DAEMON_SESSION_HANDOFF_TARGET_CONFIRM_V2: "daemon.sessionHandoff.targetConfirm.v2";
+    readonly DAEMON_SESSION_HANDOFF_COMMIT_V2: "daemon.sessionHandoff.commit.v2";
+    readonly DAEMON_SESSION_HANDOFF_ABORT_V2: "daemon.sessionHandoff.abort.v2";
+    readonly SESSION_CONTINUE_WITH_REPLAY: "session.continueWithReplay";
+    readonly SESSION_FORK: "session.fork";
+    /**
+     * Same-Session cross-Agent continuation. Owned by the DAEMON machine RPC, not
+     * the session-process registrar: the operation stops the very runtime that
+     * would otherwise be handling it, so the session process cannot be its own
+     * coordinator.
+     */
+    readonly SESSION_AGENT_TRANSITION: "session.agentTransition";
+    /**
+     * Read-only live eligibility probe for an in-place transition. Grants no
+     * authority and persists nothing; the mutation revalidates every fact.
+     */
+    readonly SESSION_CONTINUATION_INSPECT: "session.continuation.inspect";
+    /**
+     * Read-only rebuild of the activation brief one transition divider stands
+     * for. Runs the same bounded context pass the transition ran, bounded by the
+     * divider's recorded cutoff.
+     */
+    readonly SESSION_AGENT_TRANSITION_BRIEF_PREVIEW: "session.agentTransition.briefPreview";
+    readonly BASH: "bash";
+    readonly PREVIEW_ENV: "preview-env";
+    readonly READ_FILE: "readFile";
+    readonly WRITE_FILE: "writeFile";
+    readonly CREATE_DIRECTORY: "createDirectory";
+    readonly LIST_DIRECTORY: "listDirectory";
+    readonly GET_DIRECTORY_TREE: "getDirectoryTree";
+    readonly DAEMON_FILESYSTEM_LIST_ROOTS: "daemon.filesystem.listRoots";
+    readonly DAEMON_FILESYSTEM_LIST_DIRECTORY: "daemon.filesystem.listDirectory";
+    readonly STAT_FILE: "statFile";
+    readonly RENAME_PATH: "renamePath";
+    readonly DELETE_PATH: "deletePath";
+    readonly RIPGREP: "ripgrep";
+    readonly DIFFTASTIC: "difftastic";
+    readonly SESSION_LOG_TAIL: "session.log.tail";
+    readonly SCM_BACKEND_DESCRIBE: "scm.backend.describe";
+    readonly SCM_STATUS_SNAPSHOT: "scm.status.snapshot";
+    readonly SCM_DIFF_FILE: "scm.diff.file";
+    readonly SCM_DIFF_COMMIT: "scm.diff.commit";
+    readonly SCM_CHANGE_INCLUDE: "scm.change.include";
+    readonly SCM_CHANGE_EXCLUDE: "scm.change.exclude";
+    readonly SCM_CHANGE_DISCARD: "scm.change.discard";
+    readonly SCM_COMMIT_CREATE: "scm.commit.create";
+    readonly SCM_COMMIT_BACKOUT: "scm.commit.backout";
+    readonly SCM_LOG_LIST: "scm.log.list";
+    readonly SCM_BRANCH_LIST: "scm.branch.list";
+    readonly SCM_BRANCH_CREATE: "scm.branch.create";
+    readonly SCM_BRANCH_CHECKOUT: "scm.branch.checkout";
+    readonly SCM_BRANCH_MERGE: "scm.branch.merge";
+    readonly SCM_BRANCH_REBASE: "scm.branch.rebase";
+    readonly SCM_BRANCH_OPERATION_CONTINUE: "scm.branch.operation.continue";
+    readonly SCM_BRANCH_OPERATION_ABORT: "scm.branch.operation.abort";
+    readonly SCM_WORKTREE_CREATE: "scm.worktree.create";
+    readonly SCM_WORKTREE_REMOVE: "scm.worktree.remove";
+    readonly SCM_WORKTREE_PRUNE: "scm.worktree.prune";
+    readonly SCM_WORKTREES_ENRICHMENT: "scm.worktrees.enrichment";
+    readonly SCM_REMOTE_ADD: "scm.remote.add";
+    readonly SCM_REMOTE_SET_URL: "scm.remote.setUrl";
+    readonly SCM_REMOTE_REMOVE: "scm.remote.remove";
+    readonly SCM_REMOTE_FETCH: "scm.remote.fetch";
+    readonly SCM_REMOTE_PUSH: "scm.remote.push";
+    readonly SCM_REMOTE_PULL: "scm.remote.pull";
+    readonly SCM_REMOTE_PUBLISH: "scm.remote.publish";
+    readonly SCM_REPOSITORY_INIT: "scm.repository.init";
+    readonly SCM_REPOSITORY_REMOVE_INDEX_LOCK: "scm.repository.removeIndexLock";
+    readonly SCM_HOSTING_REPOSITORY_DESCRIBE_PUBLISH_TARGETS: "scm.hostingRepository.describePublishTargets";
+    readonly SCM_HOSTING_REPOSITORY_PUBLISH: "scm.hostingRepository.publish";
+    readonly SCM_STASH_LIST: "scm.stash.list";
+    readonly SCM_STASH_DROP: "scm.stash.drop";
+    readonly SCM_STASH_POP: "scm.stash.pop";
+    readonly SCM_STASH_APPLY: "scm.stash.apply";
+    readonly SCM_STASH_SHOW: "scm.stash.show";
+    readonly SCM_PULL_REQUEST_LIST: "scm.pullRequest.list";
+    readonly SCM_PULL_REQUEST_GET: "scm.pullRequest.get";
+    readonly SCM_PULL_REQUEST_OPEN_OR_REUSE: "scm.pullRequest.openOrReuse";
+    readonly SCM_PULL_REQUEST_OPEN_COMPOSE: "scm.pullRequest.openCompose";
+    readonly SCM_PULL_REQUEST_CHECKOUT: "scm.pullRequest.checkout";
+    readonly SCM_PULL_REQUEST_PREPARE_WORKTREE: "scm.pullRequest.prepareWorktree";
+    readonly SCM_PULL_REQUEST_RUN_STACKED: "scm.pullRequest.runStacked";
+    readonly KILL_SESSION: "killSession";
+    readonly CAPABILITIES_DESCRIBE: "capabilities.describe";
+    readonly CAPABILITIES_DETECT: "capabilities.detect";
+    readonly CAPABILITIES_INVOKE: "capabilities.invoke";
+    readonly BUGREPORT_COLLECT_DIAGNOSTICS: "bugreport.collectDiagnostics";
+    readonly BUGREPORT_GET_LOG_TAIL: "bugreport.getLogTail";
+    readonly BUGREPORT_UPLOAD_ARTIFACT: "bugreport.uploadArtifact";
+};
+export type RpcMethod = (typeof RPC_METHODS)[keyof typeof RPC_METHODS];
+export declare const SOCKET_RPC_AUTHORIZATION_CONTEXT_KINDS: {
+    readonly SESSION_WRITE: "session.write";
+};
+export type SocketRpcAuthorizationContextKind = (typeof SOCKET_RPC_AUTHORIZATION_CONTEXT_KINDS)[keyof typeof SOCKET_RPC_AUTHORIZATION_CONTEXT_KINDS];
+export type SocketRpcSessionWriteAuthorizationContext = Readonly<{
+    kind: typeof SOCKET_RPC_AUTHORIZATION_CONTEXT_KINDS.SESSION_WRITE;
+    sessionId: string;
+}>;
+export type SocketRpcAuthorizationContext = SocketRpcSessionWriteAuthorizationContext;
+export declare function parseSocketRpcAuthorizationContext(value: unknown): SocketRpcAuthorizationContext | null;
+export declare function resolveSocketRpcSessionWriteAuthorizationMethod(method: string): string | null;
+export declare function resolveSocketRpcProviderStartingMethod(method: string): string | null;
+export declare const RPC_ERROR_CODES: {
+    readonly METHOD_NOT_AVAILABLE: "RPC_METHOD_NOT_AVAILABLE";
+    readonly METHOD_NOT_FOUND: "RPC_METHOD_NOT_FOUND";
+    readonly FORBIDDEN: "RPC_FORBIDDEN";
+    readonly SESSION_MACHINE_CONTROL_UNAVAILABLE: "RPC_SESSION_MACHINE_CONTROL_UNAVAILABLE";
+};
+export type RpcErrorCode = (typeof RPC_ERROR_CODES)[keyof typeof RPC_ERROR_CODES];
+export declare const RPC_ERROR_MESSAGES: {
+    readonly METHOD_NOT_AVAILABLE: "RPC method not available";
+    readonly METHOD_NOT_FOUND: "Method not found";
+    readonly FORBIDDEN: "Forbidden";
+    readonly SESSION_MACHINE_CONTROL_UNAVAILABLE: "Session machine control unavailable";
+};
+export declare const SESSION_RPC_METHODS: {
+    readonly SESSION_PERMISSION_RESPOND_LEGACY: "permission";
+    readonly SESSION_STRUCTURED_QUESTION_RESPOND_V1: "session.structuredQuestion.respond.v1";
+    readonly SESSION_USER_MESSAGE_SEND: "session.userMessage.send";
+    readonly SESSION_PENDING_QUEUE_MATERIALIZE_NEXT: "session.pendingQueue.materializeNext";
+    readonly SESSION_PENDING_QUEUE_WAKE_CAPABILITY_GET_V1: "session.pendingQueue.wakeCapability.v1.get";
+    readonly SESSION_PENDING_QUEUE_WAKE_V1: "session.pendingQueue.wake.v1";
+    readonly SESSION_WORK_STATE_GET: "session.workState.get";
+    readonly SESSION_GOAL_GET: "session.goal.get";
+    readonly SESSION_GOAL_SET: "session.goal.set";
+    readonly SESSION_GOAL_CLEAR: "session.goal.clear";
+    readonly SESSION_TERMINAL_COMPOSER_CLEAR: "session.terminalComposer.clear";
+    readonly SESSION_PENDING_INPUT_INTERRUPT_AND_RUN: "session.pendingInput.interruptAndRun";
+    readonly SESSION_REVIEW_START_INLINE: "session.review.startInline";
+    readonly SESSION_CONNECTED_SERVICE_AUTH_INVALIDATE_TRANSPORTS: "session.connectedServiceAuth.invalidateTransports";
+    readonly SESSION_CONNECTED_SERVICE_AUTH_APPLY_GENERATION: "session.connectedServiceAuth.applyGeneration";
+    readonly SESSION_CONNECTED_SERVICE_AUTH_READ_RUNTIME_IDENTITY: "session.connectedServiceAuth.readRuntimeIdentity";
+    readonly SESSION_VENDOR_PLUGIN_CATALOG_LIST: "session.vendorPluginCatalog.list";
+    readonly SESSION_SKILL_CATALOG_LIST: "session.skillCatalog.list";
+    readonly SESSION_USAGE_LIMIT_WAIT_RESUME_ENABLE: "session.usageLimit.waitResume.enable";
+    readonly SESSION_USAGE_LIMIT_WAIT_RESUME_CANCEL: "session.usageLimit.waitResume.cancel";
+    readonly SESSION_USAGE_LIMIT_CHECK_NOW: "session.usageLimit.checkNow";
+    readonly EXECUTION_RUN_START: "execution.run.start";
+    readonly EXECUTION_RUN_ENSURE: "execution.run.ensure";
+    readonly EXECUTION_RUN_ENSURE_OR_START: "execution.run.ensureOrStart";
+    readonly EXECUTION_RUN_SEND: "execution.run.send";
+    readonly EXECUTION_RUN_STREAM_START: "execution.run.stream.start";
+    readonly EXECUTION_RUN_STREAM_START_V2: "execution.run.stream.start.v2";
+    readonly EXECUTION_RUN_USER_TRANSCRIPT_COMMIT_V1: "execution.run.userTranscript.commit.v1";
+    readonly EXECUTION_RUN_STREAM_READ: "execution.run.stream.read";
+    readonly EXECUTION_RUN_STREAM_CANCEL: "execution.run.stream.cancel";
+    readonly EXECUTION_RUN_STOP: "execution.run.stop";
+    readonly EXECUTION_RUN_LIST: "execution.run.list";
+    readonly EXECUTION_RUN_GET: "execution.run.get";
+    readonly EXECUTION_RUN_ACTION: "execution.run.action";
+    readonly SESSION_ROLLBACK: "session.rollback";
+    readonly EPHEMERAL_TASK_RUN: "ephemeral.task.run";
+};
+export declare function isDelegatedSessionApprovalRpcMethod(methodSuffix: string): boolean;
+export declare function isRpcMethodNotFoundResult(value: unknown): value is {
+    error: string;
+    errorCode?: string;
+};
+//# sourceMappingURL=rpc.d.ts.map

@@ -74,7 +74,7 @@ const StrippedTranscriptStreamSegmentSchema = TranscriptStreamSegmentEphemeralMe
 const StrippedTranscriptStreamSegmentDeltaSchema = TranscriptStreamSegmentDeltaEphemeralMessageSchema.strip();
 
 function shouldLogSocketMessageDiagnostics(): boolean {
-    return process.env.HAPPIER_SOCKET_MESSAGE_DIAGNOSTIC_LOGS === "1"
+    return process.env.KAIWU_SOCKET_MESSAGE_DIAGNOSTIC_LOGS === "1"
         || process.env.HAPPY_SOCKET_MESSAGE_DIAGNOSTIC_LOGS === "1";
 }
 

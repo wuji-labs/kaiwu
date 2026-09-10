@@ -313,9 +313,9 @@ jobs:
           YARN_PRODUCTION: "false"
           npm_config_production: "false"
           # Keep builds mobile-focused (desktop/web builds happen elsewhere).
-          HAPPIER_INSTALL_SCOPE: "ui,protocol,agents,cli-common,release-runtime,transfers,connection-supervisor,audio-stream-native,sherpa-native"
-          HAPPIER_UI_VENDOR_WEB_ASSETS: "0"
-          HAPPIER_EMBEDDED_POLICY_ENV: ${{ (inputs.environment == 'production' && 'production') || ((inputs.environment == 'dev' || inputs.environment == 'preview' || inputs.environment == 'internalpreview') && 'preview') || '' }}
+          KAIWU_INSTALL_SCOPE: "ui,protocol,agents,cli-common,release-runtime,transfers,connection-supervisor,audio-stream-native,sherpa-native"
+          KAIWU_UI_VENDOR_WEB_ASSETS: "0"
+          KAIWU_EMBEDDED_POLICY_ENV: ${{ (inputs.environment == 'production' && 'production') || ((inputs.environment == 'dev' || inputs.environment == 'preview' || inputs.environment == 'internalpreview') && 'preview') || '' }}
         uses: ./.github/actions/install-yarn-dependencies
         with:
           args: --frozen-lockfile --ignore-engines
@@ -489,9 +489,9 @@ jobs:
           YARN_PRODUCTION: "false"
           npm_config_production: "false"
           # Keep builds mobile-focused (desktop/web builds happen elsewhere).
-          HAPPIER_INSTALL_SCOPE: "ui,protocol,agents,cli-common,release-runtime,transfers,connection-supervisor,audio-stream-native,sherpa-native"
-          HAPPIER_UI_VENDOR_WEB_ASSETS: "0"
-          HAPPIER_EMBEDDED_POLICY_ENV: ${{ (inputs.environment == 'production' && 'production') || ((inputs.environment == 'dev' || inputs.environment == 'preview' || inputs.environment == 'internalpreview') && 'preview') || '' }}
+          KAIWU_INSTALL_SCOPE: "ui,protocol,agents,cli-common,release-runtime,transfers,connection-supervisor,audio-stream-native,sherpa-native"
+          KAIWU_UI_VENDOR_WEB_ASSETS: "0"
+          KAIWU_EMBEDDED_POLICY_ENV: ${{ (inputs.environment == 'production' && 'production') || ((inputs.environment == 'dev' || inputs.environment == 'preview' || inputs.environment == 'internalpreview') && 'preview') || '' }}
         uses: ./.github/actions/install-yarn-dependencies
         with:
           args: --frozen-lockfile --ignore-engines
@@ -732,9 +732,9 @@ jobs:
         env:
           YARN_PRODUCTION: "false"
           npm_config_production: "false"
-          HAPPIER_INSTALL_SCOPE: "ui,protocol,agents,cli-common,release-runtime,transfers,connection-supervisor,audio-stream-native,sherpa-native"
-          HAPPIER_UI_VENDOR_WEB_ASSETS: "0"
-          HAPPIER_EMBEDDED_POLICY_ENV: ${{ (inputs.environment == 'production' && 'production') || ((inputs.environment == 'dev' || inputs.environment == 'preview' || inputs.environment == 'internalpreview') && 'preview') || '' }}
+          KAIWU_INSTALL_SCOPE: "ui,protocol,agents,cli-common,release-runtime,transfers,connection-supervisor,audio-stream-native,sherpa-native"
+          KAIWU_UI_VENDOR_WEB_ASSETS: "0"
+          KAIWU_EMBEDDED_POLICY_ENV: ${{ (inputs.environment == 'production' && 'production') || ((inputs.environment == 'dev' || inputs.environment == 'preview' || inputs.environment == 'internalpreview') && 'preview') || '' }}
         uses: ./.github/actions/install-yarn-dependencies
         with:
           args: --frozen-lockfile --ignore-engines

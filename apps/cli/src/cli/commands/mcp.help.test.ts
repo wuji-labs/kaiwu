@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { handleMcpCommand } from './mcp';
 import type { McpCommandDeps } from './mcp/deps';
 
-describe('happier mcp --help', () => {
+describe('kaiwu mcp --help', () => {
   it('prints usage for --help without requiring authentication', async () => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -14,9 +14,9 @@ describe('happier mcp --help', () => {
 
       expect(readCredentials).not.toHaveBeenCalled();
       const output = logSpy.mock.calls.flat().join('\n');
-      expect(output).toContain('happier mcp');
-      expect(output).toContain('happier mcp serve');
-      expect(output).toContain('happier mcp servers list');
+      expect(output).toContain('kaiwu mcp');
+      expect(output).toContain('kaiwu mcp serve');
+      expect(output).toContain('kaiwu mcp servers list');
     } finally {
       logSpy.mockRestore();
       errorSpy.mockRestore();
@@ -33,9 +33,9 @@ describe('happier mcp --help', () => {
 
       expect(readCredentials).not.toHaveBeenCalled();
       const output = logSpy.mock.calls.flat().join('\n');
-      expect(output).toContain('happier mcp servers');
-      expect(output).toContain('happier mcp servers list');
-      expect(output).toContain('happier mcp servers test');
+      expect(output).toContain('kaiwu mcp servers');
+      expect(output).toContain('kaiwu mcp servers list');
+      expect(output).toContain('kaiwu mcp servers test');
     } finally {
       logSpy.mockRestore();
       errorSpy.mockRestore();
@@ -52,8 +52,8 @@ describe('happier mcp --help', () => {
 
       expect(readCredentials).not.toHaveBeenCalled();
       const output = logSpy.mock.calls.flat().join('\n');
-      expect(output).toContain('happier mcp servers');
-      expect(output).toContain('happier mcp servers list');
+      expect(output).toContain('kaiwu mcp servers');
+      expect(output).toContain('kaiwu mcp servers list');
     } finally {
       logSpy.mockRestore();
       errorSpy.mockRestore();

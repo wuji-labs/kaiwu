@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-providers_raw="${HAPPIER_PROVIDER_CLIS:-}"
+providers_raw="${KAIWU_PROVIDER_CLIS:-}"
 providers="$(printf "%s" "$providers_raw" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')"
 
 if [ -n "$providers" ]; then

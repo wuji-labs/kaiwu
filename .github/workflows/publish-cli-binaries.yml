@@ -344,8 +344,8 @@ jobs:
         env:
           YARN_PRODUCTION: "false"
           npm_config_production: "false"
-          HAPPIER_UI_VENDOR_WEB_ASSETS: "0"
-          HAPPIER_EMBEDDED_POLICY_ENV: ${{ needs.prepare.outputs.embedded_policy_env }}
+          KAIWU_UI_VENDOR_WEB_ASSETS: "0"
+          KAIWU_EMBEDDED_POLICY_ENV: ${{ needs.prepare.outputs.embedded_policy_env }}
         uses: ./.github/actions/install-yarn-dependencies
         with:
           args: --frozen-lockfile --ignore-engines
@@ -353,7 +353,7 @@ jobs:
         env:
           MINISIGN_SECRET_KEY: ""
           MINISIGN_PASSPHRASE: ""
-          HAPPIER_EMBEDDED_POLICY_ENV: ${{ needs.prepare.outputs.embedded_policy_env }}
+          KAIWU_EMBEDDED_POLICY_ENV: ${{ needs.prepare.outputs.embedded_policy_env }}
           CHANNEL: ${{ inputs.channel }}
           VERSION: ${{ needs.prepare.outputs.version }}
         run: |
@@ -408,7 +408,7 @@ jobs:
         uses: ./.github/actions/enable-corepack-yarn
       - name: Install trusted workflow control dependencies
         env:
-          HAPPIER_UI_VENDOR_WEB_ASSETS: "0"
+          KAIWU_UI_VENDOR_WEB_ASSETS: "0"
         uses: ./.github/actions/install-yarn-dependencies
         with:
           args: --frozen-lockfile --ignore-engines --ignore-scripts
@@ -530,7 +530,7 @@ jobs:
         uses: ./.github/actions/bootstrap-minisign
       - name: Install dependencies
         env:
-          HAPPIER_UI_VENDOR_WEB_ASSETS: "0"
+          KAIWU_UI_VENDOR_WEB_ASSETS: "0"
         uses: ./.github/actions/install-yarn-dependencies
         with:
           args: --frozen-lockfile --ignore-engines
@@ -569,7 +569,7 @@ jobs:
           GH_REPO: ${{ github.repository }}
           MINISIGN_SECRET_KEY: ${{ secrets.MINISIGN_SECRET_KEY }}
           MINISIGN_PASSPHRASE: ${{ secrets.MINISIGN_PASSPHRASE }}
-          HAPPIER_EMBEDDED_POLICY_ENV: ${{ needs.prepare.outputs.embedded_policy_env }}
+          KAIWU_EMBEDDED_POLICY_ENV: ${{ needs.prepare.outputs.embedded_policy_env }}
           CHANNEL: ${{ inputs.channel }}
           ALLOW_STABLE: ${{ inputs.allow_stable }}
           RELEASE_MESSAGE: ${{ inputs.release_message }}

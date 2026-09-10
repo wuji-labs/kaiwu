@@ -337,7 +337,7 @@ export async function runClaude(credentials: Credentials, options: StartOptions 
         credentials,
         machineMetadata: initialMachineMetadata,
         missingMachineIdMessage:
-            '[START] No machine ID found in settings, which is unexpected since authAndSetupMachineIfNeeded should have created it. Please report this issue on https://github.com/happier-dev/happier/issues',
+            '[START] No machine ID found in settings, which is unexpected since authAndSetupMachineIfNeeded should have created it. Please report this issue on https://github.com/wuji-labs/kaiwu/issues',
         // Daemon-spawned sessions must skip registration; terminal sessions should also skip
         // when a daemon is already alive to avoid duplicate /v1/machines contention.
         skipMachineRegistration: options.startedBy === 'daemon',
@@ -1676,7 +1676,7 @@ async function runClaudeLocalFastStart(credentials: Credentials, options: StartO
                     credentials,
                     machineMetadata: initialMachineMetadata,
                     missingMachineIdMessage:
-                        '[START] No machine ID found in settings, which is unexpected since authAndSetupMachineIfNeeded should have created it. Please report this issue on https://github.com/happier-dev/happier/issues',
+                        '[START] No machine ID found in settings, which is unexpected since authAndSetupMachineIfNeeded should have created it. Please report this issue on https://github.com/wuji-labs/kaiwu/issues',
                     skipMachineRegistration: startedBy === 'daemon',
                 });
                 stopSpan();

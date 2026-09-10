@@ -8,7 +8,7 @@ export function isProviderResetEnabled(env: NodeJS.ProcessEnv): boolean {
 }
 
 function parseAllowedOAuthReturnSchemes(env: NodeJS.ProcessEnv): Set<string> {
-    const raw = (env.HAPPIER_OAUTH_RETURN_ALLOWED_SCHEMES ?? env.HAPPY_OAUTH_RETURN_ALLOWED_SCHEMES ?? "")
+    const raw = (env.KAIWU_OAUTH_RETURN_ALLOWED_SCHEMES ?? env.HAPPY_OAUTH_RETURN_ALLOWED_SCHEMES ?? "")
         .toString()
         .trim();
     const schemes = new Set<string>();
@@ -101,7 +101,7 @@ function resolveLoopbackUiBasePath(pathname: string, uiPrefix: string, configure
  * Best-effort override for the OAuth return URL based on the requesting web origin.
  *
  * This is intended for local dev / multi-stack scenarios where the server's configured
- * `HAPPIER_WEBAPP_URL` may not match the origin the user started the flow from.
+ * `KAIWU_WEBAPP_URL` may not match the origin the user started the flow from.
  *
  * Security: we only honor loopback origins (`localhost`, `*.localhost`, `127.0.0.1`, `::1`, etc).
  */
@@ -141,7 +141,7 @@ export function resolveWebAppOAuthReturnUrlFromEnv(env: NodeJS.ProcessEnv, provi
     const normalizedProvider = providerId.toString().trim().toLowerCase();
     const encodedProvider = encodeURIComponent(normalizedProvider);
 
-    const oauthBaseRaw = (env.HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE ?? env.HAPPY_WEBAPP_OAUTH_RETURN_URL_BASE ?? "")
+    const oauthBaseRaw = (env.KAIWU_WEBAPP_OAUTH_RETURN_URL_BASE ?? env.HAPPY_WEBAPP_OAUTH_RETURN_URL_BASE ?? "")
         .toString()
         .trim();
     if (oauthBaseRaw) {

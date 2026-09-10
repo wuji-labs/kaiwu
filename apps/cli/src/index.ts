@@ -54,6 +54,7 @@ async function main() {
     cliRootDir,
     env: process.env,
     publicReleaseRing: configuration.publicReleaseRing,
+    currentCliVersion: configuration.currentCliVersion,
   });
   const { args, terminalRuntime } = parseCliArgs(normalizedArgv);
   await dispatchCli({ args, terminalRuntime, rawArgv: process.argv });

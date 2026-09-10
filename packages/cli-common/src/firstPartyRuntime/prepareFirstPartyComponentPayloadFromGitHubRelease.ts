@@ -7,6 +7,7 @@ import { resolveReleaseAssetBundle } from '@happier-dev/release-runtime/assets';
 import { fetchGitHubReleaseByTag } from '@happier-dev/release-runtime/github';
 import { DEFAULT_MINISIGN_PUBLIC_KEY } from '@happier-dev/release-runtime/minisign';
 import { downloadVerifiedReleaseAssetBundle } from '@happier-dev/release-runtime/verifiedDownload';
+import { getBrandEnv } from '../brandEnv.js';
 
 import type { FirstPartyComponentId } from './componentCatalog.js';
 import {
@@ -168,9 +169,9 @@ function resolveFirstPartyReleaseArtifactSource(params: Readonly<{
       source?.githubRepo
         ?? params.githubRepo
         ?? process.env.HAPPIER_FIRST_PARTY_RELEASE_REPO
-        ?? process.env.HAPPIER_GITHUB_REPO
-        ?? 'happier-dev/happier',
-      'happier-dev/happier',
+        ?? getBrandEnv('KAIWU_GITHUB_REPO')
+        ?? 'wuji-labs/kaiwu',
+      'wuji-labs/kaiwu',
     ),
     githubToken: normalizeFirstPartyReleaseValue(
       source?.githubToken

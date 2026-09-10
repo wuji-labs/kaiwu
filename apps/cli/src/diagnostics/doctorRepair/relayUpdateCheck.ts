@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 
-import { readUpdateCache, writeUpdateCache } from '@happier-dev/cli-common/update';
+import { compareVersions, readUpdateCache, writeUpdateCache } from '@happier-dev/cli-common/update';
 import { fetchGitHubReleaseByTag } from '@happier-dev/release-runtime/github';
 import type { PublicReleaseRingLabel } from '@happier-dev/release-runtime/releaseRings';
 
@@ -67,13 +67,14 @@ export async function readLatestRelayVersion(
 
   const latest = extractSemverFromReleaseJson(release);
   if (latest) {
+    const current = cache?.current ?? configuration.currentCliVersion ?? null;
     writeUpdateCache(cachePath, {
       checkedAt: Date.now(),
       latest,
-      current: cache?.current ?? null,
+      current,
       runtimeVersion: cache?.runtimeVersion ?? null,
       invokerVersion: cache?.invokerVersion ?? null,
-      updateAvailable: true,
+      updateAvailable: Boolean(current && latest && compareVersions(latest, current) > 0),
       notifiedAt: cache?.notifiedAt ?? null,
     });
     return latest;

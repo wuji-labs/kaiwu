@@ -98,7 +98,7 @@ function createClaudeSubcommandHelpContext(): CommandContext {
   } satisfies CommandContext;
 }
 
-describe('happier (default claude) help output', () => {
+describe('kaiwu (default claude) help output', () => {
   it('includes global server selection flags', async () => {
     const root = createTempRoot('happier-claude-help-default-');
     const claudePath = createExecutable(
@@ -120,7 +120,7 @@ describe('happier (default claude) help output', () => {
       expect(stdout).toContain('--public-server-url');
       expect(stdout).toContain('--server ');
       expect(stdout).toContain('--launch-profile');
-      expect(stdout).toContain('happier profiles list');
+      expect(stdout).toContain('kaiwu profiles list');
       expect(stdout).not.toContain('--claude-env');
 
       expect(execFileSyncSpy).toHaveBeenCalledWith(

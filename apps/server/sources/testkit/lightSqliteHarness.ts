@@ -68,7 +68,7 @@ export async function createLightSqliteHarness(options: LightSqliteHarnessOption
             ...options.env,
         };
         applyEnvValues({
-            HAPPIER_DB_PROVIDER: "sqlite",
+            KAIWU_DB_PROVIDER: "sqlite",
             HAPPY_DB_PROVIDER: "sqlite",
             DATABASE_URL: renderPrismaCompatibleSqliteDatabaseUrl({
                 dbPath,
@@ -76,7 +76,7 @@ export async function createLightSqliteHarness(options: LightSqliteHarnessOption
                 sqlite: resolveLightSqliteDatabaseUrlOptionsFromEnv(envForSqliteOptions),
             }),
             HAPPY_SERVER_LIGHT_DATA_DIR: baseDir,
-            HAPPIER_SERVER_LIGHT_DATA_DIR: baseDir,
+            KAIWU_SERVER_LIGHT_DATA_DIR: baseDir,
             ...options.env,
         });
         applyLightDefaultEnv(process.env);

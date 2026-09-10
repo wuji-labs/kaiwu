@@ -1,0 +1,21 @@
+export declare const SESSION_ORGANIZATION_SNAPSHOT_VERSION = 1;
+export declare const SESSION_ORGANIZATION_MAX_KEY_LENGTH = 10000;
+export declare const SESSION_ORGANIZATION_MAX_ID_LENGTH = 191;
+export declare const SESSION_ORGANIZATION_MAX_SORT_KEY_LENGTH = 191;
+export declare const SESSION_ORGANIZATION_MAX_PINNED_SESSIONS = 1000;
+export declare const SESSION_ORGANIZATION_MAX_ATTENTION_STANDINGS = 500;
+export declare const SESSION_ORGANIZATION_MAX_FOLDERS = 500;
+export declare const SESSION_ORGANIZATION_MAX_TAGS = 500;
+export declare const SESSION_ORGANIZATION_MAX_LABELS = 1000;
+export declare const SESSION_ORGANIZATION_MAX_ASSIGNMENTS_PER_MUTATION = 500;
+export declare const SESSION_ORGANIZATION_MAX_ORDER_ENTRIES_PER_SCOPE = 1000;
+export declare const SESSION_ORGANIZATION_MAX_SCOPED_SNAPSHOT_IDS = 500;
+export declare const SESSION_ORGANIZATION_MAX_DISPLAY_ENVELOPE_BYTES: number;
+export declare const SESSION_ORGANIZATION_ORDER_SCOPE_KINDS: readonly ["pinned", "folder", "tag", "workspace", "group"];
+export declare const SESSION_ORGANIZATION_ORDER_ITEM_KINDS: readonly ["session", "folder", "tag", "workspace", "group"];
+export declare const SESSION_ORGANIZATION_LABEL_KINDS: readonly ["workspace", "group"];
+export declare const SESSION_ORGANIZATION_FOLDER_DELETE_ASSIGNMENT_BEHAVIORS: readonly ["moveAssignmentsToParent"];
+export declare const SESSION_ORGANIZATION_FOLDER_DELETE_ASSIGNMENTS_DEFAULT = "moveAssignmentsToParent";
+export declare const SESSION_ORGANIZATION_TAG_DELETE_ASSIGNMENT_BEHAVIORS: readonly ["removeAssignments"];
+export declare const SESSION_ORGANIZATION_TAG_DELETE_ASSIGNMENTS_DEFAULT = "removeAssignments";
+//# sourceMappingURL=constants.d.ts.map

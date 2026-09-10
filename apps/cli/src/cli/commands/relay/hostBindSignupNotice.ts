@@ -22,7 +22,7 @@ export type RelayBindSignupNotice = Readonly<{
 }>;
 
 /** Where the operator reads about requiring an identity provider instead. */
-const AUTH_DOCS_URL = 'https://docs.happier.dev/self-hosting/auth';
+const AUTH_DOCS_URL = 'https://kaiwu.chengqiyun.com/docs/self-hosting/auth';
 
 export function describeRelayBindSignupExposure(
   /** The relay's `HAPPIER_SERVER_HOST` override, or null to keep its default. */

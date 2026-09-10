@@ -1,0 +1,101 @@
+import { z } from 'zod';
+export const ACTION_IDS = [
+    // Action discovery
+    'action.spec.search',
+    'action.spec.get',
+    'action.options.resolve',
+    // Session lifecycle / navigation
+    'session.open',
+    'session.fork',
+    'session.rollback',
+    'session.handoff',
+    'session.spawn_new',
+    'session.spawn_picker',
+    // Local inventory + discovery (voice)
+    'paths.list_recent',
+    'machines.list',
+    'servers.list',
+    'review.engines.list',
+    'agents.backends.list',
+    'agents.models.list',
+    'agents.session_modes.list',
+    'agents.config_options.list',
+    'sessions.spawn.profiles.list',
+    'sessions.spawn.connected_services.list',
+    'sessions.spawn.mcp_servers.preview',
+    // Session messaging
+    'session.message.send',
+    // Session control plane (CLI/MCP)
+    'session.stop',
+    'session.title.set',
+    'session.model.set',
+    'session.permission_mode.set',
+    'session.archive',
+    'session.unarchive',
+    'session.status.get',
+    'session.work_state.get',
+    'session.goal.get',
+    'session.goal.set',
+    'session.goal.clear',
+    'session.terminalComposer.clear',
+    'session.pendingInput.interruptAndRun',
+    'session.usageLimit.waitResume.enable',
+    'session.usageLimit.waitResume.cancel',
+    'session.usageLimit.checkNow',
+    'session.usageLimit.consumeResetCredit',
+    'session.vendor_plugin_catalog.list',
+    'session.skill_catalog.list',
+    'session.history.get',
+    'session.transcript.get',
+    'session.events.get',
+    'session.wait.idle',
+    // Intent start actions (first-class)
+    'review.start',
+    'subagents.plan.start',
+    'subagents.delegate.start',
+    'voice_agent.start',
+    // Execution runs control plane (RPC-backed)
+    'execution.run.start',
+    'execution.run.list',
+    'execution.run.get',
+    'execution.run.send',
+    'execution.run.stop',
+    'execution.run.action',
+    'execution.run.wait',
+    // Session targeting + listing (voice)
+    'session.target.primary.set',
+    'session.target.tracked.set',
+    'session.list',
+    'session.activity.get',
+    'session.messages.recent.get',
+    // Session permissions (voice)
+    'session.permission.respond',
+    'session.user_action.answer',
+    'session.mode.set',
+    // Voice global controls
+    'ui.voice_global.reset',
+    'ui.voice_agent.teleport',
+    // UI companion controls
+    'ui.pet.choose',
+    // Daemon-local memory search (opt-in)
+    'memory.search',
+    'memory.get_window',
+    'memory.ensure_up_to_date',
+    // Prompt library / external prompt assets
+    'prompt_doc.update',
+    'prompt_bundle.update',
+    'prompt_asset.export',
+    'prompt_registry.install',
+    // Action approvals (approval queue)
+    'approval.request.create',
+    'approval.request.decide',
+];
+export const ActionIdSchema = z.enum(ACTION_IDS);
+const LEGACY_ACTION_ID_ALIASES = Object.freeze({
+    'plan.start': 'subagents.plan.start',
+    'delegate.start': 'subagents.delegate.start',
+});
+export function normalizeLegacyActionId(value) {
+    return LEGACY_ACTION_ID_ALIASES[value] ?? value;
+}
+//# sourceMappingURL=actionIds.js.map

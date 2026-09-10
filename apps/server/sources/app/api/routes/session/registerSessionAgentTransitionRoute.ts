@@ -36,7 +36,7 @@ import { type Fastify } from "../../types";
  * `sessions.agentSwitching` is enforced HERE, through the shared server feature
  * gate, because this route is the only place the switch becomes durable. The
  * gate is enabled by default; a server owner who sets
- * `HAPPIER_FEATURE_SESSIONS_AGENT_SWITCHING__ENABLED=0` must actually refuse the
+ * `KAIWU_FEATURE_SESSIONS_AGENT_SWITCHING__ENABLED=0` must actually refuse the
  * lifecycle mutation rather than merely stop advertising it, otherwise one
  * direct call still switches the Session. Clients keep learning the same answer
  * from the `/v1/features` bit this gate reads.

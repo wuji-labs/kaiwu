@@ -25,7 +25,7 @@ describe('formatGeminiErrorForUi', () => {
 
   it('formats auth-required errors with workspace guidance', () => {
     expect(formatGeminiErrorForUi({ code: -32000, message: 'Authentication required' }, null))
-      .toContain('happier gemini project set');
+      .toContain('kaiwu gemini project set');
   });
 
   it('formats empty object errors as generic missing CLI guidance', () => {

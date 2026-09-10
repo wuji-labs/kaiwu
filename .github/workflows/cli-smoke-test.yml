@@ -34,7 +34,7 @@ jobs:
         YARN_PRODUCTION: "false"
         npm_config_production: "false"
         # Speed up installs: CLI smoke tests do not require UI web-only vendored assets.
-        HAPPIER_UI_VENDOR_WEB_ASSETS: "0"
+        KAIWU_UI_VENDOR_WEB_ASSETS: "0"
       uses: ./.github/actions/install-yarn-dependencies
       with:
         args: --frozen-lockfile --ignore-engines
@@ -62,7 +62,7 @@ jobs:
         YARN_PRODUCTION: "false"
         npm_config_production: "false"
         # Speed up installs: CLI smoke tests do not require UI web-only vendored assets.
-        HAPPIER_UI_VENDOR_WEB_ASSETS: "0"
+        KAIWU_UI_VENDOR_WEB_ASSETS: "0"
       uses: ./.github/actions/install-yarn-dependencies
       with:
         args: --frozen-lockfile --ignore-engines

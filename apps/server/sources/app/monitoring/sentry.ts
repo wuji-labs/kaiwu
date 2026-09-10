@@ -76,33 +76,33 @@ function parseLogLevelsEnv(raw: string | undefined, defaultValue: Array<Log["lev
 }
 
 function resolveEnvironment(env: NodeJS.ProcessEnv): string | undefined {
-    const explicit = (env.SENTRY_ENVIRONMENT ?? env.HAPPIER_SENTRY_ENVIRONMENT ?? "").trim();
+    const explicit = (env.SENTRY_ENVIRONMENT ?? env.KAIWU_SENTRY_ENVIRONMENT ?? "").trim();
     if (explicit) return explicit;
     const nodeEnv = (env.NODE_ENV ?? "").trim();
-    const flavor = (env.HAPPIER_SERVER_FLAVOR ?? env.HAPPY_SERVER_FLAVOR ?? "").trim();
+    const flavor = (env.KAIWU_SERVER_FLAVOR ?? env.HAPPY_SERVER_FLAVOR ?? "").trim();
     const inferred = flavor ? `${nodeEnv || "production"}:${flavor}` : (nodeEnv || "production");
     return inferred || undefined;
 }
 
 function resolveRelease(env: NodeJS.ProcessEnv): string | undefined {
-    const explicit = (env.SENTRY_RELEASE ?? env.HAPPIER_SENTRY_RELEASE ?? env.HAPPIER_RELEASE ?? "").trim();
+    const explicit = (env.SENTRY_RELEASE ?? env.KAIWU_SENTRY_RELEASE ?? env.KAIWU_RELEASE ?? "").trim();
     return explicit || undefined;
 }
 
 function resolveProfileLifecycle(env: NodeJS.ProcessEnv): 'manual' | 'trace' {
-    const raw = (env.SENTRY_PROFILE_LIFECYCLE ?? env.HAPPIER_SENTRY_PROFILE_LIFECYCLE ?? "").trim().toLowerCase();
+    const raw = (env.SENTRY_PROFILE_LIFECYCLE ?? env.KAIWU_SENTRY_PROFILE_LIFECYCLE ?? "").trim().toLowerCase();
     return raw === 'trace' ? 'trace' : 'manual';
 }
 
 function resolveDsn(env: NodeJS.ProcessEnv): string | null {
-    const explicit = (env.SENTRY_DSN ?? env.HAPPIER_SENTRY_DSN ?? "").trim();
+    const explicit = (env.SENTRY_DSN ?? env.KAIWU_SENTRY_DSN ?? "").trim();
     if (explicit) return explicit;
 
     const useCentral =
-        parseOptionalBooleanEnv(env.HAPPIER_SENTRY_USE_CENTRAL_DSN ?? env.SENTRY_USE_CENTRAL_DSN) ?? false;
+        parseOptionalBooleanEnv(env.KAIWU_SENTRY_USE_CENTRAL_DSN ?? env.SENTRY_USE_CENTRAL_DSN) ?? false;
     if (!useCentral) return null;
 
-    const central = (env.HAPPIER_SENTRY_CENTRAL_DSN ?? env.SENTRY_CENTRAL_DSN ?? "").trim();
+    const central = (env.KAIWU_SENTRY_CENTRAL_DSN ?? env.SENTRY_CENTRAL_DSN ?? "").trim();
     return central || null;
 }
 
@@ -110,17 +110,17 @@ export function resolveServerSentryConfig(env: NodeJS.ProcessEnv): ServerSentryC
     const dsn = resolveDsn(env);
     if (!dsn) return null;
 
-    const sendDefaultPii = parseOptionalBooleanEnv(env.SENTRY_SEND_DEFAULT_PII ?? env.HAPPIER_SENTRY_SEND_DEFAULT_PII) ?? false;
-    const tracesSampleRate = parseRateEnv(env.SENTRY_TRACES_SAMPLE_RATE ?? env.HAPPIER_SENTRY_TRACES_SAMPLE_RATE, 0);
+    const sendDefaultPii = parseOptionalBooleanEnv(env.SENTRY_SEND_DEFAULT_PII ?? env.KAIWU_SENTRY_SEND_DEFAULT_PII) ?? false;
+    const tracesSampleRate = parseRateEnv(env.SENTRY_TRACES_SAMPLE_RATE ?? env.KAIWU_SENTRY_TRACES_SAMPLE_RATE, 0);
     const environment = resolveEnvironment(env);
     const release = resolveRelease(env);
     const profileSessionSampleRate = parseRateEnv(
-        env.SENTRY_PROFILE_SESSION_SAMPLE_RATE ?? env.HAPPIER_SENTRY_PROFILE_SESSION_SAMPLE_RATE,
+        env.SENTRY_PROFILE_SESSION_SAMPLE_RATE ?? env.KAIWU_SENTRY_PROFILE_SESSION_SAMPLE_RATE,
         0,
     );
     const profileLifecycle = resolveProfileLifecycle(env);
-    const enableLogs = parseOptionalBooleanEnv(env.SENTRY_ENABLE_LOGS ?? env.HAPPIER_SENTRY_ENABLE_LOGS) ?? false;
-    const logLevels = parseLogLevelsEnv(env.SENTRY_LOG_LEVELS ?? env.HAPPIER_SENTRY_LOG_LEVELS, ["error", "fatal"]);
+    const enableLogs = parseOptionalBooleanEnv(env.SENTRY_ENABLE_LOGS ?? env.KAIWU_SENTRY_ENABLE_LOGS) ?? false;
+    const logLevels = parseLogLevelsEnv(env.SENTRY_LOG_LEVELS ?? env.KAIWU_SENTRY_LOG_LEVELS, ["error", "fatal"]);
 
     return {
         dsn,

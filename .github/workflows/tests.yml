@@ -194,7 +194,7 @@ concurrency:
 env:
   # Speed up CI: UI postinstall vendors large web-only assets (Monaco/Kokoro/Skia web).
   # Tests and native builds do not require these assets.
-  HAPPIER_UI_VENDOR_WEB_ASSETS: "0"
+  KAIWU_UI_VENDOR_WEB_ASSETS: "0"
 
 jobs:
   ci_plan:
@@ -371,7 +371,7 @@ jobs:
     timeout-minutes: 120
     env:
       # UI E2E boots Expo web; keep web assets available to avoid CI-only runtime surprises.
-      HAPPIER_UI_VENDOR_WEB_ASSETS: "1"
+      KAIWU_UI_VENDOR_WEB_ASSETS: "1"
       UI_E2E_SPECS: ${{ inputs.ui_e2e_specs }}
     steps:
       - name: Checkout
@@ -485,8 +485,8 @@ jobs:
           YARN_PRODUCTION: "false"
           npm_config_production: "false"
           # Keep this lane mobile-focused (avoid downloading heavy web-only assets).
-          HAPPIER_INSTALL_SCOPE: "ui,protocol,agents,tests"
-          HAPPIER_UI_VENDOR_WEB_ASSETS: "0"
+          KAIWU_INSTALL_SCOPE: "ui,protocol,agents,tests"
+          KAIWU_UI_VENDOR_WEB_ASSETS: "0"
         uses: ./.github/actions/install-yarn-dependencies
         with:
           args: --frozen-lockfile
@@ -531,8 +531,8 @@ jobs:
         env:
           YARN_PRODUCTION: "false"
           npm_config_production: "false"
-          HAPPIER_INSTALL_SCOPE: "ui,protocol,agents,tests"
-          HAPPIER_UI_VENDOR_WEB_ASSETS: "0"
+          KAIWU_INSTALL_SCOPE: "ui,protocol,agents,tests"
+          KAIWU_UI_VENDOR_WEB_ASSETS: "0"
         uses: ./.github/actions/install-yarn-dependencies
         with:
           args: --frozen-lockfile
@@ -564,8 +564,8 @@ jobs:
     runs-on: ${{ needs.trusted_ref_guard.outputs.ubuntu_2204 }}
     timeout-minutes: 120
     env:
-      HAPPIER_UI_VITEST_PART: ${{ matrix.part }}
-      HAPPIER_UI_VITEST_PARTS: "4"
+      KAIWU_UI_VITEST_PART: ${{ matrix.part }}
+      KAIWU_UI_VITEST_PARTS: "4"
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -918,7 +918,7 @@ jobs:
 
       - name: Run db contract suite (Postgres)
         env:
-          HAPPIER_DB_PROVIDER: postgres
+          KAIWU_DB_PROVIDER: postgres
           DATABASE_URL: postgresql://happier:happier@127.0.0.1:${{ job.services.postgres.ports[5432] }}/happier?sslmode=disable
         run: yarn --cwd apps/server test:server:db-contract
 
@@ -938,12 +938,12 @@ jobs:
       # Some CLI tests fetch/inspect GitHub Release assets. Prefer the built-in
       # GitHub Actions token rather than requiring extra secrets.
       GH_TOKEN: ${{ github.token }}
-      HAPPIER_GITHUB_TOKEN: ${{ github.token }}
-      HAPPIER_CLI_TMUX_INTEGRATION: "1"
-      HAPPIER_CLI_DAEMON_REATTACH_INTEGRATION: "1"
-      HAPPIER_NO_BROWSER_OPEN: "1"
-      HAPPIER_CLI_VITEST_PART: ${{ matrix.part }}
-      HAPPIER_CLI_VITEST_PARTS: "2"
+      KAIWU_GITHUB_TOKEN: ${{ github.token }}
+      KAIWU_CLI_TMUX_INTEGRATION: "1"
+      KAIWU_CLI_DAEMON_REATTACH_INTEGRATION: "1"
+      KAIWU_NO_BROWSER_OPEN: "1"
+      KAIWU_CLI_VITEST_PART: ${{ matrix.part }}
+      KAIWU_CLI_VITEST_PARTS: "2"
       TMPDIR: /tmp
     steps:
       - name: Checkout
@@ -1898,16 +1898,16 @@ jobs:
     timeout-minutes: 120
     env:
       PORT: "3005"
-      HAPPIER_SERVER_URL: http://localhost:3005
-      HAPPIER_WEBAPP_URL: http://localhost:3005
-      HAPPIER_HOME_DIR: /tmp/happier-dev-test
+      KAIWU_SERVER_URL: http://localhost:3005
+      KAIWU_WEBAPP_URL: http://localhost:3005
+      KAIWU_HOME_DIR: /tmp/happier-dev-test
       DANGEROUSLY_LOG_TO_SERVER_FOR_AI_AUTO_DEBUGGING: "true"
-      HAPPIER_SERVER_LIGHT_DATA_DIR: /tmp/happier-server-light
-      HAPPIER_DB_PROVIDER: sqlite
+      KAIWU_SERVER_LIGHT_DATA_DIR: /tmp/happier-server-light
+      KAIWU_DB_PROVIDER: sqlite
       HAPPY_DB_PROVIDER: sqlite
       # Fall back to a deterministic non-secret for forks / untrusted PRs (no access to repo secrets).
       HANDY_MASTER_SECRET: ${{ secrets.CI_MASTER_SECRET != '' && secrets.CI_MASTER_SECRET || 'happier-ci-master-secret-not-a-real-secret' }}
-      HAPPIER_NO_BROWSER_OPEN: "1"
+      KAIWU_NO_BROWSER_OPEN: "1"
       TMPDIR: /tmp
     steps:
       - name: Checkout
@@ -1975,7 +1975,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          mkdir -p "${HAPPIER_SERVER_LIGHT_DATA_DIR}"
+          mkdir -p "${KAIWU_SERVER_LIGHT_DATA_DIR}"
 
           nohup yarn --cwd apps/server start:light > "/tmp/happier-server-light.log" 2>&1 &
           SERVER_PID="$(jobs -p | tail -n 1 || true)"
@@ -2024,8 +2024,8 @@ jobs:
         if: failure()
         run: |
           set -euo pipefail
-          ROOT="${HAPPIER_HOME_DIR:-$HOME/.happier-dev-test}"
-          echo "HAPPIER_HOME_DIR=${ROOT}"
+          ROOT="${KAIWU_HOME_DIR:-$HOME/.happier-dev-test}"
+          echo "KAIWU_HOME_DIR=${ROOT}"
 
           echo "--- daemon.state.json candidates (redacted) ---"
           find "$ROOT" -maxdepth 4 -type f -name 'daemon.state.json' -print | head -n 10 || true
@@ -2119,8 +2119,8 @@ jobs:
       - name: Run core e2e suite
         env:
           CI: "1"
-          HAPPIER_E2E_SAVE_ARTIFACTS: "0"
-          HAPPIER_E2E_DB_PROVIDER: sqlite
+          KAIWU_E2E_SAVE_ARTIFACTS: "0"
+          KAIWU_E2E_DB_PROVIDER: sqlite
         run: yarn test:e2e:core:fast
 
       - name: Upload e2e artifacts (on failure)
@@ -2190,8 +2190,8 @@ jobs:
         run: |
           set -euo pipefail
           artifact_dir="${RUNNER_TEMP}/happier-server-v0.2.1"
-          echo "HAPPIER_E2E_RELEASED_SERVER_V0_2_1_DIR=${artifact_dir}" >> "$GITHUB_ENV"
-          HAPPIER_E2E_RELEASED_SERVER_V0_2_1_DIR="${artifact_dir}" \
+          echo "KAIWU_E2E_RELEASED_SERVER_V0_2_1_DIR=${artifact_dir}" >> "$GITHUB_ENV"
+          KAIWU_E2E_RELEASED_SERVER_V0_2_1_DIR="${artifact_dir}" \
             yarn workspace @happier-dev/tests prepare:compat:released-server-v0.2.1
 
       - name: Install exact-compatibility Playwright browser
@@ -2203,8 +2203,8 @@ jobs:
       - name: Run core e2e suite (slow)
         env:
           CI: "1"
-          HAPPIER_E2E_SAVE_ARTIFACTS: "0"
-          HAPPIER_E2E_DB_PROVIDER: sqlite
+          KAIWU_E2E_SAVE_ARTIFACTS: "0"
+          KAIWU_E2E_DB_PROVIDER: sqlite
         run: yarn test:e2e:core:slow
 
       - name: Upload e2e artifacts (on failure)
@@ -2465,9 +2465,9 @@ jobs:
           CODEX_API_KEY: ${{ secrets.CODEX_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
-          HAPPIER_E2E_PROVIDER_MODEL: ${{ fromJSON(inputs.providers_models).default }}
+          KAIWU_E2E_PROVIDER_MODEL: ${{ fromJSON(inputs.providers_models).default }}
           HAPPY_E2E_PROVIDER_MODEL: ${{ fromJSON(inputs.providers_models).default }}
-          HAPPIER_E2E_PROVIDER_MODELS: ${{ fromJSON(inputs.providers_models).overrides }}
+          KAIWU_E2E_PROVIDER_MODELS: ${{ fromJSON(inputs.providers_models).overrides }}
           HAPPY_E2E_PROVIDER_MODELS: ${{ fromJSON(inputs.providers_models).overrides }}
         run: |
           set -euo pipefail
@@ -2516,9 +2516,9 @@ jobs:
       - name: Run stress suite
         env:
           CI: "1"
-          HAPPIER_E2E_REPEAT: ${{ fromJSON(inputs.stress_config).repeat }}
-          HAPPIER_E2E_SEED: ${{ fromJSON(inputs.stress_config).seed }}
-          HAPPIER_E2E_FLAKE_RETRY: "1"
+          KAIWU_E2E_REPEAT: ${{ fromJSON(inputs.stress_config).repeat }}
+          KAIWU_E2E_SEED: ${{ fromJSON(inputs.stress_config).seed }}
+          KAIWU_E2E_FLAKE_RETRY: "1"
         run: yarn test:stress
 
       - name: Upload stress artifacts (on failure)

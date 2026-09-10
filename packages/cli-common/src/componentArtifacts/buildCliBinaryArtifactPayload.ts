@@ -204,12 +204,12 @@ export async function buildCliBinaryArtifactPayload({
   const entrypoint = join(distDir, 'index.mjs');
   const lockPath = join(repoRoot, '.project', 'tmp', 'cli-dist-build.lock');
   const yarn = resolveYarnCommand({ commandProbe });
-  const workspaceBundles = resolveWorkspaceBundlesFromPackageJson({
-    repoRoot,
-    hostPackageDir: cliDir,
-  });
-  const executableName = resolveExecutableName({ baseName: 'happier', target });
-  const mergedExternals = [...new Set([...CLI_RUNTIME_EXTERNAL_PACKAGES, ...externals.map((value) => String(value ?? '').trim()).filter(Boolean)])];
+    const workspaceBundles = resolveWorkspaceBundlesFromPackageJson({
+      repoRoot,
+      hostPackageDir: cliDir,
+    });
+    const executableName = resolveExecutableName({ baseName: 'kaiwu', target });
+    const mergedExternals = [...new Set([...CLI_RUNTIME_EXTERNAL_PACKAGES, ...externals.map((value) => String(value ?? '').trim()).filter(Boolean)])];
 
   await withCliDistBuildLock(async ({ heldLockValue }) => {
     const runCommandWithHeldDistLock: RunCommand = (cmd, args, options = {}) => runCommand(cmd, args, {

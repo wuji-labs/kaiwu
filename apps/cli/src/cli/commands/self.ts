@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import packageJson from '../../../package.json';
+import { normalizeBrandEnv } from '@happier-dev/cli-common';
 import { configuration } from '@/configuration';
 import type { CommandContext } from '@/cli/commandRegistry';
 import {
@@ -58,7 +59,7 @@ function usage(): string {
     `${chalk.bold('Environment:')}`,
     `  HAPPIER_CLI_UPDATE_CHECK=0                 Disable update notice + background check`,
     `  HAPPIER_CLI_UPDATE_PACKAGE_NAME=@scope/pkg Override the npm package name checked/installed`,
-    `  HAPPIER_GITHUB_REPO=happier-dev/happier    Override GitHub repo for binary updates`,
+    `  KAIWU_GITHUB_REPO=wuji-labs/kaiwu           Override GitHub repo for binary updates (or HAPPIER_GITHUB_REPO)`,
     `  HAPPIER_GITHUB_TOKEN=...                   GitHub token for release API (optional)`,
     '',
   ].join('\n');
@@ -173,8 +174,8 @@ export function detectInstallSource(path: string): 'npm' | 'binary' {
 }
 
 function resolveBinaryUpdateRepo(env: NodeJS.ProcessEnv): string {
-  const raw = String(env.HAPPIER_GITHUB_REPO ?? '').trim();
-  return raw || 'happier-dev/happier';
+  const raw = String(normalizeBrandEnv('KAIWU_GITHUB_REPO') ?? '').trim();
+  return raw || 'wuji-labs/kaiwu';
 }
 
 function resolveBinaryUpdateToken(env: NodeJS.ProcessEnv): string {
@@ -186,7 +187,7 @@ function resolveBinaryUpdatePlatform(env: NodeJS.ProcessEnv): Readonly<{ os: str
   const forcedArch = String(env.HAPPIER_SELF_UPDATE_ARCH ?? '').trim();
   if (forcedOs && forcedArch) return { os: forcedOs, arch: forcedArch };
 
-  const os = process.platform === 'linux' ? 'linux' : process.platform === 'darwin' ? 'darwin' : 'unsupported';
+  const os = process.platform === 'linux' ? 'linux' : process.platform === 'darwin' ? 'darwin' : process.platform === 'win32' ? 'win32' : 'unsupported';
   const arch = process.arch === 'x64' ? 'x64' : process.arch === 'arm64' ? 'arm64' : 'unsupported';
   if (os === 'unsupported' || arch === 'unsupported') {
     throw new Error(`Unsupported platform for binary updates: ${process.platform}/${process.arch}`);
@@ -255,6 +256,13 @@ async function cmdCheck(argv: string[], rawArgv: readonly string[] = process.arg
   const installSource = detectInstallSource(process.argv[1] ?? '');
 
   if (installSource === 'binary') {
+    if (process.platform === 'win32') {
+      const currentVersion = configuration.currentCliVersion || 'unknown';
+      console.log('Windows 上的开物 CLI 通过安装脚本更新：irm https://kaiwu.chengqiyun.com/install.ps1 | iex');
+      console.log(`Current: ${currentVersion}`);
+      process.exit(0);
+    }
+
     const { os, arch } = resolveBinaryUpdatePlatform(process.env);
     const githubRepo = resolveBinaryUpdateRepo(process.env);
     const githubToken = resolveBinaryUpdateToken(process.env);
@@ -342,6 +350,13 @@ async function cmdUpdate(argv: string[], rawArgv: readonly string[] = process.ar
   })();
 
   const installSource = detectInstallSource(process.argv[1] ?? '');
+  if (installSource === 'binary') {
+    if (process.platform === 'win32') {
+      console.log('Windows 上的开物 CLI 通过安装脚本更新：irm https://kaiwu.chengqiyun.com/install.ps1 | iex');
+      process.exit(0);
+    }
+  }
+
   if (installSource === 'npm') {
     const pkgName = resolveUpdatePackageName();
     const upgrade = npmUpgradeCommand({ packageName: pkgName, channel, to: toArg });

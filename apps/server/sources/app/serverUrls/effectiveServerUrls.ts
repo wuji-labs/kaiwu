@@ -38,11 +38,11 @@ function appendUiPrefix(baseUrl: string, prefix: string): string {
 }
 
 export function resolveConfiguredCanonicalServerUrl(env: NodeJS.ProcessEnv): string | undefined {
-    return normalizeHttpUrl(String(env.HAPPIER_PUBLIC_SERVER_URL ?? "")) ?? undefined;
+    return normalizeHttpUrl(String(env.KAIWU_PUBLIC_SERVER_URL ?? "")) ?? undefined;
 }
 
 export function resolveExplicitWebappUrl(env: NodeJS.ProcessEnv): string | undefined {
-    return normalizeHttpUrl(String(env.HAPPIER_WEBAPP_URL ?? env.HAPPY_WEBAPP_URL ?? "")) ?? undefined;
+    return normalizeHttpUrl(String(env.KAIWU_WEBAPP_URL ?? env.HAPPY_WEBAPP_URL ?? "")) ?? undefined;
 }
 
 export function resolveDerivedLocalUiWebappUrl(env: NodeJS.ProcessEnv): string | undefined {

@@ -16,7 +16,7 @@ export async function runLightServerMain(argv: readonly string[] = process.argv.
         ? 'light'
         : resolveServerFlavorFromEnv(process.env, 'light');
     process.env.HAPPY_SERVER_FLAVOR = flavor;
-    process.env.HAPPIER_SERVER_FLAVOR = flavor;
+    process.env.KAIWU_SERVER_FLAVOR = flavor;
 
     if (argv.includes('--migrate-only')) {
         applyLightDefaultEnv(process.env);

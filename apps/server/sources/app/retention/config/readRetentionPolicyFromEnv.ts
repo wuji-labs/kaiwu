@@ -84,31 +84,31 @@ export function readRetentionPolicyFromEnv(env: NodeJS.ProcessEnv): RetentionPol
     const safeEnv = env ?? EMPTY_ENV;
 
     return Object.freeze({
-        enabled: parseBooleanEnv(safeEnv.HAPPIER_SERVER_RETENTION__ENABLED, false),
+        enabled: parseBooleanEnv(safeEnv.KAIWU_SERVER_RETENTION__ENABLED, false),
         intervalMs: parsePositiveInt({
             env: safeEnv,
-            key: 'HAPPIER_SERVER_RETENTION__INTERVAL_MS',
+            key: 'KAIWU_SERVER_RETENTION__INTERVAL_MS',
             fallback: DEFAULT_INTERVAL_MS,
         }),
         batchSize: parsePositiveInt({
             env: safeEnv,
-            key: 'HAPPIER_SERVER_RETENTION__BATCH_SIZE',
+            key: 'KAIWU_SERVER_RETENTION__BATCH_SIZE',
             fallback: DEFAULT_BATCH_SIZE,
         }),
-        dryRun: parseBooleanEnv(safeEnv.HAPPIER_SERVER_RETENTION__DRY_RUN, false),
+        dryRun: parseBooleanEnv(safeEnv.KAIWU_SERVER_RETENTION__DRY_RUN, false),
         maxDeletesPerRulePerRun: parsePositiveInt({
             env: safeEnv,
-            key: 'HAPPIER_SERVER_RETENTION__MAX_DELETES_PER_RULE_PER_RUN',
+            key: 'KAIWU_SERVER_RETENTION__MAX_DELETES_PER_RULE_PER_RUN',
             fallback: DEFAULT_MAX_DELETES_PER_RULE_PER_RUN,
         }),
         sweepTimeBudgetMs: parsePositiveInt({
             env: safeEnv,
-            key: 'HAPPIER_SERVER_RETENTION__SWEEP_TIME_BUDGET_MS',
+            key: 'KAIWU_SERVER_RETENTION__SWEEP_TIME_BUDGET_MS',
             fallback: DEFAULT_SWEEP_TIME_BUDGET_MS,
         }),
         maxCandidatesPerRulePerRun: parsePositiveInt({
             env: safeEnv,
-            key: 'HAPPIER_SERVER_RETENTION__MAX_CANDIDATES_PER_RULE_PER_RUN',
+            key: 'KAIWU_SERVER_RETENTION__MAX_CANDIDATES_PER_RULE_PER_RUN',
             fallback: DEFAULT_MAX_CANDIDATES_PER_RULE_PER_RUN,
         }),
         domains: readDomainPolicies(safeEnv),

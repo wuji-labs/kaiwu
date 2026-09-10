@@ -1,0 +1,20 @@
+import { z } from 'zod';
+export type LineContentHashV1 = `lh1:${string}`;
+export declare function isLineContentHashV1(value: unknown): value is LineContentHashV1;
+export declare function normalizeLineContentForHashV1(line: string): string;
+export declare function computeLineContentHashV1(line: string): LineContentHashV1;
+export declare const WorkspaceAnchorV1Schema: any;
+export type WorkspaceAnchorV1 = z.infer<typeof WorkspaceAnchorV1Schema>;
+export declare const WorkspaceAnchorSourceV1Schema: any;
+export type WorkspaceAnchorSourceV1 = z.infer<typeof WorkspaceAnchorSourceV1Schema>;
+export declare const WorkspaceAnchorSnapshotV1Schema: any;
+export type WorkspaceAnchorSnapshotV1 = z.infer<typeof WorkspaceAnchorSnapshotV1Schema>;
+export declare const WorkspaceAnchorsResolveRequestV1Schema: any;
+export type WorkspaceAnchorsResolveRequestV1 = z.infer<typeof WorkspaceAnchorsResolveRequestV1Schema>;
+export declare const WorkspaceAnchorResolutionStatusV1Schema: any;
+export type WorkspaceAnchorResolutionStatusV1 = z.infer<typeof WorkspaceAnchorResolutionStatusV1Schema>;
+export declare const WorkspaceAnchorResolutionV1Schema: any;
+export type WorkspaceAnchorResolutionV1 = z.infer<typeof WorkspaceAnchorResolutionV1Schema>;
+export declare const WorkspaceAnchorsResolveResponseV1Schema: any;
+export type WorkspaceAnchorsResolveResponseV1 = z.infer<typeof WorkspaceAnchorsResolveResponseV1Schema>;
+//# sourceMappingURL=v1.d.ts.map

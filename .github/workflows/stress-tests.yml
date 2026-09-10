@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       repeat:
-        description: "Repetitions (HAPPIER_E2E_REPEAT)"
+        description: "Repetitions (KAIWU_E2E_REPEAT)"
         required: true
         default: "10"
         type: string
       seed:
-        description: "Seed (HAPPIER_E2E_SEED, empty = random)"
+        description: "Seed (KAIWU_E2E_SEED, empty = random)"
         required: true
         default: ""
         type: string

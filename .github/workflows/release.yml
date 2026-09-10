@@ -1343,10 +1343,10 @@ jobs:
       - name: Verify loaded server API revision
         if: >-
           (needs.deploy_server.result == 'success' || needs.resolve_resume.outputs.deploy_server_complete == 'true') &&
-          ((inputs.environment == 'production' && vars.HAPPIER_SERVER_API_PRODUCTION_VERSION_URL != '') ||
-          (inputs.environment != 'production' && vars.HAPPIER_SERVER_API_PREVIEW_VERSION_URL != ''))
+          ((inputs.environment == 'production' && vars.KAIWU_SERVER_API_PRODUCTION_VERSION_URL != '') ||
+          (inputs.environment != 'production' && vars.KAIWU_SERVER_API_PREVIEW_VERSION_URL != ''))
         env:
-          SERVER_API_VERSION_URL: ${{ inputs.environment == 'production' && vars.HAPPIER_SERVER_API_PRODUCTION_VERSION_URL || vars.HAPPIER_SERVER_API_PREVIEW_VERSION_URL }}
+          SERVER_API_VERSION_URL: ${{ inputs.environment == 'production' && vars.KAIWU_SERVER_API_PRODUCTION_VERSION_URL || vars.KAIWU_SERVER_API_PREVIEW_VERSION_URL }}
           CANDIDATE_SOURCE_SHA: ${{ needs.prepare_release_candidate.outputs.source_sha }}
         run: |
           set -euo pipefail
@@ -1358,8 +1358,8 @@ jobs:
       - name: Record unavailable server runtime observation
         if: >-
           (needs.deploy_server.result == 'success' || needs.resolve_resume.outputs.deploy_server_complete == 'true') &&
-          ((inputs.environment == 'production' && vars.HAPPIER_SERVER_API_PRODUCTION_VERSION_URL == '') ||
-          (inputs.environment != 'production' && vars.HAPPIER_SERVER_API_PREVIEW_VERSION_URL == ''))
+          ((inputs.environment == 'production' && vars.KAIWU_SERVER_API_PRODUCTION_VERSION_URL == '') ||
+          (inputs.environment != 'production' && vars.KAIWU_SERVER_API_PREVIEW_VERSION_URL == ''))
         run: |
           echo 'The server deployment was accepted, but this environment has no canonical API version URL configured; loaded-runtime identity remains unobserved.' >> "$GITHUB_STEP_SUMMARY"
 

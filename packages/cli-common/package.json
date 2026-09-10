@@ -120,5 +120,16 @@
       "default": "./dist/systemTasks/index.js"
     }
   },
-  "dependencies": {}
+  "scripts": {
+    "tsc": "node ../../scripts/workspaces/runTypeScriptCli.mjs",
+    "build": "node scripts/build.mjs",
+    "postinstall:real": "yarn -s build",
+    "typecheck": "node ../../scripts/workspaces/runTypeScriptCli.mjs --noEmit -p tsconfig.json",
+    "test": "yarn -s build && node ../../node_modules/vitest/vitest.mjs run --config vitest.config.ts"
+  },
+  "dependencies": {
+    "@happier-dev/agents": "0.0.0",
+    "@happier-dev/protocol": "0.0.0",
+    "@happier-dev/release-runtime": "0.0.0"
+  }
 }

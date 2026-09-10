@@ -1,0 +1,62 @@
+import { z } from 'zod';
+import { SessionMessageRoleSchema } from './sessionMessageRole.js';
+import { SessionStoredMessageContentSchema } from './sessionStoredMessageContent.js';
+import { PendingLocalIdSchema } from './pendingLocalId.js';
+export const SESSION_TRANSCRIPT_OBSERVATION_CAPABILITY_V1 = 'session-transcript-observation-v1';
+export const SESSION_TRANSCRIPT_OBSERVATION_CAPABILITY_EVENT_V1 = 'transcript-observation-capability-v1';
+export const SESSION_TRANSCRIPT_OBSERVATION_EVENT_V1 = 'transcript-observation-v1';
+const NonBlankString = z.string().refine((value) => value.trim().length > 0, {
+    message: 'Expected a non-blank string',
+});
+const SourceTimestamp = z.number().int().min(0);
+export const SessionTranscriptObservationProvenanceV1Schema = z.object({
+    kind: z.literal('non_dependent'),
+    source: z.enum(['background', 'external', 'sidechain', 'history']),
+}).strict();
+export function isRecoveredHistoryTranscriptObservationProvenance(value) {
+    const provenance = SessionTranscriptObservationProvenanceV1Schema.safeParse(value);
+    return provenance.success && provenance.data.source === 'history';
+}
+export const SessionTranscriptObservationV1Schema = z.object({
+    v: z.literal(1),
+    sessionId: NonBlankString,
+    localId: PendingLocalIdSchema,
+    sidechainId: NonBlankString.nullable().optional(),
+    messageRole: SessionMessageRoleSchema.optional(),
+    content: z.union([z.string().min(1), SessionStoredMessageContentSchema]),
+    createdAt: SourceTimestamp,
+    updatedAt: SourceTimestamp,
+    provenance: SessionTranscriptObservationProvenanceV1Schema,
+    sessionEventType: z.literal('ready').optional(),
+}).strict().superRefine((value, ctx) => {
+    if (value.updatedAt < value.createdAt) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['updatedAt'], message: 'updatedAt must not precede createdAt' });
+    }
+});
+export const SessionTranscriptObservationCapabilityAckV1Schema = z.discriminatedUnion('ok', [
+    z.object({
+        ok: z.literal(true),
+        capability: z.literal(SESSION_TRANSCRIPT_OBSERVATION_CAPABILITY_V1),
+    }).strict(),
+    z.object({
+        ok: z.literal(false),
+        error: z.enum(['forbidden', 'unsupported', 'invalid_session', 'internal']),
+    }).strict(),
+]);
+export const SessionTranscriptObservationAckV1Schema = z.union([
+    z.object({
+        ok: z.literal(true),
+        status: z.literal('observed'),
+        id: NonBlankString,
+        seq: z.number().int().min(0),
+        localId: PendingLocalIdSchema,
+        didWrite: z.boolean(),
+        didUpdate: z.boolean().optional(),
+        ingestedAt: SourceTimestamp,
+    }).strict(),
+    z.object({
+        ok: z.literal(false),
+        error: z.enum(['forbidden', 'invalid_observation', 'internal']),
+    }).strict(),
+]);
+//# sourceMappingURL=transcriptObservationV1.js.map

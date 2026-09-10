@@ -2,9 +2,9 @@
 
 FROM debian:12-slim AS devbox-artifacts
 ARG TARGETARCH
-ARG HAPPIER_RELEASE_BASE_URL="https://github.com/happier-dev/happier/releases/download"
-ARG HAPPIER_DEVBOX_CLI_RELEASE_TAG=""
-ARG HAPPIER_DEVBOX_CLI_VERSION=""
+ARG KAIWU_RELEASE_BASE_URL="https://github.com/happier-dev/happier/releases/download"
+ARG KAIWU_DEVBOX_CLI_RELEASE_TAG=""
+ARG KAIWU_DEVBOX_CLI_VERSION=""
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends ca-certificates curl tar minisign \
@@ -21,10 +21,10 @@ RUN set -eux; \
     *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1 ;; \
   esac; \
   fetch-verified-release-artifact \
-    --base-url "$HAPPIER_RELEASE_BASE_URL" \
-    --release-tag "$HAPPIER_DEVBOX_CLI_RELEASE_TAG" \
+    --base-url "$KAIWU_RELEASE_BASE_URL" \
+    --release-tag "$KAIWU_DEVBOX_CLI_RELEASE_TAG" \
     --product happier \
-    --version "$HAPPIER_DEVBOX_CLI_VERSION" \
+    --version "$KAIWU_DEVBOX_CLI_VERSION" \
     --os linux \
     --arch "$artifact_arch" \
     --dest /opt/happier/cli \

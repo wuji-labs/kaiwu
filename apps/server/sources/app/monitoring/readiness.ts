@@ -10,7 +10,7 @@ import { isShutdown } from "@/utils/process/shutdown";
 
 const MONITORING_SERVICE_NAME = 'happier-server';
 const DB_READINESS_ERROR = 'Database connectivity failed';
-const DB_READINESS_TIMEOUT_MS_ENV = 'HAPPIER_DB_READINESS_TIMEOUT_MS';
+const DB_READINESS_TIMEOUT_MS_ENV = 'KAIWU_DB_READINESS_TIMEOUT_MS';
 const DEFAULT_DB_READINESS_TIMEOUT_MS = 15_000;
 
 type DbReadinessResult = "ok" | "error";

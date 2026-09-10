@@ -34,7 +34,7 @@ export function versionRoutes(app: Fastify) {
             },
         },
     }, async () => {
-        const sourceSha = String(process.env.HAPPIER_RELEASE_SOURCE_SHA ?? '').trim();
+        const sourceSha = String(process.env.KAIWU_RELEASE_SOURCE_SHA ?? '').trim();
         return {
             ok: true as const,
             ...(/^[a-f0-9]{40}$/.test(sourceSha) ? { source_sha: sourceSha } : {}),

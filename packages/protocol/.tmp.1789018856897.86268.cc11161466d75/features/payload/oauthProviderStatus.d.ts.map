@@ -1,0 +1,1 @@
+{"version":3,"file":"oauthProviderStatus.d.ts","sourceRoot":"","sources":["../../../src/features/payload/oauthProviderStatus.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,CAAC,EAAE,MAAM,KAAK,CAAC;AAExB,eAAO,MAAM,yBAAyB,KAGpC,CAAC;AAEH,MAAM,MAAM,mBAAmB,GAAG,CAAC,CAAC,KAAK,CAAC,OAAO,yBAAyB,CAAC,CAAC"}

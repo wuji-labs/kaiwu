@@ -1,8 +1,8 @@
 import { mkdir, rename, rm, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute } from 'node:path';
 
-export const SERVER_STARTUP_RECEIPT_PATH_ENV = 'HAPPIER_SERVER_STARTUP_RECEIPT_PATH';
-export const SERVER_STARTUP_RECEIPT_NONCE_ENV = 'HAPPIER_SERVER_STARTUP_RECEIPT_NONCE';
+export const SERVER_STARTUP_RECEIPT_PATH_ENV = 'KAIWU_SERVER_STARTUP_RECEIPT_PATH';
+export const SERVER_STARTUP_RECEIPT_NONCE_ENV = 'KAIWU_SERVER_STARTUP_RECEIPT_NONCE';
 
 export async function writeStartupReceiptFromEnvironment(
     env: NodeJS.ProcessEnv | Readonly<Record<string, string | undefined>>,

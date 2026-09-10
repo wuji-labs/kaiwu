@@ -5,7 +5,7 @@ import type { Credentials } from '@/persistence';
 import { readDaemonState, readSettings } from '@/persistence';
 
 const DEFAULT_MISSING_MACHINE_ID_MESSAGE =
-  '[START] No machine ID found in settings. Please report this issue on https://github.com/happier-dev/happier/issues';
+  '[START] No machine ID found in settings. Please report this issue on https://github.com/wuji-labs/kaiwu/issues';
 
 const silentRecoveryLogger = {
   info: () => undefined,

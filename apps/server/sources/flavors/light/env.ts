@@ -14,7 +14,7 @@ function isBunfsHomeDir(path: string): boolean {
 }
 
 export function resolveLightDataDir(env: LightEnv, opts?: { homedir?: string }): string {
-    const fromEnv = expandHomeDirPath((env.HAPPY_SERVER_LIGHT_DATA_DIR ?? env.HAPPIER_SERVER_LIGHT_DATA_DIR)?.trim() ?? '', env);
+    const fromEnv = expandHomeDirPath((env.HAPPY_SERVER_LIGHT_DATA_DIR ?? env.KAIWU_SERVER_LIGHT_DATA_DIR)?.trim() ?? '', env);
     if (fromEnv) {
         return fromEnv;
     }
@@ -28,7 +28,7 @@ export function resolveLightDataDir(env: LightEnv, opts?: { homedir?: string }):
 }
 
 export function resolveLightFilesDir(env: LightEnv, dataDir: string): string {
-    const fromEnv = expandHomeDirPath((env.HAPPY_SERVER_LIGHT_FILES_DIR ?? env.HAPPIER_SERVER_LIGHT_FILES_DIR)?.trim() ?? '', env);
+    const fromEnv = expandHomeDirPath((env.HAPPY_SERVER_LIGHT_FILES_DIR ?? env.KAIWU_SERVER_LIGHT_FILES_DIR)?.trim() ?? '', env);
     if (fromEnv) {
         return fromEnv;
     }
@@ -36,7 +36,7 @@ export function resolveLightFilesDir(env: LightEnv, dataDir: string): string {
 }
 
 export function resolveLightDatabaseDir(env: LightEnv, dataDir: string): string {
-    const fromEnv = expandHomeDirPath((env.HAPPY_SERVER_LIGHT_DB_DIR ?? env.HAPPIER_SERVER_LIGHT_DB_DIR)?.trim() ?? '', env);
+    const fromEnv = expandHomeDirPath((env.HAPPY_SERVER_LIGHT_DB_DIR ?? env.KAIWU_SERVER_LIGHT_DB_DIR)?.trim() ?? '', env);
     if (fromEnv) {
         return fromEnv;
     }
@@ -80,9 +80,9 @@ export function applyLightDefaultEnv(env: LightEnv, opts?: { homedir?: string })
     env.HAPPY_SERVER_LIGHT_DATA_DIR = dataDir;
     env.HAPPY_SERVER_LIGHT_FILES_DIR = filesDir;
     env.HAPPY_SERVER_LIGHT_DB_DIR = dbDir;
-    env.HAPPIER_SERVER_LIGHT_DATA_DIR ??= dataDir;
-    env.HAPPIER_SERVER_LIGHT_FILES_DIR ??= filesDir;
-    env.HAPPIER_SERVER_LIGHT_DB_DIR ??= dbDir;
+    env.KAIWU_SERVER_LIGHT_DATA_DIR ??= dataDir;
+    env.KAIWU_SERVER_LIGHT_FILES_DIR ??= filesDir;
+    env.KAIWU_SERVER_LIGHT_DB_DIR ??= dbDir;
 
     env.PUBLIC_URL = resolveLightPublicUrl(env);
 }
@@ -104,7 +104,7 @@ export function applyPackagedLightRuntimeSqliteDefaults(
     env: LightEnv,
     opts?: Readonly<{ executablePath?: string }>,
 ): void {
-    const dataDir = firstNonEmpty(env.HAPPIER_SERVER_LIGHT_DATA_DIR, env.HAPPY_SERVER_LIGHT_DATA_DIR);
+    const dataDir = firstNonEmpty(env.KAIWU_SERVER_LIGHT_DATA_DIR, env.HAPPY_SERVER_LIGHT_DATA_DIR);
     if (!dataDir) return;
 
     env.DATABASE_URL = firstNonEmpty(env.DATABASE_URL, resolveLightSqliteDatabaseUrl(dataDir, process.platform, env));
@@ -112,13 +112,13 @@ export function applyPackagedLightRuntimeSqliteDefaults(
     const packagedMigrationsDir = resolvePackagedLightSqliteMigrationsDir(opts?.executablePath);
     if (!packagedMigrationsDir) return;
 
-    env.HAPPIER_SQLITE_AUTO_MIGRATE = firstNonEmpty(
-        env.HAPPIER_SQLITE_AUTO_MIGRATE,
+    env.KAIWU_SQLITE_AUTO_MIGRATE = firstNonEmpty(
+        env.KAIWU_SQLITE_AUTO_MIGRATE,
         env.HAPPY_SQLITE_AUTO_MIGRATE,
         '1',
     );
-    env.HAPPIER_SQLITE_MIGRATIONS_DIR = firstNonEmpty(
-        env.HAPPIER_SQLITE_MIGRATIONS_DIR,
+    env.KAIWU_SQLITE_MIGRATIONS_DIR = firstNonEmpty(
+        env.KAIWU_SQLITE_MIGRATIONS_DIR,
         env.HAPPY_SQLITE_MIGRATIONS_DIR,
         packagedMigrationsDir,
     );

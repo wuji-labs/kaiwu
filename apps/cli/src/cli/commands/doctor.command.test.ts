@@ -46,7 +46,7 @@ describe('doctor command routing', () => {
 
     expect(handleServiceRepairCliCommandMock).toHaveBeenCalledWith({
       argv: ['repair', '--yes'],
-      commandPath: 'happier doctor',
+      commandPath: 'kaiwu doctor',
     });
     expect(runDoctorCommandMock).not.toHaveBeenCalled();
   });

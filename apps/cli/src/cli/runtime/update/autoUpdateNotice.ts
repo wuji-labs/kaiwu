@@ -127,6 +127,7 @@ export function maybeAutoUpdateNotice(params: Readonly<{
   cliRootDir: string;
   env: NodeJS.ProcessEnv;
   publicReleaseRing?: PublicReleaseRingId;
+  currentCliVersion?: string | null;
   nowMs?: number;
   notifyIntervalMs?: number;
   checkIntervalMs?: number;
@@ -165,8 +166,9 @@ export function maybeAutoUpdateNotice(params: Readonly<{
   const current = typeof cached?.current === 'string' ? cached.current : null;
   const effectiveCurrent = current
     ?? (typeof cached?.runtimeVersion === 'string' ? cached.runtimeVersion : null)
-    ?? (typeof cached?.invokerVersion === 'string' ? cached.invokerVersion : null);
-  const candidateIsNewer = !latest || !effectiveCurrent || compareVersions(latest, effectiveCurrent) > 0;
+    ?? (typeof cached?.invokerVersion === 'string' ? cached.invokerVersion : null)
+    ?? (params.currentCliVersion ?? null);
+  const candidateIsNewer = Boolean(effectiveCurrent && latest && compareVersions(latest, effectiveCurrent) > 0);
   const updateAvailable = Boolean(cached?.updateAvailable) && latestMatchesRing && candidateIsNewer;
   const notifiedAt = typeof cached?.notifiedAt === 'number' ? cached.notifiedAt : null;
 

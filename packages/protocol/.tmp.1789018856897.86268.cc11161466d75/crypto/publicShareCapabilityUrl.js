@@ -1,0 +1,8 @@
+/**
+ * Returns a log-safe representation of a URL that may contain a public-share
+ * bearer capability.
+ */
+export function redactPublicShareCapabilityUrl(rawUrl) {
+    return rawUrl.replace(/(\/(?:v1\/public-share|share)\/)([^/?#\s]+)/g, "$1:token");
+}
+//# sourceMappingURL=publicShareCapabilityUrl.js.map

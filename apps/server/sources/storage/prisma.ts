@@ -67,17 +67,17 @@ export function parseDbProvider(rawValue: unknown): DbProvider | null {
 }
 
 export function getDbProviderFromEnv(env: NodeJS.ProcessEnv, fallback: DbProvider): DbProvider {
-    const raw = env.HAPPIER_DB_PROVIDER ?? env.HAPPY_DB_PROVIDER;
+    const raw = env.KAIWU_DB_PROVIDER ?? env.HAPPY_DB_PROVIDER;
     return parseDbProvider(raw) ?? fallback;
 }
 
 export function requireDbProviderFromEnv(env: NodeJS.ProcessEnv, fallback: DbProvider): DbProvider {
-    const raw = env.HAPPIER_DB_PROVIDER ?? env.HAPPY_DB_PROVIDER;
+    const raw = env.KAIWU_DB_PROVIDER ?? env.HAPPY_DB_PROVIDER;
     if (raw === undefined || raw === null || !raw.toString().trim()) return fallback;
     const provider = parseDbProvider(raw);
     if (provider) return provider;
     throw new Error(
-        `Unsupported HAPPIER_DB_PROVIDER/HAPPY_DB_PROVIDER: ${raw}. Supported: postgres|mysql|pglite|sqlite`,
+        `Unsupported KAIWU_DB_PROVIDER/HAPPY_DB_PROVIDER: ${raw}. Supported: postgres|mysql|pglite|sqlite`,
     );
 }
 
@@ -202,7 +202,7 @@ async function createGeneratedPrismaClient(provider: "mysql" | "sqlite"): Promis
     } catch (err: any) {
         const code = err?.code ? String(err.code) : "";
         const hint =
-            `This usually means the server was built without the ${provider} Prisma client. Rebuild with HAPPIER_BUILD_DB_PROVIDERS including ${provider} (or leave it unset to build all providers).`;
+            `This usually means the server was built without the ${provider} Prisma client. Rebuild with KAIWU_BUILD_DB_PROVIDERS including ${provider} (or leave it unset to build all providers).`;
         if (code === "ERR_MODULE_NOT_FOUND" || /Cannot find module/i.test(String(err?.message ?? ""))) {
             throw new Error(
                 `Missing generated Prisma client for provider ${provider} (${entrypoint}). ${hint}`.trim(),
@@ -347,23 +347,23 @@ export type SqliteStartupDiagnostics = Readonly<{
 const DEFAULT_SQLITE_JOURNAL_SIZE_LIMIT_BYTES = 64 * 1024 * 1024;
 
 function resolveSqliteJournalModeFromEnv(env: NodeJS.ProcessEnv): SqliteJournalMode {
-    const raw = String(env.HAPPIER_SQLITE_JOURNAL_MODE ?? env.HAPPY_SQLITE_JOURNAL_MODE ?? "").trim();
+    const raw = String(env.KAIWU_SQLITE_JOURNAL_MODE ?? env.HAPPY_SQLITE_JOURNAL_MODE ?? "").trim();
     if (!raw) return "WAL";
     const normalized = raw.toUpperCase();
     if (normalized === "WAL") return "WAL";
     if (normalized === "DELETE") return "DELETE";
-    throw new Error(`Invalid HAPPIER_SQLITE_JOURNAL_MODE/HAPPY_SQLITE_JOURNAL_MODE: ${raw}`);
+    throw new Error(`Invalid KAIWU_SQLITE_JOURNAL_MODE/HAPPY_SQLITE_JOURNAL_MODE: ${raw}`);
 }
 
 function resolveSqliteSynchronousModeFromEnv(env: NodeJS.ProcessEnv): SqliteSynchronousMode {
-    const raw = String(env.HAPPIER_SQLITE_SYNCHRONOUS ?? env.HAPPY_SQLITE_SYNCHRONOUS ?? "").trim();
+    const raw = String(env.KAIWU_SQLITE_SYNCHRONOUS ?? env.HAPPY_SQLITE_SYNCHRONOUS ?? "").trim();
     if (!raw) return "NORMAL";
     const normalized = raw.toUpperCase();
     if (normalized === "OFF") return "OFF";
     if (normalized === "NORMAL") return "NORMAL";
     if (normalized === "FULL") return "FULL";
     if (normalized === "EXTRA") return "EXTRA";
-    throw new Error(`Invalid HAPPIER_SQLITE_SYNCHRONOUS/HAPPY_SQLITE_SYNCHRONOUS: ${raw}`);
+    throw new Error(`Invalid KAIWU_SQLITE_SYNCHRONOUS/HAPPY_SQLITE_SYNCHRONOUS: ${raw}`);
 }
 
 function resolveSqliteBusyTimeoutMsFromEnv(env: NodeJS.ProcessEnv): number {
@@ -372,18 +372,18 @@ function resolveSqliteBusyTimeoutMsFromEnv(env: NodeJS.ProcessEnv): number {
 
 function resolveSqliteJournalSizeLimitBytesFromEnv(env: NodeJS.ProcessEnv): number {
     const raw = String(
-        env.HAPPIER_SQLITE_JOURNAL_SIZE_LIMIT_BYTES ?? env.HAPPY_SQLITE_JOURNAL_SIZE_LIMIT_BYTES ?? "",
+        env.KAIWU_SQLITE_JOURNAL_SIZE_LIMIT_BYTES ?? env.HAPPY_SQLITE_JOURNAL_SIZE_LIMIT_BYTES ?? "",
     ).trim();
     if (!raw) return DEFAULT_SQLITE_JOURNAL_SIZE_LIMIT_BYTES;
     if (!/^-?\d+$/.test(raw)) {
         throw new Error(
-            `Invalid HAPPIER_SQLITE_JOURNAL_SIZE_LIMIT_BYTES/HAPPY_SQLITE_JOURNAL_SIZE_LIMIT_BYTES: ${raw}`,
+            `Invalid KAIWU_SQLITE_JOURNAL_SIZE_LIMIT_BYTES/HAPPY_SQLITE_JOURNAL_SIZE_LIMIT_BYTES: ${raw}`,
         );
     }
     const parsed = Number(raw);
     if (!Number.isSafeInteger(parsed)) {
         throw new Error(
-            `Invalid HAPPIER_SQLITE_JOURNAL_SIZE_LIMIT_BYTES/HAPPY_SQLITE_JOURNAL_SIZE_LIMIT_BYTES: ${raw}`,
+            `Invalid KAIWU_SQLITE_JOURNAL_SIZE_LIMIT_BYTES/HAPPY_SQLITE_JOURNAL_SIZE_LIMIT_BYTES: ${raw}`,
         );
     }
     // SQLite treats negative values as "no limit"; 0 is an explicit minimum-size limit.

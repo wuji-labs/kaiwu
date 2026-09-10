@@ -34,7 +34,7 @@ import { V2_SESSION_LIST_SERVER_TIMING_REQUEST_HEADER } from "./routes/session/v
 import { resolveApiRateLimitPluginOptions, resolveApiTrustProxy } from "./utils/apiRateLimitPolicy";
 
 export function resolveApiListenHost(env: Record<string, string | undefined>): string {
-    const host = (env.HAPPIER_SERVER_HOST ?? env.HAPPY_SERVER_HOST ?? '').toString().trim();
+    const host = (env.KAIWU_SERVER_HOST ?? env.HAPPY_SERVER_HOST ?? '').toString().trim();
     return host.length > 0 ? host : '0.0.0.0';
 }
 
@@ -61,7 +61,7 @@ export function createApiCorsOptions(env: Record<string, string | undefined>): F
 }
 
 export function resolveApiCorsMaxAgeSeconds(env: Record<string, string | undefined>): number {
-    const raw = (env.HAPPIER_API_CORS_MAX_AGE_SECONDS ?? env.HAPPY_API_CORS_MAX_AGE_SECONDS ?? '').toString().trim();
+    const raw = (env.KAIWU_API_CORS_MAX_AGE_SECONDS ?? env.HAPPY_API_CORS_MAX_AGE_SECONDS ?? '').toString().trim();
     if (!raw) return DEFAULT_API_CORS_MAX_AGE_SECONDS;
     const parsed = Number.parseInt(raw, 10);
     if (!Number.isFinite(parsed) || parsed < 0) return DEFAULT_API_CORS_MAX_AGE_SECONDS;

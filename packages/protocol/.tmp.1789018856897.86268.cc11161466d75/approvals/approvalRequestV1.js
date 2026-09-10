@@ -1,0 +1,135 @@
+import { z } from 'zod';
+import { ActionApprovalSchema } from '../actions/actionApprovalMetadata.js';
+import { ActionIdSchema } from '../actions/actionIds.js';
+export const ApprovalRequestStatusSchema = z.enum(['open', 'approved', 'rejected', 'executed', 'failed', 'canceled']);
+const ApprovalRequestedSurfaceSchema = z.string().min(1);
+export const ApprovalRequestCreatedBySchema = z.object({
+    surface: z.enum(['voice', 'session_agent', 'mcp', 'cli', 'system']),
+    agentId: z.string().min(1).optional(),
+    sessionId: z.string().min(1).optional(),
+}).strict();
+export const ApprovalRequestOriginV1Schema = z.object({
+    kind: z.literal('transcript_tool_call'),
+    sessionId: z.string().min(1),
+    messageId: z.string().min(1).optional(),
+    parentMessageId: z.string().min(1).optional(),
+    toolCallId: z.string().min(1).optional(),
+    mcpRequestId: z.string().min(1).optional(),
+    toolName: z.string().min(1).optional(),
+    toolInput: z.unknown().optional(),
+}).strict().superRefine((value, ctx) => {
+    if (!value.messageId && !value.parentMessageId && !value.toolCallId && !value.toolName) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['origin'],
+            message: 'transcript tool-call origin requires a messageId, parentMessageId, toolCallId, or toolName',
+        });
+    }
+});
+export const ApprovalDecisionV1Schema = z.object({
+    kind: z.enum(['approve', 'reject']),
+    decidedAtMs: z.number().int().min(0),
+}).passthrough();
+export const ApprovalExecutionV1Schema = z.object({
+    executedAtMs: z.number().int().min(0),
+    ok: z.boolean(),
+    result: z.unknown().optional(),
+    errorCode: z.string().min(1).optional(),
+    error: z.string().min(1).optional(),
+}).passthrough();
+export const ApprovalRequestV1Schema = z.object({
+    v: z.literal(1),
+    status: ApprovalRequestStatusSchema,
+    createdAtMs: z.number().int().min(0),
+    updatedAtMs: z.number().int().min(0),
+    createdBy: ApprovalRequestCreatedBySchema,
+    requestedSurface: ApprovalRequestedSurfaceSchema.optional(),
+    actionId: ActionIdSchema,
+    actionArgs: z.unknown(),
+    summary: z.string().min(1),
+    approval: ActionApprovalSchema.optional(),
+    origin: ApprovalRequestOriginV1Schema.optional(),
+    preview: z.unknown().optional(),
+    decision: ApprovalDecisionV1Schema.optional(),
+    execution: ApprovalExecutionV1Schema.optional(),
+}).passthrough().superRefine((value, ctx) => {
+    const requiresDecision = value.status === 'approved'
+        || value.status === 'rejected'
+        || value.status === 'executed'
+        || value.status === 'failed';
+    const requiresExecution = value.status === 'executed' || value.status === 'failed';
+    if (value.status === 'open') {
+        if (value.decision != null) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ['decision'],
+                message: 'open approval requests must not include a decision',
+            });
+        }
+        if (value.execution != null) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ['execution'],
+                message: 'open approval requests must not include execution metadata',
+            });
+        }
+    }
+    if (requiresDecision && value.decision == null) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['decision'],
+            message: `status ${value.status} requires a decision`,
+        });
+    }
+    if (requiresExecution && value.execution == null) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['execution'],
+            message: `status ${value.status} requires execution metadata`,
+        });
+    }
+    if (!requiresExecution && value.execution != null) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['execution'],
+            message: `status ${value.status} must not include execution metadata`,
+        });
+    }
+    if ((value.status === 'approved' || value.status === 'executed' || value.status === 'failed')
+        && value.decision?.kind !== 'approve') {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['decision'],
+            message: `status ${value.status} requires an approve decision`,
+        });
+    }
+    if (value.status === 'rejected' && value.decision?.kind !== 'reject') {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['decision'],
+            message: 'status rejected requires a reject decision',
+        });
+    }
+    if (value.status === 'canceled' && value.decision != null) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['decision'],
+            message: 'canceled approval requests must not include a decision',
+        });
+    }
+    if (value.status === 'executed' && value.execution?.ok !== true) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['execution'],
+            message: 'status executed requires a successful execution result',
+        });
+    }
+    if (value.status === 'failed' && value.execution?.ok !== false) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['execution'],
+            message: 'status failed requires a failed execution result',
+        });
+    }
+});
+//# sourceMappingURL=approvalRequestV1.js.map

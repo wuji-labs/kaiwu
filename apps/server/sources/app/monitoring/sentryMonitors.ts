@@ -3,7 +3,7 @@ import * as Sentry from "@sentry/node";
 import { parseOptionalBooleanEnv } from "@/config/env";
 
 function isMonitorsEnabled(env: NodeJS.ProcessEnv): boolean {
-    return parseOptionalBooleanEnv(env.SENTRY_MONITORS_ENABLED ?? env.HAPPIER_SENTRY_MONITORS_ENABLED) ?? false;
+    return parseOptionalBooleanEnv(env.SENTRY_MONITORS_ENABLED ?? env.KAIWU_SENTRY_MONITORS_ENABLED) ?? false;
 }
 
 function intervalScheduleFromMs(intervalMs: number): { type: "interval"; value: number; unit: "minute" } {
