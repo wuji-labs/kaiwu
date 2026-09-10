@@ -53,10 +53,10 @@ export function buildLaunchdPlistContent(params: Readonly<{ nodePath: string; sc
                 <true/>
                 
                 <key>StandardErrorPath</key>
-                <string>${homeDir}/.happier/daemon.err</string>
-                
+                <string>${homeDir}/.kaiwu/daemon.err</string>
+
                 <key>StandardOutPath</key>
-                <string>${homeDir}/.happier/daemon.log</string>
+                <string>${homeDir}/.kaiwu/daemon.log</string>
                 
                 <key>WorkingDirectory</key>
                 <string>/tmp</string>

@@ -28,7 +28,7 @@ describe('CLI command-surface manifest', () => {
 
     for (const entry of entries) {
       expect(entry.rootHelpLabel).toBeTypeOf('string');
-      expect(entry.rootHelpLabel).toMatch(/^happier\b/u);
+      expect(entry.rootHelpLabel).toMatch(/^kaiwu\b/u);
     }
   });
 
@@ -44,7 +44,7 @@ describe('CLI command-surface manifest', () => {
     expect(isTmuxAllowedCommand('install')).toBe(false);
   });
 
-  // The installers gate every post-install `happier <command>` invocation on the
+  // The installers gate every post-install `kaiwu <command>` invocation on the
   // CLI's own root help (scripts/release/installers/install.sh
   // `installed_cli_supports_command_surface`, install.ps1
   // `Test-InstalledCliSupportsCommandSurface`). If `setup` ever stops being
@@ -53,7 +53,7 @@ describe('CLI command-surface manifest', () => {
   it('lists the command surfaces the installers gate their post-install handoff on', () => {
     const help = buildRootHelpText();
     const installerGate = (subcommand: string): RegExp =>
-      new RegExp(String.raw`^\s*(happier\.exe|happier)\s+${subcommand}\b`, 'mu');
+      new RegExp(String.raw`^\s*(kaiwu\.exe|kaiwu)\s+${subcommand}\b`, 'mu');
 
     expect(help).toMatch(installerGate('setup'));
     expect(help).toMatch(installerGate('auth'));

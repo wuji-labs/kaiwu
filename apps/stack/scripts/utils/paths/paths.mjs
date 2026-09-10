@@ -7,8 +7,14 @@ import { expandHome } from './canonical_home.mjs';
 
 const PRIMARY_APP_SLUG = 'happier-stack';
 const PRIMARY_LABEL_BASE = 'dev.happier.stack';
-const PRIMARY_STORAGE_ROOT = join(homedir(), '.happier', 'stacks');
-const PRIMARY_HOME_DIR = join(homedir(), '.happier-stack');
+
+const defaultStorageRoot = join(homedir(), '.kaiwu', 'stacks');
+const fallbackStorageRoot = join(homedir(), '.happier', 'stacks');
+const PRIMARY_STORAGE_ROOT = existsSync(fallbackStorageRoot) && !existsSync(defaultStorageRoot) ? fallbackStorageRoot : defaultStorageRoot;
+
+const defaultHomeDir = join(homedir(), '.kaiwu-stack');
+const fallbackHomeDir = join(homedir(), '.happier-stack');
+const PRIMARY_HOME_DIR = existsSync(fallbackHomeDir) && !existsSync(defaultHomeDir) ? fallbackHomeDir : defaultHomeDir;
 
 // Happier monorepo layouts (historical + in-flight refactors):
 //

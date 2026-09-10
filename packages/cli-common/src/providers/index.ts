@@ -39,4 +39,7 @@ export {
   managedPnpmInstallDir,
   resolveExistingPnpmCommand,
 } from './managedPnpm.js';
-export { resolveHappyHomeDirFromEnvironment } from './resolveHappyHomeDir.js';
+export {
+  resetHappyHomeDirWarningsForTests,
+  resolveHappyHomeDirFromEnvironment,
+} from './resolveHappyHomeDir.js';

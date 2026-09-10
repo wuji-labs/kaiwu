@@ -20,14 +20,16 @@ import { basename } from 'node:path';
  * canonical user-facing name.
  */
 export function resolveInvokerName(): string | null {
-  const envInvokerName = sanitizeInvokerName(process.env.HAPPIER_CLI_INVOKER_NAME);
+  const envInvokerName = sanitizeInvokerName(
+    process.env.KAIWU_CLI_INVOKER_NAME ?? process.env.HAPPIER_CLI_INVOKER_NAME,
+  );
   if (envInvokerName) return envInvokerName;
 
   for (const candidate of [process.argv[1] ?? '', process.argv[0] ?? '']) {
     const normalized = sanitizeInvokerName(candidate);
-    if (normalized) return normalized;
+    if (normalized && normalized !== 'node' && normalized !== 'index') return normalized;
   }
-  return null;
+  return 'kaiwu';
 }
 
 /**
