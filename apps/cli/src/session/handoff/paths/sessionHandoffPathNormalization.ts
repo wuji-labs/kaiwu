@@ -35,18 +35,21 @@ export function resolveSessionHandoffLocalHomeDir(params: Readonly<{
     const fallbackHomeDir = trimTrailingSeparators(params.fallbackHomeDir);
     const normalizedActiveServerDir = activeServerDir.replace(/\\/g, '/');
 
-    const marker = '/.happier/';
-    const markerIndex = normalizedActiveServerDir.indexOf(marker);
-    if (markerIndex > 0) {
-        return activeServerDir.slice(0, markerIndex);
-    }
-    if (markerIndex === 0) {
-        return fallbackHomeDir;
+    for (const marker of ['/.kaiwu/', '/.happier/']) {
+        const markerIndex = normalizedActiveServerDir.indexOf(marker);
+        if (markerIndex > 0) {
+            return activeServerDir.slice(0, markerIndex);
+        }
+        if (markerIndex === 0) {
+            return fallbackHomeDir;
+        }
     }
 
-    if (normalizedActiveServerDir.endsWith('/.happier')) {
-        const prefix = activeServerDir.slice(0, -'/.happier'.length);
-        return prefix || fallbackHomeDir;
+    for (const suffix of ['/.kaiwu', '/.happier']) {
+        if (normalizedActiveServerDir.endsWith(suffix)) {
+            const prefix = activeServerDir.slice(0, -suffix.length);
+            return prefix || fallbackHomeDir;
+        }
     }
 
     return fallbackHomeDir;

@@ -7,3 +7,5 @@ export * as tailscale from './tailscale/index.js';
 export * as componentArtifacts from './componentArtifacts/index.js';
 export * as firstPartyRuntime from './firstPartyRuntime/index.js';
 export * as systemTasks from './systemTasks/index.js';
+export * as brandEnv from './brandEnv.js';
+export { normalizeBrandEnv } from './brandEnv.js';

@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 
 import {
@@ -7,8 +8,23 @@ import {
   resolvePathForPathShape,
 } from '../path/pathShape.js';
 
-export function resolveHappyHomeDirFromEnvironment(processEnv: NodeJS.ProcessEnv = process.env): string {
-  const override = typeof processEnv.HAPPIER_HOME_DIR === 'string' ? processEnv.HAPPIER_HOME_DIR.trim() : '';
+let warnedHomeDirDeprecated = false;
+
+export function resetHappyHomeDirWarningsForTests(): void {
+  warnedHomeDirDeprecated = false;
+}
+
+export function resolveHappyHomeDirFromEnvironment(
+  processEnv: NodeJS.ProcessEnv = process.env,
+  options: { warn?: (message: string) => void } = {},
+): string {
+  const override =
+    typeof processEnv.KAIWU_HOME_DIR === 'string' && processEnv.KAIWU_HOME_DIR.trim()
+      ? processEnv.KAIWU_HOME_DIR.trim()
+      : typeof processEnv.HAPPIER_HOME_DIR === 'string'
+        ? processEnv.HAPPIER_HOME_DIR.trim()
+        : '';
+
   if (override) {
     const envHome =
       process.platform === 'win32'
@@ -44,5 +60,17 @@ export function resolveHappyHomeDirFromEnvironment(processEnv: NodeJS.ProcessEnv
     baseHome = tmpdir();
   }
 
-  return joinPathForPathShape(baseHome, '.happier');
+  const kaiwuDir = joinPathForPathShape(baseHome, '.kaiwu');
+  const happierDir = joinPathForPathShape(baseHome, '.happier');
+
+  if (!existsSync(kaiwuDir) && existsSync(happierDir)) {
+    if (!warnedHomeDirDeprecated) {
+      warnedHomeDirDeprecated = true;
+      const warn = options.warn ?? ((msg: string) => console.warn(msg));
+      warn('[kaiwu] ~/.happier is deprecated, use ~/.kaiwu');
+    }
+    return happierDir;
+  }
+
+  return kaiwuDir;
 }

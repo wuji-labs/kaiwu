@@ -1,4 +1,4 @@
-import { isAbsolute, join, resolve as resolvePath, win32 as win32Path } from 'node:path';
+import { isAbsolute, posix as posixPath, resolve as resolvePath, win32 as win32Path } from 'node:path';
 
 export function isWin32ShapedAbsolutePath(pathLike: string): boolean {
   const value = String(pathLike ?? '').trim();
@@ -17,7 +17,7 @@ export function isAbsolutePathForPathShape(pathLike: string): boolean {
 }
 
 export function joinPathForPathShape(root: string, ...parts: string[]): string {
-  return isWin32ShapedAbsolutePath(root) ? win32Path.join(root, ...parts) : join(root, ...parts);
+  return isWin32ShapedAbsolutePath(root) ? win32Path.join(root, ...parts) : posixPath.join(root, ...parts);
 }
 
 export function resolvePathForPathShape(pathLike: string): string {
