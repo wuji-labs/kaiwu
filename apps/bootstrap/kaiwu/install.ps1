@@ -5,7 +5,7 @@
 # 1. 纯原生绿色免安装单文件架构：内置所有 runtime 与本地模型调度依赖，无需 Node.js、npm 或 C++ 编译环境。
 # 2. 全程走国内腾讯云上海 BGP 对象存储高速通道，数秒极速完成。
 # 3. 自动解压至 ~/.kaiwu/bin，并注册系统用户 PATH 环境变量（永久生效）。
-# 4. 自动持久化配置无极开物中继服务端 (KAIWU_SERVER_URL / HAPPIER_SERVER_URL)。
+# 4. 自动持久化配置无极开物中继服务端 (KAIWU_SERVER_URL / KAIWU_SERVER_URL)。
 # 5. 同时提供 kaiwu 与 happier 双命令别名，完全无缝兼容。
 
 [CmdletBinding()]
@@ -25,8 +25,8 @@ $KAIWU_SERVER_URL = if ($ServerUrl) {
     $ServerUrl
 } elseif ($env:KAIWU_SERVER_URL) {
     $env:KAIWU_SERVER_URL
-} elseif ($env:HAPPIER_SERVER_URL) {
-    $env:HAPPIER_SERVER_URL
+} elseif ($env:KAIWU_SERVER_URL) {
+    $env:KAIWU_SERVER_URL
 } else {
     "https://kaiwu.chengqiyun.com"
 }
@@ -159,7 +159,7 @@ try {
     if (Test-Path $tarGzFile) { Remove-Item -Force $tarGzFile -ErrorAction SilentlyContinue }
 } catch {}
 
-# 6. 配置用户级环境变量 PATH 与 HAPPIER_SERVER_URL
+# 6. 配置用户级环境变量 PATH 与 KAIWU_SERVER_URL
 Write-Info "正在配置环境变量与系统连接..."
 $userPath = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::User)
 if (-not $userPath) { $userPath = "" }
@@ -178,9 +178,9 @@ if ($env:Path -split ';' -notcontains $binDir) {
 
 # 设置并持久化开物服务端连接
 [System.Environment]::SetEnvironmentVariable('KAIWU_SERVER_URL', $KAIWU_SERVER_URL, [System.EnvironmentVariableTarget]::User)
-[System.Environment]::SetEnvironmentVariable('HAPPIER_SERVER_URL', $KAIWU_SERVER_URL, [System.EnvironmentVariableTarget]::User)
+[System.Environment]::SetEnvironmentVariable('KAIWU_SERVER_URL', $KAIWU_SERVER_URL, [System.EnvironmentVariableTarget]::User)
 $env:KAIWU_SERVER_URL = $KAIWU_SERVER_URL
-$env:HAPPIER_SERVER_URL = $KAIWU_SERVER_URL
+$env:KAIWU_SERVER_URL = $KAIWU_SERVER_URL
 Write-Info "已配置开物服务端连接: $KAIWU_SERVER_URL"
 
 # 创建 happier.exe 兼容别名
