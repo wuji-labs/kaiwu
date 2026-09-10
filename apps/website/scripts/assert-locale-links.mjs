@@ -44,7 +44,7 @@ const DIST = join(ROOT, 'dist');
 const home = readFileSync(join(DIST, 'index.html'), 'utf8');
 const PREFIXES = [
     ...new Set(
-        [...home.matchAll(/<link rel="alternate" hreflang="(?!x-default)[^"]+" href="[^"]*?(?:happier\.dev|kaiwu\.chengqiyun\.com)(\/[^"]*)?"/g)]
+        [...home.matchAll(/<link rel="alternate" hreflang="(?!x-default)[^"]+" href="[^"]*?(?:Kaiwu\.dev|kaiwu\.chengqiyun\.com)(\/[^"]*)?"/g)]
             .map((m) => m[1] ?? '')
             .filter((prefix) => prefix && prefix !== '/'),
     ),

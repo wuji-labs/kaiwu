@@ -30,7 +30,7 @@ description: Windows 特有行为与故障排查。
 
 - 你平时就使用 Windows Terminal；
 - 你希望 App 启动的会话后续能在 Windows Terminal 窗口中继续运行；
-- 你打算使用 `happier attach ⟦K1⟧` 重新唤起该窗口并置顶聚焦。
+- 你打算使用 `Kaiwu attach ⟦K1⟧` 重新唤起该窗口并置顶聚焦。
 
 ### Console
 
@@ -78,8 +78,8 @@ description: Windows 特有行为与故障排查。
 
 若会话是在支持 Attach 的 Windows 模式下启动的：
 
-- **Windows Terminal** 会话可通过 `happier attach ⟦K2⟧` 重新打开或聚焦
-- **Console** 会话可通过 `happier attach ⟦K3⟧` 切回前台
+- **Windows Terminal** 会话可通过 `Kaiwu attach ⟦K2⟧` 重新打开或聚焦
+- **Console** 会话可通过 `Kaiwu attach ⟦K3⟧` 切回前台
 
 若会话是在 **Hidden** 模式下启动的，其设计初衷是供 App 远程使用，不支持后续在本地终端中 Attach。
 
@@ -93,6 +93,6 @@ description: Windows 特有行为与故障排查。
 
 直接通过守护进程或 CLI 操作时，你也可以通过环境变量来设置默认的 Windows 远程会话模式。
 
-旧版取值（如 `HAPPIER_WINDOWS_REMOTE_SESSION_CONSOLE=visible`）会被直接兼容处理为现代的 **Console** 模式。
+旧版取值（如 `Kaiwu_WINDOWS_REMOTE_SESSION_CONSOLE=visible`）会被直接兼容处理为现代的 **Console** 模式。
 
 对于从 App 启动的会话，App 内的用户设置优先级依然更高。

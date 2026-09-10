@@ -2,7 +2,7 @@
 title: Cursor
 description: 通过 Kaiwu 运行 Cursor 的编程智能体 —— 安装并认证 CLI、选择模型，并了解该集成中哪些部分尚处于早期阶段。
 ---
-Kaiwu 通过本地的 `cursor-agent` CLI，基于 Agent Client Protocol 运行 **Cursor**。只要该 CLI 在目标设备上正常运行，`happier cursor` 即可在当地启动会话。你可以在手机、浏览器或另一台电脑上查看、引导并审批该会话。
+Kaiwu 通过本地的 `cursor-agent` CLI，基于 Agent Client Protocol 运行 **Cursor**。只要该 CLI 在目标设备上正常运行，`Kaiwu cursor` 即可在当地启动会话。你可以在手机、浏览器或另一台电脑上查看、引导并审批该会话。
 
 <Callout type="warn" title="实验性">
 Cursor 的集成起步晚于 Claude、Codex 或 OpenCode。虽然它能正常工作且有人日常使用，但未来变动可能会更频繁，而且 Kaiwu 在其他地方提供的部分会话功能此处暂不支持——详情请见下方的[限制](#limits)。
@@ -10,7 +10,7 @@ Cursor 的集成起步晚于 Claude、Codex 或 OpenCode。虽然它能正常工
 
 ## 前提条件
 
-Kaiwu 负责调度你的编程智能体，本身并不内置智能体。在 `happier cursor` 执行任何操作之前，必须在运行会话的设备上安装 `cursor-agent` 并完成登录。如果它在该设备的终端中无法运行，通过 Kaiwu 也同样无法使用。
+Kaiwu 负责调度你的编程智能体，本身并不内置智能体。在 `Kaiwu cursor` 执行任何操作之前，必须在运行会话的设备上安装 `cursor-agent` 并完成登录。如果它在该设备的终端中无法运行，通过 Kaiwu 也同样无法使用。
 
 ## 安装 CLI
 
@@ -22,7 +22,7 @@ cursor-agent --version
 
 在 Kaiwu 中无需离开应用即可完成相同检查：打开 **Settings → AI & Agents → AI backends → Cursor**，查看所选设备上是否找到了该 CLI。
 
-Kaiwu 会在 `PATH`（Windows 上为 `cursor-agent.cmd`）中查找 `cursor-agent`，若未找到则回退至 `agent`。如果可执行文件安装在非常规路径，请在运行 Kaiwu CLI 或守护进程的环境中，将 `HAPPIER_CURSOR_PATH` 设置为该可执行文件的绝对路径。
+Kaiwu 会在 `PATH`（Windows 上为 `cursor-agent.cmd`）中查找 `cursor-agent`，若未找到则回退至 `agent`。如果可执行文件安装在非常规路径，请在运行 Kaiwu CLI 或守护进程的环境中，将 `Kaiwu_CURSOR_PATH` 设置为该可执行文件的绝对路径。
 
 ## 身份验证
 
@@ -37,7 +37,7 @@ Kaiwu 会在 `PATH`（Windows 上为 `cursor-agent.cmd`）中查找 `cursor-agen
 ## 启动会话
 
 ```bash
-happier cursor
+Kaiwu cursor
 ```
 
 或者在任意客户端的新建会话流程中，选择 **Cursor** 作为 AI 后端。
@@ -73,7 +73,7 @@ Kaiwu 的权限模式会直接映射到真实的 `cursor-agent` 标志位，并�
 
 ## 高级设置
 
-`HAPPIER_CURSOR_API_ENDPOINT` 可将 `cursor-agent` 指向非默认 API 端点。请在运行 Kaiwu CLI 或守护进程的环境中进行配置；Kaiwu 将在启动时透传该参数。
+`Kaiwu_CURSOR_API_ENDPOINT` 可将 `cursor-agent` 指向非默认 API 端点。请在运行 Kaiwu CLI 或守护进程的环境中进行配置；Kaiwu 将在启动时透传该参数。
 
 ## 故障排查
 
@@ -81,7 +81,7 @@ Kaiwu 的权限模式会直接映射到真实的 `cursor-agent` 标志位，并�
 
 1. 确认 `cursor-agent --version` 在将要运行会话的设备上能正常工作——如果会话运行在其他设备上，请不要在本地笔记本上检查。
 2. 安装 CLI 后重启 Kaiwu，以便重新执行检测。
-3. 如果二进制文件不在常用路径下，请将 `HAPPIER_CURSOR_PATH` 设置为其绝对路径。
+3. 如果二进制文件不在常用路径下，请将 `Kaiwu_CURSOR_PATH` 设置为其绝对路径。
 
 ### 会话启动失败或模型列表为空
 

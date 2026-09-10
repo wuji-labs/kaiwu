@@ -10,7 +10,7 @@
           tags src/routes.tsx generates. The homepage's own tags are what sits
           here in source, so `vite dev` and `vite preview` still serve a page
           with a title, a canonical and a card — and so a diff of this file shows
-          what a visitor to happier.dev/ actually gets.
+          what a visitor to kaiwu.chengqiyun.com/ actually gets.
 
           Anything that is the same on every page — icons, manifest, viewport,
           theme-color, the fonts, and the site-scoped JSON-LD graph below —
@@ -46,13 +46,13 @@
 
         <!-- Identity tags that are true of every page on the origin. Shared on
              purpose, and therefore outside the per-route markers below. -->
-        <meta property="og:site_name" content="Happier" />
+        <meta property="og:site_name" content="KAIWU" />
         <meta property="og:type" content="website" />
         <!-- og:locale is NOT here: it is per-page, emitted by headTagsFor() in
              src/routes.tsx inside the per-route markers below, because a
              localised page declares its own locale and its alternates. A shared
              copy here shipped the tag twice on every page. -->
-        <meta name="author" content="Happier" />
+        <meta name="author" content="KAIWU" />
 
         <!-- Self-hosted fonts. src/styles/fonts.css is imported by
              src/styles/globals.css, so the @font-face rules land in the hashed
@@ -70,24 +70,24 @@
         <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-latin-var.woff2" crossorigin />
 
         <!--head-->
-        <title>Happier — open-source app for Claude Code, Codex &amp; 11 more</title>
+        <title>KAIWU — open-source app for Claude Code, Codex &amp; 11 more</title>
         <meta
             name="description"
             content="Run Claude Code, Codex and 11 more agents from your phone, browser or desktop. Open-source, end-to-end encrypted, self-hostable. Your own subscriptions."
         />
-        <link rel="canonical" href="https://happier.dev/" />
+        <link rel="canonical" href="https://kaiwu.chengqiyun.com/" />
         <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
 
-        <meta property="og:url" content="https://happier.dev/" />
+        <meta property="og:url" content="https://kaiwu.chengqiyun.com/" />
         <!-- og:title is the social headline, not the SERP title: shared links are read
              by humans, so it matches the words rendered in og.png rather than the
              keyword-bearing <title>. -->
-        <meta property="og:title" content="Happier — One client for every AI coding agent." />
+        <meta property="og:title" content="KAIWU — One client for every AI coding agent." />
         <meta
             property="og:description"
             content="Claude Code, Codex, OpenCode, Cursor and 9 more — in one end-to-end encrypted app, on every device, on your own subscriptions. Open-source and self-hostable."
         />
-        <meta property="og:image" content="https://happier.dev/images/og.png" />
+        <meta property="og:image" content="https://kaiwu.chengqiyun.com/images/og.png" />
         <meta property="og:image:type" content="image/png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
@@ -95,18 +95,18 @@
              renders. Keep the two in sync if the card is redrawn. -->
         <meta
             property="og:image:alt"
-            content="The Happier wordmark over the words: One client for every AI coding agent. Claude Code, Codex, OpenCode, Cursor, Gemini, Copilot and 7 more."
+            content="The KAIWU wordmark over the words: One client for every AI coding agent. Claude Code, Codex, OpenCode, Cursor, Gemini, Copilot and 7 more."
         />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Happier — One client for every AI coding agent." />
+        <meta name="twitter:title" content="KAIWU — One client for every AI coding agent." />
         <meta
             name="twitter:description"
             content="Claude Code, Codex, OpenCode, Cursor and 9 more — in one end-to-end encrypted app, on every device, on your own subscriptions. Open-source and self-hostable."
         />
-        <meta name="twitter:image" content="https://happier.dev/images/og.png" />
+        <meta name="twitter:image" content="https://kaiwu.chengqiyun.com/images/og.png" />
         <meta
             name="twitter:image:alt"
-            content="The Happier wordmark over the words: One client for every AI coding agent."
+            content="The KAIWU wordmark over the words: One client for every AI coding agent."
         />
         <!--/head-->
         <!-- twitter:site / twitter:creator are INTENTIONALLY ABSENT. No X account has
@@ -126,7 +126,7 @@
           be `opacity: 0`, which meant the prerendered page — the whole point of
           the prerender — rendered INVISIBLE to anything that reads pixels rather
           than raw HTML, and stayed invisible for as long as the JS bundle took
-          to arrive. Anyone screenshotting happier.dev on a slow connection got a
+          to arrive. Anyone screenshotting kaiwu.chengqiyun.com on a slow connection got a
           blank page with a planet on it.
 
           So `.reveal-word-idle` now defaults to `opacity: 1` and the animation
@@ -156,7 +156,7 @@
              * already ships, so a throw costs nothing.
              */
             try {
-                var t = window.localStorage.getItem('happier:theme');
+                var t = window.localStorage.getItem('KAIWU:theme');
                 document.documentElement.classList.add(t === 'light' ? 'light' : 'dark');
             } catch (e) {
                 document.documentElement.classList.add('dark');
@@ -170,14 +170,14 @@
 
           * aggregateRating. The iOS listing has 10 ratings at 4.4. Google's
             structured-data policy requires review markup to describe ratings that
-            are VISIBLE ON THE PAGE CARRYING THE MARKUP. happier.dev shows no
+            are VISIBLE ON THE PAGE CARRYING THE MARKUP. kaiwu.chengqiyun.com shows no
             ratings, so this would be self-serving markup for content that isn't
             there — the textbook trigger for a "Structured data issue" manual
             action, and it would cost the star snippet everywhere, not just here.
             10 ratings is also below the threshold at which Google shows stars at
             all. Add it only once real, visible, user-submitted reviews live on
             this page.
-          * Google Play. play.google.com/store/apps/details?id=dev.happier answers
+          * Google Play. play.google.com/store/apps/details?id=dev.KAIWU answers
             HTTP 404 (verified) — there is no listing. A downloadUrl to a 404 is a
             broken-link signal and misleads the 762 Android visitors PostHog saw in
             90 days. The Android build is therefore declared against its real
@@ -202,45 +202,45 @@
                 "@graph": [
                     {
                         "@type": "Organization",
-                        "@id": "https://happier.dev/#org",
-                        "name": "Happier",
-                        "url": "https://happier.dev/",
+                        "@id": "https://kaiwu.chengqiyun.com/#org",
+                        "name": "KAIWU",
+                        "url": "https://kaiwu.chengqiyun.com/",
                         "logo": {
                             "@type": "ImageObject",
-                            "url": "https://happier.dev/icons/icon-512.png",
+                            "url": "https://kaiwu.chengqiyun.com/icons/icon-512.png",
                             "width": 512,
                             "height": 512
                         },
-                        "description": "Happier is an open-source, end-to-end encrypted client for AI coding agents. It runs Claude Code, Codex, OpenCode, Cursor and 9 more agents from one app on phone, web, desktop and terminal, using the subscriptions the developer already pays for.",
+                        "description": "KAIWU is an open-source, end-to-end encrypted client for AI coding agents. It runs Claude Code, Codex, OpenCode, Cursor and 9 more agents from one app on phone, web, desktop and terminal, using the subscriptions the developer already pays for.",
                         "foundingDate": "2026",
                         "sameAs": [
-                            "https://github.com/happier-dev",
-                            "https://github.com/happier-dev/happier",
+                            "https://github.com/KAIWU-dev",
+                            "https://github.com/KAIWU-dev/KAIWU",
                             "https://discord.gg/W6Pb8KuHfg",
-                            "https://apps.apple.com/us/app/happier-claude-codex-opencode/id6758554297"
+                            "https://apps.apple.com/us/app/KAIWU-claude-codex-opencode/id6758554297"
                         ]
                     },
                     {
                         "@type": "WebSite",
-                        "@id": "https://happier.dev/#site",
-                        "url": "https://happier.dev/",
-                        "name": "Happier",
+                        "@id": "https://kaiwu.chengqiyun.com/#site",
+                        "url": "https://kaiwu.chengqiyun.com/",
+                        "name": "KAIWU",
                         "inLanguage": "en",
-                        "publisher": { "@id": "https://happier.dev/#org" }
+                        "publisher": { "@id": "https://kaiwu.chengqiyun.com/#org" }
                     },
                     {
                         "@type": "SoftwareApplication",
-                        "@id": "https://happier.dev/#app",
-                        "name": "Happier",
-                        "alternateName": "Happier: Claude Codex OpenCode",
+                        "@id": "https://kaiwu.chengqiyun.com/#app",
+                        "name": "KAIWU",
+                        "alternateName": "KAIWU: Claude Codex OpenCode",
                         "applicationCategory": "DeveloperApplication",
                         "applicationSubCategory": "AI coding agent client",
                         "operatingSystem": "iOS 15.1+, macOS, Windows, Linux, Web",
-                        "url": "https://happier.dev/",
-                        "downloadUrl": "https://happier.dev/#get-started",
-                        "installUrl": "https://happier.dev/#get-started",
+                        "url": "https://kaiwu.chengqiyun.com/",
+                        "downloadUrl": "https://kaiwu.chengqiyun.com/#get-started",
+                        "installUrl": "https://kaiwu.chengqiyun.com/#get-started",
                         "softwareVersion": "0.2",
-                        "license": "https://github.com/happier-dev/happier/blob/main/LICENCE",
+                        "license": "https://github.com/KAIWU-dev/KAIWU/blob/main/LICENCE",
                         "isAccessibleForFree": true,
                         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
                         "featureList": [
@@ -250,44 +250,44 @@
                             "Self-hostable runtime",
                             "Phone, web, desktop and terminal clients"
                         ],
-                        "publisher": { "@id": "https://happier.dev/#org" },
-                        "isRelatedTo": { "@id": "https://happier.dev/#source" }
+                        "publisher": { "@id": "https://kaiwu.chengqiyun.com/#org" },
+                        "isRelatedTo": { "@id": "https://kaiwu.chengqiyun.com/#source" }
                     },
                     {
                         "@type": "MobileApplication",
-                        "@id": "https://happier.dev/#app-ios",
-                        "name": "Happier: Claude Codex OpenCode",
+                        "@id": "https://kaiwu.chengqiyun.com/#app-ios",
+                        "name": "KAIWU: Claude Codex OpenCode",
                         "applicationCategory": "DeveloperApplication",
                         "operatingSystem": "iOS 15.1+",
-                        "url": "https://apps.apple.com/us/app/happier-claude-codex-opencode/id6758554297",
-                        "downloadUrl": "https://apps.apple.com/us/app/happier-claude-codex-opencode/id6758554297",
+                        "url": "https://apps.apple.com/us/app/KAIWU-claude-codex-opencode/id6758554297",
+                        "downloadUrl": "https://apps.apple.com/us/app/KAIWU-claude-codex-opencode/id6758554297",
                         "isAccessibleForFree": true,
                         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-                        "publisher": { "@id": "https://happier.dev/#org" }
+                        "publisher": { "@id": "https://kaiwu.chengqiyun.com/#org" }
                     },
                     {
                         "@type": "MobileApplication",
-                        "@id": "https://happier.dev/#app-android",
-                        "name": "Happier for Android",
+                        "@id": "https://kaiwu.chengqiyun.com/#app-android",
+                        "name": "KAIWU for Android",
                         "applicationCategory": "DeveloperApplication",
                         "operatingSystem": "Android",
-                        "url": "https://github.com/happier-dev/happier/releases",
-                        "downloadUrl": "https://github.com/happier-dev/happier/releases/download/ui-mobile-stable/happier-android.apk",
+                        "url": "https://github.com/KAIWU-dev/KAIWU/releases",
+                        "downloadUrl": "https://github.com/KAIWU-dev/KAIWU/releases/download/ui-mobile-stable/KAIWU-android.apk",
                         "isAccessibleForFree": true,
                         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-                        "publisher": { "@id": "https://happier.dev/#org" }
+                        "publisher": { "@id": "https://kaiwu.chengqiyun.com/#org" }
                     },
                     {
                         "@type": "SoftwareSourceCode",
-                        "@id": "https://happier.dev/#source",
-                        "name": "happier",
-                        "description": "Source for Happier — an open-source client for AI coding agents.",
-                        "codeRepository": "https://github.com/happier-dev/happier",
-                        "url": "https://github.com/happier-dev/happier",
+                        "@id": "https://kaiwu.chengqiyun.com/#source",
+                        "name": "KAIWU",
+                        "description": "Source for KAIWU — an open-source client for AI coding agents.",
+                        "codeRepository": "https://github.com/KAIWU-dev/KAIWU",
+                        "url": "https://github.com/KAIWU-dev/KAIWU",
                         "programmingLanguage": ["TypeScript", "Rust"],
                         "runtimePlatform": "Node.js",
                         "license": "https://spdx.org/licenses/MIT.html",
-                        "author": { "@id": "https://happier.dev/#org" }
+                        "author": { "@id": "https://kaiwu.chengqiyun.com/#org" }
                     }
                 ]
             }

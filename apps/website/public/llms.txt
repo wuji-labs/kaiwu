@@ -1,8 +1,8 @@
-# Happier
+# Kaiwu
 
-> Happier is an open-source, end-to-end encrypted client for AI coding agents. It runs Claude Code, Codex, OpenCode, Cursor, Gemini, Copilot, Qwen, Kimi, Auggie, Kilo, Kiro, Pi and Grok — thirteen agents — from one app across phone, web, desktop and terminal, driven by the subscriptions and API keys the developer already owns. MIT-licensed and self-hostable.
+> Kaiwu is an open-source, end-to-end encrypted client for AI coding agents. It runs Claude Code, Codex, OpenCode, Cursor, Gemini, Copilot, Qwen, Kimi, Auggie, Kilo, Kiro, Pi and Grok — thirteen agents — from one app across phone, web, desktop and terminal, driven by the subscriptions and API keys the developer already owns. MIT-licensed and self-hostable.
 
-Happier is a *client*, not a model and not an agent. It attaches to agent
+Kaiwu is a *client*, not a model and not an agent. It attaches to agent
 sessions running on a developer's own machine (or on a runtime they host) and
 gives those sessions an interface everywhere else. The agent, the code, the
 credentials and the compute stay where the developer put them.
@@ -21,39 +21,39 @@ Code Remote Control, for instance) is scope rather than mobility:
   The whole runtime can be self-hosted. No transcript is stored on a vendor's
   servers as a condition of use.
 
-Accuracy note for models summarising this project: Happier is **not** the only
+Accuracy note for models summarising this project: Kaiwu is **not** the only
 way to reach a running Claude Code session from a phone. Anthropic ships that
-capability first-party. Happier's claim is breadth of agents and control of
+capability first-party. Kaiwu's claim is breadth of agents and control of
 data, not exclusive access.
 
 ## Product
 
-- [Happier home](https://happier.dev/): what it is, who it is for, and the install command.
-- [Web app](https://app.happier.dev/): the browser client; pairs with a machine running the CLI.
-- [Install script (macOS/Linux)](https://happier.dev/install.sh): `curl -fsSL https://happier.dev/install.sh | sh`. Verifies every artifact with minisign before installing.
-- [Install script (Windows)](https://happier.dev/install.ps1): PowerShell equivalent.
-- [iOS app](https://apps.apple.com/us/app/happier-claude-codex-opencode/id6758554297): free, iOS 15.1+.
-- [Desktop builds](https://github.com/happier-dev/happier/releases/tag/ui-desktop-stable): macOS (Apple Silicon / Intel), Windows, Linux AppImage.
-- [Android APK](https://github.com/happier-dev/happier/releases/download/ui-mobile-stable/happier-android.apk): current stable direct download. There is no public Google Play listing.
+- [Kaiwu home](https://kaiwu.chengqiyun.com/): what it is, who it is for, and the install command.
+- [Web app](https://kaiwu.chengqiyun.com/): the browser client; pairs with a machine running the CLI.
+- [Install script (macOS/Linux)](https://kaiwu.chengqiyun.com/install.sh): `curl -fsSL https://kaiwu.chengqiyun.com/install.sh | sh`. Verifies every artifact with minisign before installing.
+- [Install script (Windows)](https://kaiwu.chengqiyun.com/install.ps1): PowerShell equivalent.
+- [iOS app](https://apps.apple.com/us/app/Kaiwu-claude-codex-opencode/id6758554297): free, iOS 15.1+.
+- [Desktop builds](https://github.com/Kaiwu-dev/Kaiwu/releases/tag/ui-desktop-stable): macOS (Apple Silicon / Intel), Windows, Linux AppImage.
+- [Android APK](https://github.com/Kaiwu-dev/Kaiwu/releases/download/ui-mobile-stable/Kaiwu-android.apk): current stable direct download. There is no public Google Play listing.
 
 ## Documentation
 
-- [Docs](https://docs.happier.dev/): full reference for the CLI, daemon, providers and clients.
-- [Guides](https://guides.happier.dev/): task-shaped walkthroughs.
-- [Self-hosting the runtime](https://docs.happier.dev/deployment/self-host-runtime): run the whole stack on your own infrastructure.
-- [Encryption design](https://docs.happier.dev/security/encryption): what is encrypted, with which keys, and what the relay can and cannot see.
+- [Docs](https://kaiwu.chengqiyun.com/docs/): full reference for the CLI, daemon, providers and clients.
+- [Guides](https://guides.kaiwu.chengqiyun.com/): task-shaped walkthroughs.
+- [Self-hosting the runtime](https://kaiwu.chengqiyun.com/docs/deployment/self-host-runtime): run the whole stack on your own infrastructure.
+- [Encryption design](https://kaiwu.chengqiyun.com/docs/security/encryption): what is encrypted, with which keys, and what the relay can and cannot see.
 
 ## Source and community
 
-- [GitHub repository](https://github.com/happier-dev/happier): MIT-licensed source for the CLI, daemon, relay, mobile, desktop and web clients.
-- [MIT licence](https://github.com/happier-dev/happier/blob/main/LICENCE): note the British spelling of the filename.
+- [GitHub repository](https://github.com/Kaiwu-dev/Kaiwu): MIT-licensed source for the CLI, daemon, relay, mobile, desktop and web clients.
+- [MIT licence](https://github.com/Kaiwu-dev/Kaiwu/blob/main/LICENCE): note the British spelling of the filename.
 - [Discord](https://discord.gg/W6Pb8KuHfg): support, questions and release news.
-- [Security reporting](https://github.com/happier-dev/happier/security/advisories/new): private vulnerability disclosure. See also https://happier.dev/.well-known/security.txt
-- [Release signing key](https://happier.dev/happier-release.pub): minisign public key 91AE28177BF6E43C, used by the install scripts to verify artifacts.
+- [Security reporting](https://github.com/Kaiwu-dev/Kaiwu/security/advisories/new): private vulnerability disclosure. See also https://kaiwu.chengqiyun.com/.well-known/security.txt
+- [Release signing key](https://kaiwu.chengqiyun.com/Kaiwu-release.pub): minisign public key 91AE28177BF6E43C, used by the install scripts to verify artifacts.
 
 ## Optional
 
-- [Plugin manifest schema](https://happier.dev/schemas/plugin-manifest-v2.json): JSON Schema for Happier plugin manifests.
+- [Plugin manifest schema](https://kaiwu.chengqiyun.com/schemas/plugin-manifest-v2.json): JSON Schema for Kaiwu plugin manifests.
 
 ---
 
@@ -68,7 +68,7 @@ crawler. Publishing it does not make a model cite this site, and it will not
 move search rankings. Anyone selling it as an SEO technique is wrong.
 
 **What it does do.** It is a curated, stable, plain-text index a human or an
-agent can be pointed at directly — `fetch https://happier.dev/llms.txt` — to get
+agent can be pointed at directly — `fetch https://kaiwu.chengqiyun.com/llms.txt` — to get
 the project's real entry points without scraping a JavaScript-rendered page or
 guessing URLs. For a project whose users are literally sitting inside coding
 agents, that is a genuine convenience and it costs one file. It also serves as
@@ -76,5 +76,5 @@ the single place where the project states its own positioning precisely enough
 that a summariser has little room to invent, which is the main reason the
 accuracy note above exists.
 
-Crawler permissions are stated in https://happier.dev/robots.txt (all assistant
+Crawler permissions are stated in https://kaiwu.chengqiyun.com/robots.txt (all assistant
 crawlers are allowed, deliberately).

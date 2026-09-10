@@ -9,19 +9,19 @@ description: 在容器（dev-box）内运行 Kaiwu CLI + 守护进程，无需�
 我们在 Docker Hub 上发布了开发机预览版镜像：
 
 ```bash
-docker pull happierdev/dev-box:preview
+docker pull Kaiwudev/dev-box:preview
 ```
 
 同时，该镜像也会同步发布至 GitHub Container Registry (GHCR)：
 
 ```bash
-docker pull ghcr.io/happier-dev/dev-box:preview
+docker pull ghcr.io/Kaiwu-dev/dev-box:preview
 ```
 
 该镜像包含：
 
-- 已发布的 `happier` CLI 二进制文件
-- 可选的提供商 CLI，可在首次启动时通过 `happier install provider` 安装
+- 已发布的 `Kaiwu` CLI 二进制文件
+- 可选的提供商 CLI，可在首次启动时通过 `Kaiwu install provider` 安装
 
 镜像内不包含源码检出或 `hstack`；其设计初衷是在容器中运行 Kaiwu，而非用于 Kaiwu 本身的开发。
 
@@ -29,39 +29,39 @@ docker pull ghcr.io/happier-dev/dev-box:preview
 
 ### 可选：在首次启动时安装提供商 CLI
 
-设置 `HAPPIER_PROVIDER_CLIS` 即可通过 Kaiwu CLI 安装提供商 CLI：
+设置 `Kaiwu_PROVIDER_CLIS` 即可通过 Kaiwu CLI 安装提供商 CLI：
 
 ```bash
 docker run --rm -it \
-  -e HAPPIER_PROVIDER_CLIS=claude,codex \
-  happierdev/dev-box:preview
+  -e Kaiwu_PROVIDER_CLIS=claude,codex \
+  Kaiwudev/dev-box:preview
 ```
 
 当前支持的值：`claude`、`codex`。
 
 ## 推荐做法：持久化 Kaiwu 状态
 
-建议持久化挂载 `~/.happier`，以确保凭据、设备 ID、日志等数据在容器重启后不受影响：
+建议持久化挂载 `~/.Kaiwu`，以确保凭据、设备 ID、日志等数据在容器重启后不受影响：
 
 ```bash
 docker run --rm -it \
-  -v happier-home:/home/happier/.happier \
-  happierdev/dev-box:preview
+  -v Kaiwu-home:/home/Kaiwu/.Kaiwu \
+  Kaiwudev/dev-box:preview
 ```
 
 ## 从本地 CLI 配对远程容器/主机（无需 Web UI）
 
-如果你的**本地**设备已经完成认证（即 `happier auth status` 状态正常），可以通过 SSH 配对**远程**主机或容器：
+如果你的**本地**设备已经完成认证（即 `Kaiwu auth status` 状态正常），可以通过 SSH 配对**远程**主机或容器：
 
 ```bash
-happier auth pair-remote --ssh user@host
+Kaiwu auth pair-remote --ssh user@host
 ```
 
 该命令的执行流程如下：
 
-1. 在远程主机上运行 `happier auth request --json`。
+1. 在远程主机上运行 `Kaiwu auth request --json`。
 2. 在本地使用现有令牌批准该请求（本地令牌**不会**发送到远程主机）。
-3. 在远程主机上运行 `happier auth wait --public-key ... --json`，认领请求并写入凭据。
+3. 在远程主机上运行 `Kaiwu auth wait --public-key ... --json`，认领请求并写入凭据。
 
 在自动化脚本中请使用 `--json`。如果你当前生效的中继 URL 仅为回环地址（`localhost` / `127.0.0.1`），交互模式会提示可用于访问当前计算机的有效地址。在脚本中，请通过 `--server-url-for-remote ⟦K9⟧` 传入远程主机访问当前计算机中继所用的地址（兼容旧版别名 `--remote-server-url`）。
 
@@ -72,17 +72,17 @@ happier auth pair-remote --ssh user@host
 1) 在远程主机上：
 
 ```bash
-happier auth request --json
+Kaiwu auth request --json
 ```
 
 2) 在本地设备上（需已完成认证）：
 
 ```bash
-happier auth approve --public-key <publicKey> --json
+Kaiwu auth approve --public-key <publicKey> --json
 ```
 
 3) 返回远程主机：
 
 ```bash
-happier auth wait --public-key <publicKey> --json
+Kaiwu auth wait --public-key <publicKey> --json
 ```

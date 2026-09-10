@@ -1,6 +1,6 @@
 ---
 title: 服务器版本
-description: 在 happier-server-light（默认使用 SQLite；可选 PGlite）与 happier-server（Docker 管理的基础设施）之间进行选择。
+description: 在 Kaiwu-server-light（默认使用 SQLite；可选 PGlite）与 Kaiwu-server（Docker 管理的基础设施）之间进行选择。
 ---
 hstack 支持两种服务端“形态”。你可以全局切换（作用于主栈），也可以按单个栈分别配置。
 
@@ -8,7 +8,7 @@ hstack 支持两种服务端“形态”。你可以全局切换（作用于主�
 
 两种形态使用**同一套服务端代码库**（即 monorepo 中的 server 包，通常为 `apps/server`），但运行时的后端和存储方案有所不同。
 
-### `happier-server-light`（推荐默认项）
+### `Kaiwu-server-light`（推荐默认项）
 
 - **无需 Docker**
 - **默认使用 SQLite**（栈本地文件），支持通过 PGlite 选用内嵌版 Postgres
@@ -18,26 +18,26 @@ hstack 支持两种服务端“形态”。你可以全局切换（作用于主�
 轻量栈默认彼此隔离：
 
 ```
-~/.happier/stacks/<stack>/server-light/files
-~/.happier/stacks/<stack>/server-light/pglite
-~/.happier/stacks/<stack>/server-light/happier-server-light.sqlite
+~/.Kaiwu/stacks/<stack>/server-light/files
+~/.Kaiwu/stacks/<stack>/server-light/pglite
+~/.Kaiwu/stacks/<stack>/server-light/Kaiwu-server-light.sqlite
 ```
 
 核心环境变量（保存在栈环境文件中）：
 
-- `HAPPIER_SERVER_LIGHT_DATA_DIR`
-- `HAPPIER_SERVER_LIGHT_FILES_DIR`
-- `HAPPIER_SERVER_LIGHT_DB_DIR`
-- `HAPPIER_DB_PROVIDER`（可选；轻量栈默认为 `sqlite`）
+- `Kaiwu_SERVER_LIGHT_DATA_DIR`
+- `Kaiwu_SERVER_LIGHT_FILES_DIR`
+- `Kaiwu_SERVER_LIGHT_DB_DIR`
+- `Kaiwu_DB_PROVIDER`（可选；轻量栈默认为 `sqlite`）
 
 可选的数据库提供商（轻量版）：
 
 - `sqlite`（默认）
 - `pglite`（可选）
 
-注意：出于历史兼容原因，即使使用 SQLite，`HAPPIER_SERVER_LIGHT_DB_DIR` 的默认值也是 `.../server-light/pglite`。
+注意：出于历史兼容原因，即使使用 SQLite，`Kaiwu_SERVER_LIGHT_DB_DIR` 的默认值也是 `.../server-light/pglite`。
 
-### `happier-server`（完整服务端）
+### `Kaiwu-server`（完整服务端）
 
 - 由 Docker 管理各栈的基础设施（Postgres + Redis + Minio/S3）
 - 行为更贴近“生产环境”
@@ -54,21 +54,21 @@ hstack 支持两种服务端“形态”。你可以全局切换（作用于主�
 
 ```bash
 # Light stacks (default is sqlite)
-hstack stack new exp-light --server=happier-server-light --db-provider=sqlite
-hstack stack new exp-pglite --server=happier-server-light --db-provider=pglite
+hstack stack new exp-light --server=Kaiwu-server-light --db-provider=sqlite
+hstack stack new exp-pglite --server=Kaiwu-server-light --db-provider=pglite
 
 # Full stacks (default is postgres)
-hstack stack new exp-full --server=happier-server --db-provider=postgres
+hstack stack new exp-full --server=Kaiwu-server --db-provider=postgres
 
 # MySQL requires an explicit DATABASE_URL
-hstack stack new exp-mysql --server=happier-server --db-provider=mysql --database-url=mysql://user:pass@127.0.0.1:3306/happier
+hstack stack new exp-mysql --server=Kaiwu-server --db-provider=mysql --database-url=mysql://user:pass@127.0.0.1:3306/Kaiwu
 ```
 
-该命令底层会在栈环境文件中写入 `HAPPIER_DB_PROVIDER`。若选用 `mysql`，还必须提供 `DATABASE_URL`。
+该命令底层会在栈环境文件中写入 `Kaiwu_DB_PROVIDER`。若选用 `mysql`，还必须提供 `DATABASE_URL`。
 
 ## 完整服务端基础设施（无需 AWS）
 
-`happier-server` 需要依赖：
+`Kaiwu-server` 需要依赖：
 
 - Postgres（`DATABASE_URL`）
 - Redis（`REDIS_URL`）
@@ -77,18 +77,18 @@ hstack stack new exp-mysql --server=happier-server --db-provider=mysql --databas
 hstack 可以借助 Docker Compose（Postgres + Redis + Minio）**按栈自动管理这套基础组件**，
 因此你**无需开通 AWS S3**。
 
-运行 `hstack start/dev --server=happier-server` 时（或栈使用 `happier-server` 时），该流程会自动执行。
+运行 `hstack start/dev --server=Kaiwu-server` 时（或栈使用 `Kaiwu-server` 时），该流程会自动执行。
 除非通过以下命令显式禁用：
 
 ```bash
-export HAPPIER_STACK_MANAGED_INFRA=0
+export Kaiwu_STACK_MANAGED_INFRA=0
 ```
 
 若禁用此功能，你必须自行提供 `DATABASE_URL`、`REDIS_URL` 和 `S3_*`。
 
-## 搭配 `happier-server` 托管 UI
+## 搭配 `Kaiwu-server` 托管 UI
 
-上游 `happier-server` 本身不托管构建好的前端 UI。
+上游 `Kaiwu-server` 本身不托管构建好的前端 UI。
 
 为了提供“单一 URL”的访问体验（尤其搭配 Tailscale 时），hstack 会启动一个轻量的 **UI 网关**，用于：
 
@@ -97,7 +97,7 @@ export HAPPIER_STACK_MANAGED_INFRA=0
 - 将实时 WebSocket 协议升级（`/v1/updates`）反向代理至后端
 - 反向代理公开文件（转发至本地 Minio）
 
-这意味着即使没有 AWS S3 或独立的 nginx 配置，`hstack start --server=happier-server` 依然可以开箱即用、完整运行。
+这意味着即使没有 AWS S3 或独立的 nginx 配置，`hstack start --server=Kaiwu-server` 依然可以开箱即用、完整运行。
 
 ### 实时网络说明（轮询降级策略）
 
@@ -105,13 +105,13 @@ export HAPPIER_STACK_MANAGED_INFRA=0
 
 如果你需要强制仅使用 WebSocket（极少需要），可设置：
 
-- UI (Expo)：`EXPO_PUBLIC_HAPPIER_SOCKET_FORCE_WEBSOCKET=1`
-- CLI/守护进程：`HAPPIER_SOCKET_FORCE_WEBSOCKET=1`
+- UI (Expo)：`EXPO_PUBLIC_Kaiwu_SOCKET_FORCE_WEBSOCKET=1`
+- CLI/守护进程：`Kaiwu_SOCKET_FORCE_WEBSOCKET=1`
 
 ## 跨形态迁移（轻量版 ⇢ 完整版）
 
 hstack 内置了一个**实验性**迁移辅助工具，能够将核心聊天数据从
-`happier-server-light` 栈复制到 `happier-server` 栈（Docker Postgres）：
+`Kaiwu-server-light` 栈复制到 `Kaiwu-server` 栈（Docker Postgres）：
 
 ```bash
 hstack migrate light-to-server --from-stack=main --to-stack=full1
@@ -132,24 +132,24 @@ hstack migrate light-to-server --from-stack=main --to-stack=full1 --include-file
 
 - **`hstack start`** 更贴近“生产环境”。它可以避免在 launchd KeepAlive 机制下陷入高开销的 schema 同步死循环。
 - **`hstack dev`** 专为快速迭代设计：
-  - 针对 `happier-server`：hstack 默认运行 `prisma migrate deploy`（可通过 `HAPPIER_STACK_PRISMA_MIGRATE` 配置）。
-  - 针对 `happier-server-light`：
+  - 针对 `Kaiwu-server`：hstack 默认运行 `prisma migrate deploy`（可通过 `Kaiwu_STACK_PRISMA_MIGRATE` 配置）。
+  - 针对 `Kaiwu-server-light`：
     - hstack 会运行对应提供商的轻量迁移（默认对 SQLite 执行 `migrate:sqlite:deploy`；若配置为 PGlite 则执行 `migrate:light:deploy`）。
 
 注意：对于某次具体的运行（`hstack start` / `hstack dev`），你只能选择**一种**形态。
 
 ## 如何切换（主栈）
 
-使用 `srv` 辅助命令（配置默认持久化在 `~/.happier/stacks/main/env` 中；使用 `hstack stack ...` 时则持久化在栈环境文件中）：
+使用 `srv` 辅助命令（配置默认持久化在 `~/.Kaiwu/stacks/main/env` 中；使用 `hstack stack ...` 时则持久化在栈环境文件中）：
 
 ```bash
 hstack srv status
-hstack srv use happier-server-light
-hstack srv use happier-server
+hstack srv use Kaiwu-server-light
+hstack srv use Kaiwu-server
 hstack srv use --interactive
 ```
 
-该命令会持久化保存 `HAPPIER_STACK_SERVER_COMPONENT`。
+该命令会持久化保存 `Kaiwu_STACK_SERVER_COMPONENT`。
 
 ## 如何切换指定栈的形态
 
@@ -157,23 +157,23 @@ hstack srv use --interactive
 
 ```bash
 hstack stack srv exp1 -- status
-hstack stack srv exp1 -- use happier-server-light
-hstack stack srv exp1 -- use happier-server
+hstack stack srv exp1 -- use Kaiwu-server-light
+hstack stack srv exp1 -- use Kaiwu-server
 hstack stack srv exp1 -- use --interactive
 ```
 
-这会更新对应的栈环境文件（通常为 `~/.happier/stacks/⟦K9⟧/env`）。
+这会更新对应的栈环境文件（通常为 `~/.Kaiwu/stacks/⟦K9⟧/env`）。
 
 ## 一次性临时覆盖（不持久化）
 
 你可以仅为单次运行临时覆盖服务端形态：
 
 ```bash
-hstack start --server=happier-server-light
-hstack start --server=happier-server
+hstack start --server=Kaiwu-server-light
+hstack start --server=Kaiwu-server
 
-hstack dev --server=happier-server-light
-hstack dev --server=happier-server
+hstack dev --server=Kaiwu-server-light
+hstack dev --server=Kaiwu-server
 ```
 
 ## 形态选择 vs 代码仓选择
@@ -181,10 +181,10 @@ hstack dev --server=happier-server
 这是两个独立的概念：
 
 - **形态选择**：决定 hstack 运行哪种服务端形态
-  - 由 `HAPPIER_STACK_SERVER_COMPONENT` 控制（通过 `hstack srv use ...`）
+  - 由 `Kaiwu_STACK_SERVER_COMPONENT` 控制（通过 `hstack srv use ...`）
 - **代码仓选择**：决定栈运行在哪个 monorepo 检出版本/工作树上
-  - 由 `HAPPIER_STACK_REPO_DIR` 控制（通过 `hstack wt use ...` / `hstack stack wt ⟦K10⟧ -- use ...`）
+  - 由 `Kaiwu_STACK_REPO_DIR` 控制（通过 `hstack wt use ...` / `hstack stack wt ⟦K10⟧ -- use ...`）
 
 ## SQLite 说明
 
-SQLite 是 `happier-server-light` 的**默认**数据库提供商。如果你希望使用内嵌版 Postgres，创建轻量栈时请指定 `--db-provider=pglite`。
+SQLite 是 `Kaiwu-server-light` 的**默认**数据库提供商。如果你希望使用内嵌版 Postgres，创建轻量栈时请指定 `--db-provider=pglite`。

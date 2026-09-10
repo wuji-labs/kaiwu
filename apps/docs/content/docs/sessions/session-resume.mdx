@@ -62,7 +62,7 @@ Kaiwu CLI 提供了两个主要的恢复工作流。
 ### 列出会话
 
 ```bash
-happier session list
+KAIWU session list
 ```
 
 默认情况下，该命令会输出一个表格，包含：
@@ -78,9 +78,9 @@ happier session list
 常用命令变体：
 
 ```bash
-happier session list --resumable
-happier session list --plain
-happier session list --json
+KAIWU session list --resumable
+KAIWU session list --plain
+KAIWU session list --json
 ```
 
 用法说明：
@@ -92,17 +92,17 @@ happier session list --json
 ### 交互式恢复
 
 ```bash
-happier resume
+KAIWU resume
 ```
 
 在真正的 TTY 终端中，Kaiwu 会打开交互式选择器，按近期活跃度排序显示可恢复的非活跃会话。
 
-如果你的终端不支持交互式选择器，Kaiwu 会提示你使用 `happier session list --resumable`，然后再通过 ID 进行恢复。
+如果你的终端不支持交互式选择器，Kaiwu 会提示你使用 `KAIWU session list --resumable`，然后再通过 ID 进行恢复。
 
 ### 按 ID 恢复
 
 ```bash
-happier resume <session-id>
+KAIWU resume <session-id>
 ```
 
 你可以传入完整的会话 ID 或无歧义的前缀。
@@ -149,7 +149,7 @@ Kaiwu 中的 Codex 恢复通常使用默认的 App Server 路径。显式选择 
 当会话仍在本地运行，且你想重新连接到该运行进程时，使用**附加（attach）**：
 
 ```bash
-happier attach <session-id>
+KAIWU attach <session-id>
 ```
 
 如果不确定如何选择：

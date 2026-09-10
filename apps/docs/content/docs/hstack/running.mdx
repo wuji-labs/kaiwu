@@ -62,7 +62,7 @@ hstack stack dev dev
 在交互式运行中，`hstack dev` / `hstack start` 可能会自动在浏览器中打开 UI。
 
 - 禁用：`--no-browser`
-- 全局禁用：`HAPPIER_STACK_NO_BROWSER=1`
+- 全局禁用：`Kaiwu_STACK_NO_BROWSER=1`
 
 ---
 
@@ -70,7 +70,7 @@ hstack stack dev dev
 
 在交互式 TTY 运行中，`hstack dev` 默认启用监听模式：
 
-- `happier-cli` 发生变更 → 重新构建并重启守护进程
+- `Kaiwu-cli` 发生变更 → 重新构建并重启守护进程
 - 当 hstack 确认某些常驻进程归属于当前栈时，可以安全地重启它们
 
 控制标志：
@@ -147,7 +147,7 @@ hstack stack start exp1 --source
 持久模式：
 
 ```bash
-hstack stack env exp1 set HAPPIER_STACK_RUNTIME_MODE=prefer
+hstack stack env exp1 set Kaiwu_STACK_RUNTIME_MODE=prefer
 ```
 
 模式含义：
@@ -209,11 +209,11 @@ hstack stop --except-stacks=main --yes
 
 ---
 
-## CLI 构建行为（happier-cli）
+## CLI 构建行为（Kaiwu-cli）
 
 运行栈时，hstack 会在需要时确保完成 CLI 构建（以便守护进程可以启动）。
 
 控制选项：
 
-- `HAPPIER_STACK_CLI_BUILD_MODE=auto|always|never`
-- `HAPPIER_STACK_CLI_BUILD=0`（强制禁用）
+- `Kaiwu_STACK_CLI_BUILD_MODE=auto|always|never`
+- `Kaiwu_STACK_CLI_BUILD=0`（强制禁用）

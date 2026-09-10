@@ -2,7 +2,7 @@
 title: 隔离的 Linux 虚拟机 (Apple Silicon)
 description: 在 macOS (Apple Silicon) 上的纯净 Linux 虚拟机中运行 hstack 流程，以实现可重复的验证。
 ---
-如果你想在**全新的隔离系统**（无现有 `hstack review-pr` 基础、无宿主机工具链）中，使用 `~/.happier-stack` 验证 hstack 或 Kaiwu 的 PR，在 Apple Silicon 芯片上最简便、可重复性最高的方法，是使用由 **Lima** 管理的 Linux 虚拟机（底层基于 Apple 的 Virtualization.framework）。
+如果你想在**全新的隔离系统**（无现有 `hstack review-pr` 基础、无宿主机工具链）中，使用 `~/.Kaiwu-stack` 验证 hstack 或 Kaiwu 的 PR，在 Apple Silicon 芯片上最简便、可重复性最高的方法，是使用由 **Lima** 管理的 Linux 虚拟机（底层基于 Apple 的 Virtualization.framework）。
 
 这种方案既能保证环境真正“纯净”，又能避免 Docker/容器常见的体验问题（如浏览器唤起、Expo 网络通信、文件监听等）。
 
@@ -42,7 +42,7 @@ HSTACK_REPEAT_COUNT=5 ./scripts/provision/macos-lima-hstack-repeat-validation.sh
 - 如果正在测试 fork 分支，可以将运行器指向你 fork 仓库中的脚本原始链接：
   `HSTACK_RAW_BASE=https://raw.githubusercontent.com/⟦K22⟧/⟦K23⟧/⟦K24⟧/apps/stack ./scripts/provision/macos-lima-hstack-smoke.sh happy-e2e`。
 - 如果正在测试未发布的本地变更，可将打包好的 tarball 复制到虚拟机内并运行：
-  `HSTACK_TGZ=./happier-dev-stack-*.tgz /tmp/linux-ubuntu-hstack-smoke.sh`。
+  `HSTACK_TGZ=./Kaiwu-dev-stack-*.tgz /tmp/linux-ubuntu-hstack-smoke.sh`。
 
 ### 2) 创建并配置虚拟机（推荐脚本）
 
@@ -63,7 +63,7 @@ LIMA_MEMORY=12GiB ./scripts/provision/macos-lima-vm.sh happy-test
 ```
 
 端口范围说明：
-- `review-pr` 运行在**完全隔离的沙盒**中（拥有独立的 hstack 主目录），因此写入虚拟机内部 `~/.happier-stack/env.local` 的虚拟机默认配置不会被自动读取。
+- `review-pr` 运行在**完全隔离的沙盒**中（拥有独立的 hstack 主目录），因此写入虚拟机内部 `~/.Kaiwu-stack/env.local` 的虚拟机默认配置不会被自动读取。
 - 建议向 `review-pr` 传递 `--vm-ports`（或显式指定 `--stack-port-start=...`），确保沙盒使用已转发的端口范围。
 
 ### 2b) 手动配置（可选）
@@ -142,7 +142,7 @@ limactl shell happy-pr
 ```bash
 curl -fsSL https://raw.githubusercontent.com/wuji-labs/kaiwu/main/apps/stack/scripts/provision/linux-ubuntu-provision.sh -o /tmp/linux-ubuntu-provision.sh \
   && chmod +x /tmp/linux-ubuntu-provision.sh \
-  && /tmp/linux-ubuntu-provision.sh --profile=happier
+  && /tmp/linux-ubuntu-provision.sh --profile=Kaiwu
 ```
 
 ### 3b)（可选）运行 hstack 开发环境配置向导
@@ -150,7 +150,7 @@ curl -fsSL https://raw.githubusercontent.com/wuji-labs/kaiwu/main/apps/stack/scr
 如果你的目标是**开发功能/修改代码**（而不仅仅是评审 PR），可以运行开发配置：
 
 ```bash
-npx --yes -p @happier-dev/stack@latest hstack setup-from-source --profile=dev --bind=loopback
+npx --yes -p @Kaiwu-dev/stack@latest hstack setup-from-source --profile=dev --bind=loopback
 ```
 
 说明：
@@ -162,7 +162,7 @@ npx --yes -p @happier-dev/stack@latest hstack setup-from-source --profile=dev --
 在虚拟机内部执行：
 
 ```bash
-npx --yes -p @happier-dev/stack@latest hstack review-pr \
+npx --yes -p @Kaiwu-dev/stack@latest hstack review-pr \
   --repo=https://github.com/wuji-labs/kaiwu/pull/<PR_NUMBER> \
   --vm-ports \
   --no-mobile \
@@ -174,7 +174,7 @@ npx --yes -p @happier-dev/stack@latest hstack review-pr \
 说明：
 - `--no-mobile` 可以让验证过程更加聚焦（Expo 移动端 dev-client 对宿主机环境有更多要求）。
 - 如果希望在执行失败后检查沙盒内容，还可以添加 `--keep-sandbox`。
-- 如需完全复现，请固定版本号：`npx --yes -p @happier-dev/stack@0.3.0 hstack review-pr ...`
+- 如需完全复现，请固定版本号：`npx --yes -p @Kaiwu-dev/stack@0.3.0 hstack review-pr ...`
 - `--vm-ports` 会强制将栈/服务器以及 Expo dev-server（Web）的端口限制在已转发的虚拟机端口范围内（与本文档中的 `portForwards` 配置相配套）。
 
 ### 可选：测试**未发布的本地修改**
@@ -187,10 +187,10 @@ npx --yes -p @happier-dev/stack@latest hstack review-pr \
 npm pack
 ```
 
-2) 将生成的 `happier-dev-stack-*.tgz` 复制到虚拟机内（方式不限），然后在虚拟机内运行：
+2) 将生成的 `Kaiwu-dev-stack-*.tgz` 复制到虚拟机内（方式不限），然后在虚拟机内运行：
 
 ```bash
-npx --yes ./happier-dev-stack-*.tgz hstack review-pr ...
+npx --yes ./Kaiwu-dev-stack-*.tgz hstack review-pr ...
 ```
 
 ## 方案 B：带图形界面的虚拟机（UTM）——需要“真实桌面环境”时的最简方案
@@ -233,10 +233,10 @@ limactl start happy-pr
 在虚拟机内部执行：
 
 ```bash
-rm -rf ~/.happier-stack ~/.happier
+rm -rf ~/.Kaiwu-stack ~/.Kaiwu
 ```
 
-如果你使用了 `hstack setup-from-source --profile=dev` 并且选择了自定义的工作区目录（位于 `~/.happier-stack/workspace` 之外），也请一并将该目录删除。
+如果你使用了 `hstack setup-from-source --profile=dev` 并且选择了自定义的工作区目录（位于 `~/.Kaiwu-stack/workspace` 之外），也请一并将该目录删除。
 
 ---
 

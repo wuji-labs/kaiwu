@@ -130,10 +130,10 @@ User-agent: cohere-ai
 Allow: /
 
 # Content Signals (Cloudflare's proposal, mirrored from the policy served on
-# docs.happier.dev). Stated affirmatively so the permission is ours and
+# kaiwu.chengqiyun.com/docs). Stated affirmatively so the permission is ours and
 # explicit, rather than inherited from a zone-level default we did not choose.
 # NOTE: Cloudflare's managed robots.txt can PREPEND its own signals block to an
-# origin robots.txt. Confirm after deploy that `curl https://happier.dev/robots.txt`
+# origin robots.txt. Confirm after deploy that `curl https://kaiwu.chengqiyun.com/robots.txt`
 # returns THIS file and that no injected `ai-train=no` contradicts the line below.
 Content-Signal: search=yes, ai-input=yes, ai-train=yes
 

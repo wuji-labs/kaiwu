@@ -1,4 +1,4 @@
-/.happier/uploads/
+/.KAIWU/uploads/
 
 # Full-resolution feature-art sources. Responsive web variants are generated
 # into public/images/_opt (ignored) via `yarn optimize:images` and recreated by

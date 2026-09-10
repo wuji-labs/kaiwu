@@ -1,5 +1,5 @@
 /**
- * Product analytics for docs.happier.dev.
+ * Product analytics for kaiwu.chengqiyun.com/docs.
  *
  * This is the marketing site's analytics module (apps/website/src/analytics)
  * reduced to what a documentation site needs, and it keeps every one of that
@@ -30,7 +30,7 @@ export const INGEST_PATH = '/ingest';
 export const UI_ORIGIN = 'https://eu.posthog.com';
 
 /**
- * Stamped on every event so happier.dev, docs.*, guides.* and app.* can share
+ * Stamped on every event so kaiwu.chengqiyun.com, docs.*, guides.* and app.* can share
  * one project and still be told apart, without sharing an identity.
  */
 export const SITE = 'kaiwu.chengqiyun.com/docs' as const;

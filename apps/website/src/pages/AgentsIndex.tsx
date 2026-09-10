@@ -71,7 +71,7 @@ export function AgentsIndex() {
                                     className="mt-1 font-mono text-[12px]"
                                     style={{ color: 'var(--muted)' }}
                                 >
-                                    {agent.vendor} · happier {agent.id}
+                                    {agent.vendor} · KAIWU {agent.id}
                                 </div>
                                 <p
                                     className="mt-3 text-[14px] leading-[1.6]"

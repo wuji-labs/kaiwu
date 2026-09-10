@@ -11,12 +11,12 @@ description: 只需在 Kaiwu 与你共同驱动的真实终端中运行一次 Cl
 | 运行时 | Kaiwu 如何驱动 Claude | 是否可以接入终端？ |
 | --- | --- | --- |
 | **Agent SDK**（默认） | Kaiwu 在后台进程中通过 `@anthropic-ai/claude-agent-sdk` 运行 Claude，并以流式方式传入消息。 | 否。该模式下没有 Claude Code TUI。 |
-| **统一终端** | Kaiwu 将 Claude Code 原生的 TUI 托管在 tmux、zellij 或 Windows 控制台宿主中，并将提示词直接写入其输入框。 | tmux 和 zellij 宿主均支持接入——`happier attach ⟦K1⟧` 会将你带入同一个窗口或窗格。 |
+| **统一终端** | Kaiwu 将 Claude Code 原生的 TUI 托管在 tmux、zellij 或 Windows 控制台宿主中，并将提示词直接写入其输入框。 | tmux 和 zellij 宿主均支持接入——`KAIWU attach ⟦K1⟧` 会将你带入同一个窗口或窗格。 |
 | **传统远程模式**（回退方案） | Kaiwu 以流式输出格式启动 `claude`，并转发用于获取会话信息的 Hook。 | 否。 |
 
 运行时的选择发生于提供商会话启动之际，并在该会话生命周期内保持固定。此后开启或关闭该设置只会影响下一次启动的 Claude 会话，不会改变当前正在运行的会话。
 
-你所接入的终端，正是 App 正在驱动的那个 Claude Code 运行实例，你可以直接在其中键入内容。每次写入前，Kaiwu 都会读取输入框，确保 App 发送的消息绝不会覆盖你正在输入的内容——详见下文的[草稿保护机制](#the-draft-guard)。关于 `happier attach` 的常规工作机制，请参阅[接入正在运行的会话](/sessions/attach-to-session)。
+你所接入的终端，正是 App 正在驱动的那个 Claude Code 运行实例，你可以直接在其中键入内容。每次写入前，Kaiwu 都会读取输入框，确保 App 发送的消息绝不会覆盖你正在输入的内容——详见下文的[草稿保护机制](#the-draft-guard)。关于 `KAIWU attach` 的常规工作机制，请参阅[接入正在运行的会话](/sessions/attach-to-session)。
 
 ## 各运行时下的引导与打断行为
 
@@ -72,7 +72,7 @@ Kaiwu 不会盲目向终端写入内容。每次写入前，它都会读取屏�
 
 两种宿主均可正常工作。在**自动**模式下，只要安装了 `tmux` 就会优先使用，未安装时则回退到内置的 zellij，因此即使设备上没有 `tmux`，该运行时也能正常运行。若你显式选择了 **zellij** 但内置二进制文件不可用，Kaiwu 会回退到 `tmux`，而不是直接让会话失败。
 
-两种宿主均支持接入：`happier attach ⟦K2⟧` 会直接将你带入 App 正在驱动的同一个 tmux 窗口或 zellij 窗格中。
+两种宿主均支持接入：`KAIWU attach ⟦K2⟧` 会直接将你带入 App 正在驱动的同一个 tmux 窗口或 zellij 窗格中。
 
 ### Windows
 

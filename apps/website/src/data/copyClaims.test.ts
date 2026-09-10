@@ -73,7 +73,7 @@ function context(text: string, match: RegExpMatchArray): string {
  * The imperative that sends the reader to the competitor.
  *
  * Deliberately NOT swept site-wide: "the normal way to use it" in the FAQ and
- * "Can I use it on a work computer?" are about Happier, and a guard that failed
+ * "Can I use it on a work computer?" are about Kaiwu, and a guard that failed
  * on those would be switched off within a week. It runs over the comparison
  * copy, where "it" is the other product.
  */
@@ -111,7 +111,7 @@ describe('comparison table evidence discipline', () => {
         // advertisement. This asserts the concession is substantive, not a
         // one-line nod.
         expect(RC_SECTION.concession.length).toBeGreaterThan(280);
-        // It has to concede the specific thing Happier cannot answer — that
+        // It has to concede the specific thing Kaiwu cannot answer — that
         // Anthropic's remote is made by the vendor of the agent — and it has to
         // name the setup Remote Control covers rather than gesturing at one.
         expect(RC_SECTION.concession).toMatch(/first-party/i);
@@ -144,9 +144,9 @@ describe('comparison table evidence discipline', () => {
             RC_SCOPE_LIMIT.heading,
             RC_SCOPE_LIMIT.body,
             ...RC_STRENGTHS.flatMap((item) => [item.title, item.body]),
-            ...RC_SECTION.cases.flatMap((item) => [item.when, item.rc, item.happier]),
+            ...RC_SECTION.cases.flatMap((item) => [item.when, item.rc, item.Kaiwu]),
             ...RC_SECTION.arguments.flatMap((item) => [item.title, item.body]),
-            ...COMPARISON_ROWS.flatMap((row) => [row.capability, row.rc, row.happier]),
+            ...COMPARISON_ROWS.flatMap((row) => [row.capability, row.rc, row.Kaiwu]),
         ].join('\n');
 
         expect(rcCopy).not.toMatch(COMPETITOR_IMPERATIVE);
@@ -208,7 +208,7 @@ describe('account pooling is framed as visibility, never evasion', () => {
     });
 
     // Switching copy must stay bounded by a real number rather than an
-    // adjective. "Happier switches accounts when you run out" is the sentence
+    // adjective. "Kaiwu switches accounts when you run out" is the sentence
     // this copy drifts toward under pressure to sound punchier, and it promises
     // an unbounded rotation the product deliberately does not do:
     // `maxSwitchesPerTurn` defaults to 1 and `maxSwitchesPerSessionHour` to 3
@@ -247,12 +247,12 @@ describe('account pooling is framed as visibility, never evasion', () => {
 describe('the FAQ does not regrow the claims it was corrected for', () => {
     const answer = (id: string) => (FAQ_ITEMS.find((f) => f.id === id)?.a ?? []).join(' ');
 
-    // "Happier's hosted realtime voice is paid" was false: RevenueCat is only
+    // "Kaiwu's hosted realtime voice is paid" was false: RevenueCat is only
     // configured when EXPO_PUBLIC_REVENUE_CAT_* is set, `syncPurchases` returns
     // before `configure()` without a key, and the only supporter entry point in
     // the app is inside a `devModeEnabled` block. Nothing is paid — so the answer
     // must not hedge toward a future in which something is.
-    it('answers "is Happier free" without a hedge', () => {
+    it('answers "is Kaiwu free" without a hedge', () => {
         expect(answer('free')).not.toMatch(
             /\b(for now|currently|at the moment|for the time being|free tier|paid tier|premium)\b/i,
         );

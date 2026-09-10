@@ -2,7 +2,7 @@
 /**
  * Post-deploy smoke test for the analytics pipeline.
  *
- * There are exactly two ways happier.dev ends up instrumented-but-recording-
+ * There are exactly two ways kaiwu.chengqiyun.com ends up instrumented-but-recording-
  * nothing, and neither one is visible from the browser:
  *
  *   1. THE INGEST PROXY IS NOT REACHABLE. `/ingest/*` is served by the Worker
@@ -20,13 +20,13 @@
  * This script proves (1) mechanically and gives you the one manual step that
  * proves (2). Run it after every deploy that touches analytics.
  *
- *   node scripts/verify-analytics.mjs                  # against happier.dev
+ *   node scripts/verify-analytics.mjs                  # against kaiwu.chengqiyun.com
  *   node scripts/verify-analytics.mjs http://localhost:5173
  *
  * ENV: VITE_POSTHOG_KEY (same value the build uses).
  */
 
-const origin = (process.argv[2] ?? 'https://happier.dev').replace(/\/$/, '');
+const origin = (process.argv[2] ?? 'https://kaiwu.chengqiyun.com').replace(/\/$/, '');
 const key = process.env.VITE_POSTHOG_KEY?.trim();
 
 if (!key) {
@@ -48,7 +48,7 @@ const event = {
     properties: {
         distinct_id: '$posthog_cookieless',
         $cookieless_mode: true,
-        site: 'happier.dev',
+        site: 'kaiwu.chengqiyun.com',
         source: 'scripts/verify-analytics.mjs',
         origin,
     },

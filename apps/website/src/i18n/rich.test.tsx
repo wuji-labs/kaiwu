@@ -19,8 +19,8 @@ describe('rich()', () => {
     });
 
     it('wraps a slot in its element', () => {
-        expect(render(rich('Run <1>happier codex</1> in a repository.', code))).toBe(
-            'Run <code>happier codex</code> in a repository.',
+        expect(render(rich('Run <1>KAIWU codex</1> in a repository.', code))).toBe(
+            'Run <code>KAIWU codex</code> in a repository.',
         );
     });
 
@@ -53,8 +53,8 @@ describe('rich()', () => {
             1: (c: React.ReactNode) => <a href="/a">{c}</a>,
             2: (c: React.ReactNode) => <code>{c}</code>,
         };
-        expect(render(rich('see <1>the <2>happier</2> docs</1>', slots))).toBe(
-            'see <a href="/a">the <code>happier</code> docs</a>',
+        expect(render(rich('see <1>the <2>KAIWU</2> docs</1>', slots))).toBe(
+            'see <a href="/a">the <code>KAIWU</code> docs</a>',
         );
     });
 

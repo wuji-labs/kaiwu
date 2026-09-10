@@ -15,7 +15,7 @@ hstack 优先支持单一代码库（Monorepo）：UI、CLI 与服务端均位�
 
 - 在 `⟦K25⟧/main` 保留一份稳定的检出副本（视为只读）。
 - 所有开发工作均在 `⟦K26⟧/dev` 或 `⟦K27⟧/{pr,local,tmp}/...` 下的工作树中进行。
-- 通过 **`HAPPIER_STACK_REPO_DIR`** 将栈指向对应的仓库检出目录。
+- 通过 **`KAIWU_STACK_REPO_DIR`** 将栈指向对应的仓库检出目录。
   - 由 `hstack wt use ...` 与 `hstack stack wt ...` 统一管理。
 
 ---
@@ -81,7 +81,7 @@ hstack stack typecheck exp1 --repo=/abs/path/to/checkout
 
 hstack 通过以下变量选择当前活跃的仓库检出目录：
 
-- `HAPPIER_STACK_REPO_DIR`（单一代码库根目录的绝对路径）
+- `KAIWU_STACK_REPO_DIR`（单一代码库根目录的绝对路径）
 
 推荐的设置方式：
 
@@ -125,7 +125,7 @@ hstack wt push active --remote=origin
 说明：
 
 - `--from=upstream|origin` 用于控制使用哪个远程仓库作为基准。
-- 默认基准分支为 `dev`（可通过 `HAPPIER_STACK_DEV_BRANCH` 配置）。
+- 默认基准分支为 `dev`（可通过 `KAIWU_STACK_DEV_BRANCH` 配置）。
 
 ---
 
@@ -282,8 +282,8 @@ hstack wt list --json
 
 ```bash
 hstack srv status
-hstack srv use happier-server-light
-hstack srv use happier-server
+hstack srv use KAIWU-server-light
+hstack srv use KAIWU-server
 hstack srv use --interactive
 ```
 
@@ -306,7 +306,7 @@ hstack srv use --interactive
 非交互式选项：
 
 ```bash
-export HAPPIER_STACK_FORK_URL="https://github.com/<you>/happier.git"
+export KAIWU_STACK_FORK_URL="https://github.com/<you>/KAIWU.git"
 hstack setup-from-source --profile=dev
 ```
 

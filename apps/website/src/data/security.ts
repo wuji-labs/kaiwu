@@ -20,7 +20,7 @@
  *     to the docs; this page is the architecture and what it means for one
  *     person. The two pages link to each other exactly once.
  *
- * VERIFICATION ANCHORS (happier-dev/happier, the shipped tree):
+ * VERIFICATION ANCHORS (Kaiwu-dev/Kaiwu, the shipped tree):
  *   key tree              packages/protocol/src/crypto/keyDerivation.ts:14-33 —
  *                           HMAC-SHA-512 root + labelled child steps
  *   sealed key envelope   packages/protocol/src/crypto/boxBundle.ts:18-41 —
@@ -79,7 +79,7 @@
  *                           MAC bound to the pairing secret
  *   push notifications    docs advanced/notifications.mdx — "The server stores
  *                           push tokens per account (it does *not* send push
- *                           payloads)"; the CLI sends them, and Happier "does
+ *                           payloads)"; the CLI sends them, and Kaiwu "does
  *                           not try to dump full raw tool input" into one
  *
  * ONE ANCHOR THAT WAS CHECKED AND NOT USED. apps/server/sources/app/share/
@@ -213,7 +213,7 @@ export const SECURITY_INVISIBLE: ReadonlyArray<SecurityLedgerEntry> = [
         // downloaded a folder from the app would catch it, on the page where being
         // caught costs most. The true claim is narrower and still strong: the repo is
         // never synced or mirrored, and anything that does move is sealed like the rest.
-        body: 'Your repository is never synced or mirrored. The agent reads and writes files on the computer it runs on, and that computer stays the only full copy. When you ask for a file, a folder or a diff, it travels the same sealed path as everything else — because you asked for it, not because Happier keeps a copy.',
+        body: 'Your repository is never synced or mirrored. The agent reads and writes files on the computer it runs on, and that computer stays the only full copy. When you ask for a file, a folder or a diff, it travels the same sealed path as everything else — because you asked for it, not because Kaiwu keeps a copy.',
     },
 ];
 
@@ -273,7 +273,7 @@ export const SECURITY_STORAGE: ReadonlyArray<string> = [
  * rather than a clause.
  */
 export const SECURITY_NOTIFICATIONS: ReadonlyArray<string> = [
-    'A push notification is the one thing that leaves the model behind, because it has to arrive at a phone that has nothing open. Happier’s answer is that your own computer sends them. The server stores your push tokens; the CLI on your own computer reads them back and sends the notification itself, which keeps the relay out of a path it would otherwise have to be told the contents of.',
+    'A push notification is the one thing that leaves the model behind, because it has to arrive at a phone that has nothing open. Kaiwu’s answer is that your own computer sends them. The server stores your push tokens; the CLI on your own computer reads them back and sends the notification itself, which keeps the relay out of a path it would otherwise have to be told the contents of.',
     'What the payload carries is deliberately thin: the tool or request type, and a short hint where one helps — a file such as src/file.ts, a command name, a count like "3 questions". Raw tool input is not put into it. Enough to decide whether to reach for the phone, on a screen anyone standing behind you can read.',
 ];
 
@@ -293,4 +293,4 @@ export const SECURITY_SOURCE: ReadonlyArray<string> = [
 ];
 
 /** The one link this page makes into the docs, labelled as the reference. */
-export const SECURITY_DOCS_URL = 'https://docs.happier.dev/security/encryption';
+export const SECURITY_DOCS_URL = 'https://kaiwu.chengqiyun.com/docs/security/encryption';

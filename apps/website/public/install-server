@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Convenience wrapper for server installs.
-# Uses the shared installer with HAPPIER_PRODUCT=server.
-export HAPPIER_PRODUCT="${HAPPIER_PRODUCT:-server}"
+# Uses the shared installer with KAIWU_PRODUCT=server.
+export KAIWU_PRODUCT="${KAIWU_PRODUCT:-server}"
 
-curl -fsSL "https://happier.dev/install.sh" | bash
+curl -fsSL "https://kaiwu.chengqiyun.com/install.sh" | bash

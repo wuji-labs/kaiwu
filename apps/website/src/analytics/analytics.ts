@@ -1,5 +1,5 @@
 /**
- * PostHog for happier.dev.
+ * PostHog for kaiwu.chengqiyun.com.
  *
  * Posture, and why each line is what it is:
  *
@@ -159,7 +159,7 @@ export function optIn(): void {
 }
 
 /**
- * `happier.dev/?analytics=off` opts out, `?analytics=on` opts back in.
+ * `kaiwu.chengqiyun.com/?analytics=off` opts out, `?analytics=on` opts back in.
  *
  * A URL is the only opt-out that survives being written down: it can be put in
  * the privacy policy, pasted into an issue, and used by someone who does not
@@ -195,7 +195,7 @@ export function initAnalytics(): void {
         // the marketing page down. The production build already refuses to
         // produce this artifact (assertAnalyticsKey in vite.config.ts).
         console.error(
-            '[analytics] VITE_POSTHOG_KEY is not set — happier.dev is shipping blind. ' +
+            '[analytics] VITE_POSTHOG_KEY is not set — kaiwu.chengqiyun.com is shipping blind. ' +
                 'Set the VITE_POSTHOG_KEY repository variable and re-run ' +
                 'PROMOTE — Website; there is no Cloudflare-side environment to ' +
                 'set it in, because the bundle is built in CI and only the ' +
@@ -255,7 +255,7 @@ export function initAnalytics(): void {
                 },
                 sanitize_properties: (properties, _eventName) => ({
                     ...properties,
-                    // Lets happier.dev, docs.*, guides.* and app.* live in one project
+                    // Lets kaiwu.chengqiyun.com, docs.*, guides.* and app.* live in one project
                     // and still be told apart, without any shared identity.
                     site: SITE,
                     // Chinese-locale devices outnumber en-US in the app 1,766 to 1,134.
@@ -288,7 +288,7 @@ export function track(event: string, properties?: Record<string, unknown>): void
 /** Exposed for the footer control and for anyone who wants it from a console. */
 declare global {
     interface Window {
-        happierAnalytics?: {
+        KaiwuAnalytics?: {
             optOut: () => void;
             optIn: () => void;
             isOptedOut: () => boolean;
@@ -299,7 +299,7 @@ declare global {
 
 export function exposeAnalyticsControls(): void {
     if (typeof window === 'undefined') return;
-    window.happierAnalytics = {
+    window.KaiwuAnalytics = {
         optOut,
         optIn,
         isOptedOut: readOptOut,
