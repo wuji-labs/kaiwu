@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# 无极开物 CLI 安装脚本 · WUJI-Labs · 基于 happier-dev/happier 二次开发
+# 无极开物 CLI 安装脚本 · WUJI-Labs
 set -euo pipefail
 
 # 默认配置
-KAIWU_SERVER_URL="${HAPPIER_SERVER_URL:-https://kaiwu.chengqiyun.com}"
+KAIWU_SERVER_URL="${KAIWU_SERVER_URL:-${HAPPIER_SERVER_URL:-https://kaiwu.chengqiyun.com}}"
 LATEST_METADATA_URL="https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/latest.json"
 FALLBACK_TGZ_URL="https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/0.2.12/kaiwu-cli-0.2.12.tgz"
 
@@ -40,7 +40,7 @@ error() {
     printf "%s[错误] %s%s\n" "${COLOR_RED}" "$*" "${COLOR_RESET}" >&2
 }
 
-info "开始安装 无极开物 CLI (happier)..."
+info "开始安装 无极开物 CLI..."
 
 # 1. 检测与准备 Node.js (要求 >= 20)
 NODE_BIN=""
@@ -137,23 +137,43 @@ info "安装包源: ${TGZ_URL}"
 INSTALL_SUCCESS=0
 if npm install -g "$TGZ_URL" >/dev/null 2>&1; then
     INSTALL_SUCCESS=1
+    GLOBAL_HAPPIER="$(command -v happier 2>/dev/null || true)"
+    if [[ -z "$GLOBAL_HAPPIER" ]]; then
+        NPM_BIN_PATH="$(npm bin -g 2>/dev/null || true)"
+        if [[ -n "$NPM_BIN_PATH" ]] && [[ -f "$NPM_BIN_PATH/happier" ]]; then
+            GLOBAL_HAPPIER="$NPM_BIN_PATH/happier"
+        fi
+    fi
+    if [[ -n "$GLOBAL_HAPPIER" ]]; then
+        mkdir -p "$HOME/.local/bin"
+        ln -sf "$GLOBAL_HAPPIER" "$HOME/.local/bin/kaiwu"
+        chmod +x "$HOME/.local/bin/kaiwu"
+    fi
 else
     warn "npm 全局安装未成功或无 root/全局写权限，正在安装到用户目录 ~/.kaiwu..."
     mkdir -p "$HOME/.kaiwu/lib"
     (cd "$HOME/.kaiwu/lib" && npm install "$TGZ_URL" >/dev/null 2>&1)
     mkdir -p "$HOME/.local/bin"
+    ln -sf "$HOME/.kaiwu/lib/node_modules/@happier-dev/cli/bin/happier.mjs" "$HOME/.local/bin/kaiwu"
     ln -sf "$HOME/.kaiwu/lib/node_modules/@happier-dev/cli/bin/happier.mjs" "$HOME/.local/bin/happier"
-    chmod +x "$HOME/.local/bin/happier"
+    chmod +x "$HOME/.local/bin/kaiwu" "$HOME/.local/bin/happier"
     export PATH="$HOME/.local/bin:$PATH"
     INSTALL_SUCCESS=1
 fi
 
-if ! command -v happier >/dev/null 2>&1; then
+if ! command -v kaiwu >/dev/null 2>&1 && ! command -v happier >/dev/null 2>&1; then
     # 尝试查找 npm bin 目录
     NPM_BIN_PATH="$(npm bin -g 2>/dev/null || true)"
     if [[ -n "$NPM_BIN_PATH" ]] && [[ -f "$NPM_BIN_PATH/happier" ]]; then
         export PATH="$NPM_BIN_PATH:$PATH"
+        mkdir -p "$HOME/.local/bin"
+        ln -sf "$NPM_BIN_PATH/happier" "$HOME/.local/bin/kaiwu"
+        chmod +x "$HOME/.local/bin/kaiwu"
     fi
+elif ! command -v kaiwu >/dev/null 2>&1 && command -v happier >/dev/null 2>&1; then
+    mkdir -p "$HOME/.local/bin"
+    ln -sf "$(command -v happier)" "$HOME/.local/bin/kaiwu"
+    chmod +x "$HOME/.local/bin/kaiwu"
 fi
 
 # 4. 配置用户 Shell 环境变量与 PATH
@@ -168,6 +188,7 @@ fi
 
 ENV_SNIPPET="
 # >>> 无极开物 CLI 配置 >>>
+export KAIWU_SERVER_URL=\"${KAIWU_SERVER_URL}\"
 export HAPPIER_SERVER_URL=\"${KAIWU_SERVER_URL}\"
 if [ -d \"\$HOME/.kaiwu/node/bin\" ]; then
     export PATH=\"\$HOME/.kaiwu/node/bin:\$PATH\"
@@ -179,22 +200,29 @@ fi
 "
 
 for prof in "${CONFIG_PROFILES[@]}"; do
-    if ! grep -q "HAPPIER_SERVER_URL" "$prof" 2>/dev/null; then
+    if ! grep -q "KAIWU_SERVER_URL" "$prof" 2>/dev/null && ! grep -q "HAPPIER_SERVER_URL" "$prof" 2>/dev/null; then
         printf "%s\n" "$ENV_SNIPPET" >> "$prof"
         info "已写入环境变量与路径至: $prof"
     fi
 done
 
+export KAIWU_SERVER_URL="${KAIWU_SERVER_URL}"
 export HAPPIER_SERVER_URL="${KAIWU_SERVER_URL}"
 
 # 5. 验证与指引
 echo
 success "无极开物 CLI 安装成功！"
 echo
-if command -v happier >/dev/null 2>&1; then
-    echo "  • 安装版本: $(happier --version 2>/dev/null || echo "$CLI_VERSION")"
-    echo "  • 命令路径: $(command -v happier)"
-    echo "  • 默认连接: $HAPPIER_SERVER_URL"
+MAIN_CMD="kaiwu"
+if ! command -v kaiwu >/dev/null 2>&1 && command -v happier >/dev/null 2>&1; then
+    MAIN_CMD="happier"
+fi
+
+if command -v "$MAIN_CMD" >/dev/null 2>&1; then
+    echo "  • 安装版本: $($MAIN_CMD --version 2>/dev/null || echo "$CLI_VERSION")"
+    echo "  • 命令路径: $(command -v "$MAIN_CMD")"
+    echo "  • 默认连接: $KAIWU_SERVER_URL"
+    echo "  • 包含命令别名: kaiwu, happier"
 else
     echo "  • 安装版本: $CLI_VERSION"
     echo "  • 提示: 请运行 'source ~/.bashrc' 或重新打开终端以使 PATH 生效"
@@ -203,7 +231,7 @@ fi
 echo
 echo "${COLOR_BOLD}下一步快速指引：${COLOR_RESET}"
 echo "  1. 登录连接开物云服务:"
-echo "     happier auth login"
+echo "     kaiwu auth login"
 echo "  2. 在项目目录中启动 AI 编程会话:"
-echo "     cd /path/to/project && happier"
+echo "     cd /path/to/project && kaiwu"
 echo

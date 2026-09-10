@@ -19,7 +19,7 @@ https://github.com/happier-dev/happier
 本仓是 active product fork，不是 parked vendor clone。
 2026-06-27 的项目清理曾以「没有 active product task」为由删除前身
 D:\Projects\happy-app 与 D:\Projects\qianyuan-happier，
-本仓有在运行的生产服务（https://happier.flfz.org）与在建交付物，不得按 vendor parking 政策清理。
+本仓有在运行的生产服务（https://kaiwu.chengqiyun.com）与在建交付物，不得按 vendor parking 政策清理。
 
 ## 母体复用
 
@@ -39,10 +39,10 @@ D:\Projects\happy-app 与 D:\Projects\qianyuan-happier，
 
 本仓的运行时环境包括：
 
-- **自建服务容器**：happier-server-wuji
-- **公开入口**：https://happier.flfz.org
-- **入口配置**：D:\Projects\qianyuan-wuji\infra\qianyuan-hub\cloudflared\config.yml（第 123-130 行）
-- **Ingress 定义**：同上文件的相应行次
+- **自建服务容器**：wuji-kaiwu-server
+- **公开入口**：https://kaiwu.chengqiyun.com
+- **主机**：腾讯云 Lighthouse (150.158.55.6)
+- **入口配置**：Caddy 反代至宿主机服务
 
 生产部署与运维由集团统一治理，不独立管理。
 
@@ -59,4 +59,4 @@ D:\Projects\happy-app 与 D:\Projects\qianyuan-happier，
 ## 与上游的关系
 
 本仓是 happier-dev/happier 的下游独立演进分支，定位同 happier 之于 happy —— 是二次开发与持续迭代，不是换皮。
-上游 LICENSE 与版权声明一律保留，产品「关于」页须注明「基于 happier-dev/happier 二次开发」。
+上游 LICENSE 与版权声明一律保留；产品面不展示上游血缘；许可合规见 LICENSE 与 docs 法律区。

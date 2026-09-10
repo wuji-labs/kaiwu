@@ -60,7 +60,7 @@ export class HappierPipeline {
   }
 
   /**
-   * Builds Happier UI Mobile Android artifacts using a Linux container (no local Android SDK required).
+   * Builds Kaiwu / Happier UI Mobile Android artifacts using a Linux container (no local Android SDK required).
    *
    * This is intended for local macOS development where installing Java/Android SDK is undesirable.
    * It runs the shared pipeline script in a container and returns the build artifacts as a Directory.

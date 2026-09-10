@@ -5,7 +5,7 @@
 # 1. 纯原生绿色免安装单文件架构：内置所有 runtime 与本地模型调度依赖，无需 Node.js、npm 或 C++ 编译环境。
 # 2. 全程走国内腾讯云上海 BGP 对象存储高速通道，数秒极速完成。
 # 3. 自动解压至 ~/.kaiwu/bin，并注册系统用户 PATH 环境变量（永久生效）。
-# 4. 自动持久化配置开物云端中继服务端 (HAPPIER_SERVER_URL)。
+# 4. 自动持久化配置开物云端中继服务端 (KAIWU_SERVER_URL / HAPPIER_SERVER_URL)。
 # 5. 同时提供 kaiwu 与 happier 双命令别名，完全无缝兼容。
 
 [CmdletBinding()]
@@ -23,6 +23,8 @@ try {
 
 $KAIWU_SERVER_URL = if ($ServerUrl) {
     $ServerUrl
+} elseif ($env:KAIWU_SERVER_URL) {
+    $env:KAIWU_SERVER_URL
 } elseif ($env:HAPPIER_SERVER_URL) {
     $env:HAPPIER_SERVER_URL
 } else {
@@ -167,7 +169,9 @@ if ($env:Path -split ';' -notcontains $binDir) {
 }
 
 # 设置并持久化开物服务端连接
+[System.Environment]::SetEnvironmentVariable('KAIWU_SERVER_URL', $KAIWU_SERVER_URL, [System.EnvironmentVariableTarget]::User)
 [System.Environment]::SetEnvironmentVariable('HAPPIER_SERVER_URL', $KAIWU_SERVER_URL, [System.EnvironmentVariableTarget]::User)
+$env:KAIWU_SERVER_URL = $KAIWU_SERVER_URL
 $env:HAPPIER_SERVER_URL = $KAIWU_SERVER_URL
 Write-Info "已配置开物服务端连接: $KAIWU_SERVER_URL"
 
@@ -181,7 +185,7 @@ if (Test-Path $exePath) {
     $v = & $exePath --version
     Write-Host "  • 当前安装版本: v$v" -ForegroundColor Green
     Write-Host "  • 程序所在目录: $binDir" -ForegroundColor Gray
-    Write-Host "  • 开物中继服务: $env:HAPPIER_SERVER_URL" -ForegroundColor Gray
+    Write-Host "  • 开物中继服务: $KAIWU_SERVER_URL" -ForegroundColor Gray
     Write-Host "  • 包含命令别名: kaiwu, happier" -ForegroundColor Gray
 }
 

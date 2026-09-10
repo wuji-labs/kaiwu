@@ -2,13 +2,13 @@
 
 This file is the canonical cross-tool constitution for this repository.
 
-## What Happier is
+## What Kaiwu (无极开物) is
 
-Happier is a cross-device client and companion for coding agents. Think of it as what you would get if Claude Desktop, Codex App, Cursor Glass and Conductor were merged into one open-source app.
+Kaiwu (无极开物) is a cross-device client and companion for coding agents. Think of it as what you would get if Claude Desktop, Codex App, Cursor Glass and Conductor were merged into one open-source app.
 
-Agent sessions run on computers, VPSs and dev boxes users control. Happier can connect to one or many of these machines and lets users monitor, steer, approve, review, resume and continue their sessions from a phone, browser or desktop.
+Agent sessions run on computers, VPSs and dev boxes users control. Kaiwu can connect to one or many of these machines and lets users monitor, steer, approve, review, resume and continue their sessions from a phone, browser or desktop.
 
-People drive agents through Happier all day. It should feel warm, fluid, blazing-fast and delightful to use.
+People drive agents through Kaiwu all day. It should feel warm, fluid, blazing-fast and delightful to use.
 
 We love ambitious product ideas and simple systems. Do not preserve complexity because it already exists or introduce machinery because it looks architecturally impressive. Understand the real constraint, intent and requirements. Do not overcomplicate the implementation or invent hard requirements for speculative, unreachable or low-impact edge cases. New guarantees and machinery must be justified by an explicit requirement, released contract, reproduced failure or reachable material risk.
 
@@ -44,7 +44,7 @@ Always make the smallest coherent systemic change at the correct canonical owner
    - `.agents/skills/happier-plan` only for an explicit request to create, replace, or materially refine a repository plan; complexity alone is not a trigger.
    - `.agents/skills/happier-implement` for source changes. Add `.agents/skills/happier-implement-plan` when executing an approved plan; it preserves plan authority rather than redesigning it.
    - `.agents/skills/happier-commit-worktree` only for a user-requested large or continuously changing worktree commit campaign, not an ordinary scoped commit.
-   - `.agents/skills/happier-review` is the only general Happier review/QA orchestrator. The archived `review-protocol` and `code-reviewer` skills must not be invoked.
+   - `.agents/skills/happier-review` is the only general Kaiwu review/QA orchestrator. The archived `review-protocol` and `code-reviewer` skills must not be invoked.
    - `.agents/skills/happier-pr-steward` for user-requested pull-request stewardship; it composes `happier-review` and the mutation authority in `happier-github-ops`.
    - `.agents/skills/happier-port-0-2-to-0-3` after every coherent validated 0.2 change batch. Validate 0.2 first, then give every intent an evidence-backed 0.3 disposition through the evolved owner; the skill never stages or commits.
    - `.agents/skills/happier-testing` for TDD, test quality, lane selection, and live validation.
@@ -132,7 +132,7 @@ Before changing production behavior:
 - `apps/docs/content/docs/**` owns published documentation for users, operators, self-hosters, providers, and public contributors.
 - A behavior or contract change updates every materially affected canonical documentation page in the same coherent change, or the handoff explains why no documentation change was needed.
 - Search for and update the existing canonical page before creating another. Do not leave similar-but-different explanations of the same concept.
-- Documentation is a claim, not proof of implementation. Verify Happier behavior against the implementing code and the target release/channel before documenting it.
+- Documentation is a claim, not proof of implementation. Verify Kaiwu behavior against the implementing code and the target release/channel before documenting it.
 - Distinguish shipped, preview, development-only, experimental, deprecated, and planned behavior explicitly. Do not present an unreleased intermediate as available.
 
 ## Risk-weighted execution
