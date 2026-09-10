@@ -2,7 +2,14 @@ import { t } from '@/text';
 import { config } from '@/config';
 import { sessionScmDiffFile, sessionReadFile, sessionStatFile } from '@/sync/ops';
 import { resolveSessionPathState } from '@/hooks/session/files/sessionPathState';
-import { getImageMimeTypeFromPath, isBinaryContent, isKnownBinaryPath } from '@/scm/utils/filePresentation';
+import {
+    getImageMimeTypeFromPath,
+    getMediaKind,
+    getMediaMimeTypeFromPath,
+    getLegacyOfficeKind,
+    isBinaryContent,
+    isKnownBinaryPath,
+} from '@/scm/utils/filePresentation';
 import type { ScmDiffArea } from '@happier-dev/protocol';
 import type { FileDiffMode } from '@/components/sessions/files/file/FileActionToolbar';
 import type { ScmEntryKind } from '@/sync/domains/state/storageTypes';
@@ -141,6 +148,28 @@ export async function refreshSessionFileDetails(input: Readonly<{
                 diffContent,
                 fileContent,
                 fileWriteSupported: true,
+            };
+        }
+
+        const mediaKind = getMediaKind(input.filePath);
+        const legacyOfficeKind = getLegacyOfficeKind(input.filePath);
+        const mediaMime = getMediaMimeTypeFromPath(input.filePath);
+        const wantsMediaPreview = Boolean(mediaKind || legacyOfficeKind);
+
+        if (wantsMediaPreview) {
+            fileContent = {
+                content: '',
+                isBinary: true,
+                contentHash: null,
+                binaryMime: mediaMime ?? undefined,
+                binarySizeBytes: statSizeBytes,
+            };
+            return {
+                status: 'ready',
+                error: null,
+                diffContent,
+                fileContent,
+                fileWriteSupported: false,
             };
         }
 

@@ -107,10 +107,12 @@ export function FileErrorState({ theme, filePath, error, onRetry }: FileStatePro
     );
 }
 
-export function FileBinaryState({ theme, filePath, imagePreviewUri, imagePreviewSvgXml }: FileStateProps & {
+export function FileBinaryState({ theme, filePath, imagePreviewUri, imagePreviewSvgXml, customMessage, actionButton }: FileStateProps & {
     filePath: string;
     imagePreviewUri?: string | null;
     imagePreviewSvgXml?: string | null;
+    customMessage?: string | null;
+    actionButton?: React.ReactNode;
 }) {
     const svgXml = React.useMemo(() => {
         if (typeof imagePreviewSvgXml === 'string' && imagePreviewSvgXml.trim().length > 0) {
@@ -183,10 +185,11 @@ export function FileBinaryState({ theme, filePath, imagePreviewUri, imagePreview
                     fontSize: 16,
                     color: theme.colors.text.secondary,
                     textAlign: 'center',
+                    maxWidth: 480,
                     ...Typography.default(),
                 }}
             >
-                {t('files.cannotDisplayBinary')}
+                {customMessage ?? t('files.cannotDisplayBinary')}
             </Text>
             <Text
                 style={{
@@ -199,6 +202,11 @@ export function FileBinaryState({ theme, filePath, imagePreviewUri, imagePreview
             >
                 {filePath}
             </Text>
+            {actionButton ? (
+                <View style={{ marginTop: 16 }}>
+                    {actionButton}
+                </View>
+            ) : null}
         </View>
     );
 }

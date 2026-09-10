@@ -17,9 +17,11 @@ export interface AppConfig {
     enableDevPushTokenRegistration?: boolean;
     socketForceWebsocketOnly?: boolean;
     filesPreviewMaxBytes?: number;
+    filesMediaPreviewMaxBytes?: number;
 }
 
 const DEFAULT_FILES_PREVIEW_MAX_BYTES = 2_500_000;
+const DEFAULT_FILES_MEDIA_PREVIEW_MAX_BYTES = 67_108_864; // 64 MB
 
 function parseBooleanEnv(value: string | undefined): boolean | undefined {
     const parsed = parseOptionalBooleanEnv(value);
@@ -41,6 +43,14 @@ function readConfiguredFilesPreviewMaxBytesEnv(): number | undefined {
         parseOptionalPositiveIntEnv(process.env.EXPO_PUBLIC_HAPPIER_FILES_PREVIEW_MAX_BYTES)
         ?? parseOptionalPositiveIntEnv(process.env.EXPO_PUBLIC_HAPPY_FILES_PREVIEW_MAX_BYTES)
         ?? parseOptionalPositiveIntEnv(process.env.EXPO_PUBLIC_FILES_PREVIEW_MAX_BYTES)
+    );
+}
+
+function readConfiguredFilesMediaPreviewMaxBytesEnv(): number | undefined {
+    return (
+        parseOptionalPositiveIntEnv(process.env.EXPO_PUBLIC_KAIWU_FILES_MEDIA_PREVIEW_MAX_BYTES)
+        ?? parseOptionalPositiveIntEnv(process.env.EXPO_PUBLIC_HAPPIER_FILES_MEDIA_PREVIEW_MAX_BYTES)
+        ?? parseOptionalPositiveIntEnv(process.env.EXPO_PUBLIC_FILES_MEDIA_PREVIEW_MAX_BYTES)
     );
 }
 
@@ -150,6 +160,19 @@ export function loadAppConfig(): AppConfig {
     config.filesPreviewMaxBytes = filesPreviewMaxBytesValue && filesPreviewMaxBytesValue > 0
         ? filesPreviewMaxBytesValue
         : DEFAULT_FILES_PREVIEW_MAX_BYTES;
+
+    const filesMediaPreviewMaxBytesFromEnv = readConfiguredFilesMediaPreviewMaxBytesEnv();
+    if (filesMediaPreviewMaxBytesFromEnv !== undefined && config.filesMediaPreviewMaxBytes !== filesMediaPreviewMaxBytesFromEnv) {
+        if (__DEV__) console.log('[loadAppConfig] Override filesMediaPreviewMaxBytes from EXPO_PUBLIC_*_FILES_MEDIA_PREVIEW_MAX_BYTES');
+        config.filesMediaPreviewMaxBytes = filesMediaPreviewMaxBytesFromEnv;
+    }
+
+    const filesMediaPreviewMaxBytesValue = typeof config.filesMediaPreviewMaxBytes === 'number' && Number.isFinite(config.filesMediaPreviewMaxBytes)
+        ? Math.floor(config.filesMediaPreviewMaxBytes)
+        : null;
+    config.filesMediaPreviewMaxBytes = filesMediaPreviewMaxBytesValue && filesMediaPreviewMaxBytesValue > 0
+        ? filesMediaPreviewMaxBytesValue
+        : DEFAULT_FILES_MEDIA_PREVIEW_MAX_BYTES;
 
     return config as AppConfig;
 }
