@@ -37,7 +37,7 @@ const sessionGuidanceTranslations: Record<string, string> = {
     'sessionGettingStarted.steps.authLogin.description': 'This prints a QR / link to connect your terminal to your account.',
     'sessionGettingStarted.steps.authLogin.copyLabel': 'Auth login',
     'sessionGettingStarted.steps.daemonInstall.title': 'Install the background service (recommended)',
-    'sessionGettingStarted.steps.daemonInstall.description': 'Keeps Happier ready in the background for remote starts.',
+    'sessionGettingStarted.steps.daemonInstall.description': 'Keeps Kaiwu ready in the background for remote starts.',
     'sessionGettingStarted.steps.daemonInstall.copyLabel': 'Daemon install',
     'sessionGettingStarted.steps.startDaemonInstall.description': 'Installs an always-on user service and starts it.',
     'sessionGettingStarted.steps.daemonStart.title': 'Start the background service once',

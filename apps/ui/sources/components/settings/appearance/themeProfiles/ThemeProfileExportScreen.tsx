@@ -72,7 +72,7 @@ export const ThemeProfileExportScreen = React.memo(function ThemeProfileExportSc
     const builtInProfile = BUILT_IN_THEME_PROFILES.find((definition) => definition.profile.id === profileId)?.profile ?? null;
     const profile = themeProfiles.profiles.find((entry) => entry.id === profileId) ?? builtInProfile;
     const json = React.useMemo(() => (profile ? exportThemeProfileToJson(profile, { mode: resolveExportMode(profile), includeResolvedValues: true }) : ''), [profile]);
-    const fileName = React.useMemo(() => (profile ? `happier-theme-${sanitizeDownloadName(profile.name)}.json` : 'happier-theme.json'), [profile]);
+    const fileName = React.useMemo(() => (profile ? `kaiwu-theme-${sanitizeDownloadName(profile.name)}.json` : 'kaiwu-theme.json'), [profile]);
 
     const copy = React.useCallback(async () => {
         if (!json) return;

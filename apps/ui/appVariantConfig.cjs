@@ -17,6 +17,7 @@ function buildRingBackedConfig(ringId, overrides) {
         id: ringId,
         logicalVariant: resolveLogicalVariantFromRing(ring),
         name: overrides.name,
+        webTitle: overrides.webTitle || overrides.name,
         iosBundleId: overrides.iosBundleId,
         androidPackage: overrides.androidPackage,
         scheme: ring.appScheme,
@@ -32,9 +33,10 @@ function buildProductionConfig(overrides) {
         id: 'production',
         logicalVariant: 'production',
         name: overrides.name,
+        webTitle: overrides.webTitle || overrides.name,
         iosBundleId: overrides.iosBundleId,
         androidPackage: overrides.androidPackage,
-        scheme: ring.appScheme,
+        scheme: overrides.scheme || ['kaiwu', 'happier'],
         updatesChannel: ring.expoUpdatesChannel,
         featurePolicyEnv: ring.embeddedPolicyEnv,
         enableAssociatedDomains: overrides.enableAssociatedDomains,
@@ -68,6 +70,7 @@ const APP_ENVIRONMENT_CONFIGS = {
     }),
     production: buildProductionConfig({
         name: '无极开物',
+        webTitle: '无极开物',
         iosBundleId: 'com.wujilabs.kaiwu',
         androidPackage: 'com.wujilabs.kaiwu',
         enableAssociatedDomains: true,
@@ -87,7 +90,10 @@ function normalizeAppEnvironmentId(raw) {
 }
 
 function getAppEnvironmentConfig(raw) {
-    const normalized = normalizeAppEnvironmentId(raw) || 'internaldev';
+    const candidate = raw !== undefined && raw !== null && String(raw).trim() !== ''
+        ? raw
+        : (process.env.APP_VARIANT || process.env.APP_ENV || '');
+    const normalized = normalizeAppEnvironmentId(candidate) || 'production';
     return APP_ENVIRONMENT_CONFIGS[normalized];
 }
 

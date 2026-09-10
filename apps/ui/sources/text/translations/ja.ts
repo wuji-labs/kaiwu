@@ -103,7 +103,7 @@ const mcpServersUxTranslationExtension = {
   mcpServersDeliveryNativeTitle: 'ネイティブ MCP',
   mcpServersDeliveryNativeSubtitle: 'このバックエンドは Kaiwu のツールをネイティブ MCP サーバーとして受け取ります。',
   mcpServersDeliveryShellBridgeTitle: 'Kaiwu シェルブリッジ',
-  mcpServersDeliveryShellBridgeSubtitle: 'このバックエンドは `happier tools` ブリッジ経由で Kaiwu のツールを呼び出します。',
+  mcpServersDeliveryShellBridgeSubtitle: 'このバックエンドは `kaiwu tools` ブリッジ経由で Kaiwu のツールを呼び出します。',
   mcpServersDeliveryUnsupportedTitle: '非対応',
   mcpServersDeliveryUnsupportedSubtitle: 'このバックエンドは現在 Kaiwu のツールを受け取りません。',
 } as const;
@@ -210,7 +210,7 @@ const settingsAppearanceTranslationExtension = {
     previewSubtitle: 'A local sandbox preview of surfaces, text, controls, state, and syntax colors.',
     previewButton: 'Primary action',
     previewStatus: 'Ready',
-    previewCode: 'const theme = "happier";',
+    previewCode: 'const theme = "kaiwu";',
     colorInputPlaceholder: '#RRGGBB, rgba(...), transparent',
     tokenSubtitle: 'Public color token override',
     recentColors: 'Recent colors',
@@ -1689,8 +1689,8 @@ export const ja: TranslationStructure = {
     generateNewQrCode: "新しいQRコードを生成",
     pairingQrExpired: "このQRコードは期限切れです。新しいコードを生成してください。",
     openMachine: "マシンを開く",
-    terminalUrlPlaceholder: "happier://terminal?...",
-    accountUrlPlaceholder: "happier:///account?...",
+    terminalUrlPlaceholder: "kaiwu://terminal?...",
+    accountUrlPlaceholder: "kaiwu:///account?...",
     restoreQrInstructions:
       "すでにサインインしている端末で、設定 → アカウント に移動してこのQRコードをスキャンしてください。",
     externalAuthVerifiedTitle: ({ provider }: { provider: string }) =>
@@ -1720,7 +1720,7 @@ export const ja: TranslationStructure = {
       runCommandInTerminal: "ターミナルで次のコマンドを実行してください:",
       runCommandInTerminalWithCommand: ({ command }: { command: string }) =>
         `ターミナルで次のコマンドを実行してください:\n\n${command}`,
-      command: ({ name }: { name: string }) => `happier connect ${name}`,
+      command: ({ name }: { name: string }) => `kaiwu connect ${name}`,
     },
   },
 
@@ -2670,7 +2670,7 @@ localTailscale: {
       copyReportSubtitle: "サポート向けの安全なJSONレポートをコピー",
     },
     pasteDoctorJson: {
-      footer: "ヒント: PCで `happier doctor --json` を実行して貼り付けてください。",
+      footer: "ヒント: PCで `kaiwu doctor --json` を実行して貼り付けてください。",
       placeholder: '{ "capturedAt": "...", ... }',
       parse: "貼り付けたJSONを検証",
       ok: "貼り付けた doctor JSON は有効に見えます。",
@@ -6618,7 +6618,7 @@ localTailscale: {
         unpinSession: "ピン留め解除",
         pinLimitExceeded: ({ count }: { count: number }) => `${count.toLocaleString()} 件までセッションをピン留めできます。別のセッションのピン留めを解除して、もう一度お試しください。`,
     copyResumeCommand: "再開コマンドをコピー",
-    resumeCommand: ({ sessionId }: { sessionId: string }) => `happier resume ${sessionId}`,
+    resumeCommand: ({ sessionId }: { sessionId: string }) => `kaiwu resume ${sessionId}`,
     viewMachine: "マシンを表示",
     viewMachineSubtitle: "マシンの詳細とセッションを表示",
     killSessionSubtitle: "セッションを即座に終了",
@@ -6695,7 +6695,7 @@ localTailscale: {
       runIt: "実行する",
       scanQrCode: "QRコードをスキャン",
       openCamera: "カメラを開く",
-      runCommand: "$ happier",
+      runCommand: "$ kaiwu",
     },
     emptyMessages: {
       noMessagesYet: "まだメッセージはありません",
@@ -8223,7 +8223,7 @@ settingsSession: {
         title: 'Windows',
         defaultModeTitle: 'Windows リモートセッションの既定モード',
         windowNameTitle: 'Windows Terminal のウィンドウ名',
-        windowNamePlaceholder: 'happier',
+        windowNamePlaceholder: 'kaiwu',
         windowNameHint: 'Windows Terminal で開くセッションはこの名前付きウィンドウを使い、新しいセッションをタブとして表示できます。',
     },
     advanced: {

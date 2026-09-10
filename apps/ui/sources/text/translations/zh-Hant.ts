@@ -104,7 +104,7 @@ const mcpServersUxTranslationExtension = {
   mcpServersDeliveryNativeTitle: '原生 MCP',
   mcpServersDeliveryNativeSubtitle: '此後端會將 無極開物 工具作為原生 MCP 伺服器接收。',
   mcpServersDeliveryShellBridgeTitle: '無極開物 Shell 橋接',
-  mcpServersDeliveryShellBridgeSubtitle: '此後端透過 `happier tools` 橋接呼叫无极开物工具。',
+  mcpServersDeliveryShellBridgeSubtitle: '此後端透過 `kaiwu tools` 橋接呼叫无极开物工具。',
   mcpServersDeliveryUnsupportedTitle: '不支援',
   mcpServersDeliveryUnsupportedSubtitle: '此後端目前不會接收 無極開物 工具。',
 } as const;
@@ -211,7 +211,7 @@ const settingsAppearanceTranslationExtension = {
     previewSubtitle: "在此沙盒中即時預覽底色、文字、控制項、狀態和語法醒目提示色彩。",
     previewButton: "主要動作",
     previewStatus: "就緒",
-    previewCode: "const theme = \"happier\";",
+    previewCode: "const theme = \"kaiwu\";",
     colorInputPlaceholder: "#RRGGBB, rgba(...), transparent",
     tokenSubtitle: "覆寫公共色彩變數",
     recentColors: "最近使用色彩",
@@ -1115,7 +1115,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
             diagnostics: {
                 pasteDoctorJson: {
                     title: 'CLI doctor JSON（選用）',
-                    subtitle: '若 UI 無法連到你的機器，請在電腦上執行 `happier doctor --json`，並貼到這裡。',
+                    subtitle: '若 UI 無法連到你的機器，請在電腦上執行 `kaiwu doctor --json`，並貼到這裡。',
                     placeholder: "{ \"capturedAt\": \"...\", ... }",
                     invalid: ({ error }: { error: string }) => `doctor JSON 無效：${error}`,
                     valid: 'doctor JSON 看起來有效，會隨報告一起提交。',
@@ -1967,7 +1967,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         approveButton: '批准',
         generateNewQrCode: '產生新的 QR 碼',
         pairingQrExpired: '此 QR 碼已過期。請產生新的 QR 碼。',
-        accountUrlPlaceholder: "happier:///account?...",
+        accountUrlPlaceholder: "kaiwu:///account?...",
         restoreQrInstructions: '在已登入的裝置上前往 設定 → 帳戶 並掃描此 QR 碼。',
         externalAuthVerifiedTitle: ({ provider }: { provider: string }) => `${provider} 驗證完成`,
         externalAuthVerifiedBody: ({ provider }: { provider: string }) =>
@@ -1981,7 +1981,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
             runCommandInTerminal: '在終端機中執行以下指令：',
             runCommandInTerminalWithCommand: ({ command }: { command: string }) =>
                 `在終端機中執行以下指令：\n\n${command}`,
-            command: ({ name }: { name: string }) => `happier connect ${name}`,
+            command: ({ name }: { name: string }) => `kaiwu connect ${name}`,
         },
     },
 
@@ -2522,7 +2522,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
 		        mcpServersDeliveryNativeTitle: '原生 MCP',
 		        mcpServersDeliveryNativeSubtitle: '此後端會以原生 MCP 伺服器的方式接收 無極開物 工具。',
 		        mcpServersDeliveryShellBridgeTitle: '無極開物 Shell 橋接',
-		        mcpServersDeliveryShellBridgeSubtitle: '此後端會透過 `happier tools` 橋接呼叫无极开物工具。',
+		        mcpServersDeliveryShellBridgeSubtitle: '此後端會透過 `kaiwu tools` 橋接呼叫无极开物工具。',
 		        mcpServersDeliveryUnsupportedTitle: '不支援',
 		        mcpServersDeliveryUnsupportedSubtitle: '此後端目前不會接收 無極開物 工具。',
 
@@ -2764,7 +2764,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
             copyReportSubtitle: '複製已去識別的 JSON 報告供支援使用',
         },
         pasteDoctorJson: {
-            footer: '提示：在電腦上執行 `happier doctor --json`，然後貼到這裡。',
+            footer: '提示：在電腦上執行 `kaiwu doctor --json`，然後貼到這裡。',
             placeholder: "{ \"capturedAt\": \"...\", ... }",
             parse: '驗證貼上的 JSON',
             ok: '貼上的 doctor JSON 看起來有效。',
@@ -2891,7 +2891,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                 promptTitle: '上傳目錄',
                 promptMessage: '請輸入工作區相對目錄（不允許絕對路徑，不允許 ..）。',
                 invalidDirectoryTitle: '目錄無效',
-                invalidDirectoryMessage: '請使用相對路徑，例如 `.happier/uploads`。',
+                invalidDirectoryMessage: '請使用相對路徑，例如 `.kaiwu/uploads`。',
             },
         },
         sourceControlIgnore: {
@@ -5428,7 +5428,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         cliVersionOutdated: '需要更新 CLI',
         cliVersionOutdatedMessage: ({ currentVersion, requiredVersion }: { currentVersion: string; requiredVersion: string }) =>
             `已安裝版本 ${currentVersion}。請更新到 ${requiredVersion} 或更高版本`,
-        updateCliInstructions: '請執行 happier self update',
+        updateCliInstructions: '請執行 kaiwu self update',
         deleteSession: '刪除工作階段',
         deleteSessionSubtitle: '永久刪除此工作階段',
         deleteSessionConfirm: '永久刪除工作階段？',
@@ -7226,7 +7226,7 @@ settingsSession: {
             title: "Windows",
             defaultModeTitle: '預設 Windows 遠端工作階段模式',
             windowNameTitle: 'Windows Terminal 視窗名稱',
-            windowNamePlaceholder: "happier",
+            windowNamePlaceholder: "kaiwu",
             windowNameHint: '在 Windows Terminal 開啟的工作階段會使用這個命名視窗，讓新的工作階段可以顯示為分頁。',
         },
     },
@@ -8104,7 +8104,7 @@ settingsSession: {
     machine: {
         launchNewSessionInDirectory: '在目錄中啟動新工作階段',
         offlineUnableToSpawn: '裝置離線時無法啟動',
-        offlineHelp: '• 確保您的電腦在線上\n• 執行 `happier daemon status` 進行診斷\n• 您是否在執行最新的 CLI 版本？請執行 `happier self update`',
+        offlineHelp: '• 確保您的電腦在線上\n• 執行 `kaiwu daemon status` 進行診斷\n• 您是否在執行最新的 CLI 版本？請執行 `kaiwu self update`',
         customPathPlaceholder: '輸入自訂路徑',
         tools: {
             title: '工具',

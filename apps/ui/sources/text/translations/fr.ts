@@ -96,7 +96,7 @@ const mcpServersUxTranslationExtension = {
   mcpServersDeliveryNativeTitle: 'MCP natif',
   mcpServersDeliveryNativeSubtitle: 'Ce backend reçoit les outils Kaiwu comme des serveurs MCP natifs.',
   mcpServersDeliveryShellBridgeTitle: 'Pont shell Kaiwu',
-  mcpServersDeliveryShellBridgeSubtitle: 'Ce backend appelle les outils Kaiwu via le pont `happier tools`.',
+  mcpServersDeliveryShellBridgeSubtitle: 'Ce backend appelle les outils Kaiwu via le pont `kaiwu tools`.',
   mcpServersDeliveryUnsupportedTitle: 'Non pris en charge',
   mcpServersDeliveryUnsupportedSubtitle: 'Ce backend ne reçoit pas les outils Kaiwu pour le moment.',
 } as const;
@@ -271,7 +271,7 @@ const settingsAppearanceTranslationExtension = {
     previewSubtitle: 'Un aperçu en sandbox local des surfaces, du texte, des contrôles, des états et des couleurs de syntaxe.',
     previewButton: 'Action principale',
     previewStatus: 'Prêt',
-    previewCode: 'const theme = "happier";',
+    previewCode: 'const theme = "kaiwu";',
     colorInputPlaceholder: '#RRGGBB, rgba(...), transparent',
     tokenSubtitle: 'Surcharge de token de couleur public',
     recentColors: 'Couleurs récentes',
@@ -1239,8 +1239,8 @@ export const fr: TranslationStructure = {
         generateNewQrCode: 'Générer un nouveau QR code',
         pairingQrExpired: 'Ce QR code a expiré. Génères-en un nouveau.',
         openMachine: 'Ouvrir la machine',
-        terminalUrlPlaceholder: 'happier://terminal?...',
-        accountUrlPlaceholder: 'happier:///account?...',
+        terminalUrlPlaceholder: 'kaiwu://terminal?...',
+        accountUrlPlaceholder: 'kaiwu:///account?...',
         restoreQrInstructions: "Sur un appareil déjà connecté, va dans Réglages → Compte et scanne ce QR code.",
         externalAuthVerifiedTitle: ({ provider }: { provider: string }) => `${provider} vérifié`,
         externalAuthVerifiedBody: ({ provider }: { provider: string }) =>
@@ -1266,7 +1266,7 @@ export const fr: TranslationStructure = {
             runCommandInTerminal: 'Lance la commande suivante dans ton terminal :',
             runCommandInTerminalWithCommand: ({ command }: { command: string }) =>
                 `Lance la commande suivante dans ton terminal :\n\n${command}`,
-            command: ({ name }: { name: string }) => `happier connect ${name}`,
+            command: ({ name }: { name: string }) => `kaiwu connect ${name}`,
         },
     },
 
@@ -1294,7 +1294,7 @@ export const fr: TranslationStructure = {
                 disabledByServerSuffix: ' (désactivé par le serveur)',
                 pasteDoctorJson: {
                     title: 'JSON de doctor CLI (optionnel)',
-                    subtitle: 'Si ta machine est injoignable depuis l’UI, lance `happier doctor --json` sur ton ordinateur et colle le résultat ici.',
+                    subtitle: 'Si ta machine est injoignable depuis l’UI, lance `kaiwu doctor --json` sur ton ordinateur et colle le résultat ici.',
                     placeholder: '{ "capturedAt": "...", ... }',
                     invalid: ({ error }: { error: string }) => `JSON de doctor invalide : ${error}`,
                     valid: 'Le JSON de doctor semble valide et sera joint au rapport.',
@@ -2164,7 +2164,7 @@ export const fr: TranslationStructure = {
             copyReportSubtitle: 'Copie un rapport JSON expurgé pour le support',
         },
         pasteDoctorJson: {
-            footer: 'Astuce : lance `happier doctor --json` sur ton ordinateur et colle le résultat ici.',
+            footer: 'Astuce : lance `kaiwu doctor --json` sur ton ordinateur et colle le résultat ici.',
             placeholder: '{ "capturedAt": "...", ... }',
             parse: 'Valider le JSON collé',
             ok: 'Le JSON doctor collé semble valide.',
@@ -2950,7 +2950,7 @@ export const fr: TranslationStructure = {
                 promptTitle: 'Répertoire des envois',
                 promptMessage: 'Saisis un répertoire relatif au workspace (pas de chemin absolu, pas de ..).',
                 invalidDirectoryTitle: 'Répertoire invalide',
-                invalidDirectoryMessage: 'Utilise un chemin relatif comme `.happier/uploads`.',
+                invalidDirectoryMessage: 'Utilise un chemin relatif comme `.kaiwu/uploads`.',
             },
         },
         sourceControlIgnore: {
@@ -5960,7 +5960,7 @@ export const fr: TranslationStructure = {
         unpinSession: 'Désépingler la session',
         pinLimitExceeded: ({ count }: { count: number }) => `Vous pouvez épingler jusqu’à ${count.toLocaleString()} sessions. Désépinglez-en une autre, puis réessayez.`,
         copyResumeCommand: 'Copier la commande de reprise',
-        resumeCommand: ({ sessionId }: { sessionId: string }) => `happier resume ${sessionId}`,
+        resumeCommand: ({ sessionId }: { sessionId: string }) => `kaiwu resume ${sessionId}`,
         viewMachine: 'Voir la machine',
         viewMachineSubtitle: 'Voir les détails et les sessions de la machine',
         manageSharing: 'Gérer le partage',
@@ -6001,7 +6001,7 @@ export const fr: TranslationStructure = {
         cliVersionOutdated: 'Mise à jour du CLI requise',
         cliVersionOutdatedMessage: ({ currentVersion, requiredVersion }: { currentVersion: string; requiredVersion: string }) =>
             `Version ${currentVersion} installée. Mets à jour vers ${requiredVersion} ou plus récent`,
-        updateCliInstructions: 'Lance happier self update',
+        updateCliInstructions: 'Lance kaiwu self update',
         deleteSession: 'Supprimer la session',
         deleteSessionSubtitle: 'Supprimer définitivement cette session',
         deleteSessionConfirm: 'Supprimer définitivement la session ?',
@@ -6045,7 +6045,7 @@ export const fr: TranslationStructure = {
             runIt: 'Lance-la',
             scanQrCode: 'Scanne le QR code',
             openCamera: 'Ouvrir l’appareil photo',
-            runCommand: '$ happier',
+            runCommand: '$ kaiwu',
         },
         emptyMessages: {
             noMessagesYet: 'Aucun message pour l’instant',
@@ -8058,7 +8058,7 @@ settingsSession: {
             title: 'Windows',
             defaultModeTitle: 'Mode de session distante Windows par défaut',
             windowNameTitle: 'Nom de fenêtre Windows Terminal',
-            windowNamePlaceholder: 'happier',
+            windowNamePlaceholder: 'kaiwu',
             windowNameHint: 'Les sessions ouvertes dans Windows Terminal utilisent cette fenêtre nommée pour que les nouvelles sessions apparaissent comme des onglets.',
         },
     },
@@ -9371,7 +9371,7 @@ settingsSession: {
     machine: {
         launchNewSessionInDirectory: 'Lancer une nouvelle session dans le répertoire',
         offlineUnableToSpawn: 'Lanceur désactivé quand la machine est hors ligne',
-        offlineHelp: '• Vérifie que ton ordinateur est en ligne\n• Lance `happier daemon status` pour diagnostiquer\n• Utilises-tu la dernière version du CLI ? Lance `happier self update`',
+        offlineHelp: '• Vérifie que ton ordinateur est en ligne\n• Lance `kaiwu daemon status` pour diagnostiquer\n• Utilises-tu la dernière version du CLI ? Lance `kaiwu self update`',
         customPathPlaceholder: 'Saisis un chemin personnalisé',
         tools: {
             title: 'Outils',
