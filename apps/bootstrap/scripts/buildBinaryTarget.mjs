@@ -18,7 +18,7 @@ export function resolveBuildBinaryTarget(params = {}) {
   if (bunTargetOverride.length > 0) {
     const overriddenTarget = CLI_BINARY_TARGETS.find((candidate) => candidate.bunTarget === bunTargetOverride);
     if (!overriddenTarget) {
-      throw new Error(`[bootstrap] unsupported HAPPIER_BUN_TARGET override: ${bunTargetOverride}`);
+      throw new Error(`[bootstrap] unsupported KAIWU_BUN_TARGET override: ${bunTargetOverride}`);
     }
     return overriddenTarget;
   }

@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # 默认配置
-KAIWU_SERVER_URL="${KAIWU_SERVER_URL:-${HAPPIER_SERVER_URL:-https://kaiwu.chengqiyun.com}}"
+KAIWU_SERVER_URL="${KAIWU_SERVER_URL:-${KAIWU_SERVER_URL:-https://kaiwu.chengqiyun.com}}"
 LATEST_METADATA_URL="https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/latest.json"
 FALLBACK_TGZ_URL="https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/0.2.12/kaiwu-cli-0.2.12.tgz"
 
@@ -189,7 +189,7 @@ fi
 ENV_SNIPPET="
 # >>> 无极开物 CLI 配置 >>>
 export KAIWU_SERVER_URL=\"${KAIWU_SERVER_URL}\"
-export HAPPIER_SERVER_URL=\"${KAIWU_SERVER_URL}\"
+export KAIWU_SERVER_URL=\"${KAIWU_SERVER_URL}\"
 if [ -d \"\$HOME/.kaiwu/node/bin\" ]; then
     export PATH=\"\$HOME/.kaiwu/node/bin:\$PATH\"
 fi
@@ -200,14 +200,14 @@ fi
 "
 
 for prof in "${CONFIG_PROFILES[@]}"; do
-    if ! grep -q "KAIWU_SERVER_URL" "$prof" 2>/dev/null && ! grep -q "HAPPIER_SERVER_URL" "$prof" 2>/dev/null; then
+    if ! grep -q "KAIWU_SERVER_URL" "$prof" 2>/dev/null && ! grep -q "KAIWU_SERVER_URL" "$prof" 2>/dev/null; then
         printf "%s\n" "$ENV_SNIPPET" >> "$prof"
         info "已写入环境变量与路径至: $prof"
     fi
 done
 
 export KAIWU_SERVER_URL="${KAIWU_SERVER_URL}"
-export HAPPIER_SERVER_URL="${KAIWU_SERVER_URL}"
+export KAIWU_SERVER_URL="${KAIWU_SERVER_URL}"
 
 # 5. 验证与指引
 echo
