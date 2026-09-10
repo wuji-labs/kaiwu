@@ -10,12 +10,12 @@ const { preparePayloadMock, installPayloadMock, resolveInstalledPathsMock, runCo
   resolveInstalledPathsMock: vi.fn((params: Readonly<{
     processEnv?: NodeJS.ProcessEnv;
   }>) => ({
-    installRoot: join(String(params.processEnv?.HAPPIER_HOME_DIR ?? ''), 'cli'),
-    currentPath: join(String(params.processEnv?.HAPPIER_HOME_DIR ?? ''), 'cli', 'current'),
-    previousPath: join(String(params.processEnv?.HAPPIER_HOME_DIR ?? ''), 'cli', 'previous'),
-    versionsDir: join(String(params.processEnv?.HAPPIER_HOME_DIR ?? ''), 'cli', 'versions'),
-    binaryPath: String(params.processEnv?.HAPPIER_HOME_DIR ?? '')
-      ? join(String(params.processEnv?.HAPPIER_HOME_DIR ?? ''), 'cli', 'current', 'happier')
+    installRoot: join(String(params.processEnv?.KAIWU_HOME_DIR ?? ''), 'cli'),
+    currentPath: join(String(params.processEnv?.KAIWU_HOME_DIR ?? ''), 'cli', 'current'),
+    previousPath: join(String(params.processEnv?.KAIWU_HOME_DIR ?? ''), 'cli', 'previous'),
+    versionsDir: join(String(params.processEnv?.KAIWU_HOME_DIR ?? ''), 'cli', 'versions'),
+    binaryPath: String(params.processEnv?.KAIWU_HOME_DIR ?? '')
+      ? join(String(params.processEnv?.KAIWU_HOME_DIR ?? ''), 'cli', 'current', 'happier')
       : join(tmpdir(), 'nonexistent', 'happier'),
     nodeEntrypointPath: null,
     shimPaths: [],
@@ -56,8 +56,8 @@ describe('resolveLocalHappierCommand', () => {
 
       expect(resolveLocalHappierCommand({
         processEnv: {
-          HAPPIER_HOME_DIR: happyHomeDir,
-          HAPPIER_STACK_REPO_DIR: rootDir,
+          KAIWU_HOME_DIR: happyHomeDir,
+          KAIWU_STACK_REPO_DIR: rootDir,
         },
       })).toBe(binaryPath);
     } finally {
@@ -76,7 +76,7 @@ describe('resolveLocalHappierCommand', () => {
 
       expect(resolveLocalHappierCommand({
         processEnv: {
-          HAPPIER_STACK_REPO_DIR: rootDir,
+          KAIWU_STACK_REPO_DIR: rootDir,
           PATH: '',
         },
       })).toBe(repoCliPath);
@@ -136,7 +136,7 @@ describe('runLocalHappierJsonCommand', () => {
       installPayloadMock.mockImplementation(async (params: Readonly<{
         processEnv?: NodeJS.ProcessEnv;
       }>) => {
-        const installRoot = join(String(params.processEnv?.HAPPIER_HOME_DIR ?? happyHomeDir), 'cli');
+        const installRoot = join(String(params.processEnv?.KAIWU_HOME_DIR ?? happyHomeDir), 'cli');
         const currentPath = join(installRoot, 'current');
         mkdirSync(currentPath, { recursive: true });
         writeFileSync(join(currentPath, 'happier'), '#!/bin/sh\nprintf \'%s\\n\' \'{"ok":true,"data":{"authenticated":true,"machineId":"machine-auto-installed"}}\'\n', 'utf8');
@@ -152,7 +152,7 @@ describe('runLocalHappierJsonCommand', () => {
         args: ['auth', 'status', '--json'],
         processEnv: {
           ...process.env,
-          HAPPIER_HOME_DIR: happyHomeDir,
+          KAIWU_HOME_DIR: happyHomeDir,
         },
       })).resolves.toMatchObject({
         ok: true,
@@ -183,7 +183,7 @@ describe('runLocalHappierJsonCommand', () => {
         args: ['auth', 'status', '--json'],
         processEnv: {
           ...process.env,
-          HAPPIER_BOOTSTRAP_CLI_PATH: cliPath,
+          KAIWU_BOOTSTRAP_CLI_PATH: cliPath,
         },
       })).rejects.toMatchObject({
         code: 'cli_command_failed',
@@ -214,7 +214,7 @@ describe('runLocalHappierJsonCommand', () => {
         args: ['daemon', 'service', 'start', '--json'],
         processEnv: {
           ...process.env,
-          HAPPIER_BOOTSTRAP_CLI_PATH: cliPath,
+          KAIWU_BOOTSTRAP_CLI_PATH: cliPath,
         },
       })).rejects.toMatchObject({
         code: 'cli_command_failed',
@@ -247,7 +247,7 @@ describe('runLocalHappierJsonCommand', () => {
         allowJsonFailure: true,
         processEnv: {
           ...process.env,
-          HAPPIER_BOOTSTRAP_CLI_PATH: cliPath,
+          KAIWU_BOOTSTRAP_CLI_PATH: cliPath,
         },
       })).resolves.toMatchObject({
         ok: false,

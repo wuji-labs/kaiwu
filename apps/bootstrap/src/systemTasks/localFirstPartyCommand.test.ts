@@ -30,8 +30,8 @@ describe('ensureLocalFirstPartyComponentCommand', () => {
             await expect(ensureLocalFirstPartyComponentCommand({
                 componentId: 'hstack',
                 processEnv: {
-                    HAPPIER_HOME_DIR: join(rootDir, 'home'),
-                    HAPPIER_STACK_REPO_DIR: repoRoot,
+                    KAIWU_HOME_DIR: join(rootDir, 'home'),
+                    KAIWU_STACK_REPO_DIR: repoRoot,
                     PATH: '',
                 },
             }, {
@@ -65,8 +65,8 @@ describe('ensureLocalFirstPartyComponentCommand', () => {
             await expect(ensureLocalFirstPartyComponentCommand({
                 componentId: 'happier-cli',
                 processEnv: {
-                    HAPPIER_HOME_DIR: join(rootDir, 'home'),
-                    HAPPIER_STACK_REPO_DIR: repoRoot,
+                    KAIWU_HOME_DIR: join(rootDir, 'home'),
+                    KAIWU_STACK_REPO_DIR: repoRoot,
                     PATH: '',
                 },
             }, {

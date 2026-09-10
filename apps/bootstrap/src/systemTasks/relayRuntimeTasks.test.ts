@@ -52,7 +52,7 @@ function createFakeSsh(): Readonly<{
         `#!/usr/bin/env node
 const { appendFileSync } = require('node:fs');
 
-const logPath = process.env.HAPPIER_FAKE_SSH_LOG_PATH;
+const logPath = process.env.KAIWU_FAKE_SSH_LOG_PATH;
 const argv = process.argv.slice(2);
 appendFileSync(logPath, JSON.stringify(argv) + '\\n');
 const remoteCommand = String(argv.at(-1) ?? '');
@@ -97,7 +97,7 @@ process.exit(Number(next.status ?? 0));
         `#!/usr/bin/env node
 const { appendFileSync } = require('node:fs');
 
-const logPath = process.env.HAPPIER_FAKE_SSH_LOG_PATH;
+const logPath = process.env.KAIWU_FAKE_SSH_LOG_PATH;
 appendFileSync(logPath, JSON.stringify(['scp', ...process.argv.slice(2)]) + '\\n');
 process.exit(0);
 `,
@@ -119,9 +119,9 @@ process.exit(0);
 
 function withPatchedPath<T>(binDir: string, run: () => Promise<T>): Promise<T> {
     const previousPath = process.env.PATH;
-    const previousLogPath = process.env.HAPPIER_FAKE_SSH_LOG_PATH;
+    const previousLogPath = process.env.KAIWU_FAKE_SSH_LOG_PATH;
     process.env.PATH = `${binDir}:${previousPath ?? ''}`;
-    process.env.HAPPIER_FAKE_SSH_LOG_PATH = join(binDir, '..', 'invocations.log');
+    process.env.KAIWU_FAKE_SSH_LOG_PATH = join(binDir, '..', 'invocations.log');
     return run().finally(() => {
         if (previousPath === undefined) {
             delete process.env.PATH;
@@ -129,9 +129,9 @@ function withPatchedPath<T>(binDir: string, run: () => Promise<T>): Promise<T> {
             process.env.PATH = previousPath;
         }
         if (previousLogPath === undefined) {
-            delete process.env.HAPPIER_FAKE_SSH_LOG_PATH;
+            delete process.env.KAIWU_FAKE_SSH_LOG_PATH;
         } else {
-            process.env.HAPPIER_FAKE_SSH_LOG_PATH = previousLogPath;
+            process.env.KAIWU_FAKE_SSH_LOG_PATH = previousLogPath;
         }
     });
 }
@@ -142,7 +142,7 @@ describe('installOrUpdateRelayRuntimeDefault', () => {
         const happyHomeDir = join(rootDir, '.happier-home');
         const fakeOsHomeDir = join(rootDir, '.home');
         const payloadRoot = join(rootDir, 'payload');
-        const previousHomeDir = process.env.HAPPIER_HOME_DIR;
+        const previousHomeDir = process.env.KAIWU_HOME_DIR;
         const previousPath = process.env.PATH;
         const previousCwd = process.cwd();
         const previousHome = process.env.HOME;
@@ -168,7 +168,7 @@ describe('installOrUpdateRelayRuntimeDefault', () => {
                 };
             });
 
-            process.env.HAPPIER_HOME_DIR = happyHomeDir;
+            process.env.KAIWU_HOME_DIR = happyHomeDir;
             process.env.HOME = fakeOsHomeDir;
             process.env.USERPROFILE = fakeOsHomeDir;
             process.env.PATH = '';
@@ -198,9 +198,9 @@ describe('installOrUpdateRelayRuntimeDefault', () => {
             expect(readFileSync(join(installRoot, 'config', 'server.env'), 'utf8')).toContain('PORT=3005');
         } finally {
             if (previousHomeDir === undefined) {
-                delete process.env.HAPPIER_HOME_DIR;
+                delete process.env.KAIWU_HOME_DIR;
             } else {
-                process.env.HAPPIER_HOME_DIR = previousHomeDir;
+                process.env.KAIWU_HOME_DIR = previousHomeDir;
             }
             if (previousHome === undefined) {
                 delete process.env.HOME;

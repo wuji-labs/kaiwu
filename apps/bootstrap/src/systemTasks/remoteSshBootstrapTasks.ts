@@ -167,9 +167,9 @@ export async function runRemoteBootstrapCommandDefault(params: Readonly<{
     ...(params.parsed.relay.publicRelayUrl ? [`--public-server-url=${params.parsed.relay.publicRelayUrl}`] : []),
   ];
   const daemonEnv = [
-    `HAPPIER_DAEMON_SERVICE_SERVER_URL=${shellQuote(params.parsed.relay.relayUrl)}`,
-    `HAPPIER_DAEMON_SERVICE_WEBAPP_URL=${shellQuote(params.parsed.relay.webappUrl ?? params.parsed.relay.relayUrl)}`,
-    ...(params.parsed.relay.publicRelayUrl ? [`HAPPIER_DAEMON_SERVICE_PUBLIC_SERVER_URL=${shellQuote(params.parsed.relay.publicRelayUrl)}`] : []),
+    `KAIWU_DAEMON_SERVICE_SERVER_URL=${shellQuote(params.parsed.relay.relayUrl)}`,
+    `KAIWU_DAEMON_SERVICE_WEBAPP_URL=${shellQuote(params.parsed.relay.webappUrl ?? params.parsed.relay.relayUrl)}`,
+    ...(params.parsed.relay.publicRelayUrl ? [`KAIWU_DAEMON_SERVICE_PUBLIC_SERVER_URL=${shellQuote(params.parsed.relay.publicRelayUrl)}`] : []),
   ].join(' ');
 
   let command = '';
