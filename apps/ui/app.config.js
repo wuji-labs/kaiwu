@@ -89,7 +89,7 @@ const packageJsonRuntimeVersion =
         ? packageJson.happierExpoRuntimeVersion.trim()
         : '';
 
-const rawAppEnvironment = process.env.APP_ENV || 'development';
+const rawAppEnvironment = (process.env.APP_VARIANT || process.env.APP_ENV || '').trim();
 const appEnvironmentConfig = getAppEnvironmentConfig(rawAppEnvironment);
 
 // Android size tuning (primarily for direct-download APKs).
@@ -235,7 +235,7 @@ const iosAssociatedDomains = iosAssociatedDomainsRaw
 // Keep the default stable for upstream users, but allow opt-in overrides for local dev variants
 // (e.g. to avoid iOS scheme collisions between multiple installs).
 const schemeOverride = (process.env.EXPO_APP_SCHEME || process.env.HAPPY_STACKS_MOBILE_SCHEME || '').trim();
-const resolvedScheme = schemeOverride || appEnvironmentConfig.scheme;
+const resolvedScheme = schemeOverride || ['kaiwu', 'happier'];
 
 const mergeDeep = (base, override) => {
     if (override == null) return base;

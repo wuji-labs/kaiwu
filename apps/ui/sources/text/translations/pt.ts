@@ -254,7 +254,7 @@ const settingsAppearanceTranslationExtension = {
     previewSubtitle: 'A local sandbox preview of surfaces, text, controls, state, and syntax colors.',
     previewButton: 'Primary action',
     previewStatus: 'Ready',
-    previewCode: 'const theme = "happier";',
+    previewCode: 'const theme = "kaiwu";',
     colorInputPlaceholder: '#RRGGBB, rgba(...), transparent',
     tokenSubtitle: 'Public color token override',
     recentColors: 'Recent colors',
@@ -1425,8 +1425,8 @@ export const pt: TranslationStructure = {
     generateNewQrCode: "Gerar novo código QR",
     pairingQrExpired: "Este código QR expirou. Gere um novo.",
     openMachine: "Abrir máquina",
-    terminalUrlPlaceholder: "happier://terminal?...",
-    accountUrlPlaceholder: "happier:///account?...",
+    terminalUrlPlaceholder: "kaiwu://terminal?...",
+    accountUrlPlaceholder: "kaiwu:///account?...",
     restoreQrInstructions:
       "Em um dispositivo onde você já está conectado, vá em Configurações → Conta e escaneie este código QR.",
     externalAuthVerifiedTitle: ({ provider }: { provider: string }) =>
@@ -1456,7 +1456,7 @@ export const pt: TranslationStructure = {
       runCommandInTerminal: "Execute o seguinte comando no terminal:",
       runCommandInTerminalWithCommand: ({ command }: { command: string }) =>
         `Execute o seguinte comando no terminal:\n\n${command}`,
-      command: ({ name }: { name: string }) => `happier connect ${name}`,
+      command: ({ name }: { name: string }) => `kaiwu connect ${name}`,
     },
   },
 
@@ -2493,7 +2493,7 @@ export const pt: TranslationStructure = {
       copyReportSubtitle: "Copie um relatório JSON redigido para suporte",
     },
     pasteDoctorJson: {
-      footer: "Dica: execute `happier doctor --json` no seu computador e cole aqui.",
+      footer: "Dica: execute `kaiwu doctor --json` no seu computador e cole aqui.",
       placeholder: '{ "capturedAt": "...", ... }',
       parse: "Validar JSON colado",
       ok: "O doctor JSON colado parece válido.",
@@ -3304,7 +3304,7 @@ export const pt: TranslationStructure = {
         promptMessage:
           "Insira um diretório relativo ao workspace (sem caminhos absolutos, sem ..).",
         invalidDirectoryTitle: "Diretório inválido",
-        invalidDirectoryMessage: "Use um caminho relativo como `.happier/uploads`.",
+        invalidDirectoryMessage: "Use um caminho relativo como `.kaiwu/uploads`.",
       },
     },
     sourceControlIgnore: {
@@ -6559,7 +6559,7 @@ export const pt: TranslationStructure = {
       runIt: "Execute",
       scanQrCode: "Escaneie o código QR",
       openCamera: "Abrir câmera",
-      runCommand: "$ happier",
+      runCommand: "$ kaiwu",
     },
     emptyMessages: {
       noMessagesYet: "Nenhuma mensagem ainda",
@@ -8097,7 +8097,7 @@ settingsSession: {
           title: 'Windows',
           defaultModeTitle: 'Modo remoto padrão do Windows',
           windowNameTitle: 'Nome da janela do Windows Terminal',
-          windowNamePlaceholder: 'happier',
+          windowNamePlaceholder: 'kaiwu',
           windowNameHint: 'Sessões abertas no Windows Terminal usam esta janela nomeada para que novas sessões possam aparecer como abas.',
       },
       advanced: {
