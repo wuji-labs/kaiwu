@@ -11,7 +11,7 @@ export function enableOptionalStatics(app: AnyFastifyInstance) {
     const { dir: uiDir, mountRoot } = ui;
     if (!uiDir || !mountRoot) {
         app.get('/', function (_request, reply) {
-            reply.send('Welcome to Happier Server!');
+            reply.send('无极开物 · Kaiwu');
         });
     }
 
