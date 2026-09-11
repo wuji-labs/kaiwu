@@ -225,7 +225,7 @@ export function checkUiLabels({
     const lines = maskFencedBlocks(readFileSync(file, 'utf8'));
     for (let i = 0; i < lines.length; i += 1) {
       const line = lines[i];
-      // Another product's settings menu is not a claim about Happier's UI.
+      // Another product's settings menu is not a claim about KAIWU's UI.
       if (FOREIGN_UI.test(line)) continue;
       for (const span of line.matchAll(/\*\*([^*]+)\*\*|`([^`]+)`/g)) {
         const inner = span[1] ?? span[2];
@@ -273,7 +273,7 @@ const FEATURE_ENV_SCHEMA = resolve(
 );
 
 /**
- * Every `HAPPIER_FEATURE_*` variable the server reads must be documented
+ * Every `KAIWU_FEATURE_*` variable the server reads must be documented
  * somewhere on the site.
  *
  * A self-hoster cannot discover these by using the product — an undocumented
@@ -296,13 +296,13 @@ export function checkFeatureEnvCoverage({
   } catch {
     return [];
   }
-  const declared = [...new Set([...schema.matchAll(/'(HAPPIER_[A-Z0-9_]+)'/g)].map((m) => m[1]))];
+  const declared = [...new Set([...schema.matchAll(/'(KAIWU_[A-Z0-9_]+)'/g)].map((m) => m[1]))];
   const published = listMdxFiles(contentRoot)
     .map((file) => readFileSync(file, 'utf8'))
     .join('\n');
   return declared
     .filter((name) => {
-      const kaiwuName = name.replace(/^HAPPIER_/, 'KAIWU_');
+      const kaiwuName = name.replace(/^KAIWU_/, 'KAIWU_');
       return !published.includes(name) && !published.includes(kaiwuName);
     })
     .sort()
@@ -319,7 +319,7 @@ const CLI_COMMAND_REGISTRY = resolve(HERE, '..', '..', 'cli', 'src', 'cli', 'com
 /**
  * Every command the CLI dispatches must be documented somewhere.
  *
- * `happier doctor`, `happier service` and `happier status` — the three commands
+ * `KAIWU doctor`, `KAIWU service` and `KAIWU status` — the three commands
  * the setup story rests on — had zero, zero and one mention across the whole
  * site when this check was written, while `hstack doctor`, a contributor-only
  * tool, was documented on eight pages. Nothing connected adding a command to
@@ -353,11 +353,11 @@ export function checkCliCommandCoverage({
     .join('\n');
   return commands
     .filter((command) => !allow.has(command))
-    .filter((command) => !published.includes(`happier ${command}`) && !published.includes(`kaiwu ${command}`))
+    .filter((command) => !published.includes(`KAIWU ${command}`) && !published.includes(`kaiwu ${command}`))
     .sort()
     .map((command) => ({
       at: 'clients/cli.mdx',
-      label: `happier ${command}`,
+      label: `KAIWU ${command}`,
       reason: 'CLI command is not documented anywhere on the site',
     }));
 }

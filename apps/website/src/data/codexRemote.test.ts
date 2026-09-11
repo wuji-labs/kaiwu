@@ -16,7 +16,7 @@ import { CODEX_COMPARISON_ROWS, CODEX_SCOPE_LIMIT, CODEX_SECTION } from './codex
  *   2. RECOMMENDING THE COMPETITOR IN THE IMPERATIVE. Conceding accurately is
  *      the job. Telling the reader to go and set the other thing up is a
  *      different act, and it shipped once already.
- *   3. CLAIMING HAPPIER FIXES SOMETHING IT ALSO SUFFERS. The sleeping-computer
+ *   3. CLAIMING Kaiwu FIXES SOMETHING IT ALSO SUFFERS. The sleeping-computer
  *      condition applies to both, and the copy has to say so.
  */
 
@@ -26,9 +26,9 @@ const ALL_CODEX_COPY = [
     CODEX_SCOPE_LIMIT.heading,
     CODEX_SCOPE_LIMIT.body,
     ...CODEX_SECTION.strengths.flatMap((item) => [item.title, item.body]),
-    ...CODEX_SECTION.conditions.flatMap((item) => [item.when, item.codex, item.happier]),
+    ...CODEX_SECTION.conditions.flatMap((item) => [item.when, item.codex, item.Kaiwu]),
     ...CODEX_SECTION.arguments.flatMap((item) => [item.title, item.body]),
-    ...CODEX_COMPARISON_ROWS.flatMap((row) => [row.capability, row.codex, row.happier]),
+    ...CODEX_COMPARISON_ROWS.flatMap((row) => [row.capability, row.codex, row.Kaiwu]),
 ].join('\n');
 
 describe('Codex comparison evidence discipline', () => {
@@ -101,16 +101,16 @@ describe('the page concedes without recommending the competitor', () => {
     });
 });
 
-describe('the page does not claim Happier fixes what Happier also suffers', () => {
+describe('the page does not claim Kaiwu fixes what Kaiwu also suffers', () => {
     it('says plainly that a sleeping computer runs nothing, on both sides', () => {
         const asleep = CODEX_SECTION.conditions.find((item) => item.id === 'awake');
         expect(asleep, 'the sleeping-computer condition was removed').toBeDefined();
-        expect(asleep!.happier).toMatch(/does not solve this/i);
+        expect(asleep!.Kaiwu).toMatch(/does not solve this/i);
     });
 
-    it('does not claim a cloud capability Happier has no equivalent of', () => {
+    it('does not claim a cloud capability Kaiwu has no equivalent of', () => {
         const cloud = CODEX_COMPARISON_ROWS.find((row) => row.id === 'cloud');
-        expect(cloud!.happier).toMatch(/not offered/i);
+        expect(cloud!.Kaiwu).toMatch(/not offered/i);
     });
 });
 
@@ -119,7 +119,7 @@ describe('agent-count claims track the shipped registry', () => {
     // /agents renders another number. Both strings are generated.
     it('counts agents from AGENTS rather than from a typed number', () => {
         expect(CODEX_SCOPE_LIMIT.body).toContain(`${AGENTS.length} vendors’ agents`);
-        expect(CODEX_COMPARISON_ROWS.find((row) => row.id === 'agents')!.happier).toContain(
+        expect(CODEX_COMPARISON_ROWS.find((row) => row.id === 'agents')!.Kaiwu).toContain(
             `${AGENTS.length} agents`,
         );
         expect(CODEX_SECTION.turn).toContain(`${AGENTS.length - 1} other agents`);

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { HappierMark } from '../components/HappierMark';
+import { KaiwuMark } from '../components/KaiwuMark';
 import { ThemeToggle } from '../components/ThemeToggle';
 // Same-origin anchors are deliberately ignored by useLinkClicks (an in-page jump
 // is not an exit), so the nav CTA needs its own emitter or it is invisible.
@@ -65,7 +65,7 @@ export function Nav({ variant = 'overlay', isHome = true }: NavProps) {
                         : 'mx-auto flex max-w-[1400px] items-center justify-between px-6 py-4 md:px-10'
                 }
             >
-                <HappierMark />
+                <KaiwuMark />
 
                 <div className="flex items-center gap-4 md:gap-5">
                     <a
@@ -103,7 +103,7 @@ export function Nav({ variant = 'overlay', isHome = true }: NavProps) {
                     >{rich(PAGE_PROSE.nav.p2)}</a>
                     {/* Enterprise takes the slot Guides used to hold. The link
                         equity that put Guides here in the first place — 53 guides
-                        at guides.happier.dev with no inbound link from any Happier
+                        at guides.kaiwu.chengqiyun.com with no inbound link from any Kaiwu
                         surface — is preserved by the Resources column in
                         src/sections/Footer.tsx, which is on every page and is
                         crawled from every one of them. What the nav slot is for is

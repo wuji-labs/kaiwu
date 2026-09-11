@@ -11,14 +11,14 @@ Kaiwu 通过本地 Gemini CLI/运行时以及兼容 ACP 的消息机制集成 Ge
 ## 环境要求
 
 - 设备上已安装 Gemini CLI。
-- CLI 可在 `PATH` 中找到（必要时可设置 `HAPPIER_GEMINI_PATH`）。
+- CLI 可在 `PATH` 中找到（必要时可设置 `Kaiwu_GEMINI_PATH`）。
 
 ## 安装 Gemini
 
 Kaiwu 可自动为你安装：
 
 ```bash
-happier install provider gemini
+kaiwu install provider gemini
 gemini --version
 ```
 
@@ -48,7 +48,7 @@ Kaiwu 可以自动检测环境变量、本地 Gemini 认证/配置文件以及�
 ## 在 Kaiwu 中启动 Gemini
 
 ```bash
-happier gemini
+Kaiwu gemini
 ```
 
 ## 认证（关联服务）
@@ -56,7 +56,7 @@ happier gemini
 Gemini 认证通过 Kaiwu 关联服务（`gemini`）进行管理：
 
 - 设置 → 关联服务 → Gemini
-- 或通过 CLI：`happier connect gemini`
+- 或通过 CLI：`kaiwu connect gemini`
 
 对于粘贴/重定向流程，Kaiwu 会在服务端换取 OAuth 代码，并将加密数据包返回给客户端（应用 UI 中不包含任何 Gemini OAuth 密钥）。
 
@@ -83,7 +83,7 @@ Gemini 认证通过 Kaiwu 关联服务（`gemini`）进行管理：
 ## 故障排查
 
 - 若未检测到 Gemini，请确认 CLI 是否正确安装并重启 Kaiwu。
-- 必要时，可使用 `HAPPIER_GEMINI_PATH` 显式指定二进制文件路径。
+- 必要时，可使用 `Kaiwu_GEMINI_PATH` 显式指定二进制文件路径。
 
 ## 相关内容
 

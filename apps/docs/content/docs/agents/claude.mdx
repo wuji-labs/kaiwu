@@ -27,12 +27,12 @@ Kaiwu 支持两种 Claude 运行方式：
 
 - 在 Kaiwu 客户端中启动 Claude 会话，
 - 由 Kaiwu 在本地设备上以远程模式运行该会话，
-- 随后可使用 `happier attach ⟦K3⟧` 重新接入，
+- 随后可使用 `Kaiwu attach ⟦K3⟧` 重新接入，
 - 如需直接使用 Claude Code 的原生终端 TUI，可切换至本地模式。
 
 之后你还可以切回远程模式，在 Kaiwu 客户端中继续操作，无需新建会话。
 
-本地控制需从终端发起。请在承载该会话的设备上运行 `happier attach ⟦K4⟧`。
+本地控制需从终端发起。请在承载该会话的设备上运行 `Kaiwu attach ⟦K4⟧`。
 
 若在 Claude 处于本地控制期间从客户端发送消息，Kaiwu 会先将其存入待处理队列。当 Claude 处于空闲状态时，Kaiwu 可切回远程控制并处理队列中的消息。如果 Claude 仍在终端中执行任务，Kaiwu 会等待当前本地轮次执行完毕或中止后再切换，确保客户端消息不会打断 Claude 当前的执行轮次。
 
@@ -109,7 +109,7 @@ Anthropic 目前支持两种安装方式。建议优先使用其文档中推荐�
 Kaiwu 可代你运行安装程序，该方式会使用 Anthropic 的原生安装程序而非 npm：
 
 ```bash
-happier install provider claude
+kaiwu install provider claude
 claude --version
 ```
 
@@ -149,13 +149,13 @@ Claude 可通过 Kaiwu 的关联服务进行认证：
 
 ```bash
 # Claude subscription (recommended default)
-happier connect claude --setup-token
+kaiwu connect claude --setup-token
 
 # Anthropic API key (not subscription)
-happier connect claude --api-key
+kaiwu connect claude --api-key
 
 # Subscription OAuth (advanced)
-happier connect claude --oauth
+kaiwu connect claude --oauth
 ```
 
 更多详细信息（服务 ID、安全模型及环境变量替代机制）请参见：
@@ -223,7 +223,7 @@ Kaiwu 中完整的 MCP 用户指南请参见：
 
 Kaiwu 没有专门针对 Claude 的“环境变量”CLI 参数。如需为 Claude 设置环境变量：
 
-- **本地模式**：在运行 `happier` 之前于 Shell 中导出环境变量（Claude 会自动继承）。
+- **本地模式**：在运行 `Kaiwu` 之前于 Shell 中导出环境变量（Claude 会自动继承）。
 - **远程模式（通过客户端界面）**：在界面的配置文件或会话中设置环境变量（Kaiwu 会将其转发给拉起的 Claude 进程）。
 
 远程 Agent SDK 模式默认使用经过过滤的环境变量，但界面或配置文件中**明确指定**的环境变量（以及关联服务的认证环境变量）会转发给 Claude 子进程，从而在保证 GitHub 集成等工作流正常运行的同时，避免泄露父进程完整的 `process.env`。

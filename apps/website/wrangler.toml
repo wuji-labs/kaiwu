@@ -1,4 +1,4 @@
-# Cloudflare Workers deployment for happier.dev.
+# Cloudflare Workers deployment for kaiwu.chengqiyun.com.
 #
 # The site is fully prerendered — every route in src/routes.tsx is baked into
 # its own dist/<route>/index.html by scripts/prerender.mjs. Those requests are
@@ -15,11 +15,11 @@
 # rebuild the whole monorepo in Cloudflare's build container and bypass the
 # release-actor and trusted-ref guards.
 
-name = "happier-website"
+name = "Kaiwu-website"
 compatibility_date = "2026-08-17"
 main = "worker/index.ts"
 
-# No happier-website.<subdomain>.workers.dev route: the site answers on its own
+# No Kaiwu-website.<subdomain>.workers.dev route: the site answers on its own
 # custom domain and a second public origin serving the same pages is an SEO
 # duplicate nobody asked for.
 workers_dev = false
@@ -33,7 +33,7 @@ preview_urls = true
 # and maintain the DNS record and certificate for the Worker instead of relying
 # on a dashboard-only mapping that a deployment cannot reproduce.
 [[routes]]
-pattern = "happier.dev"
+pattern = "kaiwu.chengqiyun.com"
 custom_domain = true
 
 [assets]

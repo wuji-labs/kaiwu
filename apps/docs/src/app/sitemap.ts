@@ -13,7 +13,7 @@ import { source } from '@/lib/source';
 export const dynamic = 'force-static';
 
 /**
- * `docs.happier.dev/sitemap.xml` was a hard 404 before this file existed. 146
+ * `kaiwu.chengqiyun.com/docs/sitemap.xml` was a hard 404 before this file existed. 146
  * pages of reference material, no machine-readable index of any of it.
  *
  * ON `priority`
@@ -32,7 +32,7 @@ export const dynamic = 'force-static';
  * `DEFAULT_PRIORITY`, so adding a section never silently drops it.
  *
  * THE ORDERING IS INTENT, NOT SIZE, and the two biggest sections make the point:
- * `hstack` (24 pages) and `development` document how to hack on Happier rather
+ * `hstack` (24 pages) and `development` document how to hack on KAIWU rather
  * than how to use it, so they sit at the bottom; `getting-started` (5 pages)
  * sits at the top because it is where a stranger lands. `agents` is second only
  * to that — "does it run <my agent>" is the question most searches are actually
@@ -72,7 +72,7 @@ const MIN_PRIORITY = 0.3;
  *
  * It is deliberately empty. Every one of the 146 pages is public reference
  * material a reader is allowed to find, including `/legal/*` (the canonical
- * Terms and Privacy Policy — happier.dev does not serve its own copies) and
+ * Terms and Privacy Policy — kaiwu.chengqiyun.com does not serve its own copies) and
  * `/hstack/*` (contributor docs, uninteresting to most searchers but not
  * secret). The hook exists so that the day a staging or duplicate route is
  * added, excluding it is a one-line change in a place someone will look —

@@ -17,13 +17,13 @@ yarn test:import-cycles
 ```
 
 该命令将运行：
-- `yarn workspace @happier-dev/self-hosting/protocol test`
-- `yarn workspace @happier-dev/transfers test`
-- `yarn workspace @happier-dev/agents test`
-- `yarn workspace @happier-dev/cli-common test`
-- `yarn workspace @happier-dev/connection-supervisor test`
-- `yarn workspace @happier-dev/app test`
-- `yarn workspace @happier-dev/cli test:unit`
+- `yarn workspace @Kaiwu-dev/self-hosting/protocol test`
+- `yarn workspace @Kaiwu-dev/transfers test`
+- `yarn workspace @Kaiwu-dev/agents test`
+- `yarn workspace @Kaiwu-dev/cli-common test`
+- `yarn workspace @Kaiwu-dev/connection-supervisor test`
+- `yarn workspace @Kaiwu-dev/app test`
+- `yarn workspace @Kaiwu-dev/cli test:unit`
 - `yarn --cwd apps/server test:unit`
 - `yarn --cwd packages/relay-server test`
 - `yarn --cwd apps/stack test:unit`
@@ -34,7 +34,7 @@ CLI 单元测试流水线还会运行 CLI 运行时循环导入防护检查。�
 yarn test:import-cycles
 ```
 
-注意：UI 工作区包名为 `@happier-dev/app`，所在目录为 `apps/ui`。
+注意：UI 工作区包名为 `@Kaiwu-dev/app`，所在目录为 `apps/ui`。
 
 ### 2) 集成测试
 
@@ -51,8 +51,8 @@ yarn test:integration
 ```
 
 该命令将运行：
-- `yarn workspace @happier-dev/app test:integration`
-- `yarn workspace @happier-dev/cli test:integration`
+- `yarn workspace @Kaiwu-dev/app test:integration`
+- `yarn workspace @Kaiwu-dev/cli test:integration`
 - `yarn --cwd apps/server test:integration`
 - `yarn --cwd apps/stack test:integration`
 
@@ -104,8 +104,8 @@ yarn test:e2e:ui
 注意事项：
 - 这些测试通过 Playwright 针对 `expo start --web` 运行，需要先安装 Playwright 浏览器环境（参见 Playwright 安装文档）。
 - UI 端到端测试规模应尽量精简，聚焦于必须由 UI 驱动的流程（鉴权/登录/连接、页面导航以及核心跨应用联动）。更底层的服务端/守护进程不变量测试应归入核心端到端测试。
-- 如果怀疑 Metro 转译结果陈旧，可通过 `HAPPIER_E2E_EXPO_CLEAR=1` 选择清理 Expo/Metro 缓存（默认关闭，因为 `--clear` 偶发会导致 Metro 崩溃）。
-- 人工 QA 提示：如果并发代码变更导致 UI 不断重新加载，可以在打开 UI 时附加 `?happier_hmr=0` 参数，**按浏览器标签页**禁用 Expo Web 的快速刷新（Fast Refresh/HMR），重新启用请使用 `?happier_hmr=1`。此功能仅限 Web 且仅限开发环境。
+- 如果怀疑 Metro 转译结果陈旧，可通过 `Kaiwu_E2E_EXPO_CLEAR=1` 选择清理 Expo/Metro 缓存（默认关闭，因为 `--clear` 偶发会导致 Metro 崩溃）。
+- 人工 QA 提示：如果并发代码变更导致 UI 不断重新加载，可以在打开 UI 时附加 `?Kaiwu_hmr=0` 参数，**按浏览器标签页**禁用 Expo Web 的快速刷新（Fast Refresh/HMR），重新启用请使用 `?Kaiwu_hmr=1`。此功能仅限 Web 且仅限开发环境。
 
 ### 4c) 原生端到端测试（Maestro）（iOS/Android）
 
@@ -122,11 +122,11 @@ yarn test:e2e:mobile:ios
 - 这些流水线默认**不作为** PR 检查项；在我们稳定 CI 模拟器运行之前，主要用于手动触发或发布验证。
 - 需要 Java 17+ 以及 iOS 模拟器或 Android 模拟器。
 - 为 Expo Dev Client 启动 Metro（Maestro 通过原生视图标识符定位 React Native `testID`）。
-- 设置目标服务器 URL（主机）：`HAPPIER_E2E_SERVER_URL=http://127.0.0.1:⟦K20⟧`。
+- 设置目标服务器 URL（主机）：`Kaiwu_E2E_SERVER_URL=http://127.0.0.1:⟦K20⟧`。
   - Android 模拟器运行时会自动将 `127.0.0.1`/`localhost` 映射到 `10.0.2.2`，以确保设备网络可见。
-- 如果服务器或 Metro 运行在宿主设备上，请开启 `adb reverse`，以便 Android 能够访问它们：`HAPPIER_E2E_ANDROID_ADB_REVERSE=1`。
+- 如果服务器或 Metro 运行在宿主设备上，请开启 `adb reverse`，以便 Android 能够访问它们：`Kaiwu_E2E_ANDROID_ADB_REVERSE=1`。
 - 构建产物将写入 `packages/tests/.project/logs/e2e/mobile-maestro/` 目录下。
-- 覆盖 Maestro 二进制文件路径（如有需要）：`HAPPIER_E2E_MAESTRO_BIN=/path/to/maestro`。
+- 覆盖 Maestro 二进制文件路径（如有需要）：`Kaiwu_E2E_MAESTRO_BIN=/path/to/maestro`。
 
 ### 4d) WSREPL Lima 矩阵测试（macOS/Linux 宿主设备）
 
@@ -134,12 +134,12 @@ Lima 宿主↔客户机 WSREPL 矩阵作为由测试模块自主维护的自选�
 
 **根目录命令：**
 ```bash
-yarn test:e2e:ui:wsrepl:lima -- happier-wsrepl-qa
+yarn test:e2e:ui:wsrepl:lima -- Kaiwu-wsrepl-qa
 ```
 
 **包内命令：**
 ```bash
-yarn workspace @happier-dev/tests test:ui:e2e:wsrepl:lima -- happier-wsrepl-qa
+yarn workspace @Kaiwu-dev/tests test:ui:e2e:wsrepl:lima -- Kaiwu-wsrepl-qa
 ```
 
 **测试套具自测：**
@@ -191,13 +191,13 @@ yarn test:migration:inventory
 ```
 
 注意事项：
-- `test:import-cycles` 直接运行 CLI 运行时循环导入防护检查；`yarn workspace @happier-dev/cli test:unit` 也会运行该检查，因此根单元测试流水线与 CI 中的 CLI 单元测试任务都会强制执行该防护。
+- `test:import-cycles` 直接运行 CLI 运行时循环导入防护检查；`yarn workspace @Kaiwu-dev/cli test:unit` 也会运行该检查，因此根单元测试流水线与 CI 中的 CLI 单元测试任务都会强制执行该防护。
 - `test:wiring:self` 和 `test:policy:self` 是针对校验器本身的快速治理自测试。
 - 当存在无效的特性标签、明显的流水线命名错误以及根脚本/工作流/文档之间的一致性偏差时，`test:wiring` 将报错失败。
 - `test:policy` 当前仅强制执行安全、低误报的规则；其余可能产生较多噪音的规则仅生成报告，待仓库清理跟进后再行启用。
 - `test:inventory` 和 `test:migration:inventory` 仅用于生成报告。它们会输出流水线/包内覆盖率，并将治理清单产物写入 `.project/testing/reports/governance/` 目录下。
 - 当前的分阶段落地计划如下：
-  - `enforce`：`.only`、禁止从 `@happier-dev/tests` 内部进行运行时导入、根脚本/工作流/文档一致性
+  - `enforce`：`.only`、禁止从 `@Kaiwu-dev/tests` 内部进行运行时导入、根脚本/工作流/文档一致性
   - `report-only`：直接测试 `console.*`、直接 `.skip/.todo`、隐式跳过别名、已废弃的辅助函数导入、重复模式清单
 
 ### 7b) 仅包内提供的流水线
@@ -252,7 +252,7 @@ yarn test:db-contract:docker
 
 ## 子包级流水线脚本
 
-### UI（`apps/ui`，工作区 `@happier-dev/app`）
+### UI（`apps/ui`，工作区 `@Kaiwu-dev/app`）
 - 单元测试：`yarn --cwd apps/ui test:unit`
 - 集成测试：`yarn --cwd apps/ui test:integration`
 
@@ -270,19 +270,19 @@ yarn test:db-contract:docker
 - 单元测试：`yarn --cwd apps/stack test:unit`
 - 集成测试：`yarn --cwd apps/stack test:integration`
 
-### 端到端工作区（`packages/tests`，工作区 `@happier-dev/tests`）
-- 核心（全量）：`yarn workspace @happier-dev/tests test`
-- 核心快速：`yarn workspace @happier-dev/tests test:core:fast`
-- 核心慢速：`yarn workspace @happier-dev/tests test:core:slow`
-- UI WSREPL Lima 矩阵（macOS/Linux 宿主设备）：`yarn workspace @happier-dev/tests test:ui:e2e:wsrepl:lima -- happier-wsrepl-qa`
-- 提供商：`yarn workspace @happier-dev/tests test:providers`
-- 压力测试：`yarn workspace @happier-dev/tests test:stress`
+### 端到端工作区（`packages/tests`，工作区 `@Kaiwu-dev/tests`）
+- 核心（全量）：`yarn workspace @Kaiwu-dev/tests test`
+- 核心快速：`yarn workspace @Kaiwu-dev/tests test:core:fast`
+- 核心慢速：`yarn workspace @Kaiwu-dev/tests test:core:slow`
+- UI WSREPL Lima 矩阵（macOS/Linux 宿主设备）：`yarn workspace @Kaiwu-dev/tests test:ui:e2e:wsrepl:lima -- Kaiwu-wsrepl-qa`
+- 提供商：`yarn workspace @Kaiwu-dev/tests test:providers`
+- 压力测试：`yarn workspace @Kaiwu-dev/tests test:stress`
 
 ## 环境变量受控的集成测试套件
 
 部分集成测试套件特意要求显式设置环境变量：
-- CLI 守护进程重新挂载/PID 安全性：`HAPPIER_CLI_DAEMON_REATTACH_INTEGRATION=1`
-- CI 中的 CLI tmux 集成路径：`HAPPIER_CLI_TMUX_INTEGRATION=1`
+- CLI 守护进程重新挂载/PID 安全性：`Kaiwu_CLI_DAEMON_REATTACH_INTEGRATION=1`
+- CI 中的 CLI tmux 集成路径：`Kaiwu_CLI_TMUX_INTEGRATION=1`
 
 CI 会为相关任务自动配置这些变量。本地运行若需执行这些套件，可手动进行设置。
 
@@ -298,8 +298,8 @@ CI 会为相关任务自动配置这些变量。本地运行若需执行这些�
 - CLI 集成测试：
   - 依赖：Node + Yarn。
   - 可选的受控套件：
-    - 需安装 `HAPPIER_CLI_TMUX_INTEGRATION=1` 和 `tmux` 以支持 `*.real.integration.test.ts` tmux 覆盖。
-    - 需设置 `HAPPIER_CLI_DAEMON_REATTACH_INTEGRATION=1` 以运行真实 PID/重新挂载进程检查套件。
+    - 需安装 `Kaiwu_CLI_TMUX_INTEGRATION=1` 和 `tmux` 以支持 `*.real.integration.test.ts` tmux 覆盖。
+    - 需设置 `Kaiwu_CLI_DAEMON_REATTACH_INTEGRATION=1` 以运行真实 PID/重新挂载进程检查套件。
 - 服务端集成测试：
   - 依赖：Node + Yarn。
   - 常规集成测试流水线无需 Docker。
@@ -322,9 +322,9 @@ CI 会为相关任务自动配置这些变量。本地运行若需执行这些�
   - 运行 `yarn test:e2e` 作为核心测试全量门限。
 
 ### 提供商测试套件（`yarn test:providers`、`yarn test:providers:*`）
-- 默认情况下，`yarn test:providers` 单独运行时会禁用提供商执行（未设置 `HAPPIER_E2E_PROVIDERS`），因此不需要提供商 CLI 或 API 密钥。
+- 默认情况下，`yarn test:providers` 单独运行时会禁用提供商执行（未设置 `Kaiwu_E2E_PROVIDERS`），因此不需要提供商 CLI 或 API 密钥。
 - `yarn test:providers:all:smoke` / `yarn test:providers:claude:extended`（及类似的包装脚本）会启用真实的提供商执行，此时需要对应提供商的 CLI 或二进制文件。
-- 直接调用工作区命令（高级）：`yarn workspace @happier-dev/tests providers:run ⟦K21⟧ ⟦K22⟧`。
+- 直接调用工作区命令（高级）：`yarn workspace @Kaiwu-dev/tests providers:run ⟦K21⟧ ⟦K22⟧`。
 - 鉴权模式由提供商规范驱动：
   - `host` 模式：使用本地已有的提供商 CLI 登录状态/会话（无需 API 密钥即可运行）。
   - `env` 模式：需要提供商规范声明的提供商密钥/凭据。
@@ -341,13 +341,13 @@ Kaiwu 内置了一个轻量级的自选探测程序，可通过运行本地安�
 本地运行方式（要求宿主设备已安装 Claude Code 并完成身份认证）：
 
 ```bash
-HAPPIER_TEST_REAL_CLAUDE=1 yarn -s workspace @happier-dev/tests test:providers claude.agentTeams.toolNames.realProbe.test.ts
+Kaiwu_TEST_REAL_CLAUDE=1 yarn -s workspace @Kaiwu-dev/tests test:providers claude.agentTeams.toolNames.realProbe.test.ts
 ```
 
 扩展信号测试（会生成团队成员并发送消息，耗时可能更长）：
 
 ```bash
-HAPPIER_TEST_REAL_CLAUDE=1 HAPPIER_TEST_REAL_CLAUDE_FULL=1 yarn -s workspace @happier-dev/tests test:providers claude.agentTeams.toolNames.realProbe.test.ts
+Kaiwu_TEST_REAL_CLAUDE=1 Kaiwu_TEST_REAL_CLAUDE_FULL=1 yarn -s workspace @Kaiwu-dev/tests test:providers claude.agentTeams.toolNames.realProbe.test.ts
 ```
 
 ### 压力测试（`yarn test:stress`）

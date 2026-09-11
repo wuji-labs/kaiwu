@@ -24,7 +24,7 @@
  * it. Copy that reads "Claude Code and Codex can pool accounts" is wrong twice
  * over: it hides OpenCode and Pi, and it implies pools are an agent feature.
  *
- * Verification anchors (happier-dev/happier @ v0.2, the shipped tree):
+ * Verification anchors (Kaiwu-dev/Kaiwu @ v0.2, the shipped tree):
  *   pool policy defaults   packages/protocol/src/connect/connectedServiceSchemas.ts:499-534
  *                            ConnectedServiceAuthGroupPolicyV1Schema —
  *                            `strategy: …default('least_limited')`,
@@ -95,13 +95,13 @@ export const USAGE_LIMITS_SCOPE: ReadonlyArray<string> = [
 export const USAGE_LIMITS_SWITCHING: ReadonlyArray<string> = [
     'Nothing switches until you build a pool, and a pool is something you make on purpose: Settings → Connected services, open the service those accounts belong to, then Pools → Create pool, name it, and add the accounts you want in it. Until that exists, every session uses the one account you picked and stops when that account stops.',
     'Once the pool exists it starts with automatic fallback on, for the services that can change account inside a running session. There is a toggle on the pool — "Automatic fallback" — and turning it off leaves you a pool you switch by hand, which is a reasonable way to run it if you would rather decide each time.',
-    'The defaults are deliberately unambitious. Happier falls back to another member, preferring whichever has the most quota left, at most once per turn and three times per session hour, with a thirty-second cooldown in between. When a provider says a limit resets at a particular time, Happier takes it at its word and does not treat that account as a candidate until then. A pool is a way to not lose twenty minutes to a re-login; it is not a rotation service, and the per-hour ceiling is there so it cannot quietly become one.',
+    'The defaults are deliberately unambitious. Kaiwu falls back to another member, preferring whichever has the most quota left, at most once per turn and three times per session hour, with a thirty-second cooldown in between. When a provider says a limit resets at a particular time, Kaiwu takes it at its word and does not treat that account as a candidate until then. A pool is a way to not lose twenty minutes to a re-login; it is not a rotation service, and the per-hour ceiling is there so it cannot quietly become one.',
     // The disambiguation, not the claim. "Load balancing" is what people search
     // for and it is NOT what this does — nothing moves while the active account
     // is healthy (selectConnectedServiceAuthGroupCandidate.ts:593). Saying so
     // plainly answers the query, corrects the expectation before someone buys a
     // second subscription for the wrong reason, and asserts nothing false.
-    'People often call this load balancing. What Happier does is narrower, and worth knowing before you pay for a second subscription: it does not spread work across your accounts to keep them level. Nothing moves at all while the account you are on still has room. The pool is there for the moment one runs out — the product calls it automatic fallback, and that is exactly what it is.',
+    'People often call this load balancing. What Kaiwu does is narrower, and worth knowing before you pay for a second subscription: it does not spread work across your accounts to keep them level. Nothing moves at all while the account you are on still has room. The pool is there for the moment one runs out — the product calls it automatic fallback, and that is exactly what it is.',
 ];
 
 /**
@@ -109,7 +109,7 @@ export const USAGE_LIMITS_SWITCHING: ReadonlyArray<string> = [
  *
  * This is the paragraph the page was missing, and its absence made every other
  * sentence read as though pooling were a Claude-Code-and-Codex feature. It is
- * not. Happier stores a credential, not an agent login, and a pool groups
+ * not. Kaiwu stores a credential, not an agent login, and a pool groups
  * accounts on one credential. The agent list per credential is copied straight
  * from `connectedServices.supportedServiceIds` in the shipped manifest — see
  * the anchors at the top of this file — and OpenCode and Pi appear on four of
@@ -152,7 +152,7 @@ export const POOL_DEFAULTS: ReadonlyArray<PoolDefault> = [
         id: 'soft',
         setting: 'Preventive switch',
         value: 'Below 15% remaining',
-        note: 'Only when another member has fresher usable quota. Set it to 0 and Happier waits for the real limit.',
+        note: 'Only when another member has fresher usable quota. Set it to 0 and Kaiwu waits for the real limit.',
     },
     {
         id: 'perTurn',
@@ -258,8 +258,8 @@ export const SERVICE_SUPPORT: ReadonlyArray<ServiceSupportRow> = [
  * knows that will want to know why.
  */
 export const USAGE_LIMITS_SUPPORT_NOTES: ReadonlyArray<string> = [
-    'OpenCode, Pi and Gemini can all be pointed at a pooled account and can move between its members, but not without the session restarting — so for those you are choosing the account before the session starts rather than during it. Every other agent Happier runs signs in through its own CLI and is not part of this at all.',
-    'GitHub is a connected account too, and it is the one that is not here: no agent runs on a GitHub token. Happier uses it to publish a repository or open a pull request, so it has neither a pool nor a quota meter.',
+    'OpenCode, Pi and Gemini can all be pointed at a pooled account and can move between its members, but not without the session restarting — so for those you are choosing the account before the session starts rather than during it. Every other agent Kaiwu runs signs in through its own CLI and is not part of this at all.',
+    'GitHub is a connected account too, and it is the one that is not here: no agent runs on a GitHub token. Kaiwu uses it to publish a repository or open a pull request, so it has neither a pool nor a quota meter.',
 ];
 
 /**
@@ -280,25 +280,25 @@ export const USAGE_LIMITS_SUPPORT_NOTES: ReadonlyArray<string> = [
  *      `cs:<serviceId>:profile:<id>` (apps/cli/src/cli/
  *      connectedServicesLaunchAuth.ts:19-63), so the flag does take a pool.
  *   3. THE CORRECTION'S OWN OVERCLAIM. The fix for (2) then asserted that
- *      `happier --auth cs:group:<id>` "is in the root help, beside
- *      happier --auth cs:<id>". It is not. buildRootHelpText.ts:29 prints one
- *      line for this flag — `happier --auth cs:<id>    Start with an exact
+ *      `Kaiwu --auth cs:group:<id>` "is in the root help, beside
+ *      Kaiwu --auth cs:<id>". It is not. buildRootHelpText.ts:29 prints one
+ *      line for this flag — `Kaiwu --auth cs:<id>    Start with an exact
  *      Connected Services profile or pool` — and grepping that file for
  *      `cs:group:` returns nothing. The single printed line DESCRIBES both
  *      selectors; only one of them is spelled out.
  *
  * The precise truth is a split, and now a second split inside it. There is no
  * CLI that CREATES a pool — nothing under apps/cli/src/cli/commands touches an
- * auth group, and `happier connect` is described in the command manifest as
+ * auth group, and `Kaiwu connect` is described in the command manifest as
  * "Connect AI vendor API keys" — but there IS a CLI that starts a session on
  * one, and its selector is accepted without being printed. Say all of it: a
  * correction produces a false statement exactly as reliably as the overclaim
  * it is correcting.
  */
 export const USAGE_LIMITS_SETUP: ReadonlyArray<string> = [
-    'Two accounts connected on the same service, one pool, and a check that the meter is reading. Building the pool is a job for the app — Settings → Connected services, pick the service, Pools — because no command creates one; happier connect signs an account in from a shell and stops there. Starting a session on a pool you have already built is the half that is in the CLI: happier --auth cs:<id> takes the id of a profile or a pool. There is a longer cs:group:<id> spelling for the case where a profile and a pool share an id and the short form cannot tell them apart.',
+    'Two accounts connected on the same service, one pool, and a check that the meter is reading. Building the pool is a job for the app — Settings → Connected services, pick the service, Pools — because no command creates one; Kaiwu connect signs an account in from a shell and stops there. Starting a session on a pool you have already built is the half that is in the CLI: Kaiwu --auth cs:<id> takes the id of a profile or a pool. There is a longer cs:group:<id> spelling for the case where a profile and a pool share an id and the short form cannot tell them apart.',
     'A self-hosted relay can switch this off, and can switch quota meters off separately from pooling. If you are on someone else’s server and the Pools screen is missing, that is the server’s answer rather than a bug.',
 ];
 
 /** The one link this page makes into the docs, labelled as a configuration reference. */
-export const USAGE_LIMITS_DOCS_URL = 'https://docs.happier.dev/features/connected-services';
+export const USAGE_LIMITS_DOCS_URL = 'https://kaiwu.chengqiyun.com/docs/features/connected-services';

@@ -25,7 +25,7 @@ test('the catalog parses to every endpoint with its real defaults', () => {
   const pairing = entries.find((e) => e.id === 'auth.pairing.request');
   assert.deepEqual(
     { max: pairing.defaultMax, window: pairing.defaultWindow, keyMode: pairing.keyMode, env: pairing.maxEnvKey },
-    { max: 30, window: '1 minute', keyMode: 'ip', env: 'HAPPIER_AUTH_PAIRING_REQUEST_RATE_LIMIT_MAX' },
+    { max: 30, window: '1 minute', keyMode: 'ip', env: 'KAIWU_AUTH_PAIRING_REQUEST_RATE_LIMIT_MAX' },
   );
 });
 

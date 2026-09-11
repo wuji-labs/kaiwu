@@ -11,7 +11,7 @@ type ThemeContextValue = {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-const STORAGE_KEY = 'happier:theme';
+const STORAGE_KEY = 'Kaiwu:theme';
 
 function readInitial(): ThemeName {
     if (typeof window === 'undefined') return 'dark';

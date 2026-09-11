@@ -19,12 +19,12 @@ cp .env.local.example .env.local
 
 你可以在构建时通过设置以下变量来禁用特定的 UI 功能：
 
-- `EXPO_PUBLIC_HAPPIER_BUILD_FEATURES_DENY`
+- `EXPO_PUBLIC_KAIWU_BUILD_FEATURES_DENY`
 
 示例：
 
 ```bash
-EXPO_PUBLIC_HAPPIER_BUILD_FEATURES_DENY=voice,social.friends
+EXPO_PUBLIC_KAIWU_BUILD_FEATURES_DENY=voice,social.friends
 ```
 
 该变量是由逗号分隔的**功能 ID** 列表（例如 `voice`、`social.friends`、`bugReports`、`connectedServices`、`connectedServices.quotas`）。
@@ -33,19 +33,19 @@ EXPO_PUBLIC_HAPPIER_BUILD_FEATURES_DENY=voice,social.friends
 
 关联服务也提供了显式的构建期开关：
 
-- `EXPO_PUBLIC_HAPPIER_FEATURE_CONNECTED_SERVICES__ENABLED`（默认值：`true`）
-- `EXPO_PUBLIC_HAPPIER_FEATURE_CONNECTED_SERVICES_QUOTAS__ENABLED`（默认值：`false`）
+- `EXPO_PUBLIC_KAIWU_FEATURE_CONNECTED_SERVICES__ENABLED`（默认值：`true`）
+- `EXPO_PUBLIC_KAIWU_FEATURE_CONNECTED_SERVICES_QUOTAS__ENABLED`（默认值：`false`）
 
 示例：
 
 ```bash
 # Completely disable Connected Services in the UI bundle
-EXPO_PUBLIC_HAPPIER_FEATURE_CONNECTED_SERVICES__ENABLED=0
+EXPO_PUBLIC_KAIWU_FEATURE_CONNECTED_SERVICES__ENABLED=0
 ```
 
 ```bash
 # Enable Connected Services quota UI surfaces
-EXPO_PUBLIC_HAPPIER_FEATURE_CONNECTED_SERVICES_QUOTAS__ENABLED=1
+EXPO_PUBLIC_KAIWU_FEATURE_CONNECTED_SERVICES_QUOTAS__ENABLED=1
 ```
 
 ## 覆盖 Socket 传输方式（极少使用）
@@ -54,7 +54,7 @@ EXPO_PUBLIC_HAPPIER_FEATURE_CONNECTED_SERVICES_QUOTAS__ENABLED=1
 
 如果你需要强制仅使用 WebSocket（例如：在没有粘性会话的多服务器集群部署中，你希望快速失败而不是回退到长轮询），请设置：
 
-- `EXPO_PUBLIC_HAPPIER_SOCKET_FORCE_WEBSOCKET=1`
+- `EXPO_PUBLIC_KAIWU_SOCKET_FORCE_WEBSOCKET=1`
 
 ## 安全说明（重要）
 

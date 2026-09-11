@@ -1,4 +1,4 @@
-# Cloudflare Workers deployment for docs.happier.dev.
+# Cloudflare Workers deployment for kaiwu.chengqiyun.com/docs.
 #
 # The site is a fully static Next export — `output: 'export'` in next.config.mjs
 # writes every page to out/<route>/index.html, and the OG images and Markdown
@@ -19,11 +19,11 @@
 # in Cloudflare's build container and bypass the release-actor and trusted-ref
 # guards that workflow enforces.
 
-name = "happier-docs"
+name = "KAIWU-docs"
 compatibility_date = "2026-08-22"
 main = "worker/index.ts"
 
-# No happier-docs.<subdomain>.workers.dev route: the site answers on its own
+# No KAIWU-docs.<subdomain>.workers.dev route: the site answers on its own
 # custom domain, and a second public origin serving the same pages is an SEO
 # duplicate nobody asked for.
 workers_dev = false
@@ -37,7 +37,7 @@ preview_urls = true
 # and maintain the DNS record and certificate for the Worker instead of relying
 # on a dashboard-only mapping that a deployment cannot reproduce.
 [[routes]]
-pattern = "docs.happier.dev"
+pattern = "kaiwu.chengqiyun.com/docs"
 custom_domain = true
 
 [assets]

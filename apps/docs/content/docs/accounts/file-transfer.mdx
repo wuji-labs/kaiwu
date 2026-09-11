@@ -28,10 +28,10 @@ Web 客户端属于特殊情况：浏览器无法直接与你的设备建立点�
 
 | 变量 | 默认值 | 取值范围 |
 | --- | --- | --- |
-| `HAPPIER_FEATURE_MACHINES_TRANSFER_DIRECT_PEER__ENABLED` | `1` | on / off |
-| `HAPPIER_FEATURE_MACHINES_TRANSFER_SERVER_ROUTED__ENABLED` | `1` | on / off |
-| `HAPPIER_FEATURE_MACHINES_TRANSFER_SERVER_ROUTED__MAX_BYTES` | 2 GiB | 最大限制为 8 GiB |
-| `HAPPIER_FEATURE_MACHINES_TRANSFER_SERVER_ROUTED__MAX_ACTIVE_TRANSFERS_PER_SOCKET` | `128` | 1 – 10,000 |
+| `KAIWU_FEATURE_MACHINES_TRANSFER_DIRECT_PEER__ENABLED` | `1` | on / off |
+| `KAIWU_FEATURE_MACHINES_TRANSFER_SERVER_ROUTED__ENABLED` | `1` | on / off |
+| `KAIWU_FEATURE_MACHINES_TRANSFER_SERVER_ROUTED__MAX_BYTES` | 2 GiB | 最大限制为 8 GiB |
+| `KAIWU_FEATURE_MACHINES_TRANSFER_SERVER_ROUTED__MAX_ACTIVE_TRANSFERS_PER_SOCKET` | `128` | 1 – 10,000 |
 
 <Callout>
   大小限制的**默认值为 2 GiB**，不仅是一个上限参数。在未修改配置的部署环境下，经由服务器路由且超过该大小的传输都会失败。调大该变量最高可支持至 8 GiB，此处设有一道硬性上限——如果设置了更大的数值，系统不会报错拒绝，而是会静默向下压制至 8 GiB，使配置表面上看起来已被采纳。

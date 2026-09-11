@@ -1,37 +1,37 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CHANNEL="${HAPPIER_CHANNEL:-dev}"
-PRODUCT="${HAPPIER_PRODUCT:-cli}"
-INSTALL_DIR="${HAPPIER_INSTALL_DIR:-$HOME/.happier}"
-BIN_DIR="${HAPPIER_BIN_DIR:-$HOME/.local/bin}"
-WITH_DAEMON="${HAPPIER_WITH_DAEMON-}"
+CHANNEL="${KAIWU_CHANNEL:-dev}"
+PRODUCT="${KAIWU_PRODUCT:-cli}"
+INSTALL_DIR="${KAIWU_INSTALL_DIR:-$HOME/.KAIWU}"
+BIN_DIR="${KAIWU_BIN_DIR:-$HOME/.local/bin}"
+WITH_DAEMON="${KAIWU_WITH_DAEMON-}"
 WITH_DAEMON_EXPLICIT=0
-if [[ -n "${HAPPIER_WITH_DAEMON+x}" ]]; then
+if [[ -n "${KAIWU_WITH_DAEMON+x}" ]]; then
   WITH_DAEMON_EXPLICIT=1
 fi
-NO_PATH_UPDATE="${HAPPIER_NO_PATH_UPDATE:-0}"
-NONINTERACTIVE="${HAPPIER_NONINTERACTIVE:-0}"
-ACTION="${HAPPIER_INSTALLER_ACTION:-install}" # install|reinstall|version|check|uninstall|restart|rollback
-INSTALL_VERSION="${HAPPIER_INSTALL_VERSION:-}"
-RUN_ACTION="${HAPPIER_INSTALLER_RUN_ACTION:-}"
+NO_PATH_UPDATE="${KAIWU_NO_PATH_UPDATE:-0}"
+NONINTERACTIVE="${KAIWU_NONINTERACTIVE:-0}"
+ACTION="${KAIWU_INSTALLER_ACTION:-install}" # install|reinstall|version|check|uninstall|restart|rollback
+INSTALL_VERSION="${KAIWU_INSTALL_VERSION:-}"
+RUN_ACTION="${KAIWU_INSTALLER_RUN_ACTION:-}"
 SETUP_RELAY_SHORTCUT="0"
-DEBUG_MODE="${HAPPIER_INSTALLER_DEBUG:-0}"
-VERBOSE_MODE="${HAPPIER_INSTALLER_VERBOSE:-0}"
-PURGE_INSTALL_DIR="${HAPPIER_INSTALLER_PURGE:-0}"
-GITHUB_REPO="${HAPPIER_GITHUB_REPO:-happier-dev/happier}"
-GITHUB_TOKEN="${HAPPIER_GITHUB_TOKEN:-${GITHUB_TOKEN:-}}"
-RELEASE_ASSETS_DIR="${HAPPIER_RELEASE_ASSETS_DIR:-}"
+DEBUG_MODE="${KAIWU_INSTALLER_DEBUG:-0}"
+VERBOSE_MODE="${KAIWU_INSTALLER_VERBOSE:-0}"
+PURGE_INSTALL_DIR="${KAIWU_INSTALLER_PURGE:-0}"
+GITHUB_REPO="${KAIWU_GITHUB_REPO:-KAIWU-dev/KAIWU}"
+GITHUB_TOKEN="${KAIWU_GITHUB_TOKEN:-${GITHUB_TOKEN:-}}"
+RELEASE_ASSETS_DIR="${KAIWU_RELEASE_ASSETS_DIR:-}"
 DEFAULT_MINISIGN_PUBKEY="$(cat <<'EOF'
 untrusted comment: minisign public key 91AE28177BF6E43C
 RWQ85PZ7FyiukYbL3qv/bKnwgbT68wLVzotapeMFIb8n+c7pBQ7U8W2t
 EOF
 )"
-MINISIGN_PUBKEY="${HAPPIER_MINISIGN_PUBKEY:-${DEFAULT_MINISIGN_PUBKEY}}"
-MINISIGN_PUBKEY_URL="${HAPPIER_MINISIGN_PUBKEY_URL:-https://happier.dev/happier-release.pub}"
+MINISIGN_PUBKEY="${KAIWU_MINISIGN_PUBKEY:-${DEFAULT_MINISIGN_PUBKEY}}"
+MINISIGN_PUBKEY_URL="${KAIWU_MINISIGN_PUBKEY_URL:-https://kaiwu.chengqiyun.com/KAIWU-release.pub}"
 MINISIGN_BIN="minisign"
 
-INSTALLER_COLOR_MODE="${HAPPIER_INSTALLER_COLOR:-auto}" # auto|always|never
+INSTALLER_COLOR_MODE="${KAIWU_INSTALLER_COLOR:-auto}" # auto|always|never
 
 supports_color() {
   if [[ "${INSTALLER_COLOR_MODE}" == "never" ]]; then
@@ -376,7 +376,7 @@ find_local_release_asset_path() {
     return 1
   fi
   if [[ ! -d "${RELEASE_ASSETS_DIR}" ]]; then
-    echo "HAPPIER_RELEASE_ASSETS_DIR does not exist: ${RELEASE_ASSETS_DIR}" >&2
+    echo "KAIWU_RELEASE_ASSETS_DIR does not exist: ${RELEASE_ASSETS_DIR}" >&2
     return 1
   fi
 
@@ -430,8 +430,8 @@ validate_requested_install_version() {
 
 fetch_release_metadata_with_retry() {
   local source="$1"
-  local attempts="${HAPPIER_INSTALLER_DOWNLOAD_RETRY_ATTEMPTS:-3}"
-  local retry_delay="${HAPPIER_INSTALLER_DOWNLOAD_RETRY_DELAY_SECONDS:-2}"
+  local attempts="${KAIWU_INSTALLER_DOWNLOAD_RETRY_ATTEMPTS:-3}"
+  local retry_delay="${KAIWU_INSTALLER_DOWNLOAD_RETRY_DELAY_SECONDS:-2}"
   local attempt=1
   while true; do
     if curl_auth "${source}"; then
@@ -448,8 +448,8 @@ fetch_release_metadata_with_retry() {
 download_release_asset_with_retry() {
   local output_path="$1"
   local source="$2"
-  local attempts="${HAPPIER_INSTALLER_DOWNLOAD_RETRY_ATTEMPTS:-3}"
-  local retry_delay="${HAPPIER_INSTALLER_DOWNLOAD_RETRY_DELAY_SECONDS:-2}"
+  local attempts="${KAIWU_INSTALLER_DOWNLOAD_RETRY_ATTEMPTS:-3}"
+  local retry_delay="${KAIWU_INSTALLER_DOWNLOAD_RETRY_DELAY_SECONDS:-2}"
   local attempt=1
   while true; do
     rm -f "${output_path}"
@@ -477,26 +477,26 @@ stage_release_asset() {
 
 resolve_exe_name() {
   if [[ "${PRODUCT}" == "server" ]]; then
-    echo "happier-server"
+    echo "KAIWU-server"
     return
   fi
   if [[ "${PRODUCT}" == "stack" ]]; then
     echo "hstack"
     return
   fi
-  echo "happier"
+  echo "KAIWU"
 }
 
 resolve_install_name() {
   if [[ "${PRODUCT}" == "server" ]]; then
-    echo "Happier Server"
+    echo "KAIWU Server"
     return
   fi
   if [[ "${PRODUCT}" == "stack" ]]; then
-    echo "Happier Stack"
+    echo "KAIWU Stack"
     return
   else
-    echo "Happier CLI"
+    echo "KAIWU CLI"
   fi
 }
 
@@ -644,7 +644,7 @@ action_uninstall() {
 
   # CLI uninstall has two shim concepts:
   # - channel shim (`hprev` / `hdev`) that is always channel-scoped
-  # - default shim (`happier`) that follows `default-cli-release-channel.json` and must persist
+  # - default shim (`KAIWU`) that follows `default-cli-release-channel.json` and must persist
   #   as long as *any* CLI channel remains installed.
   local shim=""
   shim="$(resolve_shim_name)"
@@ -680,9 +680,9 @@ action_uninstall() {
     rm -rf "${INSTALL_DIR}/${root}" || true
   fi
 
-  # If the user previously selected this channel as the default (the unsuffixed `happier` shim),
+  # If the user previously selected this channel as the default (the unsuffixed `KAIWU` shim),
   # uninstalling it must restore the default shim back to a remaining channel to avoid leaving
-  # a broken/dangling `happier` command on PATH. This applies to *all* channels (including stable).
+  # a broken/dangling `KAIWU` command on PATH. This applies to *all* channels (including stable).
   if [[ "${PRODUCT}" == "cli" ]]; then
     local default_state_path="${INSTALL_DIR}/default-cli-release-channel.json"
     local should_repoint_default="0"
@@ -699,20 +699,20 @@ action_uninstall() {
       fi
     fi
 
-    local default_shim_path="${INSTALL_DIR}/bin/happier"
-    local default_path_shim="${BIN_DIR}/happier"
+    local default_shim_path="${INSTALL_DIR}/bin/KAIWU"
+    local default_path_shim="${BIN_DIR}/KAIWU"
 
     if [[ "${should_repoint_default}" == "1" ]]; then
       local fallback_channel=""
       local fallback_root=""
 
-      if [[ -x "${INSTALL_DIR}/cli/current/happier" ]]; then
+      if [[ -x "${INSTALL_DIR}/cli/current/KAIWU" ]]; then
         fallback_channel="stable"
         fallback_root="cli"
-      elif [[ -x "${INSTALL_DIR}/cli-preview/current/happier" ]]; then
+      elif [[ -x "${INSTALL_DIR}/cli-preview/current/KAIWU" ]]; then
         fallback_channel="preview"
         fallback_root="cli-preview"
-      elif [[ -x "${INSTALL_DIR}/cli-dev/current/happier" ]]; then
+      elif [[ -x "${INSTALL_DIR}/cli-dev/current/KAIWU" ]]; then
         fallback_channel="publicdev"
         fallback_root="cli-dev"
       else
@@ -721,7 +721,7 @@ action_uninstall() {
 
       if [[ -n "${fallback_channel}" ]]; then
         rm -f "${default_shim_path}" || true
-        ln -sfn "${INSTALL_DIR}/${fallback_root}/current/happier" "${default_shim_path}" || true
+        ln -sfn "${INSTALL_DIR}/${fallback_root}/current/KAIWU" "${default_shim_path}" || true
         printf '%s\n' "{\"releaseChannel\":\"${fallback_channel}\"}" > "${default_state_path}" || true
         # Ensure the PATH shim still points at the default shim when it exists.
         if [[ -n "${BIN_DIR:-}" ]]; then
@@ -773,7 +773,7 @@ sync_cli_rollback_shim() {
 
   mkdir -p "${INSTALL_DIR}/bin" "${BIN_DIR}"
   rm -f "${install_shim_path}" || true
-  ln -sfn "${INSTALL_DIR}/${managed_root}/current/happier" "${install_shim_path}"
+  ln -sfn "${INSTALL_DIR}/${managed_root}/current/KAIWU" "${install_shim_path}"
   rm -f "${path_shim_path}" || true
   ln -sfn "${install_shim_path}" "${path_shim_path}"
 }
@@ -804,7 +804,7 @@ action_rollback() {
   fi
 
   local previous_dir="${install_root}/versions/${previous_version}"
-  if [[ ! -x "${previous_dir}/happier" ]]; then
+  if [[ ! -x "${previous_dir}/KAIWU" ]]; then
     echo "Rollback target is missing or incomplete: ${previous_dir}" >&2
     return 1
   fi
@@ -830,8 +830,8 @@ action_rollback() {
   fi
 
   sync_cli_rollback_shim "${shim_name}" "${managed_root}"
-  if [[ "${shim_name}" != "happier" ]] && cli_default_channel_matches_selected_channel; then
-    sync_cli_rollback_shim "happier" "${managed_root}"
+  if [[ "${shim_name}" != "KAIWU" ]] && cli_default_channel_matches_selected_channel; then
+    sync_cli_rollback_shim "KAIWU" "${managed_root}"
   fi
 
   success "Rolled back ${shim_name} from ${current_version:-current} to ${previous_version}."
@@ -1016,17 +1016,17 @@ invoke_installer_command_with_daemon_service_context() {
 
   local channel_label=""
   channel_label="$(display_channel_label "${CHANNEL}")"
-  local installer_strategy="${HAPPIER_INSTALLER_DAEMON_SERVICE_STRATEGY:-}"
-  local state_home_dir="${HAPPIER_HOME_DIR:-${INSTALL_DIR}}"
+  local installer_strategy="${KAIWU_INSTALLER_DAEMON_SERVICE_STRATEGY:-}"
+  local state_home_dir="${KAIWU_HOME_DIR:-${INSTALL_DIR}}"
 
   local -a env_cmd=(env
-    "HAPPIER_HOME_DIR=${state_home_dir}"
-    "HAPPIER_PUBLIC_RELEASE_CHANNEL=${channel_label}"
-    "HAPPIER_DAEMON_SERVICE_CHANNEL=${channel_label}"
-    ${installer_strategy:+"HAPPIER_INSTALLER_DAEMON_SERVICE_STRATEGY=${installer_strategy}"}
+    "KAIWU_HOME_DIR=${state_home_dir}"
+    "KAIWU_PUBLIC_RELEASE_CHANNEL=${channel_label}"
+    "KAIWU_DAEMON_SERVICE_CHANNEL=${channel_label}"
+    ${installer_strategy:+"KAIWU_INSTALLER_DAEMON_SERVICE_STRATEGY=${installer_strategy}"}
   )
-  if [[ -n "${HAPPIER_NONINTERACTIVE:-}" ]]; then
-    env_cmd+=("HAPPIER_NONINTERACTIVE=${HAPPIER_NONINTERACTIVE}")
+  if [[ -n "${KAIWU_NONINTERACTIVE:-}" ]]; then
+    env_cmd+=("KAIWU_NONINTERACTIVE=${KAIWU_NONINTERACTIVE}")
   fi
   env_cmd+=("${cli_bin}")
   if [[ $# -gt 0 ]]; then
@@ -1043,7 +1043,7 @@ read_installed_background_service_inventory_json() {
 
 doctor_repair_preflight_looks_like_plain_doctor_report() {
   local output="${1:-}"
-  printf '%s' "${output}" | grep -Eq 'Happier CLI Doctor'
+  printf '%s' "${output}" | grep -Eq 'KAIWU CLI Doctor'
 }
 
 read_background_service_preflight_json() {
@@ -1093,7 +1093,7 @@ print_background_service_report_text_if_supported() {
   # `curl | bash`), hand off to the CLI's interactive `doctor repair` with
   # stdin redirected from /dev/tty so it can render the report AND prompt the
   # user for each finding. Otherwise fall back to the read-only report, which
-  # prints the CTA `To handle these interactively: happier doctor repair`
+  # prints the CTA `To handle these interactively: KAIWU doctor repair`
   # footer so the user still knows the next step.
   if installer_can_prompt; then
     invoke_installer_command_with_daemon_service_context "${cli_bin}" doctor repair </dev/tty || true
@@ -1104,7 +1104,7 @@ print_background_service_report_text_if_supported() {
 
 installer_command_failure_looks_unsupported() {
   local output="${1:-}"
-  printf '%s' "${output}" | grep -Eqi "unknown (option|command|subcommand)|invalid option|usage: happier <command>|does not support"
+  printf '%s' "${output}" | grep -Eqi "unknown (option|command|subcommand)|invalid option|usage: KAIWU <command>|does not support"
 }
 
 background_service_install_manual_command() {
@@ -1345,7 +1345,7 @@ installer_has_controlling_tty() {
 }
 
 # Single gate for every prompt the installer owns. `--yes`/`--non-interactive`
-# (HAPPIER_NONINTERACTIVE=1) and a missing controlling tty both mean "do not
+# (KAIWU_NONINTERACTIVE=1) and a missing controlling tty both mean "do not
 # ask"; callers then take the documented default, which never creates
 # background-service state the user did not ask for.
 installer_can_prompt() {
@@ -1454,7 +1454,7 @@ cli_managed_install_root() {
 
 cli_shim_name() {
   case "$1" in
-    stable) echo "happier" ;;
+    stable) echo "KAIWU" ;;
     preview) echo "hprev" ;;
     publicdev) echo "hdev" ;;
     *) return 1 ;;
@@ -1484,7 +1484,7 @@ action_version() {
   name="$(resolve_install_name)"
 
   if [[ "${CHANNEL}" != "stable" && "${CHANNEL}" != "preview" && "${CHANNEL}" != "publicdev" ]]; then
-    echo "Invalid HAPPIER_CHANNEL='${CHANNEL}'. Expected stable, preview, or dev." >&2
+    echo "Invalid KAIWU_CHANNEL='${CHANNEL}'. Expected stable, preview, or dev." >&2
     return 1
   fi
 
@@ -1500,11 +1500,11 @@ action_version() {
   local tag=""
   local default_version_regex=""
   default_version_regex="$(default_release_asset_version_regex "${CHANNEL}")"
-  local asset_regex="^happier-v${default_version_regex}-${os}-${arch}[.]tar[.]gz$"
-  local version_prefix="happier-v"
+  local asset_regex="^KAIWU-v${default_version_regex}-${os}-${arch}[.]tar[.]gz$"
+  local version_prefix="KAIWU-v"
   if [[ "${PRODUCT}" == "server" ]]; then
-    asset_regex="^happier-server-v${default_version_regex}-${os}-${arch}[.]tar[.]gz$"
-    version_prefix="happier-server-v"
+    asset_regex="^KAIWU-server-v${default_version_regex}-${os}-${arch}[.]tar[.]gz$"
+    version_prefix="KAIWU-server-v"
   fi
   if [[ "${PRODUCT}" == "stack" ]]; then
     asset_regex="^hstack-v${default_version_regex}-${os}-${arch}[.]tar[.]gz$"
@@ -1567,25 +1567,25 @@ action_version() {
 usage() {
   cat <<'EOF'
 Usage:
-  curl -fsSL https://happier.dev/install | bash
+  curl -fsSL https://kaiwu.chengqiyun.com/install | bash
 
 Preview channel:
-  curl -fsSL https://happier.dev/install | bash -s -- --channel preview
-  curl -fsSL https://happier.dev/install | HAPPIER_CHANNEL=preview bash
-  curl -fsSL https://happier.dev/install-preview | bash
+  curl -fsSL https://kaiwu.chengqiyun.com/install | bash -s -- --channel preview
+  curl -fsSL https://kaiwu.chengqiyun.com/install | KAIWU_CHANNEL=preview bash
+  curl -fsSL https://kaiwu.chengqiyun.com/install-preview | bash
 
 Dev channel:
-  curl -fsSL https://happier.dev/install | bash -s -- --channel dev
-  curl -fsSL https://happier.dev/install | HAPPIER_CHANNEL=dev bash
-  curl -fsSL https://happier.dev/install-dev | bash
+  curl -fsSL https://kaiwu.chengqiyun.com/install | bash -s -- --channel dev
+  curl -fsSL https://kaiwu.chengqiyun.com/install | KAIWU_CHANNEL=dev bash
+  curl -fsSL https://kaiwu.chengqiyun.com/install-dev | bash
 
 Relay setup (install CLI if needed, then host a relay locally):
-  curl -fsSL https://happier.dev/install | bash -s -- --setup-relay
-  curl -fsSL https://happier.dev/install | bash -s -- --channel dev --setup-relay
+  curl -fsSL https://kaiwu.chengqiyun.com/install | bash -s -- --setup-relay
+  curl -fsSL https://kaiwu.chengqiyun.com/install | bash -s -- --channel dev --setup-relay
 
 Unattended install (CI or scripted; never prompts, declines optional automatic startup):
-  curl -fsSL https://happier.dev/install | bash -s -- --yes
-  curl -fsSL https://happier.dev/install | HAPPIER_NONINTERACTIVE=1 bash
+  curl -fsSL https://kaiwu.chengqiyun.com/install | bash -s -- --yes
+  curl -fsSL https://kaiwu.chengqiyun.com/install | KAIWU_NONINTERACTIVE=1 bash
 
 Options:
   --channel <stable|preview|dev>
@@ -1603,7 +1603,7 @@ Options:
   --restart
   --uninstall [--purge]
   --reset
-  --yes, --non-interactive   (same as HAPPIER_NONINTERACTIVE=1)
+  --yes, --non-interactive   (same as KAIWU_NONINTERACTIVE=1)
   --verbose
   --debug
   -h, --help
@@ -1723,11 +1723,11 @@ while [[ $# -gt 0 ]]; do
       shift 1
       ;;
     -y|--yes|--non-interactive|--noninteractive)
-      # Same switch as HAPPIER_NONINTERACTIVE=1. Keep the shell variable and the
-      # environment variable in agreement so the installer AND every `happier`
+      # Same switch as KAIWU_NONINTERACTIVE=1. Keep the shell variable and the
+      # environment variable in agreement so the installer AND every `KAIWU`
       # command it invokes stay non-interactive.
       NONINTERACTIVE="1"
-      export HAPPIER_NONINTERACTIVE="1"
+      export KAIWU_NONINTERACTIVE="1"
       shift 1
       ;;
     --verbose)
@@ -1775,7 +1775,7 @@ if [[ "${DEBUG_MODE}" == "1" ]]; then
 fi
 
 if [[ "${PRODUCT}" != "cli" && "${PRODUCT}" != "server" && "${PRODUCT}" != "stack" ]]; then
-  echo "Invalid HAPPIER_PRODUCT='${PRODUCT}'. Expected cli, server, or stack." >&2
+  echo "Invalid KAIWU_PRODUCT='${PRODUCT}'. Expected cli, server, or stack." >&2
   exit 1
 fi
 
@@ -1790,7 +1790,7 @@ resolve_installed_cli_invoker_for_channel() {
   local managed_root=""
   managed_root="$(cli_managed_install_root "${channel}" 2>/dev/null || true)"
   if [[ -n "${managed_root}" ]]; then
-    local managed_bin="${INSTALL_DIR}/${managed_root}/current/happier"
+    local managed_bin="${INSTALL_DIR}/${managed_root}/current/KAIWU"
     if [[ -x "${managed_bin}" ]]; then
       printf '%s' "${managed_bin}"
       return 0
@@ -1874,10 +1874,10 @@ installed_cli_supports_command_surface() {
   local help_prefix=""
   help_prefix="$(basename "${cli_bin}" 2>/dev/null || true)"
   if [[ -z "${help_prefix}" ]]; then
-    help_prefix="happier"
+    help_prefix="KAIWU"
   fi
 
-  printf '%s\n' "${help_output}" | grep -Eq "^[[:space:]]*(${help_prefix}|happier)[[:space:]]+${required_subcommand}\\b"
+  printf '%s\n' "${help_output}" | grep -Eq "^[[:space:]]*(${help_prefix}|KAIWU)[[:space:]]+${required_subcommand}\\b"
 }
 
 run_post_install_action() {
@@ -1921,8 +1921,8 @@ run_post_install_action() {
 
   if [[ -n "${required_subcommand}" ]]; then
     if ! installed_cli_supports_command_surface "${cli_bin}" "${required_subcommand}"; then
-      echo "Installed Happier CLI does not support the '${required_subcommand}' command surface required for --run ${op}." >&2
-      echo "Update your Happier CLI (or switch installer channel) and try again." >&2
+      echo "Installed KAIWU CLI does not support the '${required_subcommand}' command surface required for --run ${op}." >&2
+      echo "Update your KAIWU CLI (or switch installer channel) and try again." >&2
       return 1
     fi
   fi
@@ -1949,7 +1949,7 @@ run_post_install_action() {
   invoke_installer_command_with_daemon_service_context "${cli_bin}" "${command_args[@]}"
 }
 
-# `happier setup` is the CLI's own guided first run. The installer hands off to
+# `KAIWU setup` is the CLI's own guided first run. The installer hands off to
 # it after the binary is ready; every question a first run needs to ask belongs
 # to the CLI. These helpers decide only whether to hand off and what to leave on
 # screen.
@@ -1982,7 +1982,7 @@ read_post_install_machine_configuration_state() {
 }
 
 # Hand off only when a person is actually watching. `--yes`,
-# `--non-interactive`, HAPPIER_NONINTERACTIVE=1 and a missing controlling tty
+# `--non-interactive`, KAIWU_NONINTERACTIVE=1 and a missing controlling tty
 # all mean "decline optional setup", exactly like the background-service prompt.
 # An already-configured machine is left alone: a re-install is not a first run.
 should_hand_off_to_guided_setup() {
@@ -2048,7 +2048,7 @@ if [[ -n "${RUN_ACTION}" ]]; then
 fi
 
 if [[ "${CHANNEL}" != "stable" && "${CHANNEL}" != "preview" && "${CHANNEL}" != "publicdev" ]]; then
-  echo "Invalid HAPPIER_CHANNEL='${CHANNEL}'. Expected stable, preview, or dev." >&2
+  echo "Invalid KAIWU_CHANNEL='${CHANNEL}'. Expected stable, preview, or dev." >&2
   exit 1
 fi
 
@@ -2157,7 +2157,7 @@ write_minisign_public_key() {
     return
   fi
   if [[ -z "${MINISIGN_PUBKEY_URL}" ]]; then
-    echo "HAPPIER_MINISIGN_PUBKEY_URL is empty; cannot fetch minisign public key." >&2
+    echo "KAIWU_MINISIGN_PUBKEY_URL is empty; cannot fetch minisign public key." >&2
     exit 1
   fi
   curl -fsSL "${MINISIGN_PUBKEY_URL}" -o "${target_path}"
@@ -2171,7 +2171,7 @@ append_path_hint() {
     local rc_file="$1"
     local export_key="$2"
     local export_line="$3"
-    local tmp_file="${rc_file}.happier-tmp.$$"
+    local tmp_file="${rc_file}.KAIWU-tmp.$$"
 
     if [[ ! -f "${rc_file}" ]]; then
       printf '\n%s\n' "${export_line}" >> "${rc_file}"
@@ -2204,7 +2204,7 @@ append_path_hint() {
   remove_shell_export_line() {
     local rc_file="$1"
     local export_key="$2"
-    local tmp_file="${rc_file}.happier-tmp.$$"
+    local tmp_file="${rc_file}.KAIWU-tmp.$$"
 
     if [[ ! -f "${rc_file}" ]]; then
       return
@@ -2224,9 +2224,9 @@ append_path_hint() {
   shell_name="$(basename "${SHELL:-}")"
   local export_line="export PATH=\"${BIN_DIR}:\$PATH\""
   local home_export_line=""
-  local default_install_dir="${HOME}/.happier"
+  local default_install_dir="${HOME}/.KAIWU"
   if [[ "${INSTALL_DIR}" != "${default_install_dir}" ]]; then
-    home_export_line="export HAPPIER_HOME_DIR=\"${INSTALL_DIR}\""
+    home_export_line="export KAIWU_HOME_DIR=\"${INSTALL_DIR}\""
   fi
   local rc_files=()
   case "${shell_name}" in
@@ -2255,18 +2255,18 @@ append_path_hint() {
       updated=1
     fi
     if [[ -n "${home_export_line}" ]]; then
-      if [[ ! -f "${rc_file}" ]] || ! grep -Eq "^[[:space:]]*export[[:space:]]+HAPPIER_HOME_DIR=" "${rc_file}"; then
+      if [[ ! -f "${rc_file}" ]] || ! grep -Eq "^[[:space:]]*export[[:space:]]+KAIWU_HOME_DIR=" "${rc_file}"; then
         printf '\n%s\n' "${home_export_line}" >> "${rc_file}"
-        info "Persisted HAPPIER_HOME_DIR=${INSTALL_DIR} in ${rc_file}"
+        info "Persisted KAIWU_HOME_DIR=${INSTALL_DIR} in ${rc_file}"
         updated=1
-      elif ! grep -Fxq "${home_export_line}" "${rc_file}" || [[ "$(grep -Ec "^[[:space:]]*export[[:space:]]+HAPPIER_HOME_DIR=" "${rc_file}")" -ne 1 ]]; then
-        upsert_shell_export_line "${rc_file}" "HAPPIER_HOME_DIR" "${home_export_line}"
-        info "Persisted HAPPIER_HOME_DIR=${INSTALL_DIR} in ${rc_file}"
+      elif ! grep -Fxq "${home_export_line}" "${rc_file}" || [[ "$(grep -Ec "^[[:space:]]*export[[:space:]]+KAIWU_HOME_DIR=" "${rc_file}")" -ne 1 ]]; then
+        upsert_shell_export_line "${rc_file}" "KAIWU_HOME_DIR" "${home_export_line}"
+        info "Persisted KAIWU_HOME_DIR=${INSTALL_DIR} in ${rc_file}"
         updated=1
       fi
-    elif [[ -f "${rc_file}" ]] && grep -Eq "^[[:space:]]*export[[:space:]]+HAPPIER_HOME_DIR=" "${rc_file}"; then
-      remove_shell_export_line "${rc_file}" "HAPPIER_HOME_DIR"
-      info "Removed stale HAPPIER_HOME_DIR from ${rc_file}"
+    elif [[ -f "${rc_file}" ]] && grep -Eq "^[[:space:]]*export[[:space:]]+KAIWU_HOME_DIR=" "${rc_file}"; then
+      remove_shell_export_line "${rc_file}" "KAIWU_HOME_DIR"
+      info "Removed stale KAIWU_HOME_DIR from ${rc_file}"
       updated=1
     fi
   done
@@ -2277,7 +2277,7 @@ append_path_hint() {
     say "To use ${EXE_NAME} in your current shell:"
     say "  export PATH=\"${BIN_DIR}:\$PATH\""
     if [[ -n "${home_export_line}" ]]; then
-      say "  export HAPPIER_HOME_DIR=\"${INSTALL_DIR}\""
+      say "  export KAIWU_HOME_DIR=\"${INSTALL_DIR}\""
     fi
     if [[ "${shell_name}" == "bash" ]]; then
       say "  source \"$HOME/.bashrc\""
@@ -2305,33 +2305,33 @@ ARCH="$(detect_arch)"
 if [[ "${OS}" == "unsupported" || "${ARCH}" == "unsupported" ]]; then
   echo "Unsupported platform: $(uname -s)/$(uname -m)" >&2
   if [[ "${PRODUCT}" == "cli" ]]; then
-    echo "Fallback: npm install -g @happier-dev/cli" >&2
+    echo "Fallback: npm install -g @KAIWU-dev/cli" >&2
   elif [[ "${PRODUCT}" == "stack" ]]; then
-    echo "Fallback: npx --yes -p @happier-dev/stack@latest hstack --help" >&2
+    echo "Fallback: npx --yes -p @KAIWU-dev/stack@latest hstack --help" >&2
   else
-    echo "Fallback: npx --yes --package @happier-dev/relay-server happier-server --help" >&2
+    echo "Fallback: npx --yes --package @KAIWU-dev/relay-server KAIWU-server --help" >&2
   fi
   exit 1
 fi
 
 TAG=""
 DEFAULT_VERSION_REGEX="$(default_release_asset_version_regex "${CHANNEL}")"
-ASSET_REGEX="^happier-v${DEFAULT_VERSION_REGEX}-${OS}-${ARCH}[.]tar[.]gz$"
-CHECKSUMS_REGEX="^checksums-happier-v${DEFAULT_VERSION_REGEX}[.]txt$"
-SIG_REGEX="^checksums-happier-v${DEFAULT_VERSION_REGEX}[.]txt[.]minisig$"
-EXE_NAME="happier"
-INSTALL_NAME="Happier CLI"
-VERSION_PREFIX="happier-v"
-CHECKSUMS_PREFIX="checksums-happier-v"
+ASSET_REGEX="^KAIWU-v${DEFAULT_VERSION_REGEX}-${OS}-${ARCH}[.]tar[.]gz$"
+CHECKSUMS_REGEX="^checksums-KAIWU-v${DEFAULT_VERSION_REGEX}[.]txt$"
+SIG_REGEX="^checksums-KAIWU-v${DEFAULT_VERSION_REGEX}[.]txt[.]minisig$"
+EXE_NAME="KAIWU"
+INSTALL_NAME="KAIWU CLI"
+VERSION_PREFIX="KAIWU-v"
+CHECKSUMS_PREFIX="checksums-KAIWU-v"
 
 if [[ "${PRODUCT}" == "server" ]]; then
-  ASSET_REGEX="^happier-server-v${DEFAULT_VERSION_REGEX}-${OS}-${ARCH}[.]tar[.]gz$"
-  CHECKSUMS_REGEX="^checksums-happier-server-v${DEFAULT_VERSION_REGEX}[.]txt$"
-  SIG_REGEX="^checksums-happier-server-v${DEFAULT_VERSION_REGEX}[.]txt[.]minisig$"
-  EXE_NAME="happier-server"
-  INSTALL_NAME="Happier Server"
-  VERSION_PREFIX="happier-server-v"
-  CHECKSUMS_PREFIX="checksums-happier-server-v"
+  ASSET_REGEX="^KAIWU-server-v${DEFAULT_VERSION_REGEX}-${OS}-${ARCH}[.]tar[.]gz$"
+  CHECKSUMS_REGEX="^checksums-KAIWU-server-v${DEFAULT_VERSION_REGEX}[.]txt$"
+  SIG_REGEX="^checksums-KAIWU-server-v${DEFAULT_VERSION_REGEX}[.]txt[.]minisig$"
+  EXE_NAME="KAIWU-server"
+  INSTALL_NAME="KAIWU Server"
+  VERSION_PREFIX="KAIWU-server-v"
+  CHECKSUMS_PREFIX="checksums-KAIWU-server-v"
 fi
 
 if [[ "${PRODUCT}" == "stack" ]]; then
@@ -2339,7 +2339,7 @@ if [[ "${PRODUCT}" == "stack" ]]; then
   CHECKSUMS_REGEX="^checksums-hstack-v${DEFAULT_VERSION_REGEX}[.]txt$"
   SIG_REGEX="^checksums-hstack-v${DEFAULT_VERSION_REGEX}[.]txt[.]minisig$"
   EXE_NAME="hstack"
-  INSTALL_NAME="Happier Stack"
+  INSTALL_NAME="KAIWU Stack"
   VERSION_PREFIX="hstack-v"
   CHECKSUMS_PREFIX="checksums-hstack-v"
 fi
@@ -2416,7 +2416,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-ARCHIVE_PATH="${TMP_DIR}/happier.tar.gz"
+ARCHIVE_PATH="${TMP_DIR}/KAIWU.tar.gz"
 CHECKSUMS_PATH="${TMP_DIR}/checksums.txt"
 stage_release_asset "Downloading release archive" "${ARCHIVE_PATH}" "${ASSET_SOURCE}"
 stage_release_asset "Downloading checksums" "${CHECKSUMS_PATH}" "${CHECKSUMS_SOURCE}"
@@ -2435,7 +2435,7 @@ success "Checksum verified."
 
 if ! ensure_minisign; then
   echo "minisign is required for installer signature verification." >&2
-  echo "Install minisign manually and rerun, or set HAPPIER_MINISIGN_PUBKEY with a trusted key." >&2
+  echo "Install minisign manually and rerun, or set KAIWU_MINISIGN_PUBKEY with a trusted key." >&2
   exit 1
 fi
 
@@ -2482,8 +2482,8 @@ if [[ "${PRODUCT}" == "cli" ]]; then
   DISPLAY_SHIM_PATH="${BIN_DIR}/${CLI_SHIM_NAME}"
   PROMOTION_OUTPUT=""
   if ! PROMOTION_OUTPUT="$(
-    HAPPIER_HOME_DIR="${INSTALL_DIR}" "${PAYLOAD_BINARY_PATH}" self __install-payload \
-      --component happier-cli \
+    KAIWU_HOME_DIR="${INSTALL_DIR}" "${PAYLOAD_BINARY_PATH}" self __install-payload \
+      --component KAIWU-cli \
       --payload-root "${PAYLOAD_ROOT}" \
       --version "${VERSION}" \
       --channel "${CHANNEL}" \
@@ -2680,7 +2680,7 @@ echo "  binary: ${DISPLAY_BINARY_PATH}"
 echo "  shim:   ${DISPLAY_SHIM_PATH}"
 
 # PATH reload guidance. The shim dir may already be on PATH from a previous
-# install (common), in which case the user can run `happier`/`hdev` right
+# install (common), in which case the user can run `KAIWU`/`hdev` right
 # away. If it is NOT yet on PATH (fresh install), we direct the user to a
 # simple shell reload or provide the absolute path.
 display_shim_dir="$(dirname "${DISPLAY_SHIM_PATH}")"

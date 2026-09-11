@@ -4,7 +4,7 @@
 
 
 /* ---------------------------------------------------------------------------
-   HAPPIER THEME
+   KAIWU THEME
 
    fumadocs is entirely token-driven, so matching the product is a mapping job
    rather than a restyle.
@@ -13,7 +13,7 @@
    The dark palette below is the APP's, transcribed from
    apps/ui/sources/theme/index.ts and theme/tokens/surfaceAndTextColors.ts. That
    is a deliberate choice over the marketing site's, and the two are genuinely
-   different blacks: happier.dev grounds on #050507, which is cool — a trace of
+   different blacks: kaiwu.chengqiyun.com grounds on #050507, which is cool — a trace of
    blue. The app grounds on #131111, which is warm — a trace of red. Reading
    documentation is much closer to using the product than to browsing the
    marketing page, so the docs sit in the app's room, not the poster's.
@@ -35,7 +35,7 @@
    LIGHT MODE stays on the marketing site's paper (#F5F5F7 / #0A0A0B). The app's
    light theme grounds on #F5F5F5 with pure-white surfaces, which is close
    enough that mixing them would be a difference nobody could name; where they
-   disagree, the site's is the one a reader arriving from happier.dev just saw.
+   disagree, the site's is the one a reader arriving from kaiwu.chengqiyun.com just saw.
 
    The accent is not used identically in both themes, and cannot be. On the site
    --accent is only ever a background fill — never text. fumadocs spends
@@ -73,9 +73,9 @@
     --color-fd-overlay: rgba(10, 10, 11, 0.2);
 
     /* Surfaces the rest of this file needs by name rather than by role. */
-    --happier-sidebar: #ffffff;
-    --happier-well: rgba(10, 10, 11, 0.035);
-    --happier-selected: rgba(138, 90, 0, 0.1);
+    --KAIWU-sidebar: #ffffff;
+    --KAIWU-well: rgba(10, 10, 11, 0.035);
+    --KAIWU-selected: rgba(138, 90, 0, 0.1);
 }
 
 .dark {
@@ -111,9 +111,9 @@
 
     /* surface.base for the rails, surface.inset for wells, surface.selected
        for the current row — all three straight off the app. */
-    --happier-sidebar: #191717;
-    --happier-well: #171515;
-    --happier-selected: #292121;
+    --KAIWU-sidebar: #191717;
+    --KAIWU-well: #171515;
+    --KAIWU-selected: #292121;
 }
 
 /* The rails sit on surface.base, the page on canvas — the same one-step lift
@@ -121,9 +121,9 @@
    sidebar re-tint is replaced rather than layered on. */
 #nd-sidebar,
 .dark #nd-sidebar {
-    background-color: var(--happier-sidebar);
-    --color-fd-muted: var(--happier-sidebar);
-    --color-fd-secondary: var(--happier-sidebar);
+    background-color: var(--KAIWU-sidebar);
+    --color-fd-muted: var(--KAIWU-sidebar);
+    --color-fd-secondary: var(--KAIWU-sidebar);
     --color-fd-muted-foreground: #8a817c;
 }
 
@@ -196,7 +196,7 @@ samp {
    fonts (Inter among them), 40-unit section padding, rotated cards and
    screen-filling nav overlays. Those rules exist to stop generic template
    output; here they would fight two things that matter more. Inter and Inter
-   Tight ARE the brand — happier.dev is built on them, and a docs site in a
+   Tight ARE the brand — kaiwu.chengqiyun.com is built on them, and a docs site in a
    different typeface is a worse outcome than a docs site in a common one. And
    marketing whitespace on a reference document costs the reader scrolling for
    nothing. The craft is applied; the theatrics are not.
@@ -274,7 +274,7 @@ kbd {
 }
 
 /*
- * ONE TYPE SCALE, SHARED WITH happier.dev.
+ * ONE TYPE SCALE, SHARED WITH kaiwu.chengqiyun.com.
  *
  * These are the website's numbers rather than new ones — it is the validated
  * design, and a reader moving from a marketing page to a doc should not feel
@@ -560,7 +560,7 @@ kbd {
  */
 #nd-sidebar a[data-active='true'] {
     background-image: none;
-    background-color: var(--happier-selected);
+    background-color: var(--KAIWU-selected);
     color: var(--color-fd-primary);
     box-shadow: none;
     border-radius: 8px;
@@ -611,7 +611,7 @@ kbd {
  */
 #nd-sidebar button[data-search-full],
 #nd-sidebar > div button:has(svg + *) {
-    background-color: var(--happier-well);
+    background-color: var(--KAIWU-well);
     box-shadow: 0 0 0 1px var(--color-fd-border);
 }
 

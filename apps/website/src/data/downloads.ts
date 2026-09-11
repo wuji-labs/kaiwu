@@ -5,8 +5,8 @@
  * and outbound-link checker so those surfaces cannot drift onto another release
  * channel or a stale versioned filename.
  *
- *   - DownloadBadges linked Google Play at `id=dev.happier`. That listing does
- *     not exist (HTTP 404). The real package id is `dev.happier.app`, and even
+ *   - DownloadBadges linked Google Play at `id=dev.Kaiwu`. That listing does
+ *     not exist (HTTP 404). The real package id is `dev.Kaiwu.app`, and even
  *     that has no public store page — it is a closed testing track, reachable
  *     only through the opt-in URL below.
  *   - DownloadBadges once pinned desktop URLs to v0.2.0. Rolling releases now
@@ -45,7 +45,7 @@ export const APP_STORE_URL = downloads.appStoreUrl;
 /**
  * Android has no public store listing.
  *
- * `play.google.com/store/apps/details?id=dev.happier.app` is 404 for anyone who
+ * `play.google.com/store/apps/details?id=dev.Kaiwu.app` is 404 for anyone who
  * is not an opted-in tester, because the track is closed. The opt-in URL is the
  * only working Play entry point, and it only works after a Google account joins
  * the tester list — so it is not a badge, it is a footnote.
@@ -80,7 +80,7 @@ export const GITHUB_REPO_URL = downloads.githubRepoUrl;
 /** The repo spells it LICENCE. `…/blob/main/LICENSE` is a 404. */
 export const LICENSE_URL = downloads.licenseUrl;
 
-/** `docs.happier.dev/changelog` is a 404; the route is /releases. */
+/** `kaiwu.chengqiyun.com/docs/changelog` is a 404; the route is /releases. */
 export const CHANGELOG_URL = downloads.changelogUrl;
 
 export const INSTALL_SCRIPT_URL = downloads.installScriptUrl;
@@ -91,7 +91,7 @@ export const RELEASE_PUBKEY_URL = downloads.releasePubkeyUrl;
  * The minisign public key the installer verifies every release against.
  *
  * Printed on the page so a reader can compare it against the copy compiled into
- * install.sh (line 25-29) and the copy served at /happier-release.pub without
+ * install.sh (line 25-29) and the copy served at /Kaiwu-release.pub without
  * running anything.
  */
 export const RELEASE_PUBKEY_ID = '91AE28177BF6E43C';

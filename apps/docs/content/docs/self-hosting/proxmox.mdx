@@ -21,7 +21,7 @@ description: 使用 community-scripts 辅助脚本在 Proxmox VE 上部署 Kaiwu
 
 ```bash
 tmp="$(mktemp)" \
-  && curl -fsSL "https://raw.githubusercontent.com/happier-dev/ProxmoxVE/main/ct/happier.sh" -o "$tmp" \
+  && curl -fsSL "https://raw.githubusercontent.com/KAIWU-dev/ProxmoxVE/main/ct/KAIWU.sh" -o "$tmp" \
   && bash "$tmp" \
   && rm -f "$tmp"
 ```
@@ -73,7 +73,7 @@ Proxmox 安装程序**不会**替你自动完成认证，但会输出完整流�
 
 若使用反向代理，Proxmox 安装程序会提示输入公网 HTTPS URL，并将其保存到：
 
-- 默认（推荐的安装方式）：写入 `/etc/kaiwu/server.env`（兼容 `/etc/happier/server.env`），分别配置为：
+- 默认（推荐的安装方式）：写入 `/etc/kaiwu/server.env`（兼容 `/etc/KAIWU/server.env`），分别配置为：
   - `KAIWU_PUBLIC_SERVER_URL=https://⟦K7⟧`（规范/共享 URL，用于二维码和深层链接）
   - `KAIWU_WEBAPP_URL=https://⟦K8⟧`（在容器提供 Web UI 服务时生效）
 - 源码安装（`KAIWU_PVE_INSTALL_METHOD=from_source`）：写入 `/home/kaiwu/.kaiwu/stacks/main/env`
@@ -254,9 +254,9 @@ tailscale serve status
 
 非交互式参数替换：
 
-- `KAIWU_PVE_INSTALL_METHOD=installers|from_source`（兼容 `HAPPIER_PVE_INSTALL_METHOD`，默认值：`installers`）
-- `KAIWU_PVE_HSTACK_CHANNEL=stable|preview|dev`（兼容 `HAPPIER_PVE_HSTACK_CHANNEL`，`preview` 对应 npm `@next`）
-- `KAIWU_PVE_HSTACK_PACKAGE='@happier-dev/stack@⟦K15⟧'`（仅限源码安装；优先级最高）
+- `KAIWU_PVE_INSTALL_METHOD=installers|from_source`（兼容 `KAIWU_PVE_INSTALL_METHOD`，默认值：`installers`）
+- `KAIWU_PVE_HSTACK_CHANNEL=stable|preview|dev`（兼容 `KAIWU_PVE_HSTACK_CHANNEL`，`preview` 对应 npm `@next`）
+- `KAIWU_PVE_HSTACK_PACKAGE='@KAIWU-dev/stack@⟦K15⟧'`（仅限源码安装；优先级最高）
 
 ## HTTPS 配置指南（重要）
 

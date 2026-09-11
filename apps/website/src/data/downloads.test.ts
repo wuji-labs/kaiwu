@@ -20,7 +20,7 @@ describe('download URLs', () => {
         for (const platform of DESKTOP_PLATFORMS) {
             expect(platform.href).not.toMatch(/-v\d/);
             expect(platform.href).toMatch(
-                /^https:\/\/github\.com\/happier-dev\/happier\/releases\/download\/ui-desktop-stable\//,
+                /^https:\/\/github\.com\/Kaiwu-dev\/Kaiwu\/releases\/download\/ui-desktop-stable\//,
             );
         }
     });
@@ -34,8 +34,8 @@ describe('download URLs', () => {
         ]);
     });
 
-    // `play.google.com/store/apps/details?id=dev.happier` is a 404 and always
-    // has been; `id=dev.happier.app` is a closed track that 404s for anyone who
+    // `play.google.com/store/apps/details?id=dev.Kaiwu` is a 404 and always
+    // has been; `id=dev.Kaiwu.app` is a closed track that 404s for anyone who
     // is not an opted-in tester. Neither belongs in a badge. Android goes to the
     // APK, which is where 2,056 people have already gone.
     it('never links a Google Play store listing', () => {
@@ -48,7 +48,7 @@ describe('download URLs', () => {
 
     it('offers the stable APK through its canonical rolling alias', () => {
         expect(ANDROID_APK_URL).toBe(
-            'https://github.com/happier-dev/happier/releases/download/ui-mobile-stable/happier-android.apk',
+            'https://github.com/Kaiwu-dev/Kaiwu/releases/download/ui-mobile-stable/Kaiwu-android.apk',
         );
     });
 

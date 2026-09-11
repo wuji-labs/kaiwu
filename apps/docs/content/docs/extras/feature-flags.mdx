@@ -4,8 +4,8 @@ description: Kaiwu 可控制开关的所有能力、其控制方及默认状态�
 ---
 Kaiwu 的各项功能并非对所有人默认全量开启。一项能力可能受到三道关卡的管控；只有这三处判定全部通过，该功能才真正可用：
 
-1. **服务端**声明其支持的功能。自托管用户可通过 `HAPPIER_FEATURE_*` 环境变量进行配置；在 Kaiwu Cloud 上，这部分已由系统预先设定。
-2. **构建产物**可直接通过 `HAPPIER_BUILD_FEATURES_ALLOW` 与 `HAPPIER_BUILD_FEATURES_DENY` 禁用特定功能，不受服务端状态影响。
+1. **服务端**声明其支持的功能。自托管用户可通过 `Kaiwu_FEATURE_*` 环境变量进行配置；在 Kaiwu Cloud 上，这部分已由系统预先设定。
+2. **构建产物**可直接通过 `Kaiwu_BUILD_FEATURES_ALLOW` 与 `Kaiwu_BUILD_FEATURES_DENY` 禁用特定功能，不受服务端状态影响。
 3. **用户自行控制**：你可以在**设置 → 功能**（**Settings → Features**）中主动开启部分功能。
 
 功能目录中的所有功能均遵循**默认关闭（fail-closed）**原则：客户端若无法明确获知某项功能是否可用，便会直接将其视作不可用。正因如此，当服务端无法连接时，相关功能似乎会凭空消失；而自托管服务端如果配置有误，对应功能也会被直接隐藏，绝不会以半开启的异常状态呈现。
@@ -100,11 +100,11 @@ Kaiwu 的各项功能并非对所有人默认全量开启。一项能力可能�
 | `sharing.public` | 会话内容的公开共享链接支持。 | server | — |
 | `sharing.session` | 会话共享能力（支持与其他用户/设备共享会话）。 | server | — |
 | `updates.ota` | Expo OTA 更新检查与应用流程。 | server | — |
-| `voice.happierVoice` | Kaiwu 托管的语音后端可用性（服务端配置的语音服务）。 | server | `voice` |
+| `voice.KaiwuVoice` | Kaiwu 托管的语音后端可用性（服务端配置的语音服务）。 | server | `voice` |
 
 若某项功能依赖于另一项功能，则二者必须同时开启——仅开启依赖方不会产生任何效果。
 
 ## 相关内容
 
-- [环境变量](/self-hosting/env) —— 用于配置这些开关的 `HAPPIER_FEATURE_*` 变量。
+- [环境变量](/self-hosting/env) —— 用于配置这些开关的 `Kaiwu_FEATURE_*` 变量。
 - [Agent 能力](/agents/capabilities) —— 由 Agent 本身决定而非受功能开关控制的特性差异。

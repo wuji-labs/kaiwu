@@ -10,7 +10,7 @@
  *
  * Two sources, because the data genuinely lives in two places:
  *
- *   - `@happier-dev/agents` owns what an agent can *do* — resume, fork,
+ *   - `@KAIWU-dev/agents` owns what an agent can *do* — resume, fork,
  *     steering, media, tools, models, auth. Imported from the built package so
  *     the types are real rather than regex-guessed.
  *   - `apps/ui/sources/agents/providers/<id>/core.ts` owns whether the app
@@ -194,7 +194,7 @@ export async function renderAgentReferenceMarkdown({
     ['Agent', 'Start it with', 'Status', 'Models', 'Managed install'],
     ids.map((id) => [
       `**${name(id)}**`,
-      `\`happier ${core(id).cliSubcommand}\``,
+      `\`KAIWU ${core(id).cliSubcommand}\``,
       stability[id],
       modelsCell(agents.getAgentModelConfig(id)),
       installCell(cliRuntime.getProviderCliRuntimeSpec(id)),

@@ -4,7 +4,7 @@
  * THE HIGHEST-STAKES PAGE ON THE SITE. Everything here is a claim about a
  * security control, made to a reader whose job is to check it. One capability
  * that is "in the schema but not in production" costs more credibility than
- * every other page on happier.dev earns.
+ * every other page on kaiwu.chengqiyun.com earns.
  *
  * The rule applied while writing it: a capability appears below only if it is
  * (a) documented in the shipped tree AND (b) traceable to server source. Two
@@ -27,7 +27,7 @@
  *     fixed 100MB body limit (apps/server/sources/app/api/api.ts:80); no
  *     operator-facing size policy was found. Left off.
  *
- * Verification anchors (happier-dev/happier @ v0.2, the shipped tree):
+ * Verification anchors (Kaiwu-dev/Kaiwu @ v0.2, the shipped tree):
  *   signup / login policy    apps/docs/content/docs/server/auth.mdx:238-268
  *   GitHub allowlists        apps/docs/content/docs/server/auth-github.mdx:164-213
  *   OIDC allow rules         apps/docs/content/docs/server/auth-oidc.mdx:47-81
@@ -67,12 +67,12 @@ export const ENTERPRISE_ACCESS: ReadonlyArray<EnterpriseCapability> = [
     {
         id: 'oidc',
         title: 'OIDC single sign-on, with allow rules per provider',
-        body: 'Okta, Entra ID, Auth0, Keycloak, anything with a discovery document. Each provider gets its own allow rules: a login allowlist, permitted email domains, groups the user must be in any of, groups they must be in all of. If your IdP omits groups from the token and hands back an overage pointer instead, Happier treats the user as ineligible rather than as ungrouped.',
+        body: 'Okta, Entra ID, Auth0, Keycloak, anything with a discovery document. Each provider gets its own allow rules: a login allowlist, permitted email domains, groups the user must be in any of, groups they must be in all of. If your IdP omits groups from the token and hands back an overage pointer instead, Kaiwu treats the user as ineligible rather than as ungrouped.',
     },
     {
         id: 'mtls',
         title: 'mTLS client certificates from your MDM',
-        body: 'Terminate mTLS at your reverse proxy and forward a verified identity to Happier. Map it from the certificate’s SAN email or SAN UPN so a device rotating its certificate is still the same person, and constrain it with issuer and email-domain allowlists. Unknown certificates are rejected unless you have deliberately enabled auto-provisioning.',
+        body: 'Terminate mTLS at your reverse proxy and forward a verified identity to Kaiwu. Map it from the certificate’s SAN email or SAN UPN so a device rotating its certificate is still the same person, and constrain it with issuer and email-domain allowlists. Unknown certificates are rejected unless you have deliberately enabled auto-provisioning.',
     },
     {
         id: 'offboarding',
@@ -124,5 +124,5 @@ export const ENTERPRISE_ZDR: ReadonlyArray<string> = [
 ];
 
 /** Where the operator goes next. Not a step list — this page does not own procedure. */
-export const ENTERPRISE_DOCS_URL = 'https://docs.happier.dev/server/auth';
-export const ENTERPRISE_DEPLOY_URL = 'https://docs.happier.dev/deployment/docker';
+export const ENTERPRISE_DOCS_URL = 'https://kaiwu.chengqiyun.com/docs/server/auth';
+export const ENTERPRISE_DEPLOY_URL = 'https://kaiwu.chengqiyun.com/docs/deployment/docker';

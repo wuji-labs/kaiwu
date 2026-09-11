@@ -49,7 +49,7 @@ test('rejects every non-canonical link form and resolves the canonical one', () 
       '[parent](../server/auth)',
       '[legacy](/docs/features/git)',
       '[canonical](/features/git)',
-      '[external](https://happier.dev)',
+      '[external](https://kaiwu.chengqiyun.com)',
     ].join('\n'),
     'features/git.mdx': '# Git\n',
     'server/auth.mdx': '# Auth\n',
@@ -128,7 +128,7 @@ test('an apostrophe inside a translation does not de-sync the rest of the file',
   assert.deepEqual(checkUiLabels({ contentRoot: root, translationsFile: translations }), []);
 });
 
-test("another product's settings menu is not a claim about Happier's UI", () => {
+test("another product's settings menu is not a claim about KAIWU's UI", () => {
   const root = fixture({
     'p.mdx': 'In GitHub, go to **Settings → Developer settings → OAuth Apps**.\n',
   });
@@ -145,7 +145,7 @@ test('a missing translations file skips the label check rather than failing the 
   );
 });
 
-test('ignores arrow notation that is not a Happier settings path', () => {
+test('ignores arrow notation that is not a KAIWU settings path', () => {
   // All real, all written with the same arrow: an ElevenLabs API-key
   // permission, a form field and its option, and a SwiftBar menu.
   const root = fixture({
@@ -174,20 +174,20 @@ test('an undocumented server feature variable fails the check', () => {
   const schemaDir = fixture({
     'featureEnvSchema.ts': [
       "export const FEATURE_ENV_KEYS = {",
-      "  documented: 'HAPPIER_FEATURE_DOCUMENTED__ENABLED',",
-      "  forgotten: 'HAPPIER_FEATURE_FORGOTTEN__ENABLED',",
+      "  documented: 'KAIWU_FEATURE_DOCUMENTED__ENABLED',",
+      "  forgotten: 'KAIWU_FEATURE_FORGOTTEN__ENABLED',",
       "};",
     ].join('\n'),
   });
   const contentRoot = fixture({
-    'env.mdx': '- `HAPPIER_FEATURE_DOCUMENTED__ENABLED` (default `1`)\n',
+    'env.mdx': '- `KAIWU_FEATURE_DOCUMENTED__ENABLED` (default `1`)\n',
   });
 
   const problems = checkFeatureEnvCoverage({
     contentRoot,
     featureEnvSchemaPath: join(schemaDir, 'featureEnvSchema.ts'),
   });
-  assert.deepEqual(problems.map((p) => p.label), ['HAPPIER_FEATURE_FORGOTTEN__ENABLED']);
+  assert.deepEqual(problems.map((p) => p.label), ['KAIWU_FEATURE_FORGOTTEN__ENABLED']);
 });
 
 test('a missing server workspace skips the coverage check', () => {
@@ -208,14 +208,14 @@ test('an undocumented CLI command fails the check, and aliases are exempt', () =
       '};',
     ].join('\n'),
   });
-  const contentRoot = fixture({ 'cli.mdx': 'Run `happier doctor` to check things.\n' });
+  const contentRoot = fixture({ 'cli.mdx': 'Run `KAIWU doctor` to check things.\n' });
 
   const problems = checkCliCommandCoverage({
     contentRoot,
     registryPath: join(registryDir, 'commandRegistry.ts'),
   });
   // `sessions` is a documented plural alias; `ghost` is genuinely missing.
-  assert.deepEqual(problems.map((p) => p.label), ['happier ghost']);
+  assert.deepEqual(problems.map((p) => p.label), ['KAIWU ghost']);
 });
 
 test('an ASCII-arrow settings path is checked like a real one', () => {

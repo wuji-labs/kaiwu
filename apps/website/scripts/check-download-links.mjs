@@ -33,7 +33,7 @@ const TARGETS = [
     downloads.androidApkUrl,
 
     // Installer + trust surface
-    'https://happier.dev/install',
+    'https://kaiwu.chengqiyun.com/install',
     downloads.installScriptUrl,
     downloads.installScriptPs1Url,
     downloads.releasePubkeyUrl,
@@ -41,21 +41,21 @@ const TARGETS = [
     // Product surfaces
     downloads.webAppUrl,
     downloads.docsUrl,
-    'https://docs.happier.dev/security',
-    'https://docs.happier.dev/providers',
-    'https://docs.happier.dev/releases',
-    'https://docs.happier.dev/getting-started/onboarding',
-    'https://docs.happier.dev/deployment/self-host-runtime',
+    'https://kaiwu.chengqiyun.com/docs/security',
+    'https://kaiwu.chengqiyun.com/docs/providers',
+    'https://kaiwu.chengqiyun.com/docs/releases',
+    'https://kaiwu.chengqiyun.com/docs/getting-started/onboarding',
+    'https://kaiwu.chengqiyun.com/docs/deployment/self-host-runtime',
     downloads.guidesUrl,
 
     // Repo — note the British spelling; /LICENSE is a 404.
     downloads.githubRepoUrl,
     downloads.licenseUrl,
-    'https://github.com/happier-dev/happier/graphs/contributors',
+    'https://github.com/Kaiwu-dev/Kaiwu/graphs/contributors',
 
     // Published stats the counters read.
-    'https://stats.happier.dev/downloads.json',
-    'https://stats.happier.dev/discord.json',
+    'https://stats.kaiwu.chengqiyun.com/downloads.json',
+    'https://stats.kaiwu.chengqiyun.com/discord.json',
 
     // Community
     'https://discord.gg/W6Pb8KuHfg',

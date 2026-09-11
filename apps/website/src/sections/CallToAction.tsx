@@ -54,7 +54,7 @@ export function CallToAction() {
                         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
                             <InstallCommand />
                             <a
-                                href="https://app.happier.dev/"
+                                href="https://kaiwu.chengqiyun.com/"
                                 target="_blank"
                                 rel="noreferrer"
                                 className="inline-flex items-center gap-2 rounded-2xl border px-6 py-3.5 text-[15px] font-semibold"

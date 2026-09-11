@@ -3,8 +3,8 @@
  *
  * These variables are never written down anywhere in the server: the catalog
  * lists endpoint ids and defaults, and the env keys are *derived* from those ids
- * at runtime (`HAPPIER_${UPPER_SNAKE_ID}_RATE_LIMIT_MAX`). So no amount of
- * grepping the source for `HAPPIER_AUTH_PAIRING_START_RATE_LIMIT_MAX` finds it —
+ * at runtime (`KAIWU_${UPPER_SNAKE_ID}_RATE_LIMIT_MAX`). So no amount of
+ * grepping the source for `KAIWU_AUTH_PAIRING_START_RATE_LIMIT_MAX` finds it —
  * which is exactly why ten of the thirty-three were undocumented, including the
  * pairing and device-auth limits an operator hits during a rollout.
  *
@@ -43,8 +43,8 @@ export function parseRateLimitCatalog(source) {
     defaultMax: Number(m[2]),
     defaultWindow: m[3],
     keyMode: m[4],
-    maxEnvKey: `HAPPIER_${toUpperSnakeCase(m[1])}_RATE_LIMIT_MAX`,
-    windowEnvKey: `HAPPIER_${toUpperSnakeCase(m[1])}_RATE_LIMIT_WINDOW`,
+    maxEnvKey: `KAIWU_${toUpperSnakeCase(m[1])}_RATE_LIMIT_MAX`,
+    windowEnvKey: `KAIWU_${toUpperSnakeCase(m[1])}_RATE_LIMIT_WINDOW`,
   }));
   if (entries.length === 0) throw new Error('Rate-limit catalog parsed to zero entries');
   return entries;

@@ -56,13 +56,13 @@ hstack **以 Monorepo 为核心**构建：UI、CLI 以及服务器代码均存�
 **栈**是隔离的运行时环境（包含独立的端口、目录、数据库以及 CLI 主目录），存放在：
 
 ```
-~/.happier/stacks/<stack>/...
+~/.Kaiwu/stacks/<stack>/...
 ```
 
 每个栈的配置位于：
 
 ```
-~/.happier/stacks/<stack>/env
+~/.Kaiwu/stacks/<stack>/env
 ```
 
 通过使用栈，你可以在不污染“主”环境的前提下测试代码修改。
@@ -71,8 +71,8 @@ hstack **以 Monorepo 为核心**构建：UI、CLI 以及服务器代码均存�
 
 每个栈仅运行一种服务器形态：
 
-- `happier-server-light`（推荐）—— 最简单的本地安装形态（默认使用 SQLite；可通过 PGlite 选用嵌入式 Postgres）
-- `happier-server`（完整版）—— 由 Docker 管理的 Postgres/Redis/Minio 环境
+- `Kaiwu-server-light`（推荐）—— 最简单的本地安装形态（默认使用 SQLite；可通过 PGlite 选用嵌入式 Postgres）
+- `Kaiwu-server`（完整版）—— 由 Docker 管理的 Postgres/Redis/Minio 环境
 
 详情参见：[Server flavors](/hstack/server-flavors)。
 
@@ -222,7 +222,7 @@ hstack stack auth <stack> copy-from dev-auth
 每个栈都会在专用的运行时状态文件中记录其归属的运行中进程：
 
 ```
-~/.happier/stacks/<stack>/stack.runtime.json
+~/.Kaiwu/stacks/<stack>/stack.runtime.json
 ```
 
 hstack 依此实现：
@@ -313,7 +313,7 @@ hstack test
 - 创建/列出/查看信息：`hstack stack new`、`hstack stack list`、`hstack stack info`
 - 运行：`hstack stack dev ⟦K32⟧`、`hstack stack start ⟦K33⟧`
 - 切换仓库目录：`hstack stack wt ⟦K34⟧ -- use ⟦K35⟧`
-- 切换服务器形态：`hstack stack srv ⟦K36⟧ -- use happier-server-light|happier-server`
+- 切换服务器形态：`hstack stack srv ⟦K36⟧ -- use Kaiwu-server-light|Kaiwu-server`
 - 认证管理：`hstack stack auth ⟦K37⟧ status|login|copy-from`
 - PR 栈：`hstack stack pr ⟦K38⟧ --repo=⟦K39⟧`
 
@@ -336,18 +336,18 @@ hstack test
 
 路径配置：
 
-- `HAPPIER_STACK_WORKSPACE_DIR`（工作区根目录）
-- `HAPPIER_STACK_REPO_DIR`（活动签出目录；通常由 `hstack wt use` 管理）
-- `HAPPIER_STACK_CLI_ROOT_DIR`（从本地签出目录运行 hstack）
+- `Kaiwu_STACK_WORKSPACE_DIR`（工作区根目录）
+- `Kaiwu_STACK_REPO_DIR`（活动签出目录；通常由 `hstack wt use` 管理）
+- `Kaiwu_STACK_CLI_ROOT_DIR`（从本地签出目录运行 hstack）
 
 认证配置：
 
-- `HAPPIER_STACK_AUTH_SEED_FROM`（新栈的默认认证源；常用 `dev-auth`）
-- `HAPPIER_STACK_AUTH_MODE`（`copy` 与 `link`）
+- `Kaiwu_STACK_AUTH_SEED_FROM`（新栈的默认认证源；常用 `dev-auth`）
+- `Kaiwu_STACK_AUTH_MODE`（`copy` 与 `link`）
 
 服务器选择：
 
-- `HAPPIER_STACK_SERVER_COMPONENT`（`happier-server-light` 与 `happier-server`）
+- `Kaiwu_STACK_SERVER_COMPONENT`（`Kaiwu-server-light` 与 `Kaiwu-server`）
 
 ---
 
@@ -366,7 +366,7 @@ hstack stack info <name>
 
 ```bash
 hstack stack info <name>
-cat ~/.happier/stacks/<name>/env | rg HAPPIER_STACK_REPO_DIR
+cat ~/.Kaiwu/stacks/<name>/env | rg Kaiwu_STACK_REPO_DIR
 ```
 
 重新指定路径即可修复：
