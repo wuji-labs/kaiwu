@@ -11,7 +11,7 @@ description: 在需要手动验证设置与控制面板的变更时，驱动真�
 2. 构建并激活运行时：
    - `hstack stack build codex-bootstrap-qa-⟦K2⟧ --activate-runtime`
 3. 优先使用运行时快照：
-   - `hstack stack env codex-bootstrap-qa-⟦K3⟧ set HAPPIER_STACK_RUNTIME_MODE=prefer`
+   - `hstack stack env codex-bootstrap-qa-⟦K3⟧ set KAIWU_STACK_RUNTIME_MODE=prefer`
 4. 启动栈（运行时）：
    - `hstack stack start codex-bootstrap-qa-⟦K4⟧ --runtime`
 5. 身份验证：
@@ -61,7 +61,7 @@ description: 在需要手动验证设置与控制面板的变更时，驱动真�
 - `yarn --cwd apps/ui tauri:mcp:session:start`
 
 说明：
-- 默认情况下，`yarn ui:tauri` / `yarn --cwd apps/ui tauri:qa` 会在启动 Tauri 前等待 Metro 报告 `packager-status:running`；可使用 `HAPPIER_STACK_TAURI_WAIT_FOR_EXPO=0` 禁用该等待机制。
+- 默认情况下，`yarn ui:tauri` / `yarn --cwd apps/ui tauri:qa` 会在启动 Tauri 前等待 Metro 报告 `packager-status:running`；可使用 `KAIWU_STACK_TAURI_WAIT_FOR_EXPO=0` 禁用该等待机制。
 
 ### 启动驱动会话
 

@@ -25,20 +25,20 @@ hstack tailscale url
 
 ## 自动化配置
 
-如果已经配置了 Serve，除非显式设置了 `HAPPIER_STACK_SERVER_URL`，否则 `hstack start` 会自动优先使用 `https://*.ts.net` URL 作为规范/分享链接。
+如果已经配置了 Serve，除非显式设置了 `KAIWU_STACK_SERVER_URL`，否则 `hstack start` 会自动优先使用 `https://*.ts.net` URL 作为规范/分享链接。
 
-提示：对于自托管服务器，建议同时设置 `HAPPIER_PUBLIC_SERVER_URL`（通常设为相同的 `https://*.ts.net` URL）。该值会由服务器通过 `GET /v1/features` 对外宣告，也是客户端嵌入二维码或深度链接中的地址。
+提示：对于自托管服务器，建议同时设置 `KAIWU_PUBLIC_SERVER_URL`（通常设为相同的 `https://*.ts.net` URL）。该值会由服务器通过 `GET /v1/features` 对外宣告，也是客户端嵌入二维码或深度链接中的地址。
 
 你也可以让 hstack 在启动时自动启用 Serve：
 
 ```bash
-HAPPIER_STACK_TAILSCALE_SERVE=1 hstack start
+KAIWU_STACK_TAILSCALE_SERVE=1 hstack start
 ```
 
 常用调节选项：
-- `HAPPIER_STACK_TAILSCALE_WAIT_MS`
-- `HAPPIER_TAILSCALE_BIN`（推荐的统一覆盖项）
-- `HAPPIER_STACK_TAILSCALE_BIN`（旧版特定栈别名）
+- `KAIWU_STACK_TAILSCALE_WAIT_MS`
+- `KAIWU_TAILSCALE_BIN`（推荐的统一覆盖项）
+- `KAIWU_STACK_TAILSCALE_BIN`（旧版特定栈别名）
 
 ## 使用原生移动端 App（可选）
 

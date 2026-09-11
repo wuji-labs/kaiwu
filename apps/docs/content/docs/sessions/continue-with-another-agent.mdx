@@ -122,7 +122,7 @@ description: 原地切换正在运行会话的编程 Agent，保持同一会话�
 若要对连接到某台服务器的所有客户端禁用该功能：
 
 ```bash
-HAPPIER_FEATURE_SESSIONS_AGENT_SWITCHING__ENABLED=0
+KAIWU_FEATURE_SESSIONS_AGENT_SWITCHING__ENABLED=0
 ```
 
 修改该设置后需重启服务器。被禁用或格式错误的服务器配置项均会触发故障闭锁，并且变更路由会直接拒绝未经选择器发起的直接调用并返回不可用，而不是仅仅依赖选择器做前端限制。
@@ -132,7 +132,7 @@ HAPPIER_FEATURE_SESSIONS_AGENT_SWITCHING__ENABLED=0
 ```bash
 # Character budget for the carried-over context.
 # Default 120000. Minimum 1024, maximum 200000.
-HAPPIER_REPLAY_MAX_SEED_CHARS=120000
+KAIWU_REPLAY_MAX_SEED_CHARS=120000
 ```
 
 此处的最小值设定并非随意为之。低于大约 800 个字符时，提示词构建器会直接**不生成**任何简报，而不是生成一个没有对话内容的空框架；因此 `1024` 是仍能生成可用简报的最小值。
