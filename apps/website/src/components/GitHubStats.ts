@@ -3,7 +3,7 @@ import { readCount, statsUrl, usePublicStat } from './publicStats';
 /**
  * Repo counters, read the same way downloads and Discord members are.
  *
- * Nav.tsx called `api.github.com/repos/happier-dev/happier` directly from every
+ * Nav.tsx called `api.github.com/repos/Kaiwu-dev/Kaiwu` directly from every
  * visitor's browser. Two problems with that, and DiscordMembers already
  * documents both in its own header comment:
  *

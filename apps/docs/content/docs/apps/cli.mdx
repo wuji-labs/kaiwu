@@ -37,7 +37,7 @@ npm 备用方案（面向高级用户 / Node 工作流）：
 
 
 ```bash
-npm install -g @happier-dev/cli
+npm install -g @Kaiwu-dev/cli
 ```
 
 
@@ -50,9 +50,9 @@ npm install -g @happier-dev/cli
 
 更新方式取决于 CLI 的安装途径：
 
-- **安装脚本安装**：运行对应通道的命令（`kaiwu`、`hprev` 或 `hdev`）并附带 `self check` / `self update`（或者重新运行对应的安装脚本端点）。此类安装会将完整的 CLI 内容保存在 `~/.kaiwu/cli/current` 下（兼容读取 `~/.happier`），并自动为你刷新对应通道的 shim。
+- **安装脚本安装**：运行对应通道的命令（`kaiwu`、`hprev` 或 `hdev`）并附带 `self check` / `self update`（或者重新运行对应的安装脚本端点）。此类安装会将完整的 CLI 内容保存在 `~/.kaiwu/cli/current` 下（兼容读取 `~/.Kaiwu`），并自动为你刷新对应通道的 shim。
 - 稳定版为 `~/.kaiwu/cli/current`；预览版/开发版分别使用 `~/.kaiwu/cli-preview/current` 与 `~/.kaiwu/cli-dev/current`。
-- **npm 安装**：`npm install -g @happier-dev/cli@latest`（预览版使用 `@next`）。npm 目前未提供单独的公开 `dev` dist-tag。
+- **npm 安装**：`npm install -g @Kaiwu-dev/cli@latest`（预览版使用 `@next`）。npm 目前未提供单独的公开 `dev` dist-tag。
 
 CLI 还可以在 TTY 会话中定期显示更新提示；可通过如下命令禁用：
 
@@ -154,7 +154,7 @@ kaiwu setup
 
 `--yes` 与 `--non-interactive` 的行为互斥，无法组合使用。`--yes` 会执行已有预设答案的步骤：将本机指向你指定的中继；若指定了 `--this-computer`，还会将中继安装在本地。随后流程会暂停，因为登录必须在手机端或浏览器中确认，命令行无法代你完成授权。安装向导会提示 `kaiwu auth login` 并以非零状态退出——这意味着二进制文件已安装，但引导配置尚未完成。它需要 `--cloud`、`--relay ⟦K37⟧` 或 `--this-computer` 之一：由于你的账户存储在所选的中继上，安装向导不会擅自代你做出选择。
 
-`--non-interactive` 不会写入任何内容。在检测到 `KAIWU_NONINTERACTIVE=1`（或旧版 `HAPPIER_NONINTERACTIVE=1`）以及无终端运行环境时，安装向导的处理方式也是如此，而这正是安装程序和 CI 在整个运行期间所采用的设置——对于仅用于中转的设备，系统不会在上面创建账户。如需执行实际操作，请通过 `--yes` 显式声明。
+`--non-interactive` 不会写入任何内容。在检测到 `KAIWU_NONINTERACTIVE=1`（或旧版 `Kaiwu_NONINTERACTIVE=1`）以及无终端运行环境时，安装向导的处理方式也是如此，而这正是安装程序和 CI 在整个运行期间所采用的设置——对于仅用于中转的设备，系统不会在上面创建账户。如需执行实际操作，请通过 `--yes` 显式声明。
 
 选择在本机托管中继会在安装前后各增加一个连通性检查步骤：安装向导会说明本机上的 Tailscale 是正在运行、已安装但已停止，还是根本未安装，以及这对你的手机意味着什么。否则，中继无法被手机访问的问题往往要到之后在其他地方才会发现。若未安装 Tailscale，安装向当中继最终只能从这台电脑访问时（例如未配置 Tailscale，或是使用了回环地址），登录步骤会提示该状态，并通过当前电脑的浏览器完成登录，而不再提供 App 选项。终端链接会刻意过滤掉其他设备无法访问的地址，因此手机仍会保持指向原有的中继。只有真正发起新请求的登录才会触发这一逻辑：无论如何，设置流程都会运行 `kaiwu auth login`；若之前保存的登录状态依然有效，它只会在不打开浏览器的情况下修复设备注册。一旦中继拥有了手机可访问的地址，`kaiwu auth login` 便会重新同时提供这两种途径。
 
@@ -427,7 +427,7 @@ kaiwu session set-permission-mode <session-id> <mode>
 此时，CLI 命令不会立即执行，而是会创建一条审批请求。你可以使用 App 的**收件箱**来审核、批准或拒绝，并查看最终的执行结果：
 
 - [收件箱与审批](/sessions/inbox-and-approvals)
-- [Kaiwu 工具与动作](/extending/happier-tools)
+- [Kaiwu 工具与动作](/extending/Kaiwu-tools)
 
 对于高级自动化场景，审批也可以通过通用动作执行器进行判定：
 
@@ -472,7 +472,7 @@ kaiwu mcp serve
 
 `kaiwu mcp start` 可作为兼容别名使用，但文档和 CLI 帮助中的规范命令名称为 `serve`。
 
-指南：[Kaiwu MCP（外部）](/extending/happier-as-mcp-server)
+指南：[Kaiwu MCP（外部）](/extending/Kaiwu-as-mcp-server)
 
 ## 后端配置
 
@@ -525,21 +525,21 @@ kaiwu tools list --directory /path/to/project
 
 
 ```bash
-kaiwu tools call --session-id <session-id> --source happier --tool action_spec_search --args-json '{"query":"plan mode","limit":5}'
+kaiwu tools call --session-id <session-id> --source Kaiwu --tool action_spec_search --args-json '{"query":"plan mode","limit":5}'
 ```
 
 
 示例：
 
-- `--source happier --tool review_start`
-- `--source happier --tool subagents_plan_start`
-- `--source happier --tool action_spec_get`
-- `--source happier --tool action_options_resolve`
+- `--source Kaiwu --tool review_start`
+- `--source Kaiwu --tool subagents_plan_start`
+- `--source Kaiwu --tool action_spec_get`
+- `--source Kaiwu --tool action_options_resolve`
 - `--source playwright --tool browser_navigate`
 
 若尚不确定确切的 action id 或合法的选项值，可以使用 Kaiwu 内置的发现工具。
 
-若要了解更全面的产品模型，请参阅 [Kaiwu 工具与操作](/extending/happier-tools)。
+若要了解更全面的产品模型，请参阅 [Kaiwu 工具与操作](/extending/Kaiwu-tools)。
 
 ## 多服务器参考
 

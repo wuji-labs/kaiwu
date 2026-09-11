@@ -28,7 +28,7 @@ import {
 /**
  * THE ROT GATE FOR /agents AND EVERY /agents/<slug> PAGE.
  *
- * happier.dev's rule for minting a URL is that a build-time test must be able to
+ * kaiwu.chengqiyun.com's rule for minting a URL is that a build-time test must be able to
  * FAIL when the page drifts. This is that test.
  *
  * THE BUG IN THE PREVIOUS VERSION OF THIS FILE
@@ -51,7 +51,7 @@ import {
  *                       URLs, the install path, local control, connected
  *                       services, tool delivery
  *   unreleased registry the UPCOMING set, and nothing else
- *   the docs repo       happierDocsPath resolves to a real .mdx
+ *   the docs repo       KaiwuDocsPath resolves to a real .mdx
  *   shape only          h1, standfirst, lead, whatItDoes, faq
  */
 
@@ -62,10 +62,10 @@ function expectedInstall(id: string): { kind: InstallKind; source: string | null
     const facts = readShippedCliFacts(id);
     if (!facts) return null;
     if (facts.managedKind === 'managed_package') {
-        return { kind: 'happier-managed-package', source: facts.managedSource };
+        return { kind: 'Kaiwu-managed-package', source: facts.managedSource };
     }
     if (facts.managedKind === 'github_release_binary') {
-        return { kind: 'happier-managed-release', source: facts.managedSource };
+        return { kind: 'Kaiwu-managed-release', source: facts.managedSource };
     }
     if (facts.manualInstallKind === 'vendor_recipe') return { kind: 'vendor-script', source: null };
     return { kind: 'you-install-it', source: null };
@@ -147,7 +147,7 @@ describe('the per-agent facts come from the released manifest', () => {
             const manifest = readShippedManifestFacts(agent.id);
             if (!cli || !manifest) return;
             expect(agent.binary, `/agents/${agent.slug} binary`).toBe(cli.binaryName);
-            // The page tells people to type `happier <id>`; that has to be the
+            // The page tells people to type `Kaiwu <id>`; that has to be the
             // subcommand the shipped CLI dispatches on.
             expect(agent.id, `/agents/${agent.slug} cli subcommand`).toBe(manifest.cliSubcommand);
         }
@@ -200,7 +200,7 @@ describe('the per-agent facts come from the released manifest', () => {
      * is the part that was still wrong: kiro and auggie both had
      * `vendorSetupGuide: null`, so "prefers the guide over the homepage" passed
      * while the pages linked augmentcode.com (a marketing homepage) and an ACP
-     * protocol reference (the right page for how Happier talks to Kiro, the
+     * protocol reference (the right page for how Kaiwu talks to Kiro, the
      * wrong one for installing it). A homepage has no path; a setup page does,
      * and that is a check a null field cannot pass by staying null.
      */
@@ -223,11 +223,11 @@ describe('the per-agent facts come from the released manifest', () => {
     });
 
     /**
-     * Kiro is the only agent with installKind 'you-install-it': Happier ships no
+     * Kiro is the only agent with installKind 'you-install-it': Kaiwu ships no
      * managed package, no release binary and no vendor recipe for it, so the
      * vendor link IS the install instruction rather than a footnote to one.
      */
-    it('gives every agent Happier cannot install a real setup guide', () => {
+    it('gives every agent Kaiwu cannot install a real setup guide', () => {
         for (const agent of AGENTS) {
             if (agent.installKind !== 'you-install-it') continue;
             expect(
@@ -329,13 +329,13 @@ describe('the per-agent facts come from the released manifest', () => {
         }
     });
 
-    it('only links a Happier docs page that exists in this repository', () => {
+    it('only links a Kaiwu docs page that exists in this repository', () => {
         for (const agent of AGENTS) {
-            if (!agent.happierDocsPath) continue;
-            const file = path.join(DOCS_CONTENT_DIR, `${agent.happierDocsPath.replace(/^\//, '')}.mdx`);
+            if (!agent.KaiwuDocsPath) continue;
+            const file = path.join(DOCS_CONTENT_DIR, `${agent.KaiwuDocsPath.replace(/^\//, '')}.mdx`);
             expect(
                 existsSync(file),
-                `/agents/${agent.slug} links ${agent.happierDocsPath}, but ${file} does not exist`,
+                `/agents/${agent.slug} links ${agent.KaiwuDocsPath}, but ${file} does not exist`,
             ).toBe(true);
         }
     });
@@ -377,7 +377,7 @@ describe('the pages make no claim they cannot keep', () => {
             offenders,
             'An agent page is ranking vendors again. A superlative we cannot prove is a ' +
                 'liability: someone who knows what these agents do will read it, know it is ' +
-                'wrong, and leave. State what Happier does with this agent instead.',
+                'wrong, and leave. State what Kaiwu does with this agent instead.',
         ).toEqual([]);
     });
 
@@ -385,7 +385,7 @@ describe('the pages make no claim they cannot keep', () => {
      * The copy gate on the unified terminal.
      *
      * It is the one differentiator on these pages about driving the VENDOR's
-     * own interface rather than Happier's, which makes it the sentence most
+     * own interface rather than Kaiwu's, which makes it the sentence most
      * likely to be pasted onto a page it is not true of. A page may only use
      * that vocabulary if its own record — asserted against the released
      * manifest above — declares terminal prompt injection.
@@ -636,7 +636,7 @@ describe('every agent page leads with something only that agent can say', () => 
                 `/agents/${entry.slug}: only ${(share * 100).toFixed(1)}% of its five-word runs ` +
                     'are unique to it. That page is mostly the argument every other agent page ' +
                     'makes. Give it what is true of this agent and nothing else — the command ' +
-                    'Happier runs, how a permission mode reaches it, how it signs in — or make ' +
+                    'Kaiwu runs, how a permission mode reaches it, how it signs in — or make ' +
                     'it a card on /agents and redirect the URL.',
             ).toBeGreaterThan(0.85);
         }
@@ -706,7 +706,7 @@ describe('every agent page leads with something only that agent can say', () => 
      * Second pass tested that. The obvious reading of "the descriptions are too
      * short" is to pad, and padding those six with reworded product argument is
      * exactly what would have proved the note right. So the extra 200 words a
-     * page came from the launch instead — the command Happier runs, how a
+     * page came from the launch instead — the command Kaiwu runs, how a
      * permission mode is expressed to that agent, which sign-in flow the
      * provider page drives, what the vendor says the CLI is for — none of which
      * two agents share. The number went the other way:

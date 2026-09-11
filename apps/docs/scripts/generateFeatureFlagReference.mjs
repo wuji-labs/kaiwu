@@ -9,7 +9,7 @@
  * self-hoster had no way to discover them.
  *
  * Sources:
- *   - `@happier-dev/protocol`'s `FEATURE_CATALOG` — the 71 canonical ids, their
+ *   - `@KAIWU-dev/protocol`'s `FEATURE_CATALOG` — the 71 canonical ids, their
  *     descriptions, whether the server or the client owns them, and their
  *     dependencies. Imported from the built package.
  *   - `apps/ui/.../uiFeatureRegistry.ts` — which of those the app exposes as a
@@ -141,10 +141,10 @@ Not everything Kaiwu can do is switched on for everybody. A capability can be
 gated in three places, and a feature is only usable when all three agree:
 
 1. **The server** advertises which features it supports. Self-hosters control
-   this with \`HAPPIER_FEATURE_*\` environment variables; on Kaiwu Cloud it is
+   this with \`KAIWU_FEATURE_*\` environment variables; on Kaiwu Cloud it is
    set for you.
 2. **The build** can deny features regardless of the server, through
-   \`HAPPIER_BUILD_FEATURES_ALLOW\` and \`HAPPIER_BUILD_FEATURES_DENY\`.
+   \`KAIWU_BUILD_FEATURES_ALLOW\` and \`KAIWU_BUILD_FEATURES_DENY\`.
 3. **You** turn some of them on in **Settings → Features**.
 
 Every feature in the catalog is **fail-closed**: if the client cannot get a
@@ -182,7 +182,7 @@ dependant alone does nothing.
 
 ## Related
 
-- [Environment variables](/self-hosting/env) — the \`HAPPIER_FEATURE_*\` variables that set these.
+- [Environment variables](/self-hosting/env) — the \`KAIWU_FEATURE_*\` variables that set these.
 - [Agent capabilities](/agents/capabilities) — what varies by agent rather than by flag.
 `;
 }

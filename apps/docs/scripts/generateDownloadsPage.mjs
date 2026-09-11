@@ -45,8 +45,8 @@ export function parseDownloadManifest(source) {
     androidApk: manifest.androidApkUrl,
     androidOptIn: manifest.androidPlayTestingOptInUrl,
     webApp: "https://kaiwu.chengqiyun.com",
-    installUnix: (manifest.installCommandUnix || "").replaceAll("https://happier.dev", "https://kaiwu.chengqiyun.com"),
-    installWindows: (manifest.installCommandWindows || "").replaceAll("https://happier.dev", "https://kaiwu.chengqiyun.com"),
+    installUnix: (manifest.installCommandUnix || "").replaceAll("https://kaiwu.chengqiyun.com", "https://kaiwu.chengqiyun.com"),
+    installWindows: (manifest.installCommandWindows || "").replaceAll("https://kaiwu.chengqiyun.com", "https://kaiwu.chengqiyun.com"),
   };
 }
 

@@ -3,13 +3,13 @@
 # --flag` set $Channel to '--flag'), so $RunArgs never received them.
 [CmdletBinding(PositionalBinding = $false)]
 param(
-  [string] $Channel = $(if ($env:HAPPIER_CHANNEL) { $env:HAPPIER_CHANNEL } else { "dev" }),
-  [string] $Version = $(if ($env:HAPPIER_INSTALL_VERSION) { $env:HAPPIER_INSTALL_VERSION } else { "" }),
+  [string] $Channel = $(if ($env:KAIWU_CHANNEL) { $env:KAIWU_CHANNEL } else { "dev" }),
+  [string] $Version = $(if ($env:KAIWU_INSTALL_VERSION) { $env:KAIWU_INSTALL_VERSION } else { "" }),
   [switch] $SetupRelay,
   [switch] $Rollback,
   [switch] $WithDaemon,
   [switch] $WithoutDaemon,
-  [string] $Run = $(if ($env:HAPPIER_INSTALLER_RUN_ACTION) { $env:HAPPIER_INSTALLER_RUN_ACTION } else { "" }),
+  [string] $Run = $(if ($env:KAIWU_INSTALLER_RUN_ACTION) { $env:KAIWU_INSTALLER_RUN_ACTION } else { "" }),
   # Declared as $Yes with -NonInteractive as an alias on purpose: PowerShell
   # variable names are case-insensitive, so a [switch] $NonInteractive would
   # collide with the $Noninteractive string below.
@@ -25,11 +25,11 @@ if ($WithDaemon.IsPresent -and $WithoutDaemon.IsPresent) {
   throw "Specify either -WithDaemon or -WithoutDaemon, not both."
 }
 
-if ($env:HAPPIER_INSTALLER_SETUP_RELAY -and $env:HAPPIER_INSTALLER_SETUP_RELAY -ne "0") {
+if ($env:KAIWU_INSTALLER_SETUP_RELAY -and $env:KAIWU_INSTALLER_SETUP_RELAY -ne "0") {
   $SetupRelay = $true
 }
 
-$InstallerAction = if ($env:HAPPIER_INSTALLER_ACTION) { ([string]$env:HAPPIER_INSTALLER_ACTION).Trim().ToLowerInvariant() } else { "install" }
+$InstallerAction = if ($env:KAIWU_INSTALLER_ACTION) { ([string]$env:KAIWU_INSTALLER_ACTION).Trim().ToLowerInvariant() } else { "install" }
 if ($Rollback.IsPresent) {
   $InstallerAction = "rollback"
 }
@@ -37,7 +37,7 @@ if ($InstallerAction -eq "reinstall") {
   $InstallerAction = "install"
 }
 if ($InstallerAction -ne "install" -and $InstallerAction -ne "rollback") {
-  throw "Unsupported HAPPIER_INSTALLER_ACTION '$InstallerAction' for install.ps1. Expected install or rollback."
+  throw "Unsupported KAIWU_INSTALLER_ACTION '$InstallerAction' for install.ps1. Expected install or rollback."
 }
 if ($Version -and $Version -notmatch '^[A-Za-z0-9][A-Za-z0-9._+-]*$') {
   throw "Invalid install version '$Version'. Expected a release version such as 0.2.1."
@@ -54,37 +54,37 @@ function Normalize-Channel {
     "preview" { return "preview" }
     "dev" { return "publicdev" }
     "publicdev" { return "publicdev" }
-    default { throw "Invalid HAPPIER_CHANNEL '$Raw'. Expected stable, preview, or dev." }
+    default { throw "Invalid KAIWU_CHANNEL '$Raw'. Expected stable, preview, or dev." }
   }
 }
 
 $Channel = Normalize-Channel -Raw ([string]$Channel)
 
-$Repo = if ($env:HAPPIER_GITHUB_REPO) { $env:HAPPIER_GITHUB_REPO } else { "happier-dev/happier" }
-$Token = if ($env:HAPPIER_GITHUB_TOKEN) { $env:HAPPIER_GITHUB_TOKEN } elseif ($env:GITHUB_TOKEN) { $env:GITHUB_TOKEN } else { "" }
-$ReleaseAssetsDir = if ($env:HAPPIER_RELEASE_ASSETS_DIR) { $env:HAPPIER_RELEASE_ASSETS_DIR } else { "" }
+$Repo = if ($env:KAIWU_GITHUB_REPO) { $env:KAIWU_GITHUB_REPO } else { "KAIWU-dev/KAIWU" }
+$Token = if ($env:KAIWU_GITHUB_TOKEN) { $env:KAIWU_GITHUB_TOKEN } elseif ($env:GITHUB_TOKEN) { $env:GITHUB_TOKEN } else { "" }
+$ReleaseAssetsDir = if ($env:KAIWU_RELEASE_ASSETS_DIR) { $env:KAIWU_RELEASE_ASSETS_DIR } else { "" }
 $GitHubHeaders = @{
   "X-GitHub-Api-Version" = "2022-11-28"
 }
 if ($Token) {
   $GitHubHeaders["Authorization"] = "Bearer $Token"
 }
-$InstallDir = if ($env:HAPPIER_INSTALL_DIR) { $env:HAPPIER_INSTALL_DIR } elseif ($env:HAPPIER_HOME_DIR) { $env:HAPPIER_HOME_DIR } else { Join-Path $env:USERPROFILE ".happier" }
-$DaemonServiceStateHomeDir = if ($env:HAPPIER_HOME_DIR) { $env:HAPPIER_HOME_DIR } else { $InstallDir }
+$InstallDir = if ($env:KAIWU_INSTALL_DIR) { $env:KAIWU_INSTALL_DIR } elseif ($env:KAIWU_HOME_DIR) { $env:KAIWU_HOME_DIR } else { Join-Path $env:USERPROFILE ".KAIWU" }
+$DaemonServiceStateHomeDir = if ($env:KAIWU_HOME_DIR) { $env:KAIWU_HOME_DIR } else { $InstallDir }
 $LegacyBinDir = Join-Path $env:USERPROFILE ".local\bin"
 $BinDir = Join-Path $InstallDir "bin"
-if ($env:HAPPIER_BIN_DIR) {
-  $requestedBinDir = $env:HAPPIER_BIN_DIR
+if ($env:KAIWU_BIN_DIR) {
+  $requestedBinDir = $env:KAIWU_BIN_DIR
   if ($requestedBinDir -ne $BinDir) {
-    Write-Warning "Ignoring HAPPIER_BIN_DIR on Windows; the managed install bin directory is the canonical PATH target."
+    Write-Warning "Ignoring KAIWU_BIN_DIR on Windows; the managed install bin directory is the canonical PATH target."
   }
 }
-$Noninteractive = if ($Yes.IsPresent) { "1" } elseif ($env:HAPPIER_NONINTERACTIVE) { $env:HAPPIER_NONINTERACTIVE } else { "0" }
+$Noninteractive = if ($Yes.IsPresent) { "1" } elseif ($env:KAIWU_NONINTERACTIVE) { $env:KAIWU_NONINTERACTIVE } else { "0" }
 if ($Yes.IsPresent) {
-  # Mirror install.sh: the flag must reach every child `happier` invocation too.
-  $env:HAPPIER_NONINTERACTIVE = "1"
+  # Mirror install.sh: the flag must reach every child `KAIWU` invocation too.
+  $env:KAIWU_NONINTERACTIVE = "1"
 }
-$NoPathUpdate = if ($env:HAPPIER_NO_PATH_UPDATE) { $env:HAPPIER_NO_PATH_UPDATE } else { "0" }
+$NoPathUpdate = if ($env:KAIWU_NO_PATH_UPDATE) { $env:KAIWU_NO_PATH_UPDATE } else { "0" }
 $WithDaemonExplicit = $false
 if ($WithDaemon.IsPresent) {
   $WithDaemonPreference = "1"
@@ -94,8 +94,8 @@ elseif ($WithoutDaemon.IsPresent) {
   $WithDaemonPreference = "0"
   $WithDaemonExplicit = $true
 }
-elseif ($env:HAPPIER_WITH_DAEMON) {
-  $WithDaemonPreference = $env:HAPPIER_WITH_DAEMON
+elseif ($env:KAIWU_WITH_DAEMON) {
+  $WithDaemonPreference = $env:KAIWU_WITH_DAEMON
   $WithDaemonExplicit = $true
 }
 else {
@@ -105,13 +105,13 @@ $DefaultMinisignPubKey = @"
 untrusted comment: minisign public key 91AE28177BF6E43C
 RWQ85PZ7FyiukYbL3qv/bKnwgbT68wLVzotapeMFIb8n+c7pBQ7U8W2t
 "@
-$MinisignPubKey = if ($env:HAPPIER_MINISIGN_PUBKEY) { $env:HAPPIER_MINISIGN_PUBKEY } else { $DefaultMinisignPubKey.Trim() }
-$MinisignPubKeyUrl = if ($env:HAPPIER_MINISIGN_PUBKEY_URL) { $env:HAPPIER_MINISIGN_PUBKEY_URL } else { "https://happier.dev/happier-release.pub" }
+$MinisignPubKey = if ($env:KAIWU_MINISIGN_PUBKEY) { $env:KAIWU_MINISIGN_PUBKEY } else { $DefaultMinisignPubKey.Trim() }
+$MinisignPubKeyUrl = if ($env:KAIWU_MINISIGN_PUBKEY_URL) { $env:KAIWU_MINISIGN_PUBKEY_URL } else { "https://kaiwu.chengqiyun.com/KAIWU-release.pub" }
 
 function Resolve-CliShimName {
   if ($Channel -eq "preview") { return "hprev" }
   if ($Channel -eq "publicdev") { return "hdev" }
-  return "happier"
+  return "KAIWU"
 }
 
 function Resolve-CliInstallRootName {
@@ -197,7 +197,7 @@ function New-InstallerStagingDirectory {
 
   $stagingParent = Join-Path $InstallHomeDir ".install-staging"
   New-Item -ItemType Directory -Path $stagingParent -Force | Out-Null
-  return New-Item -ItemType Directory -Path (Join-Path $stagingParent ("happier-install-" + [System.Guid]::NewGuid().ToString("N")))
+  return New-Item -ItemType Directory -Path (Join-Path $stagingParent ("KAIWU-install-" + [System.Guid]::NewGuid().ToString("N")))
 }
 
 function Remove-InstallerStagingDirectory {
@@ -267,7 +267,7 @@ function Invoke-InstallerCliRollback {
   }
 
   $previousDir = Join-Path (Join-Path $installRoot "versions") $previousVersion
-  $previousBinary = Join-Path $previousDir "happier.exe"
+  $previousBinary = Join-Path $previousDir "KAIWU.exe"
   if (-not (Test-Path $previousBinary -PathType Leaf)) {
     throw "Rollback target is missing or incomplete: $previousDir"
   }
@@ -286,8 +286,8 @@ function Invoke-InstallerCliRollback {
 
   $shimName = Resolve-CliShimName
   Sync-InstallerCliRollbackShim -ShimName $shimName -BinaryPath $previousBinary
-  if ($shimName -ne "happier" -and (Test-InstallerDefaultChannelMatchesSelectedChannel)) {
-    Sync-InstallerCliRollbackShim -ShimName "happier" -BinaryPath $previousBinary
+  if ($shimName -ne "KAIWU" -and (Test-InstallerDefaultChannelMatchesSelectedChannel)) {
+    Sync-InstallerCliRollbackShim -ShimName "KAIWU" -BinaryPath $previousBinary
   }
 
   Write-Host "Rolled back $shimName from $(if ($currentVersion) { $currentVersion } else { 'current' }) to $previousVersion."
@@ -356,7 +356,7 @@ function ConvertTo-InstallerBoolean {
     "no" { return "0" }
     "off" { return "0" }
     "" { return "0" }
-    default { throw "Invalid HAPPIER_WITH_DAEMON value '$Raw'. Expected 0/1, true/false, yes/no, or on/off." }
+    default { throw "Invalid KAIWU_WITH_DAEMON value '$Raw'. Expected 0/1, true/false, yes/no, or on/off." }
   }
 }
 
@@ -520,24 +520,24 @@ function Invoke-InstallerCommandWithDaemonServiceContext {
     [Parameter(Mandatory = $true)] [string] $HomeDir
   )
 
-  $previousHomeDir = $env:HAPPIER_HOME_DIR
-  $previousNoninteractive = $env:HAPPIER_NONINTERACTIVE
-  $previousPublicReleaseChannel = $env:HAPPIER_PUBLIC_RELEASE_CHANNEL
-  $previousDaemonServiceChannel = $env:HAPPIER_DAEMON_SERVICE_CHANNEL
-  $previousInstallerDaemonServiceStrategy = $env:HAPPIER_INSTALLER_DAEMON_SERVICE_STRATEGY
+  $previousHomeDir = $env:KAIWU_HOME_DIR
+  $previousNoninteractive = $env:KAIWU_NONINTERACTIVE
+  $previousPublicReleaseChannel = $env:KAIWU_PUBLIC_RELEASE_CHANNEL
+  $previousDaemonServiceChannel = $env:KAIWU_DAEMON_SERVICE_CHANNEL
+  $previousInstallerDaemonServiceStrategy = $env:KAIWU_INSTALLER_DAEMON_SERVICE_STRATEGY
   try {
     $channelLabel = if ($Channel -eq "publicdev") { "dev" } else { $Channel }
-    $env:HAPPIER_HOME_DIR = $HomeDir
+    $env:KAIWU_HOME_DIR = $HomeDir
     if ($null -eq $previousNoninteractive) {
-      Remove-Item Env:HAPPIER_NONINTERACTIVE -ErrorAction SilentlyContinue
+      Remove-Item Env:KAIWU_NONINTERACTIVE -ErrorAction SilentlyContinue
     }
     else {
-      $env:HAPPIER_NONINTERACTIVE = $previousNoninteractive
+      $env:KAIWU_NONINTERACTIVE = $previousNoninteractive
     }
-    $env:HAPPIER_PUBLIC_RELEASE_CHANNEL = $channelLabel
-    $env:HAPPIER_DAEMON_SERVICE_CHANNEL = $channelLabel
-    if ($env:HAPPIER_INSTALLER_DAEMON_SERVICE_STRATEGY) {
-      $env:HAPPIER_INSTALLER_DAEMON_SERVICE_STRATEGY = $env:HAPPIER_INSTALLER_DAEMON_SERVICE_STRATEGY
+    $env:KAIWU_PUBLIC_RELEASE_CHANNEL = $channelLabel
+    $env:KAIWU_DAEMON_SERVICE_CHANNEL = $channelLabel
+    if ($env:KAIWU_INSTALLER_DAEMON_SERVICE_STRATEGY) {
+      $env:KAIWU_INSTALLER_DAEMON_SERVICE_STRATEGY = $env:KAIWU_INSTALLER_DAEMON_SERVICE_STRATEGY
     }
     & $CliPath @CommandArgs
     # A native command exiting non-zero does NOT throw under
@@ -548,40 +548,40 @@ function Invoke-InstallerCommandWithDaemonServiceContext {
   }
   finally {
     if ($null -eq $previousHomeDir) {
-      Remove-Item Env:HAPPIER_HOME_DIR -ErrorAction SilentlyContinue
+      Remove-Item Env:KAIWU_HOME_DIR -ErrorAction SilentlyContinue
     }
     else {
-      $env:HAPPIER_HOME_DIR = $previousHomeDir
+      $env:KAIWU_HOME_DIR = $previousHomeDir
     }
     if ($null -eq $previousNoninteractive) {
-      Remove-Item Env:HAPPIER_NONINTERACTIVE -ErrorAction SilentlyContinue
+      Remove-Item Env:KAIWU_NONINTERACTIVE -ErrorAction SilentlyContinue
     }
     else {
-      $env:HAPPIER_NONINTERACTIVE = $previousNoninteractive
+      $env:KAIWU_NONINTERACTIVE = $previousNoninteractive
     }
     if ($null -eq $previousPublicReleaseChannel) {
-      Remove-Item Env:HAPPIER_PUBLIC_RELEASE_CHANNEL -ErrorAction SilentlyContinue
+      Remove-Item Env:KAIWU_PUBLIC_RELEASE_CHANNEL -ErrorAction SilentlyContinue
     }
     else {
-      $env:HAPPIER_PUBLIC_RELEASE_CHANNEL = $previousPublicReleaseChannel
+      $env:KAIWU_PUBLIC_RELEASE_CHANNEL = $previousPublicReleaseChannel
     }
     if ($null -eq $previousDaemonServiceChannel) {
-      Remove-Item Env:HAPPIER_DAEMON_SERVICE_CHANNEL -ErrorAction SilentlyContinue
+      Remove-Item Env:KAIWU_DAEMON_SERVICE_CHANNEL -ErrorAction SilentlyContinue
     }
     else {
-      $env:HAPPIER_DAEMON_SERVICE_CHANNEL = $previousDaemonServiceChannel
+      $env:KAIWU_DAEMON_SERVICE_CHANNEL = $previousDaemonServiceChannel
     }
     if ($null -eq $previousInstallerDaemonServiceStrategy) {
-      Remove-Item Env:HAPPIER_INSTALLER_DAEMON_SERVICE_STRATEGY -ErrorAction SilentlyContinue
+      Remove-Item Env:KAIWU_INSTALLER_DAEMON_SERVICE_STRATEGY -ErrorAction SilentlyContinue
     }
     else {
-      $env:HAPPIER_INSTALLER_DAEMON_SERVICE_STRATEGY = $previousInstallerDaemonServiceStrategy
+      $env:KAIWU_INSTALLER_DAEMON_SERVICE_STRATEGY = $previousInstallerDaemonServiceStrategy
     }
   }
 }
 
 function Resolve-InstallerPreInstallCommandTimeoutMs {
-  $raw = [string]$env:HAPPIER_INSTALLER_PRE_INSTALL_COMMAND_TIMEOUT_MS
+  $raw = [string]$env:KAIWU_INSTALLER_PRE_INSTALL_COMMAND_TIMEOUT_MS
   if (-not $raw) {
     return 30000
   }
@@ -649,28 +649,28 @@ function Invoke-InstallerCommandWithDaemonServiceContextCapturingOutputWithTimeo
     [Parameter(Mandatory = $true)] [int] $timeoutMs
   )
 
-  $previousHomeDir = $env:HAPPIER_HOME_DIR
-  $previousNoninteractive = $env:HAPPIER_NONINTERACTIVE
-  $previousPublicReleaseChannel = $env:HAPPIER_PUBLIC_RELEASE_CHANNEL
-  $previousDaemonServiceChannel = $env:HAPPIER_DAEMON_SERVICE_CHANNEL
-  $previousInstallerDaemonServiceStrategy = $env:HAPPIER_INSTALLER_DAEMON_SERVICE_STRATEGY
+  $previousHomeDir = $env:KAIWU_HOME_DIR
+  $previousNoninteractive = $env:KAIWU_NONINTERACTIVE
+  $previousPublicReleaseChannel = $env:KAIWU_PUBLIC_RELEASE_CHANNEL
+  $previousDaemonServiceChannel = $env:KAIWU_DAEMON_SERVICE_CHANNEL
+  $previousInstallerDaemonServiceStrategy = $env:KAIWU_INSTALLER_DAEMON_SERVICE_STRATEGY
   $runToken = [System.Guid]::NewGuid().ToString("N")
-  $stdoutPath = Join-Path $env:TEMP "happier-pre-install-$runToken.stdout.log"
-  $stderrPath = Join-Path $env:TEMP "happier-pre-install-$runToken.stderr.log"
+  $stdoutPath = Join-Path $env:TEMP "KAIWU-pre-install-$runToken.stdout.log"
+  $stderrPath = Join-Path $env:TEMP "KAIWU-pre-install-$runToken.stderr.log"
 
   try {
     $channelLabel = if ($Channel -eq "publicdev") { "dev" } else { $Channel }
-    $env:HAPPIER_HOME_DIR = $HomeDir
+    $env:KAIWU_HOME_DIR = $HomeDir
     if ($null -eq $previousNoninteractive) {
-      Remove-Item Env:HAPPIER_NONINTERACTIVE -ErrorAction SilentlyContinue
+      Remove-Item Env:KAIWU_NONINTERACTIVE -ErrorAction SilentlyContinue
     }
     else {
-      $env:HAPPIER_NONINTERACTIVE = $previousNoninteractive
+      $env:KAIWU_NONINTERACTIVE = $previousNoninteractive
     }
-    $env:HAPPIER_PUBLIC_RELEASE_CHANNEL = $channelLabel
-    $env:HAPPIER_DAEMON_SERVICE_CHANNEL = $channelLabel
-    if ($env:HAPPIER_INSTALLER_DAEMON_SERVICE_STRATEGY) {
-      $env:HAPPIER_INSTALLER_DAEMON_SERVICE_STRATEGY = $env:HAPPIER_INSTALLER_DAEMON_SERVICE_STRATEGY
+    $env:KAIWU_PUBLIC_RELEASE_CHANNEL = $channelLabel
+    $env:KAIWU_DAEMON_SERVICE_CHANNEL = $channelLabel
+    if ($env:KAIWU_INSTALLER_DAEMON_SERVICE_STRATEGY) {
+      $env:KAIWU_INSTALLER_DAEMON_SERVICE_STRATEGY = $env:KAIWU_INSTALLER_DAEMON_SERVICE_STRATEGY
     }
 
     $process = Start-Process -FilePath $CliPath -ArgumentList $CommandArgs -PassThru -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath -WindowStyle Hidden
@@ -703,34 +703,34 @@ function Invoke-InstallerCommandWithDaemonServiceContextCapturingOutputWithTimeo
     Remove-Item -Path $stderrPath -Force -ErrorAction SilentlyContinue
 
     if ($null -eq $previousHomeDir) {
-      Remove-Item Env:HAPPIER_HOME_DIR -ErrorAction SilentlyContinue
+      Remove-Item Env:KAIWU_HOME_DIR -ErrorAction SilentlyContinue
     }
     else {
-      $env:HAPPIER_HOME_DIR = $previousHomeDir
+      $env:KAIWU_HOME_DIR = $previousHomeDir
     }
     if ($null -eq $previousNoninteractive) {
-      Remove-Item Env:HAPPIER_NONINTERACTIVE -ErrorAction SilentlyContinue
+      Remove-Item Env:KAIWU_NONINTERACTIVE -ErrorAction SilentlyContinue
     }
     else {
-      $env:HAPPIER_NONINTERACTIVE = $previousNoninteractive
+      $env:KAIWU_NONINTERACTIVE = $previousNoninteractive
     }
     if ($null -eq $previousPublicReleaseChannel) {
-      Remove-Item Env:HAPPIER_PUBLIC_RELEASE_CHANNEL -ErrorAction SilentlyContinue
+      Remove-Item Env:KAIWU_PUBLIC_RELEASE_CHANNEL -ErrorAction SilentlyContinue
     }
     else {
-      $env:HAPPIER_PUBLIC_RELEASE_CHANNEL = $previousPublicReleaseChannel
+      $env:KAIWU_PUBLIC_RELEASE_CHANNEL = $previousPublicReleaseChannel
     }
     if ($null -eq $previousDaemonServiceChannel) {
-      Remove-Item Env:HAPPIER_DAEMON_SERVICE_CHANNEL -ErrorAction SilentlyContinue
+      Remove-Item Env:KAIWU_DAEMON_SERVICE_CHANNEL -ErrorAction SilentlyContinue
     }
     else {
-      $env:HAPPIER_DAEMON_SERVICE_CHANNEL = $previousDaemonServiceChannel
+      $env:KAIWU_DAEMON_SERVICE_CHANNEL = $previousDaemonServiceChannel
     }
     if ($null -eq $previousInstallerDaemonServiceStrategy) {
-      Remove-Item Env:HAPPIER_INSTALLER_DAEMON_SERVICE_STRATEGY -ErrorAction SilentlyContinue
+      Remove-Item Env:KAIWU_INSTALLER_DAEMON_SERVICE_STRATEGY -ErrorAction SilentlyContinue
     }
     else {
-      $env:HAPPIER_INSTALLER_DAEMON_SERVICE_STRATEGY = $previousInstallerDaemonServiceStrategy
+      $env:KAIWU_INSTALLER_DAEMON_SERVICE_STRATEGY = $previousInstallerDaemonServiceStrategy
     }
   }
 }
@@ -741,10 +741,10 @@ function Test-DoctorRepairPreflightLooksLikePlainDoctorReport {
   )
 
   # Mirror install.sh:823-862: an older CLI that doesn't understand
-  # `doctor repair --json` may instead emit a plain-text "Happier CLI Doctor"
+  # `doctor repair --json` may instead emit a plain-text "KAIWU CLI Doctor"
   # report. We must reject that — even if portions of it accidentally parse
   # as JSON — and fall through to the legacy `service list --json` probe.
-  return $Output -match 'Happier CLI Doctor'
+  return $Output -match 'KAIWU CLI Doctor'
 }
 
 function Test-DoctorRepairPreflightJsonIsSupported {
@@ -914,7 +914,7 @@ function Test-InstallerCommandLooksUnsupported {
     [Parameter()] [string] $Output = ""
   )
 
-  return $Output -match '(?i)unknown (option|command|subcommand)|invalid option|usage: happier <command>|does not support'
+  return $Output -match '(?i)unknown (option|command|subcommand)|invalid option|usage: KAIWU <command>|does not support'
 }
 
 function Get-BackgroundServiceInstallManualCommand {
@@ -1096,7 +1096,7 @@ function Test-InstalledCliSupportsCommandSurface {
   )
 
   $invokerName = (Split-Path -Leaf $CliPath)
-  if ([string]::IsNullOrWhiteSpace($invokerName)) { $invokerName = "happier" }
+  if ([string]::IsNullOrWhiteSpace($invokerName)) { $invokerName = "KAIWU" }
 
   $helpOutput = ""
   if ($requiredSubcommand -eq "relay") {
@@ -1111,11 +1111,11 @@ function Test-InstalledCliSupportsCommandSurface {
     $helpOutput = Get-InstalledCliRootHelp -CliPath $CliPath
   }
 
-  $pattern = "(?m)^\s*($([Regex]::Escape($invokerName))|happier)\s+$([Regex]::Escape($requiredSubcommand))\b"
+  $pattern = "(?m)^\s*($([Regex]::Escape($invokerName))|KAIWU)\s+$([Regex]::Escape($requiredSubcommand))\b"
   return [bool]($helpOutput -match $pattern)
 }
 
-# `happier setup` is the CLI's own guided first run. The installer hands off to
+# `KAIWU setup` is the CLI's own guided first run. The installer hands off to
 # it after the binary is ready; every question a first run needs to ask belongs
 # to the CLI.
 # Whether this computer already has an account on its active relay. Ask the CLI
@@ -1153,7 +1153,7 @@ function Test-InstalledCliReportsConfiguredMachine {
 }
 
 # Hand off only when a person is actually watching. -Yes / -NonInteractive,
-# HAPPIER_NONINTERACTIVE=1 and redirected stdin all mean "decline optional
+# KAIWU_NONINTERACTIVE=1 and redirected stdin all mean "decline optional
 # setup", exactly like the background-service prompt. An already-configured
 # machine is left alone: a re-install is not a first run.
 function Test-ShouldHandOffToGuidedSetup {
@@ -1242,7 +1242,7 @@ function Invoke-PostInstallAction {
 
   if ($requiredSubcommand) {
     if (-not (Test-InstalledCliSupportsCommandSurface -CliPath $CliPath -requiredSubcommand $requiredSubcommand)) {
-      throw "Installed Happier CLI does not support the '$requiredSubcommand' command surface required for -Run $runValue. Update your Happier CLI (or switch installer channel) and try again."
+      throw "Installed KAIWU CLI does not support the '$requiredSubcommand' command surface required for -Run $runValue. Update your KAIWU CLI (or switch installer channel) and try again."
     }
   }
   Invoke-InstallerCommandWithDaemonServiceContext -CliPath $CliPath -CommandArgs $argsToPass -HomeDir $DaemonServiceStateHomeDir
@@ -1347,7 +1347,7 @@ function Get-LocalAssetByPattern {
     return $null
   }
   if (-not (Test-Path $ReleaseAssetsDir -PathType Container)) {
-    throw "HAPPIER_RELEASE_ASSETS_DIR does not exist: $ReleaseAssetsDir"
+    throw "KAIWU_RELEASE_ASSETS_DIR does not exist: $ReleaseAssetsDir"
   }
   return Select-NewestInstallerAsset -Assets @(Get-ChildItem -Path $ReleaseAssetsDir -File | Where-Object { $_.Name -match $Pattern })
 }
@@ -1554,7 +1554,7 @@ function Invoke-NativeCommandCapturingOutput {
 }
 
 function Resolve-InstallerPayloadPromotionTimeoutMs {
-  $raw = [string]$env:HAPPIER_INSTALLER_PAYLOAD_PROMOTION_TIMEOUT_MS
+  $raw = [string]$env:KAIWU_INSTALLER_PAYLOAD_PROMOTION_TIMEOUT_MS
   if (-not $raw) {
     return 120000
   }
@@ -1729,11 +1729,11 @@ function Test-InstallerLockHygieneDaemonServiceLabelInScope {
     $leafLabel = $leafLabel.Substring($lastSeparatorIndex + 1)
   }
 
-  return $leafLabel -eq "happier-daemon" -or $leafLabel.StartsWith("happier-daemon.")
+  return $leafLabel -eq "KAIWU-daemon" -or $leafLabel.StartsWith("KAIWU-daemon.")
 }
 
 function Resolve-InstallerLockHygieneWaitMs {
-  $raw = [string]$env:HAPPIER_INSTALLER_LOCK_HYGIENE_WAIT_MS
+  $raw = [string]$env:KAIWU_INSTALLER_LOCK_HYGIENE_WAIT_MS
   if (-not $raw) {
     return 30000
   }
@@ -1768,7 +1768,7 @@ function Get-InstallerLockHygieneMatchNeedles {
     $managedBinDir
     (Join-Path $managedBinDir "$shimName.exe")
     (Join-Path $managedBinDir "$shimName")
-    (Join-Path $managedBinDir "happier.exe")
+    (Join-Path $managedBinDir "KAIWU.exe")
     (Join-Path $managedBinDir "hprev.exe")
     (Join-Path $managedBinDir "hdev.exe")
   )
@@ -1784,13 +1784,13 @@ function Get-InstallerLockHygieneMatchNeedles {
   return $needles.ToArray()
 }
 
-function Get-InstallerScopedHappierProcesses {
+function Get-InstallerScopedKAIWUProcesses {
   param (
     [Parameter(Mandatory = $true)] [string[]] $MatchNeedles
   )
 
-  $happierProcessNames = @("happier", "hprev", "hdev")
-  $processes = Get-CimInstance Win32_Process -Filter "Name='happier.exe' OR Name='hprev.exe' OR Name='hdev.exe'" -ErrorAction SilentlyContinue
+  $KAIWUProcessNames = @("KAIWU", "hprev", "hdev")
+  $processes = Get-CimInstance Win32_Process -Filter "Name='KAIWU.exe' OR Name='hprev.exe' OR Name='hdev.exe'" -ErrorAction SilentlyContinue
   if (-not $processes) {
     return @()
   }
@@ -1806,7 +1806,7 @@ function Get-InstallerScopedHappierProcesses {
     if ($normalizedName.EndsWith(".exe")) {
       $normalizedName = $normalizedName.Substring(0, $normalizedName.Length - 4)
     }
-    if (-not ($happierProcessNames -contains $normalizedName)) {
+    if (-not ($KAIWUProcessNames -contains $normalizedName)) {
       continue
     }
 
@@ -1822,7 +1822,7 @@ function Get-InstallerScopedHappierProcesses {
   return $matched.ToArray()
 }
 
-function Get-InstallerScopedHappierServices {
+function Get-InstallerScopedKAIWUServices {
   param (
     [Parameter(Mandatory = $true)] [string[]] $MatchNeedles
   )
@@ -1864,14 +1864,14 @@ function Get-InstallerScopedHappierServices {
   return $matched.ToArray()
 }
 
-function Get-InstallerScopedHappierScheduledTasks {
+function Get-InstallerScopedKAIWUScheduledTasks {
   param (
     [Parameter(Mandatory = $true)] [string[]] $MatchNeedles
   )
 
   $tasks = @()
   try {
-    $tasks = Get-ScheduledTask -TaskPath "\Happier\" -ErrorAction SilentlyContinue
+    $tasks = Get-ScheduledTask -TaskPath "\KAIWU\" -ErrorAction SilentlyContinue
   }
   catch {
     return @()
@@ -1925,14 +1925,14 @@ function Wait-InstallerLockHygieneProcessesToExit {
 
   $deadline = (Get-Date).AddMilliseconds($WaitMs)
   while ((Get-Date) -lt $deadline) {
-    $remaining = Get-InstallerScopedHappierProcesses -MatchNeedles $MatchNeedles
+    $remaining = Get-InstallerScopedKAIWUProcesses -MatchNeedles $MatchNeedles
     if ($remaining.Count -eq 0) {
       return @()
     }
     Start-Sleep -Milliseconds 250
   }
 
-  return Get-InstallerScopedHappierProcesses -MatchNeedles $MatchNeedles
+  return Get-InstallerScopedKAIWUProcesses -MatchNeedles $MatchNeedles
 }
 
 function Remove-StaleInstallerVersionBackups {
@@ -1994,7 +1994,7 @@ function Invoke-InstallerPreInstallLockHygiene {
     }
   }
 
-  $matchingProcesses = Get-InstallerScopedHappierProcesses -MatchNeedles $matchNeedles
+  $matchingProcesses = Get-InstallerScopedKAIWUProcesses -MatchNeedles $matchNeedles
   foreach ($process in $matchingProcesses) {
     Stop-Process -Id $process.ProcessId -Force -ErrorAction SilentlyContinue
   }
@@ -2010,7 +2010,7 @@ function Invoke-InstallerPreInstallLockHygiene {
     throw "Pre-install lock hygiene failed to quiesce managed runtime holders within $waitMs ms: $($details -join ', ')"
   }
 
-  $remainingServices = Get-InstallerScopedHappierServices -MatchNeedles $matchNeedles
+  $remainingServices = Get-InstallerScopedKAIWUServices -MatchNeedles $matchNeedles
   if ($remainingServices.Count -gt 0) {
     $details = $remainingServices |
       ForEach-Object {
@@ -2020,7 +2020,7 @@ function Invoke-InstallerPreInstallLockHygiene {
     throw "Pre-install lock hygiene found scoped managed services still active after cleanup: $($details -join ', ')"
   }
 
-  $remainingScheduledTasks = Get-InstallerScopedHappierScheduledTasks -MatchNeedles $matchNeedles
+  $remainingScheduledTasks = Get-InstallerScopedKAIWUScheduledTasks -MatchNeedles $matchNeedles
   if ($remainingScheduledTasks.Count -gt 0) {
     $details = $remainingScheduledTasks |
       ForEach-Object {
@@ -2069,10 +2069,10 @@ function Invoke-InstallerPayloadPromotionWithTimeout {
 
   $timeoutMs = Resolve-InstallerPayloadPromotionTimeoutMs
   $runToken = [System.Guid]::NewGuid().ToString("N")
-  $runnerBinaryPath = Join-Path $env:TEMP "happier-payload-promotion-$runToken.exe"
-  $runnerScriptPath = Join-Path $env:TEMP "happier-payload-promotion-$runToken.ps1"
-  $stdoutPath = Join-Path $env:TEMP "happier-payload-promotion-$runToken.stdout.log"
-  $stderrPath = Join-Path $env:TEMP "happier-payload-promotion-$runToken.stderr.log"
+  $runnerBinaryPath = Join-Path $env:TEMP "KAIWU-payload-promotion-$runToken.exe"
+  $runnerScriptPath = Join-Path $env:TEMP "KAIWU-payload-promotion-$runToken.ps1"
+  $stdoutPath = Join-Path $env:TEMP "KAIWU-payload-promotion-$runToken.stdout.log"
+  $stderrPath = Join-Path $env:TEMP "KAIWU-payload-promotion-$runToken.stderr.log"
 
   $escapeSingleQuotedLiteral = {
     param([string] $Value)
@@ -2081,14 +2081,14 @@ function Invoke-InstallerPayloadPromotionWithTimeout {
 
   $runnerScript = @"
 `$ErrorActionPreference = 'Stop'
-`$previousHappyHomeDir = `$env:HAPPIER_HOME_DIR
-`$previousSkipPayloadOwnerStopCommands = `$env:HAPPIER_CLI_SKIP_PAYLOAD_OWNER_STOP_COMMANDS
-`$previousSkipInstallPayloadMigration = `$env:HAPPIER_CLI_SKIP_INSTALL_PAYLOAD_MIGRATION
+`$previousHappyHomeDir = `$env:KAIWU_HOME_DIR
+`$previousSkipPayloadOwnerStopCommands = `$env:KAIWU_CLI_SKIP_PAYLOAD_OWNER_STOP_COMMANDS
+`$previousSkipInstallPayloadMigration = `$env:KAIWU_CLI_SKIP_INSTALL_PAYLOAD_MIGRATION
 try {
-  `$env:HAPPIER_HOME_DIR = '$(& $escapeSingleQuotedLiteral $InstallHomeDir)'
-  `$env:HAPPIER_CLI_SKIP_PAYLOAD_OWNER_STOP_COMMANDS = '1'
-  `$env:HAPPIER_CLI_SKIP_INSTALL_PAYLOAD_MIGRATION = '1'
-  & '$(& $escapeSingleQuotedLiteral $runnerBinaryPath)' self __install-payload --component happier-cli --payload-root '$(& $escapeSingleQuotedLiteral $PayloadRoot)' --version '$(& $escapeSingleQuotedLiteral $Version)' --channel '$(& $escapeSingleQuotedLiteral $ChannelValue)'
+  `$env:KAIWU_HOME_DIR = '$(& $escapeSingleQuotedLiteral $InstallHomeDir)'
+  `$env:KAIWU_CLI_SKIP_PAYLOAD_OWNER_STOP_COMMANDS = '1'
+  `$env:KAIWU_CLI_SKIP_INSTALL_PAYLOAD_MIGRATION = '1'
+  & '$(& $escapeSingleQuotedLiteral $runnerBinaryPath)' self __install-payload --component KAIWU-cli --payload-root '$(& $escapeSingleQuotedLiteral $PayloadRoot)' --version '$(& $escapeSingleQuotedLiteral $Version)' --channel '$(& $escapeSingleQuotedLiteral $ChannelValue)'
   `$exitCode = `$LASTEXITCODE
   if (`$null -eq `$exitCode) {
     `$exitCode = 1
@@ -2097,22 +2097,22 @@ try {
 }
 finally {
   if (`$null -eq `$previousHappyHomeDir) {
-    Remove-Item Env:HAPPIER_HOME_DIR -ErrorAction SilentlyContinue
+    Remove-Item Env:KAIWU_HOME_DIR -ErrorAction SilentlyContinue
   }
   else {
-    `$env:HAPPIER_HOME_DIR = `$previousHappyHomeDir
+    `$env:KAIWU_HOME_DIR = `$previousHappyHomeDir
   }
   if (`$null -eq `$previousSkipPayloadOwnerStopCommands) {
-    Remove-Item Env:HAPPIER_CLI_SKIP_PAYLOAD_OWNER_STOP_COMMANDS -ErrorAction SilentlyContinue
+    Remove-Item Env:KAIWU_CLI_SKIP_PAYLOAD_OWNER_STOP_COMMANDS -ErrorAction SilentlyContinue
   }
   else {
-    `$env:HAPPIER_CLI_SKIP_PAYLOAD_OWNER_STOP_COMMANDS = `$previousSkipPayloadOwnerStopCommands
+    `$env:KAIWU_CLI_SKIP_PAYLOAD_OWNER_STOP_COMMANDS = `$previousSkipPayloadOwnerStopCommands
   }
   if (`$null -eq `$previousSkipInstallPayloadMigration) {
-    Remove-Item Env:HAPPIER_CLI_SKIP_INSTALL_PAYLOAD_MIGRATION -ErrorAction SilentlyContinue
+    Remove-Item Env:KAIWU_CLI_SKIP_INSTALL_PAYLOAD_MIGRATION -ErrorAction SilentlyContinue
   }
   else {
-    `$env:HAPPIER_CLI_SKIP_INSTALL_PAYLOAD_MIGRATION = `$previousSkipInstallPayloadMigration
+    `$env:KAIWU_CLI_SKIP_INSTALL_PAYLOAD_MIGRATION = `$previousSkipInstallPayloadMigration
   }
 }
 "@
@@ -2212,7 +2212,7 @@ function Resolve-MinisignPublicKey {
     return
   }
   if (-not $MinisignPubKeyUrl) {
-    throw "HAPPIER_MINISIGN_PUBKEY_URL is empty; cannot fetch minisign public key."
+    throw "KAIWU_MINISIGN_PUBKEY_URL is empty; cannot fetch minisign public key."
   }
   Invoke-InstallerWebRequestWithRetry -Uri $MinisignPubKeyUrl -OutFile $TargetPath
 }
@@ -2225,20 +2225,20 @@ if (-not $ReleaseAssetsDir) {
   }
   catch {
     if ($Channel -eq "stable") {
-      throw "No stable releases found for Happier CLI."
+      throw "No stable releases found for KAIWU CLI."
     }
     if ($Channel -eq "publicdev") {
-      throw "No dev releases found for Happier CLI."
+      throw "No dev releases found for KAIWU CLI."
     }
-    throw "No preview releases found for Happier CLI."
+    throw "No preview releases found for KAIWU CLI."
   }
 }
 else {
   $release = $null
 }
-$assetPattern = Resolve-InstallerRequestedVersionPattern -Prefix "happier-v" -Suffix "-windows-x64.tar.gz"
-$checksumsPattern = Resolve-InstallerRequestedVersionPattern -Prefix "checksums-happier-v" -Suffix ".txt"
-$signaturePattern = Resolve-InstallerRequestedVersionPattern -Prefix "checksums-happier-v" -Suffix ".txt.minisig"
+$assetPattern = Resolve-InstallerRequestedVersionPattern -Prefix "KAIWU-v" -Suffix "-windows-x64.tar.gz"
+$checksumsPattern = Resolve-InstallerRequestedVersionPattern -Prefix "checksums-KAIWU-v" -Suffix ".txt"
+$signaturePattern = Resolve-InstallerRequestedVersionPattern -Prefix "checksums-KAIWU-v" -Suffix ".txt.minisig"
 $asset = Resolve-InstallerAsset -Release $release -Pattern $assetPattern
 $checksumsAsset = Resolve-InstallerAsset -Release $release -Pattern $checksumsPattern
 $signatureAsset = Resolve-InstallerAsset -Release $release -Pattern $signaturePattern
@@ -2256,7 +2256,7 @@ $script:PostInstallRunStatus = 0
 $script:PostInstallActionWasExplicit = [bool]($Run -or $SetupRelay)
 $tmpDir = New-InstallerStagingDirectory -InstallHomeDir $InstallDir
 try {
-  $archivePath = Join-Path $tmpDir.FullName "happier.tar.gz"
+  $archivePath = Join-Path $tmpDir.FullName "KAIWU.tar.gz"
   $checksumsPath = Join-Path $tmpDir.FullName "checksums.txt"
   $signaturePath = Join-Path $tmpDir.FullName "checksums.txt.minisig"
   $pubKeyPath = Join-Path $tmpDir.FullName "minisign.pub"
@@ -2299,17 +2299,17 @@ try {
   New-Item -ItemType Directory -Path $extractDir | Out-Null
   $tarPath = Resolve-TarExecutablePath
   & $tarPath -xzf $archivePath -C $extractDir
-  $version = $assetName -replace '^happier-v', '' -replace '-windows-x64\.tar\.gz$', ''
+  $version = $assetName -replace '^KAIWU-v', '' -replace '-windows-x64\.tar\.gz$', ''
   if (-not $version -or $version -eq $assetName) {
     throw "Failed to infer release version from asset name: $assetName"
   }
-  $payloadRoot = Join-Path $extractDir "happier-v$version-windows-x64"
+  $payloadRoot = Join-Path $extractDir "KAIWU-v$version-windows-x64"
   if (-not (Test-Path $payloadRoot)) {
     throw "Failed to locate extracted payload root: $payloadRoot"
   }
-  $binary = Join-Path $payloadRoot "happier.exe"
+  $binary = Join-Path $payloadRoot "KAIWU.exe"
   if (-not (Test-Path $binary)) {
-    throw "Failed to locate extracted happier.exe"
+    throw "Failed to locate extracted KAIWU.exe"
   }
 
   New-Item -ItemType Directory -Path $BinDir -Force | Out-Null
@@ -2350,7 +2350,7 @@ try {
     }
   }
   if ($LegacyBinDir -ne $BinDir) {
-    Remove-Item -Path (Join-Path $LegacyBinDir "happier.exe") -Force -ErrorAction SilentlyContinue
+    Remove-Item -Path (Join-Path $LegacyBinDir "KAIWU.exe") -Force -ErrorAction SilentlyContinue
   }
 
   if ($NoPathUpdate -ne "1") {
@@ -2382,7 +2382,7 @@ try {
     }
   }
   else {
-    Write-Host "Skipped PATH update because HAPPIER_NO_PATH_UPDATE=1."
+    Write-Host "Skipped PATH update because KAIWU_NO_PATH_UPDATE=1."
   }
 
   $invoker = Resolve-InstalledCliInvoker
@@ -2400,7 +2400,7 @@ try {
   $displayShimBasename = [System.IO.Path]::GetFileNameWithoutExtension($displayShimPath)
   $displayBinaryPath = $invoker
   Write-Host ""
-  Write-Host "Happier CLI installed:"
+  Write-Host "KAIWU CLI installed:"
   Write-Host "  binary: $displayBinaryPath"
   Write-Host "  shim:   $displayShimPath"
   Write-Host ""
@@ -2545,7 +2545,7 @@ try {
     try {
       $script:LastInstallerCommandExitCode = 0
       Invoke-PostInstallAction -CliPath $invoker
-      # `happier setup` exits non-zero when it stops short of finishing -- for
+      # `KAIWU setup` exits non-zero when it stops short of finishing -- for
       # example when it has set the relay but sign-in still needs a person. That
       # is not "done", and it must not fail the install either.
       $script:PostInstallSetupIsDone = ($script:LastInstallerCommandExitCode -eq 0)

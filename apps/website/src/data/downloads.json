@@ -1,36 +1,36 @@
 {
-    "desktopAssetBase": "https://github.com/happier-dev/happier/releases/download/ui-desktop-stable",
-    "desktopReleasesPage": "https://github.com/happier-dev/happier/releases/tag/ui-desktop-stable",
+    "desktopAssetBase": "https://github.com/Kaiwu-dev/Kaiwu/releases/download/ui-desktop-stable",
+    "desktopReleasesPage": "https://github.com/Kaiwu-dev/Kaiwu/releases/tag/ui-desktop-stable",
     "desktopPlatforms": [
         {
             "id": "mac-arm64",
             "label": "macOS",
             "sublabel": "Apple Silicon",
-            "file": "happier-ui-desktop-darwin-aarch64.dmg"
+            "file": "Kaiwu-ui-desktop-darwin-aarch64.dmg"
         },
         {
             "id": "mac-x86_64",
             "label": "macOS",
             "sublabel": "Intel",
-            "file": "happier-ui-desktop-darwin-x86_64.dmg"
+            "file": "Kaiwu-ui-desktop-darwin-x86_64.dmg"
         },
         {
             "id": "win-x86_64",
             "label": "Windows",
             "sublabel": "x64 · .exe installer",
-            "file": "happier-ui-desktop-windows-x86_64.exe"
+            "file": "Kaiwu-ui-desktop-windows-x86_64.exe"
         },
         {
             "id": "linux-x86_64",
             "label": "Linux",
             "sublabel": "x64 · AppImage",
-            "file": "happier-ui-desktop-linux-x86_64.AppImage"
+            "file": "Kaiwu-ui-desktop-linux-x86_64.AppImage"
         }
     ],
-    "appStoreUrl": "https://apps.apple.com/app/happier-claude-codex-opencode/id6758554297",
-    "androidApkUrl": "https://github.com/happier-dev/happier/releases/download/ui-mobile-stable/happier-android.apk",
-    "androidPlayTestingOptInUrl": "https://play.google.com/apps/testing/dev.happier.app",
-    "androidPlayUrl": "https://play.google.com/store/apps/details?id=dev.happier.app",
+    "appStoreUrl": "https://apps.apple.com/app/Kaiwu-claude-codex-opencode/id6758554297",
+    "androidApkUrl": "https://github.com/Kaiwu-dev/Kaiwu/releases/download/ui-mobile-stable/Kaiwu-android.apk",
+    "androidPlayTestingOptInUrl": "https://play.google.com/apps/testing/dev.Kaiwu.app",
+    "androidPlayUrl": "https://play.google.com/store/apps/details?id=dev.Kaiwu.app",
     "webAppUrl": "https://kaiwu.chengqiyun.com/",
     "docsUrl": "https://kaiwu.chengqiyun.com/docs",
     "guidesUrl": "https://kaiwu.chengqiyun.com/docs",

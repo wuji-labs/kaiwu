@@ -38,7 +38,7 @@
   Access-Control-Allow-Origin: *
   Cache-Control: public, max-age=3600
 
-/happier-release.pub
+/KAIWU-release.pub
   X-Robots-Tag: noindex
   Content-Type: text/plain; charset=utf-8
   Cache-Control: public, max-age=3600

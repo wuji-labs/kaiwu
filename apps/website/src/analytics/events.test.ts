@@ -33,7 +33,7 @@ describe('analytics taxonomy', () => {
     it('never points ingest at a US or unspecified PostHog host', () => {
         expect(POSTHOG_EU_ORIGIN).toBe('https://eu.i.posthog.com');
         expect(UI_ORIGIN).toBe('https://eu.posthog.com');
-        expect(INGEST_ORIGIN.startsWith('https://happier.dev/')).toBe(true);
+        expect(INGEST_ORIGIN.startsWith('https://kaiwu.chengqiyun.com/')).toBe(true);
 
         for (const { file, code } of SOURCES) {
             expect(code, `${file} references a non-EU PostHog host`).not.toMatch(
@@ -75,7 +75,7 @@ describe('analytics taxonomy', () => {
      * described a measurement plan rather than implementing one, and every test
      * above passes just as happily on a file nothing imports.
      *
-     * PostHog has never received a $pageview from any Happier web property. The
+     * PostHog has never received a $pageview from any Kaiwu web property. The
      * cheapest way to repeat that is to add a tenth emitter and forget to call
      * it, so: every event name must be reachable from a component.
      */

@@ -6,7 +6,7 @@ description: 在 Kaiwu monorepo 根目录下使用 yarn 命令运行无栈本地
 
 注意：GitHub 仓库的默认分支是 `dev`，可能不够稳定。若希望在基于源码运行时获得更稳定的环境，建议签出 `preview`。
 
-该模式为**仓库本地**（repo-local，即无栈）模式：它会在 `~/.happier/stacks/⟦K28⟧/...` 下为当前签出目录创建隔离的栈，且**无需**指定栈名称。
+该模式为**仓库本地**（repo-local，即无栈）模式：它会在 `~/.KAIWU/stacks/⟦K28⟧/...` 下为当前签出目录创建隔离的栈，且**无需**指定栈名称。
 
 重要说明：仓库本地模式本质上仍是**基于源码运行**（source-backed）的流程。
 
@@ -22,7 +22,7 @@ description: 在 Kaiwu monorepo 根目录下使用 yarn 命令运行无栈本地
 ## 快速上手（开发模式）
 
 ```bash
-cd /path/to/happier
+cd /path/to/KAIWU
 yarn dev
 ```
 
@@ -60,7 +60,7 @@ node ./apps/stack/scripts/repo_local.mjs <hstack-subcommand> [args...]
 
 - 强制基于当前 monorepo 签出目录执行（不会重定向到全局安装）。
 - 使用与各签出目录隔离的栈名称（`repo-⟦K30⟧-⟦K31⟧`）。
-- 在 `~/.happier/stacks/⟦K32⟧/...` 下设置栈作用域的环境变量文件和 CLI 主目录。
+- 在 `~/.KAIWU/stacks/⟦K32⟧/...` 下设置栈作用域的环境变量文件和 CLI 主目录。
 - 默认使用无栈模式的固定端口范围：
   - 服务端起始端口 `52005`
   - Expo 起始端口 `18081`
@@ -92,14 +92,14 @@ yarn remote -- --help
 
 ## 在任意位置运行 Kaiwu CLI（基于当前仓库签出）
 
-若希望在任意终端中运行的 `hstack` / `happier` 命令都基于**当前**克隆版本执行（而非运行时全局安装版本），
+若希望在任意终端中运行的 `hstack` / `KAIWU` 命令都基于**当前**克隆版本执行（而非运行时全局安装版本），
 可以激活仓库本地 shim：
 
 ```bash
 yarn cli:activate
 ```
 
-若要同时将 `~/.happier-stack/bin` 自动添加到 Shell 的 `PATH`（会修改 Shell 配置文件）：
+若要同时将 `~/.KAIWU-stack/bin` 自动添加到 Shell 的 `PATH`（会修改 Shell 配置文件）：
 
 ```bash
 yarn cli:activate:path
@@ -119,7 +119,7 @@ yarn start
 默认情况下，`yarn build` 会将 Web UI 导出产物写入当前栈的根目录：
 
 ```text
-~/.happier/stacks/<repo-stack>/ui
+~/.KAIWU/stacks/<repo-stack>/ui
 ```
 
 这里仅包含 Web 产物包。仓库本地模式目前**不会**为服务端和守护进程组装栈本地运行时快照。
@@ -129,7 +129,7 @@ yarn start
 ```bash
 hstack stack new prod-dev --repo=/absolute/path/to/this/checkout
 hstack stack build prod-dev --activate-runtime
-hstack stack env prod-dev set HAPPIER_STACK_RUNTIME_MODE=prefer
+hstack stack env prod-dev set KAIWU_STACK_RUNTIME_MODE=prefer
 hstack stack start prod-dev --runtime
 ```
 
@@ -236,7 +236,7 @@ yarn env unset KEY
 这些修改会持久化保存在：
 
 ```text
-~/.happier/stacks/<repo-stack>/env
+~/.KAIWU/stacks/<repo-stack>/env
 ```
 
 ## 移动端
@@ -275,8 +275,8 @@ yarn mobile-dev-client
 | --- | --- | --- | --- |
 | `yarn auth` | `hstack auth ...` | 当前仓库本地栈的登录/状态/开发密钥认证辅助工具。 | `status`, `login`, `seed`, `--method=mobile|web`, `--no-open` |
 | `yarn daemon` | `hstack daemon ...` | 在栈作用域内管理守护进程（`start`、`stop`、`restart`、`status`）。 | `status`, `restart`, `--identity=⟦K36⟧`, `--json` |
-| `yarn happier` | `hstack happier ...` | 针对当前仓库本地栈上下文运行 Kaiwu CLI。 | 透传提供商/CLI 参数 |
-| `yarn cli:activate` | `hstack init --cli-root-dir=⟦K37⟧/apps/stack --no-runtime --no-bootstrap` | 将全局 `hstack`/`happier` shim 指向当前克隆版本。 | `--home-dir=...` |
+| `yarn KAIWU` | `hstack KAIWU ...` | 针对当前仓库本地栈上下文运行 Kaiwu CLI。 | 透传提供商/CLI 参数 |
+| `yarn cli:activate` | `hstack init --cli-root-dir=⟦K37⟧/apps/stack --no-runtime --no-bootstrap` | 将全局 `hstack`/`KAIWU` shim 指向当前克隆版本。 | `--home-dir=...` |
 | `yarn cli:activate:path` | 同上 + `--install-path` | 功能同 `cli:activate`，并同步更新 Shell PATH。 | 无（透传额外参数） |
 
 ### 日志
@@ -319,7 +319,7 @@ yarn mobile-dev-client
 | `yarn service:restart` | `hstack service restart` | 重启受托管的服务。 | 无 |
 | `yarn service:uninstall` | `hstack service uninstall` | 移除服务 unit/plist 文件。 | 无 |
 
-服务日志输出行数默认为 `120`；可通过 `HAPPIER_STACK_LOG_LINES=⟦K40⟧` 覆盖该默认值。
+服务日志输出行数默认为 `120`；可通过 `KAIWU_STACK_LOG_LINES=⟦K40⟧` 覆盖该默认值。
 
 ### Tailscale
 
@@ -347,7 +347,7 @@ yarn mobile-dev-client
 | `yarn eas` | `hstack eas ...` | 注入栈环境变量上下文的 EAS 构建包装器。 | `build --platform=ios|android|all --profile=production` |
 | `yarn setup` | `hstack setup-from-source ...` | 引导式配置预设（`selfhost`、`dev`、`local-repo`）。 | `--profile=dev`, `--profile=local-repo`, `--json` |
 | `yarn remote` | `hstack remote ...` | 通过 SSH 进行守护进程/服务端的远程配置辅助工具。 | `daemon setup --ssh user@host`, `server setup ...` |
-| `yarn self-host` | `hstack self-host ...` | 托管中继运行时安装与生命周期管理（支持时会委托给 `happier relay host ...`）。 | `install`, `status`, `update`, `rollback`, `uninstall` |
+| `yarn self-host` | `hstack self-host ...` | 托管中继运行时安装与生命周期管理（支持时会委托给 `KAIWU relay host ...`）。 | `install`, `status`, `update`, `rollback`, `uninstall` |
 | `yarn menubar` | `hstack menubar ...` | SwiftBar 菜单栏集成。 | `install`, `uninstall`, `open`, `mode`, `status` |
 
 ## `hstack` 与 `npx` 的等价关系
@@ -361,7 +361,7 @@ yarn mobile-dev-client
 
 ```bash
 # Published CLI (works, but not repo-local wrapper semantics by default)
-npx --yes -p @happier-dev/stack@latest hstack dev
+npx --yes -p @KAIWU-dev/stack@latest hstack dev
 
 # Equivalent to repo-local wrapper behavior from this checkout
 node ./apps/stack/scripts/repo_local.mjs dev

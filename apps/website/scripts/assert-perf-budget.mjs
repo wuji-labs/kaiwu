@@ -386,7 +386,7 @@ async function main() {
     }
     const thirdParty = [...html.matchAll(/<(?:link|script)[^>]+(?:href|src)=["'](https?:\/\/[^"']+)/gi)]
         .map((m) => new URL(m[1]).host)
-        .filter((h) => !h.endsWith('happier.dev') && !h.endsWith('kaiwu.chengqiyun.com') && !h.endsWith('chengqiyun.com'));
+        .filter((h) => !h.endsWith('kaiwu.chengqiyun.com') && !h.endsWith('kaiwu.chengqiyun.com') && !h.endsWith('chengqiyun.com'));
     if (thirdParty.length) {
         failures.push(`  FAIL third-party render-path origin(s) in <head>: ${[...new Set(thirdParty)].join(', ')}`);
     }

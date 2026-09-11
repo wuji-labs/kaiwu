@@ -7,14 +7,14 @@ description: 在 Kaiwu 中配置 OpenCode，包括默认的服务端原生后端
 ## 环境要求
 
 - 设备上已安装 OpenCode CLI。
-- 可执行文件位于 `PATH` 路径中（或已配置 `HAPPIER_OPENCODE_PATH`）。
+- 可执行文件位于 `PATH` 路径中（或已配置 `Kaiwu_OPENCODE_PATH`）。
 
 ## 安装 OpenCode
 
 如果使用 Kaiwu 的提供商安装程序，可通过 CLI 安装 OpenCode：
 
 ```bash
-happier install provider opencode
+Kaiwu install provider opencode
 opencode --version
 ```
 
@@ -61,14 +61,14 @@ OpenCode 在 Kaiwu 中有两种运行时路径：
 
 - 新建 OpenCode 会话默认使用**服务端原生**后端；
 - Kaiwu 可使同一 OpenCode 会话在 App 和终端中同时保持可见；
-- 后续接入时应使用 `happier attach ⟦K7⟧`，而非提供商原生的接入命令。
+- 后续接入时应使用 `Kaiwu attach ⟦K7⟧`，而非提供商原生的接入命令。
 
 默认情况下，Kaiwu 会在设备上使用一个**托管的本地 OpenCode 服务端**，并在多个会话间复用。高级用户可在设置中显式指定 OpenCode 服务端 URL；配置后，Kaiwu 将在会话中持续使用该指定服务端。
 
 ## 从终端启动 OpenCode
 
 ```bash
-happier opencode
+Kaiwu opencode
 ```
 
 通过此方式启动 OpenCode 时：
@@ -90,7 +90,7 @@ happier opencode
 - 保留原有的会话 ID 和会话记录；
 - 原有终端保持打开，并转为只读/纯日志状态，直至您再次接入。
 
-后续您可在这台设备上的终端中运行 `happier attach ⟦K8⟧`，重新进入 OpenCode TUI。
+后续您可在这台设备上的终端中运行 `Kaiwu attach ⟦K8⟧`，重新进入 OpenCode TUI。
 
 ## 从 App 启动 OpenCode
 
@@ -103,7 +103,7 @@ happier opencode
 后续若需接入，可在同一设备的终端中运行以下命令，接入该活跃会话：
 
 ```bash
-happier attach <session-id>
+Kaiwu attach <session-id>
 ```
 
 接入完成后：
@@ -193,7 +193,7 @@ OpenCode 还可暴露提供商原生的会话模式与模型选项。只要这�
 - 会话能否接入同样取决于会话本身：会话必须包含 Kaiwu 在本地重新打开该 OpenCode 会话所需的元数据与上下文。
 - 模型、模式和权限的具体行为可能因所安装的 OpenCode 运行时而异。
 - 工具事件会统一规范化并入 Kaiwu 的标准工具时间线。
-- 对于 OpenCode 的重新接入流程，官方支持的命令为 `happier attach ⟦K9⟧`。
+- 对于 OpenCode 的重新接入流程，官方支持的命令为 `Kaiwu attach ⟦K9⟧`。
 
 ## 故障排查
 
@@ -201,21 +201,21 @@ OpenCode 还可暴露提供商原生的会话模式与模型选项。只要这�
 
 1. 确认 `opencode --version` 可以正常运行。
 2. 重启 Kaiwu。
-3. 如果可执行文件不在 PATH 中，请配置 `HAPPIER_OPENCODE_PATH`。
+3. 如果可执行文件不在 PATH 中，请配置 `Kaiwu_OPENCODE_PATH`。
 
 ### 会话在 App 中可见，但希望重新打开 TUI
 
 请运行：
 
 ```bash
-happier attach <session-id>
+Kaiwu attach <session-id>
 ```
 
 请确保在同一台设备上执行此操作，并使用持有该会话的同一 Kaiwu 账号或服务端配置。
 
 ### 终端处于打开状态，但不再接收提示词
 
-这通常意味着该会话已在 Kaiwu 中被断开并切回远程模式。在同一设备的终端中运行 `happier attach ⟦K10⟧` 即可重新接入。
+这通常意味着该会话已在 Kaiwu 中被断开并切回远程模式。在同一设备的终端中运行 `Kaiwu attach ⟦K10⟧` 即可重新接入。
 
 ## 相关内容
 

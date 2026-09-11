@@ -3,8 +3,8 @@
   "pages": [
     "index",
     "mcp-servers",
-    "happier-as-mcp-server",
-    "happier-tools",
+    "Kaiwu-as-mcp-server",
+    "Kaiwu-tools",
     "prompts-and-skills",
     "installables",
     "subagents",

@@ -88,7 +88,7 @@ AUTH_ANONYMOUS_SIGNUP_ENABLED=false
 AUTH_SIGNUP_PROVIDERS=okta
 AUTH_REQUIRED_LOGIN_PROVIDERS=okta
 
-AUTH_PROVIDERS_CONFIG_PATH=/etc/happier/auth-providers.json
+AUTH_PROVIDERS_CONFIG_PATH=/etc/KAIWU/auth-providers.json
 ```
 
 ## 免密钥 OIDC 登录（可选，企业版）
@@ -102,31 +102,31 @@ AUTH_PROVIDERS_CONFIG_PATH=/etc/happier/auth-providers.json
 最低前置条件（以提供商 ID `okta` 为例）：
 
 ```bash
-HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY=optional|plaintext_only
-HAPPIER_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED=1
+KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY=optional|plaintext_only
+KAIWU_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED=1
 
-HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_ENABLED=1
-HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_PROVIDERS=okta
+KAIWU_FEATURE_AUTH_OAUTH__KEYLESS_ENABLED=1
+KAIWU_FEATURE_AUTH_OAUTH__KEYLESS_PROVIDERS=okta
 ```
 
 若要在首次登录时允许 OIDC 登录自动**创建**新的免密钥/明文账户：
 
 ```bash
-HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_AUTO_PROVISION=1
+KAIWU_FEATURE_AUTH_OAUTH__KEYLESS_AUTO_PROVISION=1
 ```
 
 说明：
 - 免密钥 OIDC 登录与基于密钥的 OIDC 注册是**彼此独立**的，你可以单独启用其中一个，也可以两者同时启用。
-- `HAPPIER_FEATURE_ENCRYPTION__DEFAULT_ACCOUNT_MODE` 仅控制 `optional` 下**带密钥**账户的默认行为，不会限制免密钥账户的预配。
-- 在 `HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY=optional` 上，当提供商同时启用了带密钥预配和免密钥自动预配时，客户端在首次登录时可能会提供**选择**（端到端加密 vs 明文）。
+- `KAIWU_FEATURE_ENCRYPTION__DEFAULT_ACCOUNT_MODE` 仅控制 `optional` 下**带密钥**账户的默认行为，不会限制免密钥账户的预配。
+- 在 `KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY=optional` 上，当提供商同时启用了带密钥预配和免密钥自动预配时，客户端在首次登录时可能会提供**选择**（端到端加密 vs 明文）。
 
 ### 自动重定向（纯 OIDC 部署）
 
 如果 OIDC 提供商是系统唯一支持的登录/注册流程，你可以开启自动重定向，免去用户手动点击按钮的步骤：
 
 ```bash
-HAPPIER_FEATURE_AUTH_UI__AUTO_REDIRECT_ENABLED=1
-HAPPIER_FEATURE_AUTH_UI__AUTO_REDIRECT_PROVIDER_ID=<providerId>
+KAIWU_FEATURE_AUTH_UI__AUTO_REDIRECT_ENABLED=1
+KAIWU_FEATURE_AUTH_UI__AUTO_REDIRECT_PROVIDER_ID=<providerId>
 AUTH_ANONYMOUS_SIGNUP_ENABLED=0
 ```
 
@@ -144,19 +144,19 @@ AUTH_ANONYMOUS_SIGNUP_ENABLED=0
    - 设置为持续访问的必需项：`AUTH_REQUIRED_LOGIN_PROVIDERS=<providerId>`
    - 若有需要，可禁用匿名注册：`AUTH_ANONYMOUS_SIGNUP_ENABLED=false`
 5. 确保客户端应用能够从 OAuth 正常返回：
-   - Web 端（除非使用 `https://kaiwu.chengqiyun.com`，否则为必填）：设置 `HAPPIER_WEBAPP_URL`（或 `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE`）
-   - 移动端 Deep Link：设置 `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE`，并通过 `HAPPIER_OAUTH_RETURN_ALLOWED_SCHEMES` 允许对应 scheme（例如 `myapp`）
+   - Web 端（除非使用 `https://kaiwu.chengqiyun.com`，否则为必填）：设置 `KAIWU_WEBAPP_URL`（或 `KAIWU_WEBAPP_OAUTH_RETURN_URL_BASE`）
+   - 移动端 Deep Link：设置 `KAIWU_WEBAPP_OAUTH_RETURN_URL_BASE`，并通过 `KAIWU_OAUTH_RETURN_ALLOWED_SCHEMES` 允许对应 scheme（例如 `myapp`）
 6. 验证：
    - 重启服务器（以加载环境变量和配置变更）。
    - 打开 Kaiwu 应用，确认欢迎/登录界面出现了新的登录选项。
    - 如果没有显示，请仔细核对重定向 URL、签发者 URL，并确认 `AUTH_SIGNUP_PROVIDERS` / `AUTH_REQUIRED_LOGIN_PROVIDERS` 引用了相同的提供商 ID。（排查问题时，你也可以检查 `GET /v1/features`。）
 
 关于“可选”Web 应用 URL 环境变量的说明：
-- 只有在使用托管于 `https://kaiwu.chengqiyun.com` 的客户端时，`HAPPIER_WEBAPP_URL` / `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE` 才是“可选”的。
+- 只有在使用托管于 `https://kaiwu.chengqiyun.com` 的客户端时，`KAIWU_WEBAPP_URL` / `KAIWU_WEBAPP_OAUTH_RETURN_URL_BASE` 才是“可选”的。
   - 如果你是自托管 Web 应用，或使用本地开发环境的 Web UI，则必须配置其中之一，以便服务器在 OAuth 流程结束后能够重定向回你的客户端。
 
 故障排查：
-- 如果在设置了 `HAPPIER_WEBAPP_URL` 后仍被重定向至 `https://kaiwu.chengqiyun.com`，通常是因为服务器判定你配置的返回 URL 不安全并予以拒绝。本地 Web 开发时，请使用 `http://localhost:PORT` 或 `http://*.localhost:PORT`（或使用 `https://`）。
+- 如果在设置了 `KAIWU_WEBAPP_URL` 后仍被重定向至 `https://kaiwu.chengqiyun.com`，通常是因为服务器判定你配置的返回 URL 不安全并予以拒绝。本地 Web 开发时，请使用 `http://localhost:PORT` 或 `http://*.localhost:PORT`（或使用 `https://`）。
 
 ## OIDC 之外的“自定义提供商”
 

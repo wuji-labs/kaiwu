@@ -19,7 +19,7 @@ import type { ReactNode } from 'react';
  *
  * Everything claimed here is verifiable in public/install.sh:
  *   - line 25-29   the minisign public key compiled into the script
- *   - line 31      the same key served at /happier-release.pub
+ *   - line 31      the same key served at /Kaiwu-release.pub
  *   - line 2479-92 sha256 of the release archive checked against the published
  *                  checksums file, hard-fail on mismatch
  *   - line 2494-2501 minisign -Vm on that checksums file, hard-fail if minisign
@@ -104,8 +104,8 @@ export function VerifyInstaller({ windowsShell = false }: { windowsShell?: boole
                 >
                     <code>
                         {windowsShell
-                            ? 'iwr https://happier.dev/install.ps1 -useb -OutFile install.ps1\nnotepad install.ps1   # read it first\n.\\install.ps1'
-                            : 'curl -fsSL https://happier.dev/install.sh -o happier-install.sh\nless happier-install.sh   # read it first\nbash happier-install.sh'}
+                            ? 'iwr https://kaiwu.chengqiyun.com/install.ps1 -useb -OutFile install.ps1\nnotepad install.ps1   # read it first\n.\\install.ps1'
+                            : 'curl -fsSL https://kaiwu.chengqiyun.com/install.sh -o Kaiwu-install.sh\nless Kaiwu-install.sh   # read it first\nbash Kaiwu-install.sh'}
                     </code>
                 </pre>
 
@@ -116,7 +116,7 @@ export function VerifyInstaller({ windowsShell = false }: { windowsShell?: boole
                         className="underline underline-offset-2"
                         style={{ color: 'var(--fg)' }}
                     >{c}</a>, 2: (c: ReactNode) => <a
-                        href="https://docs.happier.dev/security"
+                        href="https://kaiwu.chengqiyun.com/docs/security"
                         target="_blank"
                         rel="noreferrer"
                         className="underline underline-offset-2"

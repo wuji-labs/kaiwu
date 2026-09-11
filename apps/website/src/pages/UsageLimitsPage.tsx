@@ -7,8 +7,8 @@ import type { ReactNode } from 'react';
 /**
  * /features/usage-limits
  *
- * A feature page owns EVALUATION intent and nothing else: can Happier do this,
- * for which agents, and what is the catch. docs.happier.dev owns the procedure
+ * A feature page owns EVALUATION intent and nothing else: can KAIWU do this,
+ * for which agents, and what is the catch. kaiwu.chengqiyun.com/docs owns the procedure
  * and is linked once, as a configuration reference. The guides own the job
  * ("I ran out of Claude quota at 4pm, now what") and are not linked from here
  * because that is a different reader.
@@ -38,12 +38,12 @@ import type { ReactNode } from 'react';
  * scaffolding around pooling — "Before you build a pool, you get a banner and a
  * choice", "What a pool is, and what it changes" — so the page read as though it
  * had nothing for the reader with one account. It has the larger thing: a limit
- * pauses the session, Happier waits out the reset, re-checks, restarts the
+ * pauses the session, KAIWU waits out the reset, re-checks, restarts the
  * session process if it had exited, and sends a continuation prompt so the work
  * carries on from where it stopped. None of that needs a second account.
  *
  * WHAT THE SINGLE-ACCOUNT PATH ACTUALLY DOES, read in the shipped tree
- * (happier-dev/happier @ v0.2) rather than inferred from the feature's name:
+ * (KAIWU-dev/KAIWU @ v0.2) rather than inferred from the feature's name:
  *   the wait is not pool-only
  *     apps/cli/src/session/usageLimitRecoveryControls/usageLimitRecoverySelectedAuth.ts
  *       — with no group and no profile the selected auth resolves to

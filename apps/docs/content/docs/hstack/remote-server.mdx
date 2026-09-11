@@ -74,8 +74,8 @@ hstack remote server setup --ssh user@host \
 
 ```bash
 hstack remote server setup --ssh user@host \
-  --env HAPPIER_DB_PROVIDER=postgres \
-  --env DATABASE_URL=postgresql://user:pass@db:5432/happier
+  --env Kaiwu_DB_PROVIDER=postgres \
+  --env DATABASE_URL=postgresql://user:pass@db:5432/Kaiwu
 ```
 
 提示：有关服务端环境变量的完整配置项，请参阅[环境变量](/self-hosting/env)。
@@ -87,7 +87,7 @@ hstack remote server setup --ssh user@host \
 完成配置后，可以通过运行以下命令来设置远程主机的更新时间窗口：
 
 ```bash
-ssh user@host "~/.happier/bin/hstack self-host config set --auto-update --auto-update-at=03:15"
+ssh user@host "~/.Kaiwu/bin/hstack self-host config set --auto-update --auto-update-at=03:15"
 ```
 
 ## 环境要求
