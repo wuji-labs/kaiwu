@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Platform, Pressable, ScrollView, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { resolveFloatingTabBarBottomPadding } from '@/components/ui/navigation/floatingTabBarBottomInset';
 import { Typography } from '@/constants/Typography';
 import { RoundButton } from '@/components/ui/buttons/RoundButton';
 import { CenteredInfoTile } from '@/components/ui/lists/CenteredInfoTile';
@@ -367,6 +369,13 @@ function SessionGettingStartedGuidanceViewImpl(props: SessionGettingStartedGuida
     const styles = stylesheet;
     const { model } = props;
     const copyFeedback = useTemporaryCopyFeedback();
+    const safeArea = useSafeAreaInsets();
+
+    // On 'phone' variant with floating tab bar, add extra bottom padding to prevent
+    // button overlap. Reuse the floating tab bar's bottom padding calculation.
+    const bottomPadding = props.variant === 'phone'
+        ? styles.contentContainer.paddingBottom + resolveFloatingTabBarBottomPadding(safeArea.bottom, Platform.OS === 'ios')
+        : styles.contentContainer.paddingBottom;
 
     const title = titleForKind(model.kind);
     const subtitle = subtitleForKind(model.kind, model.targetLabel);
@@ -436,6 +445,7 @@ function SessionGettingStartedGuidanceViewImpl(props: SessionGettingStartedGuida
             contentContainerStyle={[
                 styles.contentContainer,
                 shouldCenterContent ? styles.contentContainerCentered : null,
+                props.variant === 'phone' ? { paddingBottom: bottomPadding } : null,
             ]}
             keyboardShouldPersistTaps="handled"
         >

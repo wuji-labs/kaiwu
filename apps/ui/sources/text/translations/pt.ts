@@ -146,7 +146,7 @@ const mcpServersUxTranslationExtension = {
     "Este backend recebe ferramentas do Kaiwu como servidores MCP nativos.",
   mcpServersDeliveryShellBridgeTitle: "Bridge de shell do Kaiwu",
   mcpServersDeliveryShellBridgeSubtitle:
-    "Este backend chama as ferramentas do Kaiwu pela ponte `happier tools`.",
+    "Este backend chama as ferramentas do Kaiwu pela ponte `kaiwu tools`.",
   mcpServersDeliveryUnsupportedTitle: "Não suportado",
   mcpServersDeliveryUnsupportedSubtitle:
     "Este backend ainda não recebe ferramentas do Kaiwu.",
