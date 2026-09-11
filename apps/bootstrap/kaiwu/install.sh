@@ -209,24 +209,32 @@ done
 export KAIWU_SERVER_URL="${KAIWU_SERVER_URL}"
 export KAIWU_SERVER_URL="${KAIWU_SERVER_URL}"
 
-# 5. 验证与指引
+# 5. 验证与指引 (强制性自检，失败则报错退出)
 echo
-success "无极开物 CLI 安装成功！"
+info "执行安装后自检..."
 echo
+
 MAIN_CMD="kaiwu"
 if ! command -v kaiwu >/dev/null 2>&1 && command -v happier >/dev/null 2>&1; then
     MAIN_CMD="happier"
 fi
 
-if command -v "$MAIN_CMD" >/dev/null 2>&1; then
-    echo "  • 安装版本: $($MAIN_CMD --version 2>/dev/null || echo "$CLI_VERSION")"
+if ! command -v "$MAIN_CMD" >/dev/null 2>&1; then
+    error "自检失败：未找到 $MAIN_CMD 命令"
+    exit 1
+fi
+
+if ! "$MAIN_CMD" --version >/dev/null 2>&1; then
+    error "自检失败：$MAIN_CMD --version 执行失败"
+    exit 1
+fi
+
+success "无极开物 CLI 安装成功！"
+echo
+    echo "  • 安装版本: $($MAIN_CMD --version)"
     echo "  • 命令路径: $(command -v "$MAIN_CMD")"
     echo "  • 默认连接: $KAIWU_SERVER_URL"
     echo "  • 包含命令别名: kaiwu, happier"
-else
-    echo "  • 安装版本: $CLI_VERSION"
-    echo "  • 提示: 请运行 'source ~/.bashrc' 或重新打开终端以使 PATH 生效"
-fi
 
 echo
 echo "${COLOR_BOLD}下一步快速指引：${COLOR_RESET}"
