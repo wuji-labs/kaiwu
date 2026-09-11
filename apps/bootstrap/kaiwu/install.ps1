@@ -11,7 +11,8 @@
 [CmdletBinding()]
 param(
     [string]$Version = "",
-    [string]$ServerUrl = ""
+    [string]$ServerUrl = "",
+    [string]$InstallDir = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -86,7 +87,11 @@ try {
 Write-Info "准备安装版本: v$targetVersion (免 Node.js 独立完整运行版)"
 
 # 3. 准备目标安装路径 (~/.kaiwu/bin)
-$kaiwuHome = Join-Path $HOME ".kaiwu"
+if ($InstallDir) {
+    $kaiwuHome = $InstallDir
+} else {
+    $kaiwuHome = Join-Path $HOME ".kaiwu"
+}
 $binDir = Join-Path $kaiwuHome "bin"
 $tempDir = Join-Path $kaiwuHome "temp"
 
@@ -135,8 +140,19 @@ if (Test-Path $tarExe) {
     exit 1
 }
 
-# 查找解压出的目录
-$extractedFolder = Get-ChildItem -Path $extractTemp -Directory | Select-Object -First 1
+# 查找解压出的目录并展平单层目录结构
+$extractedEntries = @(Get-ChildItem -Path $extractTemp -Force)
+$extractedDirs = @($extractedEntries | Where-Object { $_.PSIsContainer })
+$extractedFiles = @($extractedEntries | Where-Object { -not $_.PSIsContainer })
+
+# 若只有一个顶层目录（无同级文件），则取该目录内容；否则直接用提取根
+if ($extractedDirs.Count -eq 1 -and $extractedFiles.Count -eq 0) {
+    $extractedFolder = $extractedDirs[0]
+    Write-Info "检测到单层顶级目录 '$($extractedFolder.Name)'，展平其内容至 bin"
+} else {
+    $extractedFolder = Get-Item -Path $extractTemp
+}
+
 if (-not $extractedFolder) {
     Write-Err "解压目录结构异常，请重试。"
     exit 1
@@ -150,8 +166,19 @@ foreach ($dir in @("package-dist", "node_modules", "scripts", "tools")) {
     }
 }
 
-# 将二进制与 bundle 复制到 bin 目录
-Copy-Item -Path (Join-Path $extractedFolder.FullName "*") -Destination $binDir -Recurse -Force
+# 将二进制与 bundle 复制到 bin 目录 (使用 robocopy 处理深层嵌套的 node_modules)
+$extractPath = $extractedFolder.FullName
+$robocopyExe = "C:\Windows\System32\robocopy.exe"
+
+if (Test-Path $robocopyExe) {
+    # 使用 robocopy 复制整个目录树，忽略长路径问题
+    & $robocopyExe $extractPath $binDir /E /NFL /NDL /NJH /NJS /NC /NS /NP 2>&1 | Out-Null
+} else {
+    # 后备方案：逐个复制子项 (避免通配符问题)
+    Get-ChildItem -Path $extractPath | ForEach-Object {
+        Copy-Item -Path $_.FullName -Destination $binDir -Recurse -Force
+    }
+}
 
 # 清理临时下载文件
 try {
@@ -189,18 +216,32 @@ if (Test-Path $kaiwuExePath) {
     Copy-Item -Path $kaiwuExePath -Destination $happierExePath -Force
 }
 
-# 7. 运行验证
+# 7. 运行验证 (强制性自检，失败则报错退出)
 Write-Host ""
-Write-Success "恭喜！无极开物 CLI 已秒级安装就绪！"
+Write-Info "执行安装后自检..."
 Write-Host ""
 
 $exePath = Join-Path $binDir "kaiwu.exe"
-if (Test-Path $exePath) {
-    $v = & $exePath --version
+if (-not (Test-Path $exePath)) {
+    Write-Err "自检失败：未找到 $exePath"
+    exit 1
+}
+
+try {
+    $v = & $exePath --version 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        Write-Err "自检失败：kaiwu.exe --version 返回错误代码 $LASTEXITCODE"
+        exit 1
+    }
+    Write-Success "恭喜！无极开物 CLI 已秒级安装就绪！"
+    Write-Host ""
     Write-Host "  • 当前安装版本: v$v" -ForegroundColor Green
     Write-Host "  • 程序所在目录: $binDir" -ForegroundColor Gray
     Write-Host "  • 开物中继服务: $KAIWU_SERVER_URL" -ForegroundColor Gray
     Write-Host "  • 包含命令别名: kaiwu, happier" -ForegroundColor Gray
+} catch {
+    Write-Err "自检失败：执行 kaiwu.exe --version 时出错：$_"
+    exit 1
 }
 
 Write-Host ""
