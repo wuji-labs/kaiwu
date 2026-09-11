@@ -14,14 +14,14 @@ description: 面向生产环境的最小化服务端配置，以及最重要的�
   - 推荐做法：
     - **保持未设置（最简方案）：** 若 `tailscale serve` 与 `apps/server` 运行在*同一台设备或容器宿主机*上，服务端会在启动时尽力推断 `https://*.ts.net` URL，并将其播发给客户端。
   - 其他情况：
-    - **显式设置：** `HAPPIER_PUBLIC_SERVER_URL=https://⟦K2⟧.⟦K3⟧.ts.net`
+    - **显式设置：** `KAIWU_PUBLIC_SERVER_URL=https://⟦K2⟧.⟦K3⟧.ts.net`
       - 若 Tailscale/Serve 运行在另一台设备上，或者服务端运行时环境中没有 `tailscale` CLI，通常需要显式配置。
 - **自定义域名（反向代理）：** 在 Caddy、Nginx 或 Traefik 上终止 TLS，并反向代理至服务端。
-  - 设置：`HAPPIER_PUBLIC_SERVER_URL=https://api.example.com`
+  - 设置：`KAIWU_PUBLIC_SERVER_URL=https://api.example.com`
 
 如果自托管 Web UI（或使用 OAuth 提供商且需要非官方托管的回调 URL），还需要设置：
 
-- `HAPPIER_WEBAPP_URL=https://app.example.com`
+- `KAIWU_WEBAPP_URL=https://app.example.com`
 
 若仅在局域网内使用，填写 `http://⟦K4⟧:3005` 即可，但二维码和深层链接只能在同一局域网或 VPN 内生效。
 
@@ -32,10 +32,10 @@ description: 面向生产环境的最小化服务端配置，以及最重要的�
 在生产环境中，大多数部署至少需要配置以下内容：
 
 - `HANDY_MASTER_SECRET`（较长的随机字符串，重启后保持不变）
-- `HAPPIER_DB_PROVIDER` 与数据库配置：
+- `KAIWU_DB_PROVIDER` 与数据库配置：
   - `postgres`/`mysql`：设置 `DATABASE_URL`
   - `pglite`/`sqlite`：通常无需外部数据库
-- `HAPPIER_FILES_BACKEND`：
+- `KAIWU_FILES_BACKEND`：
   - `local`：配置最简单（适用于单节点部署）
   - `s3`：需配置 `S3_*` 凭据与 `S3_PUBLIC_URL`
 
@@ -45,7 +45,7 @@ description: 面向生产环境的最小化服务端配置，以及最重要的�
 
 若在反向代理（Caddy、Nginx 或 Traefik）上终止 TLS，还需设置：
 
-- `HAPPIER_SERVER_TRUST_PROXY=1`（典型的单代理环境配置）
+- `KAIWU_SERVER_TRUST_PROXY=1`（典型的单代理环境配置）
 
 这样可以让系统在 `X-Forwarded-*` 等请求头后正确识别 `request.ip` 和协议，对限流以及部分 URL 行为至关重要。
 
@@ -59,9 +59,9 @@ description: 面向生产环境的最小化服务端配置，以及最重要的�
 
 ## 4) 可选：Tailscale Serve 推断
 
-若使用 `tailscale serve` 且未显式设置 `HAPPIER_PUBLIC_SERVER_URL`，服务端可以在启动时尽力推断 `https://*.ts.net` URL。
+若使用 `tailscale serve` 且未显式设置 `KAIWU_PUBLIC_SERVER_URL`，服务端可以在启动时尽力推断 `https://*.ts.net` URL。
 
-- 设置 `HAPPIER_TAILSCALE_INFER_PUBLIC_URL=0` 可禁用此功能（默认启用）
+- 设置 `KAIWU_TAILSCALE_INFER_PUBLIC_URL=0` 可禁用此功能（默认启用）
 
 Tailscale Serve 极简命令（在服务端宿主机上运行，位于容器外部）：
 
@@ -75,6 +75,6 @@ tailscale serve status
 
 ## 5) 可选：认证提供商
 
-若启用了 GitHub 或 OIDC OAuth 提供商，且未使用位于 `https://kaiwu.chengqiyun.com` 的托管版 Web 应用，请务必设置 `HAPPIER_WEBAPP_URL`（或 `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE`），以便服务端能够正确重定向回客户端。
+若启用了 GitHub 或 OIDC OAuth 提供商，且未使用位于 `https://kaiwu.chengqiyun.com` 的托管版 Web 应用，请务必设置 `KAIWU_WEBAPP_URL`（或 `KAIWU_WEBAPP_OAUTH_RETURN_URL_BASE`），以便服务端能够正确重定向回客户端。
 
 详见[服务端 → 认证](/self-hosting/auth)以及该章节下的各提供商文档。

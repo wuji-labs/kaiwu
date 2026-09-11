@@ -1,6 +1,6 @@
-# Happier Docs
+# Kaiwu Docs
 
-This package builds Happier's published Fumadocs site for users, operators, self-hosters, provider users, and public contributors.
+This package builds Kaiwu's published Fumadocs site for users, operators, self-hosters, provider users, and public contributors.
 
 - Published content: `content/docs/**`
 - Documentation application: `src/**`
