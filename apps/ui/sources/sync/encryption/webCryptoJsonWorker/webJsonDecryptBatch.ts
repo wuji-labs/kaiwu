@@ -3,7 +3,8 @@ const STATIC_EXPO_PUBLIC_HAPPIER_CRYPTO_JSON_DECRYPT_WORKER_THRESHOLD_BYTES =
 
 const DEFAULT_LARGE_PAYLOAD_THRESHOLD_BYTES = 256 * 1024;
 const DEFAULT_WORKER_TIMEOUT_MS = 60_000;
-const WORKER_SCRIPT_PATH = '/happier-crypto-json-worker.js';
+const WORKER_SCRIPT_PATH = '/kaiwu-crypto-json-worker.js';
+const FALLBACK_WORKER_SCRIPT_PATH = '/happier-crypto-json-worker.js';
 
 export type AesGcmJsonWebWorkerOptions = Readonly<{
     largePayloadThresholdBytes?: number;
@@ -65,8 +66,13 @@ function createDefaultWorker(): Worker | null {
     if (typeof Worker === 'undefined') return null;
     try {
         return new Worker(new URL(WORKER_SCRIPT_PATH, getWorkerBaseHref()), { type: 'module' });
-    } catch {
-        return null;
+    } catch (primaryError) {
+        // Fall back to legacy happier worker if kaiwu worker is not available
+        try {
+            return new Worker(new URL(FALLBACK_WORKER_SCRIPT_PATH, getWorkerBaseHref()), { type: 'module' });
+        } catch {
+            return null;
+        }
     }
 }
 

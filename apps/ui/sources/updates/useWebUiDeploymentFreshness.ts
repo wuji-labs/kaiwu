@@ -10,7 +10,11 @@ export function useWebUiDeploymentFreshness(): Readonly<{ updateAvailable: boole
     const check = React.useCallback(async () => {
         if (Platform.OS !== 'web' || typeof globalThis.fetch !== 'function') return;
         try {
-            const response = await globalThis.fetch('/.well-known/happier-ui-deployment', { cache: 'no-store', credentials: 'same-origin' });
+            // Try new kaiwu endpoint first, fall back to legacy happier endpoint
+            let response = await globalThis.fetch('/.well-known/kaiwu-ui-deployment', { cache: 'no-store', credentials: 'same-origin' });
+            if (!response.ok && response.status === 404) {
+                response = await globalThis.fetch('/.well-known/happier-ui-deployment', { cache: 'no-store', credentials: 'same-origin' });
+            }
             if (!response.ok || response.status === 204) return;
             const payload = await response.json() as { deploymentId?: unknown };
             setState((current) => reduceUiDeploymentFreshness(current, payload.deploymentId));
