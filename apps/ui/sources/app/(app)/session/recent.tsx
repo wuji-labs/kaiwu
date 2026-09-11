@@ -295,7 +295,7 @@ export default function SessionHistory() {
                     renderItem={renderItem}
                     keyExtractor={keyExtractor}
                     contentContainerStyle={{
-                        paddingBottom: safeArea.bottom + 64,
+                        paddingBottom: safeArea.bottom + 16,
                         paddingTop: 8,
                     }}
                 />
