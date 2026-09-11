@@ -23,7 +23,7 @@ description: 最常用的命令，包含重要参数与使用模式。
 
 常用运行标志（根命令）：
 
-- `--server=happier-server|happier-server-light`
+- `--server=Kaiwu-server|Kaiwu-server-light`
 - `--restart`
 - `--no-ui`、`--no-daemon`
 - `--no-browser`
@@ -62,7 +62,7 @@ description: 最常用的命令，包含重要参数与使用模式。
 
 服务端变体：
 
-- `hstack stack srv ⟦K30⟧ -- use happier-server-light|happier-server`
+- `hstack stack srv ⟦K30⟧ -- use Kaiwu-server-light|Kaiwu-server`
 
 认证：
 
@@ -71,7 +71,7 @@ description: 最常用的命令，包含重要参数与使用模式。
 
 栈作用域应用 CLI（在栈上下文中运行 Kaiwu CLI/守护进程）：
 
-- `hstack stack happier ⟦K32⟧ -- <args...>`
+- `hstack stack Kaiwu ⟦K32⟧ -- <args...>`
 
 服务：
 
@@ -86,7 +86,7 @@ description: 最常用的命令，包含重要参数与使用模式。
 ```bash
 hstack stack new dev-built --repo=/absolute/path/to/checkout
 hstack stack build dev-built --activate-runtime
-hstack stack env dev-built set HAPPIER_STACK_RUNTIME_MODE=prefer
+hstack stack env dev-built set Kaiwu_STACK_RUNTIME_MODE=prefer
 hstack stack service dev-built install
 hstack stack service dev-built enable
 hstack menubar install --stack=dev-built --mode=selfhost

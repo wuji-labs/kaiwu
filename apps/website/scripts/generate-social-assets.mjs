@@ -101,7 +101,7 @@ async function buildOgImage() {
     );
 
     const footer = await text(
-        `<span foreground="${MUTED}" weight="500">happier.dev</span><span foreground="#FFFFFF" alpha="28%">   ·   </span><span foreground="${MUTED}" weight="500">MIT-licensed · end-to-end encrypted · self-hostable</span>`,
+        `<span foreground="${MUTED}" weight="500">kaiwu.chengqiyun.com</span><span foreground="#FFFFFF" alpha="28%">   ·   </span><span foreground="${MUTED}" weight="500">MIT-licensed · end-to-end encrypted · self-hostable</span>`,
         { font: 'Inter Tight 21', width: 1040 },
     );
 

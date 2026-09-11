@@ -19,9 +19,9 @@ Three things that will bite otherwise:
 - **An id that no longer exists is silently ignored.** Re-run `yarn i18n:extract`
   after re-wording English and diff `en.json` to find what moved.
 - **The tokens in `../../generated/dnt.json` must survive byte-identical.**
-  Those are inline code spans, `happier <subcommand>` invocations, paths and
+  Those are inline code spans, `KAIWU <subcommand>` invocations, paths and
   shell one-liners — 101 of the 754 strings carry one. A translator that
-  localises `happier attach <session-id>` produces a command that does not run.
+  localises `KAIWU attach <session-id>` produces a command that does not run.
 - **A locale file alone changes nothing on the site.** A page appears in a
   language only when its route lists that locale in `Route.locales`
   (`src/routes.tsx`), which is also what emits the hreflang and the sitemap row.

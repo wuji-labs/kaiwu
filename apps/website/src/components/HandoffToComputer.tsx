@@ -3,15 +3,15 @@ import { INSTALL_COMMAND_UNIX } from '../data/downloads';
 import { rich } from '../i18n/rich';
 import { useSiteData } from '../i18n/siteData';
 
-const SHARE_TITLE = 'Set up Happier on my computer';
+const SHARE_TITLE = 'Set up Kaiwu on my computer';
 const SHARE_TEXT = [
     'Run this on the computer where your code lives:',
     '',
     INSTALL_COMMAND_UNIX,
     '',
-    'Windows: iwr https://happier.dev/install.ps1 -useb | iex',
+    'Windows: iwr https://kaiwu.chengqiyun.com/install.ps1 -useb | iex',
     '',
-    'Then open Happier on your phone and sign in to the same account.',
+    'Then open Kaiwu on your phone and sign in to the same account.',
 ].join('\n');
 
 const MAILTO_HREF =
@@ -23,7 +23,7 @@ const MAILTO_HREF =
  * A phone cannot run `curl … | bash`, and the funnel says what happens when we
  * pretend otherwise: 56% of installs open the app on exactly one day, median
  * lifetime two minutes, because they arrived from a store listing with no
- * machine to pair. Happier is worth nothing until a computer is running the
+ * machine to pair. Kaiwu is worth nothing until a computer is running the
  * background service, so on a handheld the page's job is to move the visitor to
  * a keyboard — not to hand them another app icon.
  *

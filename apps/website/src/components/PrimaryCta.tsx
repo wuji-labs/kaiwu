@@ -12,7 +12,7 @@ import { Island } from '../islands';
  *
  * What a visitor sees:
  *
- *   macOS / Linux    `curl -fsSL https://happier.dev/install | bash`, copyable,
+ *   macOS / Linux    `curl -fsSL https://kaiwu.chengqiyun.com/install | bash`, copyable,
  *                    with the signature disclosure directly under it, and
  *                    "already set up? open the web app" as the second option.
  *   Windows          the same, with the PowerShell one-liner and the PowerShell

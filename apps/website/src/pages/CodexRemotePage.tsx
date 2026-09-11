@@ -63,7 +63,7 @@ export function CodexRemotePage() {
               */}
             {/*
               * The same H1 edit as the Claude page, in the same shape on
-              * purpose: "…and where Happier fits" named no outcome and meant
+              * purpose: "…and where KAIWU fits" named no outcome and meant
               * nothing cold. "Codex from your phone" is the query this page
               * exists for; the rest of the line says what it does with it.
               * "Codex Remote" is OpenAI's own label, not a name we minted.
@@ -118,7 +118,7 @@ export function CodexRemotePage() {
                                         className="mt-2 border-l-2 pl-4 text-[16px] leading-[1.68]"
                                         style={{ borderColor: 'var(--card-border)', color: 'var(--fg)' }}
                                     >
-                                        {item.happier}
+                                        {item.KAIWU}
                                     </p>
                                 </li>
                             ))}
@@ -164,7 +164,7 @@ export function CodexRemotePage() {
                                                 {row.codex}
                                             </td>
                                             <td className="px-4 py-3" style={{ color: 'var(--muted)' }}>
-                                                {row.happier}
+                                                {row.KAIWU}
                                             </td>
                                         </tr>
                                     ))}

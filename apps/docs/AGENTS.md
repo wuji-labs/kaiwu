@@ -1,4 +1,4 @@
-# Happier Published Documentation Instructions
+# Kaiwu Published Documentation Instructions
 
 Package-specific instructions for `apps/docs`. These supplement the root constitution and apply to the published Fumadocs site, its content, navigation, and presentation.
 
@@ -9,7 +9,7 @@ Package-specific instructions for `apps/docs`. These supplement the root constit
 - Internal implementation and product-architecture documentation belongs in `../../docs/**`. Update both surfaces when both the internal contract and published behavior changed.
 - Search for the existing canonical page before adding one. Extend, correct, move, or consolidate it rather than creating a similar-but-different explanation.
 
-The main sidebar runs in the order a reader meets Happier, and the three tabs
+The main sidebar runs in the order a reader meets Kaiwu, and the three tabs
 hold audiences that stay put:
 
 | Section | Holds |
@@ -24,7 +24,7 @@ hold audiences that stay put:
 | `voice`, `apps`, `extras` | voice, the clients, everything else |
 | `security`, `releases`, `legal` | policy and process |
 | `self-hosting` *(tab)* | running the server yourself |
-| `development` *(tab)* | contributing to Happier |
+| `development` *(tab)* | contributing to Kaiwu |
 | `hstack` *(tab)* | the local development stack |
 
 Classify the page before editing:
@@ -53,10 +53,10 @@ The reason to have a skeleton at all is that a reader who has read one page shou
 
 ## Product truth and release status
 
-- Verify Happier behavior against reachable implementing code and the page's target release/channel. Existing docs, README files, changelogs, plans, PR descriptions, comments, and search results are orientation, not sufficient proof.
+- Verify Kaiwu behavior against reachable implementing code and the page's target release/channel. Existing docs, README files, changelogs, plans, PR descriptions, comments, and search results are orientation, not sufficient proof.
 - Finding a symbol or string does not prove a feature is active. Trace how it is produced, gated, consumed, and exposed.
 - Use present-tense availability only for the release/channel the page actually describes. Distinguish stable, preview, development-only, experimental, deprecated, planned, and merely possible behavior.
-- Vendor behavior comes from current official vendor documentation and retains attribution. Do not assert a competitor's limitation in Happier's voice.
+- Vendor behavior comes from current official vendor documentation and retains attribution. Do not assert a competitor's limitation in Kaiwu's voice.
 - Never invent product names, capabilities, support levels, dates, guarantees, quotes, or personal experience.
 - Avoid superlatives and comparative claims unless current primary evidence proves them.
 
@@ -111,17 +111,17 @@ Use headings that name the subject in words readers recognize. Avoid slogans, ge
 
 Consistent naming is most of what makes documentation feel maintained. The canonical terms, each verified against a shipped surface:
 
-- **Agent** — an executable coding CLI Happier runs: Claude Code, Codex, Cursor, OpenCode, Gemini, Copilot, Qwen, Kimi, Auggie, Kilo, Kiro, Pi, Grok. This is the concept noun in prose.
+- **Agent** — an executable coding CLI Kaiwu runs: Claude Code, Codex, Cursor, OpenCode, Gemini, Copilot, Qwen, Kimi, Auggie, Kilo, Kiro, Pi, Grok. This is the concept noun in prose.
 - **AI backend** — the UI's label for the same thing. Use it only when naming a control: "the **Select AI Backend** step", "**Settings → AI & Agents → AI backends**".
 - **provider** — reserved for model, identity, voice and SCM providers. Never bare, never for an executable agent. This distinction is not pedantry: first-class model providers are coming, and the word will be needed for them.
 - **engine** — avoid, except when quoting the two settings that use it.
-- **relay** — the sync service. Lowercase as a common noun; capitalised only inside a quoted UI label and in **Happier Cloud**, a real product name.
-- **server** — the server process, `apps/server`, deployment topics, and identifiers that cannot change (`HAPPIER_SERVER_URL`, `happier server`). Say once per section that relay and server name the same thing.
-- **daemon** — the running background process, managed by `happier daemon`.
-- **service** — the OS autostart registration, managed by `happier service`. Do not introduce "background service" as a third name.
+- **relay** — the sync service. Lowercase as a common noun; capitalised only inside a quoted UI label and in **Kaiwu Cloud**, a real product name.
+- **server** — the server process, `apps/server`, deployment topics, and identifiers that cannot change (`Kaiwu_SERVER_URL`, `Kaiwu server`). Say once per section that relay and server name the same thing.
+- **daemon** — the running background process, managed by `Kaiwu daemon`.
+- **service** — the OS autostart registration, managed by `Kaiwu service`. Do not introduce "background service" as a third name.
 - **machine** — a computer that runs sessions. **device** — a client someone signs in on.
 
-Titles are sentence case. No parenthetical qualifier unless it disambiguates two real things. Protocol and product names keep their own casing: ACP, MCP, mTLS, OIDC, GitHub, hstack, Tauri, Happier Cloud.
+Titles are sentence case. No parenthetical qualifier unless it disambiguates two real things. Protocol and product names keep their own casing: ACP, MCP, mTLS, OIDC, GitHub, hstack, Tauri, Kaiwu Cloud.
 
 A vocabulary migration is a coordinated pass, not an opportunistic one. Half-migrated naming reads worse than consistently old naming, and the docs must not get ahead of the app — every instruction that names a real control has to match what is on screen today.
 
@@ -148,7 +148,7 @@ Published product pages avoid repository paths and implementation trivia unless 
 - Use a small number of current, non-sensitive screenshots only when they materially improve a UI-heavy workflow.
 - Changes to the documentation site's own UI, navigation, accessibility, responsive behavior, or meaningful loading/error states are user-facing web changes. Read `../../DESIGN.md` when the experience is materially affected and apply the relevant live-validation rules.
 
-Use `.agents/skills/happier-docs` for the complete evidence, editing, validation, and handoff workflow.
+Use `.agents/skills/Kaiwu-docs` for the complete evidence, editing, validation, and handoff workflow.
 
 ## Navigation and hubs
 
@@ -210,7 +210,7 @@ when they are learning something.
 | nav coverage | a page no `meta.json` lists |
 | hub coverage | a section landing page that does not link a page its own `meta.json` lists |
 | route code spans | a route written as a code span instead of a link |
-| feature env coverage | a `HAPPIER_FEATURE_*` variable the server parses that no page mentions |
+| feature env coverage | a `Kaiwu_FEATURE_*` variable the server parses that no page mentions |
 | CLI command coverage | a command the CLI exposes that no page documents |
 | generated drift | a published generated page that differs from a fresh render |
 

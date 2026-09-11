@@ -40,7 +40,7 @@ const NOT_COPY_FIELDS: ReadonlySet<string> = new Set([
     'installKind', 'attachStrategy', 'availability', 'kind', 'strategy',
     'visual', 'accent', 'variant', 'tone', 'icon', 'status',
     // links and asset references
-    'docsUrl', 'guideUrl', 'vendorDocs', 'happierDocsPath', 'image', 'ogImage',
+    'docsUrl', 'guideUrl', 'vendorDocs', 'KAIWUDocsPath', 'image', 'ogImage',
     'file', 'asset', 'logo', 'mark',
     // Responsive-image plumbing. These read as prose to a length heuristic —
     // they are long, comma-separated and full of words — and all 57 of them in
@@ -110,7 +110,7 @@ function forcedCopy(id: string): boolean {
 
 /**
  * Names that are rendered as a bare word and must survive translation
- * byte-identical: agents, vendors, platforms, and Happier itself.
+ * byte-identical: agents, vendors, platforms, and KAIWU itself.
  *
  * Only single words belong here — a multi-word product name ("Claude Code",
  * "App Store") is caught by the field denylist or reaches a translator with
@@ -118,7 +118,7 @@ function forcedCopy(id: string): boolean {
  * single-capitalised-word rule below safe.
  */
 const PRODUCT_NAMES: ReadonlySet<string> = new Set([
-    'Happier', 'Claude', 'Codex', 'Gemini', 'OpenCode', 'Cursor', 'Copilot',
+    'KAIWU', 'Claude', 'Codex', 'Gemini', 'OpenCode', 'Cursor', 'Copilot',
     'Qwen', 'Kimi', 'Kilo', 'Kiro', 'Auggie', 'Grok', 'Augment', 'Anthropic',
     'OpenAI', 'Google', 'GitHub', 'Discord', 'Docker', 'Tailscale', 'Homebrew',
     'Linux', 'Windows', 'Android', 'Intel', 'Apple',
@@ -171,7 +171,7 @@ export function looksTranslatable(value: string): boolean {
      * what the catalogue does not contain.
      *
      * PRODUCT_NAMES is what keeps the rule safe. Relaxing the length test also
-     * catches "Codex", "Gemini", "Happier", "Linux", "Windows" — rendered as
+     * catches "Codex", "Gemini", "KAIWU", "Linux", "Windows" — rendered as
      * table cells and platform labels, and wrong the moment they are anything
      * else. They are excluded by name rather than by shape, because nothing
      * about their shape distinguishes them from "Default".

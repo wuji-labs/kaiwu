@@ -15,9 +15,9 @@ import { Island } from '../islands';
  */
 const STEP_CTAS: Record<string, ReactNode> = {
     install: <Island name="install-command" component={InstallCommand} />,
-    setup: <CommandChip command="happier setup" />,
+    setup: <CommandChip command="Kaiwu setup" />,
     pair: <QrChip />,
-    session: <CommandChip command="happier claude" />,
+    session: <CommandChip command="Kaiwu claude" />,
 };
 
 export const GET_STARTED_SECTION_ID = 'get-started';

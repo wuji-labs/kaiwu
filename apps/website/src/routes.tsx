@@ -39,7 +39,7 @@ import { preloadTagsFor } from './components/Picture';
  * Graph set and JSON-LD. scripts/assert-crawlable.mjs fails the build if two
  * routes share a title, or share a page-scoped JSON-LD `@id`, which was a live
  * bug the moment a second page existed: `@id` was hardcoded to
- * `https://happier.dev/#webpage`.
+ * `https://kaiwu.chengqiyun.com/#webpage`.
  */
 
 export const SITE = 'https://kaiwu.chengqiyun.com';
@@ -200,7 +200,7 @@ const VS_REMOTE_CONTROL: Route = {
     // Vertex is deliberately NOT in this list. Anthropic's named unavailability
     // list is Bedrock / Google Cloud's Agent Platform / Microsoft Foundry; a
     // Vertex session is turned away by the separate api.anthropic.com rule, and
-    // Happier ships a first-party Gemini Vertex profile, so naming it here was
+    // KAIWU ships a first-party Gemini Vertex profile, so naming it here was
     // wrong twice.
     //
     // The tail used to read "What each does, per Anthropic's own docs." A meta
@@ -215,7 +215,7 @@ const VS_REMOTE_CONTROL: Route = {
         'Remote Control is free and good. It is also unavailable for API keys, gateways, Bedrock, Foundry and ZDR orgs. What each one covers, side by side.',
     ogTitle: 'Claude Code Remote Control vs Kaiwu',
     // The share card is not the place to send the reader to a competitor. "When
-    // you should use it instead of Happier" was the old tail of this string and
+    // you should use it instead of KAIWU" was the old tail of this string and
     // it is what a link preview would have led with.
     //
     // "the five situations its documentation says it turns itself off in" was
@@ -239,7 +239,7 @@ const VS_REMOTE_CONTROL: Route = {
                 '@type': 'ListItem',
                 position: index + 1,
                 name: row.capability,
-                description: `Claude Code Remote Control: ${row.rc}. Kaiwu: ${row.happier}.`,
+                description: `Claude Code Remote Control: ${row.rc}. Kaiwu: ${row.KAIWU}.`,
             })),
         },
     ],
@@ -275,7 +275,7 @@ const VS_CODEX_REMOTE: Route = {
     // requirement, verified August 2026.
     description:
         'OpenAI pairs the ChatGPT app to a Mac or Windows PC running Codex. What Remote covers, the five conditions it runs under, and what Kaiwu does instead.',
-    // "…and where Happier fits" is gone from both the snippet and the share
+    // "…and where KAIWU fits" is gone from both the snippet and the share
     // card, for the reason it is gone from the H1: "fits" names no outcome, and
     // the phrase is legible only to a reader who already knows the product.
     ogTitle: 'Codex Remote and Kaiwu, compared',
@@ -297,7 +297,7 @@ const VS_CODEX_REMOTE: Route = {
                 '@type': 'ListItem',
                 position: index + 1,
                 name: row.capability,
-                description: `Codex: ${row.codex}. Kaiwu: ${row.happier}.`,
+                description: `Codex: ${row.codex}. Kaiwu: ${row.KAIWU}.`,
             })),
         },
     ],
@@ -309,11 +309,11 @@ const VS_CODEX_REMOTE: Route = {
  *
  * The division of labour, decided once so the next feature page does not have
  * to relitigate it:
- *   - a feature page answers "can Happier do X, for which agents, what is the
+ *   - a feature page answers "can KAIWU do X, for which agents, what is the
  *     catch". It links to its docs page exactly once, labelled "configuration
  *     reference", and never repeats the step list.
- *   - docs.happier.dev owns PROCEDURE.
- *   - guides.happier.dev owns the JOB ("I ran out of quota at 4pm, now what").
+ *   - kaiwu.chengqiyun.com/docs owns PROCEDURE.
+ *   - guides.kaiwu.chengqiyun.com owns the JOB ("I ran out of quota at 4pm, now what").
  *
  * Two of them, not three. /features/permissions was considered and dropped: the
  * permission model is answered in one FAQ paragraph and a docs page, and a
@@ -341,7 +341,7 @@ const USAGE_LIMITS: Route = {
     //
     // Neither the title nor the share card may promise an UNATTENDED resume:
     // accountSettings.ts:276 defaults the recovery mode to 'ask'. Waiting and
-    // resuming is what Happier does; doing it without being asked is one
+    // resuming is what KAIWU does; doing it without being asked is one
     // setting ("Always wait and resume"), and the page body is where that is
     // sold. See the evidence block at the top of UsageLimitsPage.tsx.
     title: 'Claude Code and Codex usage limits without losing work',
@@ -373,9 +373,9 @@ const USAGE_LIMITS: Route = {
 
 const TERMINAL: Route = {
     path: '/features/terminal',
-    // "Happier keeps your terminal" and the share card's "Keep your terminal. Or
+    // "KAIWU keeps your terminal" and the share card's "Keep your terminal. Or
     // never open one." are both legible only to a reader who already knows what
-    // Happier is. The agents are the nouns people search for, so the agents are
+    // KAIWU is. The agents are the nouns people search for, so the agents are
     // in the title; tmux is in the description for the same reason.
     title: 'Claude Code and Codex in your terminal, and in the app',
     description:
@@ -445,7 +445,7 @@ const ENTERPRISE: Route = {
  * /security is the individual reader's page; /enterprise is the buyer's.
  *
  * They are a PAIR, and the pairing is the reason this entry exists at all: the
- * footer used to send "Security & encryption" straight to docs.happier.dev,
+ * footer used to send "Security & encryption" straight to kaiwu.chengqiyun.com/docs,
  * which took the single most evaluative visitor off the site before they had
  * read a sentence we wrote. Encryption is the load-bearing claim of this
  * product; a redirect is not a position.

@@ -9,12 +9,12 @@ description: 在单台设备上运行多个隔离的 Kaiwu 栈（端口 + 目录
 - 独立的**服务器端口**
 - 相互隔离的 **UI 构建产物**、**CLI 主目录**与**日志**目录
 - 固定指向的代码仓检出（指向特定的工作树/检出目录）
-- （使用 `happier-server` 时）按栈独立管理的隔离**基础设施**（Postgres/Redis/Minio）
+- （使用 `KAIWU-server` 时）按栈独立管理的隔离**基础设施**（Postgres/Redis/Minio）
 
 栈通过保存在以下路径的纯文本 env 文件进行配置：
 
 ```
-~/.happier/stacks/<name>/env
+~/.KAIWU/stacks/<name>/env
 ```
 
 ## 创建栈
@@ -22,7 +22,7 @@ description: 在单台设备上运行多个隔离的 Kaiwu 栈（端口 + 目录
 非交互式：
 
 ```bash
-hstack stack new exp1 --port=3010 --server=happier-server-light
+hstack stack new exp1 --port=3010 --server=KAIWU-server-light
 ```
 
 自动选择端口：
@@ -35,16 +35,16 @@ hstack stack new exp2
 
 ```bash
 # Light flavor (default): SQLite (no Docker)
-hstack stack new exp-light --server=happier-server-light --db-provider=sqlite
+hstack stack new exp-light --server=KAIWU-server-light --db-provider=sqlite
 
 # Light flavor (optional): embedded Postgres via PGlite (PG_Light)
-hstack stack new exp-pglite --server=happier-server-light --db-provider=pglite
+hstack stack new exp-pglite --server=KAIWU-server-light --db-provider=pglite
 
 # Full server (default): Postgres (Docker-managed per stack)
-hstack stack new exp-full --server=happier-server --db-provider=postgres
+hstack stack new exp-full --server=KAIWU-server --db-provider=postgres
 
 # Full server (optional): MySQL (requires an explicit DATABASE_URL; hstack does not provision MySQL)
-hstack stack new exp-mysql --server=happier-server --db-provider=mysql --database-url=mysql://user:pass@127.0.0.1:3306/happier
+hstack stack new exp-mysql --server=KAIWU-server --db-provider=mysql --database-url=mysql://user:pass@127.0.0.1:3306/KAIWU
 ```
 
 ## 创建 PR 测试栈（便于复制粘贴）
@@ -71,7 +71,7 @@ hstack stack pr pr123 \
 - `--remote`（默认为 `upstream`）控制拉取 `refs/pull/⟦K47⟧/head` 所使用的 Git 远端。
 - `--seed-auth` 底层使用 `hstack stack auth ⟦K48⟧ copy-from ⟦K49⟧`，同时会尽力预置数据库 Account 记录（避免出现类似 Prisma `P2003` 的外键错误）。
 - `--link-auth` 会通过符号链接关联认证文件而非直接复制（可保持凭据同步，但会降低隔离性）。
-- 对于全量服务端栈（`happier-server`），预置数据可能需要 Docker 基础设施处于运行状态。
+- 对于全量服务端栈（`KAIWU-server`），预置数据可能需要 Docker 基础设施处于运行状态。
 - 数据库提供商标志会透传给底层的 `hstack stack new` 调用：
   - `--db-provider=...`
   - `--database-url=...`（仅限全量服务端）
@@ -92,16 +92,16 @@ hstack stack new --interactive
 
 通过该向导，你可以：
 
-- 选择服务器类型（`happier-server-light` 或 `happier-server`）
+- 选择服务器类型（`KAIWU-server-light` 或 `KAIWU-server`）
 - 为 Kaiwu monorepo 选择或创建代码仓工作树
 - 选择新建工作树所基于的 Git 远端（默认为 `upstream`）
 
-创建 `--server=happier-server` 栈时，hstack 还会预留额外端口，并将栈级别的基础设施配置持久化写入该栈的 env 文件中（确保重启后配置稳定）：
+创建 `--server=KAIWU-server` 栈时，hstack 还会预留额外端口，并将栈级别的基础设施配置持久化写入该栈的 env 文件中（确保重启后配置稳定）：
 
-- `HAPPIER_STACK_PG_PORT`
-- `HAPPIER_STACK_REDIS_PORT`
-- `HAPPIER_STACK_MINIO_PORT`
-- `HAPPIER_STACK_MINIO_CONSOLE_PORT`
+- `KAIWU_STACK_PG_PORT`
+- `KAIWU_STACK_REDIS_PORT`
+- `KAIWU_STACK_MINIO_PORT`
+- `KAIWU_STACK_MINIO_CONSOLE_PORT`
 - `DATABASE_URL`、`REDIS_URL`、`S3_*`
 
 ## 运行栈
@@ -189,7 +189,7 @@ hstack stack start exp1 --source
 hstack stack start exp1 --runtime
 
 # persist the default launch mode in the stack env
-hstack stack env exp1 set HAPPIER_STACK_RUNTIME_MODE=prefer
+hstack stack env exp1 set KAIWU_STACK_RUNTIME_MODE=prefer
 ```
 
 ## 命名栈运行时工作流（推荐用于类生产的本地栈）
@@ -209,7 +209,7 @@ hstack stack build dev-built --activate-runtime
 持久化运行时偏好设置，供后续 `start` 与 `service` 运行时使用：
 
 ```bash
-hstack stack env dev-built set HAPPIER_STACK_RUNTIME_MODE=prefer
+hstack stack env dev-built set KAIWU_STACK_RUNTIME_MODE=prefer
 ```
 
 基于已激活的运行时快照启动：
@@ -259,7 +259,7 @@ hstack stack service dev-built restart
 - 若仅激活服务端或仅激活守护进程，请重启栈进程或栈服务，使其重新加载更新后的运行时。
 - 成功激活或构建后，系统会自动清理旧的运行时快照和组件产物。
   - 默认保留当前生效的构建及前一次构建（共 `2` 个）。
-  - 可通过 `HAPPIER_STACK_RUNTIME_SNAPSHOT_KEEP_COUNT=⟦K55⟧` 与 `HAPPIER_STACK_RUNTIME_ARTIFACT_KEEP_COUNT=⟦K56⟧` 自定义保留数量。
+  - 可通过 `KAIWU_STACK_RUNTIME_SNAPSHOT_KEEP_COUNT=⟦K55⟧` 与 `KAIWU_STACK_RUNTIME_ARTIFACT_KEEP_COUNT=⟦K56⟧` 自定义保留数量。
   - 若只需保留当前这代运行时/产物，可将相应值设为 `1`。
 
 诊断检查：
@@ -278,12 +278,12 @@ hstack stack edit exp1 --interactive
 
 ## 切换栈的服务器类型
 
-你可以在 `happier-server-light` 与 `happier-server` 之间直接切换现有栈的类型，无需完整重新运行编辑向导：
+你可以在 `KAIWU-server-light` 与 `KAIWU-server` 之间直接切换现有栈的类型，无需完整重新运行编辑向导：
 
 ```bash
 hstack stack srv exp1 -- status
-hstack stack srv exp1 -- use happier-server-light
-hstack stack srv exp1 -- use happier-server
+hstack stack srv exp1 -- use KAIWU-server-light
+hstack stack srv exp1 -- use KAIWU-server
 hstack stack srv exp1 -- use --interactive
 ```
 
@@ -297,7 +297,7 @@ hstack stack wt exp1 -- use pr/my-ui-pr
 hstack stack wt exp1 -- use default
 ```
 
-此操作会更新栈 env 文件（`~/.happier/stacks/⟦K57⟧/env`），而非代码仓的 `env.local`（旧路径仍受支持）。
+此操作会更新栈 env 文件（`~/.KAIWU/stacks/⟦K57⟧/env`），而非代码仓的 `env.local`（旧路径仍受支持）。
 
 ## 针对特定栈运行 Kaiwu CLI（`stack kaiwu`）
 
@@ -362,19 +362,19 @@ hstack stack service exp1 enable --auth-now -- --method=mobile --no-open
 
 - 即使守护进程尚未认证，服务也会维持服务器与 UI 的运行；一旦凭据就绪，便会自动启动守护进程。
 - 命名栈服务遵循与 `hstack stack start ⟦K72⟧` 相同的运行时模式。
-  - `HAPPIER_STACK_RUNTIME_MODE=source`：始终基于实时检出目录运行。
-  - `HAPPIER_STACK_RUNTIME_MODE=prefer`：若存在生效的运行时快照则优先使用，否则回退至源码模式。
-  - `HAPPIER_STACK_RUNTIME_MODE=require`：必须存在有效的已激活运行时快照，否则报错退出。
+  - `KAIWU_STACK_RUNTIME_MODE=source`：始终基于实时检出目录运行。
+  - `KAIWU_STACK_RUNTIME_MODE=prefer`：若存在生效的运行时快照则优先使用，否则回退至源码模式。
+  - `KAIWU_STACK_RUNTIME_MODE=require`：必须存在有效的已激活运行时快照，否则报错退出。
 - `--method=mobile` 要求手机能够访问到一个公网可达的 URL（例如 Tailscale Serve HTTPS 或反向代理）。若该栈的公开 URL 解析为 `localhost` / `127.0.0.1`，则在配置好远程访问前，移动端认证将无法正常工作。
 
 实现说明：
 
 - 服务名称/标签作用域限定在栈级别：
-  - `main` → `dev.happier.stack`
-  - `exp1` → `dev.happier.stack.exp1`
+  - `main` → `dev.KAIWU.stack`
+  - `exp1` → `dev.KAIWU.stack.exp1`
 - macOS：基于 **launchd LaunchAgents** 实现
 - Linux：基于 **systemd 用户服务** 实现（若可用）
-- 服务会持久化 `HAPPIER_STACK_ENV_FILE`，因此你可以直接修改栈 env 文件而无需重新安装服务。
+- 服务会持久化 `KAIWU_STACK_ENV_FILE`，因此你可以直接修改栈 env 文件而无需重新安装服务。
 - 激活服务端或守护进程的运行时变更**不会**热替换正在运行的服务进程。执行 `hstack stack build ⟦K73⟧ --activate-runtime` 或 `hstack stack runtime ⟦K74⟧ activate --server|--daemon|--all` 后，需运行 `hstack stack service ⟦K75⟧ restart` 使服务基于新的生效快照重启。
 - 仅激活 Web 组件则属于例外：执行 `hstack stack runtime ⟦K76⟧ activate --web` 后，服务会直接提供更新后的 `runtime/current/ui` bundle，只需刷新浏览器即可。
 
@@ -390,7 +390,7 @@ hstack stack tailscale:url dev-built
 随后将该可共享 URL 持久化至栈 env 文件中，以便认证流程与客户端优先使用该地址：
 
 ```bash
-hstack stack env dev-built set HAPPIER_STACK_SERVER_URL=https://your-machine.your-tailnet.ts.net
+hstack stack env dev-built set KAIWU_STACK_SERVER_URL=https://your-machine.your-tailnet.ts.net
 ```
 
 此后，命名栈服务及基于运行时的认证流程将在适当时机使用该公开 URL。
@@ -402,7 +402,7 @@ hstack stack env dev-built set HAPPIER_STACK_SERVER_URL=https://your-machine.you
 ```bash
   hstack stack new exp3 \\
   --repo=local/my-feature \\
-  --server=happier-server
+  --server=KAIWU-server
 ```
 
 工作树路径说明相对于工作区进行解析：
@@ -427,11 +427,11 @@ tmp/<...>           -> <workspace>/tmp/<owner>/<...>
 
 启动时，`hstack` 会按以下顺序加载环境变量：
 
-1. `~/.happier-stack/.env`（默认配置）
-2. `~/.happier-stack/env.local`（可选的全局覆盖项；持久化配置推荐使用栈 env）
-3. `HAPPIER_STACK_ENV_FILE`（栈 env；优先级最高）
+1. `~/.KAIWU-stack/.env`（默认配置）
+2. `~/.KAIWU-stack/env.local`（可选的全局覆盖项；持久化配置推荐使用栈 env）
+3. `KAIWU_STACK_ENV_FILE`（栈 env；优先级最高）
 
-`hstack stack ...` 会设置 `HAPPIER_STACK_ENV_FILE=~/.happier/stacks/⟦K77⟧/env` 并清除所有已导出的 `HAPPIER_STACK_*` 变量，确保栈 env 保持最高权威性。
+`hstack stack ...` 会设置 `KAIWU_STACK_ENV_FILE=~/.KAIWU/stacks/⟦K77⟧/env` 并清除所有已导出的 `KAIWU_STACK_*` 变量，确保栈 env 保持最高权威性。
 
 关于各类目录/路径（`home`、`workspace`、`runtime` 与栈存储空间）的完整说明及详细的环境变量优先级规则，请参阅：[[路径、目录与环境变量优先级](/hstack/paths-and-env)](/hstack/paths-and-env)。
 
@@ -439,7 +439,7 @@ tmp/<...>           -> <workspace>/tmp/<owner>/<...>
 
 1. `⟦K78⟧/.env`（默认配置）
 2. `⟦K79⟧/env.local`（可选覆盖项）
-3. `HAPPIER_STACK_ENV_FILE`（栈 env）
+3. `KAIWU_STACK_ENV_FILE`（栈 env）
 
 ## 管理按栈配置的环境变量（包括 API 密钥）
 
@@ -480,7 +480,7 @@ hstack env set OPENAI_API_KEY=sk-...
 
 在**全新设备**（或任何新建的栈）上，守护进程可能需要先完成认证才能注册“设备”。如果 UI 显示“无设备”（或守护进程显示 `auth_required`），通常意味着该栈专用的 CLI 主目录下尚无认证凭据：
 
-- `~/.happier/stacks/⟦K82⟧/cli/access.key`
+- `~/.KAIWU/stacks/⟦K82⟧/cli/access.key`
 
 检查或认证某个栈：
 
@@ -491,8 +491,8 @@ hstack stack auth <stack> login
 
 注意：
 - 你可以使用 `--identity=⟦K83⟧` 在**不同账号**下为**同一个栈运行多个守护进程**。
-  - `default`（不带标志）：`~/.happier/stacks/⟦K84⟧/cli/...`
-  - `--identity=account-b`：`~/.happier/stacks/⟦K85⟧/cli-identities/account-b/...`
+  - `default`（不带标志）：`~/.KAIWU/stacks/⟦K84⟧/cli/...`
+  - `--identity=account-b`：`~/.KAIWU/stacks/⟦K85⟧/cli-identities/account-b/...`
 - 若要认证某个身份且不自动打开浏览器，请使用 `--no-open`（该命令会输出对应 URL，方便你在指定的浏览器配置文件或无痕窗口中打开）：
 
 ```bash
@@ -508,10 +508,10 @@ hstack stack daemon <stack> stop  --identity=account-a
 ```
 
 - 对于 **main** 栈，请使用 `⟦K86⟧=main` 以及默认的 `⟦K87⟧=3005`（除非你进行过修改）。
-- 若使用了 Tailscale Serve，`HAPPIER_WEBAPP_URL` 应设为对应的 HTTPS URL（即从 `hstack tailscale url` 获取的地址）。
+- 若使用了 Tailscale Serve，`KAIWU_WEBAPP_URL` 应设为对应的 HTTPS URL（即从 `hstack tailscale url` 获取的地址）。
 - 日志位于以下路径：
-  - 默认身份：`~/.happier/stacks/⟦K88⟧/cli/logs/`
-  - 命名身份：`~/.happier/stacks/⟦K89⟧/cli-identities/⟦K90⟧/logs/`
+  - 默认身份：`~/.KAIWU/stacks/⟦K88⟧/cli/logs/`
+  - 命名身份：`~/.KAIWU/stacks/⟦K89⟧/cli-identities/⟦K90⟧/logs/`
 
 ## JSON 模式
 

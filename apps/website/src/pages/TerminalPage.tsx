@@ -6,7 +6,7 @@ import { useSiteData } from '../i18n/siteData';
 import { rich } from '../i18n/rich';
 
 /**
- * `happier attach` in backticks → a real <code> element.
+ * `KAIWU attach` in backticks → a real <code> element.
  *
  * The copy in src/data/terminalFeature.ts is a plain string so it can be
  * diffed, searched and asserted on without a JSX parser. That leaves exactly

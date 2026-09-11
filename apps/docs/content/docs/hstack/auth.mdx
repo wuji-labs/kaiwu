@@ -48,12 +48,12 @@ hstack auth seed --help
 
 如果希望新栈在未初始化时自动进行预置，请在你的主目录覆盖配置中设置以下两项：
 
-- `HAPPIER_STACK_AUTH_SEED_FROM=dev-auth`
-- `HAPPIER_STACK_AUTO_AUTH_SEED=1`
+- `Kaiwu_STACK_AUTH_SEED_FROM=dev-auth`
+- `Kaiwu_STACK_AUTO_AUTH_SEED=1`
 
 这些配置通常位于：
 
-- `~/.happier-stack/env.local`
+- `~/.Kaiwu-stack/env.local`
 
 有关环境变量文件的优先级，请参阅[路径、目录与环境优先级](/hstack/paths-and-env)。
 
@@ -86,7 +86,7 @@ hstack stack auth <stack> copy-from dev-auth --link
 hstack auth copy-from dev-auth --all --except=main,dev-auth
 ```
 
-对于全服务端栈（`happier-server`），预置操作可能需要 Docker 基础设施处于运行状态。
+对于全服务端栈（`Kaiwu-server`），预置操作可能需要 Docker 基础设施处于运行状态。
 
 ---
 

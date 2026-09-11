@@ -4,11 +4,11 @@ import { useSiteData } from '../i18n/siteData';
 import { useLocalePath } from '../i18n';
 
 /**
- * Real Happier wordmark. Both PNG variants live in the DOM and we cross-fade
+ * Real Kaiwu wordmark. Both PNG variants live in the DOM and we cross-fade
  * their opacities on theme change — gives a smooth day/night transition
  * instead of a harsh swap.
  */
-export function HappierMark({ className }: { className?: string }) {
+export function KaiwuMark({ className }: { className?: string }) {
     const { pageProse: { PAGE_PROSE } } = useSiteData();
 
     const localeHref = useLocalePath();
@@ -18,12 +18,12 @@ export function HappierMark({ className }: { className?: string }) {
         <a
             href={localeHref('/')}
             className={`relative inline-block h-7 md:h-8 ${className ?? ''}`}
-            aria-label={PAGE_PROSE.happierMark.p0}
+            aria-label={PAGE_PROSE.KaiwuMark.p0}
         >
             {/* Light (white) logo — visible on dark theme. Block so it sets the wrapper width via aspect. */}
             <Picture
                 id="logotypeLight"
-                alt={PAGE_PROSE.happierMark.p1}
+                alt={PAGE_PROSE.KaiwuMark.p1}
                 className="block h-full"
                 imgClassName="block h-full w-auto"
                 draggable={false}
