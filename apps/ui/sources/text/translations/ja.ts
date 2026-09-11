@@ -1750,7 +1750,7 @@ export const ja: TranslationStructure = {
         pasteDoctorJson: {
           title: "CLI doctor JSON（任意）",
           subtitle:
-            "UIからマシンに接続できない場合、PCで `happier doctor --json` を実行してここに貼り付けてください。",
+            "UIからマシンに接続できない場合、PCで `kaiwu doctor --json` を実行してここに貼り付けてください。",
           placeholder: '{ "capturedAt": "...", ... }',
           invalid: ({ error }: { error: string }) => `無効な doctor JSON: ${error}`,
           valid: "doctor JSON は有効に見えます。レポートに添付されます。",
@@ -6664,7 +6664,7 @@ localTailscale: {
     }) =>
       `バージョン ${currentVersion} がインストールされています。${requiredVersion} 以降に更新してください`,
     updateCliInstructions:
-      "happier self update を実行してください",
+      "kaiwu self update を実行してください",
     deleteSession: "セッションを削除",
     deleteSessionSubtitle: "このセッションを完全に削除",
     deleteSessionConfirm: "セッションを完全に削除しますか？",
@@ -10257,7 +10257,7 @@ settingsSession: {
     launchNewSessionInDirectory: "ディレクトリで新しいセッションを起動",
     offlineUnableToSpawn: "マシンがオフラインのためランチャーは無効です",
     offlineHelp:
-      "• コンピューターがオンラインであることを確認してください\n• `happier daemon status`を実行して診断してください\n• 最新のCLIバージョンを使用していますか？`happier self update`を実行してください",
+      "• コンピューターがオンラインであることを確認してください\n• `kaiwu daemon status`を実行して診断してください\n• 最新のCLIバージョンを使用していますか？`kaiwu self update`を実行してください",
     customPathPlaceholder: "カスタムパスを入力",
     tools: {
       title: "ツール",
@@ -10355,7 +10355,7 @@ settingsSession: {
     detectedCliDetected: "検出済み",
     detectedCliNotDetected: "未検出",
     detectedCliUnknown: "不明",
-    detectedCliNotSupported: "未対応（@happier-dev/cliを更新してください）",
+    detectedCliNotSupported: "未対応（Kaiwu CLIを更新してください）",
     untitledSession: "無題のセッション",
     back: "戻る",
     notFound: "マシンが見つかりません",

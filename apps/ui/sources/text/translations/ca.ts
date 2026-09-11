@@ -9413,7 +9413,7 @@ settingsSession: {
         detectedCliDetected: 'Detectat',
         detectedCliNotDetected: 'No detectat',
         detectedCliUnknown: 'Desconegut',
-        detectedCliNotSupported: 'No compatible (actualitza @happier-dev/cli)',
+        detectedCliNotSupported: 'No compatible (actualitza Kaiwu CLI)',
         untitledSession: 'Sessió sense títol',
         back: 'Enrere',
         notFound: 'Màquina no trobada',

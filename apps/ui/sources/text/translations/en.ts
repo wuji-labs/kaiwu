@@ -9481,7 +9481,7 @@ settingsSession: {
         detectedCliDetected: 'Detected',
         detectedCliNotDetected: 'Not detected',
         detectedCliUnknown: 'Unknown',
-        detectedCliNotSupported: 'Not supported (update @happier-dev/cli)',
+        detectedCliNotSupported: 'Not supported (update Kaiwu CLI)',
         untitledSession: 'Untitled Session',
         back: 'Back',
         notFound: 'Machine not found',
