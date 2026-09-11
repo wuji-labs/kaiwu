@@ -1410,7 +1410,7 @@ export const ru: TranslationStructure = {
         pasteDoctorJson: {
           title: "CLI doctor JSON (необязательно)",
           subtitle:
-            "Если машина недоступна из UI, выполните `happier doctor --json` на компьютере и вставьте сюда.",
+            "Если машина недоступна из UI, выполните `kaiwu doctor --json` на компьютере и вставьте сюда.",
           placeholder: "{ \"capturedAt\": \"...\", ... }",
           invalid: ({ error }: { error: string }) => `Некорректный doctor JSON: ${error}`,
           valid: "Doctor JSON выглядит корректным и будет приложен к отчёту.",
@@ -5340,7 +5340,7 @@ export const ru: TranslationStructure = {
         pinLimitExceeded: ({ count }: { count: number }) => `Можно закрепить до ${count.toLocaleString()} сеансов. Открепите другой сеанс и повторите попытку.`,
     copyResumeCommand: "Скопировать команду возобновления",
     resumeCommand: ({ sessionId }: { sessionId: string }) =>
-      `happier resume ${sessionId}`,
+      `kaiwu resume ${sessionId}`,
     viewMachine: "Посмотреть машину",
     viewMachineSubtitle: "Посмотреть детали машины и сессии",
     killSessionSubtitle: "Немедленно завершить сессию",
@@ -5386,7 +5386,7 @@ export const ru: TranslationStructure = {
     }) =>
       `Установлена версия ${currentVersion}. Обновите до ${requiredVersion} или новее`,
     updateCliInstructions:
-      "Пожалуйста, выполните happier self update",
+      "Пожалуйста, выполните kaiwu self update",
     deleteSession: "Удалить сессию",
     deleteSessionSubtitle: "Удалить эту сессию навсегда",
     deleteSessionConfirm: "Удалить сессию навсегда?",
@@ -9928,7 +9928,7 @@ settingsSession: {
     machine: {
     offlineUnableToSpawn: "Запуск отключён: машина офлайн",
     offlineHelp:
-      "• Убедитесь, что компьютер онлайн\n• Выполните `happier daemon status` для диагностики\n• Используете последнюю версию CLI? Выполните `happier self update`",
+      "• Убедитесь, что компьютер онлайн\n• Выполните `kaiwu daemon status` для диагностики\n• Используете последнюю версию CLI? Выполните `kaiwu self update`",
     launchNewSessionInDirectory: "Запустить новую сессию в папке",
     customPathPlaceholder: "Введите свой путь",
     tools: {
@@ -10026,7 +10026,7 @@ settingsSession: {
     detectedCliDetected: "Обнаружено",
     detectedCliNotDetected: "Не обнаружено",
     detectedCliUnknown: "Неизвестно",
-    detectedCliNotSupported: "Не поддерживается (обновите @happier-dev/cli)",
+    detectedCliNotSupported: "Не поддерживается (обновите Kaiwu CLI)",
     untitledSession: "Безымянная сессия",
     back: "Назад",
     notFound: "Машина не найдена",

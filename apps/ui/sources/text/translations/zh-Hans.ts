@@ -1414,7 +1414,7 @@ export const zhHans: TranslationStructure = {
         pasteDoctorJson: {
           title: "CLI doctor JSON（可选）",
           subtitle:
-            "如果 UI 无法访问你的机器，请在电脑上运行 `happier doctor --json` 并粘贴到这里。",
+            "如果 UI 无法访问你的机器，请在电脑上运行 `kaiwu doctor --json` 并粘贴到这里。",
           placeholder: "{ \"capturedAt\": \"...\", ... }",
           invalid: ({ error }: { error: string }) => `doctor JSON 无效：${error}`,
           valid: "doctor JSON 看起来有效，将随报告一起提交。",
@@ -9658,7 +9658,7 @@ settingsSession: {
     launchNewSessionInDirectory: "在目录中启动新会话",
     offlineUnableToSpawn: "设备离线时无法启动",
     offlineHelp:
-      "• 确保您的计算机在线\n• 运行 `happier daemon status` 进行诊断\n• 您是否在运行最新的 CLI 版本？请运行 `happier self update`",
+      "• 确保您的计算机在线\n• 运行 `kaiwu daemon status` 进行诊断\n• 您是否在运行最新的 CLI 版本？请运行 `kaiwu self update`",
     daemon: "守护进程",
     status: "状态",
     customPathPlaceholder: "输入自定义路径",
@@ -9748,7 +9748,7 @@ settingsSession: {
     detectedCliDetected: "已检测到",
     detectedCliNotDetected: "未检测到",
     detectedCliUnknown: "未知",
-    detectedCliNotSupported: "不支持（请更新 @happier-dev/cli）",
+    detectedCliNotSupported: "不支持（请更新 无极开物 CLI）",
     untitledSession: "无标题会话",
     back: "返回",
     notFound: "未找到设备",

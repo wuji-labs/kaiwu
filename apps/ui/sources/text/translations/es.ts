@@ -1438,7 +1438,7 @@ export const es: TranslationStructure = {
         pasteDoctorJson: {
           title: "CLI doctor JSON (opcional)",
           subtitle:
-            "Si tu máquina no es accesible desde la UI, ejecuta `happier doctor --json` en tu ordenador y pégalo aquí.",
+            "Si tu máquina no es accesible desde la UI, ejecuta `kaiwu doctor --json` en tu ordenador y pégalo aquí.",
           placeholder: '{ "capturedAt": "...", ... }',
           invalid: ({ error }: { error: string }) => `Doctor JSON inválido: ${error}`,
           valid: "El doctor JSON parece válido y se adjuntará al reporte.",
@@ -6397,7 +6397,7 @@ export const es: TranslationStructure = {
     }) =>
       `Versión ${currentVersion} instalada. Actualice a ${requiredVersion} o posterior`,
     updateCliInstructions:
-      "Por favor ejecute happier self update",
+      "Por favor ejecute kaiwu self update",
     deleteSession: "Eliminar sesión",
     deleteSessionSubtitle: "Eliminar permanentemente esta sesión",
     deleteSessionConfirm: "¿Eliminar sesión permanentemente?",
@@ -10043,7 +10043,7 @@ settingsSession: {
     offlineUnableToSpawn:
       "El lanzador está deshabilitado mientras la máquina está desconectada",
     offlineHelp:
-      "• Asegúrate de que tu computadora esté en línea\n• Ejecuta `happier daemon status` para diagnosticar\n• ¿Estás usando la última versión del CLI? Ejecuta `happier self update`",
+      "• Asegúrate de que tu computadora esté en línea\n• Ejecuta `kaiwu daemon status` para diagnosticar\n• ¿Estás usando la última versión del CLI? Ejecuta `kaiwu self update`",
     launchNewSessionInDirectory: "Iniciar nueva sesión en directorio",
     customPathPlaceholder: "Ingresa una ruta personalizada",
     tools: {
@@ -10142,7 +10142,7 @@ settingsSession: {
     detectedCliDetected: "Detectado",
     detectedCliNotDetected: "No detectado",
     detectedCliUnknown: "Desconocido",
-    detectedCliNotSupported: "No compatible (actualiza @happier-dev/cli)",
+    detectedCliNotSupported: "No compatible (actualiza Kaiwu CLI)",
     untitledSession: "Sesión sin título",
     back: "Atrás",
     notFound: "Máquina no encontrada",
