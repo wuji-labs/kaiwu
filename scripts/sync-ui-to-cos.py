@@ -140,7 +140,11 @@ def upload_file(client, bucket: str, local_path: Path, cos_key: str, prefix: str
 
 
 def verify_cos_files(client, bucket: str, src_dir: Path, prefix: str):
-    """Verify uploaded files on COS."""
+    """Verify uploaded files on COS with strict verification.
+
+    Every file must have x-cos-meta-sha256 matching local sha256.
+    Compressible files must additionally have Content-Encoding: gzip.
+    """
     src_dir = Path(src_dir)
     if not src_dir.exists():
         print(f"Source directory not found: {src_dir}")
@@ -172,29 +176,22 @@ def verify_cos_files(client, bucket: str, src_dir: Path, prefix: str):
         # Build case-insensitive header lookup from response dict (headers are at top level)
         response_lower = {k.lower(): v for k, v in response.items()}
 
-        # For compressible files, verify metadata and Content-Encoding
+        # STRICT: Every file must have x-cos-meta-sha256 header
+        stored_sha256 = response_lower.get('x-cos-meta-sha256')
+        if not stored_sha256:
+            failed.append(f"{cos_key}: MISSING x-cos-meta-sha256 header")
+            continue
+
+        if stored_sha256 != original_sha256:
+            failed.append(f"{cos_key}: SHA256 mismatch (stored={stored_sha256}, expected={original_sha256})")
+            continue
+
+        # For compressible files, additionally verify Content-Encoding is gzip
         if should_compress(str(local_path)):
             compressible_count += 1
-
-            # Check metadata - headers come as top-level dict keys, not under 'Metadata'
-            stored_sha256 = response_lower.get('x-cos-meta-sha256')
-            if stored_sha256 != original_sha256:
-                failed.append(f"{cos_key}: SHA256 mismatch (stored={stored_sha256}, expected={original_sha256})")
-                continue
-
-            # Check Content-Encoding for compressible files
             content_encoding = response_lower.get('content-encoding', '')
             if content_encoding != 'gzip':
                 failed.append(f"{cos_key}: Content-Encoding not gzip (got={content_encoding})")
-                continue
-
-        # For non-compressible files (images, etc.), just verify they exist
-        # (metadata may not be set if file was uploaded before compression feature)
-        else:
-            stored_sha256 = response_lower.get('x-cos-meta-sha256')
-            if stored_sha256 and stored_sha256 != original_sha256:
-                # Only fail if metadata exists but doesn't match
-                failed.append(f"{cos_key}: SHA256 mismatch (stored={stored_sha256}, expected={original_sha256})")
                 continue
 
         verified += 1
