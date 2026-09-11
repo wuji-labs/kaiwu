@@ -33,10 +33,101 @@
         flex: 1;
       }
     </style>
+    <style id="kw-boot-splash">
+      #kw-boot {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #F5F5F5;
+        color: #131111;
+        font-family: system-ui, -apple-system, sans-serif;
+        z-index: 10000;
+      }
+      #kw-boot-title {
+        font-size: 32px;
+        font-weight: 600;
+        margin-bottom: 24px;
+        letter-spacing: 0.05em;
+      }
+      #kw-boot-spinner {
+        width: 48px;
+        height: 48px;
+        border: 3px solid rgba(19, 17, 17, 0.2);
+        border-top-color: #131111;
+        border-radius: 50%;
+        animation: kw-spin 1s linear infinite;
+        margin-bottom: 24px;
+      }
+      @keyframes kw-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      #kw-boot-text {
+        font-size: 14px;
+        color: rgba(19, 17, 17, 0.6);
+        margin-bottom: 12px;
+      }
+      #kw-boot-slow {
+        font-size: 12px;
+        color: rgba(19, 17, 17, 0.5);
+        text-align: center;
+        max-width: 280px;
+        line-height: 1.4;
+        display: none;
+      }
+      @media (prefers-color-scheme: dark) {
+        #kw-boot {
+          background-color: #131111;
+          color: #F5F5F5;
+        }
+        #kw-boot-spinner {
+          border-color: rgba(245, 245, 245, 0.2);
+          border-top-color: #F5F5F5;
+        }
+        #kw-boot-text {
+          color: rgba(245, 245, 245, 0.6);
+        }
+        #kw-boot-slow {
+          color: rgba(245, 245, 245, 0.5);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #kw-boot-spinner {
+          animation: none;
+          opacity: 0.6;
+        }
+      }
+    </style>
   </head>
 
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+    <div id="root"><div id="kw-boot"><div id="kw-boot-title">无极开物</div><div id="kw-boot-spinner"></div><div id="kw-boot-text">正在加载…</div><div id="kw-boot-slow"></div></div></div>
+    <script>
+      (function() {
+        var bootElem = document.getElementById('kw-boot');
+        var slowElem = document.getElementById('kw-boot-slow');
+        var slowTimer = setTimeout(function() {
+          if (document.body.contains(bootElem)) {
+            slowElem.textContent = '网络较慢，仍在加载，请稍候…';
+            slowElem.style.display = 'block';
+          }
+        }, 15000);
+        window.addEventListener('error', function(e) {
+          if (e.target && e.target.tagName === 'SCRIPT' && document.body.contains(bootElem)) {
+            clearTimeout(slowTimer);
+            slowElem.textContent = '加载失败，请下拉刷新或检查网络';
+            slowElem.style.display = 'block';
+          }
+        }, true);
+      })();
+    </script>
   </body>
 </html>
