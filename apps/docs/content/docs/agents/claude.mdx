@@ -109,7 +109,7 @@ Anthropic 目前支持两种安装方式。建议优先使用其文档中推荐�
 Kaiwu 可代你运行安装程序，该方式会使用 Anthropic 的原生安装程序而非 npm：
 
 ```bash
-Kaiwu install provider claude
+kaiwu install provider claude
 claude --version
 ```
 
@@ -149,13 +149,13 @@ Claude 可通过 Kaiwu 的关联服务进行认证：
 
 ```bash
 # Claude subscription (recommended default)
-Kaiwu connect claude --setup-token
+kaiwu connect claude --setup-token
 
 # Anthropic API key (not subscription)
-Kaiwu connect claude --api-key
+kaiwu connect claude --api-key
 
 # Subscription OAuth (advanced)
-Kaiwu connect claude --oauth
+kaiwu connect claude --oauth
 ```
 
 更多详细信息（服务 ID、安全模型及环境变量替代机制）请参见：

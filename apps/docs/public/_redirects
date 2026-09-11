@@ -19,7 +19,7 @@
 /clients/cli-sessions                           /apps/cli-sessions  301
 /clients/control-panel                          /apps/control-panel  301
 /clients/daemon                                 /apps/daemon  301
-/clients/mcp                                    /extending/KAIWU-as-mcp-server  301
+/clients/mcp                                    /extending/kaiwu-as-mcp-server  301
 /deployment                                     /self-hosting  301
 /deployment/docker                              /self-hosting/docker  301
 /deployment/env                                 /self-hosting/env  301
@@ -37,7 +37,7 @@
 /features/accounts/session-sharing              /accounts/session-sharing  301
 /features/agent-autonomy                        /extending/agent-autonomy  301
 /features/agents/agent-autonomy                 /extending/agent-autonomy  301
-/features/agents/KAIWU-tools                  /extending/KAIWU-tools  301
+/features/agents/KAIWU-tools                    /extending/kaiwu-tools  301
 /features/agents/installables                   /extending/installables  301
 /features/agents/mcp-servers                    /extending/mcp-servers  301
 /features/agents/model-and-engine-selection     /agents/model-and-engine-selection  301
@@ -71,7 +71,7 @@
 /features/files-and-editor                      /code/files-and-editor  301
 /features/friends                               /accounts/friends  301
 /features/git                                   /code/git  301
-/features/KAIWU-tools                         /extending/KAIWU-tools  301
+/features/KAIWU-tools                           /extending/kaiwu-tools  301
 /features/inbox-and-approvals                   /sessions/inbox-and-approvals  301
 /features/installables                          /extending/installables  301
 /features/interface/attachments                 /apps/attachments  301
