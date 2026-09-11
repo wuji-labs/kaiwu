@@ -1769,7 +1769,7 @@ export const it: TranslationStructure = {
         pasteDoctorJson: {
           title: "CLI doctor JSON (opzionale)",
           subtitle:
-            "Se la tua macchina non è raggiungibile dalla UI, esegui `happier doctor --json` sul computer e incollalo qui.",
+            "Se la tua macchina non è raggiungibile dalla UI, esegui `kaiwu doctor --json` sul computer e incollalo qui.",
           placeholder: '{ "capturedAt": "...", ... }',
           invalid: ({ error }: { error: string }) => `Doctor JSON non valido: ${error}`,
           valid: "Il doctor JSON sembra valido e verrà allegato alla segnalazione.",
@@ -10354,7 +10354,7 @@ settingsSession: {
     launchNewSessionInDirectory: "Avvia nuova sessione nella directory",
     offlineUnableToSpawn: "Avvio disabilitato quando la macchina è offline",
     offlineHelp:
-      "• Assicurati che il tuo computer sia online\n• Esegui `happier daemon status` per diagnosticare\n• Stai usando l'ultima versione della CLI? Esegui `happier self update`",
+      "• Assicurati che il tuo computer sia online\n• Esegui `kaiwu daemon status` per diagnosticare\n• Stai usando l'ultima versione della CLI? Esegui `kaiwu self update`",
     customPathPlaceholder: "Inserisci un percorso personalizzato",
     tools: {
       title: "Strumenti",
@@ -10452,7 +10452,7 @@ settingsSession: {
     detectedCliDetected: "Rilevata",
     detectedCliNotDetected: "Non rilevata",
     detectedCliUnknown: "Sconosciuta",
-    detectedCliNotSupported: "Non supportata (aggiorna @happier-dev/cli)",
+    detectedCliNotSupported: "Non supportata (aggiorna Kaiwu CLI)",
     untitledSession: "Sessione senza titolo",
     back: "Indietro",
     notFound: "Macchina non trovata",

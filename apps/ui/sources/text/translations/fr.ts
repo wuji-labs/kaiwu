@@ -9464,7 +9464,7 @@ settingsSession: {
         detectedCliDetected: 'Détecté',
         detectedCliNotDetected: 'Non détecté',
         detectedCliUnknown: 'Inconnu',
-        detectedCliNotSupported: 'Non pris en charge (mets à jour @happier-dev/cli)',
+        detectedCliNotSupported: 'Non pris en charge (mets à jour Kaiwu CLI)',
         untitledSession: 'Session sans titre',
         back: 'Retour',
         notFound: 'Machine introuvable',

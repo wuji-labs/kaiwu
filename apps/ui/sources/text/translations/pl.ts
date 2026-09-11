@@ -1471,7 +1471,7 @@ export const pl: TranslationStructure = {
         pasteDoctorJson: {
           title: "CLI doctor JSON (opcjonalnie)",
           subtitle:
-            "Jeśli Twoja maszyna jest nieosiągalna z UI, uruchom `happier doctor --json` na komputerze i wklej tutaj.",
+            "Jeśli Twoja maszyna jest nieosiągalna z UI, uruchom `kaiwu doctor --json` na komputerze i wklej tutaj.",
           placeholder: '{ "capturedAt": "...", ... }',
           invalid: ({ error }: { error: string }) => `Nieprawidłowy doctor JSON: ${error}`,
           valid: "Doctor JSON wygląda poprawnie i zostanie dołączony do zgłoszenia.",
@@ -6368,7 +6368,7 @@ export const pl: TranslationStructure = {
         pinLimitExceeded: ({ count }: { count: number }) => `Możesz przypiąć maksymalnie ${count.toLocaleString()} sesji. Odepnij inną sesję i spróbuj ponownie.`,
     copyResumeCommand: "Kopiuj komendę wznowienia",
     resumeCommand: ({ sessionId }: { sessionId: string }) =>
-      `happier resume ${sessionId}`,
+      `kaiwu resume ${sessionId}`,
     viewMachine: "Zobacz maszynę",
     viewMachineSubtitle: "Zobacz szczegóły maszyny i sesje",
     killSessionSubtitle: "Natychmiastowo zakończ sesję",
@@ -6414,7 +6414,7 @@ export const pl: TranslationStructure = {
     }) =>
       `Zainstalowana wersja ${currentVersion}. Zaktualizuj do ${requiredVersion} lub nowszej`,
     updateCliInstructions:
-      "Proszę uruchomić happier self update",
+      "Proszę uruchomić kaiwu self update",
     deleteSession: "Usuń sesję",
     deleteSessionSubtitle: "Trwale usuń tę sesję",
     deleteSessionConfirm: "Usunąć sesję na stałe?",
@@ -10034,7 +10034,7 @@ settingsSession: {
     machine: {
     offlineUnableToSpawn: "Launcher wyłączony, gdy maszyna jest offline",
     offlineHelp:
-      "• Upewnij się, że komputer jest online\n• Uruchom `happier daemon status`, aby zdiagnozować\n• Czy używasz najnowszej wersji CLI? Uruchom `happier self update`",
+      "• Upewnij się, że komputer jest online\n• Uruchom `kaiwu daemon status`, aby zdiagnozować\n• Czy używasz najnowszej wersji CLI? Uruchom `kaiwu self update`",
     launchNewSessionInDirectory: "Uruchom nową sesję w katalogu",
     customPathPlaceholder: "Wpisz własną ścieżkę",
     tools: {
@@ -10132,7 +10132,7 @@ settingsSession: {
     detectedCliDetected: "Wykryto",
     detectedCliNotDetected: "Nie wykryto",
     detectedCliUnknown: "Nieznane",
-    detectedCliNotSupported: "Nieobsługiwane (zaktualizuj @happier-dev/cli)",
+    detectedCliNotSupported: "Nieobsługiwane (zaktualizuj Kaiwu CLI)",
     untitledSession: "Sesja bez nazwy",
     back: "Wstecz",
     notFound: "Nie znaleziono maszyny",
