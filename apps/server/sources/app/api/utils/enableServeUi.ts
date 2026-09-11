@@ -110,7 +110,7 @@ function setUiFileHeaders(reply: any, ext: string): void {
         reply.header('cache-control', 'public, max-age=31536000, immutable');
     } else if (ext === '.webmanifest') {
         reply.header('content-type', 'application/manifest+json');
-        reply.header('cache-control', 'public, max-age=31536000, immutable');
+        reply.header('cache-control', 'no-cache');
     } else {
         reply.header('content-type', 'application/octet-stream');
         reply.header('cache-control', 'public, max-age=31536000, immutable');
