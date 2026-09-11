@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 
 import { LOCALE_META, pathForLocale, suggestLocale, useI18n, type Locale } from '../i18n';
 
-const DISMISSED_KEY = 'happier.locale.dismissed';
-const CHOSEN_KEY = 'happier.locale.chosen';
+const DISMISSED_KEY = 'Kaiwu.locale.dismissed';
+const CHOSEN_KEY = 'Kaiwu.locale.chosen';
 
 /**
  * "This page is also in your language" — a dismissible offer, never a redirect.

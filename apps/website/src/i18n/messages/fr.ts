@@ -3,7 +3,7 @@ import type { Messages } from './en';
 /**
  * French copy for the marketing site.
  *
- * REGISTER — TUTOIEMENT. Happier addresses the reader as `tu`, matching the
+ * REGISTER — TUTOIEMENT. KAIWU addresses the reader as `tu`, matching the
  * shipped app and the way French dev tooling actually speaks. « Vous » would
  * read as a bank letter next to an English page written in the second person.
  *
@@ -24,10 +24,10 @@ import type { Messages } from './en';
  */
 export const fr: Messages = {
     meta: {
-        title: 'Happier — Une session. Tous tes appareils.',
+        title: 'KAIWU — Une session. Tous tes appareils.',
         description:
-            'Happier est la salle de contrôle multi-appareils de tes agents de code IA. Fais tourner Claude Code, Codex, OpenCode et bien d’autres — sur tous tes appareils, dans une seule boîte de réception, avec tes propres abonnements.',
-        ogTitle: 'Happier — Une session. Tous tes appareils.',
+            'KAIWU est la salle de contrôle multi-appareils de tes agents de code IA. Fais tourner Claude Code, Codex, OpenCode et bien d’autres — sur tous tes appareils, dans une seule boîte de réception, avec tes propres abonnements.',
+        ogTitle: 'KAIWU — Une session. Tous tes appareils.',
         ogDescription:
             'La couche de contrôle mobile de tes agents de code IA. Tu vois l’interface. Tu agis dessus. Sans bricolage.',
         // Open Graph wants language_TERRITORY, and it must match LOCALE_META.fr.
@@ -91,7 +91,7 @@ export const fr: Messages = {
         // hstack/remote-server.mdx:86). À garder aligné avec HIGHLIGHTS dans
         // src/sections/SelfHost.tsx.
         operationBody:
-            'Un service géré que tu démarres, arrêtes et surveilles avec happier relay host status. Rien ne se met à jour tout seul sur l’hôte : tu mets à jour en relançant la commande d’installation, quand tu le décides.',
+            'Un service géré que tu démarres, arrêtes et surveilles avec KAIWU relay host status. Rien ne se met à jour tout seul sur l’hôte : tu mets à jour en relançant la commande d’installation, quand tu le décides.',
         remoteTitle: 'Accès à distance',
         remoteBody:
             'Accède à tes sessions depuis n’importe où. Tunnels SSH, Tailscale ou HTTPS direct.',
@@ -109,7 +109,7 @@ export const fr: Messages = {
         heading: 'Opérationnel\nen moins d’une minute.',
         stepDownloadTitle: 'Télécharge l’app',
         stepDownloadBody:
-            'Récupère Happier sur l’App Store, sur Google Play ou en version desktop.',
+            'Récupère KAIWU sur l’App Store, sur Google Play ou en version desktop.',
         stepInstallTitle: 'Installe le CLI',
         stepInstallBody: 'Une seule commande. Sur macOS, Linux et Windows.',
         // « Associe » plutôt que « appaire » : c’est le verbe que l’app utilise
@@ -119,8 +119,8 @@ export const fr: Messages = {
             'Scanne le QR code affiché dans ton terminal pour connecter ton téléphone ou ton navigateur.',
         stepCodeTitle: 'Commence à coder',
         stepCodeBody:
-            'Lance happier au lieu de claude ou codex. Tes sessions se synchronisent partout, instantanément.',
-        runHappierLabel: 'Lance happier au lieu de claude',
+            'Lance KAIWU au lieu de claude ou codex. Tes sessions se synchronisent partout, instantanément.',
+        runKAIWULabel: 'Lance KAIWU au lieu de claude',
     },
 
     cta: {

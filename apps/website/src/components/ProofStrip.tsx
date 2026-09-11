@@ -5,9 +5,9 @@ import { useGitHubStats } from './GitHubStats';
 import { RollingNumber } from './RollingNumber';
 import { useSiteData } from '../i18n/siteData';
 
-/** Measured 2026-08-08 from stats.happier.dev/downloads.json. */
+/** Measured 2026-08-08 from stats.kaiwu.chengqiyun.com/downloads.json. */
 const FALLBACK_DOWNLOAD_TOTAL = 36783;
-/** Measured 2026-08-08 from stats.happier.dev/discord.json. */
+/** Measured 2026-08-08 from stats.kaiwu.chengqiyun.com/discord.json. */
 const FALLBACK_MEMBER_COUNT = 486;
 
 function parseDownloads(value: unknown) {
@@ -42,10 +42,10 @@ type Fact = {
  *     stars) and the ones that are structural (agents, licence).
  *
  * Sources, all verified 2026-08-08:
- *   downloads    stats.happier.dev/downloads.json → 36,783
- *   stars/forks  api.github.com/repos/happier-dev/happier → 1,445 / 122
+ *   downloads    stats.kaiwu.chengqiyun.com/downloads.json → 36,783
+ *   stars/forks  api.github.com/repos/Kaiwu-dev/Kaiwu → 1,445 / 122
  *   contributors …/contributors?anon=1 → 71
- *   Discord      stats.happier.dev/discord.json → 486
+ *   Discord      stats.kaiwu.chengqiyun.com/discord.json → 486
  *   agents       remote-dev packages/agents/src/types.ts:10 → 13 named + custom ACP
  */
 export function ProofStrip() {
@@ -87,7 +87,7 @@ export function ProofStrip() {
         {
             value: String(PROVIDERS.length),
             label: 'agents supported',
-            href: 'https://docs.happier.dev/providers',
+            href: 'https://kaiwu.chengqiyun.com/docs/providers',
         },
         {
             value: 'MIT',

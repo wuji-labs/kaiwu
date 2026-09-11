@@ -47,13 +47,13 @@ description: 运行你自己的 Kaiwu 中继——如何部署、如何配置允
 
 两种版本运行相同的 API 和业务逻辑，差异仅在于使用的存储后端不同。
 
-- **完整版（Full）** —— 采用外部 Postgres（默认）或 MySQL 8.0.16+，搭配 S3 或兼容存储（默认配置；可通过 `HAPPIER_FILES_BACKEND=local` 切换为本地磁盘）。Redis 为可选项，仅在多副本实时同步时才需要。
+- **完整版（Full）** —— 采用外部 Postgres（默认）或 MySQL 8.0.16+，搭配 S3 或兼容存储（默认配置；可通过 `KAIWU_FILES_BACKEND=local` 切换为本地磁盘）。Redis 为可选项，仅在多副本实时同步时才需要。
 - **轻量版（Light）** —— 基于磁盘的 SQLite（默认）或嵌入式 Postgres（PGlite），本地文件存储由服务端直接通过 `GET /files/*` 提供服务。
 
 若是多用户共享的服务端，请使用**完整版**；若追求最简便的单节点部署，请使用**轻量版**。
 
 <Callout>
-  在搭配 SQLite 且未配置 `DATABASE_URL` 的情况下，服务端必须设置 `HAPPIER_SERVER_LIGHT_DATA_DIR`，否则将拒绝启动。
+  在搭配 SQLite 且未配置 `DATABASE_URL` 的情况下，服务端必须设置 `KAIWU_SERVER_LIGHT_DATA_DIR`，否则将拒绝启动。
 </Callout>
 
 ## 角色划分与扩容
@@ -69,7 +69,7 @@ description: 运行你自己的 Kaiwu 中继——如何部署、如何配置允
 在根据上表进行部署前，有两点需要特别注意：
 
 - **无法识别的值不会报错。** 任何非 `api` 或 `worker` 的取值（包括拼写错误），都会静默回退为 `all`。例如将 `SERVER_ROLE=wroker` 拼写错误，启动的将是第二个完整服务端，而不是 Worker。
-- **`worker` 必须配合 Redis 适配器。** 除非已设置 `REDIS_URL` 且配置了 `HAPPIER_SOCKET_ADAPTER=redis-streams`，否则进程会在启动时抛出异常。这是因为 Worker 需要向自身未直接建立 Socket 连接的房间发布消息。
+- **`worker` 必须配合 Redis 适配器。** 除非已设置 `REDIS_URL` 且配置了 `KAIWU_SOCKET_ADAPTER=redis-streams`，否则进程会在启动时抛出异常。这是因为 Worker 需要向自身未直接建立 Socket 连接的房间发布消息。
 
 反之亦然：一旦启用了 Redis 适配器，持久化设备在线状态（presence）的写入操作就会转交由 Worker 处理。如果部署全部为 `api` 且启用了 Redis，系统会记录日志提示需要 Worker，并且在 Worker 运行之前，在线状态将无法持久化写入。
 

@@ -18,13 +18,13 @@
  *      market.
  *   2. A first-party path means the page makes zero third-party requests. For a
  *      site whose entire pitch is sovereignty, "this page talks to nobody but
- *      happier.dev" is a claim worth being able to make literally.
+ *      kaiwu.chengqiyun.com" is a claim worth being able to make literally.
  * `UI_ORIGIN` must stay the real PostHog UI host so the "view in PostHog" links
  * and the toolbar resolve.
  */
 
 /** First-party ingest path. Proxied to PostHog Cloud EU (Frankfurt). */
-export const INGEST_ORIGIN = 'https://happier.dev/ingest';
+export const INGEST_ORIGIN = 'https://kaiwu.chengqiyun.com/ingest';
 
 /** Where the proxy forwards to. Also used by worker/index.ts. */
 export const POSTHOG_EU_ORIGIN = 'https://eu.i.posthog.com';
@@ -51,7 +51,7 @@ export const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY ?? '';
  * without sharing an identity. See the cross-property note in
  * src/analytics/analytics.ts.
  */
-export const SITE = 'happier.dev' as const;
+export const SITE = 'kaiwu.chengqiyun.com' as const;
 
 /** localStorage key holding a visitor's refusal. The only key we ever write. */
-export const OPT_OUT_STORAGE_KEY = 'happier:analytics';
+export const OPT_OUT_STORAGE_KEY = 'Kaiwu:analytics';

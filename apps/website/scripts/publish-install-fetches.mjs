@@ -42,7 +42,7 @@
  * ratio you can defend beats a join you cannot.
  *
  * OUTPUT: writes installs.json, to be published next to downloads.json and
- * discord.json on stats.happier.dev (see src/components/publicStats.ts).
+ * discord.json on stats.kaiwu.chengqiyun.com (see src/components/publicStats.ts).
  *
  * ENV: CLOUDFLARE_API_TOKEN (Zone → Analytics → Read), CLOUDFLARE_ZONE_TAG.
  * USAGE: node scripts/publish-install-fetches.mjs [days=30] > installs.json

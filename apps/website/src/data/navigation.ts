@@ -22,18 +22,18 @@ import { CHANGELOG_URL, DOCS_URL, GUIDES_URL, GITHUB_REPO_URL, LICENSE_URL, WEB_
  *
  * Two fixes here are link-equity problems rather than taste, and both predate
  * the move:
- *   - guides.happier.dev had NO inbound link from any Happier surface. 53
+ *   - guides.kaiwu.chengqiyun.com had NO inbound link from any Kaiwu surface. 53
  *     guides were orphaned — uncrawlable except by sitemap, and invisible to a
  *     visitor. It is the first Resources entry — and since the nav slot Guides
  *     briefly held went to Enterprise (src/sections/Nav.tsx), this link is the
- *     ONLY thing on any Happier surface pointing at those 53 pages. Removing it
+ *     ONLY thing on any Kaiwu surface pointing at those 53 pages. Removing it
  *     re-orphans the lot; it is not a taste call.
  *   - the licence file in the repo is spelled `LICENCE`; the footer pointed at
  *     `/blob/main/LICENSE`, which GitHub answers with a 404 on a case-sensitive
  *     path. Pinned to the real filename and to `MIT license` as the label, since
  *     the licence NAME is the thing a visitor is checking for.
  *
- * Third fix, same class: "Changelog" pointed at docs.happier.dev/changelog,
+ * Third fix, same class: "Changelog" pointed at kaiwu.chengqiyun.com/docs/changelog,
  * which answers 404. ./downloads.ts already exported the URL that works
  * (`/releases`) and nothing was using it. Every external URL here comes from
  * ./downloads.ts, so the link and the analytics classification in useLinkClicks
@@ -84,7 +84,7 @@ export const FOOTER_COLUMNS = [
                 external: true,
             },
             { id: 'licence', label: 'MIT license', href: LICENSE_URL, external: true },
-            // Was https://docs.happier.dev/security — the same class of defect
+            // Was https://kaiwu.chengqiyun.com/docs/security — the same class of defect
             // as the licence and changelog links above, and the most expensive
             // of the three. It took the single most evaluative visitor on the
             // site off it before they had read one sentence we wrote about the

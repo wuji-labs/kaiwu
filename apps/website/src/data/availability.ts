@@ -16,7 +16,7 @@
  *
  *   SHIPPED   in the published release. Present tense is allowed. This is the
  *             only state that may appear in a capability table, a support
- *             matrix, or a sentence of the form "Happier runs X".
+ *             matrix, or a sentence of the form "Kaiwu runs X".
  *   UPCOMING  in this repository and not in the release. Must be named as not
  *             yet available and tied to the upcoming version. Never in a table,
  *             never in the present tense, never counted in "13 agents".
@@ -26,7 +26,7 @@
  * --------------------------------
  * `SHIPPED_AGENT_IDS` below is transcribed from the released tree:
  *
- *   happier-dev/happier @ v0.2 — packages/agents/src/types.ts, `AGENT_IDS`
+ *   Kaiwu-dev/Kaiwu @ v0.2 — packages/agents/src/types.ts, `AGENT_IDS`
  *
  * It is transcribed rather than imported because a marketing site that only
  * builds when a second checkout happens to sit beside it is a worse thing than
@@ -35,7 +35,7 @@
  * the released tree is not on the machine, the test says so loudly instead of
  * passing quietly.
  *
- * Set HAPPIER_SHIPPED_TREE to point the cross-check at a checkout that is not
+ * Set Kaiwu_SHIPPED_TREE to point the cross-check at a checkout that is not
  * in the default sibling location.
  */
 
@@ -64,7 +64,7 @@ export const UPCOMING_LABEL = `Coming in ${UPCOMING_RELEASE}`;
  * browser, so it must never import `node:fs`. The filesystem work lives in
  * availability.test.ts.
  */
-export const SHIPPED_TREE_ENV_VAR = 'HAPPIER_SHIPPED_TREE';
+export const SHIPPED_TREE_ENV_VAR = 'Kaiwu_SHIPPED_TREE';
 export const SHIPPED_TREE_DEFAULT_RELATIVE_PATH = '../../../../../remote-dev';
 export const SHIPPED_AGENT_IDS_SOURCE = 'packages/agents/src/types.ts';
 export const SHIPPED_MANIFEST_SOURCE = 'packages/agents/src/manifest.ts';
@@ -87,7 +87,7 @@ export const SHIPPED_CLI_RUNTIME_SOURCE = 'packages/agents/src/providers/provide
  * the release checkout), so one implementation is right in both and the file
  * does not have to diverge between them.
  */
-export const UNRELEASED_TREE_ENV_VAR = 'HAPPIER_UNRELEASED_TREE';
+export const UNRELEASED_TREE_ENV_VAR = 'Kaiwu_UNRELEASED_TREE';
 export const UNRELEASED_TREE_LOCAL_RELATIVE_PATH = '../../../..';
 export const UNRELEASED_TREE_SIBLING_RELATIVE_PATH = '../../../../../dev';
 export const UNRELEASED_AGENT_IDS_SOURCE = 'packages/agents/src/generated/agentIds.ts';

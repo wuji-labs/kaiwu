@@ -1,5 +1,5 @@
 /**
- * "Where Happier fits" — the positioning section, and the /vs page it feeds.
+ * "Where Kaiwu fits" — the positioning section, and the /vs page it feeds.
  *
  * WHAT CHANGED AND WHY
  * --------------------
@@ -19,23 +19,23 @@
  *
  * The new frame is positional rather than competitive: vendor remotes exist, they
  * are good at the thing they were built for, and each of them reaches exactly one
- * vendor's agent. Happier's argument is the set of things that only make sense
+ * vendor's agent. Kaiwu's argument is the set of things that only make sense
  * when one client runs all thirteen.
  *
  * EVIDENCE RULE — unchanged and non-negotiable.
  *   • Every Remote Control statement is a restatement of Anthropic's own page,
  *     code.claude.com/docs/en/remote-control. Nothing is inferred, benchmarked,
  *     or characterised for quality. Verified August 2026.
- *   • Every Happier statement is traceable to shipped source in remote-dev: the
+ *   • Every Kaiwu statement is traceable to shipped source in remote-dev: the
  *     action specs in packages/protocol/src/actions/actionSpecs.ts, the connected
  *     services schemas in packages/protocol/src/connect, and the feature docs at
- *     docs.happier.dev. Anchors are named inline where a claim is specific.
+ *     kaiwu.chengqiyun.com/docs. Anchors are named inline where a claim is specific.
  */
 
 export const RC_SECTION = {
-    // "Where Happier fits" was the old eyebrow, and it is the same phrase both
+    // "Where Kaiwu fits" was the old eyebrow, and it is the same phrase both
     // /vs H1s were carrying: it names no outcome, and it is legible only to a
-    // reader who already knows what Happier is. An eyebrow is read cold, so it
+    // reader who already knows what Kaiwu is. An eyebrow is read cold, so it
     // now says what the section is about — one client, every agent — which is
     // what the six cards under it go on to argue.
     eyebrow: 'One client for every agent',
@@ -45,7 +45,7 @@ export const RC_SECTION = {
      * "Codex Mobile". Never capitalise it as one. Anthropic's is "Claude Code
      * Remote Control", a Claude Code feature.
      */
-    title: 'Claude Code has a remote.\nCodex has mobile.\nHappier runs both, and eleven more.',
+    title: 'Claude Code has a remote.\nCodex has mobile.\nKaiwu runs both, and eleven more.',
     subline:
         'One app for Claude Code, Codex, OpenCode, Pi and nine more — on your own computers, with your own accounts.',
     /**
@@ -67,7 +67,7 @@ export const RC_SECTION = {
     turn: 'This page is about the rest of it: the setups Anthropic’s own documentation says Remote Control will not run in, and the twelve other agents it was never meant to cover.',
     /**
      * THE ARGUMENT. Six things that only exist because one client runs every
-     * agent — not six ways Happier scores higher on somebody else's axes.
+     * agent — not six ways Kaiwu scores higher on somebody else's axes.
      *
      * Each one is verified in the shipped product (remote-dev), and the anchor is
      * named in the comment above it so the next person to edit the copy can
@@ -89,7 +89,7 @@ export const RC_SECTION = {
             // picture ours. State the positive: the inbox is the thing being
             // sold, and it is what the body goes on to describe.
             title: 'Every agent in one inbox.',
-            body: 'Claude Code’s remote opens in claude.ai/code or the Claude app. Codex reaches your phone through the ChatGPT app. Each vendor’s remote lands inside that vendor’s product, which is fine until you use two of them. Happier is one inbox instead: every session, on every agent, on every computer you have connected, in one list — with one place to answer the permission prompts they are all waiting on.',
+            body: 'Claude Code’s remote opens in claude.ai/code or the Claude app. Codex reaches your phone through the ChatGPT app. Each vendor’s remote lands inside that vendor’s product, which is fine until you use two of them. Kaiwu is one inbox instead: every session, on every agent, on every computer you have connected, in one list — with one place to answer the permission prompts they are all waiting on.',
         },
         {
             id: 'mixAndMatch',
@@ -101,7 +101,7 @@ export const RC_SECTION = {
             // what is being mixed. The noun is the point of the card, and it is
             // the noun the page is about: agents.
             title: 'Mix and match agents inside one workspace.',
-            body: 'A Codex session can hand the UI work to a delegate run on Claude while a Pi session digs through a stack trace, and you can steer any of them mid-run. Happier’s review, plan and delegate runs take a list of provider targets — not whichever provider you happen to be sitting in. A remote built by one vendor drives that vendor’s agent; Remote Control is a Claude Code feature, by its own documentation.',
+            body: 'A Codex session can hand the UI work to a delegate run on Claude while a Pi session digs through a stack trace, and you can steer any of them mid-run. Kaiwu’s review, plan and delegate runs take a list of provider targets — not whichever provider you happen to be sitting in. A remote built by one vendor drives that vendor’s agent; Remote Control is a Claude Code feature, by its own documentation.',
         },
         {
             id: 'accounts',
@@ -155,19 +155,19 @@ export const RC_SECTION = {
             // answered as a disambiguation in the usage-limits body instead.
             // `round_robin` is NOT a strategy the schema accepts either, so do
             // not write that word here.
-            title: 'Choose an account, or pool several and let Happier fall back.',
+            title: 'Choose an account, or pool several and let Kaiwu fall back.',
             body: 'Connect more than one profile per service — a personal Codex subscription and a work one, a Claude setup-token, an Anthropic API key — and choose which one a session runs on at the moment you start it. Quota snapshots for Codex, Claude and Gemini profiles show as badges in the auth picker, so you can see what is left before you commit a long run to it. Nothing switches until you build a pool on purpose; once you have, it starts with automatic fallback on for the accounts a running session can actually move between, and there is a toggle on the pool if you would rather switch by hand.',
         },
         {
             id: 'terminal',
-            // docs.happier.dev/features/attach-to-session: "switching the same
-            // session between remote control and local control"; "`happier
+            // kaiwu.chengqiyun.com/docs/features/attach-to-session: "switching the same
+            // session between remote control and local control"; "`Kaiwu
             // attach` reconnects to the existing session. It does not start a
             // new one."
             // Was "Terminal or UI, your call, switchable mid-session." — three
             // fragments and no verb between them. Same fact, said as a heading.
             title: 'Switch between the terminal and the app, mid-session.',
-            body: 'Start a session in the app from your phone, then run `happier attach` on that computer and you are in that same session in a shell, with the history already there — for Claude Code and Codex inside tmux, for OpenCode through its own attach, and in all three you are in the agent’s real TUI. Or start it in the terminal and pick it up in the app. It reconnects to the session that exists rather than creating a second one, so nobody has to choose a side at the start of a task.',
+            body: 'Start a session in the app from your phone, then run `Kaiwu attach` on that computer and you are in that same session in a shell, with the history already there — for Claude Code and Codex inside tmux, for OpenCode through its own attach, and in all three you are in the agent’s real TUI. Or start it in the terminal and pick it up in the app. It reconnects to the session that exists rather than creating a second one, so nobody has to choose a side at the start of a task.',
         },
         {
             id: 'machines',
@@ -244,12 +244,12 @@ export const RC_SECTION = {
             // notes." from features.ts — both render on the homepage, and two
             // headings with one wording is how one of them drifts.
             title: 'Mark the lines. Send them to any agent.',
-            body: 'Open a file or a diff — the changed-files review, or the diff the agent just wrote into the transcript — and leave a comment on the exact line. Happier saves the path, the line, a snippet and a hash of that line’s contents, so the note still finds its code after the file moves underneath it. Pick which comments to send and they go in as structured review context: back into the same session, or into a new one on a different agent, because the comments are held against the workspace and any session you open there finds them waiting.',
+            body: 'Open a file or a diff — the changed-files review, or the diff the agent just wrote into the transcript — and leave a comment on the exact line. Kaiwu saves the path, the line, a snippet and a hash of that line’s contents, so the note still finds its code after the file moves underneath it. Pick which comments to send and they go in as structured review context: back into the same session, or into a new one on a different agent, because the comments are held against the workspace and any session you open there finds them waiting.',
         },
     ],
     /**
      * The documented conditions under which Remote Control is unavailable, each
-     * paired with what Happier does instead. These are quoted from Anthropic's
+     * paired with what Kaiwu does instead. These are quoted from Anthropic's
      * requirements list, not found by testing.
      */
     cases: [
@@ -257,47 +257,47 @@ export const RC_SECTION = {
             id: 'apiKeys',
             when: 'You authenticate with an API key.',
             rc: 'Anthropic’s docs state plainly that API keys are not supported for Remote Control, and that tokens created with setup-token or CLAUDE_CODE_OAUTH_TOKEN cannot establish a Remote Control connection.',
-            happier:
-                'Happier treats API keys as a first-class auth path, not a downgrade. Store one as a connected service, bind it to a backend profile, and every device you own drives that session.',
+            Kaiwu:
+                'Kaiwu treats API keys as a first-class auth path, not a downgrade. Store one as a connected service, bind it to a backend profile, and every device you own drives that session.',
         },
         {
             id: 'gateway',
             when: 'Your traffic goes through a gateway or proxy.',
             rc: 'Remote Control is disabled whenever ANTHROPIC_BASE_URL points anywhere other than api.anthropic.com — which is exactly what every LLM gateway, proxy and internal routing layer does.',
-            happier:
-                'Backend profiles exist to set ANTHROPIC_BASE_URL. Happier ships profiles for DeepSeek, Z.AI and MiniMax, and a custom profile can point Claude Code at your own gateway with your own variables.',
+            Kaiwu:
+                'Backend profiles exist to set ANTHROPIC_BASE_URL. Kaiwu ships profiles for DeepSeek, Z.AI and MiniMax, and a custom profile can point Claude Code at your own gateway with your own variables.',
         },
         {
             id: 'clouds',
             // Anthropic's named list is exactly these three. Vertex is NOT on it:
             // a Vertex session is turned away by the api.anthropic.com rule
-            // above, which is a different mechanism — and Happier ships a
+            // above, which is a different mechanism — and Kaiwu ships a
             // first-party Gemini Vertex profile, so lumping it in here would be
             // wrong twice over.
             when: 'You run on Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry.',
             rc: 'Anthropic’s docs list Remote Control as not available on Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry.',
-            happier:
-                'Be precise about this one: Happier ships NO first-party Bedrock or Microsoft Foundry support, and claiming otherwise would be the same kind of overreach this page is arguing against. What it ships is a custom backend profile that sets whatever environment variables your deployment needs — including the Bedrock and Foundry selectors — which you configure yourself and we do not test. Google Cloud is the exception: Gemini ships a Vertex AI profile out of the box.',
+            Kaiwu:
+                'Be precise about this one: Kaiwu ships NO first-party Bedrock or Microsoft Foundry support, and claiming otherwise would be the same kind of overreach this page is arguing against. What it ships is a custom backend profile that sets whatever environment variables your deployment needs — including the Bedrock and Foundry selectors — which you configure yourself and we do not test. Google Cloud is the exception: Gemini ships a Vertex AI profile out of the box.',
         },
         {
             id: 'telemetry',
             when: 'Your org turns telemetry off.',
             rc: 'Per Anthropic’s docs, DISABLE_TELEMETRY, DO_NOT_TRACK, CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC and DISABLE_GROWTHBOOK each disable the feature-flag evaluation Remote Control availability depends on.',
-            happier:
-                'Happier has no equivalent kill switch, because it is not reading those variables to decide whether you are allowed to connect. Self-host the relay and the question does not arise.',
+            Kaiwu:
+                'Kaiwu has no equivalent kill switch, because it is not reading those variables to decide whether you are allowed to connect. Self-host the relay and the question does not arise.',
         },
         {
             id: 'zdr',
             when: 'You are under Zero Data Retention or similar rules.',
             rc: 'Anthropic’s docs say organizations with compliance requirements such as Zero Data Retention can’t enable Remote Control, and that while it is connected the session transcript is stored on Anthropic servers.',
-            happier:
-                'Happier accounts are end-to-end encrypted by default — the sync server holds ciphertext it cannot read. Run `happier relay host install` and the transcript never leaves hardware you control.',
+            Kaiwu:
+                'Kaiwu accounts are end-to-end encrypted by default — the sync server holds ciphertext it cannot read. Run `Kaiwu relay host install` and the transcript never leaves hardware you control.',
         },
         {
             id: 'otherAgents',
             when: 'You do not only use Claude Code.',
             rc: 'Remote Control is a Claude Code feature. It does not extend to Codex, Cursor, Gemini, Copilot, OpenCode, Qwen, Kimi, Kilo, Kiro, Auggie, Pi or Grok.',
-            happier:
+            Kaiwu:
                 'Thirteen agents, one client, one transcript, one set of permissions and shortcuts — plus any ACP-compatible CLI you add yourself. A Codex delegate run can review what Claude Code just wrote.',
         },
     ],
@@ -309,8 +309,8 @@ export type ComparisonRow = {
     capability: string;
     /** What Anthropic's public docs say. Never an opinion. */
     rc: string;
-    /** What Happier does. Traceable to shipped source. */
-    happier: string;
+    /** What Kaiwu does. Traceable to shipped source. */
+    Kaiwu: string;
 };
 
 /**
@@ -326,55 +326,55 @@ export const COMPARISON_ROWS: ReadonlyArray<ComparisonRow> = [
         id: 'agents',
         capability: 'Agents supported',
         rc: 'Claude Code',
-        happier: '13 agents + any ACP CLI',
+        Kaiwu: '13 agents + any ACP CLI',
     },
     {
         id: 'auth',
         capability: 'API-key auth',
         rc: 'Not supported (per Anthropic docs)',
-        happier: 'Supported',
+        Kaiwu: 'Supported',
     },
     {
         id: 'baseUrl',
         capability: 'Custom endpoint / LLM gateway',
         rc: 'Disables Remote Control (per Anthropic docs)',
-        happier: 'Supported via backend profiles',
+        Kaiwu: 'Supported via backend profiles',
     },
     {
         id: 'clouds',
         capability: 'Bedrock / Google Agent Platform / Foundry',
         rc: 'Not available (per Anthropic docs)',
         // This cell used to read "Configurable per profile", which overstated
-        // it: there is no first-party Bedrock or Foundry integration in Happier,
+        // it: there is no first-party Bedrock or Foundry integration in Kaiwu,
         // only a generic custom profile that sets environment variables and is
         // not tested against those clouds. Vertex is different — Gemini ships a
         // real profile for it. A comparison page that shades one cell in its own
         // favour has spent the credibility it needs for the other seven.
-        happier: 'No first-party support; custom env profile, or Vertex via Gemini',
+        Kaiwu: 'No first-party support; custom env profile, or Vertex via Gemini',
     },
     {
         id: 'zdr',
         capability: 'Zero Data Retention orgs',
         rc: 'Can’t enable (per Anthropic docs)',
-        happier: 'E2EE by default; self-hostable relay',
+        Kaiwu: 'E2EE by default; self-hostable relay',
     },
     {
         id: 'transcript',
         capability: 'Where the transcript is stored',
         rc: 'Anthropic servers while connected (per Anthropic docs)',
-        happier: 'Encrypted on Happier sync, or your own relay',
+        Kaiwu: 'Encrypted on Kaiwu sync, or your own relay',
     },
     {
         id: 'price',
         capability: 'Price',
         rc: 'Included with Pro, Max, Team, Enterprise',
-        happier: 'Free and MIT-licensed',
+        Kaiwu: 'Free and MIT-licensed',
     },
     {
         id: 'firstParty',
         capability: 'Made by the vendor of the agent',
         rc: 'Yes — first-party',
-        happier: 'No — independent client',
+        Kaiwu: 'No — independent client',
     },
 ];
 
@@ -442,6 +442,6 @@ export const RC_SCOPE_LIMIT = {
     // "And one thing it was never built for" defined the section by a negative
     // and named no product, so it told a cold reader nothing. The section is
     // about scope: which agent each client drives. State that.
-    heading: 'Remote Control drives Claude Code. Happier drives thirteen agents.',
-    body: 'Remote Control is a Claude Code feature. It does not extend to Codex, Cursor, Gemini, Copilot, OpenCode, Qwen, Kimi, Kilo, Kiro, Auggie, Pi or Grok — some of those have a remote of their own, most have none, and none of them share an inbox with the others. Reaching one vendor’s agent from your phone and running thirteen vendors’ agents from one place are different jobs. Happier is built for the second one.',
+    heading: 'Remote Control drives Claude Code. Kaiwu drives thirteen agents.',
+    body: 'Remote Control is a Claude Code feature. It does not extend to Codex, Cursor, Gemini, Copilot, OpenCode, Qwen, Kimi, Kilo, Kiro, Auggie, Pi or Grok — some of those have a remote of their own, most have none, and none of them share an inbox with the others. Reaching one vendor’s agent from your phone and running thirteen vendors’ agents from one place are different jobs. Kaiwu is built for the second one.',
 } as const;

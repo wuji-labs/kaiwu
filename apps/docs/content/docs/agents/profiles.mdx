@@ -103,20 +103,20 @@ CLI 会读取与客户端相同的账户设置，登录后即可直接使用已�
 ### 列出可用配置文件
 
 ```bash
-happier profiles list
-happier profile list
+Kaiwu profiles list
+Kaiwu profile list
 ```
 
 脚本调用方式：
 
 ```bash
-happier profiles list --json
+Kaiwu profiles list --json
 ```
 
 若需要强制刷新设置：
 
 ```bash
-happier profiles list --refresh-settings
+Kaiwu profiles list --refresh-settings
 ```
 
 若未登录，CLI 仅会显示内置配置文件。
@@ -126,11 +126,11 @@ happier profiles list --refresh-settings
 启动会话时传入 `--profile ⟦K6⟧`：
 
 ```bash
-happier --profile anthropic
-happier claude --profile deepseek
-happier codex --profile openai
-happier codex --profile "Work Codex"
-happier gemini --profile gemini-vertex
+Kaiwu --profile anthropic
+Kaiwu claude --profile deepseek
+Kaiwu codex --profile openai
+Kaiwu codex --profile "Work Codex"
+Kaiwu gemini --profile gemini-vertex
 ```
 
 配置文件匹配规则：
@@ -180,7 +180,7 @@ CLI **不会**自动沿用上次使用的配置文件，必须显式指定 `--pr
 如果希望 Claude 会话通过 DeepSeek 的 Anthropic 兼容端点运行，可直接使用内置的 **DeepSeek (Reasoner)** 配置文件。
 
 - 客户端 UI：启动 Claude 会话并选择 **DeepSeek (Reasoner)**
-- CLI：`happier claude --profile deepseek`
+- CLI：`Kaiwu claude --profile deepseek`
 
 Kaiwu 会自动应用所需的认证令牌以及 Claude 兼容的环境变量映射。
 
@@ -189,7 +189,7 @@ Kaiwu 会自动应用所需的认证令牌以及 Claude 兼容的环境变量映
 若希望 Codex 使用 OpenAI API 密钥而非设备登录凭据，请使用 **OpenAI (GPT-5)**。
 
 - 客户端 UI：启动 Codex 会话并选择 **OpenAI (GPT-5)**
-- CLI：`happier codex --profile openai`
+- CLI：`Kaiwu codex --profile openai`
 
 ### 示例：自定义工作配置文件
 
@@ -217,14 +217,14 @@ Kaiwu 会自动应用所需的认证令牌以及 Claude 兼容的环境变量映
 
 请检查：
 
-- 是否已通过 `happier auth login` 完成登录
+- 是否已通过 `Kaiwu auth login` 完成登录
 - 配置文件是否存在于 **Settings → Profiles** 中
 - 配置文件是否保存在当前连接的同一 Kaiwu 账户或服务器下
 
 运行以下命令检查：
 
 ```bash
-happier profiles list --refresh-settings
+Kaiwu profiles list --refresh-settings
 ```
 
 ### “CLI 提示缺少机密”

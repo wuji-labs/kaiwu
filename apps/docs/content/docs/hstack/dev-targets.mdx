@@ -35,7 +35,7 @@ hstack dev-targets doctor linux --stack=repo-dev
 目标配置的作用域限定在栈级别，保存在：
 
 ```text
-~/.happier/stacks/<stack>/dev-targets.json
+~/.Kaiwu/stacks/<stack>/dev-targets.json
 ```
 
 请使用命令行操作，不要直接编辑 JSON 文件：
@@ -52,9 +52,9 @@ hstack dev-targets show linux --stack=repo-dev
 hstack dev-targets add linux \
   --stack=repo-dev \
   --platform=posix \
-  --ssh=happier-stack-linux \
-  --repo-dir=/home/dev/happier \
-  --cli-home-dir=/home/dev/.happier/dev-targets/repo-dev-linux
+  --ssh=Kaiwu-stack-linux \
+  --repo-dir=/home/dev/Kaiwu \
+  --cli-home-dir=/home/dev/.Kaiwu/dev-targets/repo-dev-linux
 ```
 
 使用正斜杠路径添加 Windows 目标：
@@ -63,9 +63,9 @@ hstack dev-targets add linux \
 hstack dev-targets add windows \
   --stack=repo-dev \
   --platform=windows \
-  --ssh=happier-stack-windows \
-  --repo-dir=C:/Users/dev/happier \
-  --cli-home-dir=C:/Users/dev/.happier/dev-targets/repo-dev-windows
+  --ssh=Kaiwu-stack-windows \
+  --repo-dir=C:/Users/dev/Kaiwu \
+  --cli-home-dir=C:/Users/dev/.Kaiwu/dev-targets/repo-dev-windows
 ```
 
 `--ssh` 可以是普通的 OpenSSH 别名，也可以是 `user@host`。如果目标使用的是自动生成或隔离的 SSH 配置，请传入其绝对路径：
@@ -74,12 +74,12 @@ hstack dev-targets add windows \
 hstack dev-targets add linux \
   --stack=repo-dev \
   --platform=posix \
-  --ssh=lima-happier \
+  --ssh=lima-Kaiwu \
   --ssh-config-file=/absolute/path/to/lima/ssh.config \
-  --lima-instance=happier-linux \
+  --lima-instance=Kaiwu-linux \
   --lima-home=/absolute/path/to/lima-home \
-  --repo-dir=/home/dev/happier \
-  --cli-home-dir=/home/dev/.happier/dev-targets/repo-dev-linux
+  --repo-dir=/home/dev/Kaiwu \
+  --cli-home-dir=/home/dev/.Kaiwu/dev-targets/repo-dev-linux
 ```
 
 同时指定这两个 Lima 选项时，Stack 会在准备 SSH 前执行 `limactl start`。TUI 退出时不会停止虚拟机，以便保留目标本地的依赖项与构建缓存。
@@ -137,7 +137,7 @@ yarn tui --no-dev-targets
 
 一切以本地检出为准。请勿直接编辑远程镜像：Mutagen 可能会覆盖目标上的修改。
 
-Stack 会排除版本控制元数据及目标本地产物，例如 `.git`、`node_modules`、`dist`、`.project`、`.happier`、覆盖率输出、Rust 目标文件、CocoaPods 以及已知的审查/构建产物。依赖项与构建产物均由各个操作系统独立生成。
+Stack 会排除版本控制元数据及目标本地产物，例如 `.git`、`node_modules`、`dist`、`.project`、`.Kaiwu`、覆盖率输出、Rust 目标文件、CocoaPods 以及已知的审查/构建产物。依赖项与构建产物均由各个操作系统独立生成。
 
 初次同步与依赖项安装可能需要一些时间。启动完成后，源码变动将以增量方式同步，每个远程守护进程都会监听并构建各自的目标本地镜像。
 
@@ -154,7 +154,7 @@ Stack 会排除版本控制元数据及目标本地产物，例如 `.git`、`nod
 对于管理员账户，Windows OpenSSH 可能会读取 `C:\ProgramData\ssh\administrators_authorized_keys`，而不是用户的 `.ssh\authorized_keys`。请务必确认所配置的别名可以免交互运行：
 
 ```bash
-ssh -o BatchMode=yes happier-stack-windows "echo ok"
+ssh -o BatchMode=yes Kaiwu-stack-windows "echo ok"
 ```
 
 Mutagen 官方文档指出，与 Windows OpenSSH 服务器配合使用时，数据流可能会变慢或卡顿。在将其用于无人值守的 QA 之前，请先用 `doctor` 验证真实目标，并完整跑通一次 `yarn tui` 同步。

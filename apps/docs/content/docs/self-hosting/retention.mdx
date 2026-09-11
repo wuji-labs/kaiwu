@@ -4,7 +4,7 @@ description: 为自托管 Kaiwu 服务器配置自动清理，且不改变默认
 ---
 Kaiwu 服务端保留策略为可选功能，默认处于禁用状态。
 
-若未设置任何保留相关的环境变量，服务端将永久保留会话及其他各类记录。说明：环境变量推荐优先使用 `KAIWU_` 前缀，旧版 `HAPPIER_` 前缀别名仍保持兼容支持。
+若未设置任何保留相关的环境变量，服务端将永久保留会话及其他各类记录。说明：环境变量推荐优先使用 `KAIWU_` 前缀，旧版 `KAIWU_` 前缀别名仍保持兼容支持。
 
 ## 保留策略目前覆盖的范围
 
@@ -219,12 +219,12 @@ Kaiwu 会向用户完整公开服务端的保留策略，方便用户清晰了�
 
 ## 数据清理后的 SQLite 维护
 
-对于轻量级服务端 SQLite 部署，当 `KAIWU_DB_PROVIDER=sqlite`（或旧版 `HAPPIER_DB_PROVIDER=sqlite`）时，后台将运行两个维护轮询：
+对于轻量级服务端 SQLite 部署，当 `KAIWU_DB_PROVIDER=sqlite`（或旧版 `KAIWU_DB_PROVIDER=sqlite`）时，后台将运行两个维护轮询：
 
-- WAL 检查点：每隔 `KAIWU_SQLITE_WAL_CHECKPOINT_INTERVAL_MS`（兼容 `HAPPIER_SQLITE_WAL_CHECKPOINT_INTERVAL_MS`）毫秒执行一次，默认 `60000`，使用 `PRAGMA wal_checkpoint(TRUNCATE)` 模式。
-- 增量整理（Incremental Vacuum）：每隔 `KAIWU_SQLITE_INCREMENTAL_VACUUM_INTERVAL_MS`（兼容 `HAPPIER_SQLITE_INCREMENTAL_VACUUM_INTERVAL_MS`）毫秒执行一次，默认 `21600000`（6 小时），使用 `PRAGMA incremental_vacuum(N)` 模式，每批次整理 `KAIWU_SQLITE_INCREMENTAL_VACUUM_PAGES` 页，默认 `1000` 页。
+- WAL 检查点：每隔 `KAIWU_SQLITE_WAL_CHECKPOINT_INTERVAL_MS`（兼容 `KAIWU_SQLITE_WAL_CHECKPOINT_INTERVAL_MS`）毫秒执行一次，默认 `60000`，使用 `PRAGMA wal_checkpoint(TRUNCATE)` 模式。
+- 增量整理（Incremental Vacuum）：每隔 `KAIWU_SQLITE_INCREMENTAL_VACUUM_INTERVAL_MS`（兼容 `KAIWU_SQLITE_INCREMENTAL_VACUUM_INTERVAL_MS`）毫秒执行一次，默认 `21600000`（6 小时），使用 `PRAGMA incremental_vacuum(N)` 模式，每批次整理 `KAIWU_SQLITE_INCREMENTAL_VACUUM_PAGES` 页，默认 `1000` 页。
 
-这两个维护轮询均采用独立的维护数据库客户端，并遵循由 `KAIWU_SQLITE_WAL_CHECKPOINT_BUSY_TIMEOUT_MS`（兼容 `HAPPIER_SQLITE_WAL_CHECKPOINT_BUSY_TIMEOUT_MS`）控制的 SQLite 忙碌超时机制（默认 `5000`）。将间隔配置为 `0` 即可禁用对应的轮询任务。服务端在运行进程中特意不执行全量 `VACUUM`，原因是全量整理会重写数据库并可能长时间阻塞写入；请仅在专门的停机维护窗口内执行离线全量 `VACUUM`。
+这两个维护轮询均采用独立的维护数据库客户端，并遵循由 `KAIWU_SQLITE_WAL_CHECKPOINT_BUSY_TIMEOUT_MS`（兼容 `KAIWU_SQLITE_WAL_CHECKPOINT_BUSY_TIMEOUT_MS`）控制的 SQLite 忙碌超时机制（默认 `5000`）。将间隔配置为 `0` 即可禁用对应的轮询任务。服务端在运行进程中特意不执行全量 `VACUUM`，原因是全量整理会重写数据库并可能长时间阻塞写入；请仅在专门的停机维护窗口内执行离线全量 `VACUUM`。
 
 仅在数据库创建时启用了 SQLite 增量自动清理功能，增量整理才能将页面空间实际归还给文件系统。否则，被删除的页面仅可在现有数据库文件内部复用；若要缩小文件本身的体积，仍需在离线全量 `VACUUM` 维护窗口内处理。
 

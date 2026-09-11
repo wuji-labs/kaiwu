@@ -9,9 +9,9 @@
  *            Liftable by codemod with no judgement: the element's whole child
  *            list becomes one message.
  *
- *   SLOTTED  <P>Text <code>happier codex</code> more text.</P>
+ *   SLOTTED  <P>Text <code>Kaiwu codex</code> more text.</P>
  *            One sentence shattered across children. Liftable, but the message
- *            needs numbered slots — "Text <1>happier codex</1> more text." — and
+ *            needs numbered slots — "Text <1>Kaiwu codex</1> more text." — and
  *            a renderer that puts the elements back. Mechanical to detect, and
  *            the slot numbering is mechanical too, but a human has to read the
  *            result because a translator will move the slots around and only a

@@ -6,7 +6,7 @@ description: 安装 hstack，选择工作区，并初始化 main/dev 检出。
 
 - Node.js
 - Yarn
-- Docker（如果计划使用 `happier-server` 完整版本，建议安装）
+- Docker（如果计划使用 `KAIWU-server` 完整版本，建议安装）
 - Tailscale（可选，推荐用于手机或远程访问）
 
 ## 安装与初始化
@@ -64,7 +64,7 @@ hstack setup-from-source --profile=selfhost
 hstack setup-from-source --profile=selfhost --stable-branch=preview
 ```
 
-此操作会将 `HAPPIER_STACK_STABLE_BRANCH` 保存在用户配置中，以便后续的初始化引导与审查流程继续使用该分支。
+此操作会将 `KAIWU_STACK_STABLE_BRANCH` 保存在用户配置中，以便后续的初始化引导与审查流程继续使用该分支。
 
 ### 选择工作区目录
 
@@ -86,7 +86,7 @@ hstack setup-from-source --profile=dev --workspace-dir=~/Documents/Development/k
 或者通过环境变量设置：
 
 ```bash
-export HAPPIER_STACK_WORKSPACE_DIR=~/Documents/Development/kaiwu
+export KAIWU_STACK_WORKSPACE_DIR=~/Documents/Development/kaiwu
 ```
 
 ## 开发 hstack 本身（本地 CLI 根目录）
@@ -94,7 +94,7 @@ export HAPPIER_STACK_WORKSPACE_DIR=~/Documents/Development/kaiwu
 在 monorepo 内迭代 hstack 源码时，可以将已安装的垫片（shim）指向本地检出的代码：
 
 ```bash
-export HAPPIER_STACK_CLI_ROOT_DIR=~/Documents/Development/kaiwu/dev/apps/stack
+export KAIWU_STACK_CLI_ROOT_DIR=~/Documents/Development/kaiwu/dev/apps/stack
 hstack help
 ```
 

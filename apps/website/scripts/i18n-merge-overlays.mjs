@@ -3,7 +3,7 @@
  * would ship a different claim than the English.
  *
  * Translation is the cheap part; a translation that quietly changes a number or
- * localises `happier attach <session-id>` is the expensive part. These checks
+ * localises `Kaiwu attach <session-id>` is the expensive part. These checks
  * are mechanical, they run in milliseconds, and they catch the failures that
  * actually happen — every one of them was chosen because it has a real failure
  * mode on this specific corpus:

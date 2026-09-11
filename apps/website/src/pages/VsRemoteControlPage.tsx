@@ -19,7 +19,7 @@ import { Island } from '../islands';
  *   7. install
  *
  * WHAT IS NOT ON THIS PAGE ANY MORE, AND MUST NOT COME BACK:
- *   • A "when you should use Remote Control instead of Happier" section. The
+ *   • A "when you should use Remote Control instead of KAIWU" section. The
  *     honesty stays — it is in the concession, in the imperative, once. A whole
  *     block telling the reader to go and use the other thing was the page
  *     arguing itself out of existence.
@@ -54,9 +54,9 @@ export function VsRemoteControlPage() {
               * product this page is about. So it names the product.
               */}
             {/*
-              * THE H1 USED TO END "…and where Happier fits", as did the Codex
+              * THE H1 USED TO END "…and where KAIWU fits", as did the Codex
               * page's. "Fits" names no outcome, and the phrase only means
-              * anything to a reader who already knows what Happier is — which
+              * anything to a reader who already knows what KAIWU is — which
               * is nobody arriving on a page whose whole job is to be found by
               * someone searching for the other product. The pair now leads on
               * the thing the visitor typed (their agent, from their phone) and
@@ -117,7 +117,7 @@ export function VsRemoteControlPage() {
                                             className="mt-2 border-l-2 pl-4 text-[16px] leading-[1.68]"
                                             style={{ borderColor: 'var(--card-border)', color: 'var(--fg)' }}
                                         >
-                                            {item.happier}
+                                            {item.KAIWU}
                                         </p>
                                     </li>
                                 ))}
@@ -163,7 +163,7 @@ export function VsRemoteControlPage() {
                                                 {row.rc}
                                             </td>
                                             <td className="px-4 py-3" style={{ color: 'var(--muted)' }}>
-                                                {row.happier}
+                                                {row.KAIWU}
                                             </td>
                                         </tr>
                                     ))}
@@ -212,8 +212,8 @@ export function VsRemoteControlPage() {
                   * CTA ends on what the reader does next instead.
                   */}
                 <P>
-                    Then <code className="font-mono">happier claude</code> in a repository — or{' '}
-                    <code className="font-mono">happier codex</code>, or any of the other{' '}
+                    Then <code className="font-mono">KAIWU claude</code> in a repository — or{' '}
+                    <code className="font-mono">KAIWU codex</code>, or any of the other{' '}
                     {AGENTS.length - 2} subcommands. The conditions above are the ones that decide
                     it; everything else on this page is the detail behind them.
                 </P>

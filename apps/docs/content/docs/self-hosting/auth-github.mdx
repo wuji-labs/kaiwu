@@ -46,8 +46,8 @@ GITHUB_REDIRECT_URL=https://YOUR_SERVER/v1/oauth/github/callback
 
 # OAuth return redirect back to the client (required unless you are using https://kaiwu.chengqiyun.com)
 # - Web: set this to the URL you open in the browser for the Kaiwu web app (self-hosted or local dev).
-# - Mobile: use HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE + HAPPIER_OAUTH_RETURN_ALLOWED_SCHEMES instead.
-HAPPIER_WEBAPP_URL=https://YOUR_WEBAPP
+# - Mobile: use KAIWU_WEBAPP_OAUTH_RETURN_URL_BASE + KAIWU_OAUTH_RETURN_ALLOWED_SCHEMES instead.
+KAIWU_WEBAPP_URL=https://YOUR_WEBAPP
 
 # Auth policy
 AUTH_ANONYMOUS_SIGNUP_ENABLED=false
@@ -56,8 +56,8 @@ AUTH_REQUIRED_LOGIN_PROVIDERS=github
 ```
 
 备选配置（移动端 Deep Link 返回）：
-- `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE=myapp://oauth`
-- `HAPPIER_OAUTH_RETURN_ALLOWED_SCHEMES=myapp`
+- `KAIWU_WEBAPP_OAUTH_RETURN_URL_BASE=myapp://oauth`
+- `KAIWU_OAUTH_RETURN_ALLOWED_SCHEMES=myapp`
 
 ### 3) 验证配置是否生效
 
@@ -84,34 +84,34 @@ Kaiwu 还支持将 GitHub OAuth 作为一种**免密钥登录方式**（无需�
 
 ```bash
 # Keyless accounts require a storage policy that allows plaintext
-HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY=optional|plaintext_only
+KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY=optional|plaintext_only
 
 # Enable keyless accounts (enterprise)
-HAPPIER_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED=1
+KAIWU_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED=1
 
 # Enable keyless OAuth and allow GitHub as a keyless provider
-HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_ENABLED=1
-HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_PROVIDERS=github
+KAIWU_FEATURE_AUTH_OAUTH__KEYLESS_ENABLED=1
+KAIWU_FEATURE_AUTH_OAUTH__KEYLESS_PROVIDERS=github
 ```
 
 若要允许用户在首次通过 GitHub 登录时自动**创建**免密钥/明文账户：
 
 ```bash
-HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_AUTO_PROVISION=1
+KAIWU_FEATURE_AUTH_OAUTH__KEYLESS_AUTO_PROVISION=1
 ```
 
 注意事项：
 - 免密钥 GitHub 登录与带密钥的 GitHub 注册是**相互独立**的机制，可单独或同时开启。
-- `HAPPIER_FEATURE_ENCRYPTION__DEFAULT_ACCOUNT_MODE` 仅控制 `optional` 下**带密钥**账户的默认设置，不会限制免密钥账户的置备。
-- 在 `HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY=optional` 模式下，若 GitHub 同时启用了带密钥置备与免密钥自动置备，客户端可能会在首次登录时提供**选项**（端到端加密 vs 明文）。详见[服务器认证](/self-hosting/auth)。
+- `KAIWU_FEATURE_ENCRYPTION__DEFAULT_ACCOUNT_MODE` 仅控制 `optional` 下**带密钥**账户的默认设置，不会限制免密钥账户的置备。
+- 在 `KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY=optional` 模式下，若 GitHub 同时启用了带密钥置备与免密钥自动置备，客户端可能会在首次登录时提供**选项**（端到端加密 vs 明文）。详见[服务器认证](/self-hosting/auth)。
 
 ### 自动重定向（仅支持 GitHub 部署）
 
 若 GitHub 是系统中唯一支持的登录与注册流程，可启用自动重定向，免去用户手动点击按钮的操作：
 
 ```bash
-HAPPIER_FEATURE_AUTH_UI__AUTO_REDIRECT_ENABLED=1
-HAPPIER_FEATURE_AUTH_UI__AUTO_REDIRECT_PROVIDER_ID=github
+KAIWU_FEATURE_AUTH_UI__AUTO_REDIRECT_ENABLED=1
+KAIWU_FEATURE_AUTH_UI__AUTO_REDIRECT_PROVIDER_ID=github
 AUTH_ANONYMOUS_SIGNUP_ENABLED=0
 ```
 
@@ -124,11 +124,11 @@ AUTH_ANONYMOUS_SIGNUP_ENABLED=0
   - 必须设置为：`https://YOUR_SERVER/v1/oauth/github/callback`
 
 必选（**除非**直接使用托管于 `https://kaiwu.chengqiyun.com` 的官方客户端）：
-- `HAPPIER_WEBAPP_URL`（默认值 `https://kaiwu.chengqiyun.com`）
+- `KAIWU_WEBAPP_URL`（默认值 `https://kaiwu.chengqiyun.com`）
 
 可选（通常仅在支持移动端 Deep Link 或自定义 URL Scheme 时需要）：
-- `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE`
-- `HAPPIER_OAUTH_RETURN_ALLOWED_SCHEMES`
+- `KAIWU_WEBAPP_OAUTH_RETURN_URL_BASE`
+- `KAIWU_OAUTH_RETURN_ALLOWED_SCHEMES`
 - `OAUTH_STATE_TTL_SECONDS`（默认值 `600`，取值区间限制在 60–3600）
 - `OAUTH_PENDING_TTL_SECONDS`（默认值 `600`，取值区间限制在 60–3600；旧版降级配置：`GITHUB_OAUTH_PENDING_TTL_SECONDS`）
 - `GITHUB_HTTP_TIMEOUT_SECONDS`（默认值 `10`，取值区间限制在 1–120）
@@ -136,23 +136,23 @@ AUTH_ANONYMOUS_SIGNUP_ENABLED=0
 注意事项：
 - `GITHUB_REDIRECT_URL` 必须能够被 GitHub 访问（用户完成 OAuth 授权后，GitHub 会将浏览器重定向至该地址）。
 - 若服务器部署在反向代理之后，`GITHUB_REDIRECT_URL` 应填写**公网可访问**的 URL（而非容器内部主机名）。
-- 只有在使用托管于 `https://kaiwu.chengqiyun.com` 的官方客户端时，`HAPPIER_WEBAPP_URL` / `HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE` 才是“可选”的。
+- 只有在使用托管于 `https://kaiwu.chengqiyun.com` 的官方客户端时，`KAIWU_WEBAPP_URL` / `KAIWU_WEBAPP_OAUTH_RETURN_URL_BASE` 才是“可选”的。
   - 若自托管 Web 应用或在本地开发 Web 界面，则必须配置其中之一，以便服务器在 OAuth 流程完成后能重定向回客户端。
 
 ## OAuth 客户端返回 URL（高级）
 
 服务器处理完 GitHub 的回调后，会将浏览器重定向回客户端以完成整个流程。
 
-- 默认返回基础路径：`HAPPIER_WEBAPP_URL`（`https://kaiwu.chengqiyun.com`）
-  - 除非主动覆盖，否则服务器默认重定向至 `${HAPPIER_WEBAPP_URL}/oauth/github?...`。
-- 覆盖返回基础路径（不包含提供商后缀）：`HAPPIER_WEBAPP_OAUTH_RETURN_URL_BASE`
+- 默认返回基础路径：`KAIWU_WEBAPP_URL`（`https://kaiwu.chengqiyun.com`）
+  - 除非主动覆盖，否则服务器默认重定向至 `${KAIWU_WEBAPP_URL}/oauth/github?...`。
+- 覆盖返回基础路径（不包含提供商后缀）：`KAIWU_WEBAPP_OAUTH_RETURN_URL_BASE`
   - 示例：`https://app.example.com/custom-oauth` → 重定向至 `https://app.example.com/custom-oauth/github?...`
-- 允许返回重定向使用其他 URL Scheme：`HAPPIER_OAUTH_RETURN_ALLOWED_SCHEMES`
+- 允许返回重定向使用其他 URL Scheme：`KAIWU_OAUTH_RETURN_ALLOWED_SCHEMES`
   - 用于移动端 Deep Link（例如 `myapp`）
   - `http://` 仅允许用于 `localhost`、`127.0.0.1` 及 `*.localhost` 等本地环回主机，非环回主机禁止使用。
 
 排错指南：
-- 若配置了 `HAPPIER_WEBAPP_URL` 后仍被重定向至 `https://kaiwu.chengqiyun.com`，多半是因为服务器判定所配置的返回 URL 存在安全隐患并进行了拦截。本地 Web 开发请使用 `http://localhost:PORT` 或 `http://*.localhost:PORT`（亦可使用 `https://`）。
+- 若配置了 `KAIWU_WEBAPP_URL` 后仍被重定向至 `https://kaiwu.chengqiyun.com`，多半是因为服务器判定所配置的返回 URL 存在安全隐患并进行了拦截。本地 Web 开发请使用 `http://localhost:PORT` 或 `http://*.localhost:PORT`（亦可使用 `https://`）。
 
 ## OAuth 权限范围（Scopes）
 

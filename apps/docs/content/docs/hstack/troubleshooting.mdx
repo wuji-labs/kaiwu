@@ -41,7 +41,7 @@ hstack stack auth <stack> login --force
 
 ```bash
 hstack stack info <stack>
-cat ~/.happier/stacks/<stack>/env | rg HAPPIER_STACK_REPO_DIR
+cat ~/.KAIWU/stacks/<stack>/env | rg KAIWU_STACK_REPO_DIR
 ```
 
 重新指向：
@@ -72,7 +72,7 @@ hstack stack doctor <stack>
 hstack logs:tail
 ```
 
-如果使用的是完整服务器模式（`happier-server`），请检查 Docker：
+如果使用的是完整服务器模式（`KAIWU-server`），请检查 Docker：
 
 ```bash
 docker ps

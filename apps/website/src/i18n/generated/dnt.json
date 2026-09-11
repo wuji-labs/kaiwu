@@ -19,8 +19,8 @@
   "agents.AGENTS.claude.whatItDoes.0": {
     "dnt": [
       "`claude`",
-      "`happier claude`",
-      "happier claude"
+      "`Kaiwu claude`",
+      "Kaiwu claude"
     ]
   },
   "agents.AGENTS.claude.faq.0.a": {
@@ -35,8 +35,8 @@
   },
   "agents.AGENTS.claude.faq.2.a": {
     "dnt": [
-      "`happier attach <session-id>`",
-      "happier attach"
+      "`Kaiwu attach <session-id>`",
+      "Kaiwu attach"
     ]
   },
   "agents.AGENTS.claude.faq.4.a": {
@@ -46,8 +46,8 @@
   },
   "agents.AGENTS.codex.lead.1": {
     "dnt": [
-      "`happier attach`",
-      "happier attach"
+      "`Kaiwu attach`",
+      "Kaiwu attach"
     ]
   },
   "agents.AGENTS.codex.lead.2": {
@@ -57,15 +57,15 @@
   },
   "agents.AGENTS.codex.whatItDoes.0": {
     "dnt": [
-      "`happier codex`",
-      "happier codex"
+      "`Kaiwu codex`",
+      "Kaiwu codex"
     ]
   },
   "agents.AGENTS.codex.faq.0.a": {
     "dnt": [
       "`codex`",
-      "`~/.happier/tools/providers/codex/`",
-      "~/.happier/tools/providers/codex/"
+      "`~/.Kaiwu/tools/providers/codex/`",
+      "~/.Kaiwu/tools/providers/codex/"
     ]
   },
   "agents.AGENTS.codex.faq.1.a": {
@@ -93,9 +93,9 @@
   },
   "agents.AGENTS.opencode.whatItDoes.0": {
     "dnt": [
-      "`happier opencode`",
+      "`Kaiwu opencode`",
       "`opencode auth`",
-      "happier opencode"
+      "Kaiwu opencode"
     ]
   },
   "agents.AGENTS.opencode.faq.0.a": {
@@ -126,16 +126,16 @@
   "agents.AGENTS.cursor.whatItDoes.0": {
     "dnt": [
       "`cursor-agent`",
-      "`happier cursor`",
-      "happier cursor"
+      "`Kaiwu cursor`",
+      "Kaiwu cursor"
     ]
   },
   "agents.AGENTS.cursor.faq.0.a": {
     "dnt": [
       "`cursor-agent`",
       "`cursor`",
-      "`happier cursor`",
-      "happier cursor"
+      "`Kaiwu cursor`",
+      "Kaiwu cursor"
     ]
   },
   "agents.AGENTS.cursor.faq.2.a": {
@@ -155,16 +155,16 @@
   },
   "agents.AGENTS.gemini.whatItDoes.0": {
     "dnt": [
-      "`happier gemini`",
-      "happier gemini"
+      "`Kaiwu gemini`",
+      "Kaiwu gemini"
     ]
   },
   "agents.AGENTS.gemini.faq.0.a": {
     "dnt": [
       "`gemini`",
       "`@google/gemini-cli`",
-      "`~/.happier/tools/providers/gemini/`",
-      "~/.happier/tools/providers/gemini/"
+      "`~/.Kaiwu/tools/providers/gemini/`",
+      "~/.Kaiwu/tools/providers/gemini/"
     ]
   },
   "agents.AGENTS.copilot.lead.0": {
@@ -183,23 +183,23 @@
     "dnt": [
       "`.github/skills`",
       "`~/.copilot/skills`",
-      "`happier tools`",
+      "`Kaiwu tools`",
       "~/.copilot/skills",
-      "happier tools"
+      "Kaiwu tools"
     ]
   },
   "agents.AGENTS.copilot.whatItDoes.0": {
     "dnt": [
-      "`happier copilot`",
-      "happier copilot"
+      "`Kaiwu copilot`",
+      "Kaiwu copilot"
     ]
   },
   "agents.AGENTS.copilot.faq.0.a": {
     "dnt": [
       "`copilot`",
       "`@github/copilot`",
-      "`~/.happier/`",
-      "~/.happier/"
+      "`~/.Kaiwu/`",
+      "~/.Kaiwu/"
     ]
   },
   "agents.AGENTS.copilot.faq.1.a": {
@@ -220,28 +220,28 @@
     "dnt": [
       "`qwen`",
       "`/auth`",
-      "`happier tools`",
-      "happier tools"
+      "`Kaiwu tools`",
+      "Kaiwu tools"
     ]
   },
   "agents.AGENTS.qwen.whatItDoes.0": {
     "dnt": [
-      "`happier qwen`",
-      "happier qwen"
+      "`Kaiwu qwen`",
+      "Kaiwu qwen"
     ]
   },
   "agents.AGENTS.qwen.faq.0.a": {
     "dnt": [
       "`@qwen-code/qwen-code`",
-      "`~/.happier/tools/providers/qwen/`",
+      "`~/.Kaiwu/tools/providers/qwen/`",
       "`qwen`",
-      "~/.happier/tools/providers/qwen/"
+      "~/.Kaiwu/tools/providers/qwen/"
     ]
   },
   "agents.AGENTS.kimi.lead.0": {
     "dnt": [
-      "`~/.happier/`",
-      "~/.happier/"
+      "`~/.Kaiwu/`",
+      "~/.Kaiwu/"
     ]
   },
   "agents.AGENTS.kimi.lead.1": {
@@ -260,8 +260,8 @@
   },
   "agents.AGENTS.kimi.whatItDoes.0": {
     "dnt": [
-      "`happier kimi`",
-      "happier kimi"
+      "`Kaiwu kimi`",
+      "Kaiwu kimi"
     ]
   },
   "agents.AGENTS.kilo.lead.1": {
@@ -277,16 +277,16 @@
   },
   "agents.AGENTS.kilo.whatItDoes.0": {
     "dnt": [
-      "`happier kilo`",
-      "happier kilo"
+      "`Kaiwu kilo`",
+      "Kaiwu kilo"
     ]
   },
   "agents.AGENTS.kilo.faq.0.a": {
     "dnt": [
       "`@kilocode/cli`",
       "`kilo`",
-      "`~/.happier/tools/providers/kilo/`",
-      "~/.happier/tools/providers/kilo/"
+      "`~/.Kaiwu/tools/providers/kilo/`",
+      "~/.Kaiwu/tools/providers/kilo/"
     ]
   },
   "agents.AGENTS.kiro.lead.0": {
@@ -306,9 +306,9 @@
   },
   "agents.AGENTS.kiro.whatItDoes.0": {
     "dnt": [
-      "`happier kiro`",
+      "`Kaiwu kiro`",
       "`kiro-cli`",
-      "happier kiro"
+      "Kaiwu kiro"
     ]
   },
   "agents.AGENTS.kiro.faq.0.a": {
@@ -319,8 +319,8 @@
   "agents.AGENTS.kiro.faq.1.a": {
     "dnt": [
       "`kiro-cli`",
-      "`happier kiro`",
-      "happier kiro"
+      "`Kaiwu kiro`",
+      "Kaiwu kiro"
     ]
   },
   "agents.AGENTS.kiro.faq.3.a": {
@@ -336,28 +336,28 @@
   },
   "agents.AGENTS.auggie.lead.1": {
     "dnt": [
-      "`HAPPIER_AUGGIE_ALLOW_INDEXING`"
+      "`Kaiwu_AUGGIE_ALLOW_INDEXING`"
     ]
   },
   "agents.AGENTS.auggie.lead.2": {
     "dnt": [
       "`--permission`",
-      "`happier tools`",
-      "happier tools"
+      "`Kaiwu tools`",
+      "Kaiwu tools"
     ]
   },
   "agents.AGENTS.auggie.whatItDoes.0": {
     "dnt": [
-      "`happier auggie`",
-      "happier auggie"
+      "`Kaiwu auggie`",
+      "Kaiwu auggie"
     ]
   },
   "agents.AGENTS.auggie.faq.0.a": {
     "dnt": [
       "`@augmentcode/auggie`",
       "`auggie`",
-      "`~/.happier/`",
-      "~/.happier/"
+      "`~/.Kaiwu/`",
+      "~/.Kaiwu/"
     ]
   },
   "agents.AGENTS.auggie.faq.1.a": {
@@ -367,16 +367,16 @@
   },
   "agents.AGENTS.pi.whatItDoes.0": {
     "dnt": [
-      "`happier pi`",
-      "happier pi"
+      "`Kaiwu pi`",
+      "Kaiwu pi"
     ]
   },
   "agents.AGENTS.pi.faq.0.a": {
     "dnt": [
       "`@earendil-works/pi-coding-agent`",
       "`pi`",
-      "`~/.happier/tools/providers/pi/`",
-      "~/.happier/tools/providers/pi/"
+      "`~/.Kaiwu/tools/providers/pi/`",
+      "~/.Kaiwu/tools/providers/pi/"
     ]
   },
   "agents.AGENTS.pi.faq.2.a": {
@@ -403,9 +403,9 @@
   },
   "agents.AGENTS.grok.whatItDoes.0": {
     "dnt": [
-      "`happier grok`",
+      "`Kaiwu grok`",
       "`grok`",
-      "happier grok"
+      "Kaiwu grok"
     ]
   },
   "agents.AGENTS.grok.faq.2.a": {
@@ -420,10 +420,10 @@
       "`grok`"
     ]
   },
-  "codexRemote.CODEX_COMPARISON_ROWS.setup.happier": {
+  "codexRemote.CODEX_COMPARISON_ROWS.setup.Kaiwu": {
     "dnt": [
-      "`happier codex`",
-      "happier codex"
+      "`Kaiwu codex`",
+      "Kaiwu codex"
     ]
   },
   "codexRemote.CODEX_COMPARISON_ROWS.ssh.codex": {
@@ -448,32 +448,32 @@
       "`codex`"
     ]
   },
-  "codexRemote.CODEX_SECTION.conditions.setupPath.happier": {
+  "codexRemote.CODEX_SECTION.conditions.setupPath.Kaiwu": {
     "dnt": [
-      "`happier codex`",
-      "happier codex"
+      "`Kaiwu codex`",
+      "Kaiwu codex"
     ]
   },
-  "codexRemote.CODEX_SECTION.conditions.workspace.happier": {
+  "codexRemote.CODEX_SECTION.conditions.workspace.Kaiwu": {
     "dnt": [
-      "`happier relay host install`"
+      "`Kaiwu relay host install`"
     ]
   },
   "codexRemote.CODEX_SECTION.arguments.terminal.body": {
     "dnt": [
-      "`happier attach <session-id>`",
-      "happier attach"
+      "`Kaiwu attach <session-id>`",
+      "Kaiwu attach"
     ]
   },
   "comparison.RC_SECTION.arguments.terminal.body": {
     "dnt": [
-      "`happier attach`",
-      "happier attach"
+      "`Kaiwu attach`",
+      "Kaiwu attach"
     ]
   },
-  "comparison.RC_SECTION.cases.zdr.happier": {
+  "comparison.RC_SECTION.cases.zdr.Kaiwu": {
     "dnt": [
-      "`happier relay host install`"
+      "`Kaiwu relay host install`"
     ]
   },
   "comparison.RC_STRENGTHS.connect.body": {
@@ -504,17 +504,17 @@
   },
   "faq.FAQ_ITEMS.code.a.2": {
     "dnt": [
-      "`happier relay host install`"
+      "`Kaiwu relay host install`"
     ]
   },
   "faq.FAQ_ITEMS.server.a.0": {
     "dnt": [
-      "`happier setup`"
+      "`Kaiwu setup`"
     ]
   },
   "faq.FAQ_ITEMS.server.a.1": {
     "dnt": [
-      "`happier relay host install`"
+      "`Kaiwu relay host install`"
     ]
   },
   "faq.FAQ_ITEMS.plan.a.1": {
@@ -530,54 +530,54 @@
   },
   "faq.FAQ_ITEMS.multiDevice.a.1": {
     "dnt": [
-      "`happier attach <session-id>`",
-      "happier attach"
+      "`Kaiwu attach <session-id>`",
+      "Kaiwu attach"
     ]
   },
   "faq.FAQ_ITEMS.sshTmux.a.0": {
     "dnt": [
-      "`happier attach`",
-      "happier attach"
+      "`Kaiwu attach`",
+      "Kaiwu attach"
     ]
   },
   "faq.FAQ_ITEMS.platforms.a.0": {
     "dnt": [
-      "`curl -fsSL https://happier.dev/install | bash`",
-      "`iwr https://happier.dev/install.ps1 -useb | iex`"
+      "`curl -fsSL https://kaiwu.chengqiyun.com/install | bash`",
+      "`iwr https://kaiwu.chengqiyun.com/install.ps1 -useb | iex`"
     ]
   },
   "faq.FAQ_ITEMS.platforms.a.1": {
     "dnt": [
-      "`happier attach`",
-      "happier attach"
+      "`Kaiwu attach`",
+      "Kaiwu attach"
     ]
   },
   "faq.FAQ_ITEMS.workComputer.a.0": {
     "dnt": [
-      "`happier relay host install`"
+      "`Kaiwu relay host install`"
     ]
   },
   "features.PRIMARY_FEATURES.surfaces.code.2": {
     "dnt": [
-      "happier session"
+      "Kaiwu session"
     ]
   },
   "features.PRIMARY_FEATURES.surfaces.code.4": {
     "dnt": [
-      "happier session"
+      "Kaiwu session"
     ]
   },
   "pageProse.PAGE_PROSE.agentsIndex.p6": {
     "dnt": [
-      "happier claude",
-      "happier codex",
-      "happier opencode"
+      "Kaiwu claude",
+      "Kaiwu codex",
+      "Kaiwu opencode"
     ]
   },
   "pageProse.PAGE_PROSE.codexRemotePage.p8": {
     "dnt": [
-      "happier codex",
-      "happier attach"
+      "Kaiwu codex",
+      "Kaiwu attach"
     ]
   },
   "terminalFeature.CLAUDE_UNIFIED.2": {
@@ -587,30 +587,30 @@
   },
   "terminalFeature.TERMINAL_CATCH.1": {
     "dnt": [
-      "`happier attach`",
-      "happier attach"
+      "`Kaiwu attach`",
+      "Kaiwu attach"
     ]
   },
   "terminalFeature.TERMINAL_MOVES.terminal-first.body": {
     "dnt": [
-      "`happier`",
-      "`happier codex`",
-      "`happier opencode`",
-      "`happier gemini`",
-      "happier codex",
-      "happier opencode",
-      "happier gemini"
+      "`Kaiwu`",
+      "`Kaiwu codex`",
+      "`Kaiwu opencode`",
+      "`Kaiwu gemini`",
+      "Kaiwu codex",
+      "Kaiwu opencode",
+      "Kaiwu gemini"
     ]
   },
   "terminalFeature.TERMINAL_MOVES.app-first.body": {
     "dnt": [
-      "`happier attach <session-id>`",
-      "happier attach"
+      "`Kaiwu attach <session-id>`",
+      "Kaiwu attach"
     ]
   },
   "usageLimits.USAGE_LIMITS_SETUP.0": {
     "dnt": [
-      "happier connect"
+      "Kaiwu connect"
     ]
   }
 }
