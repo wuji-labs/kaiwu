@@ -135,7 +135,7 @@ describe('enableServeUi (mountRoot)', () => {
     });
   });
 
-  it('serves .webmanifest files with application/manifest+json content-type', async () => {
+  it('serves .webmanifest files with application/manifest+json content-type and no-cache', async () => {
     await withTempDir('kaiwu-ui-root-manifest-', async (dir) => {
       await writeFile(join(dir, 'index.html'), '<!doctype html><html><body>ok</body></html>\n', 'utf-8');
       await writeFile(join(dir, 'manifest.webmanifest'), JSON.stringify({ name: 'Kaiwu' }) + '\n', 'utf-8');
@@ -147,6 +147,7 @@ describe('enableServeUi (mountRoot)', () => {
         const res = await app.inject({ method: 'GET', url: '/manifest.webmanifest' });
         expect(res.statusCode).toBe(200);
         expect(res.headers['content-type']).toMatch(/application\/manifest\+json/i);
+        expect(res.headers['cache-control']).toBe('no-cache');
         expect(res.body).toContain('"name":"Kaiwu"');
       });
     });
