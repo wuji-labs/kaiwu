@@ -55,15 +55,18 @@ const IGNORED_UNTRANSLATED_KEYS = new Set([
     'settingsProviders.plugins.claude.fields.claudeUnifiedTerminalHost.options.zellij.title',
 ]);
 const IGNORED_UNTRANSLATED_KEYS_BY_LOCALE: Readonly<Record<string, ReadonlySet<string>>> = {
+    ru: new Set(['settingsSession.windows.windowNamePlaceholder']),
     es: new Set([
         'automations.form.schedule.manualTitle',
         'settingsSession.sessionList.headerIdentityDisplayAvatarTitle',
+        'settingsSession.windows.windowNamePlaceholder',
     ]),
-    it: new Set(['settingsSession.sessionList.headerIdentityDisplayAvatarTitle']),
+    it: new Set(['settingsSession.sessionList.headerIdentityDisplayAvatarTitle', 'settingsSession.windows.windowNamePlaceholder']),
     pt: new Set([
         'agentInput.suggestionGroups.plugins',
         'automations.form.schedule.manualTitle',
         'settingsSession.sessionList.headerIdentityDisplayAvatarTitle',
+        'settingsSession.windows.windowNamePlaceholder',
     ]),
     // French keeps these identical to English on purpose. Three groups, no accidents:
     //   product and provider nouns (Happier, Codex, Kimi, tmux, theme preset names, model ids),
@@ -72,6 +75,7 @@ const IGNORED_UNTRANSLATED_KEYS_BY_LOCALE: Readonly<Record<string, ReadonlySet<s
     //   and true cognates that are simply the same word (Actions, Options, Description, Sources).
     // A key here is a decision, not a gap; translating one of them would make the UI read worse.
     fr: new Set([
+        'files.pause',
         'agentInput.acp.modeSectionTitle',
         'agentInput.acp.optionsSectionTitle',
         'agentInput.actionMenu.title',
@@ -467,8 +471,9 @@ const IGNORED_UNTRANSLATED_KEYS_BY_LOCALE: Readonly<Record<string, ReadonlySet<s
         'message.runtimeConfigOutcomeKeyModel',
         'session.agentActivity.screenTitle',
         'settingsSession.sessionList.headerIdentityDisplayAvatarTitle',
+        'settingsSession.windows.windowNamePlaceholder',
     ]),
-    pl: new Set(['message.runtimeConfigOutcomeKeyModel']),
+    pl: new Set(['message.runtimeConfigOutcomeKeyModel', 'settingsSession.windows.windowNamePlaceholder']),
     // German keeps these identical to English on purpose, in the same three groups French does:
     //   product, provider and preset nouns (Happier, Codex, tmux, model ids, theme names),
     //   the English technical vocabulary German developers actually speak and which the ratified
@@ -481,6 +486,8 @@ const IGNORED_UNTRANSLATED_KEYS_BY_LOCALE: Readonly<Record<string, ReadonlySet<s
     // German noun is spelled. A key here is a decision, not a gap — translating one would make
     // the UI read worse, not better.
     de: new Set([
+        'files.pause',
+        'settingsSession.windows.windowNamePlaceholder',
         'agentInput.mode.build',
         'agentInput.mode.plan',
         'agentInput.suggestionGroups.plugins',
@@ -735,6 +742,9 @@ const IGNORED_UNTRANSLATED_KEYS_BY_LOCALE: Readonly<Record<string, ReadonlySet<s
         'voiceSurface.start',
         'workspaceCockpit.tabs',
     ]),
+    'zh-Hans': new Set(['settingsSession.windows.windowNamePlaceholder']),
+    'zh-Hant': new Set(['settingsSession.windows.windowNamePlaceholder']),
+    ja: new Set(['settingsSession.windows.windowNamePlaceholder']),
 };
 const IGNORED_UNTRANSLATED_KEY_PREFIXES = [
     'settingsAppearance.themeProfiles.',
