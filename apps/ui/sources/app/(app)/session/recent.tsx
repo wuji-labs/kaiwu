@@ -294,7 +294,7 @@ export default function SessionHistory() {
                     data={groupedItems}
                     renderItem={renderItem}
                     keyExtractor={keyExtractor}
-                    contentContainerStyle={{
+                    contentContainerStyle={{ 
                         paddingBottom: safeArea.bottom + 16,
                         paddingTop: 8,
                     }}
