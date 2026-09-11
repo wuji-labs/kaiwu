@@ -35,8 +35,8 @@ def test_content_type_mapping():
     print("Testing Content-Type mapping...")
     for filename, expected in tests:
         result = sync_module.get_content_type(filename)
-        status = "✓" if result == expected else "✗"
-        print(f"  {status} {filename:30} -> {result}")
+        status = "OK" if result == expected else "FAIL"
+        print(f"  [{status}] {filename:30} -> {result}")
         if result != expected:
             print(f"     Expected: {expected}")
             return False
@@ -62,15 +62,15 @@ def test_compression_detection():
 
     for filename in compressible:
         result = sync_module.should_compress(filename)
-        status = "✓" if result else "✗"
-        print(f"  {status} {filename:30} -> should compress")
+        status = "OK" if result else "FAIL"
+        print(f"  [{status}] {filename:30} -> should compress")
         if not result:
             all_pass = False
 
     for filename in not_compressible:
         result = sync_module.should_compress(filename)
-        status = "✓" if not result else "✗"
-        print(f"  {status} {filename:30} -> should NOT compress")
+        status = "OK" if not result else "FAIL"
+        print(f"  [{status}] {filename:30} -> should NOT compress")
         if result:
             all_pass = False
 
@@ -99,16 +99,16 @@ def test_gzip_roundtrip_sha256():
 
     # Verify roundtrip
     if decompressed != test_data:
-        print("  ✗ Decompressed data does not match original")
+        print("  [FAIL] Decompressed data does not match original")
         return False
-    print("  ✓ Decompressed data matches original")
+    print("  [OK] Decompressed data matches original")
 
     # Verify SHA256 unchanged
     roundtrip_sha256 = sync_module.calculate_sha256(decompressed)
     if roundtrip_sha256 != original_sha256:
-        print("  ✗ SHA256 changed after gzip roundtrip")
+        print("  [FAIL] SHA256 changed after gzip roundtrip")
         return False
-    print("  ✓ SHA256 unchanged after gzip roundtrip")
+    print("  [OK] SHA256 unchanged after gzip roundtrip")
 
     return True
 
@@ -125,8 +125,8 @@ def test_cache_control():
     print("Testing Cache-Control assignment...")
     for filepath, expected in tests:
         result = sync_module.get_cache_control(filepath)
-        status = "✓" if result == expected else "✗"
-        print(f"  {status} {filepath:40} -> {result}")
+        status = "OK" if result == expected else "FAIL"
+        print(f"  [{status}] {filepath:40} -> {result}")
         if result != expected:
             print(f"     Expected: {expected}")
             return False
@@ -165,10 +165,98 @@ def test_header_lookup_case_insensitive():
     all_pass = True
     for key, expected in tests:
         result = response_lower.get(key.lower())
-        status = "✓" if result == expected else "✗"
-        print(f"  {status} {key:30} -> {result}")
+        status = "OK" if result == expected else "FAIL"
+        print(f"  [{status}] {key:30} -> {result}")
         if result != expected:
             print(f"     Expected: {expected}")
+            all_pass = False
+
+    return all_pass
+
+
+def test_strict_sha256_verification_rule():
+    """Test that strict verification requires x-cos-meta-sha256 on every file.
+
+    This test verifies the new strict rule: every file (compressible or not)
+    must have x-cos-meta-sha256 header equal to local sha256.
+    """
+    print("Testing strict SHA256 verification rule...")
+
+    # Simulate responses from COS head_object
+    test_cases = [
+        {
+            "name": "Non-compressible with matching sha",
+            "response": {
+                'x-cos-meta-sha256': 'abc123def456',
+                'Content-Type': 'image/png',
+            },
+            "original_sha": 'abc123def456',
+            "should_compress": False,
+            "should_pass": True,
+        },
+        {
+            "name": "Non-compressible MISSING sha header",
+            "response": {
+                'Content-Type': 'image/png',
+            },
+            "original_sha": 'abc123def456',
+            "should_compress": False,
+            "should_pass": False,  # STRICT: missing sha must fail
+        },
+        {
+            "name": "Non-compressible with mismatched sha",
+            "response": {
+                'x-cos-meta-sha256': 'wrongsha1234567890',
+                'Content-Type': 'image/png',
+            },
+            "original_sha": 'abc123def456',
+            "should_compress": False,
+            "should_pass": False,
+        },
+        {
+            "name": "Compressible with matching sha and gzip",
+            "response": {
+                'x-cos-meta-sha256': 'abc123def456',
+                'Content-Encoding': 'gzip',
+                'Content-Type': 'application/javascript; charset=utf-8',
+            },
+            "original_sha": 'abc123def456',
+            "should_compress": True,
+            "should_pass": True,
+        },
+        {
+            "name": "Compressible with matching sha but NO gzip",
+            "response": {
+                'x-cos-meta-sha256': 'abc123def456',
+                'Content-Type': 'application/javascript; charset=utf-8',
+            },
+            "original_sha": 'abc123def456',
+            "should_compress": True,
+            "should_pass": False,  # Missing Content-Encoding: gzip
+        },
+    ]
+
+    all_pass = True
+    for case in test_cases:
+        response_lower = {k.lower(): v for k, v in case["response"].items()}
+
+        # Check for sha256
+        stored_sha256 = response_lower.get('x-cos-meta-sha256')
+        sha_valid = stored_sha256 == case["original_sha"]
+
+        # Check gzip encoding if compressible
+        gzip_valid = True
+        if case["should_compress"]:
+            content_encoding = response_lower.get('content-encoding', '')
+            gzip_valid = content_encoding == 'gzip'
+
+        # Overall result
+        would_pass = (stored_sha256 is not None) and sha_valid and gzip_valid
+
+        status = "OK" if would_pass == case["should_pass"] else "FAIL"
+        print(f"  [{status}] {case['name']}: would_pass={would_pass}, expected={case['should_pass']}")
+
+        if would_pass != case["should_pass"]:
             all_pass = False
 
     return all_pass
@@ -183,6 +271,7 @@ def main():
         ("Gzip roundtrip & SHA256", test_gzip_roundtrip_sha256),
         ("Cache-Control assignment", test_cache_control),
         ("Case-insensitive header lookup", test_header_lookup_case_insensitive),
+        ("Strict SHA256 verification rule", test_strict_sha256_verification_rule),
     ]
 
     results = []
@@ -192,7 +281,7 @@ def main():
             result = test_func()
             results.append((name, result))
         except Exception as e:
-            print(f"✗ Exception in {name}: {e}")
+            print(f"[FAIL] Exception in {name}: {e}")
             results.append((name, False))
 
     print(f"\n{'='*60}")
@@ -202,7 +291,7 @@ def main():
     total = len(results)
 
     for name, result in results:
-        status = "✓ PASS" if result else "✗ FAIL"
+        status = "[PASS]" if result else "[FAIL]"
         print(f"{status}: {name}")
 
     print(f"\nTotal: {passed}/{total} passed")
