@@ -93,7 +93,7 @@ export function enableErrorHandlers(app: Fastify) {
             const mtimeMs = typeof st.mtimeMs === 'number' ? st.mtimeMs : st.mtime.getTime();
             if (!cachedIndexHtml || cachedIndexHtml.mtimeMs !== mtimeMs) {
                 cachedIndexHtml = {
-                    html: (await readFile(indexPath, 'utf-8')) + '\n<!-- Welcome to Happier Server! -->\n',
+                    html: (await readFile(indexPath, 'utf-8')) + '\n<!-- 无极开物 · Kaiwu -->\n',
                     mtimeMs,
                 };
             }

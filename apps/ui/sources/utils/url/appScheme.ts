@@ -23,7 +23,7 @@ function listConfiguredAppUrlSchemes(): string[] {
 export function resolveAppUrlScheme(): string {
     const configured = listConfiguredAppUrlSchemes()[0];
     if (configured) return configured;
-    return 'happier';
+    return 'kaiwu';
 }
 
 export function resolveAppUrlProtocol(): string {
