@@ -108,6 +108,9 @@ function setUiFileHeaders(reply: any, ext: string): void {
     } else if (ext === '.gif') {
         reply.header('content-type', 'image/gif');
         reply.header('cache-control', 'public, max-age=31536000, immutable');
+    } else if (ext === '.webmanifest') {
+        reply.header('content-type', 'application/manifest+json');
+        reply.header('cache-control', 'public, max-age=31536000, immutable');
     } else {
         reply.header('content-type', 'application/octet-stream');
         reply.header('cache-control', 'public, max-age=31536000, immutable');
@@ -157,7 +160,7 @@ export function enableServeUi(app: AnyFastifyInstance, ui: UiConfig) {
         const indexPath = resolve(root, 'index.html');
         let html: string;
         try {
-            html = (await readFile(indexPath, 'utf-8')) + '\n<!-- Welcome to Happier Server! -->\n';
+            html = (await readFile(indexPath, 'utf-8')) + '\n<!-- 无极开物 · Kaiwu -->\n';
         } catch (err) {
             warn({ err, indexPath }, 'UI index.html not found (check UI build dir configuration)');
             const isProduction = process.env.NODE_ENV === "production";
@@ -188,7 +191,7 @@ export function enableServeUi(app: AnyFastifyInstance, ui: UiConfig) {
                 `  <p style="color:#6a737d">If you are developing the UI, use <code>hstack dev</code> instead.</p>\n` +
                 `</body>\n` +
                 `</html>\n` +
-                `<!-- Welcome to Happier Server! -->\n`;
+                `<!-- 无极开物 · Kaiwu -->\n`;
         }
         reply.header('content-type', 'text/html; charset=utf-8');
         reply.header('cache-control', 'no-cache');
@@ -196,6 +199,12 @@ export function enableServeUi(app: AnyFastifyInstance, ui: UiConfig) {
     }
 
     app.get('/.well-known/happier-ui-deployment', async (_request, reply) => {
+        reply.header('cache-control', 'no-store');
+        if (!ui.deploymentId) return reply.code(204).send();
+        return reply.send({ deploymentId: ui.deploymentId });
+    });
+
+    app.get('/.well-known/kaiwu-ui-deployment', async (_request, reply) => {
         reply.header('cache-control', 'no-store');
         if (!ui.deploymentId) return reply.code(204).send();
         return reply.send({ deploymentId: ui.deploymentId });
@@ -236,6 +245,7 @@ export function enableServeUi(app: AnyFastifyInstance, ui: UiConfig) {
                     '.webp',
                     '.gif',
                     '.map',
+                    '.webmanifest',
                 ].includes(ext);
                 if (isStaticAsset) {
                     return await sendUiFile(decoded, request, reply);

@@ -58,7 +58,7 @@ describe('enableServeUi (mountRoot)', () => {
         expect(res.statusCode).toBe(200);
         expect(res.headers['content-type']).toMatch(/text\/html/i);
         expect(res.body).toContain('ok');
-        expect(res.body).toContain('Welcome to Happier Server!');
+        expect(res.body).toContain('无极开物 · Kaiwu');
       });
     });
   });
@@ -75,7 +75,7 @@ describe('enableServeUi (mountRoot)', () => {
         expect(res.statusCode).toBe(200);
         expect(res.headers['content-type']).toMatch(/text\/html/i);
         expect(res.body).toContain('ok');
-        expect(res.body).toContain('Welcome to Happier Server!');
+        expect(res.body).toContain('无极开物 · Kaiwu');
       });
     });
   });
@@ -90,7 +90,7 @@ describe('enableServeUi (mountRoot)', () => {
         expect(res.statusCode).toBe(200);
         expect(res.headers['content-type']).toMatch(/text\/html/i);
         expect(res.body).toContain('hstack build');
-        expect(res.body).toContain('Welcome to Happier Server!');
+        expect(res.body).toContain('无极开物 · Kaiwu');
       });
     });
   });
@@ -131,6 +131,42 @@ describe('enableServeUi (mountRoot)', () => {
         expect(res.statusCode).toBe(200);
         expect(res.headers['content-type']).toMatch(/application\/json/i);
         expect(res.body).toContain('"version":3');
+      });
+    });
+  });
+
+  it('serves .webmanifest files with application/manifest+json content-type', async () => {
+    await withTempDir('kaiwu-ui-root-manifest-', async (dir) => {
+      await writeFile(join(dir, 'index.html'), '<!doctype html><html><body>ok</body></html>\n', 'utf-8');
+      await writeFile(join(dir, 'manifest.webmanifest'), JSON.stringify({ name: 'Kaiwu' }) + '\n', 'utf-8');
+
+      await withApp(async (app) => {
+        enableServeUi(app, { dir, prefix: '/', mountRoot: true, required: false });
+        await app.ready();
+
+        const res = await app.inject({ method: 'GET', url: '/manifest.webmanifest' });
+        expect(res.statusCode).toBe(200);
+        expect(res.headers['content-type']).toMatch(/application\/manifest\+json/i);
+        expect(res.body).toContain('"name":"Kaiwu"');
+      });
+    });
+  });
+
+  it('serves new kaiwu-ui-deployment endpoint alongside happier-ui-deployment', async () => {
+    await withTempDir('kaiwu-ui-deployment-', async (dir) => {
+      await writeFile(join(dir, 'index.html'), '<!doctype html><html><body>ok</body></html>\n', 'utf-8');
+      await withApp(async (app) => {
+        enableServeUi(app, { dir, prefix: '/', mountRoot: true, required: false, deploymentId: 'test-id-123' });
+        await app.ready();
+
+        const res1 = await app.inject({ method: 'GET', url: '/.well-known/kaiwu-ui-deployment' });
+        expect(res1.statusCode).toBe(200);
+        expect(res1.headers['cache-control']).toBe('no-store');
+        expect(res1.json()).toEqual({ deploymentId: 'test-id-123' });
+
+        const res2 = await app.inject({ method: 'GET', url: '/.well-known/happier-ui-deployment' });
+        expect(res2.statusCode).toBe(200);
+        expect(res2.json()).toEqual({ deploymentId: 'test-id-123' });
       });
     });
   });
