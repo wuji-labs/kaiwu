@@ -9477,7 +9477,7 @@ settingsSession: {
         detectedCliDetected: 'Erkannt',
         detectedCliNotDetected: 'Nicht erkannt',
         detectedCliUnknown: 'Unbekannt',
-        detectedCliNotSupported: 'Nicht unterstützt (@happier-dev/cli aktualisieren)',
+        detectedCliNotSupported: 'Nicht unterstützt (Kaiwu CLI aktualisieren)',
         untitledSession: 'Session ohne Titel',
         back: 'Zurück',
         notFound: 'Rechner nicht gefunden',
