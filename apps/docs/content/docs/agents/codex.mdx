@@ -9,7 +9,7 @@ description: 在 Kaiwu 中配置 Codex，包括默认 App Server 后端、可安
 Kaiwu 可以代为安装：
 
 ```bash
-Kaiwu install provider codex
+kaiwu install provider codex
 ```
 
 也可以自行安装后重启 Kaiwu：
@@ -49,13 +49,13 @@ Codex 可通过 Kaiwu 关联服务进行认证：
 
 ```bash
 # Subscription auth (recommended): device code flow
-Kaiwu connect codex --device
+kaiwu connect codex --device
 
 # Headless fallback: paste the redirect URL
-Kaiwu connect codex --paste
+kaiwu connect codex --paste
 
 # API key mode
-Kaiwu connect codex --api-key
+kaiwu connect codex --api-key
 ```
 
 注意事项：

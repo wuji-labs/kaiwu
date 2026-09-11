@@ -18,7 +18,7 @@ Kaiwu 通过本地 Gemini CLI/运行时以及兼容 ACP 的消息机制集成 Ge
 Kaiwu 可自动为你安装：
 
 ```bash
-Kaiwu install provider gemini
+kaiwu install provider gemini
 gemini --version
 ```
 
@@ -56,7 +56,7 @@ Kaiwu gemini
 Gemini 认证通过 Kaiwu 关联服务（`gemini`）进行管理：
 
 - 设置 → 关联服务 → Gemini
-- 或通过 CLI：`Kaiwu connect gemini`
+- 或通过 CLI：`kaiwu connect gemini`
 
 对于粘贴/重定向流程，Kaiwu 会在服务端换取 OAuth 代码，并将加密数据包返回给客户端（应用 UI 中不包含任何 Gemini OAuth 密钥）。
 
