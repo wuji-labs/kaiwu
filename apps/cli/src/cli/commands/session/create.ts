@@ -77,7 +77,7 @@ export async function cmdSessionCreate(
       await printJsonEnvelope({ ok: false, kind: 'session_create', error: { code: 'not_authenticated' } });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
+    console.error(chalk.red('错误:'), '未认证。请先运行 "kaiwu auth login"。');
     process.exit(1);
   }
 
@@ -116,7 +116,7 @@ export async function cmdSessionCreate(
       });
       return;
     }
-    throw Object.assign(new Error(mapped.message ?? (error instanceof Error ? error.message : 'Failed to create session')), {
+    throw Object.assign(new Error(mapped.message ?? (error instanceof Error ? error.message : '创建会话失败')), {
       code: mapped.code,
     });
   }
@@ -139,7 +139,7 @@ export async function cmdSessionCreate(
       return;
     }
     const retryHint = isAmbiguousSpawn
-      ? ` Retry with --spawn-attempt-id ${spawnAttemptId} --resume-spawn-attempt.`
+      ? ` 使用 --spawn-attempt-id ${spawnAttemptId} --resume-spawn-attempt 重试。`
       : '';
     throw Object.assign(new Error(`${result.errorMessage ?? result.errorCode}${retryHint}`), {
       code: result.errorCode,
@@ -175,6 +175,6 @@ export async function cmdSessionCreate(
     return;
   }
 
-  console.log(chalk.green('✓'), 'session created');
+  console.log(chalk.green('✓'), '会话已创建');
   await writeJsonStdout({ created: true, session: created.session }, { pretty: true });
 }

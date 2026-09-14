@@ -19,20 +19,20 @@ export async function cmdMcpServersUnbind(
       await printJsonEnvelope({ ok: false, kind: 'mcp_servers_unbind', error: { code: 'not_authenticated' } }, { exitCode: 1 });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
+    console.error(chalk.red('错误：'), '尚未登录。请先运行 "kaiwu auth login"。');
     process.exitCode = 1;
     return;
   }
 
   const bindingId = readFlagValue(argv, '--binding-id');
-  if (!bindingId) throw new Error('Usage: kaiwu mcp servers unbind --binding-id <id> [--json]');
+  if (!bindingId) throw new Error('用法：kaiwu mcp servers unbind --binding-id <id> [--json]');
 
   await deps.updateAccountSettingsV2WithRetry({
     credentials,
     mutate: (settings: Readonly<Record<string, unknown>>) => {
       const current = readMcpServersSettingsFromAccountSettings(settings);
       if (!current.bindings.some((b) => b.id === bindingId)) {
-        throw new Error(`Binding not found: ${bindingId}`);
+        throw new Error(`未找到绑定：${bindingId}`);
       }
       const next = McpServersSettingsV1Schema.parse({
         ...current,
@@ -47,6 +47,5 @@ export async function cmdMcpServersUnbind(
     return;
   }
 
-  console.log(chalk.green('✓'), `MCP binding removed: ${bindingId}`);
+  console.log(chalk.green('✓'), `MCP 绑定已移除：${bindingId}`);
 }
-

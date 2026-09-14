@@ -181,13 +181,13 @@ export async function buildAttachSelectionModel(params: Readonly<{
         updatedAt: rowModel.updatedAt,
         title: [rowModel.tag, rowModel.title].filter((value) => typeof value === 'string' && value.trim().length > 0).join(' · '),
         path: rowModel.path ?? '',
-        annotation: isRemoteProviderAttach ? 'remote' : null,
+        annotation: isRemoteProviderAttach ? '远程' : null,
         probeable: isRemoteProviderAttach,
         // Remote provider-attach rows start disabled until the user proves
         // reachability with `P` — the selector's probe handler flips them
         // to `disabled: false` on success.
         disabled: isRemoteProviderAttach ? true : false,
-        disabledReason: isRemoteProviderAttach ? 'Press P to check remote reachability.' : null,
+        disabledReason: isRemoteProviderAttach ? '按 P 检查远程连通性。' : null,
       });
       continue;
     }
@@ -241,11 +241,11 @@ export async function buildAttachSelectionModel(params: Readonly<{
     probeSessionIdFn: async (sessionId) => {
       const remoteProvider = remoteProviderMetadataBySessionId.get(sessionId);
       if (!remoteProvider) {
-        return { reachable: false, reason: 'Remote reachability probe is unavailable for this session.' };
+        return { reachable: false, reason: '此会话不支持远程连通性探测。' };
       }
       const providerAttachOps = await getProviderAttachOps(remoteProvider.agentId);
       if (!providerAttachOps?.probeReachability) {
-        return { reachable: false, reason: 'Remote reachability probe is unavailable for this provider.' };
+        return { reachable: false, reason: '此 Provider 不支持远程连通性探测。' };
       }
       return await providerAttachOps.probeReachability({
         metadata: remoteProvider.metadata,
@@ -264,40 +264,38 @@ export function formatAttachIneligibilityFooter(hint: AttachSelectionFooterHint)
 
   const tmux = hint.effectiveSessionTmux;
   const ineligible = hint.ineligibleCount;
-  const sessionWord = ineligible === 1 ? 'session' : 'sessions';
-  const beVerb = ineligible === 1 ? 'is' : 'are';
 
   switch (hint.dominantCategory) {
     case 'started_outside_tmux': {
       if (tmux && !tmux.useTmux) {
         const scope = tmux.source === 'machine-override'
-          ? 'on this computer'
+          ? '（此计算机）'
           : '';
-        return `${ineligible} ${sessionWord} on this machine were started outside tmux and can't be attached. `
-          + `Enable “Spawn Sessions in Tmux”${scope ? ` ${scope}` : ''} in the Kaiwu app → Session Settings, then start a new session.`;
+        return `此机器上有 ${ineligible} 个会话在 tmux 外部启动，无法接入。`
+          + `请在 Kaiwu 应用 → 会话设置中启用“在 tmux 中启动会话”${scope}，然后启动新会话。`;
       }
-      return `${ineligible} ${sessionWord} on this machine were started before "Spawn Sessions in Tmux" was enabled. `
-        + `New sessions you start now will be attachable.`;
+      return `此机器上有 ${ineligible} 个会话在启用“在 tmux 中启动会话”之前启动。`
+        + `您现在启动的新会话将支持接入。`;
     }
     case 'tmux_unavailable':
-      return `tmux isn't installed on this computer. Install tmux (e.g. \`brew install tmux\` on macOS) to make codex/claude sessions attachable.`;
+      return `此计算机上未安装 tmux。请安装 tmux（例如 macOS 上运行 \`brew install tmux\`）以使 codex/claude 会话支持接入。`;
     case 'windows_hidden':
-      return `${ineligible} hidden Windows ${sessionWord} can't be attached after start. `
-        + `Restart ${ineligible === 1 ? 'it' : 'them'} with a visible terminal if you need to attach later.`;
+      return `${ineligible} 个隐藏的 Windows 会话在启动后无法接入。`
+        + `如需后续接入，请在启动时使用可见终端。`;
     case 'machine_identity_mismatch':
-      return `${ineligible} ${sessionWord} ${beVerb} running on this computer under a different Kaiwu machine identity, but no tmux target or local attachment marker is available. `
-        + `Use the same Kaiwu app or daemon that started ${ineligible === 1 ? 'it' : 'them'}, or start a new tmux-backed session from this CLI profile.`;
+      return `此计算机上有 ${ineligible} 个会话以不同的 Kaiwu 机器标识运行，但无可用 tmux 目标或本地接入标记。`
+        + `请使用启动该会话的同一 Kaiwu 应用或守护进程，或从此 CLI 配置启动新的基于 tmux 的会话。`;
     case 'remote_machine':
-      return `${ineligible} ${sessionWord} ${beVerb} running on other machines. Use \`kaiwu session list --active\` to see all running sessions.`;
+      return `有 ${ineligible} 个会话正在其他机器上运行。请使用 \`kaiwu session list --active\` 查看所有正在运行的会话。`;
     case 'no_local_state':
-      return `${ineligible} ${sessionWord} ${beVerb} running but ${ineligible === 1 ? 'its' : 'their'} local attachment state isn't visible. `
-        + `Try \`kaiwu daemon start\` and re-run, or attach from the original terminal.`;
+      return `有 ${ineligible} 个会话正在运行，但其本地接入状态不可见。`
+        + `请尝试运行 \`kaiwu daemon start\` 并重试，或从原始终端接入。`;
     case 'archived_or_inactive':
-      return `${ineligible} ${sessionWord} ${beVerb} no longer active. Use \`kaiwu resume\` to revive a stopped session.`;
+      return `有 ${ineligible} 个会话不再处于活跃状态。请使用 \`kaiwu resume\` 恢复已停止的会话。`;
     case 'metadata_unreadable':
-      return `${ineligible} ${sessionWord} can't be decrypted on this machine. Sign in on the original device or pair this one with \`kaiwu auth pair-remote\`.`;
+      return `有 ${ineligible} 个会话无法在此机器上解密。请在原始设备上登录，或通过 \`kaiwu auth pair-remote\` 进行配对。`;
     case 'unsupported_agent':
-      return `${ineligible} ${sessionWord} use an agent that doesn't support local terminal attach.`;
+      return `有 ${ineligible} 个会话使用的 Agent 不支持本地终端接入。`;
     default:
       return null;
   }

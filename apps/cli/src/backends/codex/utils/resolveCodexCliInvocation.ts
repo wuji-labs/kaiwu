@@ -6,10 +6,18 @@ import { resolveWindowsCommandPath } from '@happier-dev/cli-common/process';
 
 import { requireJavaScriptRuntimeExecutable } from '@/runtime/js/requireJavaScriptRuntimeExecutable';
 import { requireProviderCliCommand } from '@/runtime/managedTools/requireProviderCliCommand';
+import { resolveProviderCliCommand } from '@/runtime/managedTools/providerCliResolution';
 import { isBun } from '@/utils/runtime';
 
 const JAVA_SCRIPT_ENTRYPOINT_EXTENSION = /\.(?:c?js|mjs)$/i;
 const JAVA_SCRIPT_SHEBANG = /^#!.*\b(?:env\s+)?(?:node|bun)(?:\s|$)/;
+
+// Kaiwu is the public product name now. Keep the Happier variable as a
+// fallback so existing daemon/service environments continue to work.
+export const CODEX_APP_SERVER_OVERRIDE_ENV_KEYS = [
+    'KAIWU_CODEX_APP_SERVER_BIN',
+    'HAPPIER_CODEX_APP_SERVER_BIN',
+] as const;
 
 function isJavaScriptBackedCodexCommand(command: string): boolean {
     if (JAVA_SCRIPT_ENTRYPOINT_EXTENSION.test(command)) {
@@ -83,6 +91,27 @@ export function resolveCodexOverrideCommand(
     return null;
 }
 
+function resolveCodexCommand(params: Readonly<{
+    processEnv: NodeJS.ProcessEnv;
+    overrideEnvVarKeys: readonly string[];
+    cwd: string;
+}>): string | null {
+    return resolveCodexOverrideCommand(params.processEnv, params.overrideEnvVarKeys, params.cwd)
+        ?? resolveProviderCliCommand('codex', { processEnv: params.processEnv })?.command
+        ?? null;
+}
+
+export function resolveCodexAppServerCommand(
+    processEnv: NodeJS.ProcessEnv = process.env,
+    cwd: string = process.cwd(),
+): string | null {
+    return resolveCodexCommand({
+        processEnv,
+        overrideEnvVarKeys: CODEX_APP_SERVER_OVERRIDE_ENV_KEYS,
+        cwd,
+    });
+}
+
 export async function resolveCodexCliInvocation(params: Readonly<{
     args: string[];
     cwd?: string;
@@ -92,9 +121,11 @@ export async function resolveCodexCliInvocation(params: Readonly<{
 }>): Promise<Readonly<{ command: string; args: string[] }>> {
     const processEnv = params.processEnv ?? process.env;
     const cwd = params.cwd ?? process.cwd();
-    const command =
-        resolveCodexOverrideCommand(processEnv, params.overrideEnvVarKeys ?? [], cwd)
-        ?? requireProviderCliCommand('codex', { processEnv });
+    const command = resolveCodexCommand({
+        processEnv,
+        overrideEnvVarKeys: params.overrideEnvVarKeys ?? [],
+        cwd,
+    }) ?? requireProviderCliCommand('codex', { processEnv });
 
     if (!isJavaScriptBackedCodexCommand(command)) {
         return { command, args: [...params.args] };
@@ -110,4 +141,16 @@ export async function resolveCodexCliInvocation(params: Readonly<{
         command: javaScriptRuntime,
         args: [command, ...params.args],
     };
+}
+
+export async function resolveCodexAppServerCliInvocation(params: Readonly<{
+    args: string[];
+    cwd?: string;
+    processEnv?: NodeJS.ProcessEnv;
+    targetLabel?: string;
+}>): Promise<Readonly<{ command: string; args: string[] }>> {
+    return await resolveCodexCliInvocation({
+        ...params,
+        overrideEnvVarKeys: CODEX_APP_SERVER_OVERRIDE_ENV_KEYS,
+    });
 }

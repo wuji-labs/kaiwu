@@ -14,6 +14,25 @@ import {
 export { interpretRemoteModeKeypress };
 export type { RemoteModeActionInProgress, RemoteModeConfirmation, RemoteModeKeypressAction };
 
+export const REMOTE_CONTROL_WAITING = '等待消息中...';
+export const REMOTE_CONTROL_EXITING = '正在退出...';
+export const REMOTE_CONTROL_SWITCHING = '正在切换至本地模式...';
+export const REMOTE_CONTROL_CONFIRM_EXIT = '⚠️ 再次按 Ctrl-C 完全退出';
+export const REMOTE_CONTROL_CONFIRM_SWITCH = '⏸️ 再次按空格键（或 Ctrl-T）切换至本地模式';
+export const REMOTE_CONTROL_PROMPT_SWITCH = '📱 按空格键（或 Ctrl-T）切换至本地模式 • 按 Ctrl-C 退出';
+
+export function formatRemoteControlHeader(providerName: string): string {
+  return `📡 远程模式 - ${providerName} 消息`;
+}
+
+export function formatRemoteControlExitOnlyPrompt(providerName: string): string {
+  return `${providerName} 远程模式 • 按 Ctrl-C 退出`;
+}
+
+export function formatRemoteControlDebugLogs(logPath: string): string {
+  return `调试日志: ${logPath}`;
+}
+
 export type RemoteControlDisplayProps = {
   providerName: string;
   messageBuffer: MessageBuffer;
@@ -130,7 +149,7 @@ export const RemoteControlDisplay: React.FC<RemoteControlDisplayProps> = ({
       >
         <Box flexDirection="column" marginBottom={1}>
           <Text color="gray" bold>
-            {`📡 Remote Mode - ${providerName} Messages`}
+            {formatRemoteControlHeader(providerName)}
           </Text>
           <Text color="gray" dimColor>
             {'─'.repeat(Math.min(terminalWidth - 4, 60))}
@@ -140,7 +159,7 @@ export const RemoteControlDisplay: React.FC<RemoteControlDisplayProps> = ({
         <Box flexDirection="column" height={terminalHeight - 10} overflow="hidden">
           {messages.length === 0 ? (
             <Text color="gray" dimColor>
-              Waiting for messages...
+              {REMOTE_CONTROL_WAITING}
             </Text>
           ) : (
             messages.slice(-Math.max(1, terminalHeight - 10)).map((msg) => (
@@ -168,32 +187,32 @@ export const RemoteControlDisplay: React.FC<RemoteControlDisplayProps> = ({
         <Box flexDirection="column" alignItems="center">
           {actionInProgress === 'exiting' ? (
             <Text color="gray" bold>
-              Exiting...
+              {REMOTE_CONTROL_EXITING}
             </Text>
           ) : actionInProgress === 'switching' ? (
             <Text color="gray" bold>
-              Switching to local mode...
+              {REMOTE_CONTROL_SWITCHING}
             </Text>
           ) : confirmationMode === 'exit' ? (
             <Text color="red" bold>
-              ⚠️ Press Ctrl-C again to exit completely
+              {REMOTE_CONTROL_CONFIRM_EXIT}
             </Text>
           ) : confirmationMode === 'switch' ? (
             <Text color="yellow" bold>
-              ⏸️ Press space again (or Ctrl-T) to switch to local mode
+              {REMOTE_CONTROL_CONFIRM_SWITCH}
             </Text>
           ) : switchEnabled ? (
             <Text color="green" bold>
-              📱 Press space (or Ctrl-T) to switch to local mode • Ctrl-C to exit
+              {REMOTE_CONTROL_PROMPT_SWITCH}
             </Text>
           ) : (
             <Text color="green" bold>
-              {`${providerName} remote mode • Ctrl-C to exit`}
+              {formatRemoteControlExitOnlyPrompt(providerName)}
             </Text>
           )}
           {process.env.DEBUG && logPath && (
             <Text color="gray" dimColor>
-              Debug logs: {logPath}
+              {formatRemoteControlDebugLogs(logPath)}
             </Text>
           )}
         </Box>

@@ -24,7 +24,7 @@ export async function cmdSessionStatus(
       await printJsonEnvelope({ ok: false, kind: 'session_status', error: { code: 'not_authenticated' } });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
+    console.error(chalk.red('错误:'), '未认证。请先运行 "kaiwu auth login"。');
     process.exit(1);
   }
 
@@ -65,6 +65,6 @@ export async function cmdSessionStatus(
     return;
   }
 
-  console.log(chalk.green('✓'), 'status fetched');
+  console.log(chalk.green('✓'), '已获取状态');
   await writeJsonStdout({ session: result.session, agentState: result.agentState }, { pretty: true });
 }

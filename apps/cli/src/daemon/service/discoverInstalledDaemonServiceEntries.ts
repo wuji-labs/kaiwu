@@ -427,15 +427,30 @@ export async function discoverInstalledDaemonServiceEntries(params: Readonly<{
         ? join(params.userHomeDir, 'Library', 'LaunchAgents')
         : join(params.happierHomeDir, 'services');
 
-  let fileNames: string[] = [];
-  try {
-    fileNames = fs.readdirSync(servicesDir);
-  } catch {
-    return [];
-  }
+  // Windows upgrades can leave the installed task and wrapper under the
+  // predecessor `.happier` home while the current CLI now points at `.kaiwu`.
+  // Discover both homes before planning repair; otherwise a missing current
+  // directory makes the legacy service invisible and the repair plan empty.
+  const serviceDirs = params.platform === 'win32'
+    ? [...new Set([
+      servicesDir,
+      join(params.userHomeDir, '.happier', 'services'),
+    ])]
+    : [servicesDir];
+
+  const fileCandidates = serviceDirs.flatMap((directory) => {
+    try {
+      return fs.readdirSync(directory).map((fileName) => ({
+        path: join(directory, fileName),
+        source: 'file' as const,
+      }));
+    } catch {
+      return [];
+    }
+  });
 
   const discoveredCandidates = [
-    ...fileNames.map((fileName) => ({ path: join(servicesDir, fileName), source: 'file' as const })),
+    ...fileCandidates,
     ...(params.platform === 'win32'
       ? listWindowsScheduledTaskWrapperPaths(servicesDir).map((path) => ({ path, source: 'task' as const }))
       : []),

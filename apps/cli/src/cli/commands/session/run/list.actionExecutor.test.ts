@@ -92,7 +92,7 @@ describe('happier session run list (action executor)', () => {
     await expect(cmdSessionRunList(
       ['session', 'run', 'sess-prefix', '--backend', 'claude,codex'],
       { readCredentialsFn },
-    )).rejects.toThrow('Usage: happier session run list');
+    )).rejects.toThrow('Usage: kaiwu session run list');
 
     expect(readCredentialsFn).not.toHaveBeenCalled();
     expect(resolveSessionTransportContext).not.toHaveBeenCalled();
@@ -107,7 +107,7 @@ describe('happier session run list (action executor)', () => {
         message: 'Invalid --status "". Expected one of: running, succeeded, failed, cancelled, timeout.',
       }],
       ['--backend', {
-        message: expect.stringContaining('Usage: happier session run list'),
+        message: expect.stringContaining('Usage: kaiwu session run list'),
       }],
     ] as const) {
       const readCredentialsFn = vi.fn(async () => null);

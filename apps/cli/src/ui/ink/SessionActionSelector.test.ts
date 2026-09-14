@@ -61,8 +61,8 @@ describe('SessionActionSelector model helpers', () => {
     const mod = await import('./SessionActionSelector') as SelectorModule;
 
     expect(typeof mod.resolveSessionActionSelectorDisabledGroupLabel).toBe('function');
-    expect(mod.resolveSessionActionSelectorDisabledGroupLabel?.('attach')).toBe('Cannot attach');
-    expect(mod.resolveSessionActionSelectorDisabledGroupLabel?.('resume')).toBe('Cannot resume');
+    expect(mod.resolveSessionActionSelectorDisabledGroupLabel?.('attach')).toBe('无法接入');
+    expect(mod.resolveSessionActionSelectorDisabledGroupLabel?.('resume')).toBe('无法恢复');
   });
 
   it('clamps visible rows around the selected index', async () => {
@@ -95,5 +95,22 @@ describe('SessionActionSelector model helpers', () => {
       type: 'blocked',
       message: 'This session cannot be attached from here.',
     });
+    expect(mod.resolveSessionActionSelectorEnterResult?.({
+      ...rows[2],
+      disabledReason: null,
+    }, 'attach')).toEqual({
+      type: 'blocked',
+      message: '该会话无法接入。',
+    });
+  });
+
+  it('provides Simplified Chinese table headers and placeholders', async () => {
+    const mod = await import('./SessionActionSelector') as Record<string, unknown>;
+    expect(mod.SESSION_ACTION_SELECTOR_HEADER_TITLE).toBe('标题');
+    expect(mod.SESSION_ACTION_SELECTOR_HEADER_AGENT).toBe('智能体');
+    expect(mod.SESSION_ACTION_SELECTOR_HEADER_UPDATED).toBe('更新时间');
+    expect(mod.SESSION_ACTION_SELECTOR_HEADER_ID).toBe('ID');
+    expect(mod.SESSION_ACTION_SELECTOR_HEADER_PATH).toBe('路径');
+    expect(mod.SESSION_ACTION_SELECTOR_UNTITLED).toBe('(未命名)');
   });
 });

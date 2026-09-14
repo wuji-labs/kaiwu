@@ -48,6 +48,7 @@ vi.mock('@/utils/spawnHappyCLI', () => ({
     return {
       on(event: string, handler: (value: number) => void) {
         handlers.set(event, handler);
+        if (event === 'close') queueMicrotask(() => handler(code));
         return this;
       },
     };
@@ -187,8 +188,8 @@ describe('happier setup — readiness', () => {
 
     await handleSetupCliCommand(context([]));
 
-    expect(commandsRun()).toEqual([]);
-    expect(output.text()).toContain('already set up');
+    expect(commandsRun()).toEqual(['doctor repair --yes']);
+    expect(output.text()).toContain('此电脑已完成配置');
   });
 
   it('does not call a machine with rejected credentials already set up', async () => {
@@ -198,7 +199,7 @@ describe('happier setup — readiness', () => {
 
     await handleSetupCliCommand(context([]));
 
-    expect(output.text()).not.toContain('already set up');
+    expect(output.text()).not.toContain('此电脑已完成配置');
     expect(commandsRun().some((command) => command.startsWith('auth login'))).toBe(true);
   });
 
@@ -208,7 +209,7 @@ describe('happier setup — readiness', () => {
 
     await handleSetupCliCommand(context([]));
 
-    expect(output.text()).not.toContain('already set up');
+    expect(output.text()).not.toContain('此电脑已完成配置');
     expect(commandsRun()).toHaveLength(1);
     expect(commandsRun()[0]).toMatch(/^auth login/);
   });
@@ -253,7 +254,7 @@ describe('happier setup — a relay only this computer can reach', () => {
 
     await handleSetupCliCommand(context(['--this-computer']));
 
-    expect(output.text()).toContain('reachable from this computer only');
+    expect(output.text()).toContain('此中继仅可从此电脑访问。');
     expect(output.text()).not.toContain('Your phone reaches this relay');
   });
 
@@ -409,5 +410,16 @@ describe('happier setup — unattended and malformed invocations', () => {
 
     expect(commandsRun()).toEqual([]);
     expect(process.exitCode).toBe(1);
+  });
+
+  it('renders setup --help in Simplified Chinese with preserved options', async () => {
+    await handleSetupCliCommand(context(['--help']));
+
+    expect(output.text()).toContain('连接此电脑到你的 Kaiwu 账号');
+    expect(output.text()).toContain('用法:');
+    expect(output.text()).toContain('选项:');
+    expect(output.text()).toContain('--cloud');
+    expect(output.text()).toContain('无需询问直接使用 Kaiwu Cloud');
+    expect(output.text()).toContain('设置会询问中继服务部署在哪里');
   });
 });

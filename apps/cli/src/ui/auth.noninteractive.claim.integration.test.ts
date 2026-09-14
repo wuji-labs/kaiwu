@@ -191,7 +191,7 @@ describe('authAndSetupMachineIfNeeded (non-TTY) (status+claim)', () => {
     try {
       const result = await doAuth();
       expect(result).toBeNull();
-      expect(output.logs.join('\n').toLowerCase()).toContain('claimed');
+      expect(output.logs.join('\n')).toContain('已被认领');
     } finally {
       output.restore();
       restoreAxios();

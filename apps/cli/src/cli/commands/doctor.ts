@@ -19,9 +19,9 @@ export async function handleDoctorCliCommand(context: CommandContext): Promise<v
 
   if (args[1] === 'clean') {
     const result = await killRunawayHappyProcesses();
-    console.log(`Cleaned up ${result.killed} runaway processes`);
+    console.log(`已清理 ${result.killed} 个失控进程`);
     if (result.errors.length > 0) {
-      console.log('Errors:', result.errors);
+      console.log('错误：', result.errors);
     }
     process.exit(0);
   }

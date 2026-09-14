@@ -468,6 +468,107 @@ describe('discoverInstalledDaemonServiceEntries', () => {
     });
   });
 
+  it('discovers legacy Windows wrappers when the active Kaiwu service directory is missing', async () => {
+    await withTempDir('happier-discover-service-entry-windows-legacy-home-', async (homeDir) => {
+      const currentHappierHomeDir = join(homeDir, '.kaiwu');
+      const legacyServicesDir = join(homeDir, '.happier', 'services');
+      const path = join(legacyServicesDir, 'happier-daemon.default.ps1');
+      mkdirSync(legacyServicesDir, { recursive: true });
+      writeFileSync(
+        path,
+        renderWindowsScheduledTaskWrapperPs1({
+          workingDirectory: 'C:\\Users\\tester',
+          programArgs: [
+            'C:\\Users\\tester\\.happier\\cli\\current\\happier.exe',
+            'daemon',
+            'start-sync',
+          ],
+          env: {
+            HAPPIER_HOME_DIR: 'C:\\Users\\tester\\.happier',
+            HAPPIER_PUBLIC_RELEASE_CHANNEL: 'stable',
+            HAPPIER_DAEMON_SERVICE_TARGET_MODE: 'default-following',
+          },
+          stdoutPath: 'C:\\Users\\tester\\.happier\\logs\\daemon-service.out.log',
+          stderrPath: 'C:\\Users\\tester\\.happier\\logs\\daemon-service.err.log',
+        }),
+        'utf-8',
+      );
+
+      const entries = await discoverInstalledDaemonServiceEntries({
+        platform: 'win32',
+        userHomeDir: homeDir,
+        happierHomeDir: currentHappierHomeDir,
+        mode: 'user',
+        serversById: {},
+      });
+
+      expect(entries).toEqual([
+        expect.objectContaining({
+          serverId: 'default',
+          happierHomeDir: 'C:\\Users\\tester\\.happier',
+          targetMode: 'default-following',
+          releaseChannel: 'stable',
+          path,
+        }),
+      ]);
+    });
+  });
+
+  it('queries Windows scheduled tasks even when the active Kaiwu service directory is missing', async () => {
+    await withTempDir('happier-discover-service-entry-windows-task-without-dir-', async (homeDir) => {
+      const currentHappierHomeDir = join(homeDir, '.kaiwu');
+
+      spawnSyncMock.mockImplementation((command, args) => {
+        if (command !== 'schtasks') {
+          return { status: 1, stdout: '', stderr: '' } as never;
+        }
+        const normalizedArgs = Array.isArray(args) ? args.map((value) => String(value)) : [];
+        if (normalizedArgs.join(' ') === '/Query /FO CSV /NH') {
+          return {
+            status: 0,
+            stdout: '\"\\\\Happier\\\\happier-daemon.default\",\"N/A\"\\r\\n',
+            stderr: '',
+          } as never;
+        }
+        if (normalizedArgs.join(' ') === '/Query /TN Happier\\happier-daemon.default /XML') {
+          return {
+            status: 0,
+            stdout: `
+              <Task>
+                <Actions>
+                  <Exec>
+                    <Arguments>-NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\tester\\.happier\\services\\happier-daemon.default.ps1\"</Arguments>
+                  </Exec>
+                </Actions>
+              </Task>
+            `,
+            stderr: '',
+          } as never;
+        }
+        return { status: 1, stdout: '', stderr: 'unexpected schtasks call' } as never;
+      });
+
+      const entries = await discoverInstalledDaemonServiceEntries({
+        platform: 'win32',
+        userHomeDir: homeDir,
+        happierHomeDir: currentHappierHomeDir,
+        mode: 'user',
+        serversById: {},
+      });
+
+      expect(entries).toEqual([
+        expect.objectContaining({
+          serverId: 'default',
+          happierHomeDir: 'C:\\Users\\tester\\.happier',
+          targetMode: 'default-following',
+          releaseChannel: 'stable',
+          label: 'Happier\\happier-daemon.default',
+          path: 'C:\\Users\\tester\\.happier\\services\\happier-daemon.default.ps1',
+        }),
+      ]);
+    });
+  });
+
   it('discovers Windows scheduled tasks even when the wrapper file is missing', async () => {
     await withTempDir('happier-discover-service-entry-windows-orphaned-task-', async (homeDir) => {
       const happierHomeDir = join(homeDir, '.happier');

@@ -3,9 +3,12 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { resolveCodexCliInvocation } from './resolveCodexCliInvocation';
+import {
+    resolveCodexAppServerCliInvocation,
+    resolveCodexCliInvocation,
+} from './resolveCodexCliInvocation';
 
 async function createExecutable(params: Readonly<{ dir: string; name: string }>): Promise<string> {
     mkdirSync(params.dir, { recursive: true });
@@ -17,6 +20,10 @@ async function createExecutable(params: Readonly<{ dir: string; name: string }>)
 
 describe('resolveCodexCliInvocation', () => {
     const originalPlatformDescriptor = Object.getOwnPropertyDescriptor(process, 'platform');
+
+    beforeEach(() => {
+        vi.stubEnv('KAIWU_CODEX_APP_SERVER_BIN', undefined);
+    });
 
     afterEach(() => {
         if (originalPlatformDescriptor) {
@@ -193,6 +200,76 @@ describe('resolveCodexCliInvocation', () => {
             });
 
             expect(invocation.command.toLowerCase()).toBe(cmdShimPath.toLowerCase());
+        } finally {
+            await rm(root, { recursive: true, force: true });
+        }
+    });
+
+    it('does not use TUI overrides when resolving an app-server invocation', async () => {
+        const root = await mkdtemp(join(tmpdir(), 'happier-codex-app-server-invocation-'));
+        try {
+            const extension = process.platform === 'win32' ? '.cmd' : '';
+            const tuiShimPath = join(root, `codex-tui${extension}`);
+            const nativeCodexPath = join(root, `codex-native${extension}`);
+            const shimContents = process.platform === 'win32'
+                ? '@echo off\r\nexit /b 2\r\n'
+                : '#!/bin/sh\nexit 2\n';
+            const nativeContents = process.platform === 'win32'
+                ? '@echo off\r\nexit /b 0\r\n'
+                : '#!/bin/sh\nexit 0\n';
+            writeFileSync(tuiShimPath, shimContents, 'utf8');
+            writeFileSync(nativeCodexPath, nativeContents, 'utf8');
+            if (process.platform !== 'win32') {
+                chmodSync(tuiShimPath, 0o755);
+                chmodSync(nativeCodexPath, 0o755);
+            }
+
+            const invocation = await resolveCodexAppServerCliInvocation({
+                args: ['app-server', '--listen', 'stdio://'],
+                processEnv: {
+                    ...process.env,
+                    KAIWU_CODEX_APP_SERVER_BIN: undefined,
+                    HAPPIER_CODEX_APP_SERVER_BIN: undefined,
+                    HAPPIER_CODEX_TUI_BIN: tuiShimPath,
+                    HAPPY_CODEX_TUI_BIN: undefined,
+                    HAPPIER_CODEX_PATH: nativeCodexPath,
+                },
+                targetLabel: 'Codex app-server',
+            });
+
+            expect(invocation.command.toLowerCase()).toBe(nativeCodexPath.toLowerCase());
+            expect(invocation.args).toEqual(['app-server', '--listen', 'stdio://']);
+        } finally {
+            await rm(root, { recursive: true, force: true });
+        }
+    });
+
+    it('prefers the Kaiwu app-server override and keeps the Happier name as a fallback', async () => {
+        const root = await mkdtemp(join(tmpdir(), 'happier-kaiwu-codex-app-server-override-'));
+        try {
+            const extension = process.platform === 'win32' ? '.cmd' : '';
+            const kaiwuBridge = join(root, `kaiwu-app-server${extension}`);
+            const happierBridge = join(root, `happier-app-server${extension}`);
+            const script = process.platform === 'win32' ? '@echo off\r\n' : '#!/bin/sh\n';
+            writeFileSync(kaiwuBridge, script, 'utf8');
+            writeFileSync(happierBridge, script, 'utf8');
+            if (process.platform !== 'win32') {
+                chmodSync(kaiwuBridge, 0o755);
+                chmodSync(happierBridge, 0o755);
+            }
+
+            const invocation = await resolveCodexAppServerCliInvocation({
+                args: ['app-server', '--listen', 'stdio://'],
+                processEnv: {
+                    ...process.env,
+                    KAIWU_CODEX_APP_SERVER_BIN: kaiwuBridge,
+                    HAPPIER_CODEX_APP_SERVER_BIN: happierBridge,
+                },
+                targetLabel: 'Codex app-server',
+            });
+
+            expect(invocation.command.toLowerCase()).toBe(kaiwuBridge.toLowerCase());
+            expect(invocation.args).toEqual(['app-server', '--listen', 'stdio://']);
         } finally {
             await rm(root, { recursive: true, force: true });
         }

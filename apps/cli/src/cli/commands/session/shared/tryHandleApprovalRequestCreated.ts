@@ -31,6 +31,6 @@ export async function tryHandleApprovalRequestCreated(params: Readonly<{
     return true;
   }
 
-  console.log(chalk.green('✓'), `approval requested: ${params.result.artifactId}`);
+  console.log(chalk.green('✓'), `已请求审批: ${params.result.artifactId}`);
   return true;
 }

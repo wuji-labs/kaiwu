@@ -17,11 +17,12 @@ import { runRelaySubcommand } from './relay/subcommands';
 function isArgumentUsageError(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
   const msg = error.message ?? '';
-  return /^Unknown relay /i.test(msg)
+  return /^(?:Unknown relay |未知的 relay )/i.test(msg)
     || /^Unknown relay host /i.test(msg)
-    || /^Usage:/i.test(msg)
-    || /Missing (required )?(value for|argument|flag)/i.test(msg)
-    || /^Invalid /i.test(msg);
+    || /^未知的 relay host /i.test(msg)
+    || /^(?:Usage:|用法[：:])/i.test(msg)
+    || /^(?:Missing|缺少)/i.test(msg)
+    || /^(?:Invalid|无效)/i.test(msg);
 }
 
 export async function handleRelayCommand(args: string[]): Promise<void> {
@@ -45,7 +46,7 @@ export async function handleRelayCommand(args: string[]): Promise<void> {
       return;
     }
 
-    throw new Error(`Unknown relay subcommand: ${subcommand}`);
+    throw new Error(`未知的 relay 子命令：${subcommand}`);
   } catch (error) {
     if (!json) throw error;
     const mapped = mapUnknownErrorToControlError(error);
@@ -86,7 +87,7 @@ export async function handleRelayCliCommand(context: CommandContext): Promise<vo
       );
       return;
     }
-    console.error(chalk.red('Error:'), error instanceof Error ? error.message : 'Unknown error');
+    console.error(chalk.red('错误：'), error instanceof Error ? error.message : '未知错误');
     if (isArgumentUsageError(error)) {
       // Only surface the usage block when the error is about how the command
       // was invoked. Runtime failures (daemon didn't converge, port busy,

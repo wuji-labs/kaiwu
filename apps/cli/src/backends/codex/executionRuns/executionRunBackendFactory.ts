@@ -15,6 +15,7 @@ import { probeCodexAppServerExecutionRunAvailability } from './probeCodexAppServ
 import { selectCodexExecutionRunTransport } from './selectCodexExecutionRunTransport';
 
 const CODEX_EXECUTION_RUN_PROCESS_ENV_KEYS = [
+  'KAIWU_CODEX_APP_SERVER_BIN',
   'HAPPIER_CODEX_APP_SERVER_BIN',
   'HAPPIER_CODEX_TUI_BIN',
   'HAPPY_CODEX_TUI_BIN',

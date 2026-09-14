@@ -96,12 +96,12 @@ async function defaultRunWindowsTerminalAttach(params: {
   terminal: NonNullable<TerminalAttachmentInfo['terminal']>;
 }): Promise<number> {
   if (process.platform !== 'win32') {
-    console.error(chalk.red('Error:'), 'Windows Terminal attach is only available on Windows.');
+    console.error(chalk.red('错误:'), 'Windows Terminal 接入仅在 Windows 上可用。');
     return 1;
   }
   const windowId = params.terminal.windows?.windowId;
   if (typeof windowId !== 'string' || windowId.trim().length === 0) {
-    console.error(chalk.red('Error:'), 'Session does not include a Windows Terminal window id.');
+    console.error(chalk.red('错误:'), '会话未包含 Windows Terminal 窗口 ID。');
     return 1;
   }
   return await focusWindowsTerminalWindow({ windowId });
@@ -111,20 +111,20 @@ async function defaultRunWindowsConsoleAttach(params: {
   terminal: NonNullable<TerminalAttachmentInfo['terminal']>;
 }): Promise<number> {
   if (process.platform !== 'win32') {
-    console.error(chalk.red('Error:'), 'Windows console attach is only available on Windows.');
+    console.error(chalk.red('错误:'), 'Windows 控制台接入仅在 Windows 上可用。');
     return 1;
   }
   const pid = params.terminal.windows?.pid;
   if (typeof pid !== 'number' || !Number.isInteger(pid) || pid <= 0) {
-    console.error(chalk.red('Error:'), 'Session does not include a Windows console process id.');
+    console.error(chalk.red('错误:'), '会话未包含 Windows 控制台进程 ID。');
     return 1;
   }
   return await focusWindowsConsoleWindow({ pid });
 }
 
 function printMissingAttachInfo(sessionId: string): void {
-  console.error(chalk.red('Error:'), `No local attachment info found for session ${sessionId}.`);
-  console.error(chalk.gray('This usually means the session was not started with an attachable terminal host, or it was started on another machine.'));
+  console.error(chalk.red('错误:'), `未找到会话 ${sessionId} 的本地接入信息。`);
+  console.error(chalk.gray('这通常意味着该会话不是在支持接入的终端宿主中启动的，或者它是在另一台计算机上启动的。'));
 }
 
 function shouldRefreshRemoteControlOnAttach(metadata: Record<string, unknown> | null): boolean {
@@ -148,7 +148,7 @@ async function resolveAttachContext(
     const resolved = await resolveSessionIdOrPrefixFn({ credentials, idOrPrefix: sessionIdOrPrefix });
     if (!resolved.ok) {
       if (resolved.code === 'session_lookup_timeout') {
-        throw new Error('Session lookup timed out; try again');
+        throw new Error('会话查询超时，请重试');
       }
       return null;
     }
@@ -182,9 +182,9 @@ async function selectAttachableSessionId(params: Readonly<{
 > {
   if (params.rows.length === 0) return { type: 'none' };
   return await runSessionActionSelector({
-    title: 'Attach to a running session',
+    title: '接入正在运行的会话',
     actionVerb: 'attach',
-    footerHint: params.footerHint ?? 'Use `kaiwu resume` for stopped sessions.',
+    footerHint: params.footerHint ?? '已停止的会话请使用 `kaiwu resume`。',
     rows: params.rows,
     onProbe: params.probeSessionIdFn,
   });
@@ -202,7 +202,7 @@ export async function handleAttachCommand(
     console.log('kaiwu attach');
     console.log('kaiwu attach <session-id-or-prefix>');
     console.log('');
-    console.log('Attaches a terminal to a running session on this computer.');
+    console.log('将终端接入此计算机上正在运行的会话。');
     return;
   }
 
@@ -232,15 +232,15 @@ export async function handleAttachCommand(
 
   if (isInteractive) {
     if (!canUseInkSelectorFn()) {
-      console.error(chalk.red('Error:'), 'Interactive attach is not available (raw TTY mode not supported).');
+      console.error(chalk.red('错误:'), '交互式接入不可用（不支持原始 TTY 模式）。');
       console.log('');
-      console.log('Hint: run `kaiwu session list --active` and then `kaiwu attach <session-id>`.');
+      console.log('提示：请先运行 `kaiwu session list --active`，然后运行 `kaiwu attach <session-id>`。');
       process.exit(1);
     }
 
     credentialsForInteractive = await (deps.readCredentialsFn ?? readCredentials)();
     if (!credentialsForInteractive) {
-      console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
+      console.error(chalk.red('错误:'), '未认证。请先运行 "kaiwu auth login"。');
       process.exit(1);
     }
 
@@ -268,31 +268,31 @@ export async function handleAttachCommand(
       accountSettings,
     });
     const footerHint = formatAttachIneligibilityFooter(selectionModel.hint)
-      ?? 'Use `kaiwu resume` for stopped sessions.';
+      ?? '已停止的会话请使用 `kaiwu resume`。';
     const selected = await selectAttachableSessionIdFn({
       rows: selectionModel.rows,
       probeSessionIdFn: selectionModel.probeSessionIdFn,
       footerHint,
     });
     if (selected.type === 'cancelled') {
-      console.log(chalk.blue('Attach cancelled'));
+      console.log(chalk.blue('已取消接入'));
       return;
     }
     if (selected.type === 'none') {
       // Empty list — distinguish between "nothing running" and
       // "running but unattachable from here" so the user sees the actual
       // cause. Today we only land here when 0 candidate rows survived.
-      console.log('No active sessions on this machine.');
-      console.log('Hint: use `kaiwu resume` for stopped sessions, or `kaiwu session list --active` to see remote sessions.');
+      console.log('此机器上没有活跃会话。');
+      console.log('提示：已停止的会话请使用 `kaiwu resume`，或运行 `kaiwu session list --active` 查看远程会话。');
       return;
     }
     sessionIdOrPrefix = selected.sessionId;
   }
 
   if (!sessionIdOrPrefix) {
-    console.error(chalk.red('Error:'), 'Missing session ID.');
+    console.error(chalk.red('错误:'), '缺少会话 ID。');
     console.log('');
-    console.log('Usage: kaiwu attach <sessionId>');
+    console.log('用法: kaiwu attach <sessionId>');
     process.exit(1);
   }
 
@@ -334,7 +334,7 @@ export async function handleAttachCommand(
         tmuxAvailable,
         agentAttachStrategy,
       });
-      console.error(chalk.red('Error:'), explanation.fullReason);
+      console.error(chalk.red('错误:'), explanation.fullReason);
       if (explanation.nextStepHint) {
         console.error(chalk.gray(explanation.nextStepHint));
       }
@@ -415,7 +415,7 @@ export async function handleAttachCommand(
   } else if (terminal.mode === 'windows_console') {
     exitCode = await runWindowsConsoleAttachFn({ sessionId: resolvedSessionId, terminal });
   } else {
-    console.error(chalk.red('Error:'), 'Session was not started in tmux.');
+    console.error(chalk.red('错误:'), '会话不是在 tmux 中启动的。');
     process.exit(1);
   }
   if (exitCode !== 0) process.exit(exitCode);
@@ -425,7 +425,7 @@ export async function handleAttachCliCommand(context: CommandContext): Promise<v
   try {
     await handleAttachCommand(context.args.slice(1));
   } catch (error) {
-    console.error(chalk.red('Error:'), error instanceof Error ? error.message : 'Unknown error');
+    console.error(chalk.red('错误:'), error instanceof Error ? error.message : '未知错误');
     if (process.env.DEBUG) {
       console.error(error);
     }

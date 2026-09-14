@@ -23,24 +23,24 @@ export function buildServerUrlReachabilityHintLines(serverUrl: string): readonly
 
   if (isInsecureRemoteHttpServerUrl(serverUrl)) {
     return [
-      'Warning: your relay URL uses HTTP on a non-local host.',
-      'This is insecure, and many web flows require HTTPS. Prefer an https:// URL (Tailscale Serve or a reverse proxy).',
+      '警告：您的中继地址在非本机主机上使用 HTTP。',
+      '这不安全，许多网页流程也要求 HTTPS。建议使用 https:// 地址（Tailscale Serve 或反向代理）。',
     ];
   }
 
   if (isLoopbackServerHost(serverUrl) && url?.protocol !== 'https:') {
     return [
-      'Note: your relay URL is a localhost/loopback URL.',
-      'This will work only on this same machine.',
-      'For remote/phone access, use an HTTPS URL (Tailscale Serve or a reverse proxy) as your relay URL.',
+      '提示：您的中继地址是 localhost/回环地址。',
+      '它只能在这台电脑上使用。',
+      '如需远程或手机访问，请将 HTTPS 地址（Tailscale Serve 或反向代理）作为中继地址。',
     ];
   }
 
   if (isLocalishServerUrl(serverUrl) && url?.protocol !== 'https:') {
     return [
-      'Note: your relay URL looks like a LAN-only URL.',
-      'This will work only when your phone/laptop are on the same LAN/VPN.',
-      'For remote/phone access, use an HTTPS URL (Tailscale Serve or a reverse proxy) as your relay URL.',
+      '提示：您的中继地址看起来是仅限局域网的地址。',
+      '只有当手机和电脑处于同一局域网或 VPN 时才能使用。',
+      '如需远程或手机访问，请将 HTTPS 地址（Tailscale Serve 或反向代理）作为中继地址。',
     ];
   }
 

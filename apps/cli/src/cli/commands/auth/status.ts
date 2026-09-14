@@ -19,12 +19,12 @@ export async function handleAuthStatus(argv: string[] = []): Promise<void> {
   }
 
   if (!json) {
-    console.log(chalk.bold('\nAuthentication Status\n'));
+    console.log(chalk.bold('\n认证状态\n'));
   }
 
   if (!credentials) {
-    console.log(chalk.red('✗ Not authenticated'));
-    console.log(chalk.gray('  Run "kaiwu auth login" to authenticate'));
+    console.log(chalk.red('✗ 未完成认证'));
+    console.log(chalk.gray('  请运行 "kaiwu auth login" 完成认证'));
     return;
   }
 
@@ -34,9 +34,9 @@ export async function handleAuthStatus(argv: string[] = []): Promise<void> {
       return;
     }
 
-    console.log(chalk.red('✗ Not authenticated'));
-    console.log(chalk.gray('  Stored credentials were rejected by the selected relay'));
-    console.log(chalk.gray('  Run "kaiwu auth login --force" to authenticate again'));
+    console.log(chalk.red('✗ 未完成认证'));
+    console.log(chalk.gray('  所选中继拒绝了已保存的凭据'));
+    console.log(chalk.gray('  请运行 "kaiwu auth login --force" 重新认证'));
     return;
   }
 
@@ -47,7 +47,7 @@ export async function handleAuthStatus(argv: string[] = []): Promise<void> {
         kind: 'auth_status',
         error: {
           code: 'auth_unavailable',
-          message: 'The selected relay did not answer; stored credentials were kept.',
+          message: '所选中继未响应；已保留现有凭据。',
           machineRegistered: readiness.machineRegistered,
           ...(readiness.machineRegistered && readiness.machineId ? { machineId: readiness.machineId } : {}),
         },
@@ -55,8 +55,8 @@ export async function handleAuthStatus(argv: string[] = []): Promise<void> {
       return;
     }
 
-    console.log(chalk.yellow('⚠️  Authentication could not be verified because the selected relay did not answer'));
-    console.log(chalk.gray('  Stored credentials were kept unchanged. Retry when the relay is available.'));
+    console.log(chalk.yellow('⚠️  所选中继未响应，无法验证认证状态'));
+    console.log(chalk.gray('  已保留现有凭据，未作修改。请在中继恢复可用后重试。'));
     return;
   }
 
@@ -86,22 +86,22 @@ export async function handleAuthStatus(argv: string[] = []): Promise<void> {
     return;
   }
 
-  console.log(chalk.green('✓ Authenticated'));
+  console.log(chalk.green('✓ 已完成认证'));
 
   if (machineRegistered) {
-    console.log(chalk.green('✓ Machine registered'));
-    console.log(chalk.gray(`  Machine ID: ${machineId}`));
-    console.log(chalk.gray(`  Host: ${os.hostname()}`));
+    console.log(chalk.green('✓ 本机已注册'));
+    console.log(chalk.gray(`  机器 ID：${machineId}`));
+    console.log(chalk.gray(`  主机：${os.hostname()}`));
   } else {
-    console.log(chalk.yellow('⚠️  Machine not registered'));
-    console.log(chalk.gray('  Run "kaiwu auth login --force" to fix this'));
+    console.log(chalk.yellow('⚠️  本机尚未注册'));
+    console.log(chalk.gray('  请运行 "kaiwu auth login --force" 修复'));
   }
 
-  console.log(chalk.gray(`\n  Data directory: ${configuration.happyHomeDir}`));
+    console.log(chalk.gray(`\n  数据目录：${configuration.happyHomeDir}`));
 
   if (daemonRunning) {
-    console.log(chalk.green('✓ Daemon running'));
+    console.log(chalk.green('✓ 守护进程正在运行'));
   } else {
-    console.log(chalk.gray('✗ Daemon not running'));
+    console.log(chalk.gray('✗ 守护进程未运行'));
   }
 }

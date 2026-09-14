@@ -32,7 +32,7 @@ export async function cmdSessionRunAction(
         await printJsonEnvelope({ ok: false, kind: 'session_run_action', error: { code: 'execution_run_invalid_action_input' } });
         return;
       }
-      throw new Error('Invalid --input-json');
+      throw new Error('无效的 --input-json');
     }
   }
   if (rawInput === null && argv.includes('--input-json')) {
@@ -40,7 +40,7 @@ export async function cmdSessionRunAction(
       await printJsonEnvelope({ ok: false, kind: 'session_run_action', error: { code: 'execution_run_invalid_action_input' } });
       return;
     }
-    throw new Error('Invalid --input-json');
+    throw new Error('无效的 --input-json');
   }
 
   const credentials = await deps.readCredentialsFn();
@@ -49,7 +49,7 @@ export async function cmdSessionRunAction(
       await printJsonEnvelope({ ok: false, kind: 'session_run_action', error: { code: 'not_authenticated' } });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
+    console.error(chalk.red('错误:'), '未认证。请先运行 "kaiwu auth login"。');
     process.exit(1);
   }
 
@@ -100,6 +100,6 @@ export async function cmdSessionRunAction(
     return;
   }
 
-  console.log(chalk.green('✓'), 'run action executed');
+  console.log(chalk.green('✓'), '运行操作已执行');
   await writeJsonStdout(runPayload, { pretty: true });
 }

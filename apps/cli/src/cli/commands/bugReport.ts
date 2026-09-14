@@ -17,23 +17,23 @@ async function handleBugReportCommand(args: string[]): Promise<void> {
   const result = await runBugReportCommand(args);
   if (result.mode === 'fallback') {
     const reasonLine = result.reason === 'submit-failed'
-      ? 'Bug report submission failed. You can still file the issue manually using this fallback URL:'
+      ? '错误报告提交失败。您仍可使用以下备用地址手动提交问题：'
       : result.reason === 'feature-fetch-failed'
-        ? 'Could not reach your Kaiwu server to check bug-report config. Use this fallback URL to file the issue manually:'
-        : 'Bug report service is unavailable for this server. Open this fallback issue URL:';
+        ? '无法连接您的开物服务以检查错误报告配置。请使用以下备用地址手动提交问题：'
+        : '此开物服务暂不可用错误报告功能。请打开以下备用问题地址：';
     console.log(chalk.yellow(reasonLine));
     if (result.errorMessage) {
-      console.log(chalk.gray(`  Underlying error: ${result.errorMessage}`));
+      console.log(chalk.gray(`  底层错误：${result.errorMessage}`));
     }
     console.log(result.issueUrl);
     return;
   }
 
-  console.log(chalk.green('✓ Bug report submitted'));
-  console.log(chalk.gray(`  Issue: ${result.issueUrl}`));
-  console.log(chalk.gray(`  Report ID: ${result.reportId}`));
-  console.log(chalk.gray(`  Diagnostics included: ${result.diagnosticsIncluded ? 'yes' : 'no'}`));
-  console.log(chalk.gray(`  Uploaded artifacts: ${result.artifactCount}`));
+  console.log(chalk.green('✓ 错误报告已提交'));
+  console.log(chalk.gray(`  问题：${result.issueUrl}`));
+  console.log(chalk.gray(`  报告 ID：${result.reportId}`));
+  console.log(chalk.gray(`  已包含诊断信息：${result.diagnosticsIncluded ? '是' : '否'}`));
+  console.log(chalk.gray(`  已上传附件：${result.artifactCount}`));
 }
 
 export async function handleBugReportCliCommand(context: CommandContext): Promise<void> {
@@ -44,7 +44,7 @@ export async function handleBugReportCliCommand(context: CommandContext): Promis
       console.log(bugReportUsage());
       return;
     }
-    console.error(chalk.red('Error:'), error instanceof Error ? error.message : 'Unknown error');
+    console.error(chalk.red('错误：'), error instanceof Error ? error.message : '未知错误');
     if (process.env.DEBUG) {
       console.error(error);
     }

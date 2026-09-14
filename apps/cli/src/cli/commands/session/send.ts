@@ -12,7 +12,7 @@ import { tryHandleApprovalRequestCreated } from './shared/tryHandleApprovalReque
 function parsePermissionIntentOrThrow(raw: string): PermissionIntent {
   const parsed = parsePermissionIntentAlias(raw);
   if (!parsed) {
-    const err = new Error(`Invalid permission mode: ${raw}`);
+    const err = new Error(`无效的权限模式: ${raw}`);
     (err as any).code = 'invalid_arguments';
     throw err;
   }
@@ -49,7 +49,7 @@ export async function cmdSessionSend(
       await printJsonEnvelope({ ok: false, kind: 'session_send', error: { code: 'not_authenticated' } });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
+    console.error(chalk.red('错误:'), '未认证。请先运行 "kaiwu auth login"。');
     process.exit(1);
   }
 
@@ -58,7 +58,7 @@ export async function cmdSessionSend(
     hasModelFlag
       ? (() => {
           if (!modelFlag) {
-            const err = new Error('Invalid --model');
+            const err = new Error('无效的 --model');
             (err as any).code = 'invalid_arguments';
             throw err;
           }
@@ -120,6 +120,6 @@ export async function cmdSessionSend(
     return;
   }
 
-  console.log(chalk.green('✓'), 'message sent');
+  console.log(chalk.green('✓'), '消息已发送');
   await writeJsonStdout({ sessionId: result.sessionId, localId: result.localId }, { pretty: true });
 }

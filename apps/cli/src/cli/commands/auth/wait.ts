@@ -41,7 +41,7 @@ function pendingAuthStatePath(publicKey: Uint8Array): string {
 
 function decodePublicKey(value: string): Uint8Array {
   const raw = String(value ?? '').trim();
-  if (!raw) throw new Error('Missing --public-key');
+  if (!raw) throw new Error('缺少 --public-key');
   const tryBase64 = (enc: BufferEncoding): Uint8Array | null => {
     try {
       const buf = Buffer.from(raw, enc);
@@ -52,13 +52,13 @@ function decodePublicKey(value: string): Uint8Array {
     }
   };
   return tryBase64('base64') ?? tryBase64('base64url') ?? (() => {
-    throw new Error('Invalid --public-key (expected base64 or base64url encoded 32-byte key)');
+  throw new Error('无效的 --public-key（应为 base64 或 base64url 编码的 32 字节密钥）');
   })();
 }
 
 function parsePendingAuthState(raw: string): PendingAuthState {
   const parsed = JSON.parse(raw);
-  if (!parsed || typeof parsed !== 'object') throw new Error('Invalid auth state');
+  if (!parsed || typeof parsed !== 'object') throw new Error('认证状态无效');
   const publicKey = (parsed as any).publicKey;
   const secretKey = (parsed as any).secretKey;
   const claimSecret = (parsed as any).claimSecret;
@@ -67,12 +67,12 @@ function parsePendingAuthState(raw: string): PendingAuthState {
   const pairingCreatedAtMs = (parsed as any).pairingCreatedAtMs;
   const pairingExpiresAtMs = (parsed as any).pairingExpiresAtMs;
   const pairingRequirement = (parsed as any).pairingRequirement;
-  if (typeof publicKey !== 'string') throw new Error('Invalid auth state (publicKey)');
-  if (typeof secretKey !== 'string') throw new Error('Invalid auth state (secretKey)');
-  if (typeof claimSecret !== 'string') throw new Error('Invalid auth state (claimSecret)');
-  if (typeof createdAt !== 'string') throw new Error('Invalid auth state (createdAt)');
+  if (typeof publicKey !== 'string') throw new Error('认证状态无效（publicKey）');
+  if (typeof secretKey !== 'string') throw new Error('认证状态无效（secretKey）');
+  if (typeof claimSecret !== 'string') throw new Error('认证状态无效（claimSecret）');
+  if (typeof createdAt !== 'string') throw new Error('认证状态无效（createdAt）');
   if (pairingRequirement !== undefined && pairingRequirement !== 'v3') {
-    throw new Error('Invalid auth state (pairingRequirement)');
+    throw new Error('认证状态无效（pairingRequirement）');
   }
   const hasValidPairing =
     typeof pairingSecret === 'string'
@@ -95,14 +95,14 @@ export async function handleAuthWait(argsRaw: string[]): Promise<void> {
 
   const json = args.includes('--json');
   if (!json) {
-    console.error('Missing required flag: --json');
+    console.error('缺少必填参数：--json');
     process.exit(2);
   }
 
   const keyIndex = args.findIndex((a) => a === '--public-key');
   const publicKeyRaw = keyIndex >= 0 ? (args[keyIndex + 1] ?? '') : '';
   if (!publicKeyRaw || String(publicKeyRaw).startsWith('--')) {
-    console.error('Missing required flag: --public-key <base64>');
+    console.error('缺少必填参数：--public-key <base64>');
     process.exit(2);
   }
 
@@ -133,7 +133,7 @@ export async function handleAuthWait(argsRaw: string[]): Promise<void> {
     return;
   }
   if (pairingRequirement === 'v3' && !pairing) {
-    console.error(`${V3_REQUIRED_ERROR} Run \`kaiwu auth request --json\` again.`);
+    console.error(`${V3_REQUIRED_ERROR} 请重新运行 \`kaiwu auth request --json\`。`);
     process.exit(1);
   }
 
@@ -146,7 +146,7 @@ export async function handleAuthWait(argsRaw: string[]): Promise<void> {
     });
     const status = statusRes?.data?.status;
     if (status === 'not_found') {
-      console.error('Authentication request expired. Run `kaiwu auth request --json` again.');
+      console.error('认证请求已过期。请重新运行 `kaiwu auth request --json`。');
       process.exit(1);
     }
 
@@ -163,7 +163,7 @@ export async function handleAuthWait(argsRaw: string[]): Promise<void> {
       const token = String(claimData.token ?? '');
       const responseB64 = String(claimData.response ?? '');
       if (!token || !responseB64) {
-        console.error('Unexpected response from the relay.');
+        console.error('中继返回了意外响应。');
         process.exit(1);
       }
 
@@ -180,7 +180,7 @@ export async function handleAuthWait(argsRaw: string[]): Promise<void> {
         console.error(
           pairingRequirement === 'v3'
             ? V3_REQUIRED_ERROR
-            : 'Failed to decrypt auth response.',
+            : '解密认证响应失败。',
         );
         process.exit(1);
       }
@@ -230,7 +230,7 @@ export async function handleAuthWait(argsRaw: string[]): Promise<void> {
         return;
       }
 
-      console.error('Auth response payload had an unsupported format.');
+      console.error('认证响应负载格式不受支持。');
       process.exit(1);
     }
 

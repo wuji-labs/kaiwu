@@ -236,8 +236,9 @@ describe('handleDaemonCliCommand session runner restart controls', () => {
     }
 
     expect(output.text()).not.toContain('Failed to restart daemon');
-    expect(output.text()).toContain('Session runner restart failed after daemon restart');
-    expect(output.text()).toContain('1 restarted, 0 skipped, 1 failed');
+    expect(output.text()).not.toContain('重启守护进程失败');
+    expect(output.text()).toContain('守护进程重启后会话执行器重启失败');
+    expect(output.text()).toContain('1 个已重启，0 个已跳过，1 个失败');
     expect(output.text()).toContain('sess_2: spawn_failed (missing_credentials)');
   }, 60_000);
 

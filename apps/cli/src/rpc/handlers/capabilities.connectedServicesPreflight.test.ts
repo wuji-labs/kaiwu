@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
@@ -12,6 +12,7 @@ import type { ApiClient } from '@/api/api';
 import type { Credentials } from '@/persistence';
 
 const envKeys = [
+  'KAIWU_CODEX_APP_SERVER_BIN',
   'HAPPIER_CODEX_APP_SERVER_BIN',
   'HAPPIER_FAKE_CODEX_APP_SERVER_DELAY_MS',
   'HAPPIER_FAKE_CODEX_APP_SERVER_ENV_CAPTURE_FILE',
@@ -24,6 +25,10 @@ const envKeys = [
 
 let envScope = createEnvKeyScope(envKeys);
 let tempDir: string | null = null;
+
+beforeEach(() => {
+  envScope.patch({ KAIWU_CODEX_APP_SERVER_BIN: undefined });
+});
 
 afterEach(() => {
   vi.doUnmock('@/api/api');

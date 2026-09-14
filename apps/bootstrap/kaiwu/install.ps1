@@ -1,3 +1,4 @@
+& {
 # 无极开物 CLI 官方极速安装脚本 (Windows)
 # WUJI-Labs · 乾元执中
 #
@@ -5,7 +6,7 @@
 # 1. 纯原生绿色免安装单文件架构：内置所有 runtime 与本地模型调度依赖，无需 Node.js、npm 或 C++ 编译环境。
 # 2. 全程走国内腾讯云上海 BGP 对象存储高速通道，数秒极速完成。
 # 3. 自动解压至 ~/.kaiwu/bin，并注册系统用户 PATH 环境变量（永久生效）。
-# 4. 自动持久化配置无极开物中继服务端 (KAIWU_SERVER_URL / KAIWU_SERVER_URL)。
+# 4. 自动持久化配置无极开物中继服务端 (KAIWU_SERVER_URL / HAPPIER_SERVER_URL)。
 # 5. 同时提供 kaiwu 与 happier 双命令别名，完全无缝兼容。
 
 [CmdletBinding()]
@@ -19,21 +20,26 @@ $ErrorActionPreference = "Stop"
 
 # 解决 PowerShell 控制台编码输出乱码
 try {
-    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+    $utf8 = New-Object System.Text.UTF8Encoding($false)
+    [Console]::OutputEncoding = $utf8
+    [Console]::InputEncoding = $utf8
+    $OutputEncoding = $utf8
 } catch {}
 
 $KAIWU_SERVER_URL = if ($ServerUrl) {
     $ServerUrl
 } elseif ($env:KAIWU_SERVER_URL) {
     $env:KAIWU_SERVER_URL
-} elseif ($env:KAIWU_SERVER_URL) {
-    $env:KAIWU_SERVER_URL
+} elseif ($env:HAPPIER_SERVER_URL) {
+    $env:HAPPIER_SERVER_URL
 } else {
     "https://kaiwu.chengqiyun.com"
 }
 
 $LATEST_METADATA_URL = "https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/latest.json"
-$DEFAULT_ARCHIVE_URL = "https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/0.2.12/kaiwu-v0.2.12-windows-x64.tar.gz"
+$DEFAULT_VERSION = "0.2.15"
+$DEFAULT_ARCHIVE_URL = "https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/$DEFAULT_VERSION/kaiwu-v$DEFAULT_VERSION-windows-x64.tar.gz"
+$DEFAULT_ARCHIVE_SHA256 = "099c45f4aba81d7e15c4bf2aeac8e8e8fec56809a4090c94d43bfdb9e20d984c"
 
 function Write-Info {
     param([string]$Message)
@@ -70,15 +76,15 @@ if ([IntPtr]::Size -ne 8) {
 # 2. 获取版本信息
 Write-Info "正在获取最新发布版本..."
 $downloadUrl = $DEFAULT_ARCHIVE_URL
-$targetVersion = "0.2.12"
-$expectedSha = ""
+$targetVersion = $DEFAULT_VERSION
+$expectedSha = $DEFAULT_ARCHIVE_SHA256
 
 try {
     $meta = Invoke-RestMethod -Uri $LATEST_METADATA_URL -UseBasicParsing -TimeoutSec 5
-    if ($meta -and $meta.windows_x64) {
+    if ($meta -and $meta.version -and $meta.windows_x64 -and $meta.windows_x64_sha256) {
         $downloadUrl = $meta.windows_x64
         $targetVersion = $meta.version
-        $expectedSha = $meta.windows_x64_sha256
+        $expectedSha = ([string]$meta.windows_x64_sha256).ToLowerInvariant()
     }
 } catch {
     Write-Warn "未能从元数据中心获取最新版本，回退至内置稳定版本 ($targetVersion)"
@@ -118,6 +124,19 @@ try {
 if (-not (Test-Path $tarGzFile)) {
     Write-Err "下载发布包失败，请检查网络连接。"
     exit 1
+}
+
+if ($expectedSha -and $expectedSha -notmatch '^[a-f0-9]{64}$') {
+    Write-Err "发布元数据中的 SHA256 格式无效，拒绝继续安装。"
+    exit 1
+}
+if ($expectedSha) {
+    $actualSha = (Get-FileHash -Path $tarGzFile -Algorithm SHA256).Hash.ToLowerInvariant()
+    if ($actualSha -ne $expectedSha) {
+        Write-Err "发布包 SHA256 校验失败，拒绝安装。"
+        exit 1
+    }
+    Write-Info "发布包 SHA256 校验通过。"
 }
 
 # 5. 解压程序
@@ -204,9 +223,9 @@ if ($env:Path -split ';' -notcontains $binDir) {
 
 # 设置并持久化开物服务端连接
 [System.Environment]::SetEnvironmentVariable('KAIWU_SERVER_URL', $KAIWU_SERVER_URL, [System.EnvironmentVariableTarget]::User)
-[System.Environment]::SetEnvironmentVariable('KAIWU_SERVER_URL', $KAIWU_SERVER_URL, [System.EnvironmentVariableTarget]::User)
+[System.Environment]::SetEnvironmentVariable('HAPPIER_SERVER_URL', $KAIWU_SERVER_URL, [System.EnvironmentVariableTarget]::User)
 $env:KAIWU_SERVER_URL = $KAIWU_SERVER_URL
-$env:KAIWU_SERVER_URL = $KAIWU_SERVER_URL
+$env:HAPPIER_SERVER_URL = $KAIWU_SERVER_URL
 Write-Info "已配置开物服务端连接: $KAIWU_SERVER_URL"
 
 # 创建 happier.exe 兼容别名
@@ -214,6 +233,24 @@ $kaiwuExePath = Join-Path $binDir "kaiwu.exe"
 $happierExePath = Join-Path $binDir "happier.exe"
 if (Test-Path $kaiwuExePath) {
     Copy-Item -Path $kaiwuExePath -Destination $happierExePath -Force
+}
+
+# 确保运行时资产目录联接 (cli/current -> bin)，保证 Claude Code 专用 hook 与 sidecar 脚本正常加载
+$cliCurrentDir = Join-Path $kaiwuHome "cli\current"
+if (-not (Test-Path $cliCurrentDir)) {
+    try {
+        $cliParentDir = Join-Path $kaiwuHome "cli"
+        if (-not (Test-Path $cliParentDir)) {
+            New-Item -ItemType Directory -Force -Path $cliParentDir | Out-Null
+        }
+        New-Item -ItemType Junction -Path $cliCurrentDir -Target $binDir | Out-Null
+        Write-Info "已建立运行时资产目录联接: $cliCurrentDir -> $binDir"
+    } catch {
+        Write-Warn "建立目录联接失败，尝试创建软链接: $_"
+        try {
+            New-Item -ItemType SymbolicLink -Path $cliCurrentDir -Target $binDir | Out-Null
+        } catch {}
+    }
 }
 
 # 7. 运行验证 (强制性自检，失败则报错退出)
@@ -254,3 +291,4 @@ Write-Host "     kaiwu" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "注：若在其他现有终端窗口中使用，请重新开启终端窗口以加载最新 PATH。" -ForegroundColor DarkGray
 Write-Host ""
+} @args

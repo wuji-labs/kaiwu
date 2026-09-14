@@ -23,7 +23,7 @@ export async function cmdSessionSetTitle(
       await printJsonEnvelope({ ok: false, kind: 'session_set_title', error: { code: 'not_authenticated' } });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
+    console.error(chalk.red('错误:'), '未认证。请先运行 "kaiwu auth login"。');
     process.exit(1);
   }
 
@@ -54,5 +54,5 @@ export async function cmdSessionSetTitle(
     await printJsonEnvelope({ ok: true, kind: 'session_set_title', data: { sessionId: result.sessionId, title } });
     return;
   }
-  console.log(chalk.green('✓'), `title set for ${result.sessionId}`);
+  console.log(chalk.green('✓'), `已为 ${result.sessionId} 设置标题`);
 }

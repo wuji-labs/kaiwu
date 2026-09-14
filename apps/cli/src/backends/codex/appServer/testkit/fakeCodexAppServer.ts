@@ -9,6 +9,7 @@ import {
 import { HAPPIER_SPAWN_EXPLICIT_ENV_KEYS_JSON_ENV_VAR } from '@/daemon/spawn/spawnExplicitEnvKeysMarker';
 
 const CODEX_APP_SERVER_TEST_ENV_KEYS = [
+    'KAIWU_CODEX_APP_SERVER_BIN',
     'HAPPIER_CODEX_APP_SERVER_BIN',
     'HAPPIER_CODEX_APP_SERVER_MAX_JSON_LINE_CHARS',
     'HAPPIER_CODEX_APP_SERVER_RPC_TIMEOUT_MS',
@@ -33,6 +34,7 @@ export function createCodexAppServerProcessEnv(
 ): NodeJS.ProcessEnv {
     return {
         ...process.env,
+        KAIWU_CODEX_APP_SERVER_BIN: undefined,
         HAPPIER_CODEX_APP_SERVER_BIN: fakeAppServer,
         HAPPIER_CODEX_APP_SERVER_RPC_TIMEOUT_MS: '2000',
         [HAPPIER_CONNECTED_SERVICE_SELECTIONS_ENV_KEY]: undefined,

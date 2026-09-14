@@ -5,12 +5,12 @@ import { printJsonEnvelope, wantsJson } from '@/cli/output/jsonEnvelope';
 
 function usage(): string {
   return [
-    `${chalk.bold('kaiwu plugins')} - Plugin compatibility commands`,
+    `${chalk.bold('kaiwu plugins')} - 插件兼容命令`,
     '',
-    `${chalk.bold('Usage:')}`,
+    `${chalk.bold('用法:')}`,
     '  kaiwu plugins list [--json]',
     '',
-    'This Kaiwu version does not support installing plugins.',
+    '当前版本的开物不支持安装插件。',
   ].join('\n');
 }
 
@@ -23,7 +23,7 @@ export async function handlePluginsCompatibilityCliCommand(context: CommandConte
     if (json) {
       await printJsonEnvelope({ ok: true, kind: 'plugins_list', data: { plugins: [] } });
     } else {
-      console.log('No plugins installed.');
+      console.log('未安装插件。');
     }
     return;
   }
@@ -39,13 +39,13 @@ export async function handlePluginsCompatibilityCliCommand(context: CommandConte
       kind: 'plugins_unsupported',
       error: {
         code: 'unsupported_in_this_version',
-        message: `Plugin command '${subcommand}' is not supported by this Kaiwu version`,
+        message: `当前版本的开物不支持插件命令“${subcommand}”`,
       },
     });
     return;
   }
 
-  console.error(chalk.red('Error:'), `Plugin command '${subcommand}' is not supported by this Kaiwu version`);
+  console.error(chalk.red('错误：'), `当前版本的开物不支持插件命令“${subcommand}”`);
   console.log(usage());
   process.exitCode = 1;
 }

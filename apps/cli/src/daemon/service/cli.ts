@@ -95,12 +95,12 @@ type SupportedPlatform = 'darwin' | 'linux' | 'win32';
 
 function describeCurrentRelayOwner(serviceManaged: boolean | null): string {
   if (serviceManaged === true) {
-    return 'background service';
+    return '后台服务';
   }
   if (serviceManaged === false) {
-    return 'manual daemon start';
+    return '手动启动的守护进程';
   }
-  return 'unknown';
+  return '未知来源';
 }
 
 function refreshDarwinLaunchAgentDefinitionForBootstrap(installedPath: string): void {
@@ -345,15 +345,30 @@ function shouldStopCurrentWindowsServiceOwnerBeforeLifecycleAction(params: Reado
 function describeDaemonServiceLifecycleAction(action: 'install' | 'uninstall' | 'start' | 'stop' | 'restart'): string {
   switch (action) {
     case 'install':
-      return 'install';
+      return '安装';
     case 'uninstall':
-      return 'uninstall';
+      return '卸载';
     case 'start':
-      return 'start';
+      return '启动';
     case 'stop':
-      return 'stop';
+      return '停止';
     case 'restart':
-      return 'restart';
+      return '重启';
+  }
+}
+
+function describeDaemonServicePastTense(action: 'install' | 'uninstall' | 'start' | 'stop' | 'restart'): string {
+  switch (action) {
+    case 'install':
+      return '已安装';
+    case 'uninstall':
+      return '已卸载';
+    case 'start':
+      return '已启动';
+    case 'stop':
+      return '已停止';
+    case 'restart':
+      return '已重启';
   }
 }
 
@@ -373,7 +388,7 @@ async function stopCurrentWindowsServiceOwnerIfNeeded(params: Readonly<{
     const actionText = describeDaemonServiceLifecycleAction(params.action);
     const detail = error instanceof Error ? error.message : String(error);
     throw new Error(
-      `Failed to stop the current background service owner before ${actionText}ing the background service.\n${detail}`,
+      `在${actionText}后台服务前，无法停止当前占用中继的后台服务。\n${detail}`,
     );
   }
 }
@@ -638,8 +653,8 @@ async function assertExpectedDaemonServiceOwnership(params: Readonly<{
   const effectiveTimeoutMs = serviceHealthyButStillConverging ? timeoutMs + activeGraceTimeoutMs : timeoutMs;
 
   let message =
-    `Background service ${params.action} completed, but the expected background service did not become the active daemon for the selected relay ` +
-    `within ${effectiveTimeoutMs}ms. Run \`${params.commandPath} status\` to inspect the active owner and system service state.`;
+    `后台服务${describeDaemonServiceLifecycleAction(params.action)}已完成，但预期的后台服务未在所选中继上成为活动守护进程；` +
+    `等待 ${effectiveTimeoutMs} 毫秒后仍未收敛。请运行 \`${params.commandPath} status\` 检查当前占用者和系统服务状态。`;
 
   if (params.platform === 'win32' && params.windowsLaunchDiagnostics) {
     const diagnostics = collectWindowsServiceLaunchDiagnostics({
@@ -674,13 +689,13 @@ async function withManualRelayTakeoverRecovery<T>(params: Readonly<{
     const originalMessage = error instanceof Error ? error.message : String(error);
     if (restoredOk) {
       throw new Error(
-        `Failed to ${params.action} the background service after stopping the current manually started daemon. ` +
-        `The previous manual daemon was restored.\n${originalMessage}`,
+        `停止当前手动启动的守护进程后，后台服务${describeDaemonServiceLifecycleAction(params.action)}失败；` +
+        `已恢复原手动守护进程。\n${originalMessage}`,
       );
     }
     throw new Error(
-      `Failed to ${params.action} the background service after stopping the current manually started daemon, ` +
-      `and restoring the previous manual daemon also failed.\n${originalMessage}`,
+      `停止当前手动启动的守护进程后，后台服务${describeDaemonServiceLifecycleAction(params.action)}失败，` +
+      `且恢复原手动守护进程也失败。\n${originalMessage}`,
     );
   }
 }
@@ -729,7 +744,7 @@ export function resolveDaemonServiceCliRuntimeFromEnv(options: Readonly<{
     resolveSupportedPlatform(processEnv.HAPPIER_DAEMON_SERVICE_PLATFORM ?? '') ??
     resolvePlatformFromProcess();
   if (!platform) {
-    throw new Error('Daemon service is currently only supported on macOS, Linux, and Windows');
+    throw new Error('当前仅支持在 macOS、Linux 和 Windows 上管理守护进程后台服务');
   }
 
   const uidEnvRaw = (processEnv.HAPPIER_DAEMON_SERVICE_UID ?? '').trim();
@@ -1264,21 +1279,21 @@ export async function runDaemonServiceCliCommand(params: Readonly<{
     }
     process.stdout.write(
       [
-        'happier service',
+        'kaiwu service',
         '',
-        'Usage:',
-        '  happier service list [--json]',
-        '  happier service paths [--json]',
-        '  happier service status [--json]',
-        '  happier service install [--local-relay] [--dry-run] [--yes] [--takeover] [--replace-existing=ring|all] [--json]',
-        '  happier service uninstall [--ring <stable|preview|dev>] [--instance <id>] [--all] [--yes] [--dry-run] [--json]',
-        '  happier service repair [--yes] [--json] (legacy alias for `happier doctor repair`)',
-        '  happier service start|stop|restart [--dry-run] [--takeover] [--json]',
-        '  happier service logs [--json]',
-        '  happier service tail',
+        '用法：',
+        '  kaiwu service list [--json]',
+        '  kaiwu service paths [--json]',
+        '  kaiwu service status [--json]',
+        '  kaiwu service install [--local-relay] [--dry-run] [--yes] [--takeover] [--replace-existing=ring|all] [--json]',
+        '  kaiwu service uninstall [--ring <stable|preview|dev>] [--instance <id>] [--all] [--yes] [--dry-run] [--json]',
+        '  kaiwu service repair [--yes] [--json]（兼容别名，等同于 `kaiwu doctor repair`）',
+        '  kaiwu service start|stop|restart [--dry-run] [--takeover] [--json]',
+        '  kaiwu service logs [--json]',
+        '  kaiwu service tail',
         '',
-        'Compatibility aliases:',
-        '  happier daemon service ...',
+        '兼容别名：',
+        '  kaiwu daemon service ...',
         '',
       ].join('\n'),
     );
@@ -1306,14 +1321,14 @@ export async function runDaemonServiceCliCommand(params: Readonly<{
     }
 
     if (entries.length === 0) {
-      process.stdout.write('(no background services installed)\n');
+      process.stdout.write('（未安装后台服务）\n');
       return;
     }
 
     for (const entry of entries) {
       const modeSuffix = entry.mode ? `, ${entry.mode}` : '';
       process.stdout.write(`${entry.name} (${entry.serverId}, ${entry.releaseChannel}${modeSuffix})\n`);
-      process.stdout.write(`  ${entry.installed ? 'installed' : 'not installed'}: ${entry.path}\n`);
+      process.stdout.write(`  ${entry.installed ? '已安装' : '未安装'}：${entry.path}\n`);
     }
     return;
   }
@@ -1334,22 +1349,22 @@ export async function runDaemonServiceCliCommand(params: Readonly<{
 
     process.stdout.write(
       runtime.platform === 'darwin'
-        ? `LaunchAgent: ${paths.plistPath}\nLabel: ${paths.label}\n`
+        ? `启动代理（LaunchAgent）：${paths.plistPath}\n标签：${paths.label}\n`
         : runtime.platform === 'win32'
-          ? `Scheduled Task: ${paths.taskName}\nWrapper: ${paths.wrapperPath}\n`
-          : `systemd unit: ${paths.unitPath}\nUnit name: ${paths.unitName}\n`,
+          ? `计划任务（Scheduled Task）：${paths.taskName}\n包装器：${paths.wrapperPath}\n`
+          : `systemd 单元：${paths.unitPath}\n单元名称：${paths.unitName}\n`,
     );
-    process.stdout.write(`stdout: ${paths.stdoutPath}\nstderr: ${paths.stderrPath}\n`);
+    process.stdout.write(`标准输出：${paths.stdoutPath}\n标准错误：${paths.stderrPath}\n`);
     return;
   }
 
   if (action === 'install') {
     if (runtime.platform === 'linux' && mode === 'system') {
       if (typeof process.getuid === 'function' && process.getuid() !== 0) {
-        throw new Error('Root privileges are required for system mode service install');
+        throw new Error('系统模式安装后台服务需要 root 管理员权限');
       }
       if (!systemUser) {
-        throw new Error('Missing --system-user (required for system mode)');
+        throw new Error('缺少 --system-user（系统模式必填）');
       }
     }
 
@@ -1384,7 +1399,7 @@ export async function runDaemonServiceCliCommand(params: Readonly<{
         conflict: takeoverDecision.conflict,
       });
       const lines = takeoverDecision.conflict.kind === 'manual-owner-conflict'
-        ? [...message.lines, buildDaemonServiceTakeoverHint({ commandPath: 'happier service', action: 'install' })]
+        ? [...message.lines, buildDaemonServiceTakeoverHint({ commandPath: 'kaiwu service', action: 'install' })]
         : [...message.lines];
       if (flags.json) {
         printJson({
@@ -1569,7 +1584,7 @@ export async function runDaemonServiceCliCommand(params: Readonly<{
       });
       return;
     }
-    process.stdout.write('Background service installed.\n');
+    process.stdout.write('后台服务已安装。\n');
     if (takeoverNotice) {
       process.stdout.write(`${takeoverNotice.title}\n`);
       for (const line of takeoverNotice.lines) {
@@ -1582,7 +1597,7 @@ export async function runDaemonServiceCliCommand(params: Readonly<{
   if (action === 'uninstall') {
     if (runtime.platform === 'linux' && mode === 'system') {
       if (typeof process.getuid === 'function' && process.getuid() !== 0) {
-        throw new Error('Root privileges are required for system mode service uninstall');
+        throw new Error('系统模式卸载后台服务需要 root 管理员权限');
       }
     }
 
@@ -1665,7 +1680,7 @@ export async function runDaemonServiceCliCommand(params: Readonly<{
         printJson({ ok: true, platform: runtime.platform, removed: entries.length });
         return;
       }
-      process.stdout.write(`Removed ${entries.length} background services.\n`);
+      process.stdout.write(`已移除 ${entries.length} 个后台服务。\n`);
       return;
     }
 
@@ -1712,14 +1727,14 @@ export async function runDaemonServiceCliCommand(params: Readonly<{
       printJson({ ok: true, platform: runtime.platform });
       return;
     }
-    process.stdout.write('Background service uninstalled.\n');
+    process.stdout.write('后台服务已卸载。\n');
     return;
   }
 
   if (action === 'start' || action === 'stop' || action === 'restart') {
     if (runtime.platform === 'linux' && mode === 'system') {
       if (typeof process.getuid === 'function' && process.getuid() !== 0) {
-        throw new Error('Root privileges are required for system mode service lifecycle actions');
+        throw new Error('系统模式执行后台服务生命周期操作需要 root 管理员权限');
       }
     }
 
@@ -1728,7 +1743,7 @@ export async function runDaemonServiceCliCommand(params: Readonly<{
       path: paths.installedPath,
       expectedLabel: paths.label,
     })) {
-      const msg = `Background service is not installed (${paths.installedPath}). Run: happier service install`;
+      const msg = `后台服务尚未安装（${paths.installedPath}）。请运行：kaiwu service install`;
       if (flags.json) printJson({ ok: false, error: 'not_installed', message: msg, platform: runtime.platform });
       else process.stderr.write(`${msg}\n`);
       return;
@@ -1783,7 +1798,7 @@ export async function runDaemonServiceCliCommand(params: Readonly<{
             expectedContents: expectedFile.content,
           });
           if (!matches) {
-            process.stderr.write('Refreshing background service definition (drifted from current template).\n');
+            process.stderr.write('正在刷新后台服务定义（当前文件已偏离最新模板）。\n');
             await applyDaemonServiceInstallPlan(expectedPlan, { runCommands: false });
             refreshedInstalledServiceDefinition = true;
             serviceDefinitionReloadCommands = expectedPlan.commands.filter((command) => (
@@ -1793,7 +1808,7 @@ export async function runDaemonServiceCliCommand(params: Readonly<{
         }
       } catch (err) {
         // Drift-refresh is best-effort; never block the lifecycle command on it.
-        process.stderr.write(`Drift check skipped: ${err instanceof Error ? err.message : String(err)}\n`);
+        process.stderr.write(`已跳过定义偏差检查：${err instanceof Error ? err.message : String(err)}\n`);
       }
     }
 
@@ -1853,7 +1868,7 @@ export async function runDaemonServiceCliCommand(params: Readonly<{
           conflict: takeoverDecision.conflict,
         });
         const lines = takeoverDecision.conflict.kind === 'manual-owner-conflict'
-          ? [...message.lines, buildDaemonServiceTakeoverHint({ commandPath: 'happier service', action })]
+          ? [...message.lines, buildDaemonServiceTakeoverHint({ commandPath: 'kaiwu service', action })]
           : [...message.lines];
         if (flags.json) {
           printJson({
@@ -1956,8 +1971,7 @@ export async function runDaemonServiceCliCommand(params: Readonly<{
       // assertExpectedDaemonServiceOwnership above) — the service IS the
       // active daemon. Use past-tense so users see the real outcome, not a
       // vague "requested" that implies async completion.
-      const pastTense = action === 'start' ? 'started' : action === 'restart' ? 'restarted' : `${action}ed`;
-      process.stdout.write(`✓ Background service ${pastTense}.\n`);
+      process.stdout.write(`✓ 后台服务${describeDaemonServicePastTense(action)}。\n`);
       if (takeoverNotice) {
         process.stdout.write(`${takeoverNotice.title}\n`);
         for (const line of takeoverNotice.lines) {
@@ -2016,8 +2030,7 @@ export async function runDaemonServiceCliCommand(params: Readonly<{
     // `stop` runs bootout (which deregisters the service synchronously at
     // launchctl-api level even though the process teardown is async). Past
     // tense reflects what the user can observe via `launchctl list`.
-    const pastTense = action === 'stop' ? 'stopped' : action === 'start' ? 'started' : action === 'restart' ? 'restarted' : `${action}ed`;
-    process.stdout.write(`✓ Background service ${pastTense}.\n`);
+    process.stdout.write(`✓ 后台服务${describeDaemonServicePastTense(action)}。\n`);
     if (stopOwnershipNote) {
       process.stdout.write(`${stopOwnershipNote.title}\n`);
       for (const line of stopOwnershipNote.lines) {
@@ -2099,27 +2112,27 @@ export async function runDaemonServiceCliCommand(params: Readonly<{
       return;
     }
 
-    process.stdout.write(installed ? 'Background service: installed\n' : 'Background service: not installed\n');
-    process.stdout.write(pidAlive ? `Daemon: running (pid ${pid})\n` : 'Daemon: not running\n');
+    process.stdout.write(installed ? '后台服务：已安装\n' : '后台服务：未安装\n');
+    process.stdout.write(pidAlive ? `守护进程：运行中（PID ${pid}）\n` : '守护进程：未运行\n');
     const inventory = renderDaemonServiceInventory(services);
     process.stdout.write(`${inventory.title}\n`);
     for (const line of inventory.lines) {
       process.stdout.write(`${line}\n`);
     }
     if (owner) {
-      process.stdout.write(`Started by: ${describeCurrentRelayOwner(owner.serviceManaged)}\n`);
+      process.stdout.write(`启动来源：${describeCurrentRelayOwner(owner.serviceManaged)}\n`);
       if (owner.serviceLabel) {
-        process.stdout.write(`Background service label: ${owner.serviceLabel}\n`);
+        process.stdout.write(`后台服务标签：${owner.serviceLabel}\n`);
       }
       if (owner.startedWithPublicReleaseChannel || owner.startedWithCliVersion) {
-        process.stdout.write(`Running CLI: ${owner.startedWithPublicReleaseChannel ?? 'unknown'} • ${owner.startedWithCliVersion ?? 'unknown'}\n`);
+        process.stdout.write(`运行中的 CLI：${owner.startedWithPublicReleaseChannel ?? '未知'} • ${owner.startedWithCliVersion ?? '未知'}\n`);
       }
       if (owner.currentInvocationMatches === false) {
         process.stdout.write(owner.serviceManaged === true
-          ? 'Warning: Current CLI differs from the running daemon. Use `happier doctor repair` if you want automatic startup to switch to this installation.\n'
+          ? '警告：当前 CLI 与正在运行的守护进程版本不一致。若要让自动启动切换到此安装，请运行 `kaiwu doctor repair`。\n'
           : owner.serviceManaged === false
-            ? 'Warning: Current CLI differs from the running daemon. Use `happier daemon restart` if you want the manually started daemon to switch to this installation.\n'
-            : 'Warning: Current CLI differs from the running daemon. Restart the current daemon before trying to switch this installation.\n');
+            ? '警告：当前 CLI 与正在运行的守护进程版本不一致。若要让手动启动的守护进程切换到此安装，请运行 `kaiwu daemon restart`。\n'
+            : '警告：当前 CLI 与正在运行的守护进程版本不一致。请先重启当前守护进程，再尝试切换到此安装。\n');
       }
     }
     if (systemStatus.out) process.stdout.write(`\n${systemStatus.out}\n`);
@@ -2141,19 +2154,19 @@ export async function runDaemonServiceCliCommand(params: Readonly<{
       return;
     }
     if (runtime.platform === 'win32') {
-      process.stderr.write('tail is not supported on Windows yet. Use: happier service logs\n');
+      process.stderr.write('Windows 目前尚不支持 tail。请改用：kaiwu service logs\n');
       return;
     }
     // Best-effort: follow both stdout + stderr if tail exists.
     if (!commandExistsInPath({ cmd: 'tail', envPath: process.env.PATH, platform: process.platform, pathext: process.env.PATHEXT })) {
-      process.stderr.write('tail not found on PATH\n');
+      process.stderr.write('PATH 中未找到 tail 命令\n');
       return;
     }
     spawnSync('tail', ['-n', '200', '-f', paths.stdoutPath, paths.stderrPath], { stdio: 'inherit', env: process.env });
     return;
   }
 
-  const msg = `Unknown background service subcommand: ${action}`;
+  const msg = `未知的后台服务子命令：${action}`;
   if (flags.json) printJson({ ok: false, error: 'invalid_subcommand', message: msg });
   else process.stderr.write(`${msg}\n`);
 }

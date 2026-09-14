@@ -17,6 +17,13 @@ export type SessionActionSelectorRow = Readonly<{
   disabledReason?: string | null;
 }>;
 
+export const SESSION_ACTION_SELECTOR_HEADER_TITLE = '标题';
+export const SESSION_ACTION_SELECTOR_HEADER_AGENT = '智能体';
+export const SESSION_ACTION_SELECTOR_HEADER_UPDATED = '更新时间';
+export const SESSION_ACTION_SELECTOR_HEADER_ID = 'ID';
+export const SESSION_ACTION_SELECTOR_HEADER_PATH = '路径';
+export const SESSION_ACTION_SELECTOR_UNTITLED = '(未命名)';
+
 export function findNextSessionActionSelectorIndex(
   rows: ReadonlyArray<SessionActionSelectorRow>,
   start: number,
@@ -36,7 +43,9 @@ function resolveInitialSelectedIndex(rows: ReadonlyArray<SessionActionSelectorRo
 
 export function resolveSessionActionSelectorDisabledGroupLabel(actionVerb: string): string {
   const verb = actionVerb.trim().toLowerCase();
-  return `Cannot ${verb || 'select'}`;
+  if (verb === 'attach' || verb === '接入') return '无法接入';
+  if (verb === 'resume' || verb === '恢复') return '无法恢复';
+  return `无法${actionVerb || '选择'}`;
 }
 
 export function resolveSessionActionSelectorViewport(params: Readonly<{
@@ -77,9 +86,11 @@ export function resolveSessionActionSelectorEnterResult(
   if (!row.disabled) return { type: 'selected', sessionId: row.sessionId };
 
   const reason = row.disabledReason?.trim() || row.annotation?.trim();
+  const verb = actionVerb.trim().toLowerCase();
+  const localizedVerb = (verb === 'attach' || verb === '接入') ? '接入' : (verb === 'resume' || verb === '恢复') ? '恢复' : (actionVerb.trim() || '选择');
   return {
     type: 'blocked',
-    message: reason || `This session cannot be ${actionVerb.trim() || 'selected'}ed.`,
+    message: reason || `该会话无法${localizedVerb}。`,
   };
 }
 
@@ -98,23 +109,23 @@ function HeaderRow(props: Readonly<{
         <Text>  </Text>
       </Box>
       <Box width={layout.titleWidth} flexShrink={0}>
-        <Text dimColor>Title</Text>
+        <Text dimColor>{SESSION_ACTION_SELECTOR_HEADER_TITLE}</Text>
       </Box>
       <Box width={layout.separatorWidth} flexShrink={0}><Text> </Text></Box>
       <Box width={layout.agentWidth} flexShrink={0}>
-        <Text dimColor>Agent</Text>
+        <Text dimColor>{SESSION_ACTION_SELECTOR_HEADER_AGENT}</Text>
       </Box>
       <Box width={layout.separatorWidth} flexShrink={0}><Text> </Text></Box>
       <Box width={layout.updatedWidth} flexShrink={0}>
-        <Text dimColor>Updated</Text>
+        <Text dimColor>{SESSION_ACTION_SELECTOR_HEADER_UPDATED}</Text>
       </Box>
       <Box width={layout.separatorWidth} flexShrink={0}><Text> </Text></Box>
       <Box width={layout.idWidth} flexShrink={0}>
-        <Text dimColor>Id</Text>
+        <Text dimColor>{SESSION_ACTION_SELECTOR_HEADER_ID}</Text>
       </Box>
       <Box width={layout.separatorWidth} flexShrink={0}><Text> </Text></Box>
       <Box width={layout.pathWidth} flexShrink={0}>
-        <Text dimColor>Path</Text>
+        <Text dimColor>{SESSION_ACTION_SELECTOR_HEADER_PATH}</Text>
       </Box>
     </Box>
   );
@@ -131,7 +142,7 @@ function SelectorRow(props: Readonly<{
   nowMs: number;
 }>): React.ReactElement {
   const { row, isSelected, layout, nowMs } = props;
-  const title = row.title?.trim() ? row.title.trim() : '(untitled)';
+  const title = row.title?.trim() ? row.title.trim() : SESSION_ACTION_SELECTOR_UNTITLED;
   const updated = formatSessionUpdatedAtForCli(row.updatedAt, nowMs);
   const id = shortenSessionIdForCli(row.sessionId);
   const compactPath = compactHomePath(row.path) || row.path;
@@ -264,9 +275,9 @@ export function SessionActionSelector(props: Readonly<{
       setRows((currentRows) => currentRows.map((row, index) => index === selectedIndex
         ? {
             ...row,
-            annotation: 'remote checking',
+            annotation: '正在检查远程',
             disabled: true,
-            disabledReason: 'Checking remote reachability…',
+            disabledReason: '正在检查远程连通性…',
           }
         : row));
 
@@ -276,16 +287,16 @@ export function SessionActionSelector(props: Readonly<{
           if (result.reachable) {
             return {
               ...row,
-              annotation: 'remote ok',
+              annotation: '远程可用',
               disabled: false,
               disabledReason: null,
             };
           }
           return {
             ...row,
-            annotation: 'remote',
+            annotation: '远程不可达',
             disabled: true,
-            disabledReason: result.reason ?? 'Remote session is unreachable.',
+            disabledReason: result.reason ?? '远程会话不可达。',
           };
         }));
       });
@@ -313,6 +324,12 @@ export function SessionActionSelector(props: Readonly<{
   const selectedRowFullReason =
     selectedRow?.disabled && selectedRow?.disabledReason ? selectedRow.disabledReason : null;
   const disabledGroupLabel = resolveSessionActionSelectorDisabledGroupLabel(props.actionVerb);
+  const normalizedVerb = props.actionVerb.trim().toLowerCase();
+  const actionVerbLabel = normalizedVerb === 'attach' || normalizedVerb === '接入'
+    ? '接入'
+    : normalizedVerb === 'resume' || normalizedVerb === '恢复'
+      ? '恢复'
+      : props.actionVerb;
 
   return (
     <Box flexDirection="column" paddingY={1}>
@@ -341,16 +358,16 @@ export function SessionActionSelector(props: Readonly<{
 
       <Box marginTop={1} flexDirection="column">
         <Text dimColor>
-          Use ↑/↓ to select, Enter to {props.actionVerb}, Esc to cancel
+          使用 ↑/↓ 选择，按 Enter {actionVerbLabel}，按 Esc 取消
         </Text>
         {viewport.visibleCount < rows.length ? (
           <Text dimColor>
-            Showing {viewport.startIndex + 1}-{viewport.endIndex} of {rows.length}
+            显示第 {viewport.startIndex + 1}-{viewport.endIndex} 项，共 {rows.length} 项
           </Text>
         ) : null}
-        {props.onProbe ? <Text dimColor>Press P to check remote reachability</Text> : null}
+        {props.onProbe ? <Text dimColor>按 P 检查远程连通性</Text> : null}
         {blockedSelectionMessage ? (
-          <Text color="yellow">Cannot {props.actionVerb}: {blockedSelectionMessage}</Text>
+          <Text color="yellow">无法{actionVerbLabel}: {blockedSelectionMessage}</Text>
         ) : null}
         {selectedRowFullReason ? <Text dimColor>{selectedRowFullReason}</Text> : null}
         {props.footerHint ? <Text dimColor>{props.footerHint}</Text> : null}

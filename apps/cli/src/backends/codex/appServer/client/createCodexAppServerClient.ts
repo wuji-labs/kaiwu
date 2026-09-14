@@ -5,7 +5,7 @@ import { appendFile, rename, rm, stat } from 'node:fs/promises';
 import { expandHomeDirPath } from '@happier-dev/cli-common/providers';
 import { resolveWindowsCommandInvocation } from '@happier-dev/cli-common/process';
 
-import { resolveCodexCliInvocation } from '../../utils/resolveCodexCliInvocation';
+import { resolveCodexAppServerCliInvocation } from '../../utils/resolveCodexCliInvocation';
 import { appendCodexCliConfigOverridesArgs } from '../../utils/appendCodexCliConfigOverridesArgs';
 import { resolveConfiguredCodexConfigTomlPath } from '../../utils/resolveConfiguredCodexHome';
 import { createCodexAppServerJsonLineReader } from './codexAppServerJsonLineReader';
@@ -364,11 +364,10 @@ export async function createCodexAppServerClient(params: Readonly<{
     const sourceProcessEnv = params.processEnv ?? process.env;
     const rpcLogger = createRpcLogger(sourceProcessEnv);
     const processEnv = sanitizeCodexAppServerEnv(sourceProcessEnv);
-    const baseInvocation = await resolveCodexCliInvocation({
+    const baseInvocation = await resolveCodexAppServerCliInvocation({
         args: ['app-server', '--listen', 'stdio://'],
         cwd: params.cwd,
         processEnv,
-        overrideEnvVarKeys: ['HAPPIER_CODEX_APP_SERVER_BIN', 'HAPPIER_CODEX_TUI_BIN', 'HAPPY_CODEX_TUI_BIN'],
         targetLabel: 'Codex app-server',
     });
 
@@ -689,6 +688,11 @@ export async function createCodexAppServerClient(params: Readonly<{
             signal?.addEventListener('abort', onAbort, { once: true });
             if (signal?.aborted) onAbort();
         });
+        // The request may be rejected by dispose/abort before the async request
+        // function reaches its later `await responsePromise`. Mark the internal
+        // promise as handled immediately so that this expected lifecycle race
+        // cannot surface as an unhandled rejection in Node/Vitest.
+        void responsePromise.catch(() => undefined);
         try {
             if (!signal?.aborted) {
                 await sendMessage({

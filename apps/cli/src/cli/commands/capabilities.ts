@@ -6,9 +6,9 @@ import { createCliCapabilitiesService } from '@/rpc/handlers/capabilities';
 
 function usage(): string {
   return [
-    `${chalk.bold('kaiwu capabilities')} - Inspect local capability metadata`,
+    `${chalk.bold('kaiwu capabilities')} - 查看本机能力元数据`,
     '',
-    `${chalk.bold('Usage:')}`,
+    `${chalk.bold('用法:')}`,
     '  kaiwu capabilities [describe] [--json]',
     '',
   ].join('\n');
@@ -38,7 +38,7 @@ export async function handleCapabilitiesCliCommand(context: CommandContext): Pro
           error: { code: 'unknown_subcommand', message: `Unknown capabilities subcommand: ${subcommand}` },
         });
       } else {
-        console.error(chalk.red('Error:'), `Unknown capabilities subcommand: ${subcommand}`);
+        console.error(chalk.red('错误：'), `未知的 capabilities 子命令：${subcommand}`);
         console.log(usage());
         process.exitCode = 1;
       }
@@ -70,7 +70,7 @@ export async function handleCapabilitiesCliCommand(context: CommandContext): Pro
       return;
     }
 
-    console.error(chalk.red('Error:'), error instanceof Error ? error.message : 'Unknown error');
+    console.error(chalk.red('错误：'), error instanceof Error ? error.message : '未知错误');
     if (process.env.DEBUG) {
       console.error(error);
     }

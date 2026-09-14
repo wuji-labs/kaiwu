@@ -399,6 +399,12 @@ export async function reconcileDefaultFollowingBackgroundServicesAfterAuthentica
         services?: readonly DaemonServiceListEntry[];
         runCliAction?: (args: string[]) => Promise<void>;
         log?: (message: string) => void;
+        /**
+         * `auth login` can be called when credentials are already valid. In that
+         * case we only need to install a missing service; restarting an existing
+         * one would be an unnecessary side effect.
+         */
+        restartExisting?: boolean;
     }> = {},
 ): Promise<boolean> {
     const log = params.log ?? console.log;
@@ -408,6 +414,21 @@ export async function reconcileDefaultFollowingBackgroundServicesAfterAuthentica
     );
     const modes = resolveInstalledDefaultFollowingDaemonServiceModes(services);
     if (modes.length === 0) {
+        try {
+            // The repair command owns service planning and execution, including
+            // migration of a legacy pinned service and platform-specific setup.
+            // Calling that owner here keeps authentication/setup from growing a
+            // second installer implementation.
+            await runAction(['doctor', 'repair', '--yes']);
+            return true;
+        } catch {
+            log('认证已完成，但后台服务尚未安装。请运行：');
+            log('  kaiwu doctor repair --yes');
+            return false;
+        }
+    }
+
+    if (params.restartExisting === false) {
         return true;
     }
 

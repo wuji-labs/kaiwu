@@ -5,11 +5,11 @@ import { handleAuthCommand } from '@/cli/commands/auth';
 import type { CommandContext } from '@/cli/commandRegistry';
 
 export async function handleLogoutCliCommand(_context: CommandContext): Promise<void> {
-  console.log(chalk.yellow('Note: "kaiwu logout" is deprecated. Use "kaiwu auth logout" instead.\n'));
+  console.log(chalk.yellow('提示：“kaiwu logout” 已废弃，请改用 “kaiwu auth logout”。\n'));
   try {
     await handleAuthCommand(['logout']);
   } catch (error) {
-    console.error(chalk.red('Error:'), error instanceof Error ? error.message : 'Unknown error');
+    console.error(chalk.red('错误：'), error instanceof Error ? error.message : '未知错误');
     if (process.env.DEBUG) {
       console.error(error);
     }

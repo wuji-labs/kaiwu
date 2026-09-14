@@ -42,7 +42,7 @@ export async function handleAuthCommand(args: string[]): Promise<void> {
       await handleAuthStatus(args.slice(1));
       return;
     default:
-      console.error(chalk.red(`Unknown auth subcommand: ${subcommand}`));
+      console.error(chalk.red(`未知的 auth 子命令：${subcommand}`));
       showAuthHelp();
       process.exit(1);
   }
@@ -52,7 +52,7 @@ export async function handleAuthCliCommand(context: CommandContext): Promise<voi
   try {
     await handleAuthCommand(context.args.slice(1));
   } catch (error) {
-    console.error(chalk.red('Error:'), error instanceof Error ? error.message : 'Unknown error');
+    console.error(chalk.red('错误：'), error instanceof Error ? error.message : '未知错误');
     if (process.env.DEBUG) {
       console.error(error);
     }

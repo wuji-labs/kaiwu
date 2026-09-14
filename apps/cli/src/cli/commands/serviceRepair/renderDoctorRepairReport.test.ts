@@ -58,17 +58,17 @@ function makeReport(overrides: Partial<DoctorRepairReport> = {}): DoctorRepairRe
 describe('renderDoctorRepairReport — clean state', () => {
   it('renders the 3-line "looks good" block when no findings', () => {
     const out = renderDoctorRepairReport(makeReport()).join('\n');
-    expect(out).toContain('Your Happier installation looks good');
-    expect(out).toContain('Current CLI');
-    expect(out).toContain('Background services');
-    expect(out).toContain('matches this CLI');
+    expect(out).toContain('Kaiwu 安装状态良好');
+    expect(out).toContain('当前 CLI');
+    expect(out).toContain('后台服务');
+    expect(out).toContain('与此 CLI 匹配');
     // 'Currently running' is gone — its content lives inside Background services.
     expect(out).not.toContain('Currently running');
   });
 
   it('omits the local-relay line when no relay is installed', () => {
     const out = renderDoctorRepairReport(makeReport()).join('\n');
-    expect(out).not.toContain('Local relay');
+    expect(out).not.toContain('本地中继');
   });
 
   it('includes the local-relay line when a matching relay is installed', () => {
@@ -85,14 +85,14 @@ describe('renderDoctorRepairReport — clean state', () => {
       installRoot: '/home/me/.happier/relay-host-dev',
     };
     const out = renderDoctorRepairReport(makeReport({ localRelays: [relay] })).join('\n');
-    expect(out).toContain('Local relay');
+    expect(out).toContain('本地中继');
     expect(out).toContain('http://localhost:41872');
   });
 
   it('shows configured (not running) when startup is present but stopped', () => {
     const stopped = { ...entry, running: false };
     const out = renderDoctorRepairReport(makeReport({ automaticStartup: [stopped] })).join('\n');
-    expect(out).toContain('configured (not currently running)');
+    expect(out).toContain('已配置（当前未运行）');
   });
 
   it('does not call a fallback wrong-lane background service a CLI match', () => {
@@ -107,7 +107,7 @@ describe('renderDoctorRepairReport — clean state', () => {
       automaticStartup: [stableEntry],
     })).join('\n');
     expect(out).toContain('different release channel');
-    expect(out).not.toContain('matches this CLI');
+    expect(out).not.toContain('与此 CLI 匹配');
   });
 });
 
@@ -124,9 +124,9 @@ describe('renderDoctorRepairReport — mismatched state', () => {
     const out = renderDoctorRepairReport(
       makeReport({ automaticStartup: [stale], findings: [finding] }),
     ).join('\n');
-    expect(out).toContain('might need some attention');
-    expect(out).toContain('Current CLI');
-    expect(out).toContain('Background services');
+    expect(out).toContain('Kaiwu 配置可能需要处理');
+    expect(out).toContain('当前 CLI');
+    expect(out).toContain('后台服务');
     expect(out).toContain('restart to pick it up');
   });
 
@@ -158,7 +158,7 @@ describe('renderDoctorRepairReport — mismatched state', () => {
       currentlyRunning: [running],
       findings: [finding],
     })).join('\n');
-    expect(out).toContain('Background services');
+    expect(out).toContain('后台服务');
     expect(out).toContain('pid 1234');
     expect(out).toContain('started manually');
   });
@@ -187,7 +187,7 @@ describe('renderDoctorRepairReport — mismatched state', () => {
       localRelays: [relay],
       findings: [finding],
     })).join('\n');
-    expect(out).toContain('Local relays');
+    expect(out).toContain('本地中继');
     expect(out).toContain('different release channel');
   });
 });

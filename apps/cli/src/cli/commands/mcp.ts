@@ -72,7 +72,7 @@ export async function handleMcpCommand(args: string[], deps?: Partial<McpCommand
     }
 
     if (group !== 'servers') {
-      throw new Error('Usage: kaiwu mcp servers <command>');
+      throw new Error('用法：kaiwu mcp servers <command>');
     }
 
     if (!subcommand || isHelpToken(subcommand)) {
@@ -83,7 +83,7 @@ export async function handleMcpCommand(args: string[], deps?: Partial<McpCommand
     const handled = await runMcpServersSubcommand(subcommand ?? '', args, resolvedDeps, { json });
     if (handled) return;
 
-    throw new Error(`Unknown mcp servers subcommand: ${subcommand ?? ''}`);
+    throw new Error(`未知的 mcp servers 子命令：${subcommand ?? ''}`);
   } catch (error) {
     if (!json) throw error;
     const mapped = mapUnknownErrorToControlError(error);
@@ -118,7 +118,7 @@ export async function handleMcpCliCommand(context: CommandContext): Promise<void
       );
       return;
     }
-    console.error(chalk.red('Error:'), error instanceof Error ? error.message : 'Unknown error');
+    console.error(chalk.red('错误：'), error instanceof Error ? error.message : '未知错误');
     if (process.env.DEBUG) console.error(error);
     process.exitCode = typeof process.exitCode === 'number' && process.exitCode > 1 ? process.exitCode : 1;
   }

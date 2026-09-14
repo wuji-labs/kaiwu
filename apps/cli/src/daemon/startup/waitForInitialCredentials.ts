@@ -28,7 +28,7 @@ export async function waitForInitialCredentials<TDaemonLockHandle>(opts: {
 
   if (!opts.waitForAuthEnabled) {
     opts.logger.debug('[AUTH] No credentials found');
-    opts.logger.debug('[DAEMON RUN] Non-interactive mode: refusing to start auth UI. Run: happier auth login');
+    opts.logger.debug('[守护进程运行] 非交互模式：不启动认证界面。请运行：kaiwu auth login');
     return { action: 'exit', exitCode: 1, daemonLockHandle: opts.daemonLockHandle };
   }
 
@@ -70,7 +70,7 @@ export async function waitForInitialCredentials<TDaemonLockHandle>(opts: {
 
     if (opts.waitForAuthTimeoutMs > 0 && Date.now() - startWait > opts.waitForAuthTimeoutMs) {
       opts.logger.debug('[DAEMON RUN] Timed out waiting for credentials');
-      throw new Error('Timed out waiting for credentials');
+      throw new Error('等待凭据超时');
     }
 
     await new Promise((resolve) => setTimeout(resolve, sleepMs));

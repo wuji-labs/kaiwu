@@ -16,18 +16,18 @@ function toInt(value: unknown): number | null {
 }
 
 function toResumeCell(row: CliSessionRowModel): string {
-  if (row.vendorResume.eligible) return 'yes';
+  if (row.vendorResume.eligible) return '是';
   switch (row.vendorResume.reasonCode) {
     case 'agent_unsupported':
-      return 'no(unsupported)';
+      return '否(不支持)';
     case 'vendor_resume_id_missing':
-      return 'no(missing-id)';
+      return '否(缺少ID)';
     case 'experimental_disabled':
-      return 'no(disabled)';
+      return '否(已禁用)';
     case 'backend_disabled_by_account_settings':
-      return 'no(off)';
+      return '否(已关闭)';
     default:
-      return 'no';
+      return '否';
   }
 }
 
@@ -56,12 +56,12 @@ export function renderSessionListTable(params: Readonly<{
 
   const baseColumns: TableColumn[] = [
     { key: 'id', header: 'ID', minWidth: 12 },
-    { key: 'agent', header: 'AGENT', minWidth: 7 },
-    { key: 'updated', header: 'UPDATED', minWidth: 7 },
-    { key: 'active', header: 'ACTIVE', minWidth: 6 },
-    { key: 'resume', header: 'RESUME', minWidth: 12 },
-    { key: 'title', header: 'TITLE', minWidth: 10 },
-    { key: 'path', header: 'PATH', minWidth: 10 },
+    { key: 'agent', header: '智能体', minWidth: 7 },
+    { key: 'updated', header: '更新时间', minWidth: 7 },
+    { key: 'active', header: '运行中', minWidth: 6 },
+    { key: 'resume', header: '可恢复', minWidth: 12 },
+    { key: 'title', header: '标题', minWidth: 10 },
+    { key: 'path', header: '路径', minWidth: 10 },
   ];
 
   const fixedWidth = baseColumns
@@ -127,7 +127,7 @@ export function renderSessionListTable(params: Readonly<{
         shortenSessionIdForCli(row.id),
         row.agentId,
         formatSessionUpdatedAtForCli(row.updatedAt, nowMs),
-        row.active ? 'yes' : '',
+        row.active ? '是' : '',
         toResumeCell(row),
         buildTitleCell(row),
         row.path ?? '',

@@ -80,7 +80,7 @@ describe('terminal auth wait bound', () => {
       expect(elapsedMs).toBeLessThan(2_000);
       const logs = output.logs.join('\n').toLowerCase();
       expect(logs).toContain('kaiwu auth login');
-      expect(logs).toContain('create a new sign-in request');
+      expect(logs).toContain('创建新的登录请求');
       expect(logs).not.toContain('approve it on your phone');
     } finally {
       output.restore();

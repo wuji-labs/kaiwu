@@ -23,6 +23,7 @@ import type { CommandHandler } from '@/cli/commandRegistry';
 import { resolveConnectedServiceMaterializedRootDir } from '@/daemon/connectedServices/materialize/resolveConnectedServiceMaterializedRootDir';
 import { waitForCondition } from '@/testkit/async/waitFor';
 
+import { AGENTS } from '@/backends/catalog';
 import { handleResumeCommand } from './resume';
 
 function deterministicRandomBytesFactory(): (length: number) => Uint8Array {
@@ -686,8 +687,8 @@ describe('happier resume', () => {
       expect(fetchSessionByIdFn).not.toHaveBeenCalled();
 
       const output = logSpy.mock.calls.flat().join('\n');
-      expect(output).toContain('cancel');
-      expect(output).not.toContain('No resumable sessions found.');
+      expect(output).toContain('已取消恢复');
+      expect(output).not.toContain('未找到可恢复的会话。');
     } finally {
       logSpy.mockRestore();
       errorSpy.mockRestore();
@@ -719,10 +720,60 @@ describe('happier resume', () => {
       expect(fetchSessionByIdFn).not.toHaveBeenCalled();
 
       const output = logSpy.mock.calls.flat().join('\n');
-      expect(output).toContain('No resumable sessions found.');
+      expect(output).toContain('未找到可恢复的会话。');
     } finally {
       logSpy.mockRestore();
       errorSpy.mockRestore();
+    }
+  });
+
+  it('prints Simplified Chinese description for --help', async () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    try {
+      await handleResumeCommand(['--help']);
+      const output = logSpy.mock.calls.flat().join('\n');
+      expect(output).toContain('从命令行恢复未活跃的会话 (vendor-resume)。');
+    } finally {
+      logSpy.mockRestore();
+    }
+  });
+
+  it('throws a localized error when agent has no CLI command handler registered', async () => {
+    const credentials: Credentials = {
+      token: 'token-1',
+      encryption: { type: 'legacy', secret: new Uint8Array(32).fill(11) },
+    };
+    const rawSession = {
+      ...createSessionRecordFixture({
+        id: 'sid_no_handler_1',
+        encryptionMode: 'plain',
+        dataEncryptionKey: null,
+        metadata: JSON.stringify({
+          path: '/test-path',
+          host: 'test',
+          flavor: 'codex',
+          codexSessionId: 'vendor_1',
+        }),
+        active: false,
+        activeAt: 0,
+      }),
+    };
+
+    const originalEntry = AGENTS.codex;
+    if (!originalEntry) throw new Error('Expected AGENTS.codex to exist');
+    try {
+      AGENTS.codex = {
+        ...originalEntry,
+        getCliCommandHandler: undefined as any,
+      };
+      await expect(handleResumeCommand(['sid_no_handler_1'], {
+        readCredentialsFn: async () => credentials,
+        fetchSessionByIdFn: async () => rawSession,
+        readAccountSettingsFn: async () => accountSettingsParse({ schemaVersion: 6, codexBackendMode: 'acp' }),
+        chdirFn: () => {},
+      })).rejects.toThrow("Agent 'codex' 未注册 CLI 命令处理程序");
+    } finally {
+      AGENTS.codex = originalEntry;
     }
   });
 });

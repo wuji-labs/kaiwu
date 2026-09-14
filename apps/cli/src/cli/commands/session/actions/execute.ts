@@ -17,7 +17,7 @@ function parseInputJsonOrThrow(raw: string | null): unknown {
   try {
     return JSON.parse(trimmed);
   } catch (error) {
-    const err = new Error(error instanceof Error ? error.message : 'Invalid --input-json');
+    const err = new Error(error instanceof Error ? error.message : '无效的 --input-json');
     (err as Error & { code?: string }).code = 'invalid_arguments';
     throw err;
   }
@@ -41,12 +41,12 @@ export async function cmdSessionActionsExecute(
   });
   const actionRequestId = (readFlagValue(argv, '--action-request-id') ?? '').trim();
   if (actionRequestId && (actionRequestId.length > 200 || !/^[A-Za-z0-9._:-]+$/.test(actionRequestId))) {
-    throw new Error('Invalid --action-request-id.');
+    throw new Error('无效的 --action-request-id。');
   }
   const effectiveActionRequestId = actionRequestId || (actionId === 'session.spawn_new' ? randomUUID() : '');
   const resumeActionRequest = hasFlag(argv, '--resume-action-request');
   if (resumeActionRequest && !actionRequestId) {
-    throw new Error('Invalid --resume-action-request without --action-request-id.');
+    throw new Error('使用 --resume-action-request 时必须提供 --action-request-id。');
   }
   if (!idOrPrefix || !actionId) {
     throw new Error('Usage: kaiwu session actions execute <session-id-or-prefix> <action-id> [--input-json <json>] [--action-request-id <id>] [--resume-action-request] [--json]');
@@ -58,7 +58,7 @@ export async function cmdSessionActionsExecute(
       await printJsonEnvelope({ ok: false, kind: 'session_actions_execute', error: { code: 'not_authenticated' } });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
+    console.error(chalk.red('错误:'), '未认证。请先运行 "kaiwu auth login"。');
     process.exit(1);
   }
 
@@ -113,7 +113,7 @@ export async function cmdSessionActionsExecute(
       return;
     }
     const retryHint = isAmbiguousSpawn && effectiveActionRequestId
-      ? ` Retry with --action-request-id ${effectiveActionRequestId} --resume-action-request.`
+      ? ` 使用 --action-request-id ${effectiveActionRequestId} --resume-action-request 重试。`
       : '';
     throw Object.assign(new Error(`${result.error}${retryHint}`), {
       ...(result.details !== undefined ? { details: result.details } : {}),
@@ -133,6 +133,6 @@ export async function cmdSessionActionsExecute(
     return;
   }
 
-  console.log(chalk.green('✓'), 'action executed');
+  console.log(chalk.green('✓'), '操作已执行');
   await writeJsonStdout({ sessionId: sessionTarget.sessionId, actionId, result: result.result }, { pretty: true });
 }

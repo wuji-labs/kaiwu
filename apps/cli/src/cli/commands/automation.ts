@@ -22,17 +22,17 @@ const DEFAULT_DEPS: AutomationCommandDeps = {
 
 function showAutomationHelp(): void {
   console.log(`
-${chalk.bold('kaiwu automation')} - Manage automations
+${chalk.bold('kaiwu automation')} - 管理自动化任务
 
-${chalk.bold('Usage:')}
+${chalk.bold('用法:')}
   kaiwu automation run <automation-id> [--idempotency-key <key>] [--json]
 
-${chalk.bold('Commands:')}
-  run    Queue an immediate run through the automation's existing assignments
+${chalk.bold('命令:')}
+  run    通过自动化任务现有的分配立即排队执行
 
-${chalk.bold('Options:')}
-  --idempotency-key <key>  Reuse the same run when a trigger occurrence is retried
-  --json                   Print a machine-readable result
+${chalk.bold('选项:')}
+  --idempotency-key <key>  触发重试时复用同一次运行
+  --json                   输出机器可读结果
 `);
 }
 
@@ -49,7 +49,7 @@ function parseRunArgs(args: readonly string[]): Readonly<{
     if (value === '--idempotency-key') {
       const next = args[index + 1]?.trim();
       if (!next || next.startsWith('-')) {
-        throw new Error('Missing value for --idempotency-key');
+        throw new Error('缺少 --idempotency-key 的值');
       }
       idempotencyKey = next;
       index += 1;
@@ -57,20 +57,20 @@ function parseRunArgs(args: readonly string[]): Readonly<{
     }
     if (value.startsWith('--idempotency-key=')) {
       idempotencyKey = value.slice('--idempotency-key='.length).trim();
-      if (!idempotencyKey) throw new Error('Missing value for --idempotency-key');
+      if (!idempotencyKey) throw new Error('缺少 --idempotency-key 的值');
       continue;
     }
     if (value.startsWith('-')) {
-      throw new Error(`Unknown automation run option: ${value}`);
+      throw new Error(`未知的 automation run 选项：${value}`);
     }
     positionals.push(value.trim());
   }
 
   if (positionals.length !== 1 || !positionals[0]) {
-    throw new Error('Usage: kaiwu automation run <automation-id> [--idempotency-key <key>] [--json]');
+    throw new Error('用法：kaiwu automation run <automation-id> [--idempotency-key <key>] [--json]');
   }
   if (idempotencyKey && idempotencyKey.length > 191) {
-    throw new Error('--idempotency-key must be at most 191 characters');
+    throw new Error('--idempotency-key 最多只能有 191 个字符');
   }
   return { automationId: positionals[0], idempotencyKey };
 }
@@ -85,13 +85,13 @@ export async function handleAutomationCommand(
     return;
   }
   if (subcommand !== 'run') {
-    throw new Error(`Unknown automation subcommand: ${subcommand}`);
+    throw new Error(`未知的 automation 子命令：${subcommand}`);
   }
 
   const parsed = parseRunArgs(args);
   const credentials = await deps.readCredentialsFn();
   if (!credentials) {
-    const error = new Error('Not authenticated. Run "kaiwu auth login" first.');
+    const error = new Error('尚未登录。请先运行 "kaiwu auth login"。');
     (error as Error & { code?: string }).code = 'not_authenticated';
     throw error;
   }
@@ -105,7 +105,7 @@ export async function handleAutomationCommand(
     await printJsonEnvelope({ ok: true, kind: 'automation_run', data: { run } });
     return;
   }
-  console.log(chalk.green(`Queued automation run ${run.id}`));
+  console.log(chalk.green(`已将自动化任务运行加入队列：${run.id}`));
 }
 
 export async function handleAutomationCliCommand(context: CommandContext): Promise<void> {
@@ -125,7 +125,7 @@ export async function handleAutomationCliCommand(context: CommandContext): Promi
       );
       return;
     }
-    console.error(chalk.red('Error:'), error instanceof Error ? error.message : 'Unknown error');
+    console.error(chalk.red('错误：'), error instanceof Error ? error.message : '未知错误');
     process.exitCode = 1;
   }
 }

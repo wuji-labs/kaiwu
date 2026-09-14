@@ -136,7 +136,7 @@ export async function maybeRunVersionGatedRuntimeMigration(params: Readonly<{
   });
   if (preferredMode !== 'user') {
       if (!systemUser) {
-      console.warn('Skipping automatic system background service migration because no system user could be resolved. Re-run manually with: sudo kaiwu doctor repair --yes --mode system --system-user <user>');
+    console.warn('由于无法解析系统用户，已跳过系统后台服务自动迁移。请手动重新运行：sudo kaiwu doctor repair --yes --mode system --system-user <user>');
       return false;
     }
     repairState = await resolveBackgroundServiceRepairPlanForCurrentRuntime({
@@ -157,7 +157,7 @@ export async function maybeRunVersionGatedRuntimeMigration(params: Readonly<{
       ? action.service.mode === 'system'
       : action.mode === 'system');
   if (requiresRootForPlan) {
-    console.warn('Skipping automatic system background service migration without root privileges. Re-run manually with: sudo kaiwu doctor repair --yes --mode system');
+    console.warn('当前没有 root 管理员权限，已跳过系统后台服务自动迁移。请手动重新运行：sudo kaiwu doctor repair --yes --mode system');
     return false;
   }
 

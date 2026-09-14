@@ -107,8 +107,8 @@ describe('buildAttachSelectionModel', () => {
     const row = model.rows[0];
     expect(row.sessionId).toBe(sessionId);
     expect(row.disabled).toBe(true);
-    expect(row.disabledReason).toMatch(/outside tmux/i);
-    expect(row.annotation).toMatch(/outside tmux/i);
+    expect(row.disabledReason).toBe('此会话在 tmux 外部启动，无法接入。');
+    expect(row.annotation).toBe('在 tmux 外部启动');
 
     expect(model.hint.attachableCount).toBe(0);
     expect(model.hint.ineligibleCount).toBe(1);
@@ -184,13 +184,13 @@ describe('buildAttachSelectionModel', () => {
 
     expect(model.rows).toHaveLength(1);
     expect(model.rows[0].disabled).toBe(true);
-    expect(model.rows[0].annotation).toMatch(/machine identity/i);
-    expect(model.rows[0].disabledReason).toMatch(/machine identity/i);
+    expect(model.rows[0].annotation).toBe('Kaiwu 机器标识不同；无可用终端接入目标');
+    expect(model.rows[0].disabledReason).toContain('不同的 Kaiwu 机器标识');
     expect(model.hint.dominantCategory).toBe('machine_identity_mismatch');
 
     const footer = formatAttachIneligibilityFooter(model.hint);
-    expect(footer).toMatch(/machine identity/i);
-    expect(footer).not.toMatch(/other machines/i);
+    expect(footer).toContain('Kaiwu 机器标识');
+    expect(footer).not.toContain('其他机器');
   });
 
   it('skips sessions whose host does not match this machine', async () => {
@@ -235,8 +235,8 @@ describe('formatAttachIneligibilityFooter', () => {
       ineligibleCount: 2,
       effectiveSessionTmux: { useTmux: false, source: 'global' },
     });
-    expect(text).toMatch(/started outside tmux/i);
-    expect(text).toMatch(/Spawn Sessions in Tmux/i);
+    expect(text).toContain('在 tmux 外部启动');
+    expect(text).toContain('在 tmux 中启动会话');
   });
 
   it('switches the wording when tmux is already enabled (sessions are pre-toggle)', () => {
@@ -246,7 +246,7 @@ describe('formatAttachIneligibilityFooter', () => {
       ineligibleCount: 1,
       effectiveSessionTmux: { useTmux: true, source: 'global' },
     });
-    expect(text).toMatch(/before "Spawn Sessions in Tmux" was enabled/i);
+    expect(text).toContain('在启用“在 tmux 中启动会话”之前启动');
   });
 
   it('explains tmux missing when the dominant cause is tmux not installed', () => {
@@ -256,7 +256,7 @@ describe('formatAttachIneligibilityFooter', () => {
       ineligibleCount: 3,
       effectiveSessionTmux: { useTmux: true, source: 'global' },
     });
-    expect(text).toMatch(/install tmux/i);
+    expect(text).toContain('未安装 tmux');
   });
 
   it('explains hidden Windows sessions without daemon restart guidance', () => {
@@ -266,9 +266,9 @@ describe('formatAttachIneligibilityFooter', () => {
       ineligibleCount: 2,
       effectiveSessionTmux: { useTmux: true, source: 'global' },
     });
-    expect(text).toMatch(/hidden Windows/i);
-    expect(text).toMatch(/visible terminal/i);
-    expect(text).not.toMatch(/daemon start/i);
+    expect(text).toContain('隐藏的 Windows 会话');
+    expect(text).toContain('可见终端');
+    expect(text).not.toContain('daemon start');
   });
 
   it('points the user at archives when the dominant cause is archived/inactive', () => {
@@ -278,6 +278,6 @@ describe('formatAttachIneligibilityFooter', () => {
       ineligibleCount: 2,
       effectiveSessionTmux: null,
     });
-    expect(text).toMatch(/happier resume/i);
+    expect(text).toContain('kaiwu resume');
   });
 });

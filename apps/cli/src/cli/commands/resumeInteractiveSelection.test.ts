@@ -138,7 +138,8 @@ describe('buildResumeSelectionModel', () => {
     expect(model.rows).toHaveLength(1);
     const row = model.rows[0];
     expect(row?.disabled).toBe(true);
-    expect(row?.disabledReason ?? '').toMatch(/does not support resume|cannot be resumed|vendor resume id is missing/i);
+    expect(row?.annotation).toBe('元数据中缺少厂商恢复 ID');
+    expect(row?.disabledReason ?? '').toBe('此会话的元数据中缺少厂商恢复 ID。');
     expect(model.hint.ineligibleCount).toBe(1);
     expect(model.hint.resumableCount).toBe(0);
   });
@@ -201,18 +202,16 @@ describe('formatResumeSelectionFooter', () => {
 
   it('mentions running sessions and points the user to happier attach', () => {
     const text = formatResumeSelectionFooter({ ineligibleCount: 0, resumableCount: 1, activeRunningCount: 2 });
-    expect(text).toMatch(/2 sessions running/i);
-    expect(text).toMatch(/happier attach/i);
+    expect(text).toBe('2 个会话正在运行 — 请使用 `kaiwu attach` 接入终端。');
   });
 
   it('mentions ineligible sessions when present', () => {
     const text = formatResumeSelectionFooter({ ineligibleCount: 2, resumableCount: 0, activeRunningCount: 0 });
-    expect(text).toMatch(/can't be resumed/i);
+    expect(text).toBe('2 个会话无法恢复（见上方原因）。');
   });
 
   it('combines both fragments when both are present', () => {
     const text = formatResumeSelectionFooter({ ineligibleCount: 1, resumableCount: 0, activeRunningCount: 1 });
-    expect(text).toMatch(/running/i);
-    expect(text).toMatch(/can't be resumed/i);
+    expect(text).toBe('1 个会话正在运行 — 请使用 `kaiwu attach` 接入终端。 1 个会话无法恢复（见上方原因）。');
   });
 });

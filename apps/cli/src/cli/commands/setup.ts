@@ -28,7 +28,10 @@ import { openBrowser } from '@/ui/openBrowser';
 import { spawnHappyCLI } from '@/utils/spawnHappyCLI';
 
 import { defaultNameFromUrl } from './server/commandUtilities';
-import { DEFER_SERVER_SELECTION_FOLLOW_UP_ENV } from './backgroundServiceFollowUp';
+import {
+    DEFER_SERVER_SELECTION_FOLLOW_UP_ENV,
+    reconcileDefaultFollowingBackgroundServicesAfterAuthentication,
+} from './backgroundServiceFollowUp';
 import {
     buildSetupPlan,
     parseSetupArgs,
@@ -50,28 +53,27 @@ import {
  */
 const UNATTENDED_CHILD_ENV: NodeJS.ProcessEnv = { HAPPIER_NONINTERACTIVE: '1' };
 
-const HELP = `kaiwu setup — connect this computer to your Kaiwu account
+const HELP = `kaiwu setup — 连接此电脑到你的 Kaiwu 账号
 
-Usage:
+用法:
   kaiwu setup [options]
 
-Options:
-  --cloud                 Use Kaiwu Cloud without being asked
-  --relay <url>           Use a relay you already run
-  --this-computer         Install and use a relay on this computer
-  --yes                   Ask nothing. Every step that needs no answer runs, then
-                          setup stops at signing in, which has to be approved on
-                          your phone or in a browser, and names the command that
-                          finishes it. Needs one of --cloud/--relay/--this-computer:
-                          setup never picks a relay for you. Exits non-zero,
-                          because setup is unfinished until you sign in.
-  --non-interactive       Change nothing. Setup says what it would need and exits
-                          non-zero. Also how setup reads HAPPIER_NONINTERACTIVE=1
-                          and a run with no terminal at all.
-  -h, --help              Show this help
+选项:
+  --cloud                 无需询问直接使用 Kaiwu Cloud
+  --relay <url>           使用你已在运行的中继服务
+  --this-computer         在此电脑上安装并使用中继服务
+  --yes                   不作询问。自动执行所有无需交互确认的步骤，并在
+                          需要通过手机或浏览器批准的登录环节暂停，同时显示
+                          用于完成登录的命令。必须搭配 --cloud/--relay/--this-computer
+                          之一使用：setup 绝不会替你擅自选择中继。退出码非零，
+                          因为在完成登录之前设置流程尚未结束。
+  --non-interactive       不作任何更改。打印所需信息并以非零状态退出。这也是
+                          setup 处理 HAPPIER_NONINTERACTIVE=1 及无终端环境的
+                          运行方式。
+  -h, --help              显示此帮助信息
 
-Setup asks where your relay lives, points this computer at it, and signs you in.
-Your account lives on the relay you choose, so this is settled before sign-in.
+设置会询问中继服务部署在哪里，将此电脑指向该中继，并引导你完成登录。
+你的账号保存在所选的中继服务上，因此该配置在登录前即已确定。
 `;
 
 async function listInstalledAgentIds(): Promise<AgentId[]> {
@@ -97,26 +99,26 @@ async function readActiveRelayUrl(): Promise<string | null> {
 function describeTailscaleState(reachability: SetupRelayReachability): string {
     if (reachability.kind === 'tailnet') {
         return reachability.tailnetName
-            ? `Tailscale is running on this computer (tailnet: ${reachability.tailnetName}).`
-            : 'Tailscale is running on this computer.';
+            ? `Tailscale 正在此电脑上运行（tailnet: ${reachability.tailnetName}）。`
+            : 'Tailscale 正在此电脑上运行。';
     }
     if (reachability.kind === 'tailscaleNotRunning') {
-        return 'Tailscale is installed on this computer but is not running.';
+        return 'Tailscale 已在此电脑上安装但未运行。';
     }
-    return 'Tailscale is not installed on this computer.';
+    return '此电脑上未安装 Tailscale。';
 }
 
 function printRelayReachabilityIntro(reachability: SetupRelayReachability): void {
     console.log('');
-    console.log('The relay will run here, and your phone has to reach it over the network.');
+    console.log('中继服务将运行在此电脑上，你的手机需要通过网络访问它。');
     console.log(describeTailscaleState(reachability));
     if (reachability.kind === 'tailnet') {
-        console.log('Once it is installed, one command publishes it on your tailnet.');
+        console.log('安装完成后，只需运行一条命令即可将其发布到你的 tailnet。');
     } else if (reachability.kind === 'tailscaleNotRunning') {
-        console.log('Nothing is behind your tailnet addresses until it is running.');
+        console.log('在它启动运行之前，你的 tailnet 地址后面没有任何正在运行的服务。');
     } else {
-        console.log('Without it, the relay stays on this computer unless you already have an HTTPS');
-        console.log('address for it.');
+        console.log('如果不安装 Tailscale，除非你已拥有可用的 HTTPS 地址，');
+        console.log('否则该中继仅能在此电脑上访问。');
     }
     console.log('');
 }
@@ -135,15 +137,15 @@ async function printRelayReachabilityNextSteps(reachability: SetupRelayReachabil
 
     console.log('');
     if (relayUrl && !isLoopbackServerHost(relayUrl)) {
-        console.log(`This relay is ready at ${relayUrl}.`);
+        console.log(`中继服务已就绪，地址: ${relayUrl}`);
         console.log('');
         return;
     }
 
-    console.log('This relay is reachable from this computer only.');
+    console.log('此中继仅可从此电脑访问。');
     if (reachability.kind === 'tailscaleNotRunning') {
-        console.log('Tailscale is installed here but not running, so your tailnet addresses have');
-        console.log('nothing behind them. Start it and re-run the install to publish this relay:');
+        console.log('Tailscale 已在此处安装但未运行，因此你的 tailnet 地址上没有任何服务。');
+        console.log('启动 Tailscale 并重新运行安装流程以发布此中继：');
         console.log('');
         console.log('  tailscale up');
         console.log('  kaiwu relay host install');
@@ -151,14 +153,14 @@ async function printRelayReachabilityNextSteps(reachability: SetupRelayReachabil
         return;
     }
     if (reachability.kind === 'tailnet') {
-        console.log('Tailscale is running, but the relay was not published on it. Re-run the');
-        console.log('canonical install command to retry or review the Tailscale result:');
+        console.log('Tailscale 正在运行，但中继尚未发布到 tailnet 上。');
+        console.log('重新运行标准安装命令以重试或查看 Tailscale 结果：');
         console.log('');
         console.log('  kaiwu relay host install');
         console.log('');
         return;
     }
-    console.log('If you already have an HTTPS address for it, point Kaiwu at that:');
+    console.log('如果你已经拥有它的 HTTPS 地址，请将 Kaiwu 指向该地址：');
     console.log('');
     console.log('  kaiwu server add --server-url https://relay.example.com --use');
     console.log('');
@@ -170,31 +172,31 @@ async function printRelayReachabilityNextSteps(reachability: SetupRelayReachabil
  */
 async function offerTailscaleSetup(): Promise<void> {
     const wanted = await promptConfirmYesNo(
-        'Set up Tailscale now? It gives this computer a private address your phone can reach.',
+        '立即配置 Tailscale？它将为此电脑提供一个手机可访问的专用私有地址。',
         { default: 'no' },
     );
     if (!wanted) {
-        console.log('Skipped. Setup continues; you can do this any time.');
+        console.log('已跳过。Setup 继续进行；你随时可以稍后配置。');
         return;
     }
 
     const strategy = resolveTailscaleInstallStrategy(process.platform);
     console.log('');
     if (strategy.kind === 'downloadAndLaunch') {
-        console.log(`Opening ${strategy.docsUrl}`);
+        console.log(`正在打开 ${strategy.docsUrl}`);
         const opened = await openBrowser(strategy.docsUrl);
         if (!opened) {
-            console.log('Open that page to download and install Tailscale.');
+            console.log('请打开该页面下载并安装 Tailscale。');
         }
     } else {
         // There is no installer this CLI owns on this platform, and package
         // managers differ per distribution. The docs page beats pretending.
-        console.log(`Install Tailscale for this platform: ${strategy.docsUrl}`);
+        console.log(`请为此平台安装 Tailscale: ${strategy.docsUrl}`);
     }
 
     console.log('');
-    console.log('Then, once it is installed and signed in, let the relay installer publish');
-    console.log('and select the address through the same checked path setup uses:');
+    console.log('安装并登录 Tailscale 后，通过与 setup 相同的检查流程');
+    console.log('让中继安装程序发布并选择地址：');
     console.log('');
     console.log('  tailscale up');
     console.log('  kaiwu relay host install');
@@ -245,16 +247,16 @@ async function askWhereTheRelayLives(): Promise<SetupRelaySelection> {
     const choice = await promptMultipleChoice(
         [
             '',
-            'Where does your relay live?',
+            '你的中继服务部署在哪里？',
             '',
-            'Your relay routes messages between your phone and your computers.',
-            'Choose where it lives — you can change this later.',
+            '你的中继服务负责在手机与电脑之间转发消息。',
+            '选择其部署位置 —— 稍后你可以随时更改。',
             '',
-            '  c) Kaiwu Cloud            Hosted relay — easiest to start with',
-            '  r) A relay I already run',
-            '  t) On this computer',
+            '  c) Kaiwu Cloud            托管中继 — 最便捷的起步选择',
+            '  r) 我已在运行的中继',
+            '  t) 在此电脑上',
             '',
-            'Choose',
+            '选择',
         ].join('\n'),
         [
             { id: 'cloud', keys: ['c', 'cloud', ''], short: 'C' },
@@ -267,8 +269,8 @@ async function askWhereTheRelayLives(): Promise<SetupRelaySelection> {
     if (choice === 'cloud') return { kind: 'cloud' };
     if (choice === 'thisComputer') return { kind: 'thisComputer' };
 
-    const url = (await promptInput('Relay URL: ')).trim();
-    if (!url) throw new Error('A relay URL is required to continue. Re-run `kaiwu setup` when you have it.');
+    const url = (await promptInput('中继 URL: ')).trim();
+    if (!url) throw new Error('必须提供中继 URL 才能继续。获取到 URL 后请重新运行 `kaiwu setup`。');
     return { kind: 'existing', url };
 }
 
@@ -284,8 +286,11 @@ function serverAddArgs(relayUrl: string): readonly string[] {
 async function runStep(step: SetupStep, unattended: boolean): Promise<boolean> {
     switch (step.kind) {
         case 'alreadyConfigured':
-            console.log(`This computer is already set up (relay: ${step.relayUrl}).`);
-            console.log('Run `kaiwu status` to check everything, or `kaiwu` to start a session.');
+            if (!await reconcileDefaultFollowingBackgroundServicesAfterAuthentication({ restartExisting: false })) {
+                return false;
+            }
+            console.log(`此电脑已完成配置（中继: ${step.relayUrl}）。`);
+            console.log('运行 `kaiwu status` 检查各项状态，或运行 `kaiwu` 启动会话。');
             return true;
         case 'explainRelayReachability':
             printRelayReachabilityIntro(step.reachability);
@@ -316,16 +321,16 @@ async function runStep(step: SetupStep, unattended: boolean): Promise<boolean> {
             return (await runCliStep(resolveAuthLoginArgv(), { unattended })) === 0;
         case 'warnNoAgent':
             console.log('');
-            console.log('No coding agent found on this computer.');
+            console.log('此电脑上未发现编程 Agent。');
             console.log('');
-            console.log("Kaiwu drives your coding agent; it does not ship one. Install at least");
-            console.log('one, then run `kaiwu` again:');
+            console.log("Kaiwu 负责驱动你的编程 Agent，本身不附带 Agent。请至少安装");
+            console.log('一个 Agent，然后再次运行 `kaiwu`：');
             console.log('');
             console.log('  Claude Code   curl -fsSL https://claude.ai/install.sh | bash');
             console.log('  Codex         kaiwu install provider codex');
             console.log('  OpenCode      kaiwu install provider opencode');
             console.log('');
-            console.log('  See them all: kaiwu install provider --help');
+            console.log('  查看全部支持的 Agent: kaiwu install provider --help');
             return true;
         default:
             return true;
@@ -344,7 +349,7 @@ export async function handleSetupCliCommand(context: CommandContext): Promise<vo
         // Silently ignoring an unknown or contradictory flag is how a misspelled
         // `--this-computer` became a Cloud account nobody asked for.
         console.error(parsed.message);
-        console.error('Run `kaiwu setup --help` to see the options.');
+        console.error('运行 `kaiwu setup --help` 查看可用选项。');
         process.exitCode = 1;
         return;
     }
@@ -407,8 +412,8 @@ export async function handleSetupCliCommand(context: CommandContext): Promise<vo
         const ok = await runStep(step, unattended);
         if (!ok) {
             console.log('');
-            console.log('Setup stopped. Nothing was lost — run `kaiwu setup` again to pick up where you left off,');
-            console.log('or `kaiwu status` to see what is configured.');
+            console.log('Setup 已停止。未丢失任何内容 —— 再次运行 `kaiwu setup` 即可从上次中断处继续，');
+            console.log('或运行 `kaiwu status` 查看当前配置。');
             // Exit non-zero so the installer reports setup as incomplete rather
             // than printing "you're ready". Installing the binary still
             // succeeded; finishing the guided setup did not.

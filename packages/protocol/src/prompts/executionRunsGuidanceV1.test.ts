@@ -7,9 +7,9 @@ describe('executionRunsGuidanceV1', () => {
     const result = buildExecutionRunsGuidanceBlockV1({ entries: [], maxChars: 0 });
 
     expect(result.text).toContain("current backend's native subagent facility by default");
-    expect(result.text).toContain('Happier subagent');
-    expect(result.text).toContain('Happier delegation run');
-    expect(result.text).toContain('Happier execution run');
+    expect(result.text).toContain('Kaiwu subagent');
+    expect(result.text).toContain('Kaiwu delegation run');
+    expect(result.text).toContain('Kaiwu execution run');
     expect(result.text).toContain('omit `sessionId`');
     expect(result.text).toContain('intentional explicit cross-session target');
     expect(result.text.toLowerCase()).not.toContain('custom rule');
@@ -154,7 +154,7 @@ describe('executionRunsGuidanceV1', () => {
       maxChars: 10_000,
     });
 
-    expect(result.text).toContain('Happier-Managed Runs');
+    expect(result.text).toContain('Kaiwu-Managed Runs');
     expect(result.text).toContain('Custom Execution-Run Rules');
     expect(result.text).toContain('action_spec_search');
     expect(result.text).toContain('action_spec_get');

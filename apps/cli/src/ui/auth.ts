@@ -61,8 +61,8 @@ function resolveTailscaleServeStatusTimeoutMs(): number {
  *
  * Unbounded by default, because a person watching a QR code on their desk is
  * not a hung process. Callers that hand this flow a terminal they have to give
- * back — `happier setup`, which runs `auth login` with inherited stdio — ask for
- * a bound with `happier auth login --wait-timeout <seconds>`, which arrives here
+ * back — `kaiwu setup`, which runs `auth login` with inherited stdio — ask for
+ * a bound with `kaiwu auth login --wait-timeout <seconds>`, which arrives here
  * the same way the poll interval and the auth method already do.
  */
 function resolveTerminalAuthWaitTimeoutMs(): number | null {
@@ -81,17 +81,17 @@ function printServerUrlReachabilityHint(serverUrl: string): void {
 
 function printMobileLinkMissingServerUrlHint(params: Readonly<{ serverUrl: string; kind: 'terminalConnect' | 'configureServer' }>): void {
     // eslint-disable-next-line no-console
-    console.log('Note: this mobile link does not include a relay URL.');
+    console.log('提示：此手机链接未包含中继 URL。');
     if (isLoopbackServerHost(params.serverUrl)) {
         // eslint-disable-next-line no-console
-        console.log('Your relay URL is set to localhost, which is only reachable on this machine.');
+        console.log('你的中继 URL 设置为 localhost，该地址仅可在此电脑上访问。');
         // eslint-disable-next-line no-console
-        console.log('On your phone, open Kaiwu → Settings → Relays and add a URL your phone can reach (LAN IP/VPN/Tailscale).');
+        console.log('请在手机上打开 Kaiwu → 设置 → 中继，并添加手机可访问的 URL（局域网 IP / VPN / Tailscale）。');
         // eslint-disable-next-line no-console
-        console.log('Tip (recommended): set HAPPIER_PUBLIC_SERVER_URL to a shareable https:// URL so future QR codes include it automatically.');
+        console.log('建议（推荐）：设置 HAPPIER_PUBLIC_SERVER_URL 为可共享的 https:// URL，以便后续二维码自动包含该地址。');
     } else {
         // eslint-disable-next-line no-console
-        console.log('Your phone will use its currently configured relay (Kaiwu → Settings → Relays).');
+        console.log('你的手机将使用当前配置的中继（Kaiwu → 设置 → 中继）。');
     }
     // eslint-disable-next-line no-console
     console.log('');
@@ -188,7 +188,7 @@ export async function doAuth(): Promise<Credentials | null> {
     const envMethod = envMethodRaw === 'web' || envMethodRaw === 'browser' ? 'web' : envMethodRaw === 'mobile' ? 'mobile' : null;
     const authMethod: AuthMethod | 'both' | null = envMethod ?? (isInteractive ? await selectAuthenticationMethod() : 'both');
     if (!authMethod) {
-        console.log('\nAuthentication cancelled.\n');
+        console.log('\n已取消认证。\n');
         process.exit(0);
     }
 
@@ -225,7 +225,7 @@ export async function doAuth(): Promise<Credentials | null> {
         if (debugEnabled) {
             console.log(`[AUTH DEBUG] Failed to send auth request:`, error);
         }
-        console.log('Failed to create authentication request, please try again later.');
+        console.log('创建认证请求失败，请稍后重试。');
         return null;
     }
 
@@ -270,29 +270,29 @@ async function doBothAuth(params: Readonly<{
     });
     const terminalMobileEmbedsServerUrl = terminalLinks.mobileUrl.includes('server=');
 
-    console.log('\nAuthenticate this machine\n');
-    console.log(`Relay URL: ${configuration.serverUrl}`);
+    console.log('\n认证此电脑\n');
+    console.log(`中继 URL: ${configuration.serverUrl}`);
     if (configuration.apiServerUrl !== configuration.serverUrl) {
         console.log(`API URL: ${configuration.apiServerUrl}`);
     }
-    console.log(`Web app URL: ${configuration.webappUrl}`);
+    console.log(`Web 应用 URL: ${configuration.webappUrl}`);
     console.log('');
     printServerUrlReachabilityHint(configuration.serverUrl);
-    console.log('Recommended: use the mobile app first. It makes linking additional devices easier.');
+    console.log('推荐：优先使用手机 App。这样可以更轻松地绑定其他设备。');
     if (params.pairingRequirement === 'v3') {
-        console.log('Authenticated pairing v3 is required. For protection from an untrusted relay, approve with the native mobile app; web pairing trusts the web app origin.');
+        console.log('需要进行 v3 身份认证配对。为防止不受信任的中继，请使用原生手机 App 批准；网页配对将信任 Web 应用来源。');
     }
     console.log('');
-    console.log('Before you continue:');
+    console.log('在继续之前：');
     if (terminalMobileEmbedsServerUrl) {
-        console.log('- Make sure your phone/browser can reach the relay URL embedded in the QR/deep link');
-        console.log('- The app/web UI may prompt you to switch relays automatically (because the link includes server=...)');
+        console.log('- 请确保你的手机/浏览器可以访问二维码/深度链接中包含的中继 URL');
+        console.log('- App / 网页端可能会提示你自动切换中继（因为链接中包含 server=...）');
     } else {
-        console.log('- Make sure your phone is already configured to the right relay (Kaiwu → Settings → Relays)');
-        console.log('- Tip: set HAPPIER_PUBLIC_SERVER_URL to embed a shareable relay URL in future QR codes');
+        console.log('- 请确保你的手机已配置正确的中继（Kaiwu → 设置 → 中继）');
+        console.log('- 提示：设置 HAPPIER_PUBLIC_SERVER_URL 可在后续二维码中嵌入可共享的中继 URL');
     }
-    console.log('- Sign in (or create an account)');
-    console.log('- If you already have a Kaiwu account on another device, sign in with that same account');
+    console.log('- 登录（或创建账号）');
+    console.log('- 如果你已在其他设备上拥有 Kaiwu 账号，请使用同一账号登录');
     console.log('');
 
     if (!terminalMobileEmbedsServerUrl) {
@@ -306,10 +306,10 @@ async function doBothAuth(params: Readonly<{
             webappUrl: configuration.webappUrl,
             serverUrl: configuration.serverUrl,
         });
-        console.log('Optional — Configure relay in app/web (advanced)');
-        console.log('Web (prefill + confirm):');
+        console.log('可选 — 在 App / 网页端配置中继（高级）');
+        console.log('网页端（预填 + 确认）：');
         console.log(configureLinks.webUrl);
-        console.log('Mobile deep link:');
+        console.log('手机 App 深度链接：');
         console.log(configureLinks.mobileUrl);
         console.log('');
         if (!configureLinks.mobileUrl.includes('url=')) {
@@ -317,15 +317,15 @@ async function doBothAuth(params: Readonly<{
         }
     }
 
-    console.log('Mobile (recommended)');
-    console.log('Scan this QR code with your Kaiwu mobile app:\n');
+    console.log('手机 App（推荐）');
+    console.log('使用你的 Kaiwu 手机 App 扫描此二维码：\n');
     displayQRCode(terminalLinks.mobileUrl);
-    console.log('\nOr manually open this URL:');
+    console.log('\n或手动打开此 URL：');
     console.log(terminalLinks.mobileUrl);
     console.log('');
 
-    console.log('Web (fallback)');
-    console.log('Open this URL in a browser where you are signed in to Kaiwu:');
+    console.log('网页端（备用）');
+    console.log('在已登录 Kaiwu 的浏览器中打开此 URL：');
     console.log(terminalLinks.webUrl);
     console.log('');
 
@@ -411,18 +411,18 @@ async function doMobileAuth(params: Readonly<{
     if (process.stdout.isTTY) {
         console.clear();
     }
-    console.log('\nMobile Authentication\n');
-    console.log(`Relay URL: ${configuration.serverUrl}`);
+    console.log('\n手机 App 认证\n');
+    console.log(`中继 URL: ${configuration.serverUrl}`);
     if (configuration.apiServerUrl !== configuration.serverUrl) {
         console.log(`API URL: ${configuration.apiServerUrl}`);
     }
-    console.log(`Web app URL: ${configuration.webappUrl}\n`);
+    console.log(`Web 应用 URL: ${configuration.webappUrl}\n`);
     printServerUrlReachabilityHint(configuration.serverUrl);
-    console.log('Recommended: use the mobile app first. It makes linking additional devices easier.');
+    console.log('推荐：优先使用手机 App。这样可以更轻松地绑定其他设备。');
     if (params.pairingRequirement === 'v3') {
-        console.log('Authenticated pairing v3 is required. For protection from an untrusted relay, approve with the native mobile app; web pairing trusts the web app origin.');
+        console.log('需要进行 v3 身份认证配对。为防止不受信任的中继，请使用原生手机 App 批准；网页配对将信任 Web 应用来源。');
     }
-    console.log('If you already have a Kaiwu account on another device, sign in with that same account.\n');
+    console.log('如果你已在其他设备上拥有 Kaiwu 账号，请使用同一账号登录。\n');
 
     const publicKeyB64Url = encodeBase64Url(params.keypair.publicKey);
     const terminalLinks = buildTerminalConnectLinks({
@@ -440,10 +440,10 @@ async function doMobileAuth(params: Readonly<{
             webappUrl: configuration.webappUrl,
             serverUrl: configuration.serverUrl,
         });
-        console.log('Optional — Configure relay in app/web (advanced)');
-        console.log('Web (prefill + confirm):');
+        console.log('可选 — 在 App / 网页端配置中继（高级）');
+        console.log('网页端（预填 + 确认）：');
         console.log(configureLinks.webUrl);
-        console.log('Mobile deep link:');
+        console.log('手机 App 深度链接：');
         console.log(configureLinks.mobileUrl);
         console.log('');
         if (!configureLinks.mobileUrl.includes('url=')) {
@@ -455,14 +455,14 @@ async function doMobileAuth(params: Readonly<{
         printMobileLinkMissingServerUrlHint({ serverUrl: configuration.serverUrl, kind: 'terminalConnect' });
     }
 
-    console.log('Scan this QR code with your Kaiwu mobile app:\n');
+    console.log('使用你的 Kaiwu 手机 App 扫描此二维码：\n');
     displayQRCode(terminalLinks.mobileUrl);
 
-    console.log('\nOr manually enter this URL:');
+    console.log('\n或手动输入此 URL：');
     console.log(terminalLinks.mobileUrl);
     console.log('');
 
-    console.log('Web (fallback):');
+    console.log('网页端（备用）：');
     console.log(terminalLinks.webUrl);
     console.log('');
 
@@ -481,17 +481,17 @@ async function doWebAuth(params: Readonly<{
     if (process.stdout.isTTY) {
         console.clear();
     }
-    console.log('\nWeb Authentication\n');
-    console.log(`This terminal is connected to: ${configuration.serverUrl}`);
+    console.log('\n网页端认证\n');
+    console.log(`当前终端已连接至: ${configuration.serverUrl}`);
     if (configuration.apiServerUrl !== configuration.serverUrl) {
         console.log(`API URL: ${configuration.apiServerUrl}`);
     }
-    console.log(`Web app URL: ${configuration.webappUrl}\n`);
+    console.log(`Web 应用 URL: ${configuration.webappUrl}\n`);
     printServerUrlReachabilityHint(configuration.serverUrl);
     if (params.pairingRequirement === 'v3') {
-        console.log('Authenticated pairing v3 is required, but web pairing still trusts the web app origin. Use the native mobile app for protection from an untrusted relay.\n');
+        console.log('需要进行 v3 身份认证配对，但网页配对仍信任 Web 应用来源。若需防范不受信任的中继，请使用原生手机 App。\n');
     }
-    console.log('If you already have a Kaiwu account on another device, sign in with that same account.\n');
+    console.log('如果你已在其他设备上拥有 Kaiwu 账号，请使用同一账号登录。\n');
 
     const publicKeyB64Url = encodeBase64Url(params.keypair.publicKey);
     const terminalLinks = buildTerminalConnectLinks({
@@ -504,29 +504,29 @@ async function doWebAuth(params: Readonly<{
     const noOpenRaw = (process.env.HAPPIER_NO_BROWSER_OPEN ?? '').toString().trim();
     const noOpen = Boolean(noOpenRaw) && noOpenRaw !== '0' && noOpenRaw.toLowerCase() !== 'false';
     if (!noOpen) {
-        console.log('Opening your browser...');
+        console.log('正在打开浏览器...');
 
         const browserOpened = await openBrowser(webUrl);
 
         if (browserOpened) {
-            console.log('✓ Browser opened\n');
-            console.log('Complete authentication in your browser window.');
+            console.log('✓ 浏览器已打开\n');
+            console.log('请在浏览器窗口中完成认证。');
         } else {
-            console.log('Could not open browser automatically.');
+            console.log('无法自动打开浏览器。');
         }
     } else {
-        console.log('Browser opening is disabled (HAPPIER_NO_BROWSER_OPEN is set).');
-        console.log('Open the URL below in the browser profile/account you want to authenticate.');
+        console.log('自动打开浏览器已禁用（已设置 HAPPIER_NO_BROWSER_OPEN）。');
+        console.log('请在你要认证的浏览器配置文件/账号中打开下方 URL。');
     }
 
     // I changed this to always show the URL because we got a report from
     // someone running happy inside the dev-box container image that they saw the
     // "Complete authentication in your browser window." but nothing opened.
     // https://github.com/slopus/happy/issues/19
-    console.log('\nIf the browser did not open, please copy and paste this URL:');
+    console.log('\n如果浏览器未自动打开，请复制并粘贴此 URL：');
     console.log(webUrl);
     console.log('');
-    console.log('If you want to use the mobile app instead, manually open this deep link:');
+    console.log('如果你想改用手机 App，请手动打开此深度链接：');
     console.log(terminalLinks.mobileUrl);
     console.log('');
     if (!terminalLinks.mobileUrl.includes('server=')) {
@@ -545,14 +545,14 @@ async function waitForAuthentication(params: Readonly<{
     pairing: TerminalPairingAuthentication;
     pairingRequirement: TerminalPairingRequirement | null;
 }>): Promise<Credentials | null> {
-    process.stdout.write('Waiting for authentication');
+    process.stdout.write('正在等待认证');
     let dots = 0;
     let cancelled = false;
 
     // Handle Ctrl-C during waiting
     const handleInterrupt = () => {
         cancelled = true;
-        console.log('\n\nAuthentication cancelled.');
+        console.log('\n\n已取消认证。');
         process.exit(0);
     };
 
@@ -571,8 +571,8 @@ async function waitForAuthentication(params: Readonly<{
         };
         const waitExpired = (): boolean => waitDeadlineMs !== null && Date.now() >= waitDeadlineMs;
         const printWaitExpired = (): void => {
-            console.log('\n\nStopped waiting for the sign-in to be approved.');
-            console.log('Run `happier auth login` again to create a new sign-in request.');
+            console.log('\n\n已停止等待登录批准。');
+            console.log('重新运行 `kaiwu auth login` 以创建新的登录请求。');
         };
 
         let mode: 'status-claim' | 'legacy-post' = 'status-claim';
@@ -596,21 +596,21 @@ async function waitForAuthentication(params: Readonly<{
                     if (!opened) {
                         console.log(
                             params.pairingRequirement === 'v3'
-                                ? '\n\nAuthenticated terminal pairing v3 is required. Update the Kaiwu mobile app and scan a new QR code.'
-                                : '\n\nFailed to decrypt response. Please try again.',
+                                ? '\n\n需要进行 v3 身份认证终端配对。请更新 Kaiwu 手机 App 并扫描新的二维码。'
+                                : '\n\n解密响应失败，请重试。',
                         );
                         return null;
                     }
 
                     if (opened.type === 'legacy') {
                         await writeCredentialsLegacy({ secret: opened.key, token });
-                        console.log('\n\n✓ Authentication successful\n');
+                        console.log('\n\n✓ 认证成功\n');
                         return { encryption: { type: 'legacy', secret: opened.key }, token };
                     }
 
                     const publicKeyBytes = tweetnacl.box.keyPair.fromSecretKey(opened.key).publicKey;
                     await writeCredentialsDataKey({ publicKey: publicKeyBytes, machineKey: opened.key, token });
-                    console.log('\n\n✓ Authentication successful\n');
+                    console.log('\n\n✓ 认证成功\n');
                     return { encryption: { type: 'dataKey', publicKey: publicKeyBytes, machineKey: opened.key }, token };
                 };
 
@@ -657,7 +657,7 @@ async function waitForAuthentication(params: Readonly<{
 
                     const status = statusRes.data?.status;
                     if (status === 'not_found') {
-                        console.log('\n\nAuthentication request expired. Please run `happier auth login` again.');
+                        console.log('\n\n认证请求已过期，请重新运行 `kaiwu auth login`。');
                         return null;
                     }
 
@@ -675,7 +675,7 @@ async function waitForAuthentication(params: Readonly<{
                             }
 
                             if (typeof claimData.token !== 'string' || typeof claimData.response !== 'string') {
-                                console.log('\n\nUnexpected response from the relay. Please try again.');
+                                console.log('\n\n收到来自中继服务的不符合预期响应，请重试。');
                                 return null;
                             }
 
@@ -690,8 +690,8 @@ async function waitForAuthentication(params: Readonly<{
                             if (code === 410 && (err === 'expired' || err === 'consumed')) {
                                 const message =
                                     err === 'consumed'
-                                        ? 'Authentication request was already claimed. Please run `happier auth login` again.'
-                                        : 'Authentication request expired. Please run `happier auth login` again.';
+                                        ? '认证请求已被认领，请重新运行 `kaiwu auth login`。'
+                                        : '认证请求已过期，请重新运行 `kaiwu auth login`。';
                                 console.log(`\n\n${message}`);
                                 return null;
                             }
@@ -715,7 +715,7 @@ async function waitForAuthentication(params: Readonly<{
                     printWaitExpired();
                     return null;
                 }
-                console.log('\n\nFailed to check authentication status. Please try again.');
+                console.log('\n\n检查认证状态失败，请重试。');
                 return null;
             }
 
@@ -725,7 +725,7 @@ async function waitForAuthentication(params: Readonly<{
             }
 
             // Animate waiting dots
-            process.stdout.write('\rWaiting for authentication' + '.'.repeat((dots % 3) + 1) + '   ');
+            process.stdout.write('\r正在等待认证' + '.'.repeat((dots % 3) + 1) + '   ');
             dots++;
 
             await delay(pollIntervalMs);
