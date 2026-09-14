@@ -87,6 +87,37 @@ describe('resolveToolHeaderTextPresentation (real known tools)', () => {
         expect(model.title).toBe('Subagent');
     });
 
+    it('labels a Codex native subagent from its role and latest applied prompt model', () => {
+        const tool = makeToolCall({
+            name: 'SubAgent',
+            input: { prompt: 'Inspect the consent seam', role: 'explorer', nickname: 'Kepler' },
+        });
+        const model = resolveToolHeaderTextPresentation({
+            tool,
+            metadata: {
+                flavor: 'codex',
+                sessionAppliedModelV1: {
+                    v: 1,
+                    provider: 'codex',
+                    updatedAt: 2,
+                    modelId: 'gpt-5.6-sol',
+                },
+                sessionModelsV1: {
+                    v: 1,
+                    provider: 'codex',
+                    updatedAt: 1,
+                    currentModelId: 'gpt-5.6-luna',
+                    availableModels: [
+                        { id: 'gpt-5.6-sol', name: 'GPT-5.6-Sol' },
+                        { id: 'gpt-5.6-luna', name: 'GPT-5.6-Luna' },
+                    ],
+                },
+            } as any,
+        });
+
+        expect(model.title).toBe('GPT-5.6-Sol Explorer Agent');
+    });
+
     it('renders SubAgentRun with Sub-agent title and compacted subtitle', () => {
         const tool = makeToolCall({
             name: 'SubAgentRun',
