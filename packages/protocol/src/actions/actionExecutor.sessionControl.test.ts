@@ -904,7 +904,7 @@ describe('createActionExecutor (session control)', () => {
     expect(sessionSendMessage).not.toHaveBeenCalled();
   });
 
-  it('clamps a session-agent message without an explicit override to the caller permission', async () => {
+  it('keeps a session-agent message override implicit while forwarding the caller permission ceiling', async () => {
     const sessionSendMessage = vi.fn(async () => ({ ok: true }));
     const executor = createExecutor({ sessionSendMessage });
 
@@ -919,9 +919,11 @@ describe('createActionExecutor (session control)', () => {
 
     expect(res).toEqual({ ok: true, result: { ok: true } });
     expect(sessionSendMessage).toHaveBeenCalledWith(expect.objectContaining({
-      permissionModeOverride: 'read-only',
       callerSurface: 'session_agent',
       callerPermissionMode: 'read-only',
+    }));
+    expect(sessionSendMessage).toHaveBeenCalledWith(expect.not.objectContaining({
+      permissionModeOverride: expect.anything(),
     }));
   });
 

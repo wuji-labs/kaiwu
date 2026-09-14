@@ -1611,7 +1611,7 @@ export function createCliActionDeps(params: Readonly<{
     },
     ...(approvalsStore ?? {}),
     ...inventoryDeps,
-    sessionSendMessage: async ({ sessionId, message, requestedAction, wait, timeoutSeconds, permissionModeOverride, modelOverride }) => {
+    sessionSendMessage: async ({ sessionId, message, requestedAction, wait, timeoutSeconds, permissionModeOverride, modelOverride, callerSurface, callerPermissionMode }) => {
       if (!params.credentials) {
         return { ok: false, errorCode: 'not_authenticated', error: 'not_authenticated' };
       }
@@ -1638,6 +1638,9 @@ export function createCliActionDeps(params: Readonly<{
         timeoutMs: normalizedTimeoutSeconds * 1000,
         ...(normalizedPermissionModeOverride
           ? { permissionModeOverride: normalizedPermissionModeOverride }
+          : {}),
+        ...(callerSurface === 'session_agent'
+          ? { permissionModeCeiling: readValidPermissionMode(callerPermissionMode) ?? 'default' }
           : {}),
         ...(modelOverride === null
           ? { modelOverride: null }

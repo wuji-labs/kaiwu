@@ -856,6 +856,40 @@ describe('createCliActionDeps session controls', () => {
     expect(mocks.sendSessionMessage).not.toHaveBeenCalled();
   });
 
+  it('forwards the session-agent permission ceiling without manufacturing a target mode override', async () => {
+    const deps = createCliActionDeps({
+      token: 'token',
+      credentials: createCredentials(),
+      sessionId: 'sess_1',
+      ctx: {
+        encryptionKey: new Uint8Array(32).fill(1),
+        encryptionVariant: 'legacy',
+      },
+      mode: 'plain',
+      rawSession: {
+        metadata: {
+          permissionMode: 'safe-yolo',
+          permissionModeUpdatedAt: 10,
+        },
+      },
+    });
+
+    await deps.sessionSendMessage({
+      sessionId: 'sess_2',
+      message: 'hello',
+      requestedAction: { v: 1, kind: 'steer_if_active' },
+      callerSurface: 'session_agent',
+      callerPermissionMode: 'safe-yolo',
+    });
+
+    expect(mocks.sendSessionMessage).toHaveBeenCalledWith(expect.objectContaining({
+      permissionModeCeiling: 'safe-yolo',
+    }));
+    expect(mocks.sendSessionMessage).toHaveBeenCalledWith(expect.not.objectContaining({
+      permissionModeOverride: expect.anything(),
+    }));
+  });
+
   it('preserves exact nonblank opaque model override bytes through the CLI service adapter', async () => {
     const deps = createCliActionDeps({
       token: 'token',
