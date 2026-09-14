@@ -17,9 +17,11 @@ import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/
 import { registerHappierMcpBridgeTools } from './registerHappierMcpBridgeTools';
 import { registerHappierMcpResources } from '@/mcp/resources/registerHappierMcpResources';
 import { callMcpToolWithResolvedTimeout } from '@/mcp/mcpToolCallRequestOptions';
+import { createMcpProgressForwarder } from '@/mcp/bridges/createMcpProgressForwarder';
 import { isActionEnabledByEnv } from '@/settings/actionsSettings';
 import { withMcpTimeout } from '@/mcp/runtime/withMcpTimeout';
 import { bindMcpStdioBridgeLifecycle } from '@/mcp/runtime/bindMcpStdioBridgeLifecycle';
+import { logger } from '@/ui/logger';
 
 const MCP_BRIDGE_STARTUP_TIMEOUT_MS = 60_000;
 
@@ -78,9 +80,32 @@ async function main() {
   });
 
   registerHappierMcpBridgeTools(server as any, {
-    callHttpTool: async (name, args) => {
+    callHttpTool: async (name, args, extra) => {
       const client = await ensureHttpClient();
-      return await callMcpToolWithResolvedTimeout({ client, toolName: name, args });
+      const requestExtra = extra && typeof extra === 'object'
+        ? extra as Readonly<{
+          _meta?: Parameters<typeof createMcpProgressForwarder>[0]['requestMetadata'];
+          sendNotification?: Parameters<typeof createMcpProgressForwarder>[0]['sendNotification'];
+        }>
+        : null;
+      const progress = requestExtra?.sendNotification
+        ? createMcpProgressForwarder({
+          requestMetadata: requestExtra._meta,
+          sendNotification: requestExtra.sendNotification,
+          onError: (err) => {
+            logger.debug('[happier-mcp] Failed to forward progress', err);
+          },
+        })
+        : null;
+      const result = await callMcpToolWithResolvedTimeout({
+        client,
+        toolName: name,
+        args,
+        requestMetadata: progress?.requestMetadata,
+        onprogress: progress?.onprogress,
+      });
+      await progress?.flush();
+      return result;
     },
   });
   registerHappierMcpResources(server as any, {

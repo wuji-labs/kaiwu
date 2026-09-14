@@ -3,12 +3,60 @@ import { dispatchBuiltInHappierTool } from '@/agent/tools/happierTools/dispatchB
 import type { ActionsSettingsV1, ApprovalRequestOriginV1 } from '@happier-dev/protocol';
 import { getEquivalentActionIdForBuiltInTool } from '@/agent/tools/happierTools/actionToolCatalog';
 import { projectContextualActionToolInputSchema } from '@/agent/tools/happierTools/contextualActionToolInput';
+import { logger } from '@/ui/logger';
+
+const MCP_TOOL_PROGRESS_KEEPALIVE_INTERVAL_MS = 15_000;
 
 type ToolRegistrar = Readonly<{
     registerTool: (name: string, meta: unknown, handler: (args: unknown, extra?: unknown) => Promise<unknown>) => void;
 }>;
 
 type DispatchDeps = Parameters<typeof dispatchBuiltInHappierTool>[0]['deps'];
+
+type McpRequestHandlerExtra = Readonly<{
+    _meta?: Readonly<{ progressToken?: unknown }>;
+    signal?: AbortSignal;
+    sendNotification?: (notification: Readonly<{
+        method: 'notifications/progress';
+        params: Readonly<{ progressToken: string | number; progress: number }>;
+    }>) => Promise<void>;
+}>;
+
+function startMcpToolProgressKeepalive(extra: unknown): () => void {
+    const request = extra && typeof extra === 'object' ? extra as McpRequestHandlerExtra : null;
+    const progressToken = request?._meta?.progressToken;
+    const sendNotification = request?.sendNotification;
+    if (
+        (typeof progressToken !== 'string' && typeof progressToken !== 'number')
+        || typeof sendNotification !== 'function'
+        || request?.signal?.aborted === true
+    ) {
+        return () => undefined;
+    }
+
+    let progress = 0;
+    let stopped = false;
+    let timer: ReturnType<typeof setInterval> | null = null;
+    const stop = () => {
+        if (stopped) return;
+        stopped = true;
+        if (timer) clearInterval(timer);
+        request.signal?.removeEventListener('abort', stop);
+    };
+    timer = setInterval(() => {
+        progress += 1;
+        void sendNotification({
+            method: 'notifications/progress',
+            params: { progressToken, progress },
+        }).catch((error) => {
+            stop();
+            logger.debug('[happierMCP] Failed to send tool progress keepalive', error);
+        });
+    }, MCP_TOOL_PROGRESS_KEEPALIVE_INTERVAL_MS);
+    timer.unref?.();
+    request.signal?.addEventListener('abort', stop, { once: true });
+    return stop;
+}
 
 function normalizeString(value: unknown): string | null {
     const normalized = typeof value === 'string' || typeof value === 'number'
@@ -75,6 +123,7 @@ export function registerHappierMcpBuiltInTools(
                 inputSchema,
             },
             async (args: unknown, extra?: unknown) => {
+                const stopProgressKeepalive = startMcpToolProgressKeepalive(extra);
                 try {
                     const sessionId = params.resolveSessionId ? params.resolveSessionId(args) : params.sessionId;
                     const approvalOrigin = buildApprovalOrigin({
@@ -124,6 +173,8 @@ export function registerHappierMcpBuiltInTools(
                         content: [{ type: 'text' as const, text: payload }],
                         isError: true as const,
                     };
+                } finally {
+                    stopProgressKeepalive();
                 }
             },
         );
