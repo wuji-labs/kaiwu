@@ -7586,6 +7586,10 @@ settingsSession: {
         logoutSubtitle: '登出並清除本機資料',
         logoutConfirm: '您確定要登出嗎？請確保您已備份金鑰！',
         encryptionUpdateFailed: '無法更新加密設定',
+        requireE2ee: '要求端對端加密',
+        requireE2eeDescription: '拒絕在此裝置和已同步的守護程序上使用明文帳戶設定與工作階段。',
+        requireE2eeNeedsEncryptionTitle: '請先啟用加密',
+        requireE2eeNeedsEncryptionDescription: '請先為此帳戶啟用端對端加密，再將其設為必要。',
         secretKeyMissing: '密鑰不可用。請先復原你的帳戶。',
         restoreRequiredTitle: '需要復原',
         restoreRequiredBody:

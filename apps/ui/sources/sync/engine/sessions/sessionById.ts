@@ -1,8 +1,10 @@
 import {
+  isSessionEncryptionModeAllowedByClientRequirement,
   listCompletedSessionTurns,
   SessionTurnsProjectionV1Schema,
   type SessionTurnsProjectionV1,
   type V2SessionByIdResponse,
+  type ClientEncryptionRequirement,
 } from '@happier-dev/protocol';
 
 import type { Metadata, Session } from '@/sync/domains/state/storageTypes';
@@ -186,6 +188,7 @@ export async function fetchAndApplySessionById(params: Readonly<{
   log: { log: (message: string) => void };
   timeoutMs?: number;
   includeTurnsProjection?: boolean;
+  clientEncryptionRequirement: ClientEncryptionRequirement;
 }>): Promise<{
   ok: boolean;
   session: (V2SessionByIdResponse['session'] & { metadata: Metadata | null }) | null;
@@ -275,6 +278,9 @@ export async function fetchAndApplySessionById(params: Readonly<{
   }
 
   const encryptionMode: 'e2ee' | 'plain' = row.encryptionMode === 'plain' ? 'plain' : 'e2ee';
+  if (!isSessionEncryptionModeAllowedByClientRequirement(params.clientEncryptionRequirement, encryptionMode)) {
+    return { ok: false, session: null, errorCode: 'client_e2ee_required' };
+  }
 
   if (encryptionMode === 'plain') {
     params.sessionDataKeys.delete(sessionId);

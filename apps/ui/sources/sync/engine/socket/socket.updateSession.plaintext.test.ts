@@ -2272,6 +2272,52 @@ describe('socket update handling: plaintext update-session', () => {
         expect((params.applySessions as unknown as ReturnType<typeof vi.fn>)).not.toHaveBeenCalled();
     });
 
+    it('does not apply plaintext cache-only metadata while this client requires E2EE', async () => {
+        storage.getState().applySettingsLocal({
+            clientEncryptionRequirementLocalV1: 'require_e2ee',
+        });
+        storage.getState().replaceSessionListRenderables([
+            {
+                id: 's_cached_plaintext_blocked',
+                seq: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                active: true,
+                activeAt: 1,
+                archivedAt: null,
+                metadataVersion: 1,
+                agentStateVersion: 0,
+                metadata: { path: '/before', host: 'localhost' },
+                thinking: false,
+                thinkingAt: 0,
+                presence: 'online',
+            },
+        ]);
+
+        const params = buildBaseParams();
+        await handleUpdateContainer({
+            ...params,
+            updateData: {
+                id: 'u_plain_metadata_cache_only_blocked',
+                seq: 14,
+                createdAt: 1238,
+                body: {
+                    t: 'update-session',
+                    id: 's_cached_plaintext_blocked',
+                    metadata: { version: 2, value: JSON.stringify({ path: '/after', host: 'devbox' }) },
+                },
+            },
+        });
+
+        expect(storage.getState().sessionListRenderables['s_cached_plaintext_blocked']).toEqual(
+            expect.objectContaining({
+                metadata: expect.objectContaining({ path: '/before', host: 'localhost' }),
+                metadataVersion: 1,
+            }),
+        );
+        expect((params.applySessions as unknown as ReturnType<typeof vi.fn>)).not.toHaveBeenCalled();
+    });
+
     it('recomputes cache-only unread state after metadata read-state updates are applied', async () => {
         storage.getState().replaceSessionListRenderables([
             {

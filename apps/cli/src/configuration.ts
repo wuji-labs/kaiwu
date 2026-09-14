@@ -16,12 +16,23 @@ import {
   resolveManagedCliReleaseChannelSync,
 } from '@happier-dev/cli-common/firstPartyRuntime'
 import { CANONICAL_DAEMON_STATE_BASENAME } from '@/daemon/ownership/daemonOwnershipPaths'
-import { createServerUrlComparableKey, HAPPIER_REPLAY_SEED_MAX_CHARS, HAPPIER_REPLAY_SEED_MIN_CHARS } from '@happier-dev/protocol'
+import {
+  createServerUrlComparableKey,
+  HAPPIER_REPLAY_SEED_MAX_CHARS,
+  HAPPIER_REPLAY_SEED_MIN_CHARS,
+  MAX_EXECUTION_RUN_OBSERVATION_TIMEOUT_SECONDS,
+  type ClientEncryptionRequirement,
+} from '@happier-dev/protocol'
 import packageJson from '../package.json'
 import type { PublicReleaseRingId } from '@happier-dev/release-runtime/releaseRings'
 
 export const DEFAULT_MCP_TOOL_CALL_TIMEOUT_MS = 100_000_000;
 export const DEFAULT_EXECUTION_RUN_WAIT_MCP_TIMEOUT_GRACE_MS = 60_000;
+// Codex's default inbound MCP tool-call deadline is 300 seconds. Happier run waits
+// legitimately observe work for up to one hour, so leave two minutes for admission and the result
+// to traverse the bridge without making every stalled tool effectively unbounded.
+export const DEFAULT_CODEX_HAPPIER_MCP_TOOL_CALL_TIMEOUT_MS =
+  MAX_EXECUTION_RUN_OBSERVATION_TIMEOUT_SECONDS * 1_000 + 120_000;
 const MAX_SAFE_NODE_TIMEOUT_MS = 2_147_000_000;
 
 export type ShellBridgeContextEnvMode = 'off' | 'home' | 'full';
@@ -51,6 +62,15 @@ function resolveShellBridgeContextEnvMode(env: NodeJS.ProcessEnv): ShellBridgeCo
   return 'off';
 }
 
+function resolveClientEncryptionRequirementEnv(env: NodeJS.ProcessEnv): ClientEncryptionRequirement {
+  const raw = String(env.HAPPIER_ENCRYPTION_REQUIREMENT ?? '').trim().toLowerCase();
+  if (!raw || raw === 'follow_account') return 'follow_account';
+  if (raw === 'require_e2ee') return 'require_e2ee';
+  throw new Error(
+    'Invalid HAPPIER_ENCRYPTION_REQUIREMENT; expected "follow_account" or "require_e2ee"',
+  );
+}
+
 /**
  * Workspace replication job status heartbeat interval.
  *
@@ -73,32 +93,16 @@ export function isDaemonProcessArgv(args: readonly string[]): boolean {
   return args[1] === 'start' || args[1] === 'start-sync'
 }
 
-let warnedCliHomeDirDeprecated = false
-
-export function resetCliHomeDirWarningsForTests(): void {
-  warnedCliHomeDirDeprecated = false
-}
-
 function resolveCliHappyHomeDir(env: NodeJS.ProcessEnv): string {
-  const overrideRaw = env.KAIWU_HOME_DIR ?? env.HAPPIER_HOME_DIR
-  const override = typeof overrideRaw === 'string' ? overrideRaw.trim() : ''
+  const override = typeof env.HAPPIER_HOME_DIR === 'string' ? env.HAPPIER_HOME_DIR.trim() : ''
   if (!override) {
     const sudoInvokerHomeDir = resolveSudoInvokerHomeDir(env)
     const baseHomeDir = sudoInvokerHomeDir ?? expandHomeDirPath('~', env)
-    const kaiwuDir = join(baseHomeDir, '.kaiwu')
-    const happierDir = join(baseHomeDir, '.happier')
-    if (!existsSync(kaiwuDir) && existsSync(happierDir)) {
-      if (!warnedCliHomeDirDeprecated) {
-        warnedCliHomeDirDeprecated = true
-        console.warn('[kaiwu] ~/.happier is deprecated, use ~/.kaiwu')
-      }
-      return happierDir
-    }
-    return kaiwuDir
+    return join(baseHomeDir, '.happier')
   }
   const expandedOverride = expandHomeDirPath(override, env)
   if (process.platform !== 'win32' && isWindowsShapedAbsolutePath(expandedOverride)) {
-    throw new Error(`Windows-shaped KAIWU_HOME_DIR overrides are not supported on ${process.platform}`)
+    throw new Error(`Windows-shaped HAPPIER_HOME_DIR overrides are not supported on ${process.platform}`)
   }
   return isAbsolute(expandedOverride) ? expandedOverride : resolvePath(expandedOverride)
 }
@@ -247,6 +251,7 @@ class Configuration {
   // MCP client request timeouts for tool calls proxied by Happier-owned bridges.
   public readonly mcpToolCallTimeoutMs: number
   public readonly mcpExecutionRunWaitTimeoutGraceMs: number
+  public readonly codexHappierMcpToolCallTimeoutMs: number
 
   // Transcript lookup / recovery (fallback path when socket ACK/broadcast is missed).
   public readonly transcriptLookupRequestTimeoutMs: number
@@ -353,6 +358,7 @@ class Configuration {
   public readonly startupOverridesCacheMaxAgeMs: number
   // Shell-bridge command context env policy (default: off).
   public readonly shellBridgeContextEnvMode: ShellBridgeContextEnvMode
+  public readonly clientEncryptionRequirement: ClientEncryptionRequirement
 
   constructor() {
     // Check if we're running as daemon based on process args
@@ -402,6 +408,7 @@ class Configuration {
 
     this.activeServerDir = join(this.serversDir, this.activeServerId)
     this.shellBridgeContextEnvMode = resolveShellBridgeContextEnvMode(process.env)
+    this.clientEncryptionRequirement = resolveClientEncryptionRequirementEnv(process.env)
     this.legacyPrivateKeyFile = join(this.happyHomeDir, 'access.key')
     this.privateKeyFile = join(this.activeServerDir, 'access.key')
     this.installationIdentityFile = join(this.happyHomeDir, 'installation-identity.json')
@@ -613,6 +620,14 @@ class Configuration {
         min: 0,
         max: MAX_SAFE_NODE_TIMEOUT_MS,
         default: DEFAULT_EXECUTION_RUN_WAIT_MCP_TIMEOUT_GRACE_MS,
+      },
+    );
+    this.codexHappierMcpToolCallTimeoutMs = resolveIntEnvWithBounds(
+      'HAPPIER_CODEX_HAPPIER_MCP_TOOL_CALL_TIMEOUT_MS',
+      {
+        min: 60_000,
+        max: MAX_SAFE_NODE_TIMEOUT_MS,
+        default: DEFAULT_CODEX_HAPPIER_MCP_TOOL_CALL_TIMEOUT_MS,
       },
     );
 
@@ -1128,8 +1143,8 @@ function resolveServerSelection(params: Readonly<{
   persisted: PersistedServerSettings | null;
   serversDir: string;
 }>): Readonly<{ activeServerId: string; serverUrl: string; apiServerUrl: string; webappUrl: string }> {
-  const DEFAULT_SERVER_URL = 'https://kaiwu.chengqiyun.com';
-  const DEFAULT_WEBAPP_URL = 'https://kaiwu.chengqiyun.com';
+  const DEFAULT_SERVER_URL = 'https://api.happier.dev';
+  const DEFAULT_WEBAPP_URL = 'https://app.happier.dev';
   const resolveActiveServerId = (fallbackId: string): string =>
     sanitizeServerIdForFilesystem(params.envActiveServerId ?? fallbackId, 'cloud');
 

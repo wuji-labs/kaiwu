@@ -211,6 +211,7 @@ For the full user guide (UI behavior, defaults, apply timing), see the app docs:
 - `HAPPIER_HOME_DIR` - Custom home directory for Happier data (default: ~/.happier)
 - `HAPPIER_DISABLE_CAFFEINATE` - Disable macOS sleep prevention (set to `true`, `1`, or `yes`)
 - `HAPPIER_EXPERIMENTAL` - Enable experimental features (set to `true`, `1`, or `yes`)
+- `HAPPIER_ENCRYPTION_REQUIREMENT` - Set to `require_e2ee` to make the CLI/daemon refuse plaintext Account settings and sessions regardless of the server-advertised mode. The default is `follow_account`; invalid non-empty values stop startup.
 
 ### Gemini Configuration
 

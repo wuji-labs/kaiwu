@@ -12,9 +12,11 @@ import {
 
 import type { Credentials } from '@/persistence';
 import { resolveSessionEncryptionContext } from '@/api/client/encryptionKey';
+import { resolveSessionStoredContentEncryptionMode } from '@/session/transport/encryption/sessionEncryptionContext';
 import { createHttpStatusError, isAuthenticationStatus } from '@/api/client/httpStatusError';
 import { encodeBase64, encrypt } from '@/api/encryption';
 import { resolveSessionCreateEncryptionMode } from '@/api/session/resolveSessionCreateEncryptionMode';
+import { assertSessionEncryptionModeAllowedByEffectiveClientRequirement } from '@/settings/accountSettings/resolveEffectiveClientEncryptionRequirement';
 import { configuration } from '@/configuration';
 import { resolveServerHttpBaseUrl } from './serverHttpBaseUrl';
 import {
@@ -415,6 +417,9 @@ export async function getOrCreateSessionByTag(params: Readonly<{
   if (!parsed || !parsed.session || typeof parsed.session !== 'object') {
     throw new Error('Unexpected /v1/sessions response shape');
   }
+  assertSessionEncryptionModeAllowedByEffectiveClientRequirement(
+    resolveSessionStoredContentEncryptionMode(parsed.session),
+  );
   // The current server marks whether this atomic create-or-load call created
   // the row. Older responses omit the additive field; treat that as unknown
   // rather than claiming ownership of a row that might predate this attempt.

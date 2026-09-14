@@ -217,6 +217,28 @@ describe('syncSettings account settings ciphertext', () => {
         mocks.storageState.applySettingsLocal.mockReset();
     });
 
+    it('refuses plaintext Account settings when the trusted local client pin requires E2EE', async () => {
+        mocks.storageState.settings = {
+            analyticsOptOut: false,
+            clientEncryptionRequirementLocalV1: 'require_e2ee',
+            clientEncryptionRequirementV1: 'follow_account',
+        };
+        mocks.serverFetch
+            .mockResolvedValueOnce(new Response(JSON.stringify({ mode: 'plain', updatedAt: 1 }), { status: 200 }))
+            .mockResolvedValueOnce(new Response(JSON.stringify({
+                content: { t: 'plain', v: { analyticsOptOut: false } },
+                version: 10,
+            }), { status: 200 }));
+
+        await expect(syncSettings({
+            credentials,
+            encryption: { getContentPrivateKey: () => TEST_MACHINE_KEY } as unknown as Encryption,
+            pendingSettings: {},
+            clearPendingSettings: vi.fn(),
+        })).rejects.toMatchObject({ code: 'CLIENT_E2EE_REQUIRED' });
+        expect(mocks.storageState.applySettings).not.toHaveBeenCalled();
+    });
+
     it('POSTs settings as a canonical account_scoped_v1 ciphertext (no encryptRaw)', async () => {
         const encryptionStub = {
             getContentPrivateKey: () => TEST_MACHINE_KEY,

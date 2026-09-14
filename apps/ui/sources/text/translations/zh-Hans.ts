@@ -9098,6 +9098,10 @@ settingsSession: {
     logoutSubtitle: "登出并清除本地数据",
     logoutConfirm: "您确定要登出吗？请确保您已备份密钥！",
     encryptionUpdateFailed: "更新加密设置失败",
+    requireE2ee: "要求端到端加密",
+    requireE2eeDescription: "拒绝在此设备和已同步守护进程上使用明文账户设置和会话。",
+    requireE2eeNeedsEncryptionTitle: "请先启用加密",
+    requireE2eeNeedsEncryptionDescription: "请先为此账户启用端到端加密，然后再将其设为必需。",
     secretKeyMissing: "密钥不可用。请先恢复你的账户。",
     restoreRequiredTitle: "需要恢复",
     restoreRequiredBody:

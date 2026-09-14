@@ -8906,6 +8906,10 @@ settingsSession: {
         logoutSubtitle: 'Abmelden und lokale Daten löschen',
         logoutConfirm: 'Willst du dich wirklich abmelden? Stell sicher, dass du deinen Secret Key gesichert hast!',
         encryptionUpdateFailed: 'Die Verschlüsselungseinstellung ließ sich nicht ändern',
+        requireE2ee: 'Ende-zu-Ende-Verschlüsselung verlangen',
+        requireE2eeDescription: 'Lehnt Klartext-Kontoeinstellungen und -Sitzungen auf diesem Gerät und synchronisierten Daemons ab.',
+        requireE2eeNeedsEncryptionTitle: 'Zuerst Verschlüsselung aktivieren',
+        requireE2eeNeedsEncryptionDescription: 'Aktiviere die Ende-zu-Ende-Verschlüsselung für dieses Konto, bevor du sie verlangst.',
         secretKeyMissing: 'Secret Key nicht verfügbar. Stell zuerst dein Konto wieder her.',
         restoreRequiredTitle: 'Wiederherstellung nötig',
         restoreRequiredBody:

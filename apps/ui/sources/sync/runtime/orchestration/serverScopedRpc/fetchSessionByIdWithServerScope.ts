@@ -2,6 +2,8 @@ import type { AuthCredentials } from '@/auth/storage/tokenStorage';
 import type { Session } from '@/sync/domains/state/storageTypes';
 import { fetchAndApplySessionById, type SessionByIdEncryption } from '@/sync/engine/sessions/sessionById';
 import { runtimeFetchWithServerReachability } from '@/sync/runtime/connectivity/serverReachabilityRuntimeFetch';
+import { storage } from '@/sync/domains/state/storage';
+import { resolveUiClientEncryptionRequirement } from '@/sync/domains/settings/clientEncryptionRequirement';
 
 import { resolveServerScopedSessionContext } from './resolveServerScopedSessionContext';
 
@@ -55,6 +57,11 @@ export async function fetchSessionByIdWithServerScope(params: Readonly<{
     timeoutMs?: number;
     includeTurnsProjection?: boolean;
 }>): Promise<Awaited<ReturnType<typeof fetchAndApplySessionById>>> {
+    const currentSettings = storage.getState().settings;
+    const clientEncryptionRequirement = resolveUiClientEncryptionRequirement({
+        syncedSettings: currentSettings,
+        localSettings: currentSettings,
+    });
     const context = await resolveServerScopedSessionContext({
         serverId: params.serverId ?? null,
         timeoutMs: params.timeoutMs,
@@ -77,6 +84,7 @@ export async function fetchSessionByIdWithServerScope(params: Readonly<{
             log: params.log,
             timeoutMs: params.timeoutMs,
             includeTurnsProjection: params.includeTurnsProjection,
+            clientEncryptionRequirement,
         });
     }
 
@@ -106,5 +114,6 @@ export async function fetchSessionByIdWithServerScope(params: Readonly<{
         log: params.log,
         timeoutMs: params.timeoutMs,
         includeTurnsProjection: params.includeTurnsProjection,
+        clientEncryptionRequirement,
     });
 }

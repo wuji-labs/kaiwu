@@ -9437,6 +9437,10 @@ settingsSession: {
     logoutConfirm:
       "Вы уверены, что хотите выйти? Убедитесь, что вы сохранили резервную копию секретного ключа!",
     encryptionUpdateFailed: "Не удалось обновить настройку шифрования",
+    requireE2ee: "Требовать сквозное шифрование",
+    requireE2eeDescription: "Отклонять настройки аккаунта и сеансы в открытом виде на этом устройстве и синхронизированных демонах.",
+    requireE2eeNeedsEncryptionTitle: "Сначала включите шифрование",
+    requireE2eeNeedsEncryptionDescription: "Включите сквозное шифрование для этого аккаунта, прежде чем требовать его.",
     secretKeyMissing: "Секретный ключ недоступен. Сначала восстановите аккаунт.",
     restoreRequiredTitle: "Требуется восстановление",
     restoreRequiredBody:

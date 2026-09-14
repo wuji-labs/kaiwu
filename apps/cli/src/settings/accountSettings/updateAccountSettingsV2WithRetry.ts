@@ -27,6 +27,7 @@ import {
   type AccountSettingsCache,
 } from './accountSettingsCache';
 import { resolveAccountSettingsHttpBaseUrl } from './resolveAccountSettingsHttpBaseUrl';
+import { assertAccountEncryptionModeAllowedByEffectiveClientRequirement } from './resolveEffectiveClientEncryptionRequirement';
 
 function resolveMaterial(credentials: Credentials): { type: 'legacy'; secret: Uint8Array } | { type: 'dataKey'; machineKey: Uint8Array } {
   return credentials.encryption.type === 'legacy'
@@ -202,10 +203,22 @@ export async function updateAccountSettingsV2WithRetry(_params: Readonly<{
 
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     const parsed = await parseSettingsFromContent({ content, credentials: params.credentials });
+    if (parsed.envelopeKind === 'plain') {
+      assertAccountEncryptionModeAllowedByEffectiveClientRequirement(
+        'plain',
+        accountSettingsParse(parsed.raw),
+      );
+    }
     const nextRaw = mergeMutationResultWithRawBase({
       rawBase: parsed.raw,
       mutatedRaw: parsePersistedAccountSettingsObject(params.mutate(parsed.raw)),
     });
+    if (parsed.envelopeKind === 'plain') {
+      assertAccountEncryptionModeAllowedByEffectiveClientRequirement(
+        'plain',
+        accountSettingsParse(nextRaw),
+      );
+    }
 
     if (isDeepStrictEqual(nextRaw, parsed.raw)) {
       await writeCacheSnapshot(content, version);

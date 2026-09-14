@@ -9783,6 +9783,10 @@ settingsSession: {
     logoutConfirm:
       "Sei sicuro di voler uscire? Assicurati di aver fatto il backup della tua chiave segreta!",
     encryptionUpdateFailed: "Impossibile aggiornare l’impostazione di crittografia",
+    requireE2ee: "Richiedi la crittografia end-to-end",
+    requireE2eeDescription: "Rifiuta impostazioni account e sessioni in chiaro su questo dispositivo e nei daemon sincronizzati.",
+    requireE2eeNeedsEncryptionTitle: "Abilita prima la crittografia",
+    requireE2eeNeedsEncryptionDescription: "Abilita la crittografia end-to-end per questo account prima di richiederla.",
     secretKeyMissing: "Chiave segreta non disponibile. Ripristina prima il tuo account.",
     restoreRequiredTitle: "Ripristino richiesto",
     restoreRequiredBody:

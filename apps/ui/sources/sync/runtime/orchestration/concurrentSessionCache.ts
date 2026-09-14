@@ -3,6 +3,7 @@ import { Encryption } from '@/sync/encryption/encryption';
 import { createEncryptionFromAuthCredentials } from '@/auth/encryption/createEncryptionFromAuthCredentials';
 import { fetchAndApplyMachines, type MachineDataKeyCacheEntry } from '@/sync/engine/machines/syncMachines';
 import { fetchAndApplySessions } from '@/sync/engine/sessions/sessionSnapshot';
+import { resolveUiClientEncryptionRequirement } from '@/sync/domains/settings/clientEncryptionRequirement';
 import { getEffectiveServerSelectionFromRawSettings } from '@/sync/domains/server/selection/serverSelectionResolution';
 import { listServerProfiles, resolveServerProfileScopeId, type ServerProfile } from '@/sync/domains/server/serverProfiles';
 import {
@@ -256,6 +257,10 @@ async function refreshServerSnapshot(entry: ManagedConcurrentServer): Promise<vo
     let machines: Machine[] = [];
 
     await fetchAndApplySessions({
+        clientEncryptionRequirement: resolveUiClientEncryptionRequirement({
+            syncedSettings: storage.getState().settings,
+            localSettings: storage.getState().settings,
+        }),
         serverId: entry.id,
         credentials: entry.credentials,
         encryption,

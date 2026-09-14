@@ -9464,6 +9464,10 @@ settingsSession: {
     logoutConfirm:
       "Czy na pewno chcesz się wylogować? Upewnij się, że masz kopię zapasową klucza tajnego!",
     encryptionUpdateFailed: "Nie udało się zaktualizować ustawienia szyfrowania",
+    requireE2ee: "Wymagaj szyfrowania end-to-end",
+    requireE2eeDescription: "Odrzucaj ustawienia konta i sesje w postaci jawnej na tym urządzeniu i zsynchronizowanych demonach.",
+    requireE2eeNeedsEncryptionTitle: "Najpierw włącz szyfrowanie",
+    requireE2eeNeedsEncryptionDescription: "Włącz szyfrowanie end-to-end dla tego konta, zanim ustawisz je jako wymagane.",
     secretKeyMissing: "Brak klucza tajnego. Najpierw przywróć konto.",
     restoreRequiredTitle: "Wymagane przywrócenie",
     restoreRequiredBody:

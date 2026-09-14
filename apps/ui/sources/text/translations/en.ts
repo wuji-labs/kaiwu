@@ -8910,6 +8910,10 @@ settingsSession: {
         logoutSubtitle: 'Sign out and clear local data',
         logoutConfirm: 'Are you sure you want to logout? Make sure you have backed up your secret key!',
         encryptionUpdateFailed: 'Failed to update encryption setting',
+        requireE2ee: 'Require end-to-end encryption',
+        requireE2eeDescription: 'Refuse plaintext Account settings and sessions on this device and synced daemons.',
+        requireE2eeNeedsEncryptionTitle: 'Enable encryption first',
+        requireE2eeNeedsEncryptionDescription: 'Turn on end-to-end encryption for this Account before requiring it.',
         secretKeyMissing: 'Secret key unavailable. Please restore your account first.',
         restoreRequiredTitle: 'Restore required',
         restoreRequiredBody:

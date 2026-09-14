@@ -13,6 +13,7 @@ import {
 import { fetchSessionByIdCompat } from '@/session/transport/http/sessionsHttp';
 import type { SessionSnapshotRefreshReasonInput } from '@/api/session/sessionSnapshotRefreshReason';
 import { tryParseJsonRecord } from '@/utils/tryParseJsonRecord';
+import { isSessionEncryptionModeAllowedByEffectiveClientRequirement } from '@/settings/accountSettings/resolveEffectiveClientEncryptionRequirement';
 
 export type ExistingSessionAttachContext = Readonly<{
   ok: true;
@@ -29,7 +30,8 @@ export type ExistingSessionAttachContextFailureReason =
   | 'fetchFailed'
   | 'sessionNotFound'
   | 'missingCredentials'
-  | 'invalidEncryptionKey';
+  | 'invalidEncryptionKey'
+  | 'clientE2eeRequired';
 
 export type ExistingSessionAttachContextFailure = Readonly<{
   ok: false;
@@ -78,12 +80,15 @@ function buildExistingSessionAttachContext(params: Readonly<{
   agent: unknown;
   credentials: Credentials | null;
 }>): ExistingSessionAttachContext | ExistingSessionAttachContextFailure {
+  const mode = resolveSessionStoredContentEncryptionMode(params.rawSession);
+  if (!isSessionEncryptionModeAllowedByEffectiveClientRequirement(mode)) {
+    return { ok: false, reason: 'clientE2eeRequired' };
+  }
   const metadata = resolveExistingSessionMetadata({
     rawSession: params.rawSession,
     credentials: params.credentials,
   });
   const sessionPath = resolveExistingSessionPath(metadata);
-  const mode = resolveSessionStoredContentEncryptionMode(params.rawSession);
   const lastObservedMessageSeq = resolveLastObservedMessageSeq(params.rawSession);
   if (mode === 'plain') {
     return {
