@@ -26,10 +26,11 @@ function startMcpToolProgressKeepalive(extra: unknown): () => void {
     const request = extra && typeof extra === 'object' ? extra as McpRequestHandlerExtra : null;
     const progressToken = request?._meta?.progressToken;
     const sendNotification = request?.sendNotification;
+    const signal = request?.signal;
     if (
         (typeof progressToken !== 'string' && typeof progressToken !== 'number')
         || typeof sendNotification !== 'function'
-        || request?.signal?.aborted === true
+        || signal?.aborted === true
     ) {
         return () => undefined;
     }
@@ -41,7 +42,7 @@ function startMcpToolProgressKeepalive(extra: unknown): () => void {
         if (stopped) return;
         stopped = true;
         if (timer) clearInterval(timer);
-        request.signal?.removeEventListener('abort', stop);
+        signal?.removeEventListener('abort', stop);
     };
     timer = setInterval(() => {
         progress += 1;
@@ -54,7 +55,7 @@ function startMcpToolProgressKeepalive(extra: unknown): () => void {
         });
     }, MCP_TOOL_PROGRESS_KEEPALIVE_INTERVAL_MS);
     timer.unref?.();
-    request.signal?.addEventListener('abort', stop, { once: true });
+    signal?.addEventListener('abort', stop, { once: true });
     return stop;
 }
 
