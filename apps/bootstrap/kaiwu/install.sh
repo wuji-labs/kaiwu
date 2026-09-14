@@ -3,9 +3,11 @@
 set -euo pipefail
 
 # 默认配置
-KAIWU_SERVER_URL="${KAIWU_SERVER_URL:-${KAIWU_SERVER_URL:-https://kaiwu.chengqiyun.com}}"
+KAIWU_SERVER_URL="${KAIWU_SERVER_URL:-${HAPPIER_SERVER_URL:-https://kaiwu.chengqiyun.com}}"
 LATEST_METADATA_URL="https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/latest.json"
-FALLBACK_TGZ_URL="https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/0.2.12/kaiwu-cli-0.2.12.tgz"
+DEFAULT_VERSION="0.2.13"
+FALLBACK_TGZ_URL="https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/${DEFAULT_VERSION}/kaiwu-cli-${DEFAULT_VERSION}.tgz"
+FALLBACK_TGZ_SHA256="165bed51561aaa75f2323faf5a21ef542fbeae01643b86c179c9a66ee0587656"
 
 # 颜色输出
 if [[ -t 1 ]] && [[ "${TERM:-}" != "dumb" ]]; then
@@ -113,7 +115,8 @@ fi
 # 2. 获取发布包下载地址与版本
 info "获取最新开物 CLI 发布信息..."
 TGZ_URL="$FALLBACK_TGZ_URL"
-CLI_VERSION="0.2.12"
+TGZ_SHA256="$FALLBACK_TGZ_SHA256"
+CLI_VERSION="$DEFAULT_VERSION"
 
 if command -v curl >/dev/null 2>&1; then
     LATEST_JSON=$(curl -fsSL "$LATEST_METADATA_URL" 2>/dev/null || true)
@@ -122,6 +125,10 @@ if command -v curl >/dev/null 2>&1; then
         RESOLVED_VER=$(echo "$LATEST_JSON" | grep -o '"version": "[^"]*' | cut -d'"' -f4 || true)
         if [[ -n "$RESOLVED_URL" ]]; then
             TGZ_URL="$RESOLVED_URL"
+        fi
+        RESOLVED_SHA=$(echo "$LATEST_JSON" | grep -o '"tgz_sha256": "[^"]*' | cut -d'"' -f4 || true)
+        if [[ -n "$RESOLVED_SHA" ]]; then
+            TGZ_SHA256="$RESOLVED_SHA"
         fi
         if [[ -n "$RESOLVED_VER" ]]; then
             CLI_VERSION="$RESOLVED_VER"
@@ -132,10 +139,44 @@ fi
 info "准备安装版本: ${CLI_VERSION}"
 info "安装包源: ${TGZ_URL}"
 
+if [[ -n "$TGZ_SHA256" && ! "$TGZ_SHA256" =~ ^[a-fA-F0-9]{64}$ ]]; then
+    error "发布元数据中的 SHA256 格式无效，拒绝继续安装。"
+    exit 1
+fi
+
+DOWNLOAD_DIR="$(mktemp -d)"
+TGZ_FILE="$DOWNLOAD_DIR/kaiwu-cli-${CLI_VERSION}.tgz"
+cleanup_download() { rm -rf "$DOWNLOAD_DIR"; }
+trap cleanup_download EXIT
+if command -v curl >/dev/null 2>&1; then
+    curl -fsSL "$TGZ_URL" -o "$TGZ_FILE"
+elif command -v wget >/dev/null 2>&1; then
+    wget -q "$TGZ_URL" -O "$TGZ_FILE"
+else
+    error "需要 curl 或 wget 下载开物 CLI。"
+    exit 1
+fi
+if [[ -n "$TGZ_SHA256" ]]; then
+    ACTUAL_TGZ_SHA256=""
+    if command -v sha256sum >/dev/null 2>&1; then
+        ACTUAL_TGZ_SHA256="$(sha256sum "$TGZ_FILE" | awk '{print tolower($1)}')"
+    elif command -v shasum >/dev/null 2>&1; then
+        ACTUAL_TGZ_SHA256="$(shasum -a 256 "$TGZ_FILE" | awk '{print tolower($1)}')"
+    else
+        error "系统缺少 sha256sum 或 shasum，无法校验发布包。"
+        exit 1
+    fi
+    if [[ "$ACTUAL_TGZ_SHA256" != "$(printf '%s' "$TGZ_SHA256" | tr '[:upper:]' '[:lower:]')" ]]; then
+        error "发布包 SHA256 校验失败，拒绝安装。"
+        exit 1
+    fi
+    info "发布包 SHA256 校验通过。"
+fi
+
 # 3. 安装开物 CLI
 # 优先使用 npm 全局安装；若无全局写权限或独立 node 则安装至 ~/.kaiwu
 INSTALL_SUCCESS=0
-if npm install -g "$TGZ_URL" >/dev/null 2>&1; then
+if npm install -g "$TGZ_FILE" >/dev/null 2>&1; then
     INSTALL_SUCCESS=1
     GLOBAL_HAPPIER="$(command -v happier 2>/dev/null || true)"
     if [[ -z "$GLOBAL_HAPPIER" ]]; then
@@ -152,10 +193,15 @@ if npm install -g "$TGZ_URL" >/dev/null 2>&1; then
 else
     warn "npm 全局安装未成功或无 root/全局写权限，正在安装到用户目录 ~/.kaiwu..."
     mkdir -p "$HOME/.kaiwu/lib"
-    (cd "$HOME/.kaiwu/lib" && npm install "$TGZ_URL" >/dev/null 2>&1)
+    (cd "$HOME/.kaiwu/lib" && npm install "$TGZ_FILE" >/dev/null 2>&1)
     mkdir -p "$HOME/.local/bin"
-    ln -sf "$HOME/.kaiwu/lib/node_modules/@happier-dev/cli/bin/happier.mjs" "$HOME/.local/bin/kaiwu"
-    ln -sf "$HOME/.kaiwu/lib/node_modules/@happier-dev/cli/bin/happier.mjs" "$HOME/.local/bin/happier"
+    CLI_BIN="$HOME/.kaiwu/lib/node_modules/@happier-dev/cli/bin/kaiwu.mjs"
+    if [[ ! -f "$CLI_BIN" ]]; then
+        CLI_BIN="$HOME/.kaiwu/lib/node_modules/.bin/kaiwu"
+    fi
+    ln -sf "$CLI_BIN" "$HOME/.kaiwu/lib/node_modules/@happier-dev/cli/bin/happier.mjs" 2>/dev/null || true
+    ln -sf "$CLI_BIN" "$HOME/.local/bin/kaiwu"
+    ln -sf "$CLI_BIN" "$HOME/.local/bin/happier"
     chmod +x "$HOME/.local/bin/kaiwu" "$HOME/.local/bin/happier"
     export PATH="$HOME/.local/bin:$PATH"
     INSTALL_SUCCESS=1
@@ -189,7 +235,7 @@ fi
 ENV_SNIPPET="
 # >>> 无极开物 CLI 配置 >>>
 export KAIWU_SERVER_URL=\"${KAIWU_SERVER_URL}\"
-export KAIWU_SERVER_URL=\"${KAIWU_SERVER_URL}\"
+export HAPPIER_SERVER_URL=\"${KAIWU_SERVER_URL}\"
 if [ -d \"\$HOME/.kaiwu/node/bin\" ]; then
     export PATH=\"\$HOME/.kaiwu/node/bin:\$PATH\"
 fi
@@ -200,14 +246,14 @@ fi
 "
 
 for prof in "${CONFIG_PROFILES[@]}"; do
-    if ! grep -q "KAIWU_SERVER_URL" "$prof" 2>/dev/null && ! grep -q "KAIWU_SERVER_URL" "$prof" 2>/dev/null; then
+    if ! grep -q "KAIWU_SERVER_URL" "$prof" 2>/dev/null && ! grep -q "HAPPIER_SERVER_URL" "$prof" 2>/dev/null; then
         printf "%s\n" "$ENV_SNIPPET" >> "$prof"
         info "已写入环境变量与路径至: $prof"
     fi
 done
 
 export KAIWU_SERVER_URL="${KAIWU_SERVER_URL}"
-export KAIWU_SERVER_URL="${KAIWU_SERVER_URL}"
+export HAPPIER_SERVER_URL="${KAIWU_SERVER_URL}"
 
 # 5. 验证与指引 (强制性自检，失败则报错退出)
 echo

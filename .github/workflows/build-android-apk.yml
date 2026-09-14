@@ -47,6 +47,7 @@ jobs:
         env:
           YARN_PRODUCTION: "false"
           npm_config_production: "false"
+          HAPPIER_INSTALL_SCOPE: "ui,protocol,transfers,agents,connection-supervisor"
         run: |
           set -euo pipefail
           corepack yarn install --frozen-lockfile --network-concurrency 8 || corepack yarn install --network-concurrency 8
