@@ -82,7 +82,10 @@ export async function callMcpToolWithResolvedTimeout(params: Readonly<{
         toolName: params.toolName,
         args: params.args,
       }),
-      ...(params.onprogress === undefined ? {} : { onprogress: params.onprogress }),
+      ...(params.onprogress === undefined ? {} : {
+        onprogress: params.onprogress,
+        resetTimeoutOnProgress: true,
+      }),
     },
   );
 }
