@@ -126,6 +126,7 @@ describe('callMcpToolWithResolvedTimeout', () => {
       {
         timeout: DEFAULT_MCP_TOOL_CALL_TIMEOUT_MS,
         onprogress,
+        resetTimeoutOnProgress: true,
       },
     );
   });
