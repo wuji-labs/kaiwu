@@ -7,6 +7,7 @@ import { ACCOUNT_CONNECTED_SERVICES_SETTING_DEFINITIONS } from './accountConnect
 import { ACCOUNT_COLLECTION_SETTING_DEFINITIONS } from './accountCollectionSettingDefinitions';
 import { ACCOUNT_CORE_SETTING_DEFINITIONS } from './accountCoreSettingDefinitions';
 import { ACCOUNT_DISPLAY_SETTING_DEFINITIONS } from './accountDisplaySettingDefinitions';
+import { ACCOUNT_ENCRYPTION_SETTING_DEFINITIONS } from './accountEncryptionSettingDefinitions';
 import { ACCOUNT_FEATURE_TOGGLE_SETTING_DEFINITIONS } from './accountFeatureToggleSettingDefinitions';
 import { ACCOUNT_LEGACY_SETTING_DEFINITIONS } from './accountLegacySettingDefinitions';
 import { ACCOUNT_KEYBOARD_SHORTCUT_SETTING_DEFINITIONS } from './accountKeyboardShortcutSettingDefinitions';
@@ -31,6 +32,7 @@ export const ACCOUNT_SETTING_DEFINITIONS = defineSettingDefinitions({
     ...ACCOUNT_COLLECTION_SETTING_DEFINITIONS,
     ...ACCOUNT_CORE_SETTING_DEFINITIONS,
     ...ACCOUNT_DISPLAY_SETTING_DEFINITIONS,
+    ...ACCOUNT_ENCRYPTION_SETTING_DEFINITIONS,
     ...ACCOUNT_FEATURE_TOGGLE_SETTING_DEFINITIONS,
     ...ACCOUNT_KEYBOARD_SHORTCUT_SETTING_DEFINITIONS,
     ...ACCOUNT_LEGACY_SETTING_DEFINITIONS,

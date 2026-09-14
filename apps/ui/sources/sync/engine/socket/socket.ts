@@ -45,6 +45,10 @@ import { recordSessionInvalidationRequested } from '@/sync/engine/sessions/sessi
 import { settingsDefaults } from '@/sync/domains/settings/settings';
 import type { Settings } from '@/sync/domains/settings/settings';
 import type { AccountSettingsScope } from '@/sync/domains/settings/scope/accountSettingsScope';
+import {
+    isUiSessionEncryptionModeAllowed,
+    resolveUiClientEncryptionRequirement,
+} from '@/sync/domains/settings/clientEncryptionRequirement';
 import { loadSyncTuning } from '@/sync/runtime/syncTuning';
 import {
     buildUpdatedSessionProjectionFromSocketUpdate,
@@ -1242,7 +1246,22 @@ export async function handleUpdateContainer(params: {
 
     if (!shouldContinue()) return;
 
+    const isPlainSessionBlockedByClientRequirement = (sessionId: string): boolean => {
+        const state = storage.getState();
+        const requirement = resolveUiClientEncryptionRequirement({
+            syncedSettings: state.settings,
+            localSettings: state.settings,
+        });
+        if (requirement !== 'require_e2ee') return false;
+        const session = getSocketSessionApplyBase(sessionId);
+        const mode = session
+            ? (session.encryptionMode === 'plain' ? 'plain' : 'e2ee')
+            : undefined;
+        return mode !== 'e2ee';
+    };
+
     if (updateData.body.t === 'new-message') {
+        if (isPlainSessionBlockedByClientRequirement(updateData.body.sid)) return;
         const getSessionMaterializedMaxSeqForGapDetection = (sessionId: string) =>
             Math.max(
                 getSessionMaterializedMaxSeq(sessionId),
@@ -1321,6 +1340,7 @@ export async function handleUpdateContainer(params: {
                 : undefined,
         }));
     } else if (updateData.body.t === 'message-updated') {
+        if (isPlainSessionBlockedByClientRequirement(updateData.body.sid)) return;
         const getSessionMaterializedMaxSeqForGapDetection = (sessionId: string) =>
             Math.max(
                 getSessionMaterializedMaxSeq(sessionId),
@@ -1485,6 +1505,22 @@ export async function handleUpdateContainer(params: {
         const session = getSocketSessionApplyBase(updateData.body.id);
         if (!session) {
             const cachedRenderable = storage.getState().sessionListRenderables[updateData.body.id];
+            if (cachedRenderable && isPlainSessionBlockedByClientRequirement(updateData.body.id)) {
+                if (!hasSafeCacheOnlySessionProjectionFields(updateData.body)) return;
+                applyCacheOnlySessionUpdateProjectionPatch({
+                    sessionId: updateData.body.id,
+                    renderable: cachedRenderable,
+                    patch: buildCacheOnlySessionProjectionPatch({
+                        renderable: cachedRenderable,
+                        updateBody: updateData.body,
+                        updateSeq: updateData.seq,
+                        updateCreatedAt: updateData.createdAt,
+                    }),
+                    updateSeq: updateData.seq,
+                    shouldContinue,
+                });
+                return;
+            }
             const canPatchRenderableWithoutFullSession =
                 Boolean(cachedRenderable)
                 && (
@@ -1544,9 +1580,19 @@ export async function handleUpdateContainer(params: {
         }
 
         const sessionEncryptionMode: 'e2ee' | 'plain' = session.encryptionMode === 'plain' ? 'plain' : 'e2ee';
+        const state = storage.getState();
+        const clientAllowsSessionContent = isUiSessionEncryptionModeAllowed({
+            mode: sessionEncryptionMode,
+            requirement: resolveUiClientEncryptionRequirement({
+                syncedSettings: state.settings,
+                localSettings: state.settings,
+            }),
+        });
         const fullContentConsumerActive = isSessionFullContentConsumerActiveForRealtime(updateData.body.id, sourceServerId);
-        const shouldHydrateMetadata = updateData.body.metadata != null;
+        const shouldHydrateMetadata = clientAllowsSessionContent && updateData.body.metadata != null;
         const shouldHydrateAgentState =
+            clientAllowsSessionContent
+            && (
             fullContentConsumerActive
             || (
                 sessionEncryptionMode === 'plain'
@@ -1558,7 +1604,7 @@ export async function handleUpdateContainer(params: {
                     session,
                     updateBody: updateData.body,
                 })
-            );
+            ));
         const shouldHydrateSessionState = shouldHydrateMetadata || shouldHydrateAgentState;
         if (
             (updateData.body.metadata != null && !shouldHydrateMetadata)

@@ -9577,6 +9577,10 @@ settingsSession: {
     logoutConfirm:
       "Tem certeza de que quer sair? Certifique-se de ter feito backup da sua chave secreta!",
     encryptionUpdateFailed: "Falha ao atualizar a configuração de criptografia",
+    requireE2ee: "Exigir criptografia de ponta a ponta",
+    requireE2eeDescription: "Recusa configurações de conta e sessões em texto simples neste dispositivo e nos daemons sincronizados.",
+    requireE2eeNeedsEncryptionTitle: "Ative primeiro a criptografia",
+    requireE2eeNeedsEncryptionDescription: "Ative a criptografia de ponta a ponta para esta conta antes de exigi-la.",
     secretKeyMissing: "Chave secreta indisponível. Restaure sua conta primeiro.",
     restoreRequiredTitle: "Restauração necessária",
     restoreRequiredBody:

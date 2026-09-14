@@ -8893,6 +8893,10 @@ settingsSession: {
         logoutSubtitle: 'Se déconnecter et effacer les données locales',
         logoutConfirm: 'Veux-tu vraiment te déconnecter ? Assure-toi d’avoir sauvegardé ta clé secrète !',
         encryptionUpdateFailed: 'Échec de la mise à jour du réglage de chiffrement',
+        requireE2ee: 'Exiger le chiffrement de bout en bout',
+        requireE2eeDescription: 'Refuse les réglages de compte et les sessions en clair sur cet appareil et les démons synchronisés.',
+        requireE2eeNeedsEncryptionTitle: 'Activez d’abord le chiffrement',
+        requireE2eeNeedsEncryptionDescription: 'Activez le chiffrement de bout en bout pour ce compte avant de l’exiger.',
         secretKeyMissing: 'Clé secrète indisponible. Restaure d’abord ton compte.',
         restoreRequiredTitle: 'Restauration requise',
         restoreRequiredBody:

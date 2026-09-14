@@ -51,6 +51,7 @@ import {
     listNewSessionDraftEncryptionMigrationCandidates,
 } from '@/sync/ops/sessionDrafts/sessionDraftRepository';
 import { runAccountEncryptionModeMigration } from '@/sync/ops/account/runAccountEncryptionModeMigration';
+import { resolveUiClientEncryptionRequirement } from '@/sync/domains/settings/clientEncryptionRequirement';
 
 
 export default React.memo(() => {
@@ -62,6 +63,8 @@ export default React.memo(() => {
     const copyFeedback = useTemporaryCopyFeedback(2000);
     const [analyticsOptOut, setAnalyticsOptOut] = useSettingMutable('analyticsOptOut');
     const [crashReportsOptOut, setCrashReportsOptOut] = useSettingMutable('crashReportsOptOut');
+    const [clientEncryptionRequirement, setClientEncryptionRequirement] = useSettingMutable('clientEncryptionRequirementV1');
+    const [clientEncryptionRequirementLocal, setClientEncryptionRequirementLocal] = useSettingMutable('clientEncryptionRequirementLocalV1');
     const { connectAccount, isLoading: isConnecting } = useConnectAccount();
     const profile = useProfile();
     const friendsIdentityReadiness = useFriendsIdentityReadiness();
@@ -73,6 +76,10 @@ export default React.memo(() => {
     const [accountEncryptionMode, setAccountEncryptionMode] = useState<'e2ee' | 'plain' | null>(null);
     const [accountEncryptionModeLoading, setAccountEncryptionModeLoading] = useState(false);
     const [accountEncryptionModeSaving, setAccountEncryptionModeSaving] = useState(false);
+    const effectiveClientEncryptionRequirement = resolveUiClientEncryptionRequirement({
+        syncedSettings: { clientEncryptionRequirementV1: clientEncryptionRequirement },
+        localSettings: { clientEncryptionRequirementLocalV1: clientEncryptionRequirementLocal },
+    });
 
     // Get the current secret key
     const legacySecret =
@@ -378,6 +385,39 @@ export default React.memo(() => {
                 {encryptionAccountOptOutEnabled && (
                     <ItemGroup title={t('terminal.encryption')}>
                         <Item
+                            title={t('settingsAccount.requireE2ee')}
+                            subtitle={t('settingsAccount.requireE2eeDescription')}
+                            rightElement={
+                                <Switch
+                                    testID="settings-account-client-encryption-requirement-switch"
+                                    value={effectiveClientEncryptionRequirement === 'require_e2ee'}
+                                    disabled={
+                                        accountEncryptionModeLoading ||
+                                        accountEncryptionModeSaving ||
+                                        accountEncryptionMode == null
+                                    }
+                                    onValueChange={async (enabled) => {
+                                        if (enabled && accountEncryptionMode !== 'e2ee') {
+                                            await Modal.alertAsync(
+                                                t('settingsAccount.requireE2eeNeedsEncryptionTitle'),
+                                                t('settingsAccount.requireE2eeNeedsEncryptionDescription'),
+                                            );
+                                            return;
+                                        }
+                                        const nextRequirement = enabled ? 'require_e2ee' : 'follow_account';
+                                        if (enabled) {
+                                            setClientEncryptionRequirementLocal(nextRequirement);
+                                            setClientEncryptionRequirement(nextRequirement);
+                                        } else {
+                                            setClientEncryptionRequirement(nextRequirement);
+                                            setClientEncryptionRequirementLocal(nextRequirement);
+                                        }
+                                    }}
+                                />
+                            }
+                            showChevron={false}
+                        />
+                        <Item
                             title={t('terminal.endToEndEncrypted')}
                             rightElement={
                                 <Switch
@@ -386,6 +426,7 @@ export default React.memo(() => {
                                     disabled={
                                         accountEncryptionModeLoading ||
                                         accountEncryptionModeSaving ||
+                                        effectiveClientEncryptionRequirement === 'require_e2ee' ||
                                         !auth.credentials ||
                                         accountEncryptionMode == null
                                     }

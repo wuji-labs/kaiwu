@@ -8842,6 +8842,10 @@ settingsSession: {
         logoutSubtitle: 'Tanca la sessió i esborra les dades locals',
         logoutConfirm: 'Estàs segur que vols tancar la sessió? Assegura\'t d\'haver fet una còpia de seguretat de la teva clau secreta!',
         encryptionUpdateFailed: 'No s\'ha pogut actualitzar la configuració de xifrat',
+        requireE2ee: 'Exigeix xifratge d’extrem a extrem',
+        requireE2eeDescription: 'Rebutja la configuració del compte i les sessions en text pla en aquest dispositiu i als dimonis sincronitzats.',
+        requireE2eeNeedsEncryptionTitle: 'Activa primer el xifratge',
+        requireE2eeNeedsEncryptionDescription: 'Activa el xifratge d’extrem a extrem per a aquest compte abans d’exigir-lo.',
         secretKeyMissing: 'Clau secreta no disponible. Restaura el teu compte primer.',
         restoreRequiredTitle: 'Cal restaurar',
         restoreRequiredBody:

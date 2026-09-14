@@ -22,6 +22,46 @@ function createDeferred<T>(): {
 }
 
 describe('fetchAndApplySessionById', () => {
+  it('refuses a plaintext session before parsing or applying it when this client requires E2EE', async () => {
+    const applySessions = vi.fn();
+    const request = vi.fn(async () => new Response(JSON.stringify({
+      session: {
+        id: 's_plain_blocked',
+        createdAt: 1,
+        updatedAt: 2,
+        seq: 3,
+        active: true,
+        activeAt: 2,
+        encryptionMode: 'plain',
+        dataEncryptionKey: null,
+        metadataVersion: 1,
+        metadata: JSON.stringify({ path: '/must-not-open' }),
+        agentStateVersion: 1,
+        agentState: null,
+        share: null,
+      },
+    }), { status: 200 }));
+
+    const result = await fetchAndApplySessionById({
+      sessionId: 's_plain_blocked',
+      credentials: { token: 'token', secret: 'secret' },
+      encryption: {
+        decryptEncryptionKey: async () => null,
+        initializeSessions: async () => {},
+        getSessionEncryption: () => null,
+      },
+      sessionDataKeys: new Map(),
+      request,
+      applySessions,
+      log: { log: () => {} },
+      includeTurnsProjection: false,
+      clientEncryptionRequirement: 'require_e2ee',
+    });
+
+    expect(result).toEqual({ ok: false, session: null, errorCode: 'client_e2ee_required' });
+    expect(applySessions).not.toHaveBeenCalled();
+  });
+
   it('uses browser-CORS-safe headers for targeted session detail reads', async () => {
     const applySessions = vi.fn();
     const requestInits: RequestInit[] = [];
@@ -48,6 +88,7 @@ describe('fetchAndApplySessionById', () => {
 
     const result = await fetchAndApplySessionById({
       sessionId: 's_targeted_hydration',
+      clientEncryptionRequirement: 'follow_account' as const,
       credentials: { token: 'token', secret: 'secret' },
       encryption: {
         decryptEncryptionKey: async () => null,
@@ -93,6 +134,7 @@ describe('fetchAndApplySessionById', () => {
     const getSessionEncryption = vi.fn(() => null);
     const result = await fetchAndApplySessionById({
       sessionId: 's_legacy_payload',
+      clientEncryptionRequirement: 'follow_account' as const,
       credentials: { token: 't', secret: 's' },
       encryption: {
         decryptEncryptionKey: async () => null,
@@ -157,6 +199,7 @@ describe('fetchAndApplySessionById', () => {
 
     const result = await fetchAndApplySessionById({
       sessionId: 's_legacy',
+      clientEncryptionRequirement: 'follow_account' as const,
       credentials: { token: 't', secret: 's' },
       encryption: {
         decryptEncryptionKey: async () => null,
@@ -191,6 +234,7 @@ describe('fetchAndApplySessionById', () => {
 
     const result = await fetchAndApplySessionById({
       sessionId: 's_missing',
+      clientEncryptionRequirement: 'follow_account' as const,
       credentials: { token: 't', secret: 's' },
       encryption: {
         decryptEncryptionKey: async () => null,
@@ -222,6 +266,7 @@ describe('fetchAndApplySessionById', () => {
 
     await expect(fetchAndApplySessionById({
       sessionId: 's_auth_failed',
+      clientEncryptionRequirement: 'follow_account' as const,
       credentials: { token: 't' } as any,
       encryption: {
         decryptEncryptionKey: async () => null,
@@ -275,6 +320,7 @@ describe('fetchAndApplySessionById', () => {
 
     await fetchAndApplySessionById({
       sessionId: 's1',
+      clientEncryptionRequirement: 'follow_account' as const,
       credentials: { token: 't' } as any,
       encryption: {
         decryptEncryptionKey: async () => null,
@@ -347,6 +393,7 @@ describe('fetchAndApplySessionById', () => {
 
     await fetchAndApplySessionById({
       sessionId: 's1',
+      clientEncryptionRequirement: 'follow_account' as const,
       credentials: { token: 't' } as any,
       encryption: {
         decryptEncryptionKey: async () => null,
@@ -404,6 +451,7 @@ describe('fetchAndApplySessionById', () => {
 
     await fetchAndApplySessionById({
       sessionId: 's1',
+      clientEncryptionRequirement: 'follow_account' as const,
       credentials: { token: 't' } as any,
       encryption: {
         decryptEncryptionKey,
@@ -483,6 +531,7 @@ describe('fetchAndApplySessionById', () => {
 
     const result = await fetchAndApplySessionById({
       sessionId: 's1',
+      clientEncryptionRequirement: 'follow_account' as const,
       credentials: { token: 't' } as any,
       encryption: {
         decryptEncryptionKey: async () => null,
@@ -541,6 +590,7 @@ describe('fetchAndApplySessionById', () => {
 
     const result = await fetchAndApplySessionById({
       sessionId: 's1',
+      clientEncryptionRequirement: 'follow_account' as const,
       credentials: { token: 't' } as any,
       encryption: {
         decryptEncryptionKey: async () => null,
@@ -587,6 +637,7 @@ describe('fetchAndApplySessionById', () => {
 
     await fetchAndApplySessionById({
       sessionId: 's1',
+      clientEncryptionRequirement: 'follow_account' as const,
       serverId: 'server-owned',
       credentials: { token: 't' } as any,
       encryption: {
@@ -638,6 +689,7 @@ describe('fetchAndApplySessionById', () => {
 
     await fetchAndApplySessionById({
       sessionId: 's1',
+      clientEncryptionRequirement: 'follow_account' as const,
       credentials: { token: 't', secret: 's' },
       encryption: {
         decryptEncryptionKey,
@@ -688,6 +740,7 @@ describe('fetchAndApplySessionById', () => {
 
     await fetchAndApplySessionById({
       sessionId: 's_cached',
+      clientEncryptionRequirement: 'follow_account' as const,
       credentials: { token: 't', secret: 's' },
       encryption: {
         decryptEncryptionKey,
@@ -741,6 +794,7 @@ describe('fetchAndApplySessionById', () => {
 
     const fetchPromise = fetchAndApplySessionById({
       sessionId: 's_parallel',
+      clientEncryptionRequirement: 'follow_account' as const,
       credentials: { token: 't', secret: 's' },
       encryption: {
         decryptEncryptionKey: async () => new Uint8Array([1, 2, 3]),
@@ -813,6 +867,7 @@ describe('fetchAndApplySessionById', () => {
     } satisfies SessionByIdEncryption;
     const baseParams = {
       sessionId: 's_coalesced',
+      clientEncryptionRequirement: 'follow_account' as const,
       credentials: { token: 't', secret: 's' },
       encryption,
       sessionDataKeys: new Map<string, Uint8Array>(),
@@ -877,6 +932,7 @@ describe('fetchAndApplySessionById', () => {
     } satisfies SessionByIdEncryption;
     const baseParams = {
       sessionId: 's_scoped_coalesced',
+      clientEncryptionRequirement: 'follow_account' as const,
       serverId: 'server-a',
       credentials: { token: 't', secret: 's' },
       encryption,
@@ -942,6 +998,7 @@ describe('fetchAndApplySessionById', () => {
 
     const result = await fetchAndApplySessionById({
       sessionId: 's_shell_only',
+      clientEncryptionRequirement: 'follow_account' as const,
       credentials: { token: 't', secret: 's' },
       encryption: {
         decryptEncryptionKey: async () => null,

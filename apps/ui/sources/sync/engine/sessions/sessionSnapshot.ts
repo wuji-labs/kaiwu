@@ -1,4 +1,9 @@
-import { V2SessionListResponseSchema, type V2SessionListResponse } from '@happier-dev/protocol';
+import {
+    V2SessionListResponseSchema,
+    isSessionEncryptionModeAllowedByClientRequirement,
+    type ClientEncryptionRequirement,
+    type V2SessionListResponse,
+} from '@happier-dev/protocol';
 
 import type { AuthCredentials } from '@/auth/storage/tokenStorage';
 import { serverFetch } from '@/sync/http/client';
@@ -1284,6 +1289,7 @@ export async function fetchAndApplySessions(params: {
     shouldContinue?: () => boolean;
     repairInvalidReadStateV1: (params: { sessionId: string; sessionSeqUpperBound: number }) => Promise<void>;
     log: { log: (message: string) => void };
+    clientEncryptionRequirement?: ClientEncryptionRequirement;
 }): Promise<SessionListFetchResult> {
     const { credentials, encryption, sessionDataKeys, applySessions, repairInvalidReadStateV1 } = params;
     const snapshotStartedAtMs = nowMs();
@@ -1435,6 +1441,18 @@ export async function fetchAndApplySessions(params: {
         seenSessionIds.clear();
         appendRows(activePage.sessions);
         appendRows(pageRows);
+    }
+
+    if (params.clientEncryptionRequirement === 'require_e2ee') {
+        for (let index = sessions.length - 1; index >= 0; index -= 1) {
+            const session = sessions[index];
+            if (session && !isSessionEncryptionModeAllowedByClientRequirement(
+                params.clientEncryptionRequirement,
+                session.encryptionMode === 'plain' ? 'plain' : 'e2ee',
+            )) {
+                sessions.splice(index, 1);
+            }
+        }
     }
 
     const sessionsNeedingEncryption = sessions.filter((session) => session.encryptionMode !== 'plain');

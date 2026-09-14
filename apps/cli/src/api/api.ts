@@ -17,6 +17,7 @@ import { ApiMachineClient } from './apiMachine';
 import { decodeBase64, encodeBase64, encrypt, decrypt } from './encryption';
 import { PushNotificationClient } from './pushNotifications';
 import { configuration } from '@/configuration';
+import { assertSessionEncryptionModeAllowedByEffectiveClientRequirement } from '@/settings/accountSettings/resolveEffectiveClientEncryptionRequirement';
 import { Credentials } from '@/persistence';
 
 import { resolveMachineEncryptionContext, resolveSessionEncryptionContext } from './client/encryptionKey';
@@ -476,6 +477,7 @@ export class ApiClient {
 
       const sessionEncryptionMode: 'e2ee' | 'plain' =
         (raw as any)?.encryptionMode === 'plain' ? 'plain' : 'e2ee';
+      assertSessionEncryptionModeAllowedByEffectiveClientRequirement(sessionEncryptionMode);
 
       // Prefer the session's published data key, but keep backward compatibility with
       // older sessions that have no dataEncryptionKey (machineKey-as-session-key fallback).

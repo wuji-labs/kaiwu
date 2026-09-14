@@ -35,6 +35,10 @@ import {
 import { resolveAccountSettingsHttpBaseUrl } from './resolveAccountSettingsHttpBaseUrl';
 import { AccountSettingsStaleError } from './accountSettingsRefreshError';
 import {
+  assertAccountEncryptionModeAllowedByEffectiveClientRequirement,
+  isClientE2eeRequiredError,
+} from './resolveEffectiveClientEncryptionRequirement';
+import {
   isAccountSettingsVersionAtLeast,
   normalizeAccountSettingsVersionHint,
 } from './accountSettingsVersion';
@@ -183,6 +187,9 @@ export async function applyAccountSettingsV2Update(params: Readonly<{
     }
   }
   const settings = migrateAccountSettingsForCodexAppServerDefault(accountSettingsParse(rawSettings ?? {}));
+  if (content?.t === 'plain') {
+    assertAccountEncryptionModeAllowedByEffectiveClientRequirement('plain', settings);
+  }
 
   if (params.shouldCommit && !params.shouldCommit()) {
     throw createAccountSettingsLiveApplyError(
@@ -426,7 +433,11 @@ export async function bootstrapAccountSettingsContext(params: Readonly<{
 
   const parseFromContent = async (content: AccountSettingsContentEnvelope | null): Promise<AccountSettings> => {
     if (!content) return migrateAccountSettingsForCodexAppServerDefault(accountSettingsParse({}));
-    if (content.t === 'plain') return migrateAccountSettingsForCodexAppServerDefault(accountSettingsParse(content.v));
+    if (content.t === 'plain') {
+      const settings = migrateAccountSettingsForCodexAppServerDefault(accountSettingsParse(content.v));
+      assertAccountEncryptionModeAllowedByEffectiveClientRequirement('plain', settings);
+      return settings;
+    }
     const ciphertext = typeof content.c === 'string' ? content.c : '';
     if (!ciphertext) return migrateAccountSettingsForCodexAppServerDefault(accountSettingsParse({}));
     const decrypted = await deps.decryptCiphertext({ credentials: params.credentials, ciphertext });
@@ -507,6 +518,7 @@ export async function bootstrapAccountSettingsContext(params: Readonly<{
 
     // Fire refresh immediately; expose promise for long-running processes.
     const whenRefreshed = fetchAndPersist().catch(async (err) => {
+      if (isClientE2eeRequiredError(err)) throw err;
       if (minSettingsVersion !== null) {
         throw err;
       }
@@ -524,6 +536,7 @@ export async function bootstrapAccountSettingsContext(params: Readonly<{
   try {
     return await fetchAndPersist();
   } catch (err) {
+    if (isClientE2eeRequiredError(err)) throw err;
     if (minSettingsVersion !== null) {
       throw err;
     }

@@ -28,12 +28,14 @@ function mutableConfigurationForTest(): {
   apiServerUrl: string;
   publicServerUrl: string;
   webappUrl: string;
+  clientEncryptionRequirement: 'follow_account' | 'require_e2ee';
 } {
   return configuration as unknown as {
     serverUrl: string;
     apiServerUrl: string;
     publicServerUrl: string;
     webappUrl: string;
+    clientEncryptionRequirement: 'follow_account' | 'require_e2ee';
   };
 }
 
@@ -42,6 +44,7 @@ describe('bootstrapAccountSettingsContext', () => {
   const originalApiServerUrl = configuration.apiServerUrl;
   const originalPublicServerUrl = configuration.publicServerUrl;
   const originalWebappUrl = configuration.webappUrl;
+  const originalClientEncryptionRequirement = configuration.clientEncryptionRequirement;
 
   beforeEach(() => {
     resetInMemoryAccountSettingsContextForTests();
@@ -54,6 +57,7 @@ describe('bootstrapAccountSettingsContext', () => {
       apiServerUrl: originalApiServerUrl,
       publicServerUrl: originalPublicServerUrl,
       webappUrl: originalWebappUrl,
+      clientEncryptionRequirement: originalClientEncryptionRequirement,
     });
   });
 
@@ -776,6 +780,52 @@ describe('bootstrapAccountSettingsContext', () => {
     });
     expect(res.settingsVersion).toBe(12);
     expect((res.settings as any).notificationsSettingsV1?.pushEnabled).toBe(false);
+  });
+
+  it('rejects plaintext settings before publishing when the environment requires E2EE', async () => {
+    Object.assign(mutableConfigurationForTest(), { clientEncryptionRequirement: 'require_e2ee' });
+    await expect(bootstrapAccountSettingsContext({
+      credentials: createCredentialsStub(),
+      mode: 'blocking',
+      refresh: 'force',
+      nowMs: 1_000_000,
+      ttlMs: 60_000,
+      deps: {
+        resolveCachePath: () => '/tmp/server/account.settings.cache.json',
+        readCache: async () => null,
+        decryptCiphertext: async () => null,
+        fetchFromServer: async () => ({
+          settingsContent: { t: 'plain', v: {} },
+          settingsVersion: 12,
+        } as any),
+        writeCache: async () => {},
+        applySideEffects: () => {},
+      },
+    })).rejects.toMatchObject({ code: 'CLIENT_E2EE_REQUIRED' });
+  });
+
+  it('rejects plaintext settings that carry a synced E2EE requirement', async () => {
+    await expect(bootstrapAccountSettingsContext({
+      credentials: createCredentialsStub(),
+      mode: 'blocking',
+      refresh: 'force',
+      nowMs: 1_000_000,
+      ttlMs: 60_000,
+      deps: {
+        resolveCachePath: () => '/tmp/server/account.settings.cache.json',
+        readCache: async () => null,
+        decryptCiphertext: async () => null,
+        fetchFromServer: async () => ({
+          settingsContent: {
+            t: 'plain',
+            v: { clientEncryptionRequirementV1: 'require_e2ee' },
+          },
+          settingsVersion: 12,
+        } as any),
+        writeCache: async () => {},
+        applySideEffects: () => {},
+      },
+    })).rejects.toMatchObject({ code: 'CLIENT_E2EE_REQUIRED' });
   });
 
   it('uses apiServerUrl for default v2 fetches when canonical serverUrl differs', async () => {

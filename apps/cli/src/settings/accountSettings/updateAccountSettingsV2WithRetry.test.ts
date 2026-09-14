@@ -29,12 +29,14 @@ function mutableConfigurationForTest(): {
   apiServerUrl: string;
   publicServerUrl: string;
   webappUrl: string;
+  clientEncryptionRequirement: 'follow_account' | 'require_e2ee';
 } {
   return configuration as unknown as {
     serverUrl: string;
     apiServerUrl: string;
     publicServerUrl: string;
     webappUrl: string;
+    clientEncryptionRequirement: 'follow_account' | 'require_e2ee';
   };
 }
 
@@ -43,6 +45,7 @@ describe('updateAccountSettingsV2WithRetry', () => {
   const originalApiServerUrl = configuration.apiServerUrl;
   const originalPublicServerUrl = configuration.publicServerUrl;
   const originalWebappUrl = configuration.webappUrl;
+  const originalClientEncryptionRequirement = configuration.clientEncryptionRequirement;
 
   afterEach(() => {
     vi.restoreAllMocks();
@@ -51,6 +54,7 @@ describe('updateAccountSettingsV2WithRetry', () => {
       apiServerUrl: originalApiServerUrl,
       publicServerUrl: originalPublicServerUrl,
       webappUrl: originalWebappUrl,
+      clientEncryptionRequirement: originalClientEncryptionRequirement,
     });
   });
 
@@ -80,6 +84,23 @@ describe('updateAccountSettingsV2WithRetry', () => {
     expect(calls[0]?.expectedVersion).toBe(5);
     expect(calls[0]?.content?.t).toBe('plain');
     expect((calls[0]?.content as any)?.v?.mcpServersSettingsV1).toEqual({ v: 1, strictMode: false, servers: [], bindings: [] });
+  });
+
+  it('refuses to read or rewrite plaintext settings when the environment requires E2EE', async () => {
+    Object.assign(mutableConfigurationForTest(), { clientEncryptionRequirement: 'require_e2ee' });
+    const updateSettings = vi.fn();
+    await expect(updateAccountSettingsV2WithRetry({
+      credentials: createLegacyCredentialsStub(),
+      mutate: (settings) => ({ ...settings, hello: 'world' }),
+      deps: {
+        fetchSettings: async () => ({
+          content: { t: 'plain', v: accountSettingsParse({ schemaVersion: 2 }) },
+          version: 5,
+        }),
+        updateSettings,
+      },
+    })).rejects.toMatchObject({ code: 'CLIENT_E2EE_REQUIRED' });
+    expect(updateSettings).not.toHaveBeenCalled();
   });
 
   it('decrypts encrypted v2 content, applies mutation, and posts encrypted content back', async () => {

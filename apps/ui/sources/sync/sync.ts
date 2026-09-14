@@ -96,6 +96,10 @@ import { buildOutgoingUserTextRecord } from './domains/messages/outgoingUserMess
 import { resolveSentFrom } from './domains/messages/sentFrom';
 import { NormalizedMessage, normalizeRawMessage, RawRecord, RawRecordSchema } from './typesRaw';
 import { applySettings, Settings, settingsDefaults, settingsParse, SUPPORTED_SCHEMA_VERSION } from './domains/settings/settings';
+import {
+    assertUiSessionEncryptionModeAllowed,
+    resolveUiClientEncryptionRequirement,
+} from './domains/settings/clientEncryptionRequirement';
 import { Profile, profileDefaults } from './domains/profiles/profile';
 import {
     loadSessionMaterializedMaxSeqById,
@@ -2501,6 +2505,14 @@ class Sync {
         storage.getState().markSessionOptimisticThinking(sessionId);
 
         const sessionEncryptionMode: 'e2ee' | 'plain' = session.encryptionMode === 'plain' ? 'plain' : 'e2ee';
+        const currentSettings = storage.getState().settings;
+        assertUiSessionEncryptionModeAllowed({
+            mode: sessionEncryptionMode,
+            requirement: resolveUiClientEncryptionRequirement({
+                syncedSettings: currentSettings,
+                localSettings: currentSettings,
+            }),
+        });
 
         try {
             const publishNextPromptPermissionModeIfNeeded = async (): Promise<void> => {
@@ -4070,6 +4082,10 @@ class Sync {
             );
         }
         const result = await fetchAndApplySessions({
+            clientEncryptionRequirement: resolveUiClientEncryptionRequirement({
+                syncedSettings: storage.getState().settings,
+                localSettings: storage.getState().settings,
+            }),
             serverId: activeServerId,
             sessionListCursor: isAppend ? this.sessionListNextCursor : null,
             sessionListMaxPages: 1,
@@ -4207,6 +4223,10 @@ class Sync {
         const shouldContinue = () => this.serverScopeGeneration === generation;
         const isAppend = options?.mode === 'append';
         const result = await fetchAndApplySessions({
+            clientEncryptionRequirement: resolveUiClientEncryptionRequirement({
+                syncedSettings: storage.getState().settings,
+                localSettings: storage.getState().settings,
+            }),
             sessionListPath: '/v2/sessions/archived',
             sessionListCursor: isAppend ? this.archivedSessionListNextCursor : null,
             sessionListMaxPages: 1,

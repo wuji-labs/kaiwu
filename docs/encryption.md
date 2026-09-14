@@ -568,6 +568,7 @@ Canonical concepts:
 - **Server storage policy:** `required_e2ee | optional | plaintext_only`, surfaced through `/v1/features`.
 - **Account encryption mode:** `e2ee | plain`, used as the default for new sessions.
 - **Session encryption mode:** `e2ee | plain`, fixed at session creation so a transcript does not mix modes.
+- **Client encryption requirement:** `follow_account | require_e2ee`, resolved strongest-wins from the synced Account preference, a UI device-local pin, and the daemon's `HAPPIER_ENCRYPTION_REQUIREMENT` override.
 - **Content envelope:**
   - encrypted content: `{ t: 'encrypted', c: string }`
   - plaintext content: `{ t: 'plain', v: unknown }`
@@ -578,6 +579,10 @@ Write paths must enforce mode/content-kind compatibility:
 - `plain` sessions accept plain content only.
 
 Clients must parse the envelope and branch explicitly. Do not guess that content is encrypted.
+
+`require_e2ee` is enforced at the Account-settings and Session-content choke points. A client must reject a plaintext Account envelope before publishing it, reject plaintext session creation or a create-or-load response, and avoid opening or authoring plaintext Session content. The UI device-local pin remains scoped with the existing server/account settings persistence; the synced preference reaches a daemon through the existing Account-settings snapshot and pre-spawn minimum-version hint. No relay API or separate UI-to-daemon policy field owns this decision.
+
+Missing client-requirement fields preserve the released behavior (`follow_account`). The daemon environment override can only strengthen the effective requirement; invalid non-empty values fail startup.
 
 Sharing rules:
 

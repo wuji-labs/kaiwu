@@ -18,6 +18,7 @@ export function stripLocalOnlyAccountSettings(settings: Partial<Settings>): Part
         lastUsedAgent: _dropped,
         lastUsedBackendTarget: _droppedBackendTarget,
         lastNewSessionAgentPickerViewV1: _droppedAgentPickerView,
+        clientEncryptionRequirementLocalV1: _droppedClientEncryptionRequirement,
         ...rest
     } = stripped as any;
     return rest;
@@ -30,5 +31,6 @@ export function pickLocalOnlyAccountSettings(settings: Settings): Partial<Settin
         lastUsedAgent: settings.lastUsedAgent,
         lastUsedBackendTarget: settings.lastUsedBackendTarget,
         lastNewSessionAgentPickerViewV1: settings.lastNewSessionAgentPickerViewV1,
+        clientEncryptionRequirementLocalV1: settings.clientEncryptionRequirementLocalV1,
     };
 }

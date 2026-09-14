@@ -9687,6 +9687,10 @@ settingsSession: {
     logoutConfirm:
       "ログアウトしてもよろしいですか？シークレットキーのバックアップを取っていることを確認してください！",
     encryptionUpdateFailed: "暗号化設定の更新に失敗しました",
+    requireE2ee: "エンドツーエンド暗号化を必須にする",
+    requireE2eeDescription: "このデバイスと同期済みデーモンで、平文のアカウント設定とセッションを拒否します。",
+    requireE2eeNeedsEncryptionTitle: "先に暗号化を有効にしてください",
+    requireE2eeNeedsEncryptionDescription: "必須にする前に、このアカウントのエンドツーエンド暗号化を有効にしてください。",
     secretKeyMissing: "秘密鍵を利用できません。先にアカウントを復元してください。",
     restoreRequiredTitle: "復元が必要です",
     restoreRequiredBody:

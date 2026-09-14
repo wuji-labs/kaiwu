@@ -1,8 +1,11 @@
 import axios from 'axios';
 
-import { AccountEncryptionModeResponseSchema } from '@happier-dev/protocol';
+import {
+  AccountEncryptionModeResponseSchema,
+} from '@happier-dev/protocol';
 
 import { fetchServerFeaturesSnapshot } from '@/features/serverFeaturesClient';
+import { assertSessionEncryptionModeAllowedByEffectiveClientRequirement } from '@/settings/accountSettings/resolveEffectiveClientEncryptionRequirement';
 
 export type DesiredSessionCreateEncryptionModeResult = Readonly<{
   desiredSessionEncryptionMode: 'e2ee' | 'plain';
@@ -27,6 +30,7 @@ export async function resolveSessionCreateEncryptionMode(params: Readonly<{
       : 'required_e2ee';
 
   if (storagePolicy === 'plaintext_only') {
+    assertSessionEncryptionModeAllowedByEffectiveClientRequirement('plain');
     return { desiredSessionEncryptionMode: 'plain', serverSupportsFeatureSnapshot, storagePolicy };
   }
   if (storagePolicy !== 'optional') {
@@ -50,12 +54,16 @@ export async function resolveSessionCreateEncryptionMode(params: Readonly<{
     if (!parsed.success) {
       return { desiredSessionEncryptionMode: 'e2ee', serverSupportsFeatureSnapshot, storagePolicy };
     }
+    assertSessionEncryptionModeAllowedByEffectiveClientRequirement(parsed.data.mode);
     return {
       desiredSessionEncryptionMode: parsed.data.mode,
       serverSupportsFeatureSnapshot,
       storagePolicy,
     };
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('client requirement')) {
+      throw error;
+    }
     return { desiredSessionEncryptionMode: 'e2ee', serverSupportsFeatureSnapshot, storagePolicy };
   }
 }

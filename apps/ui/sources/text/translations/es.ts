@@ -9472,6 +9472,10 @@ settingsSession: {
     logoutConfirm:
       "¿Seguro que quieres cerrar sesión? ¡Asegúrate de haber guardado tu clave secreta!",
     encryptionUpdateFailed: "No se pudo actualizar la configuración de cifrado.",
+    requireE2ee: "Exigir cifrado de extremo a extremo",
+    requireE2eeDescription: "Rechaza ajustes de cuenta y sesiones en texto plano en este dispositivo y en los daemons sincronizados.",
+    requireE2eeNeedsEncryptionTitle: "Activa primero el cifrado",
+    requireE2eeNeedsEncryptionDescription: "Activa el cifrado de extremo a extremo para esta cuenta antes de exigirlo.",
     secretKeyMissing: "Clave secreta no disponible. Primero restaura tu cuenta.",
     restoreRequiredTitle: "Se requiere restauración",
     restoreRequiredBody:
