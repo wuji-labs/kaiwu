@@ -174,7 +174,7 @@ describe('doctor cleanup ownership summary', () => {
       await runDoctorCommand('all');
 
       expect(output.text()).toContain('Cleanup ownership summary');
-      expect(output.text()).toContain('Configured relay profiles:');
+      expect(output.text()).toContain('已配置的中继配置文件:');
       expect(output.text()).toContain('Local relay installs:');
       expect(output.text()).toContain('http://127.0.0.1:4400');
       expect(output.text()).toContain('Current status:');

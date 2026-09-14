@@ -108,17 +108,17 @@ async function resolveRequiredField(input: {
   if (!input.interactive) {
     if (initial.length > 0) {
       throw new Error(
-        `Non-interactive mode: ${input.flag} is too short (min ${minLength} chars). Pass ${input.flag} "<value>"`,
+        `非交互模式：${input.flag} 太短（至少 ${minLength} 个字符）。请传入 ${input.flag} "<value>"`,
       );
     }
-    throw new Error(`Non-interactive mode: missing required ${input.flag}. Pass ${input.flag} "<value>"`);
+    throw new Error(`非交互模式：缺少必填参数 ${input.flag}。请传入 ${input.flag} "<value>"`);
   }
   // Prompt until we get a non-empty value meeting the minimum length.
   // Empty response is treated as cancellation.
   while (true) {
     const prompted = (await input.promptInputFn(input.prompt)).trim();
     if (prompted.length === 0) {
-      throw new Error(`Missing required value for ${input.flag}`);
+      throw new Error(`缺少 ${input.flag} 的必填值`);
     }
     if (prompted.length >= minLength) return prompted;
   }
@@ -135,10 +135,10 @@ function parseYesNo(raw: string, defaultValue: boolean): boolean {
 function formatSimilarIssuesPrompt(issues: BugReportSimilarIssue[]): string {
   const lines = issues.slice(0, 8).map((issue) => `- #${issue.number} (${issue.state}) ${issue.title}`);
   return [
-    'Possible duplicate issues found:',
+    '发现可能重复的问题：',
     ...lines,
     '',
-    'Enter an existing issue number to comment on, or press Enter to create a new issue: ',
+    '请输入已有问题编号以发表评论，或直接按 Enter 创建新问题：',
   ].join('\n');
 }
 
@@ -150,7 +150,7 @@ function resolveProviderUrl(input: {
   if (cliOverride.length > 0) {
     const normalizedCli = normalizeBugReportProviderUrl(cliOverride);
     if (!normalizedCli) {
-      throw new Error(`Invalid --provider-url value: ${cliOverride}`);
+      throw new Error(`无效的 --provider-url 值：${cliOverride}`);
     }
     return normalizedCli;
   }
@@ -191,7 +191,7 @@ export async function runBugReportCommand(
   const title = await resolveRequiredField({
     value: parsed.title,
     flag: '--title',
-    prompt: 'Bug title: ',
+    prompt: '问题标题：',
     minLength: 3,
     interactive,
     promptInputFn: deps.promptInput,
@@ -199,7 +199,7 @@ export async function runBugReportCommand(
   const summary = await resolveRequiredField({
     value: parsed.summary,
     flag: '--summary',
-    prompt: 'Summary: ',
+    prompt: '问题摘要：',
     minLength: 3,
     interactive,
     promptInputFn: deps.promptInput,
@@ -213,7 +213,7 @@ export async function runBugReportCommand(
 
   if (interactive && parsed.includeDiagnostics === null) {
     const defaultHint = includeDiagnostics ? 'Y/n' : 'y/N';
-    const answer = await deps.promptInput(`Include diagnostics and logs? [${defaultHint}]: `);
+    const answer = await deps.promptInput(`是否包含诊断信息和日志？[${defaultHint}]：`);
     includeDiagnostics = parseYesNo(answer, includeDiagnostics);
   }
 
@@ -221,13 +221,13 @@ export async function runBugReportCommand(
   if (includeDiagnostics) {
     if (!acceptedPrivacyNotice) {
       if (!interactive) {
-        throw new Error('Non-interactive mode: pass --accept-privacy-notice to confirm diagnostics privacy notice');
+        throw new Error('非交互模式：请传入 --accept-privacy-notice 确认诊断信息隐私声明');
       }
-      const answer = await deps.promptInput('Confirm privacy notice for bug report submission? [y/N]: ');
+      const answer = await deps.promptInput('确认错误报告提交的隐私声明吗？[y/N]：');
       acceptedPrivacyNotice = parseYesNo(answer, false);
     }
     if (!acceptedPrivacyNotice) {
-      throw new Error('Bug report submission canceled: privacy notice must be accepted');
+      throw new Error('错误报告提交已取消：必须接受隐私声明');
     }
   } else {
     // Consent applies to diagnostics; if none are included, treat as accepted for payload compatibility.
@@ -309,7 +309,7 @@ export async function runBugReportCommand(
         if (answer) {
           const selected = Number(answer);
           if (!Number.isFinite(selected) || !Number.isInteger(selected) || selected <= 0) {
-            throw new Error(`Invalid issue number: ${answer}`);
+            throw new Error(`问题编号无效：${answer}`);
           }
           existingIssueNumber = selected;
         }

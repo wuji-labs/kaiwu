@@ -86,7 +86,7 @@ describe('happier session history (action executor)', () => {
     await expect(cmdSessionHistory(
       ['history', 'sess-1', '--format', 'definitely-invalid'],
       { readCredentialsFn },
-    )).rejects.toThrow('Invalid --format value "definitely-invalid". Expected one of: compact, raw.');
+    )).rejects.toThrow('无效的 --format 值 "definitely-invalid"。可选值: compact, raw。');
 
     expect(readCredentialsFn).not.toHaveBeenCalled();
     expect(execute).not.toHaveBeenCalled();

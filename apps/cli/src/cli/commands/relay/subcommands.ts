@@ -104,13 +104,13 @@ async function cmdInspectTarget(args: string[]): Promise<void> {
     return;
   }
 
-  console.log(chalk.bold('Resolved relay target'));
+  console.log(chalk.bold('已解析的中继目标'));
   console.log(chalk.gray(`  ${payload.active.name} (${payload.active.id})`));
-  console.log(chalk.gray(`  relay: ${payload.active.serverUrl}`));
+  console.log(chalk.gray(`  中继：${payload.active.serverUrl}`));
   if (payload.active.localServerUrl && payload.active.localServerUrl !== payload.active.serverUrl) {
-    console.log(chalk.gray(`  local: ${payload.active.localServerUrl}`));
+    console.log(chalk.gray(`  本地：${payload.active.localServerUrl}`));
   }
-  console.log(chalk.gray(`  webapp: ${payload.active.webappUrl}`));
+  console.log(chalk.gray(`  网页端：${payload.active.webappUrl}`));
 }
 
 type CmdSetOptions = Readonly<{
@@ -130,7 +130,7 @@ async function cmdSet(args: string[], options: CmdSetOptions = {}): Promise<void
     || argvValue(resolvedArgs, '--relay-url')
     || firstPositionalArg(resolvedArgs);
   if (!serverUrlRaw) {
-    throw new Error('Usage: kaiwu relay set <relay-url | --local> [--use] [--json] [--server-url <url>] [--webapp-url <url>] [--local-server-url <url>]');
+    throw new Error('用法：kaiwu relay set <relay-url | --local> [--use] [--json] [--server-url <url>] [--webapp-url <url>] [--local-server-url <url>]');
   }
 
   const serverUrl = normalizeUrlOrThrow(serverUrlRaw, 'relay url');
@@ -181,11 +181,11 @@ async function cmdSet(args: string[], options: CmdSetOptions = {}): Promise<void
   if (options.silent) return;
 
   if (used) {
-    console.log(chalk.green(`✓ Active relay: ${upserted.name} (${upserted.id})`));
+    console.log(chalk.green(`✓ 当前中继：${upserted.name}（${upserted.id}）`));
   } else if (changed) {
-    console.log(chalk.green(`✓ Saved relay: ${upserted.name} (${upserted.id})`));
+    console.log(chalk.green(`✓ 已保存中继：${upserted.name}（${upserted.id}）`));
   } else {
-    console.log(chalk.gray(`= Relay unchanged: ${upserted.name} (${upserted.id})`));
+    console.log(chalk.gray(`= 中继未变化：${upserted.name}（${upserted.id}）`));
   }
   console.log(chalk.gray(`  ${upserted.serverUrl}`));
 
@@ -206,7 +206,7 @@ function parseLocalChannelFlag(args: readonly string[]): Readonly<{ channel: 'st
     if (a === '--local-channel') {
       const value = String(args[i + 1] ?? '').trim().toLowerCase();
       if (value !== 'stable' && value !== 'preview' && value !== 'dev') {
-        throw new Error('Invalid --local-channel value (expected stable|preview|dev)');
+        throw new Error('无效的 --local-channel 值（应为 stable|preview|dev）');
       }
       channel = value;
       i += 1;
@@ -215,7 +215,7 @@ function parseLocalChannelFlag(args: readonly string[]): Readonly<{ channel: 'st
     if (a.startsWith('--local-channel=')) {
       const value = a.slice('--local-channel='.length).trim().toLowerCase();
       if (value !== 'stable' && value !== 'preview' && value !== 'dev') {
-        throw new Error('Invalid --local-channel value (expected stable|preview|dev)');
+        throw new Error('无效的 --local-channel 值（应为 stable|preview|dev）');
       }
       channel = value;
       continue;
@@ -253,7 +253,7 @@ async function resolveLocalRelayArgIfRequested(
   // Callers running a multi-step flow (e.g. relay start-daemon) can suppress
   // this and print their own consolidated line.
   if (!options.silent) {
-    console.log(chalk.gray(`  (local relay on ${match.channel} channel: ${match.url})`));
+    console.log(chalk.gray(`  （本地中继通道：${match.channel}，地址：${match.url}）`));
   }
   filtered.unshift(match.url);
   return filtered;
@@ -299,11 +299,11 @@ async function cmdAuth(args: string[]): Promise<void> {
       ?? getReleaseRingPublicLabel(resolveManagedCliReleaseChannelSync({ processEnv: process.env, argv: process.argv }).ringId);
     throw new Error(await buildMissingLocalRelayError(targetChannel));
   }
-  console.log(chalk.cyan(`→ Using local ${match.channel} relay at ${match.url}`));
+  console.log(chalk.cyan(`→ 正在使用 ${match.channel} 通道的本地中继：${match.url}`));
 
   await cmdUse(['--local', ...rest.filter((a) => a !== '--local')], { silent: true });
 
-  console.log(chalk.gray('  Starting auth login for this profile…'));
+  console.log(chalk.gray('  正在为此配置启动登录认证……'));
   await handleAuthCommand(['login', ...rest.filter((a) => a !== '--local')]);
 }
 
@@ -318,14 +318,14 @@ async function cmdStartDaemon(args: string[]): Promise<void> {
       ?? getReleaseRingPublicLabel(resolveManagedCliReleaseChannelSync({ processEnv: process.env, argv: process.argv }).ringId);
     throw new Error(await buildMissingLocalRelayError(targetChannel));
   }
-  console.log(chalk.cyan(`→ Using local ${match.channel} relay at ${match.url}`));
+  console.log(chalk.cyan(`→ 正在使用 ${match.channel} 通道的本地中继：${match.url}`));
 
   await cmdUse(['--local', ...args.filter((a) => a !== '--local')], { silent: true });
 
   const runtime = resolveDaemonServiceCliRuntimeFromEnv({ mode: 'user', systemUser: '' });
   const installed = await resolveInstalledDaemonServiceInventoryForCurrentRelay(runtime).catch(() => [] as const);
   if (installed.length > 0) {
-    console.log(chalk.gray('  Managed by a background service — starting via `service start`…'));
+    console.log(chalk.gray('  已由后台服务管理，正在通过 `service start` 启动……'));
     await handleDaemonCliCommand({
       args: ['daemon', 'service', 'start'],
       rawArgv: process.argv,
@@ -333,7 +333,7 @@ async function cmdStartDaemon(args: string[]): Promise<void> {
     });
     return;
   }
-  console.log(chalk.gray('  Starting daemon…'));
+  console.log(chalk.gray('  正在启动守护进程……'));
   await handleDaemonCliCommand({
     args: ['daemon', 'start'],
     rawArgv: process.argv,

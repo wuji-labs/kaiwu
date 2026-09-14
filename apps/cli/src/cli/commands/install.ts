@@ -10,9 +10,9 @@ import type { runDoctorCommand as runDoctorCommandDefault } from '@/ui/doctor';
 
 function usage(): string {
   return [
-    `${chalk.bold('kaiwu install')} - Installation helpers`,
+    `${chalk.bold('kaiwu install')} - 安装辅助工具`,
     '',
-    `${chalk.bold('Usage:')}`,
+    `${chalk.bold('用法:')}`,
     '  kaiwu install doctor',
     '  kaiwu install provider <providerId> [--dry-run] [--force]',
     '',
@@ -58,16 +58,16 @@ function printProviderInstallResult(
   if (!result.ok) return;
   const runtimeSpec = getProviderCliRuntimeSpec(providerId);
   if (result.alreadyInstalled) {
-    log(`${runtimeSpec.title} is already installed.`);
+    log(`${runtimeSpec.title} 已安装。`);
   } else if (result.plan.installMode === 'vendor_recipe') {
-    log(`Installed ${runtimeSpec.title}.`);
+    log(`已安装 ${runtimeSpec.title}。`);
   } else if (result.plan.installMode === 'github_release_binary') {
-    log(`Installed ${runtimeSpec.title} via managed release binary.`);
+    log(`已通过托管发布二进制文件安装 ${runtimeSpec.title}。`);
   } else if (result.plan.installMode === 'managed_package') {
-    log(`Installed ${runtimeSpec.title} via managed package runtime.`);
+    log(`已通过托管软件包运行时安装 ${runtimeSpec.title}。`);
   }
   if (result.logPath) {
-    log(`Install log: ${result.logPath}`);
+    log(`安装日志：${result.logPath}`);
   }
 }
 
@@ -92,7 +92,7 @@ export async function runInstallCliCommand(
     if (subcommand === 'provider') {
       const providerIdRaw = context.args[2]?.trim() ?? '';
       if (!providerIdRaw) {
-        deps.error(chalk.red('Error:'), 'Missing provider id.');
+        deps.error(chalk.red('错误：'), '缺少提供方 ID。');
         deps.log(usage());
         deps.exit(1);
         return;
@@ -102,7 +102,7 @@ export async function runInstallCliCommand(
         return;
       }
       if (!isAgentId(providerIdRaw)) {
-        deps.error(chalk.red('Error:'), `Unknown provider id: ${providerIdRaw}`);
+        deps.error(chalk.red('错误：'), `未知的提供方 ID：${providerIdRaw}`);
         deps.log(usage());
         deps.exit(1);
         return;
@@ -116,15 +116,15 @@ export async function runInstallCliCommand(
         nodePlatform: process.platform,
       });
       if (!result.ok) {
-        deps.error(chalk.red('Error:'), result.errorMessage);
+        deps.error(chalk.red('错误：'), result.errorMessage);
         if (result.logPath) {
-          deps.log(`Install log: ${result.logPath}`);
+          deps.log(`安装日志：${result.logPath}`);
         }
         deps.exit(1);
         return;
       }
       if (flags.dryRun) {
-        deps.log(`Dry run: would install ${result.plan.title} via ${result.plan.installMode}.`);
+        deps.log(`试运行：将通过 ${result.plan.installMode} 安装 ${result.plan.title}。`);
         if (result.logPath) {
           deps.log(`Install log: ${result.logPath}`);
         }
@@ -137,16 +137,16 @@ export async function runInstallCliCommand(
       deps.log(usage());
       return;
     }
-    deps.error(chalk.red('Error:'), `Unknown install subcommand: ${subcommand}`);
+    deps.error(chalk.red('错误：'), `未知的 install 子命令：${subcommand}`);
     deps.log(usage());
     deps.exit(1);
   } catch (error) {
-    deps.error(chalk.red('Error:'), error instanceof Error ? error.message : 'Unknown error');
+    deps.error(chalk.red('错误：'), error instanceof Error ? error.message : '未知错误');
     if (process.env.DEBUG) {
       deps.error(error);
     }
     if (error && typeof error === 'object' && 'logPath' in error && typeof error.logPath === 'string') {
-      deps.log(`Install log: ${error.logPath}`);
+          deps.log(`安装日志：${error.logPath}`);
     }
     deps.exit(1);
     return;

@@ -3,6 +3,23 @@ import { describe, expect, it } from 'vitest';
 import { buildBackgroundServiceRepairPlan } from './buildBackgroundServiceRepairPlan';
 
 describe('buildBackgroundServiceRepairPlan', () => {
+  it('plans a default-following service when no background service exists yet', () => {
+    const plan = buildBackgroundServiceRepairPlan({
+      currentReleaseChannel: 'stable',
+      currentServerId: 'default',
+      preferredMode: 'user',
+      services: [],
+    });
+
+    expect(plan.actions).toEqual([
+      expect.objectContaining({
+        kind: 'install-default-following-service',
+        releaseChannel: 'stable',
+        mode: 'user',
+      }),
+    ]);
+  });
+
   it('migrates only the current-server pinned current-channel service to one default background service', () => {
     const plan = buildBackgroundServiceRepairPlan({
       currentReleaseChannel: 'preview',

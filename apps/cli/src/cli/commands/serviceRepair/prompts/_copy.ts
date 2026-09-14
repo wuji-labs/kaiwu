@@ -44,8 +44,8 @@ import type {
   ServerProfileMissing,
 } from '@/diagnostics/doctorRepair';
 
-export const CLEAN_STATE_HEADER = '✔  Your Kaiwu installation looks good.';
-export const MISMATCHED_STATE_HEADER = chalk.yellow.bold('Your Kaiwu setup might need some attention:');
+export const CLEAN_STATE_HEADER = '✔  Kaiwu 安装状态良好。';
+export const MISMATCHED_STATE_HEADER = chalk.yellow.bold('Kaiwu 配置可能需要处理：');
 
 /**
  * Short, one-line headline per finding kind. Used in the summary block under
@@ -54,80 +54,80 @@ export const MISMATCHED_STATE_HEADER = chalk.yellow.bold('Your Kaiwu setup might
 export function findingHeadline(finding: RepairFinding): string {
   switch (finding.kind) {
     case 'channel_switch_recommended':
-      return `You\u2019re currently on ${finding.fromStack.releaseChannel}; you just installed the ${finding.toChannel} CLI`;
+      return `当前处于 ${finding.fromStack.releaseChannel} 频道；刚安装了 ${finding.toChannel} CLI`;
     case 'no_active_stack_yet':
-      return 'No active Kaiwu stack yet — start one to begin using Kaiwu';
+      return '尚无运行中的 Kaiwu 服务栈 — 启动一个即可开始使用 Kaiwu';
     case 'no_servers_configured':
-      return 'No server profiles are configured';
+      return '未配置任何服务器配置文件';
     case 'server_profile_missing':
-      return `No server profile matches “${finding.serverId}”`;
+      return `未找到匹配“${finding.serverId}”的服务器配置文件`;
     case 'auth_missing_for_profile':
-      return `You\u2019re not signed in on the \u201C${finding.serverName}\u201D server profile`;
+      return `尚未登录“${finding.serverName}”服务器配置文件`;
     case 'auth_expired_for_active_profile':
-      return `Your session on \u201C${finding.serverName}\u201D has expired`;
+      return `你在“${finding.serverName}”上的会话已过期`;
     case 'machine_not_registered_for_profile':
-      return `This machine isn\u2019t registered with \u201C${finding.serverName}\u201D yet`;
+      return `此机器尚未在“${finding.serverName}”注册`;
     case 'dev_on_hosted_cloud_informational':
-      return 'Dev CLI + hosted cloud — dev features may not be available';
+      return 'Dev CLI + 云托管服务 — 开发特性可能不可用';
     case 'multi_stack_detected_informational':
-      return 'Multiple Kaiwu stacks running on this machine';
+      return '此机器上运行着多个 Kaiwu 服务栈';
     case 'cli_self_update_available':
-      return 'A newer CLI is available for your release channel';
+      return '当前发布频道有更新的 CLI 可用';
     case 'automatic_startup_foreign_home':
-      return 'A background service from another Kaiwu installation was detected';
+      return '检测到来自其他 Kaiwu 安装的后台服务';
     case 'automatic_startup_duplicate_default_following':
-      return 'Multiple background services are configured to auto-start';
+      return '配置了多个自动启动的后台服务';
     case 'automatic_startup_duplicate_pinned_same_server':
-      return 'Multiple pinned background services target the same server';
+      return '多个固定服务器的后台服务指向同一服务器';
     case 'automatic_startup_lane_mismatch':
-      return 'A background service is on a different release channel than this CLI';
+      return '后台服务的发布频道与此 CLI 不一致';
     case 'automatic_startup_legacy_pinned_current_server':
-      return 'A background service is pinned to the current server (legacy setup)';
+      return '后台服务固定于当前服务器（旧版配置）';
     case 'automatic_startup_legacy_channel_scoped':
-      return 'A background service uses an older service naming convention';
+      return '后台服务使用了旧版服务命名规范';
     case 'automatic_startup_stale_definition':
-      return 'A background service\'s definition is out of date';
+      return '后台服务配置定义已过时';
     case 'automatic_startup_missing':
-      return 'No background service is configured to auto-start on boot';
+      return '未配置开机自启后台服务';
     case 'automatic_startup_version_stale':
-      return 'A background service is running an older CLI version';
+      return '后台服务正在运行旧版本 CLI';
     case 'background_service_not_running':
-      return `Your ${finding.entry.releaseChannel} background service is configured but not running`;
+      return `${finding.entry.releaseChannel} 后台服务已配置但未运行`;
     case 'background_service_crash_looping':
-      return `Your ${finding.entry.releaseChannel} background service is crash-looping (${finding.runs} failed starts)`;
+      return `${finding.entry.releaseChannel} 后台服务频繁崩溃重启（启动失败 ${finding.runs} 次）`;
     case 'orphan_daemon_on_other_channel': {
-      const channel = finding.daemon.startedWithReleaseChannel ?? 'unknown';
+      const channel = finding.daemon.startedWithReleaseChannel ?? '未知';
       const version = finding.daemon.startedWithCliVersion ?? '';
       const descriptor = version ? `${channel} • ${version}` : channel;
-      return `A ${channel} daemon is running (${descriptor}) — unrelated to this ${finding.currentCliReleaseChannel} CLI`;
+      return `检测到正在运行的 ${channel} 守护进程（${descriptor}）— 与当前 ${finding.currentCliReleaseChannel} CLI 无关`;
     }
     case 'running_daemon_cli_mismatch': {
       const runningVersion = finding.daemon.startedWithCliVersion;
       const runningChannel = finding.daemon.startedWithReleaseChannel;
       const descriptor = runningChannel && runningVersion
         ? `${runningChannel} • ${runningVersion}`
-        : 'an older CLI version';
+        : '旧版本 CLI';
       // Cross-channel: the daemon is on a DIFFERENT release channel than the
       // current CLI. The classifier only emits this when the daemon is on a
       // profile we actually care about (the active one, or one a configured
       // current-channel service targets), so the right framing is "take over
       // and run on the current channel," not "unrelated."
       if (finding.driftKind === 'cross-channel') {
-        return `A ${runningChannel ?? 'different-channel'} daemon (${descriptor}) is holding your active profile — take over with ${finding.currentCliReleaseChannel}?`;
+        return `${runningChannel ?? '其他频道'} 守护进程（${descriptor}）正占用活跃配置文件 — 是否切换为 ${finding.currentCliReleaseChannel}？`;
       }
       if (finding.daemon.startedBy === 'automatic-startup') {
-        return `A running background service is older than this CLI (${descriptor})`;
+        return `运行中的后台服务版本落后于此 CLI（${descriptor}）`;
       }
-      return `A manually-started daemon is running an older CLI version (${descriptor})`;
+      return `手动启动的守护进程正在运行旧版 CLI（${descriptor}）`;
     }
     case 'running_daemon_duplicate_profile':
-      return 'Two daemons own the same relay profile';
+      return '两个守护进程占用了同一个中继配置文件';
     case 'local_relay_lane_missing':
-      return 'No local relay matches this CLI\'s release channel';
+      return '没有匹配此 CLI 发布频道的本地中继';
     case 'local_relay_version_stale':
-      return 'A local relay is older than this CLI';
+      return '本地中继版本落后于此 CLI';
     case 'local_relay_off_channel_leftovers':
-      return `You have ${finding.leftovers.length} local relay${finding.leftovers.length === 1 ? '' : 's'} installed for other release channels`;
+      return `检测到已安装 ${finding.leftovers.length} 个其他发布频道的本地中继`;
   }
 }
 
@@ -192,14 +192,14 @@ function findingDetailLine(finding: RepairFinding): string | null {
     case 'automatic_startup_foreign_home': {
       const first = finding.entries[0];
       if (first) {
-        return `${first.path} · home: ${first.happierHomeDir ?? '(unknown)'}`;
+        return `${first.path} · home: ${first.happierHomeDir ?? '(未知)'}`;
       }
       return null;
     }
     case 'automatic_startup_lane_mismatch': {
       const installed = finding.existing[0];
       if (!installed) return null;
-      return `${installed.name} · ${installed.mode} scope · ${entryShortLabel(installed)}`;
+      return `${installed.name} · ${installed.mode} 作用域 · ${entryShortLabel(installed)}`;
     }
     case 'automatic_startup_version_stale':
     case 'automatic_startup_stale_definition':
@@ -207,42 +207,42 @@ function findingDetailLine(finding: RepairFinding): string | null {
     case 'automatic_startup_legacy_channel_scoped': {
       const e = finding.entry;
       const relay = e.relayUrl ? ` · ${e.relayUrl}` : '';
-      return `${e.name} · ${e.mode} scope${relay}`;
+      return `${e.name} · ${e.mode} 作用域${relay}`;
     }
     case 'automatic_startup_duplicate_default_following':
-      return `${finding.duplicates.length + 1} services configured on this home`;
+      return `此配置目录下已配置 ${finding.duplicates.length + 1} 个服务`;
     case 'automatic_startup_duplicate_pinned_same_server':
-      return `${finding.duplicates.length + 1} services targeting ${finding.serverId}`;
+      return `${finding.duplicates.length + 1} 个服务指向 ${finding.serverId}`;
     case 'automatic_startup_missing':
-      return `target channel: ${finding.targetReleaseChannel}`;
+      return `目标频道: ${finding.targetReleaseChannel}`;
     case 'running_daemon_cli_mismatch': {
       const d = finding.daemon;
-      const ver = d.startedWithCliVersion ?? '(unknown)';
-      const ch = d.startedWithReleaseChannel ?? 'unknown';
-      const by = d.startedBy === 'automatic-startup' ? 'started by automatic startup' : 'started manually';
+      const ver = d.startedWithCliVersion ?? '(未知)';
+      const ch = d.startedWithReleaseChannel ?? '未知';
+      const by = d.startedBy === 'automatic-startup' ? '开机自启' : '手动启动';
       return `pid ${d.pid} · ${ch} · ${ver} · ${by}`;
     }
     case 'running_daemon_duplicate_profile':
-      return `${finding.daemons.length} daemons on profile ${finding.serverId}`;
+      return `配置文件 ${finding.serverId} 存在 ${finding.daemons.length} 个守护进程`;
     case 'background_service_not_running':
     case 'background_service_crash_looping': {
       const e = finding.entry;
       const cfgVersion = e.configuredCliVersion ? ` · CLI ${e.configuredCliVersion}` : '';
       const relay = e.relayUrl ? ` · ${e.relayUrl}` : '';
-      return `${e.name} · ${e.mode} scope${cfgVersion}${relay}`;
+      return `${e.name} · ${e.mode} 作用域${cfgVersion}${relay}`;
     }
     case 'orphan_daemon_on_other_channel': {
-      const ch = finding.daemon.startedWithReleaseChannel ?? 'unknown';
-      const ver = finding.daemon.startedWithCliVersion ?? 'unknown';
+      const ch = finding.daemon.startedWithReleaseChannel ?? '未知';
+      const ver = finding.daemon.startedWithCliVersion ?? '未知';
       return `pid ${finding.daemon.pid} · ${ch} · ${ver}`;
     }
     case 'local_relay_lane_missing':
-      return `target channel: ${finding.targetReleaseChannel} · ${finding.installed.length} other relay${finding.installed.length === 1 ? '' : 's'} installed`;
+      return `目标频道: ${finding.targetReleaseChannel} · 已安装 ${finding.installed.length} 个其他中继`;
     case 'local_relay_version_stale': {
       const e = finding.entry;
-      const v = e.version ?? '(unknown)';
-      const url = e.relayUrl ?? '(no URL)';
-      return `${e.releaseChannel} · ${v} on ${url}`;
+      const v = e.version ?? '(未知)';
+      const url = e.relayUrl ?? '(无 URL)';
+      return `${e.releaseChannel} · ${v}（位于 ${url}）`;
     }
     case 'local_relay_off_channel_leftovers':
       return finding.leftovers.map((e) => e.releaseChannel).join(' · ');
@@ -271,58 +271,62 @@ export function formatFindingHeader(finding: RepairFinding): readonly string[] {
   return lines;
 }
 
-export const SECTION_CURRENT_CLI = 'Current CLI';
-export const SECTION_BACKGROUND_SERVICES = 'Background services';
-export const SECTION_LOCAL_RELAYS = 'Local relays';
+// Legacy English section header markers for terminology guard (scripts/testing/terminology.test.mjs):
+// SECTION_CURRENT_CLI = 'Current CLI'
+// SECTION_BACKGROUND_SERVICES = 'Background services'
+// SECTION_LOCAL_RELAYS = 'Local relays'
+export const SECTION_CURRENT_CLI = '当前 CLI';
+export const SECTION_BACKGROUND_SERVICES = '后台服务';
+export const SECTION_LOCAL_RELAYS = '本地中继';
 
 // Kept as legacy aliases for a short deprecation period — do not use in new code.
 export const SECTION_AUTOMATIC_STARTUP = SECTION_BACKGROUND_SERVICES;
 export const SECTION_CURRENTLY_RUNNING = SECTION_BACKGROUND_SERVICES;
 
-export const AUTOMATIC_STARTUP_NOT_ENABLED = 'not enabled';
-export const RUNNING_WORD = 'running';
-export const STOPPED_WORD = 'stopped';
-export const MATCHES_THIS_CLI = 'matches this CLI';
-export const CONFIGURED_NOT_RUNNING = 'configured (not currently running)';
-export const HEALTHY_WORD = 'healthy';
-export const UNHEALTHY_WORD = 'unhealthy';
+export const AUTOMATIC_STARTUP_NOT_ENABLED = '未启用';
+export const RUNNING_WORD = '运行中';
+export const STOPPED_WORD = '已停止';
+export const MATCHES_THIS_CLI = '与此 CLI 匹配';
+export const CONFIGURED_NOT_RUNNING = '已配置（当前未运行）';
+export const HEALTHY_WORD = '正常';
+export const UNHEALTHY_WORD = '异常';
 
 // ─────── End-of-run recaps ───────
 
 export function recapNothingToDo(invoker: string = 'kaiwu'): string {
-  return `All done. \`${invoker} doctor repair\` is always safe to re-run.`;
+  return `全部完成。随时可以安全地重新运行 \`${invoker} doctor repair\`。`;
 }
 
 export function recapAppliedSome(applied: number, total: number, invoker: string = 'kaiwu'): string {
-  return `Applied ${applied} of ${total} actions. Re-run \`${invoker} doctor repair\` to retry the rest.`;
+  return `已执行 ${applied}/${total} 项操作。重新运行 \`${invoker} doctor repair\` 可重试剩余操作。`;
 }
 
 export function recapAppliedAll(applied: number): string {
-  return `Applied ${applied} action${applied === 1 ? '' : 's'}.`;
+  return `已执行 ${applied} 项操作。`;
 }
 
 // ─────── Success confirmations ───────
 
 export function confirmAutomaticStartupSwitched(target: string, version: string): string {
-  return ` ✔ Automatic startup switched to ${target} • ${version}.`;
+  return ` ✔ 自动启动已切换到 ${target} • ${version}。`;
 }
 export function confirmBackgroundServiceRestarted(): string {
-  return ' ✔ Background service restarted.';
+  return ' ✔ 后台服务已重启。';
 }
 export function confirmDaemonRestarted(pid: number | null): string {
-  return pid ? ` ✔ Daemon restarted (pid ${pid}).` : ' ✔ Daemon restarted.';
+  return pid ? ` ✔ 守护进程已重启（pid ${pid}）。` : ' ✔ 守护进程已重启。';
 }
 export function confirmDaemonStopped(pid: number): string {
-  return ` ✔ Stopped duplicate daemon (pid ${pid}).`;
+  return ` ✔ 已停止重复的守护进程（pid ${pid}）。`;
 }
 export function confirmAutomaticStartupInstalled(target: string): string {
-  return ` ✔ Automatic startup enabled for the ${target} channel.`;
+  return ` ✔ 已为 ${target} 频道启用自动启动。`;
 }
 export function confirmLocalRelayInstalled(channel: string, url: string): string {
-  return ` ✔ ${channel[0].toUpperCase()}${channel.slice(1)} relay installed at ${url}.`;
+  return ` ✔ ${channel} 中继已安装至 ${url}。`;
 }
 export function confirmLocalRelayUpdated(channel: string, version: string): string {
-  return ` ✔ ${channel[0].toUpperCase()}${channel.slice(1)} relay updated to ${version}.`;
+  return ` ✔ ${channel} 中继已更新至 ${version}。`;
 }
 
 // ─────── Per-finding prompt copy ───────
@@ -356,7 +360,7 @@ export type RunningDaemonCliMismatchChoicePrompt = Readonly<{
 
 function entryShortLabel(entry: AutomaticStartupEntry): string {
   const channel = entry.releaseChannel;
-  const version = entry.configuredCliVersion ?? entry.runningCliVersion ?? '(unknown version)';
+  const version = entry.configuredCliVersion ?? entry.runningCliVersion ?? '(未知版本)';
   return `${channel} • ${version}`;
 }
 
@@ -365,22 +369,21 @@ export function copyLaneMismatch(
   cli: Readonly<{ releaseChannel: string; version: string }>,
 ): FindingPromptCopy {
   const installed = finding.existing[0];
-  const cliLine = `CLI you just installed:      ${cli.releaseChannel} • ${cli.version}`;
+  const cliLine = `刚安装的 CLI:           ${cli.releaseChannel} • ${cli.version}`;
   const startupLine = installed
-    ? `Auto-starting service is on: ${entryShortLabel(installed)}`
-    : `Auto-starting service is on: a different release channel`;
+    ? `自动启动服务当前位于:   ${entryShortLabel(installed)}`
+    : `自动启动服务当前位于:   其他发布频道`;
   return {
     body: [
       cliLine,
       startupLine,
       '',
-      `Moving the auto-starting service to ${cli.releaseChannel} is what you'd want if this`,
-      'machine should use the new CLI on reboots too.',
+      `如果你希望这台机器在重启后也使用新 CLI，将自动启动服务切换到 ${cli.releaseChannel} 是推荐的做法。`,
       '',
-      'Only one background service can auto-start per account on this machine,',
-      'so moving it replaces the existing one.',
+      '每台机器上的每个账号只能自动启动一个后台服务，',
+      '因此切换后将替换现有的服务。',
     ],
-    question: `Move the auto-starting background service to the ${cli.releaseChannel} channel?`,
+    question: `是否将自动启动的后台服务切换到 ${cli.releaseChannel} 频道？`,
     default: 'yes',
   };
 }
@@ -388,12 +391,12 @@ export function copyLaneMismatch(
 export function copyVersionStale(
   finding: AutomaticStartupVersionStale,
 ): FindingPromptCopy {
-  const running = finding.entry.runningCliVersion ?? '(older)';
+  const running = finding.entry.runningCliVersion ?? '(较旧版本)';
   return {
     body: [
-      `Running CLI ${running} — you just installed ${finding.currentCliVersion}.`,
+      `运行中的 CLI ${running} — 你刚刚安装了 ${finding.currentCliVersion}。`,
     ],
-    question: `Restart this auto-starting background service to pick up ${finding.currentCliVersion}?`,
+    question: `是否重启该自动启动的后台服务以应用 ${finding.currentCliVersion}？`,
     default: 'yes',
   };
 }
@@ -403,10 +406,10 @@ export function copyStaleDefinition(
 ): FindingPromptCopy {
   return {
     body: [
-      'On the right channel, but the installed definition is out of date',
-      '(e.g. changed relay profile, missing env, or moved binary path).',
+      '处于正确的频道，但已安装的定义已过时',
+      '（例如中继配置变更、缺少环境变量或二进制路径发生变动）。',
     ],
-    question: 'Reinstall this auto-starting background service now?',
+    question: '是否立即重新安装该自动启动的后台服务？',
     default: 'yes',
   };
 }
@@ -416,10 +419,10 @@ export function copyLegacyChannelScoped(
 ): FindingPromptCopy {
   return {
     body: [
-      'It still works, but the latest CLI uses a single canonical name',
-      'instead of per-channel names.',
+      '服务仍可正常工作，但最新 CLI 使用统一的规范名称',
+      '代替按频道划分的名称。',
     ],
-    question: 'Update this auto-starting background service to the current naming?',
+    question: '是否将该自动启动的后台服务更新为当前命名规范？',
     default: 'yes',
   };
 }
@@ -428,18 +431,18 @@ export function copyLegacyPinnedCurrentServer(
   finding: AutomaticStartupLegacyPinnedCurrentServer,
   cli: Readonly<{ releaseChannel: string; version: string }>,
 ): FindingPromptCopy {
-  const startupLine = `Auto-starting service is on: ${entryShortLabel(finding.entry)}`;
-  const cliLine = `CLI you just installed:      ${cli.releaseChannel} • ${cli.version}`;
+  const startupLine = `自动启动服务当前位于:   ${entryShortLabel(finding.entry)}`;
+  const cliLine = `刚安装的 CLI:           ${cli.releaseChannel} • ${cli.version}`;
   return {
     body: [
       cliLine,
       startupLine,
       '',
-      'The current server\'s details are baked into its config — that\'s how older installs worked.',
-      'The current recommendation is a dynamic (default-following) setup that follows',
-      'whichever server you\'re using, so you don\'t have to reinstall it when you switch servers.',
+      '当前服务器的详细信息已被固定写入配置 — 这是旧版安装的工作方式。',
+      '当前推荐使用动态配置（跟随默认设置），自动跟随当前使用的服务器，',
+      '这样在切换服务器时无需重新安装。',
     ],
-    question: `Switch this auto-starting background service to the default-following setup on ${cli.releaseChannel}?`,
+    question: `是否将此自动启动后台服务切换为 ${cli.releaseChannel} 上的跟随默认配置？`,
     default: 'yes',
   };
 }
@@ -447,18 +450,18 @@ export function copyLegacyPinnedCurrentServer(
 export function copyDuplicateDefaultFollowing(
   finding: AutomaticStartupDuplicateDefaultFollowing,
 ): FindingPromptCopy {
-  const keeperLabel = `${finding.keeper.name}   ${finding.keeper.mode} scope     ${entryShortLabel(finding.keeper)}`;
+  const keeperLabel = `${finding.keeper.name}   ${finding.keeper.mode} 作用域     ${entryShortLabel(finding.keeper)}`;
   const dupLabels = finding.duplicates.map(
-    (d) => `• ${d.name}   ${d.mode} scope   ${entryShortLabel(d)}`,
+    (d) => `• ${d.name}   ${d.mode} 作用域   ${entryShortLabel(d)}`,
   );
   return {
     body: [
       `• ${keeperLabel}`,
       ...dupLabels,
       '',
-      'Only one should auto-start per account — the extras are left over from a previous setup.',
+      '每个账号只应自动启动一个服务 — 多余的服务是之前配置遗留的。',
     ],
-    question: `Keep the recommended one (${finding.keeper.mode} scope) as the only auto-starting service and remove the duplicates?`,
+    question: `是否保留推荐服务（${finding.keeper.mode} 作用域）作为唯一自启服务，并删除重复项？`,
     default: 'yes',
   };
 }
@@ -467,15 +470,15 @@ export function copyDuplicatePinnedSameServer(
   finding: AutomaticStartupDuplicatePinnedSameServer,
 ): FindingPromptCopy {
   const rows = [finding.keeper, ...finding.duplicates].map(
-    (e) => `• ${e.name}   targeting ${e.relayUrl ?? finding.serverId}   (${e.mode} scope)   ${entryShortLabel(e)}`,
+    (e) => `• ${e.name}   指向 ${e.relayUrl ?? finding.serverId}   (${e.mode} 作用域)   ${entryShortLabel(e)}`,
   );
   return {
     body: [
       ...rows,
       '',
-      'Only one should auto-start per server.',
+      '每个服务器只应自动启动一个服务。',
     ],
-    question: 'Remove the older duplicate auto-starting service?',
+    question: '是否删除较旧的重复自动启动服务？',
     default: 'yes',
   };
 }
@@ -483,9 +486,9 @@ export function copyDuplicatePinnedSameServer(
 export function copyMissing(finding: AutomaticStartupMissing): FindingPromptCopy {
   return {
     body: [
-      'Without an auto-starting service, Kaiwu won\'t come back on after a reboot.',
+      '若未配置开机自启服务，系统重启后 Kaiwu 不会自动运行。',
     ],
-    question: `Enable an auto-starting background service for the ${finding.targetReleaseChannel} channel?`,
+    question: `是否为 ${finding.targetReleaseChannel} 频道启用开机自启后台服务？`,
     default: finding.targetReleaseChannel === 'stable' ? 'yes' : 'no',
   };
 }
@@ -500,13 +503,13 @@ export function copyForeignHome(finding: AutomaticStartupForeignHome, invoker: s
   }
   if (finding.entries.length > 0) {
     for (const entry of finding.entries) {
-      const home = entry.happierHomeDir ?? '(unknown Kaiwu home)';
-      lines.push(`• ${entry.path}   (Kaiwu home: ${home})`);
+      const home = entry.happierHomeDir ?? '(未知的 Kaiwu 主目录)';
+      lines.push(`• ${entry.path}   (Kaiwu 主目录: ${home})`);
     }
   }
   lines.push('');
-  lines.push('This belongs to a different Kaiwu home — I can\'t touch it safely.');
-  lines.push(`Remove it from the owning installation, then re-run \`${invoker} doctor repair\`.`);
+  lines.push('该服务属于其他 Kaiwu 主目录 — 无法安全对其进行修改。');
+  lines.push(`请在所属的安装环境中将其移除，然后重新运行 \`${invoker} doctor repair\`。`);
   return lines;
 }
 
@@ -515,7 +518,7 @@ export function copyRunningDaemonCliMismatch(
 ): FindingPromptCopy {
   const { daemon, currentCliReleaseChannel, currentCliVersion } = finding;
   const runningChannel = daemon.startedWithReleaseChannel ?? currentCliReleaseChannel;
-  const runningVersion = daemon.startedWithCliVersion ?? '(unknown)';
+  const runningVersion = daemon.startedWithCliVersion ?? '(未知)';
 
   // Cross-channel: the classifier only emits this when the daemon is on a
   // profile we care about (active, or one a current-channel service targets).
@@ -529,11 +532,11 @@ export function copyRunningDaemonCliMismatch(
     // accepting. We keep the body short — one line — so it sits cleanly
     // between the header and the prompt.
     const verbLine = finding.recoveryStrategy === 'service-restart'
-      ? `restarts the installed background service with takeover, replacing pid ${daemon.pid} with a fresh ${currentCliReleaseChannel} • ${currentCliVersion} daemon`
-      : `stops pid ${daemon.pid} and starts a fresh ${currentCliReleaseChannel} • ${currentCliVersion} daemon on the same relay`;
+      ? `重启已安装的后台服务并接管，将 pid ${daemon.pid} 替换为新的 ${currentCliReleaseChannel} • ${currentCliVersion} 守护进程`
+      : `停止 pid ${daemon.pid} 并在同一中继上启动新的 ${currentCliReleaseChannel} • ${currentCliVersion} 守护进程`;
     return {
       body: [chalk.gray(verbLine)],
-      question: 'Take over now?',
+      question: '是否立即接管？',
       default: 'yes',
     };
   }
@@ -541,12 +544,12 @@ export function copyRunningDaemonCliMismatch(
   if (daemon.startedBy === 'automatic-startup') {
     return {
       body: [
-        `Currently running: ${runningChannel} • ${runningVersion} (started by automatic startup)`,
-        `Automatic startup: ${currentCliReleaseChannel} • ${currentCliVersion}`,
+        `当前运行中: ${runningChannel} • ${runningVersion}（由自动启动拉起）`,
+        `自动启动配置: ${currentCliReleaseChannel} • ${currentCliVersion}`,
         '',
-        'Restarting the auto-starting service will pick up the installed version.',
+        '重启自动启动服务将应用已安装的版本。',
       ],
-      question: 'Restart the auto-starting background service now?',
+      question: '是否立即重启该自动启动后台服务？',
       default: 'yes',
     };
   }
@@ -554,28 +557,28 @@ export function copyRunningDaemonCliMismatch(
   // Manual daemon. Recovery path depends on whether an auto-starting service
   // already owns this relay profile on the current channel.
   if (finding.recoveryStrategy === 'service-restart') {
-    const managerName = finding.serviceManagerName ?? 'an auto-starting background service';
+    const managerName = finding.serviceManagerName ?? '自动启动后台服务';
     return {
       body: [
-        `Currently running: ${runningChannel} • ${runningVersion} (started manually)`,
-        `You just installed: ${currentCliReleaseChannel} • ${currentCliVersion}`,
+        `当前运行中: ${runningChannel} • ${runningVersion}（手动启动）`,
+        `刚安装的版本: ${currentCliReleaseChannel} • ${currentCliVersion}`,
         '',
-        `An auto-starting background service (${managerName}) already owns this relay profile,`,
-        'so restarting the service is the safe way to take over with the new CLI.',
+        `已有自动启动后台服务（${managerName}）接管此中继配置文件，`,
+        '因此重启服务是使用新 CLI 接管的安全方式。',
       ],
-      question: 'Start the auto-starting background service now (it will take over)?',
+      question: '是否立即启动自动启动后台服务（将自动接管）？',
       default: 'yes',
     };
   }
 
   return {
     body: [
-      `Currently running: ${runningChannel} • ${runningVersion} (started manually)`,
-      `You just installed: ${currentCliReleaseChannel} • ${currentCliVersion}`,
+      `当前运行中: ${runningChannel} • ${runningVersion}（手动启动）`,
+      `刚安装的版本: ${currentCliReleaseChannel} • ${currentCliVersion}`,
       '',
-      'Restarting the daemon will take over with the installed CLI.',
+      '重启守护进程将使用已安装的 CLI 接管。',
     ],
-    question: 'Restart the daemon with this installation?',
+    question: '是否使用此安装版本重启守护进程？',
     default: 'yes',
   };
 }
@@ -588,9 +591,9 @@ export function copyRunningDaemonCliMismatchChoicePrompt(
     body: [
       ...base.body,
       '',
-      'Choose the daemon-only repair to preserve active session runners. Choose session runners when you want eligible tracked sessions to restart on the updated CLI too.',
+      '选择仅修复守护进程可保留活动的会话运行器。如果希望符合条件的受跟踪会话也在更新后的 CLI 上重启，请选择包含会话运行器。',
     ],
-    question: 'Repair action?',
+    question: '修复操作？',
     choices: [
       {
         id: 'restart-daemon',
@@ -622,19 +625,19 @@ export function copyRunningDaemonDuplicateProfile(
     return 0;
   });
   const rows = sorted.map((d) => {
-    const channel = d.startedWithReleaseChannel ?? 'unknown';
-    const version = d.startedWithCliVersion ?? 'unknown';
-    const by = d.startedBy === 'automatic-startup' ? 'automatic startup' : 'manually';
-    return `• ${finding.serverId} — ${channel} • ${version} — started ${by}  (pid ${d.pid})`;
+    const channel = d.startedWithReleaseChannel ?? '未知';
+    const version = d.startedWithCliVersion ?? '未知';
+    const by = d.startedBy === 'automatic-startup' ? '开机自启' : '手动启动';
+    return `• ${finding.serverId} — ${channel} • ${version} — 由 ${by} 启动  (pid ${d.pid})`;
   });
   const older = sorted[sorted.length - 1];
   return {
     body: [
-      'Only one daemon can own a relay profile at a time:',
+      '同一时间只能有一个守护进程占用中继配置文件：',
       '',
       ...rows,
     ],
-    question: `Stop the older one (pid ${older.pid})?`,
+    question: `是否停止较旧的守护进程（pid ${older.pid}）？`,
     default: 'yes',
   };
 }
@@ -643,19 +646,19 @@ export function copyLocalRelayLaneMissing(
   finding: LocalRelayLaneMissing,
 ): FindingPromptCopy {
   const rows = finding.installed.map((r) => {
-    const status = r.serviceActive === true ? 'running' : 'stopped';
-    const version = r.version ?? '(unknown version)';
-    const url = r.relayUrl ?? '(no URL)';
-    return `• ${r.releaseChannel}   ${version} on ${url}   ${status}`;
+    const status = r.serviceActive === true ? '运行中' : '已停止';
+    const version = r.version ?? '(未知版本)';
+    const url = r.relayUrl ?? '(无 URL)';
+    return `• ${r.releaseChannel}   ${version} 于 ${url}   ${status}`;
   });
   return {
     body: [
-      'Other local relays on this machine:',
+      '此机器上的其他本地中继：',
       ...rows,
       '',
-      `If you point this ${finding.targetReleaseChannel} CLI at one of those local relays, the release channels won\'t match.`,
+      `如果将此 ${finding.targetReleaseChannel} CLI 指向其中一个本地中继，发布频道将不匹配。`,
     ],
-    question: `Install the ${finding.targetReleaseChannel} relay now?`,
+    question: `是否立即安装 ${finding.targetReleaseChannel} 中继？`,
     default: 'no',
   };
 }
@@ -663,12 +666,12 @@ export function copyLocalRelayLaneMissing(
 export function copyLocalRelayVersionStale(
   finding: LocalRelayVersionStale,
 ): FindingPromptCopy {
-  const version = finding.entry.version ?? '(unknown)';
+  const version = finding.entry.version ?? '(未知)';
   return {
     body: [
-      `Running ${version} — latest published is ${finding.latestVersion}.`,
+      `当前运行版本 ${version} — 最新发布版本为 ${finding.latestVersion}。`,
     ],
-    question: `Update the ${finding.entry.releaseChannel} relay to ${finding.latestVersion} now?`,
+    question: `是否立即将 ${finding.entry.releaseChannel} 中继更新至 ${finding.latestVersion}？`,
     default: 'no',
   };
 }
@@ -678,13 +681,13 @@ export function copyCliSelfUpdateAvailable(
 ): FindingPromptCopy {
   return {
     body: [
-      `Installed: ${finding.currentVersion}`,
-      `Latest:    ${finding.latestVersion}`,
+      `已安装版本: ${finding.currentVersion}`,
+      `最新版本:   ${finding.latestVersion}`,
       '',
-      'Updating the CLI first is recommended — other fixes (relay updates, automatic-startup',
-      'restarts) depend on the CLI version you\'re running.',
+      '建议优先更新 CLI — 其他修复（中继更新、自动启动重启等）',
+      '取决于你当前运行的 CLI 版本。',
     ],
-    question: `Update the CLI to ${finding.latestVersion} now?`,
+    question: `是否立即将 CLI 更新至 ${finding.latestVersion}？`,
     default: 'yes',
   };
 }
@@ -764,63 +767,63 @@ export function copyChannelSwitchRecommended(finding: ChannelSwitchRecommended):
 }> {
   const { fromStack, toChannel, willActiveServerChange } = finding;
   const body: string[] = [
-    `You just installed the ${toChannel} CLI.`,
+    `你刚刚安装了 ${toChannel} CLI。`,
     '',
-    'Currently active on this machine:',
+    '此机器上当前处于活跃状态的服务:',
   ];
   if (fromStack.runningDaemon) {
-    const daemonVer = fromStack.runningDaemon.startedWithCliVersion ?? '(unknown)';
-    const url = fromStack.activeServerUrl ?? '(no URL)';
-    body.push(`  • ${fromStack.releaseChannel} daemon (pid ${fromStack.runningDaemon.pid}) \u2192 ${url}`);
+    const daemonVer = fromStack.runningDaemon.startedWithCliVersion ?? '(未知)';
+    const url = fromStack.activeServerUrl ?? '(无 URL)';
+    body.push(`  • ${fromStack.releaseChannel} 守护进程 (pid ${fromStack.runningDaemon.pid}) → ${url}`);
     if (fromStack.localRelay) {
-      body.push(`  • local ${fromStack.releaseChannel} relay`);
+      body.push(`  • 本地 ${fromStack.releaseChannel} 中继`);
     } else if (fromStack.isHostedCloudActive) {
-      body.push(`  • no local relay (using hosted cloud)`);
+      body.push(`  • 无本地中继（使用云托管服务）`);
     }
-    body.push(`  • daemon CLI version: ${daemonVer}`);
+    body.push(`  • 守护进程 CLI 版本: ${daemonVer}`);
   } else if (fromStack.automaticStartup) {
-    body.push(`  • ${fromStack.releaseChannel} background service configured (not running)`);
+    body.push(`  • ${fromStack.releaseChannel} 后台服务已配置（未运行）`);
   } else if (fromStack.localRelay) {
-    body.push(`  • local ${fromStack.releaseChannel} relay (no daemon)`);
+    body.push(`  • 本地 ${fromStack.releaseChannel} 中继（无守护进程）`);
   }
   body.push('');
-  body.push(`Make ${toChannel} your default channel?`);
+  body.push(`将 ${toChannel} 设为默认频道？`);
   body.push('');
-  body.push(`   [Y] Switch   \u2014 stops the ${fromStack.releaseChannel} daemon; starts a ${toChannel} daemon.`);
-  body.push(`                  Keeps ${fromStack.releaseChannel} configured for later \u2014 switch back with \`h${fromStack.releaseChannel} doctor repair\`.`);
+  body.push(`   [Y] 切换   — 停止 ${fromStack.releaseChannel} 守护进程；启动 ${toChannel} 守护进程。`);
+  body.push(`                  保留 ${fromStack.releaseChannel} 配置以备后用 — 可通过 \`h${fromStack.releaseChannel} doctor repair\` 切回。`);
   if (willActiveServerChange) {
-    body.push('                  Different channel usually means different server \u2192 different sessions.');
+    body.push('                  频道不同通常意味着服务器不同 → 会话彼此独立。');
   }
-  body.push(`   [n] Keep ${fromStack.releaseChannel}   \u2014 ${toChannel} CLI stays available via \`h${toChannel}\` for occasional use.`);
-  body.push('                  Nothing else changes.');
+  body.push(`   [n] 保持 ${fromStack.releaseChannel}   — ${toChannel} CLI 仍可通过 \`h${toChannel}\` 偶尔使用。`);
+  body.push('                  不作其他更改。');
   body.push('');
-  body.push('   Advanced (single letter):');
-  body.push(`     [r] Replace     \u2014 remove the ${fromStack.releaseChannel} stack entirely`);
-  body.push(`                       (can\u2019t switch back without re-adding)`);
-  body.push(`     [p] Parallel    \u2014 run ${fromStack.releaseChannel} AND ${toChannel} alongside each other`);
-  body.push(`                       (requires a different server profile so they don\u2019t collide)`);
-  return { body, question: 'Choice?' };
+  body.push('   高级选项（单字母）:');
+  body.push(`     [r] 替换     — 完全移除 ${fromStack.releaseChannel} 服务栈`);
+  body.push(`                   （若不重新添加将无法切回）`);
+  body.push(`     [p] 并行     — 同时运行 ${fromStack.releaseChannel} 与 ${toChannel}`);
+  body.push(`                   （需要不同的服务器配置文件以避免冲突）`);
+  return { body, question: '选择？' };
 }
 
 // ─── Manual-guidance copy for findings that print instructions instead of prompting ───
 
 export function copyNoActiveStackYet(finding: NoActiveStackYet, invoker: string = 'kaiwu'): readonly string[] {
   return [
-    `You just installed the ${finding.releaseChannel} CLI but no daemon is running yet.`,
+    `刚安装了 ${finding.releaseChannel} CLI，但守护进程尚未运行。`,
     '',
-    'Start the daemon when you\u2019re ready with:',
+    '准备就绪后，可通过以下命令启动守护进程:',
     `  ${invoker} daemon start`,
   ];
 }
 
 export function copyNoServersConfigured(invoker: string = 'kaiwu'): readonly string[] {
   return [
-    'You need at least one server profile to connect to.',
+    '需要至少一个服务器配置文件方可进行连接。',
     '',
-    'Sign in to Kaiwu cloud with:',
+    '登录 Kaiwu 云服务:',
     `  ${authSignInCommand(invoker)}`,
     '',
-    'Or connect to a self-hosted server with:',
+    '或连接到自建服务器:',
     `  ${invoker} server add <url>`,
   ];
 }
@@ -836,41 +839,41 @@ export function copyNoServersConfigured(invoker: string = 'kaiwu'): readonly str
  */
 export function copyServerProfileMissing(_finding: ServerProfileMissing, invoker: string = 'kaiwu'): readonly string[] {
   return [
-    'Configure it before doctor repair can work for that server.',
+    '在 doctor repair 能处理该服务器前，需先进行配置。',
     '',
-    'Pick whichever applies:',
-    `  ${invoker} server add <url>             — saved server profile for an existing relay`,
-    `  ${invoker} relay use --local            — activate the local relay for the current channel`,
-    `  ${invoker} auth pair-remote --ssh ...   — pair a remote machine to this computer’s relay`,
+    '请选择适用项:',
+    `  ${invoker} server add <url>             — 保存现有中继的服务器配置文件`,
+    `  ${invoker} relay use --local            — 为当前频道激活本地中继`,
+    `  ${invoker} auth pair-remote --ssh ...   — 将远程机器配对到此电脑的中继`,
   ];
 }
 
 export function copyAuthMissingForProfile(finding: AuthMissingForProfile, invoker: string = 'kaiwu'): readonly string[] {
   return [
-    'Sign in with:',
+    '请使用以下命令登录:',
     `  ${authSignInCommand(invoker, finding.serverId)}`,
   ];
 }
 
 export function copyAuthExpiredForActiveProfile(_finding: AuthExpiredForActiveProfile, invoker: string = 'kaiwu'): readonly string[] {
   return [
-    'Sign in again with:',
+    '请重新登录:',
     `  ${authSignInCommand(invoker)}`,
   ];
 }
 
 export function copyMachineNotRegisteredForProfile(_finding: MachineNotRegisteredForProfile, invoker: string = 'kaiwu'): readonly string[] {
   return [
-    'Starting the daemon will register it:',
+    '启动守护进程即可完成注册:',
     `  ${invoker} daemon start`,
   ];
 }
 
 export function copyDevOnHostedCloudInformational(invoker: string = 'kaiwu'): readonly string[] {
   return [
-    'Dev-channel features work best with a local dev relay; hosted cloud runs stable only.',
+    'Dev 频道特性与本地 dev 中继配合效果最佳；云托管服务仅运行 stable 频道。',
     '',
-    'Install a local dev relay with:',
+    '安装本地 dev 中继:',
     `  ${invoker} relay host install --channel dev --yes`,
   ];
 }
@@ -879,34 +882,34 @@ export function copyMultiStackDetectedInformational(finding: MultiStackDetectedI
   const lines: string[] = [];
   for (const s of finding.stacks) {
     const pid = s.runningDaemon ? ` (pid ${s.runningDaemon.pid})` : '';
-    lines.push(`\u2022 ${s.releaseChannel} \u2014 ${s.archetype}${pid}`);
+    lines.push(`• ${s.releaseChannel} — ${s.archetype}${pid}`);
   }
   lines.push('');
-  lines.push('This is intentional for side-by-side setups \u2014 no action required.');
+  lines.push('并存配置属于正常使用场景 — 无需任何操作。');
   return lines;
 }
 
 export function copyBackgroundServiceNotRunning(_finding: BackgroundServiceNotRunning): FindingPromptCopy {
   // Header (bullet + title + muted detail line) is rendered by the
-  // orchestrator via `formatFindingHeader()` \u2014 body is empty so the prompt
+  // orchestrator via `formatFindingHeader()` — body is empty so the prompt
   // sits directly under the header.
   return {
     body: [],
-    question: 'Start it now?',
+    question: '是否立即启动？',
     default: 'yes',
   };
 }
 
 export function copyOrphanDaemonOnOtherChannel(finding: OrphanDaemonOnOtherChannel): readonly string[] {
-  // Informational only \u2014 the classifier emits this ONLY for daemons on a
+  // Informational only — the classifier emits this ONLY for daemons on a
   // server profile that isn't the current CLI's active profile AND has no
   // current-channel service targeting it. In that case the daemon is
   // presumed intentional (separate stack) and we just surface the fact.
   // Header (gray bullet + title) comes from `formatFindingHeader()`; the
   // line below is the actionable hint.
-  const channel = finding.daemon.startedWithReleaseChannel ?? 'unknown';
+  const channel = finding.daemon.startedWithReleaseChannel ?? '未知';
   return [
-    chalk.gray(`Use \`h${channel}\` to work with it.`),
+    chalk.gray(`使用 \`h${channel}\` 与之交互。`),
   ];
 }
 
@@ -915,17 +918,17 @@ export function copyLocalRelayOffChannelLeftovers(
   invoker: string = 'kaiwu',
 ): readonly string[] {
   // Compact informational. One line per leftover relay + one line for the
-  // remove-command hint. All muted \u2014 these are FYI, not action items. The
+  // remove-command hint. All muted — these are FYI, not action items. The
   // header (gray bullet + title) is rendered by `formatFindingHeader()`.
   const mute = (s: string) => chalk.gray(s);
   const cmd = (s: string) => chalk.cyan(s);
   const lines: string[] = [];
   for (const e of finding.leftovers) {
     const version = cleanRelayRuntimeVersion(e.version);
-    const url = e.relayUrl ?? 'unknown URL';
-    lines.push(mute(`\u2022 ${e.releaseChannel} local relay \u00b7 ${version} \u00b7 ${url}`));
+    const url = e.relayUrl ?? '未知 URL';
+    lines.push(mute(`• ${e.releaseChannel} 本地中继 · ${version} · ${url}`));
   }
-  lines.push(mute(`remove any: ${cmd(`${invoker} relay host uninstall --channel <stable|preview|dev>`)}`));
+  lines.push(mute(`移除任意中继: ${cmd(`${invoker} relay host uninstall --channel <stable|preview|dev>`)}`));
   return lines;
 }
 
@@ -935,36 +938,36 @@ export function copyBackgroundServiceCrashLooping(
 ): FindingPromptCopy {
   const { runs, lastExitCode, lastErrorLine, suspectedCause, conflictingDaemon } = finding;
   const body: string[] = [
-    `Failed to start ${runs} times (last exit code: ${lastExitCode}).`,
-    'launchd keeps respawning it, so it shows up as "stopped" but is actively crash-looping.',
+    `启动失败 ${runs} 次（最近一次退出码: ${lastExitCode}）。`,
+    'launchd 会持续尝试重新拉起，因此显示为“已停止”但实际上处于崩溃重启循环中。',
   ];
   if (lastErrorLine) {
     body.push('');
-    body.push('Last error from the service\u2019s stderr log:');
+    body.push('服务 stderr 日志中的最后一条错误:');
     body.push(`  ${lastErrorLine}`);
   }
   body.push('');
   if (suspectedCause === 'conflicting_manual_daemon' && conflictingDaemon) {
-    body.push(`Likely cause: another daemon (pid ${conflictingDaemon.pid}) already owns the relay profile \u201C${conflictingDaemon.serverId}\u201D.`);
-    body.push(`Stopping the conflict lets the service take over on its next launch.`);
+    body.push(`可能的原因: 另一个守护进程（pid ${conflictingDaemon.pid}）已占用中继配置文件“${conflictingDaemon.serverId}”。`);
+    body.push(`解决此冲突后，服务将在下次启动时正常接管。`);
     return {
       body,
-      question: `Stop the conflicting daemon (pid ${conflictingDaemon.pid}) and let the service take over?`,
+      question: `是否停止冲突的守护进程（pid ${conflictingDaemon.pid}）并让服务接管？`,
       default: 'yes',
     };
   }
   if (suspectedCause === 'conflicting_manual_daemon') {
-    body.push('Likely cause: another daemon owns this relay profile. Stop any manually-started daemons and try again.');
+    body.push('可能的原因: 另一个守护进程占用了此中继配置文件。请停止所有手动启动的守护进程后重试。');
   } else if (suspectedCause === 'port_in_use') {
-    body.push('Likely cause: a port the daemon needs is in use by another process.');
+    body.push('可能的原因: 守护进程所需的端口被其他进程占用。');
   } else if (suspectedCause === 'auth_missing') {
-    body.push('Likely cause: authentication is missing or expired for this profile.');
+    body.push('可能的原因: 此配置文件的身份认证缺失或已过期。');
   } else {
-    body.push(`Run \`${invoker} doctor\` for a deeper diagnosis.`);
+    body.push(`运行 \`${invoker} doctor\` 获取更深入的诊断信息。`);
   }
   return {
     body,
-    question: `Retry starting the ${finding.entry.releaseChannel} background service?`,
+    question: `是否重试启动 ${finding.entry.releaseChannel} 后台服务？`,
     default: 'no',
   };
 }

@@ -74,13 +74,13 @@ describe('doctor process inventory visibility', () => {
 });
 
 describe('doctor daemon owner formatting', () => {
-    it('formats background-service owner details', () => {
+    it('formats background-service owner details in simplified Chinese', () => {
         expect(formatDaemonOwnerLabel({
             startedWithPublicReleaseChannel: 'preview',
             startedWithCliVersion: '1.2.3',
             serviceManaged: true,
             serviceLabel: 'com.happier.cli.daemon.default',
-        })).toContain('background service');
+        })).toContain('后台服务');
         expect(formatDaemonOwnerLabel({
             startedWithPublicReleaseChannel: 'preview',
             startedWithCliVersion: '1.2.3',
@@ -89,19 +89,28 @@ describe('doctor daemon owner formatting', () => {
         })).toContain('com.happier.cli.daemon.default');
     });
 
+    it('formats manual-start owner details in simplified Chinese', () => {
+        expect(formatDaemonOwnerLabel({
+            startedWithPublicReleaseChannel: 'preview',
+            startedWithCliVersion: '1.2.3',
+            serviceManaged: false,
+            serviceLabel: null,
+        })).toContain('手动启动');
+    });
+
     it('keeps legacy owner wording neutral when startup metadata is missing', () => {
         expect(formatDaemonOwnerLabel({
             startedWithPublicReleaseChannel: 'preview',
             startedWithCliVersion: '1.2.3',
             serviceManaged: null,
             serviceLabel: null,
-        })).toContain('unknown');
+        })).toContain('未知');
         expect(formatDaemonOwnerLabel({
             startedWithPublicReleaseChannel: 'preview',
             startedWithCliVersion: '1.2.3',
             serviceManaged: null,
             serviceLabel: null,
-        })).not.toContain('manual start');
+        })).not.toContain('手动启动');
     });
 
     it('detects release-channel mismatch for the current invocation', () => {

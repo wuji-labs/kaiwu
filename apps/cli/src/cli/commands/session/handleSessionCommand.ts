@@ -276,7 +276,7 @@ export async function handleSessionCommand(
           await cmdSessionRunStreamCancel(argv, { readCredentialsFn });
           return;
         }
-        throw new Error(`Unknown session run subcommand: ${runSub}`);
+        throw new Error(`未知会话 run 子命令: ${runSub}`);
       }
       case 'review': {
         const reviewSub = String(argv[1] ?? '').trim();
@@ -285,7 +285,7 @@ export async function handleSessionCommand(
           await cmdSessionReviewStart(argv, { readCredentialsFn });
           return;
         }
-        throw new Error(`Unknown session review subcommand: ${reviewSub}`);
+        throw new Error(`未知会话 review 子命令: ${reviewSub}`);
       }
       case 'plan': {
         const planSub = String(argv[1] ?? '').trim();
@@ -294,7 +294,7 @@ export async function handleSessionCommand(
           await cmdSessionPlanStart(argv, { readCredentialsFn });
           return;
         }
-        throw new Error(`Unknown session plan subcommand: ${planSub}`);
+        throw new Error(`未知会话 plan 子命令: ${planSub}`);
       }
       case 'delegate': {
         const delSub = String(argv[1] ?? '').trim();
@@ -303,7 +303,7 @@ export async function handleSessionCommand(
           await cmdSessionDelegateStart(argv, { readCredentialsFn });
           return;
         }
-        throw new Error(`Unknown session delegate subcommand: ${delSub}`);
+        throw new Error(`未知会话 delegate 子命令: ${delSub}`);
       }
       case 'voice-agent':
       case 'voice_agent': {
@@ -313,7 +313,7 @@ export async function handleSessionCommand(
           await cmdSessionVoiceAgentStart(argv, { readCredentialsFn });
           return;
         }
-        throw new Error(`Unknown session voice-agent subcommand: ${voiceSub}`);
+        throw new Error(`未知会话 voice-agent 子命令: ${voiceSub}`);
       }
       case 'actions': {
         const actionSub = String(argv[1] ?? '').trim();
@@ -330,10 +330,10 @@ export async function handleSessionCommand(
           await cmdSessionActionsExecute(argv, { readCredentialsFn });
           return;
         }
-        throw new Error(`Unknown session actions subcommand: ${actionSub}`);
+        throw new Error(`未知会话 actions 子命令: ${actionSub}`);
       }
       default:
-        throw new Error(`Unknown session subcommand: ${subcommand}`);
+        throw new Error(`未知会话子命令: ${subcommand}`);
     }
   } catch (error) {
     if (!json) throw error;

@@ -25,7 +25,7 @@ export async function cmdSessionHistory(
   const limit = typeof limitRaw === 'number' && Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(limitRaw, 250) : 50;
   const format = (readFlagValue(argv, '--format') ?? 'compact').trim();
   if (format !== 'compact' && format !== 'raw') {
-    throw new Error(`Invalid --format value "${format}". Expected one of: compact, raw.`);
+    throw new Error(`无效的 --format 值 "${format}"。可选值: compact, raw。`);
   }
   const includeMeta = hasFlag(argv, '--include-meta');
   const includeStructuredPayload = hasFlag(argv, '--include-structured-payload');
@@ -36,7 +36,7 @@ export async function cmdSessionHistory(
       await printJsonEnvelope({ ok: false, kind: 'session_history', error: { code: 'not_authenticated' } });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
+    console.error(chalk.red('错误:'), '未认证。请先运行 "kaiwu auth login"。');
     process.exit(1);
   }
 
@@ -83,6 +83,6 @@ export async function cmdSessionHistory(
     return;
   }
 
-  console.log(chalk.green('✓'), `history fetched (${result.messages.length} messages)`);
+  console.log(chalk.green('✓'), `已获取历史记录（${result.messages.length} 条消息）`);
   await writeJsonStdout({ sessionId: result.sessionId, messages: result.messages }, { pretty: true });
 }

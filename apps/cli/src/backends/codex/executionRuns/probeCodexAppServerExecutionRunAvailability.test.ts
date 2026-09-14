@@ -65,28 +65,62 @@ describe('probeCodexAppServerExecutionRunAvailability', () => {
   it('probes the command string from provider CLI resolution results', () => {
     const dir = join(tmpdir(), `happier-codex-appserver-probe-resolution-${Date.now()}`);
     mkdirSync(dir, { recursive: true });
-    const codex = join(dir, 'codex');
+    const codex = join(dir, process.platform === 'win32' ? 'codex.cmd' : 'codex');
     writeFileSync(
       codex,
-      [
-        '#!/bin/sh',
-        'if [ "$1" = "--version" ]; then',
-        '  echo "codex 0.121.0"',
-        '  exit 0',
-        'fi',
-        'if [ "$1" = "app-server" ] && [ "$2" = "--help" ]; then',
-        '  echo "app-server help"',
-        '  exit 0',
-        'fi',
-        'exit 2',
-      ].join('\n'),
+      process.platform === 'win32'
+        ? '@echo off\r\nif "%~1"=="app-server" if "%~2"=="--help" exit /b 0\r\nexit /b 2\r\n'
+        : [
+            '#!/bin/sh',
+            'if [ "$1" = "--version" ]; then',
+            '  echo "codex 0.121.0"',
+            '  exit 0',
+            'fi',
+            'if [ "$1" = "app-server" ] && [ "$2" = "--help" ]; then',
+            '  echo "app-server help"',
+            '  exit 0',
+            'fi',
+            'exit 2',
+          ].join('\n'),
       'utf8',
     );
-    chmodSync(codex, 0o755);
+    if (process.platform !== 'win32') chmodSync(codex, 0o755);
     tempPaths.push(codex);
 
     expect(probeCodexAppServerExecutionRunAvailability({
       env: { PATH: dir, HAPPIER_CODEX_PATH: codex } as NodeJS.ProcessEnv,
+    })).toBe(true);
+  });
+
+  it('does not treat a TUI shim as the app-server command when the dedicated override is absent', () => {
+    const dir = join(tmpdir(), `happier-codex-appserver-probe-tui-shim-${Date.now()}`);
+    mkdirSync(dir, { recursive: true });
+    const extension = process.platform === 'win32' ? '.cmd' : '';
+    const tuiShim = join(dir, `codex-tui${extension}`);
+    const nativeCodex = join(dir, `codex-native${extension}`);
+    const script = process.platform === 'win32'
+      ? '@echo off\r\nexit /b 2\r\n'
+      : '#!/bin/sh\nexit 2\n';
+    const successScript = process.platform === 'win32'
+      ? '@echo off\r\nexit /b 0\r\n'
+      : '#!/bin/sh\nexit 0\n';
+    writeFileSync(tuiShim, script, 'utf8');
+    writeFileSync(nativeCodex, successScript, 'utf8');
+    if (process.platform !== 'win32') {
+      chmodSync(tuiShim, 0o755);
+      chmodSync(nativeCodex, 0o755);
+    }
+    tempPaths.push(tuiShim, nativeCodex);
+
+    expect(probeCodexAppServerExecutionRunAvailability({
+      env: {
+        ...process.env,
+        KAIWU_CODEX_APP_SERVER_BIN: undefined,
+        HAPPIER_CODEX_APP_SERVER_BIN: undefined,
+        HAPPIER_CODEX_TUI_BIN: tuiShim,
+        HAPPY_CODEX_TUI_BIN: undefined,
+        HAPPIER_CODEX_PATH: nativeCodex,
+      } as NodeJS.ProcessEnv,
     })).toBe(true);
   });
 

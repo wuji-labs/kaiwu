@@ -5,16 +5,15 @@ export function showRelayHelp(): void {
   console.log('kaiwu relay add <relay-url | --local [--local-channel stable|preview|dev]> [--json] [--server-url <url>] [--webapp-url <url>] [--local-server-url <url>] [--name <name>]');
   console.log('kaiwu relay set <relay-url | --local [--local-channel stable|preview|dev]> [--use] [--json] [--server-url <url>] [--webapp-url <url>] [--local-server-url <url>] [--name <name>]');
   console.log('kaiwu relay host <install|status|start|stop|restart|uninstall> [--ssh <user@host>] [--mode user|system] [--channel stable|preview|dev] [--env KEY=VALUE]... [--server-binary <path>] [--lan | --expose | --host <ip>] [--yes] [--json]');
-  console.log('  --lan           Bind to a LAN/Tailscale IP (auto-detected; prompts if multiple interfaces found)');
-  console.log('  --expose        Bind to all interfaces (0.0.0.0)');
-  console.log('  --host <ip>     Bind to a specific IP address');
-  console.log('kaiwu relay start-daemon [--local-channel stable|preview|dev]   # activate local relay profile + start the daemon');
-  console.log('kaiwu relay auth [--local-channel stable|preview|dev] [auth flags]  # activate local relay profile + `auth login` against it');
+  console.log('  --lan           绑定到局域网/Tailscale IP（自动检测；检测到多个网卡时会提示选择）');
+  console.log('  --expose        绑定到所有网卡（0.0.0.0）');
+  console.log('  --host <ip>     绑定到指定 IP 地址');
+  console.log('kaiwu relay start-daemon [--local-channel stable|preview|dev]   # 激活本地中继配置并启动守护进程');
+  console.log('kaiwu relay auth [--local-channel stable|preview|dev] [auth flags]  # 激活本地中继配置并对其执行 `auth login`');
   console.log('');
-  console.log('--local picks the local relay matching the current CLI channel; if none exists, the command errors and lists other channels.');
-  console.log('--local-channel forces an explicit channel.');
+  console.log('--local 选择与当前 CLI 通道匹配的本地中继；若不存在，命令会报错并列出其他通道。');
+  console.log('--local-channel 强制指定通道。');
   console.log('');
-  console.log('A local `relay host install` asks which address other devices should reach the relay at, and stores it in the');
-  console.log('relay profile. Without a terminal, or with --yes, it keeps an already-reachable bind address, otherwise takes the');
-  console.log('first reachable one, and prints what it chose.');
+  console.log('本地 `relay host install` 会询问其他设备访问中继所用的地址，并将其保存到中继配置中。');
+  console.log('无终端或使用 --yes 时，会保留已经可访问的绑定地址；否则选择第一个可访问地址并打印选择结果。');
 }

@@ -32,7 +32,7 @@ export async function handleAuthRequest(args: string[]): Promise<void> {
 
   const json = args.includes('--json');
   if (!json) {
-    console.error('Missing required flag: --json');
+    console.error('缺少必填参数：--json');
     process.exit(2);
   }
 

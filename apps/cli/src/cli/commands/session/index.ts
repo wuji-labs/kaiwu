@@ -10,7 +10,7 @@ export async function handleSessionCliCommand(context: CommandContext): Promise<
   try {
     await handleSessionCommand(context.args.slice(1));
   } catch (error) {
-    console.error(chalk.red('Error:'), error instanceof Error ? error.message : 'Unknown error');
+    console.error(chalk.red('错误:'), error instanceof Error ? error.message : '未知错误');
     if (process.env.DEBUG) {
       console.error(error);
     }

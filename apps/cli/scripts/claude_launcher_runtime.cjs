@@ -31,7 +31,7 @@ function getClaudeCliPath() {
     if (overrideRaw) {
         if (overrideRaw === 'claude') {
             if (shouldLogClaudeDetection()) {
-                console.error(`\x1b[90mUsing Claude Code from ${envVarName ?? 'HAPPIER_CLAUDE_PATH'}=claude\x1b[0m`);
+                console.error(`\x1b[90m正在使用 ${envVarName ?? 'HAPPIER_CLAUDE_PATH'}=claude 中的 Claude Code\x1b[0m`);
             }
             return 'claude';
         }
@@ -39,19 +39,19 @@ function getClaudeCliPath() {
         const expandedOverride = expandHomeDirPath(overrideRaw);
         const resolvedOverride = resolvePathSafe(expandedOverride) || expandedOverride;
         if (!fs.existsSync(resolvedOverride)) {
-            console.error(`\n\x1b[1m\x1b[33mClaude Code path not found\x1b[0m\n`);
-            console.error(`${envVarName ?? 'HAPPIER_CLAUDE_PATH'} points to a missing file: ${overrideRaw}\n`);
+            console.error(`\n\x1b[1m\x1b[33m未找到 Claude Code 路径\x1b[0m\n`);
+            console.error(`${envVarName ?? 'HAPPIER_CLAUDE_PATH'} 指向的文件不存在：${overrideRaw}\n`);
             process.exit(1);
         }
 
         if (shouldLogClaudeDetection()) {
-            console.error(`\x1b[90mUsing Claude Code from ${envVarName ?? 'HAPPIER_CLAUDE_PATH'} (${resolvedOverride})\x1b[0m`);
+            console.error(`\x1b[90m正在使用 ${envVarName ?? 'HAPPIER_CLAUDE_PATH'} 中的 Claude Code（${resolvedOverride}）\x1b[0m`);
         }
         return resolvedOverride;
     }
 
     if (shouldLogClaudeDetection()) {
-        console.error('\x1b[90mUsing Claude Code from PATH (claude)\x1b[0m');
+        console.error('\x1b[90m正在使用 PATH 中的 Claude Code（claude）\x1b[0m');
     }
     return 'claude';
 }

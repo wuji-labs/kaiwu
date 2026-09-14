@@ -204,4 +204,5 @@ describe('happier auth login --print-configure-links', () => {
       consoleSpy.mockRestore();
     }
   });
+
 });

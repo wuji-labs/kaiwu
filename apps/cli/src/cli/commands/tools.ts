@@ -56,7 +56,7 @@ function getFlagValue(args: readonly string[], flag: string): string | null {
 
 function requireFlagValue(args: readonly string[], flag: string): string {
   const value = getFlagValue(args, flag);
-  if (!value) throw new Error(`Missing required flag: ${flag}`);
+  if (!value) throw new Error(`缺少必填参数：${flag}`);
   return value;
 }
 
@@ -93,7 +93,7 @@ async function resolveToolsBaseContext(
   directory: string;
 }> {
   const credentials = await deps.readCredentials();
-  if (!credentials) throw new Error('Not authenticated. Run "kaiwu auth login" first.');
+  if (!credentials) throw new Error('尚未登录。请先运行 "kaiwu auth login"。');
 
   const sessionId = options?.requireSessionId === true
     ? requireFlagValue(args, '--session-id')
@@ -160,7 +160,7 @@ function printHumanToolList(params: Readonly<{
   customTools: ReadonlyArray<CustomToolEntry>;
   warnings: ReadonlyArray<ResolvedCustomHappierToolWarning>;
 }>): void {
-  console.log('happier');
+  console.log('内置工具');
   for (const tool of params.builtInTools) {
     console.log(`- ${tool.name}: ${tool.description}`);
   }
@@ -177,7 +177,7 @@ function printHumanToolList(params: Readonly<{
     }
   }
   for (const warning of params.warnings) {
-    console.error(chalk.yellow('Warning:'), `Unable to list tools from ${warning.source}: ${warning.error}`);
+    console.error(chalk.yellow('警告：'), `无法列出 ${warning.source} 中的工具：${warning.error}`);
   }
 }
 
@@ -296,7 +296,7 @@ export async function handleToolsCommand(args: string[], overrides?: Partial<Too
       return;
     }
 
-    throw new Error('Usage: kaiwu tools <list|call> ...');
+    throw new Error('用法：kaiwu tools <list|call> ...');
   } catch (error) {
     if (!json) throw error;
     const mapped = mapUnknownErrorToControlError(error);
@@ -332,7 +332,7 @@ export async function handleToolsCliCommand(context: CommandContext): Promise<vo
       return;
     }
 
-    console.error(chalk.red('Error:'), error instanceof Error ? error.message : 'Unknown error');
+    console.error(chalk.red('错误：'), error instanceof Error ? error.message : '未知错误');
     if (process.env.DEBUG) console.error(error);
     process.exitCode = typeof process.exitCode === 'number' && process.exitCode > 1 ? process.exitCode : 1;
   }

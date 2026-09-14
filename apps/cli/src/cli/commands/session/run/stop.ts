@@ -26,7 +26,7 @@ export async function cmdSessionRunStop(
       await printJsonEnvelope({ ok: false, kind: 'session_run_stop', error: { code: 'not_authenticated' } });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
+    console.error(chalk.red('错误:'), '未认证。请先运行 "kaiwu auth login"。');
     process.exit(1);
   }
 
@@ -70,5 +70,5 @@ export async function cmdSessionRunStop(
     return;
   }
 
-  console.log(chalk.green('✓'), 'stopped run');
+  console.log(chalk.green('✓'), '运行已停止');
 }

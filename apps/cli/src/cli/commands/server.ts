@@ -34,7 +34,7 @@ export async function handleServerCommand(args: string[]): Promise<void> {
       return;
     }
 
-    throw new Error(`Unknown server subcommand: ${subcommand}`);
+    throw new Error(`未知的 server 子命令：${subcommand}`);
   } catch (error) {
     if (!json) throw error;
     const mapped = mapUnknownErrorToControlError(error);
@@ -80,7 +80,7 @@ export async function handleServerCliCommand(context: CommandContext): Promise<v
       );
       return;
     }
-    console.error(chalk.red('Error:'), error instanceof Error ? error.message : 'Unknown error');
+    console.error(chalk.red('错误：'), error instanceof Error ? error.message : '未知错误');
     showServerHelp();
     if (process.env.DEBUG) console.error(error);
     process.exitCode = typeof process.exitCode === 'number' && process.exitCode > 1 ? process.exitCode : 1;

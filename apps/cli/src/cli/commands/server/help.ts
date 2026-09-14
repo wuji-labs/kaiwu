@@ -4,9 +4,9 @@ import { configuration } from '@/configuration';
 
 export function showServerHelp(): void {
   console.log(`
-${chalk.bold('kaiwu server')} - Manage relay profiles
+${chalk.bold('kaiwu server')} - 管理中继配置
 
-${chalk.bold('Usage:')}
+${chalk.bold('用法:')}
   kaiwu server list
   kaiwu server current
   kaiwu server add [--name <name>] [--server-url <url>] [--public-server-url <url>] [--webapp-url <url>] [--use] [--no-use] [--yes] [--start-daemon] [--install-service]
@@ -15,11 +15,11 @@ ${chalk.bold('Usage:')}
   kaiwu server test [<name-or-id>]
   kaiwu server set [--server-id <id>] --server-url <url> [--public-server-url <url>] [--webapp-url <url>]
 
-${chalk.bold('Notes:')}
-  • Profiles are stored in ${configuration.settingsFile}
-  • Credentials are stored per relay profile under ${configuration.serversDir}
-  • Public relay URL is used for QR codes/deep links (defaults to relay URL)
-  • add checks the relay answers /v1/version before saving it; --yes saves it without checking
-  • Env vars override for one run: HAPPIER_SERVER_URL / HAPPIER_PUBLIC_SERVER_URL / HAPPIER_WEBAPP_URL
+${chalk.bold('说明:')}
+  • 配置保存在 ${configuration.settingsFile}
+  • 凭据按中继配置分别保存在 ${configuration.serversDir}
+  • 公网中继地址用于二维码/深链接（默认使用中继地址）
+  • add 保存前会检查中继是否响应 /v1/version；使用 --yes 可跳过检查直接保存
+  • 仅本次运行覆盖环境变量：HAPPIER_SERVER_URL / HAPPIER_PUBLIC_SERVER_URL / HAPPIER_WEBAPP_URL
 `);
 }

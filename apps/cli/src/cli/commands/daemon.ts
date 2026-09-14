@@ -79,42 +79,42 @@ function shouldPrintDaemonHelp(args: readonly string[]): boolean {
 
 function printDaemonHelp(): void {
   console.log(`
-	${chalk.bold('kaiwu daemon')} - Manage the local daemon
+  ${chalk.bold('kaiwu daemon')} - 管理本地守护进程
 
-${chalk.bold('Usage:')}
-  kaiwu daemon start [--takeover]  Start the daemon (detached)
-  kaiwu daemon restart [--takeover]  Restart the daemon (stop -> start)
-  kaiwu daemon restart --restart-session-runners  Restart the daemon, preserve sessions, then restart tracked session runners on the current CLI
-  kaiwu daemon restart-session-runners [--session-id <id>] [--dry-run] [--force-current-cli]  Restart eligible tracked session runners on the current CLI
-  kaiwu daemon stop               Stop a manual daemon (sessions stay alive; use kaiwu service stop for installed background services)
-  kaiwu daemon stop --kill-sessions  Stop a manual daemon and its tracked sessions
-  kaiwu daemon stop --all         Stop daemons for all configured relays
-  kaiwu daemon restart [--takeover]  Restart the daemon
-  kaiwu daemon restart --kill-sessions  Restart the daemon and its tracked sessions
-  kaiwu daemon start-sync [--takeover]  Start the daemon synchronously
-  kaiwu daemon status             Show daemon status
-  kaiwu daemon status --all       Show daemon status for all configured relays
-  kaiwu daemon list               List active sessions
-  kaiwu daemon install            Enable automatic startup (legacy alias)
-  kaiwu daemon uninstall          Disable automatic startup (legacy alias)
-	  kaiwu service                   Manage automatic startup
-	  kaiwu service list              List installed background services
-	  kaiwu doctor repair             Preview or apply recommended automatic startup repair actions
-	  kaiwu service repair            Legacy alias for doctor repair
-	  kaiwu daemon service list       Legacy alias for service list
-	  kaiwu daemon service repair     Legacy alias for service repair
+${chalk.bold('用法:')}
+  kaiwu daemon start [--takeover]  启动守护进程（后台分离模式）
+  kaiwu daemon restart [--takeover]  重启守护进程（停止 -> 启动）
+  kaiwu daemon restart --restart-session-runners  重启守护进程，保留会话，并在当前 CLI 上重启受跟踪的会话执行器
+  kaiwu daemon restart-session-runners [--session-id <id>] [--dry-run] [--force-current-cli]  在当前 CLI 上重启符合条件的受跟踪会话执行器
+  kaiwu daemon stop               停止手动启动的守护进程（会话保持运行；对于已安装的后台服务，请使用 kaiwu service stop）
+  kaiwu daemon stop --kill-sessions  停止手动启动的守护进程及其跟踪的会话
+  kaiwu daemon stop --all         停止所有已配置中继的守护进程
+  kaiwu daemon restart [--takeover]  重启守护进程
+  kaiwu daemon restart --kill-sessions  重启守护进程及其跟踪的会话
+  kaiwu daemon start-sync [--takeover]  以同步模式启动守护进程
+  kaiwu daemon status             显示守护进程状态
+  kaiwu daemon status --all       显示所有已配置中继的守护进程状态
+  kaiwu daemon list               列出活跃会话
+  kaiwu daemon install            启用开机自启（旧版别名）
+  kaiwu daemon uninstall          禁用开机自启（旧版别名）
+  kaiwu service                   管理开机自启后台服务
+  kaiwu service list              列出已安装的后台服务
+  kaiwu doctor repair             预览或应用推荐的开机自启修复操作
+  kaiwu service repair            doctor repair 的旧版别名
+  kaiwu daemon service list       service list 的旧版别名
+  kaiwu daemon service repair     service repair 的旧版别名
 
-  Prefix with --server/--server-url to target a specific relay profile for this invocation.
-  Example: kaiwu --server company service install
+  添加 --server/--server-url 前缀可指定此次调用的特定中继配置。
+  示例: kaiwu --server company service install
 
-  For installed background services, use kaiwu service start|stop|restart.
+  对于已安装的后台服务，请使用 kaiwu service start|stop|restart。
 
-  If you want to kill all kaiwu related processes run
+  若要终止所有 kaiwu 相关进程，请运行
   ${chalk.cyan('kaiwu doctor clean')}
 
-${chalk.bold('Note:')} The daemon is the local Kaiwu process on this computer. Automatic startup is provided by installed background services (\`kaiwu service\`).
+${chalk.bold('说明:')} 守护进程是运行在此计算机上的本地 Kaiwu 进程。开机自启功能由已安装的后台服务提供 (\`kaiwu service\`)。
 
-${chalk.bold('To clean up runaway processes:')} Use ${chalk.cyan('kaiwu doctor clean')}
+${chalk.bold('清理失控进程:')} 使用 ${chalk.cyan('kaiwu doctor clean')}
 `);
 }
 
@@ -131,12 +131,12 @@ function parseDaemonSessionIdOption(args: readonly string[]): string | null {
 }
 
 function printSessionRunnerRestartSummary(result: RestartAllDaemonSessionRunnersResult, dryRun: boolean): void {
-  const verb = dryRun ? 'would restart' : 'restarted';
-  console.log(`Session runner restart ${dryRun ? 'dry run' : 'complete'}:`);
+  const verb = dryRun ? '拟重启' : '已重启';
+  console.log(`会话执行器重启${dryRun ? '演练' : '完成'}:`);
   console.log(`  ${verb}: ${result.restartedCount}`);
-  console.log(`  skipped: ${result.skippedCount}`);
-  console.log(`  failed: ${result.failedCount}`);
-  console.log(`  requested: ${result.requestedCount}`);
+  console.log(`  已跳过: ${result.skippedCount}`);
+  console.log(`  失败: ${result.failedCount}`);
+  console.log(`  已请求: ${result.requestedCount}`);
 }
 
 function formatSessionRunnerRestartResultLine(result: RestartSessionRunnerResultV1): string {
@@ -145,10 +145,10 @@ function formatSessionRunnerRestartResultLine(result: RestartSessionRunnerResult
 }
 
 function printSessionRunnerRestartFailureAfterDaemonRestart(result: RestartAllDaemonSessionRunnersResult): void {
-  console.error('Session runner restart failed after daemon restart');
+  console.error('守护进程重启后会话执行器重启失败');
   console.error(
-    `  Session runners: ${result.restartedCount} restarted, ` +
-    `${result.skippedCount} skipped, ${result.failedCount} failed`,
+    `  会话执行器: ${result.restartedCount} 个已重启，` +
+    `${result.skippedCount} 个已跳过，${result.failedCount} 个失败`,
   );
   for (const entry of result.results) {
     console.error(formatSessionRunnerRestartResultLine(entry));
@@ -156,9 +156,9 @@ function printSessionRunnerRestartFailureAfterDaemonRestart(result: RestartAllDa
 }
 
 function printSingleSessionRunnerRestartSummary(result: RestartSessionRunnerResultV1, dryRun: boolean): void {
-  console.log(`Session runner restart ${dryRun ? 'dry run' : 'complete'}:`);
-  console.log(`  session: ${result.sessionId}`);
-  console.log(`  status: ${result.status}`);
+  console.log(`会话执行器重启${dryRun ? '演练' : '完成'}:`);
+  console.log(`  会话: ${result.sessionId}`);
+  console.log(`  状态: ${result.status}`);
 }
 
 function isChildProcessAlive(child: Readonly<{ pid?: number }>): boolean {
@@ -198,14 +198,14 @@ export async function handleDaemonCliCommand(context: CommandContext): Promise<v
 
       if (sessions.length === 0) {
         console.log(
-          'No active sessions this daemon is aware of (they might have been started by a previous version of the daemon)',
+          '此守护进程未感知到活跃会话（可能由守护进程旧版本启动）',
         );
       } else {
-        console.log('Active sessions:');
+        console.log('活跃会话:');
         await writeJsonStdout(sessions, { pretty: true });
       }
     } catch {
-      console.log('No daemon running');
+      console.log('未运行守护进程');
     }
     return;
   }
@@ -213,15 +213,15 @@ export async function handleDaemonCliCommand(context: CommandContext): Promise<v
   if (daemonSubcommand === 'stop-session') {
     const sessionId = args[2];
     if (!sessionId) {
-      console.error('Session ID required');
+      console.error('需要会话 ID');
       process.exit(1);
     }
 
     try {
       const result = await stopDaemonSession(sessionId);
-      console.log(result.status === 'stopped' ? 'Session stopped' : 'Failed to stop session');
+      console.log(result.status === 'stopped' ? '会话已停止' : '停止会话失败');
     } catch {
-      console.log('No daemon running');
+      console.log('未运行守护进程');
     }
     return;
   }
@@ -236,12 +236,12 @@ export async function handleDaemonCliCommand(context: CommandContext): Promise<v
       | { kind: 'single'; result: RestartSessionRunnerResultV1 };
 
     if (sessionId === '') {
-      const message = '`--session-id` requires a non-empty session id.';
+      const message = '`--session-id` 需要非空的会话 ID。';
       if (jsonRequested) {
         await printDaemonJson({
           ok: false,
           error: 'missing_session_id',
-          message,
+          message: '`--session-id` requires a non-empty session id.',
         });
       } else {
         console.error(message);
@@ -279,7 +279,7 @@ export async function handleDaemonCliCommand(context: CommandContext): Promise<v
           message,
         });
       } else {
-        console.error(`Failed to restart session runners: ${message}`);
+        console.error(`重启会话执行器失败: ${message}`);
       }
       process.exit(1);
     }
@@ -309,9 +309,9 @@ export async function handleDaemonCliCommand(context: CommandContext): Promise<v
           relayId: configuration.activeServerId,
         });
       } else {
-        console.log('Daemon already running');
-        console.log(`  Relay URL: ${configuration.serverUrl}`);
-        console.log(`  Relay profile: ${configuration.activeServerId}`);
+        console.log('守护进程已在运行');
+        console.log(`  中继 URL: ${configuration.serverUrl}`);
+        console.log(`  中继配置: ${configuration.activeServerId}`);
       }
       process.exit(0);
     }
@@ -368,7 +368,7 @@ export async function handleDaemonCliCommand(context: CommandContext): Promise<v
     }
 
     if (takeoverDecision.kind === 'manual-owner-takeover' && !jsonRequested) {
-      console.error('Taking over the current manual daemon before starting another daemon...');
+      console.error('正在接管当前手动守护进程，然后再启动新的守护进程...');
     }
 
     const child = await spawnDetachedDaemonStartSync(takeoverRequested
@@ -408,10 +408,10 @@ export async function handleDaemonCliCommand(context: CommandContext): Promise<v
           ...(account ? { account } : {}),
         });
       } else {
-        console.log('Daemon started successfully');
-        console.log(`  Relay URL: ${configuration.serverUrl}`);
-        console.log(`  Relay profile: ${configuration.activeServerId}`);
-        if (account) console.log(`  Account: ${account}`);
+        console.log('守护进程启动成功');
+        console.log(`  中继 URL: ${configuration.serverUrl}`);
+        console.log(`  中继配置: ${configuration.activeServerId}`);
+        if (account) console.log(`  账号: ${account}`);
       }
     } else {
       const inspection = await inspectDaemonRunningStateAndCleanupStaleState().catch(() => ({ status: 'not-running' as const }));
@@ -426,11 +426,11 @@ export async function handleDaemonCliCommand(context: CommandContext): Promise<v
             ...(latestDaemonLog?.path ? { latestDaemonLogPath: latestDaemonLog.path } : {}),
           });
         } else {
-          console.log('Daemon is still starting in the background');
-          console.log(`  Relay URL: ${configuration.serverUrl}`);
-          console.log(`  Relay profile: ${configuration.activeServerId}`);
+          console.log('守护进程仍在后台启动中');
+          console.log(`  中继 URL: ${configuration.serverUrl}`);
+          console.log(`  中继配置: ${configuration.activeServerId}`);
           if (latestDaemonLog?.path) {
-            console.log(`  Latest daemon log: ${latestDaemonLog.path}`);
+            console.log(`  最新守护进程日志: ${latestDaemonLog.path}`);
           }
         }
         process.exit(0);
@@ -444,9 +444,9 @@ export async function handleDaemonCliCommand(context: CommandContext): Promise<v
           ...(latestDaemonLog?.path ? { latestDaemonLogPath: latestDaemonLog.path } : {}),
         });
       } else {
-        console.error('Failed to start daemon');
+        console.error('启动守护进程失败');
         if (latestDaemonLog?.path) {
-          console.error(`Latest daemon log: ${latestDaemonLog.path}`);
+          console.error(`最新守护进程日志: ${latestDaemonLog.path}`);
         }
       }
       process.exit(1);
@@ -459,9 +459,9 @@ export async function handleDaemonCliCommand(context: CommandContext): Promise<v
     const takeoverRequested = args.includes('--takeover');
     const startupSource = resolveDaemonStartupSourceFromEnv(process.env);
     if (ownership.kind === 'compatible' && startupSource !== 'self-restart') {
-      console.log(chalk.green('Daemon already running'));
-      console.log(`  Relay URL: ${configuration.serverUrl}`);
-      console.log(`  Relay profile: ${configuration.activeServerId}`);
+      console.log(chalk.green('守护进程已在运行'));
+      console.log(`  中继 URL: ${configuration.serverUrl}`);
+      console.log(`  中继配置: ${configuration.activeServerId}`);
       process.exit(0);
     }
     const takeoverDecision = resolveDaemonTakeoverDecision({
@@ -501,7 +501,7 @@ export async function handleDaemonCliCommand(context: CommandContext): Promise<v
     }
 
     if (takeoverDecision.kind === 'manual-owner-takeover') {
-      console.error('Taking over the current manual daemon before starting another daemon...');
+      console.error('正在接管当前手动守护进程，然后再启动新的守护进程...');
     }
 
     await startDaemon({ takeover: takeoverRequested });
@@ -535,7 +535,7 @@ export async function handleDaemonCliCommand(context: CommandContext): Promise<v
     const restartSessionRunners = args.includes('--restart-session-runners');
     const stopSessions = args.includes('--kill-sessions');
     if (restartSessionRunners && stopSessions) {
-      const message = '`kaiwu daemon restart --restart-session-runners` cannot be combined with `--kill-sessions`.';
+      const message = '`kaiwu daemon restart --restart-session-runners` 不能与 `--kill-sessions` 同时使用。';
       if (jsonRequested) {
         await printDaemonJson({
           ok: false,
@@ -548,7 +548,7 @@ export async function handleDaemonCliCommand(context: CommandContext): Promise<v
       process.exit(1);
     }
     if (args.includes('--all')) {
-      const message = '`kaiwu daemon restart --all` is not supported yet.';
+      const message = '暂不支持 `kaiwu daemon restart --all`。';
       if (jsonRequested) {
         await printDaemonJson({
           ok: false,
@@ -649,11 +649,11 @@ export async function handleDaemonCliCommand(context: CommandContext): Promise<v
             ...(latestDaemonLog?.path ? { latestDaemonLogPath: latestDaemonLog.path } : {}),
           });
         } else {
-          console.log('Daemon is still restarting in the background');
-          console.log(`  Relay URL: ${configuration.serverUrl}`);
-          console.log(`  Relay profile: ${configuration.activeServerId}`);
+          console.log('守护进程仍在后台重启中');
+          console.log(`  中继 URL: ${configuration.serverUrl}`);
+          console.log(`  中继配置: ${configuration.activeServerId}`);
           if (latestDaemonLog?.path) {
-            console.log(`  Latest daemon log: ${latestDaemonLog.path}`);
+            console.log(`  最新守护进程日志: ${latestDaemonLog.path}`);
           }
         }
         process.exit(0);
@@ -668,13 +668,13 @@ export async function handleDaemonCliCommand(context: CommandContext): Promise<v
           ...(sessionRunnerRestart ? { sessionRunnerRestart } : {}),
         });
       } else {
-        console.log('Daemon restarted successfully');
-        console.log(`  Relay URL: ${configuration.serverUrl}`);
-        console.log(`  Relay profile: ${configuration.activeServerId}`);
+        console.log('守护进程重启成功');
+        console.log(`  中继 URL: ${configuration.serverUrl}`);
+        console.log(`  中继配置: ${configuration.activeServerId}`);
         if (sessionRunnerRestart) {
           console.log(
-            `  Session runners: ${sessionRunnerRestart.restartedCount} restarted, ` +
-            `${sessionRunnerRestart.skippedCount} skipped, ${sessionRunnerRestart.failedCount} failed`,
+            `  会话执行器: ${sessionRunnerRestart.restartedCount} 个已重启，` +
+            `${sessionRunnerRestart.skippedCount} 个已跳过，${sessionRunnerRestart.failedCount} 个失败`,
           );
         }
       }
@@ -701,10 +701,10 @@ export async function handleDaemonCliCommand(context: CommandContext): Promise<v
       if (sessionRunnerRestart) {
         printSessionRunnerRestartFailureAfterDaemonRestart(sessionRunnerRestart);
       } else {
-        console.error(failureMessage);
+        console.error('重启守护进程失败');
       }
       if (!sessionRunnerRestart && latestDaemonLog?.path) {
-        console.error(`Latest daemon log: ${latestDaemonLog.path}`);
+        console.error(`最新守护进程日志: ${latestDaemonLog.path}`);
       }
     }
     process.exit(1);
@@ -783,11 +783,11 @@ export async function handleDaemonCliCommand(context: CommandContext): Promise<v
     if (args.includes('--all')) {
       const statuses = await listDaemonStatusesForAllKnownServers();
       for (const entry of statuses) {
-        const state = entry.daemon.running ? `running (pid ${entry.daemon.pid ?? '—'})` : 'not running';
+        const state = entry.daemon.running ? `运行中 (pid ${entry.daemon.pid ?? '—'})` : '未运行';
         console.log(`${entry.name} (${entry.serverId})`);
-        if (entry.serverUrl) console.log(`  Relay URL: ${entry.serverUrl}`);
-        console.log(`  Daemon: ${state}`);
-        if (entry.daemon.staleStateFile) console.log(`  Note: stale state file: ${entry.daemonStatePath}`);
+        if (entry.serverUrl) console.log(`  中继 URL: ${entry.serverUrl}`);
+        console.log(`  守护进程: ${state}`);
+        if (entry.daemon.staleStateFile) console.log(`  说明: 存在过期的状态文件: ${entry.daemonStatePath}`);
         console.log('');
       }
       process.exit(0);
@@ -799,7 +799,7 @@ export async function handleDaemonCliCommand(context: CommandContext): Promise<v
   if (daemonSubcommand === 'logs') {
     const latest = await getLatestDaemonLog();
     if (!latest) {
-      console.log('No daemon logs found');
+      console.log('未找到守护进程日志');
     } else {
       console.log(latest.path);
     }
@@ -810,7 +810,7 @@ export async function handleDaemonCliCommand(context: CommandContext): Promise<v
     try {
       await runDaemonServiceCliCommand({ argv: ['install', ...args.slice(2)] });
     } catch (error) {
-      console.error(chalk.red('Error:'), error instanceof Error ? error.message : 'Unknown error');
+      console.error(chalk.red('错误:'), error instanceof Error ? error.message : '未知错误');
       process.exit(1);
     }
     return;
@@ -820,7 +820,7 @@ export async function handleDaemonCliCommand(context: CommandContext): Promise<v
     try {
       await runDaemonServiceCliCommand({ argv: ['uninstall', ...args.slice(2)] });
     } catch (error) {
-      console.error(chalk.red('Error:'), error instanceof Error ? error.message : 'Unknown error');
+      console.error(chalk.red('错误:'), error instanceof Error ? error.message : '未知错误');
       process.exit(1);
     }
     return;

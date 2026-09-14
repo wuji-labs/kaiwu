@@ -36,7 +36,7 @@ function takeFlagValue(args: string[], name: string): { value: string | null; re
     if (a === name) {
       const next = String(args[i + 1] ?? '');
       if (!next || next.startsWith('--')) {
-        throw new Error(`Missing value for ${name}`);
+        throw new Error(`缺少 ${name} 的值`);
       }
       value = next;
       i += 1;
@@ -44,7 +44,7 @@ function takeFlagValue(args: string[], name: string): { value: string | null; re
     }
     if (a.startsWith(`${name}=`)) {
       const v = a.slice(`${name}=`.length);
-      if (!v) throw new Error(`Missing value for ${name}`);
+    if (!v) throw new Error(`缺少 ${name} 的值`);
       value = v;
       continue;
     }
@@ -66,7 +66,7 @@ function coalesceRemoteServerUrlFlag(params: Readonly<{
   const legacy = params.remoteServerUrl?.trim() || null;
   const clearer = params.serverUrlForRemote?.trim() || null;
   if (legacy && clearer && legacy !== clearer) {
-    fail('Use only one of --server-url-for-remote or --remote-server-url, or pass the same URL to both.', 2);
+    fail('--server-url-for-remote 和 --remote-server-url 只能二选一，或为两者传入相同地址。', 2);
   }
   return clearer ?? legacy;
 }
@@ -78,7 +78,7 @@ function fail(message: string, exitCode: 1 | 2 = 1): never {
 
 function normalizeUrlOrFail(raw: string, label: string): string {
   const value = String(raw ?? '').trim();
-  if (!value) fail(`Missing value for ${label}`, 2);
+  if (!value) fail(`缺少 ${label} 的值`, 2);
   try {
     const url = new URL(value);
     if (url.protocol !== 'http:' && url.protocol !== 'https:') {
@@ -191,7 +191,7 @@ function runSshJson(params: Readonly<{ target: string; remoteArgs: string[] }>):
   if (result.error) throw result.error;
   if (result.status !== 0) {
     const stderr = Buffer.isBuffer(result.stderr) ? result.stderr.toString('utf8') : String(result.stderr ?? '');
-    throw new Error(`ssh exited with code ${result.status}: ${stderr}`.trim());
+    throw new Error(`ssh 已退出，状态码为 ${result.status}：${stderr}`.trim());
   }
   const stdout = Buffer.isBuffer(result.stdout) ? result.stdout.toString('utf8') : String(result.stdout ?? '');
   const lines = stdout.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
@@ -205,7 +205,7 @@ function runSshJson(params: Readonly<{ target: string; remoteArgs: string[] }>):
       continue;
     }
   }
-  throw new Error('Remote command did not return valid JSON');
+    throw new Error('远程命令未返回有效 JSON');
 }
 
 /**
@@ -255,7 +255,7 @@ export async function handleAuthPairRemote(argsRaw: string[], deps: Partial<Pair
   const ssh = takeFlagValue(args, '--ssh');
   args = ssh.rest;
   if (!ssh.value) {
-    console.error('Missing required flag: --ssh <user@host>');
+    console.error('缺少必填参数：--ssh <user@host>');
     process.exit(2);
   }
 
@@ -287,7 +287,7 @@ export async function handleAuthPairRemote(argsRaw: string[], deps: Partial<Pair
   const remoteServerArgs = buildRemoteServerArgs(remoteSelection);
 
   if (!json) {
-    console.log(`Requesting remote authentication on ${ssh.value}...`);
+  console.log(`正在 ${ssh.value} 上请求远程认证……`);
   }
   const request = runSshJson({
     target: ssh.value,
@@ -296,22 +296,22 @@ export async function handleAuthPairRemote(argsRaw: string[], deps: Partial<Pair
   assertRemoteRequestUsedExpectedRelay(request, remoteSelection);
   const publicKey = typeof request?.publicKey === 'string' ? request.publicKey : '';
   if (!publicKey) {
-    console.error('Remote `kaiwu auth request --json` output did not include "publicKey".');
+    console.error('远程 `kaiwu auth request --json` 输出中不包含 "publicKey"。');
     process.exit(1);
   }
 
   try {
     if (!json) {
-      console.log('Approving remote authentication request...');
+  console.log('正在批准远程认证请求……');
     }
     await approveTerminalAuthRequest({ publicKey });
   } catch (error) {
-    console.error(error instanceof Error ? error.message : 'Failed to approve auth request.');
+    console.error(error instanceof Error ? error.message : '批准认证请求失败。');
     process.exit(1);
   }
 
   if (!json) {
-    console.log('Waiting for the remote machine to claim credentials...');
+  console.log('正在等待远程机器领取凭据……');
   }
   runSshJson({
     target: ssh.value,
@@ -368,17 +368,17 @@ export async function handleAuthPairRemote(argsRaw: string[], deps: Partial<Pair
     return;
   }
 
-  console.log(`Remote machine paired: ${ssh.value}`);
+  console.log(`远程机器已完成配对：${ssh.value}`);
 
   if (postCheckEnabled) {
     if (!remoteServerId) {
       console.log('');
-      console.log('Skipping post-pair diagnostics because the remote CLI did not report the paired server profile id.');
-      console.log(`Upgrade the remote CLI, then run \`${remoteExecutable} doctor repair\` on the remote if it needs service repair.`);
+  console.log('远程 CLI 未返回已配对的中继配置 ID，跳过配对后的诊断。');
+  console.log(`如需修复远程服务，请先升级远程 CLI，再在远程机器上运行 \`${remoteExecutable} doctor repair\`。`);
       return;
     }
     console.log('');
-    console.log('Running post-pair diagnostics on the remote machine...');
+  console.log('正在远程机器上运行配对后诊断……');
     console.log('');
     const postCheckArgs = [
       remoteExecutable, 'doctor', 'repair',
@@ -386,8 +386,8 @@ export async function handleAuthPairRemote(argsRaw: string[], deps: Partial<Pair
     ];
     const exitCode = runSshInteractive({ target: ssh.value, remoteArgs: postCheckArgs });
     if (exitCode !== 0) {
-      console.error(`Post-pair doctor repair exited with code ${exitCode}.`);
-      console.error(`Re-run on the remote: \`${remoteExecutable} doctor repair${remoteServerId ? ` --server ${remoteServerId}` : ''}\`.`);
+    console.error(`配对后的 doctor repair 已退出，状态码为 ${exitCode}。`);
+    console.error(`请在远程机器上重新运行：\`${remoteExecutable} doctor repair${remoteServerId ? ` --server ${remoteServerId}` : ''}\`。`);
     }
   }
 }

@@ -109,6 +109,9 @@ export async function patchPackedTarballForBun(options = {}) {
   const extractedRoot = path.join(tmpDir, 'package');
   const pkgJsonPath = path.join(extractedRoot, 'package.json');
   const outTarballPath = path.join(tmpDir, `patched-${path.basename(tarballPath)}`);
+  const renamePackedTarball = options.renameSync ?? fs.renameSync;
+  const copyPackedTarball = options.copyFileSync ?? fs.copyFileSync;
+  const removePackedTarball = options.removeFileSync ?? ((filePath) => fs.rmSync(filePath, { force: true }));
 
   try {
     await tar.x({ file: tarballPath, cwd: tmpDir, strict: true });
@@ -123,7 +126,13 @@ export async function patchPackedTarballForBun(options = {}) {
     fs.writeFileSync(pkgJsonPath, `${JSON.stringify(patched, null, 2)}\n`, 'utf8');
 
     await tar.c({ gzip: true, file: outTarballPath, cwd: tmpDir, portable: true }, ['package']);
-    fs.renameSync(outTarballPath, tarballPath);
+    try {
+      renamePackedTarball(outTarballPath, tarballPath);
+    } catch (error) {
+      if (error?.code !== 'EXDEV') throw error;
+      copyPackedTarball(outTarballPath, tarballPath);
+      removePackedTarball(outTarballPath);
+    }
 
     return { tarballPath };
   } finally {

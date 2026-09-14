@@ -38,34 +38,34 @@ export type ParsedBugReportArgs = {
 
 export function bugReportUsage(): string {
   return [
-    `${chalk.bold('happier bug-report')} - Submit a structured bug report with optional diagnostics`,
+    `${chalk.bold('kaiwu bug-report')} - 提交包含可选诊断信息的结构化错误报告`,
     '',
-    `${chalk.bold('Usage:')}`,
-    '  happier bug-report --title <title> --summary <text> [options]',
+    `${chalk.bold('用法:')}`,
+    '  kaiwu bug-report --title <title> --summary <text> [options]',
     '',
-    `${chalk.bold('Required fields:')}`,
+    `${chalk.bold('必填字段:')}`,
     '  --title <text>',
     '  --summary <text>',
     '',
-    `${chalk.bold('Options:')}`,
-    '  --current-behavior <text>         Optional extra detail',
-    '  --expected-behavior <text>        Optional extra detail',
-    '  --repro-step <text>                Add one reproduction step (repeatable)',
-    '  --frequency <always|often|sometimes|once>   Default: often',
-    '  --severity <blocker|high|medium|low>        Default: medium',
-    '  --github-username <username>        Optional reporter contact',
+    `${chalk.bold('选项:')}`,
+    '  --current-behavior <text>         可选补充信息',
+    '  --expected-behavior <text>        可选补充信息',
+    '  --repro-step <text>               添加一个复现步骤（可重复）',
+    '  --frequency <always|often|sometimes|once>   默认：often',
+    '  --severity <blocker|high|medium|low>        默认：medium',
+    '  --github-username <username>      可选的报告人联系方式',
     '  --what-changed-recently <text>',
     '  --include-diagnostics / --no-include-diagnostics',
-    '  --accept-privacy-notice            Skip interactive privacy confirmation',
-    '  --provider-url <url>               Override diagnostics service URL',
-    '  --existing-issue-number <number>   Post report as a comment on an existing issue',
-    '  --no-similar-issues                Skip searching for similar issues',
+    '  --accept-privacy-notice            跳过交互式隐私确认',
+    '  --provider-url <url>               覆盖诊断服务地址',
+    '  --existing-issue-number <number>   将报告作为评论发布到已有问题',
+    '  --no-similar-issues                跳过相似问题搜索',
     '  --server-version <version>',
     '  --deployment-type <cloud|self-hosted|enterprise>',
-    '  --session-id <id>                  Bind the report to a specific Kaiwu session id',
-    '  --attach <path>                    Attach an additional file (repeatable)',
-    '  --attach-session-log <path>        Attach a Kaiwu session log file (repeatable)',
-    '  --attach-provider-transcript <path> Attach a provider transcript (Claude/Codex/...) (repeatable)',
+    '  --session-id <id>                  绑定到指定的开物会话 ID',
+    '  --attach <path>                    附加文件（可重复）',
+    '  --attach-session-log <path>        附加开物会话日志文件（可重复）',
+    '  --attach-provider-transcript <path> 附加供应商会话记录（Claude/Codex/...）（可重复）',
     '  -h, --help',
   ].join('\n');
 }
@@ -100,17 +100,17 @@ export function parseBugReportArgs(args: string[]): ParsedBugReportArgs {
   ): [string, number] => {
     const value = String(args[index + 1] ?? '');
     if (!value) {
-      throw new Error(`Missing value for ${flag}`);
+      throw new Error(`缺少 ${flag} 的值`);
     }
 
     // Don't accidentally consume the next flag as a value.
     if (value === '-h' || value === '--help' || value.startsWith('--')) {
-      throw new Error(`Missing value for ${flag}`);
+      throw new Error(`缺少 ${flag} 的值`);
     }
 
     const allowLeadingDash = Boolean(options?.allowLeadingDash);
     if (!allowLeadingDash && value.startsWith('-')) {
-      throw new Error(`Missing value for ${flag}`);
+      throw new Error(`缺少 ${flag} 的值`);
     }
 
     return [value, index + 1];
@@ -152,7 +152,7 @@ export function parseBugReportArgs(args: string[]): ParsedBugReportArgs {
       let value = '';
       [value, index] = readValue(index, arg);
       if (value !== 'always' && value !== 'often' && value !== 'sometimes' && value !== 'once') {
-        throw new Error(`Invalid --frequency value: ${value}`);
+        throw new Error(`无效的 --frequency 值：${value}`);
       }
       parsed.frequency = value;
       continue;
@@ -161,7 +161,7 @@ export function parseBugReportArgs(args: string[]): ParsedBugReportArgs {
       let value = '';
       [value, index] = readValue(index, arg);
       if (value !== 'blocker' && value !== 'high' && value !== 'medium' && value !== 'low') {
-        throw new Error(`Invalid --severity value: ${value}`);
+        throw new Error(`无效的 --severity 值：${value}`);
       }
       parsed.severity = value;
       continue;
@@ -191,7 +191,7 @@ export function parseBugReportArgs(args: string[]): ParsedBugReportArgs {
       [value, index] = readValue(index, arg);
       const parsedNumber = Number(value);
       if (!Number.isFinite(parsedNumber) || !Number.isInteger(parsedNumber) || parsedNumber <= 0) {
-        throw new Error(`Invalid --existing-issue-number value: ${value}`);
+        throw new Error(`无效的 --existing-issue-number 值：${value}`);
       }
       parsed.existingIssueNumber = parsedNumber;
       continue;
@@ -208,7 +208,7 @@ export function parseBugReportArgs(args: string[]): ParsedBugReportArgs {
       let deployment = '';
       [deployment, index] = readValue(index, arg);
       if (deployment !== 'cloud' && deployment !== 'self-hosted' && deployment !== 'enterprise') {
-        throw new Error(`Invalid --deployment-type value: ${deployment}`);
+        throw new Error(`无效的 --deployment-type 值：${deployment}`);
       }
       parsed.deploymentType = deployment;
       continue;
@@ -236,7 +236,7 @@ export function parseBugReportArgs(args: string[]): ParsedBugReportArgs {
       continue;
     }
 
-    throw new Error(`Unknown argument for bug-report command: ${arg}`);
+    throw new Error(`bug-report 命令的未知参数：${arg}`);
   }
 
   parsed.title = parsed.title.trim();

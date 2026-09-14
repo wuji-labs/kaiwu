@@ -26,14 +26,14 @@ export async function cmdMcpServersTest(
       await printJsonEnvelope({ ok: false, kind: 'mcp_servers_test', error: { code: 'not_authenticated' } }, { exitCode: 1 });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
+    console.error(chalk.red('错误：'), '尚未登录。请先运行 "kaiwu auth login"。');
     process.exitCode = 1;
     return;
   }
 
   const serverRef = readFlagValue(argv, '--mcp-server') ?? readFlagValue(argv, '--server');
   const directory = readFlagValue(argv, '--dir') ?? process.cwd();
-  if (!serverRef) throw new Error('Usage: kaiwu mcp servers test --mcp-server <name|id> [--dir <path>] [--json]');
+  if (!serverRef) throw new Error('用法：kaiwu mcp servers test --mcp-server <name|id> [--dir <path>] [--json]');
 
   const startedAt = deps.nowMs();
 
@@ -43,7 +43,7 @@ export async function cmdMcpServersTest(
     const mcpSettings = readMcpServersSettingsFromAccountSettings(ctx.settings);
 
     const server = mcpSettings.servers.find((s) => s.id === serverRef || s.name === serverRef) ?? null;
-    if (!server) throw new Error(`MCP server not found: ${serverRef}`);
+    if (!server) throw new Error(`未找到 MCP 服务器：${serverRef}`);
 
     const resolved = resolveEffectiveMcpServersForDirectory({
       settings: mcpSettings,
@@ -51,8 +51,8 @@ export async function cmdMcpServersTest(
       directory,
     });
     const item = resolved.serversByName[server.name];
-    if (!item) throw new Error(`MCP server not enabled for this target: ${server.name}`);
-    if (item.enabled !== true) throw new Error(`MCP server disabled for this target: ${server.name}`);
+    if (!item) throw new Error(`此目标未启用 MCP 服务器：${server.name}`);
+    if (item.enabled !== true) throw new Error(`此目标已禁用 MCP 服务器：${server.name}`);
 
     const savedSecretsById = indexSavedSecretsByIdFromAccountSettings(ctx.settings);
     const settingsSecretsKey = deriveSettingsSecretsKeyForCredentials(credentials);
@@ -88,7 +88,7 @@ export async function cmdMcpServersTest(
       return;
     }
 
-    console.log(chalk.green('✓'), `${toolNames.length} tools`);
+    console.log(chalk.green('✓'), `${toolNames.length} 个工具`);
     for (const name of toolNames.slice(0, 20)) console.log(`- ${name}`);
   } catch (error) {
     const message = redactMcpServerProbeError(error);
@@ -103,7 +103,7 @@ export async function cmdMcpServersTest(
       }, { exitCode: 1 });
       return;
     }
-    console.error(chalk.red('Error:'), message);
+    console.error(chalk.red('错误：'), message);
     process.exitCode = 1;
   }
 }

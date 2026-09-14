@@ -43,24 +43,24 @@ type SelfChannel = PublicReleaseRingId;
 
 function usage(): string {
   return [
-    `${chalk.bold('kaiwu self')} - Self update + update checks`,
+    `${chalk.bold('kaiwu self')} - 自更新与更新检查`,
     '',
-    `${chalk.bold('Usage:')}`,
+    `${chalk.bold('用法:')}`,
     `  kaiwu self check [--preview|--dev|--channel=<preview|dev>] [--quiet]`,
     `  kaiwu self update [--preview|--dev|--channel=<preview|dev>] [--to <versionOrTag>]`,
     `  kaiwu self migrate [--yes] [--json]`,
     `  kaiwu self-update [--check] [--preview|--dev|--channel=<preview|dev>] [--to <versionOrTag>]`,
     '',
-    `${chalk.bold('Channels:')}`,
+    `${chalk.bold('通道:')}`,
     `  stable  → npm dist-tag ${chalk.cyan('latest')}`,
     `  preview → npm dist-tag ${chalk.cyan('next')}`,
-    `  dev     → npm dist-tag ${chalk.cyan('next')} (${chalk.gray('dev rolling binaries')})`,
+    `  dev     → npm dist-tag ${chalk.cyan('next')}（${chalk.gray('dev 滚动二进制版本')}）`,
     '',
-    `${chalk.bold('Environment:')}`,
-    `  HAPPIER_CLI_UPDATE_CHECK=0                 Disable update notice + background check`,
-    `  HAPPIER_CLI_UPDATE_PACKAGE_NAME=@scope/pkg Override the npm package name checked/installed`,
-    `  KAIWU_GITHUB_REPO=wuji-labs/kaiwu           Override GitHub repo for binary updates (or HAPPIER_GITHUB_REPO)`,
-    `  HAPPIER_GITHUB_TOKEN=...                   GitHub token for release API (optional)`,
+    `${chalk.bold('环境变量:')}`,
+    `  HAPPIER_CLI_UPDATE_CHECK=0                 禁用更新提示和后台检查`,
+    `  HAPPIER_CLI_UPDATE_PACKAGE_NAME=@scope/pkg 覆盖要检查/安装的 npm 包名`,
+    `  KAIWU_GITHUB_REPO=wuji-labs/kaiwu           覆盖二进制更新使用的 GitHub 仓库（或 HAPPIER_GITHUB_REPO）`,
+    `  HAPPIER_GITHUB_TOKEN=...                   GitHub 发布 API 令牌（可选）`,
     '',
   ].join('\n');
 }
@@ -159,7 +159,7 @@ export function computeSelfUpdateSpec(params: Readonly<{ packageName: string; ch
   const to = String(params.to ?? '').trim();
   if (to) {
     if (!isSafeUpdateTarget(to)) {
-      throw new Error(`Invalid --to value: ${to}`);
+      throw new Error(`无效的 --to 值：${to}`);
     }
     return `${pkg}@${to}`;
   }
@@ -190,7 +190,7 @@ function resolveBinaryUpdatePlatform(env: NodeJS.ProcessEnv): Readonly<{ os: str
   const os = process.platform === 'linux' ? 'linux' : process.platform === 'darwin' ? 'darwin' : process.platform === 'win32' ? 'win32' : 'unsupported';
   const arch = process.arch === 'x64' ? 'x64' : process.arch === 'arm64' ? 'arm64' : 'unsupported';
   if (os === 'unsupported' || arch === 'unsupported') {
-    throw new Error(`Unsupported platform for binary updates: ${process.platform}/${process.arch}`);
+    throw new Error(`当前平台不支持二进制更新：${process.platform}/${process.arch}`);
   }
   return { os, arch };
 }
@@ -259,7 +259,7 @@ async function cmdCheck(argv: string[], rawArgv: readonly string[] = process.arg
     if (process.platform === 'win32') {
       const currentVersion = configuration.currentCliVersion || 'unknown';
       console.log('Windows 上的开物 CLI 通过安装脚本更新：irm https://kaiwu.chengqiyun.com/install.ps1 | iex');
-      console.log(`Current: ${currentVersion}`);
+      console.log(`当前版本：${currentVersion}`);
       process.exit(0);
     }
 
@@ -292,11 +292,11 @@ async function cmdCheck(argv: string[], rawArgv: readonly string[] = process.arg
     if (quiet) return;
 
     if (updateAvailable) {
-      console.log(chalk.yellow(`Update available: ${current ?? 'current'} → ${latest}`));
-      console.log(chalk.gray('Run:'), chalk.cyan(`${resolveManagedCliToolNameForRing(channel)} self update`));
+      console.log(chalk.yellow(`发现新版本：${current ?? '当前版本'} → ${latest}`));
+      console.log(chalk.gray('运行：'), chalk.cyan(`${resolveManagedCliToolNameForRing(channel)} self update`));
       return;
     }
-    console.log(chalk.green('Up to date.'));
+    console.log(chalk.green('已是最新版本。'));
     return;
   }
   const distTag = resolveSelfNpmDistTag(channel);
@@ -327,15 +327,15 @@ async function cmdCheck(argv: string[], rawArgv: readonly string[] = process.arg
   if (quiet) return;
 
   if (!latest) {
-    console.log(chalk.gray('Unable to determine latest version (npm view failed).'));
+    console.log(chalk.gray('无法确定最新版本（npm view 失败）。'));
     return;
   }
   if (updateAvailable) {
-    console.log(chalk.yellow(`Update available: ${current ?? 'current'} → ${latest}`));
-    console.log(chalk.gray('Run:'), chalk.cyan(`${resolveManagedCliToolNameForRing(channel)} self update`));
+    console.log(chalk.yellow(`发现新版本：${current ?? '当前版本'} → ${latest}`));
+    console.log(chalk.gray('运行：'), chalk.cyan(`${resolveManagedCliToolNameForRing(channel)} self update`));
     return;
   }
-  console.log(chalk.green('Up to date.'));
+  console.log(chalk.green('已是最新版本。'));
 }
 
 async function cmdUpdate(argv: string[], rawArgv: readonly string[] = process.argv): Promise<void> {
@@ -360,8 +360,8 @@ async function cmdUpdate(argv: string[], rawArgv: readonly string[] = process.ar
   if (installSource === 'npm') {
     const pkgName = resolveUpdatePackageName();
     const upgrade = npmUpgradeCommand({ packageName: pkgName, channel, to: toArg });
-    console.log(chalk.yellow('Detected npm-based install; in-place runtime update is disabled.'));
-    console.log(chalk.gray('Run instead:'), chalk.cyan(upgrade));
+    console.log(chalk.yellow('检测到通过 npm 安装；已禁用原地运行时更新。'));
+    console.log(chalk.gray('请改为运行：'), chalk.cyan(upgrade));
     return;
   }
 
@@ -378,7 +378,7 @@ async function cmdUpdate(argv: string[], rawArgv: readonly string[] = process.ar
   const githubToken = resolveBinaryUpdateToken(process.env);
   const tag = resolveBinaryUpdateTag(effective.channel);
   const minisignPubkeyFile = String(process.env.HAPPIER_MINISIGN_PUBKEY ?? '').trim() || undefined;
-  const release = await runSelfUpdateStep(steps, 'Resolving release metadata', async () => {
+  const release = await runSelfUpdateStep(steps, '正在解析发布元数据', async () => {
     return await fetchGitHubReleaseByTag({
       githubRepo,
       tag,
@@ -402,7 +402,7 @@ async function cmdUpdate(argv: string[], rawArgv: readonly string[] = process.ar
     },
   });
 
-  const result = await runSelfUpdateStep(steps, 'Downloading and installing payload', async () => {
+  const result = await runSelfUpdateStep(steps, '正在下载并安装运行包', async () => {
     return await updateInstalledCliPayloadFromReleaseAssets({
       assets,
       os,
@@ -415,7 +415,7 @@ async function cmdUpdate(argv: string[], rawArgv: readonly string[] = process.ar
   });
 
   // Refresh cache best-effort.
-  await runSelfUpdateStep(steps, 'Refreshing update cache', async () => {
+  await runSelfUpdateStep(steps, '正在刷新更新缓存', async () => {
     await cmdCheck([
       'check',
       '--quiet',
@@ -427,7 +427,7 @@ async function cmdUpdate(argv: string[], rawArgv: readonly string[] = process.ar
     ]);
   });
   const updatedToolName = resolveManagedCliToolNameForRing(effective.channel);
-  console.log(chalk.green(`✓ Updated ${updatedToolName} to ${result.updatedTo}`));
+  console.log(chalk.green(`✓ 已将 ${updatedToolName} 更新到 ${result.updatedTo}`));
   const migrationRan = await maybeRunVersionGatedRuntimeMigration({
     fromVersion: result.previousVersionId,
     toVersion: result.updatedTo,
@@ -453,7 +453,7 @@ function parseFirstPartyComponentId(value: string): FirstPartyComponentId {
   if ((FIRST_PARTY_COMPONENT_IDS as readonly string[]).includes(value)) {
     return value as FirstPartyComponentId;
   }
-  throw new Error(`Unknown first-party component: ${value}`);
+  throw new Error(`未知的第一方组件：${value}`);
 }
 
 function shouldSkipInstallPayloadMigration(processEnv: NodeJS.ProcessEnv): boolean {
@@ -502,10 +502,10 @@ async function cmdInternalInstallPayload(argv: string[], rawArgv: readonly strin
     || resolveSelfReleaseChannel({ args: argv, rawArgv }).ringId;
 
   if (!payloadRoot) {
-    throw new Error('--payload-root is required');
+    throw new Error('--payload-root 为必填项');
   }
   if (!versionId) {
-    throw new Error('--version is required');
+    throw new Error('--version 为必填项');
   }
 
   if (componentId === 'happier-cli') {
@@ -566,11 +566,11 @@ export async function handleSelfCliCommand(context: CommandContext): Promise<voi
       await cmdInternalInstallPayload(argv.slice(1), context.rawArgv);
       return;
     }
-    console.error(chalk.red('Error:'), `Unknown self subcommand: ${sub}`);
+    console.error(chalk.red('错误：'), `未知的 self 子命令：${sub}`);
     console.log(usage());
     process.exit(1);
   } catch (error) {
-    console.error(chalk.red('Error:'), error instanceof Error ? error.message : 'Unknown error');
+    console.error(chalk.red('错误：'), error instanceof Error ? error.message : '未知错误');
     if (process.env.DEBUG) {
       console.error(error);
     }

@@ -98,7 +98,7 @@ export async function cmdSessionRunStart(
       await printJsonEnvelope({ ok: false, kind: 'session_run_start', error: { code: 'not_authenticated' } });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
+    console.error(chalk.red('错误:'), '未认证。请先运行 "kaiwu auth login"。');
     process.exit(1);
   }
 
@@ -122,7 +122,7 @@ export async function cmdSessionRunStart(
       await printJsonEnvelope({ ok: false, kind: 'session_run_start', error: { code: 'session_not_found', sessionId } });
       return;
     }
-    console.error(chalk.red('Error:'), `Session not found: ${sessionId}`);
+    console.error(chalk.red('错误:'), `未找到会话: ${sessionId}`);
     process.exit(1);
   }
 
@@ -166,6 +166,6 @@ export async function cmdSessionRunStart(
     return;
   }
 
-  console.log(chalk.green('✓'), 'execution run started');
+  console.log(chalk.green('✓'), '运行已启动');
   await writeJsonStdout(runPayload, { pretty: true });
 }

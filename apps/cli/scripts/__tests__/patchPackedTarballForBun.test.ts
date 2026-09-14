@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
@@ -89,5 +89,47 @@ describe('patchPackedTarballForBun', () => {
       'happier-dev': './bin/happier-dev.mjs',
       'happier-mcp': './bin/happier-mcp.mjs',
     });
+  });
+
+  it('falls back to copy when the packed tarball crosses filesystem devices', async () => {
+    const tmp = createTempDirSync('happier-cli-postpack-exdev-');
+    const packageDir = join(tmp, 'package');
+    const tarballPath = join(tmp, 'artifact.tgz');
+
+    mkdirSync(packageDir, { recursive: true });
+    writeFileSync(
+      join(packageDir, 'package.json'),
+      `${JSON.stringify({
+        name: '@happier-dev/cli',
+        version: '0.2.13',
+        dependencies: { '@happier-dev/protocol': '0.0.0' },
+      }, null, 2)}\n`,
+      'utf8',
+    );
+    await tar.c({ gzip: true, file: tarballPath, cwd: tmp, portable: true }, ['package']);
+
+    let copyCalls = 0;
+    let removeCalls = 0;
+    await patchPackedTarballForBun({
+      tarballPath,
+      env: {},
+      renameSync: () => {
+        const error = new Error('cross-device link not permitted') as NodeJS.ErrnoException;
+        error.code = 'EXDEV';
+        throw error;
+      },
+      copyFileSync: (source: string, destination: string) => {
+        copyCalls += 1;
+        copyFileSync(source, destination);
+      },
+      removeFileSync: (path: string) => {
+        removeCalls += 1;
+        rmSync(path, { force: true });
+      },
+    });
+
+    expect(copyCalls).toBe(1);
+    expect(removeCalls).toBe(1);
+    expect(readFileSync(tarballPath).length).toBeGreaterThan(0);
   });
 });

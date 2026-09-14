@@ -29,9 +29,9 @@ describe('explainAttachIneligibility', () => {
       agentAttachStrategy: 'tmux',
     });
     expect(result.category).toBe('started_outside_tmux');
-    expect(result.shortReason).toContain('outside tmux');
-    expect(result.fullReason).toMatch(/started outside tmux/i);
-    expect(result.nextStepHint).toMatch(/Spawn Sessions in Tmux/i);
+    expect(result.shortReason).toBe('在 tmux 外部启动');
+    expect(result.fullReason).toBe('此会话在 tmux 外部启动，无法接入。');
+    expect(result.nextStepHint).toContain('在 tmux 中启动会话');
   });
 
   it('classifies tmux-strategy sessions as tmux_unavailable when tmux is missing', () => {
@@ -45,8 +45,9 @@ describe('explainAttachIneligibility', () => {
       agentAttachStrategy: 'tmux',
     });
     expect(result.category).toBe('tmux_unavailable');
-    expect(result.shortReason).toContain('tmux');
-    expect(result.nextStepHint).toMatch(/install tmux/i);
+    expect(result.shortReason).toBe('此计算机上未安装 tmux');
+    expect(result.fullReason).toBe('接入此会话需要 tmux，但此计算机上未安装 tmux。');
+    expect(result.nextStepHint).toContain('安装 tmux');
   });
 
   it('plain-mode wins over tmux-unavailable so the user sees the actionable cause', () => {
@@ -79,8 +80,9 @@ describe('explainAttachIneligibility', () => {
     });
 
     expect(result.category).toBe('windows_hidden');
-    expect(result.fullReason).toBe('This Windows session was started hidden and cannot be attached later.');
-    expect(result.nextStepHint).toMatch(/visible terminal/i);
+    expect(result.shortReason).toBe('Windows 会话已隐藏启动');
+    expect(result.fullReason).toBe('此 Windows 会话已隐藏启动，后续无法接入。');
+    expect(result.nextStepHint).toContain('可见终端');
   });
 
   it('classifies cross-machine sessions as remote_machine using metadata host', () => {
@@ -92,7 +94,9 @@ describe('explainAttachIneligibility', () => {
       agentAttachStrategy: 'tmux',
     });
     expect(result.category).toBe('remote_machine');
-    expect(result.shortReason).toContain('leeroy-imac');
+    expect(result.shortReason).toBe('正在另一台机器上运行（leeroy-imac）');
+    expect(result.fullReason).toBe('此会话正在 leeroy-imac 上运行，无法从此计算机接入。');
+    expect(result.nextStepHint).toContain('kaiwu session list --active');
   });
 
   it('treats Bonjour-suffixed hosts as same machine (no false-positive remote)', () => {
@@ -115,7 +119,9 @@ describe('explainAttachIneligibility', () => {
       agentAttachStrategy: 'tmux',
     });
     expect(result.category).toBe('archived_or_inactive');
-    expect(result.nextStepHint).toMatch(/happier resume/i);
+    expect(result.shortReason).toBe('已归档');
+    expect(result.fullReason).toBe('此会话已归档，无法接入。');
+    expect(result.nextStepHint).toContain('kaiwu resume');
   });
 
   it('classifies metadata-unavailable sessions distinctly so we can suggest auth pair-remote', () => {
@@ -127,7 +133,9 @@ describe('explainAttachIneligibility', () => {
       agentAttachStrategy: 'tmux',
     });
     expect(result.category).toBe('metadata_unreadable');
-    expect(result.nextStepHint).toMatch(/pair-remote/i);
+    expect(result.shortReason).toBe('无法在此机器上解密元数据');
+    expect(result.fullReason).toBe('此 CLI 无法在此机器上解密该会话的元数据。');
+    expect(result.nextStepHint).toContain('kaiwu auth pair-remote');
   });
 
   it('classifies unsupported-agent sessions as unsupported_agent', () => {
@@ -139,6 +147,8 @@ describe('explainAttachIneligibility', () => {
       agentAttachStrategy: 'unsupported' as AgentAttachStrategyForExplainer,
     });
     expect(result.category).toBe('unsupported_agent');
+    expect(result.shortReason).toBe('Agent 不支持接入');
+    expect(result.fullReason).toBe('此会话的 Agent 不支持本地终端接入。');
   });
 
   it('falls back to no_local_state when no other category applies', () => {
@@ -150,7 +160,9 @@ describe('explainAttachIneligibility', () => {
       agentAttachStrategy: 'tmux',
     });
     expect(result.category).toBe('no_local_state');
-    expect(result.nextStepHint).toMatch(/daemon start/i);
+    expect(result.shortReason).toBe('此计算机上无可用接入状态');
+    expect(result.fullReason).toBe('此计算机上没有该会话的本地接入状态。');
+    expect(result.nextStepHint).toContain('kaiwu daemon start');
   });
 });
 

@@ -22,11 +22,17 @@ export function mapUnknownErrorToControlError(error: unknown): ControlCliMappedE
 
   if (
     lower.startsWith('usage:') ||
+    lower.startsWith('用法：') ||
+    lower.startsWith('用法:') ||
     lower.startsWith('missing ') ||
+    lower.startsWith('缺少') ||
     lower.startsWith('invalid ') ||
+    lower.startsWith('无效') ||
     lower.includes('missing required') ||
+    lower.includes('非交互模式') ||
     lower.includes('non-interactive mode') ||
-    lower.includes('unknown ')
+    lower.includes('unknown ') ||
+    lower.includes('未知')
   ) {
     return { code: 'invalid_arguments', unexpected: false, ...(message ? { message } : {}) };
   }

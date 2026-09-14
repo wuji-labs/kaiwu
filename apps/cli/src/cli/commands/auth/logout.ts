@@ -20,17 +20,17 @@ export async function handleAuthLogout(args: string[]): Promise<void> {
   if (!logoutAll) {
     const credentials = await readCredentials();
     if (!credentials) {
-      console.log(chalk.yellow('Not currently authenticated'));
+      console.log(chalk.yellow('当前未完成认证'));
       return;
     }
   }
 
   if (logoutAll) {
-    console.log(chalk.blue('This will log you out of Kaiwu on all relays and remove local data'));
+    console.log(chalk.blue('这将退出开物在所有中继上的登录，并删除本地数据'));
   } else {
-    console.log(chalk.blue(`This will log you out of Kaiwu for relay: ${targetServerId}`));
+    console.log(chalk.blue(`这将退出开物在以下中继上的登录：${targetServerId}`));
   }
-  console.log(chalk.yellow('⚠️  You will need to re-authenticate to use Kaiwu again'));
+  console.log(chalk.yellow('⚠️  之后需要重新认证才能再次使用开物'));
 
   const rl = createInterface({
     input: process.stdin,
@@ -40,8 +40,8 @@ export async function handleAuthLogout(args: string[]): Promise<void> {
   const answer = await new Promise<string>((resolve) => {
     rl.question(
       chalk.yellow(logoutAll
-        ? 'Are you sure you want to log out everywhere and delete local data? (y/N): '
-        : 'Are you sure you want to log out? (y/N): '),
+        ? '确定要退出所有中继并删除本地数据吗？（y/N）：'
+        : '确定要退出登录吗？（y/N）：'),
       resolve,
     );
   });
@@ -62,7 +62,7 @@ export async function handleAuthLogout(args: string[]): Promise<void> {
       } else {
         try {
           await stopDaemon();
-          console.log(chalk.gray('Stopped daemon'));
+          console.log(chalk.gray('守护进程已停止'));
         } catch {
           // ignore
         }
@@ -74,13 +74,13 @@ export async function handleAuthLogout(args: string[]): Promise<void> {
         });
       }
 
-      console.log(chalk.green('✓ Successfully logged out'));
-      console.log(chalk.gray('  Run "kaiwu auth login" to authenticate again'));
+      console.log(chalk.green('✓ 已成功退出登录'));
+      console.log(chalk.gray('  如需重新认证，请运行 "kaiwu auth login"'));
     } catch (error) {
-      throw new Error(`Failed to logout: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(`退出登录失败：${error instanceof Error ? error.message : '未知错误'}`);
     }
     return;
   }
 
-  console.log(chalk.blue('Logout cancelled'));
+  console.log(chalk.blue('已取消退出登录'));
 }

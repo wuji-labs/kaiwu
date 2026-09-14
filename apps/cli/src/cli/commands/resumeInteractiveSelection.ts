@@ -82,42 +82,42 @@ function classifyResumeIneligibility(rowModel: CliSessionRowModel): ResumeInelig
 function shortReasonForResume(category: ResumeIneligibilityCategory): string {
   switch (category) {
     case 'archived':
-      return 'archived';
+      return '已归档';
     case 'still_active':
-      return 'currently running — use kaiwu attach';
+      return '当前正在运行 — 请使用 kaiwu attach';
     case 'vendor_resume_not_supported':
-      return 'this agent does not support resume';
+      return '此 Agent 不支持恢复';
     case 'vendor_resume_id_missing':
-      return 'vendor resume id is missing from metadata';
+      return '元数据中缺少厂商恢复 ID';
     case 'experimental_disabled':
-      return 'resume is disabled in your account settings';
+      return '恢复功能已在账号设置中禁用';
     case 'path_unknown':
-      return 'session has no working directory recorded';
+      return '会话未记录工作目录';
     case 'system_session':
-      return 'internal system session';
+      return '内部系统会话';
     default:
-      return 'cannot be resumed';
+      return '无法恢复';
   }
 }
 
 function fullReasonForResume(category: ResumeIneligibilityCategory): string {
   switch (category) {
     case 'archived':
-      return 'This session is archived and cannot be resumed.';
+      return '此会话已归档，无法恢复。';
     case 'still_active':
-      return 'This session is currently running. Use `kaiwu attach` to attach a terminal to it instead.';
+      return '此会话当前正在运行。请改用 `kaiwu attach` 接入终端。';
     case 'vendor_resume_not_supported':
-      return 'This session\'s agent does not support resume from the CLI.';
+      return '此会话的 Agent 不支持从 CLI 恢复。';
     case 'vendor_resume_id_missing':
-      return 'The vendor resume id is missing from this session\'s metadata.';
+      return '此会话的元数据中缺少厂商恢复 ID。';
     case 'experimental_disabled':
-      return 'Resume is disabled by your account settings (Session → Resume).';
+      return '恢复功能已在您的账号设置中禁用（会话 → 恢复）。';
     case 'path_unknown':
-      return 'This session has no working directory recorded; CLI resume needs one.';
+      return '此会话未记录工作目录；CLI 恢复需要工作目录。';
     case 'system_session':
-      return 'This is an internal system session and cannot be resumed.';
+      return '这是内部系统会话，无法恢复。';
     default:
-      return 'This session cannot be resumed from this CLI.';
+      return '此会话无法从此 CLI 恢复。';
   }
 }
 
@@ -197,13 +197,12 @@ export async function buildResumeSelectionModel(params: Readonly<{
  * help line.
  */
 export function formatResumeSelectionFooter(hint: ResumeSelectionFooterHint): string | null {
-  const sessionWord = (n: number) => (n === 1 ? 'session' : 'sessions');
   const fragments: string[] = [];
   if (hint.activeRunningCount > 0) {
-    fragments.push(`${hint.activeRunningCount} ${sessionWord(hint.activeRunningCount)} running — use \`kaiwu attach\` to attach a terminal.`);
+    fragments.push(`${hint.activeRunningCount} 个会话正在运行 — 请使用 \`kaiwu attach\` 接入终端。`);
   }
   if (hint.ineligibleCount > 0) {
-    fragments.push(`${hint.ineligibleCount} ${sessionWord(hint.ineligibleCount)} can't be resumed (see reasons above).`);
+    fragments.push(`${hint.ineligibleCount} 个会话无法恢复（见上方原因）。`);
   }
   return fragments.length > 0 ? fragments.join(' ') : null;
 }

@@ -7,20 +7,20 @@ export async function handleAuthApprove(argsRaw: string[]): Promise<void> {
 
   const json = args.includes('--json');
   if (!json) {
-    console.error('Missing required flag: --json');
+    console.error('缺少必填参数：--json');
     process.exit(2);
   }
 
   const keyIndex = args.findIndex((a) => a === '--public-key');
   const publicKeyRaw = keyIndex >= 0 ? (args[keyIndex + 1] ?? '') : '';
   if (!publicKeyRaw || String(publicKeyRaw).startsWith('--')) {
-    console.error('Missing required flag: --public-key <base64>');
+    console.error('缺少必填参数：--public-key <base64>');
     process.exit(2);
   }
   try {
     await approveTerminalAuthRequest({ publicKey: String(publicKeyRaw) });
   } catch (error) {
-    console.error(error instanceof Error ? error.message : 'Failed to approve auth request.');
+    console.error(error instanceof Error ? error.message : '批准认证请求失败。');
     process.exit(1);
   }
 

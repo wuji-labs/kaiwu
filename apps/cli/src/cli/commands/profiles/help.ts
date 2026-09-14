@@ -2,17 +2,16 @@ import chalk from 'chalk';
 
 export function showProfilesHelp(): void {
   console.log(`
-${chalk.bold('kaiwu profiles')} - Backend profiles
+${chalk.bold('kaiwu profiles')} - 智能体后端配置
 
-${chalk.bold('Usage:')}
+${chalk.bold('用法:')}
   kaiwu profiles list [--refresh-settings] [--json]
 
-${chalk.bold('Aliases:')}
+${chalk.bold('别名:')}
   kaiwu profile list
 
-${chalk.bold('Notes:')}
-  - Use --profile <id-or-name> when starting a session to apply a profile.
-  - Run "kaiwu auth login" to see custom profiles saved in your account settings.
+${chalk.bold('说明:')}
+  - 启动会话时使用 --profile <id-or-name> 应用配置。
+  - 运行 "kaiwu auth login" 后可查看账户设置中保存的自定义配置。
 `);
 }
-

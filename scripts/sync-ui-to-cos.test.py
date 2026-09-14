@@ -27,6 +27,7 @@ def test_content_type_mapping():
         ("manifest.webmanifest", "application/json"),
         ("app.js.map", "application/json"),
         ("readme.txt", "text/plain"),
+        ("install.ps1", "text/plain; charset=utf-8"),
         ("page.html", "text/html; charset=utf-8"),
         ("image.png", "image/png"),
         ("video.mp4", "video/mp4"),
@@ -118,6 +119,7 @@ def test_cache_control():
     tests = [
         ("index.html", "no-cache"),
         ("metadata.json", "no-cache"),
+        ("install.ps1", "no-cache"),
         ("_expo/static/js/index.js", "public, max-age=31536000, immutable"),
         ("assets/image.png", "public, max-age=31536000, immutable"),
     ]

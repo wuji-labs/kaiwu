@@ -19,4 +19,11 @@ describe('HAPPIER_BASE_SYSTEM_PROMPT_V1', () => {
     expect(HAPPIER_BASE_SYSTEM_PROMPT_V1).toContain('[attachments]');
     expect(HAPPIER_BASE_SYSTEM_PROMPT_V1).toContain('attachments block');
   });
+
+  it('documents options format while defaulting to autonomous execution', () => {
+    expect(HAPPIER_BASE_SYSTEM_PROMPT_V1).toContain('<options>');
+    expect(HAPPIER_BASE_SYSTEM_PROMPT_V1).toContain('Execute tasks autonomously to completion by default');
+    expect(HAPPIER_BASE_SYSTEM_PROMPT_V1).not.toContain('Always prefer to use the options mode');
+    expect(HAPPIER_BASE_SYSTEM_PROMPT_V1).not.toContain('Plan mode with options');
+  });
 });

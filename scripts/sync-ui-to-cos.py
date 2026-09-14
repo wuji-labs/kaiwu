@@ -50,6 +50,7 @@ def get_content_type(filepath: str) -> str:
         '.map': 'application/json',
         '.txt': 'text/plain',
         '.html': 'text/html; charset=utf-8',
+        '.ps1': 'text/plain; charset=utf-8',
     }
 
     if ext in content_type_map:
@@ -68,7 +69,19 @@ def should_compress(filepath: str) -> bool:
 def get_cache_control(filepath: str) -> str:
     """Get Cache-Control header for file."""
     rel_path = Path(filepath).name
-    if rel_path in ('index.html', 'metadata.json'):
+    if rel_path in (
+        'index.html',
+        'metadata.json',
+        'install',
+        'install.sh',
+        'install.ps1',
+        'install-preview',
+        'install-preview.sh',
+        'install-preview.ps1',
+        'install-dev',
+        'install-dev.sh',
+        'install-dev.ps1',
+    ):
         return 'no-cache'
     return 'public, max-age=31536000, immutable'
 

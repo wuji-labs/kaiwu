@@ -12,7 +12,7 @@ import { tryHandleApprovalRequestCreated } from './shared/tryHandleApprovalReque
 function parseIntentOrThrow(raw: string): PermissionIntent {
   const parsed = parsePermissionIntentAlias(raw);
   if (!parsed) {
-    const err = new Error(`Invalid permission mode: ${raw}`);
+    const err = new Error(`无效的权限模式: ${raw}`);
     (err as any).code = 'invalid_arguments';
     throw err;
   }
@@ -37,7 +37,7 @@ export async function cmdSessionSetPermissionMode(
       await printJsonEnvelope({ ok: false, kind: 'session_set_permission_mode', error: { code: 'not_authenticated' } });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
+    console.error(chalk.red('错误:'), '未认证。请先运行 "kaiwu auth login"。');
     process.exit(1);
   }
 
@@ -78,5 +78,5 @@ export async function cmdSessionSetPermissionMode(
     return;
   }
 
-  console.log(chalk.green('✓'), `permission mode set for ${result.sessionId}: ${result.permissionMode ?? intent}`);
+  console.log(chalk.green('✓'), `已为 ${result.sessionId} 设置权限模式: ${result.permissionMode ?? intent}`);
 }

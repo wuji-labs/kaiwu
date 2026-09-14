@@ -38,10 +38,10 @@ export function describeRelayBindSignupExposure(
   if (isLoopbackHostname(host)) return null;
 
   return {
-    headline: `This relay listens on ${host}, not only on this computer.`,
+    headline: `此中继监听 ${host}，不只限于本机。`,
     details: [
-      'Anyone who can reach it there can create an account on it — on a private',
-      `network that is the recommended default: ${AUTH_DOCS_URL}`,
+      '任何能访问该地址的人都可以在此创建账户——在私有网络中这是推荐的默认方式：',
+      `${AUTH_DOCS_URL}`,
     ],
   };
 }

@@ -350,11 +350,11 @@ describe('handleServiceRepairCliCommand', () => {
       // uses a legacy service name ('Default background service') — the renderer
       // surfaces that faithfully; fresh installs emit 'Default automatic startup'
       // via discoverInstalledDaemonServiceEntries.ts.
-      expect(output.text()).toContain('Background services');
+      expect(output.text()).toContain('后台服务');
       expect(output.text()).toMatch(/Default (automatic startup|background service)/);
       expect(output.text()).toContain('https://relay.example.test');
       expect(output.text()).toContain('pid 4321');
-      expect(output.text()).toContain('Local relays');
+      expect(output.text()).toContain('本地中继');
       expect(output.text()).toContain('http://127.0.0.1:4400');
     } finally {
       output.restore();
@@ -390,7 +390,7 @@ describe('handleServiceRepairCliCommand', () => {
         commandPath: 'happier doctor',
       });
 
-      expect(output.text()).toContain('Background services');
+      expect(output.text()).toContain('后台服务');
       expect(output.text()).not.toContain('Automatic startup repair');
       expect(promptInputMock).not.toHaveBeenCalled();
     } finally {

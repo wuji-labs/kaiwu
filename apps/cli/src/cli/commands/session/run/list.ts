@@ -49,7 +49,7 @@ export async function cmdSessionRunList(
       await printJsonEnvelope({ ok: false, kind: 'session_run_list', error: { code: 'not_authenticated' } });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
+    console.error(chalk.red('错误:'), '未认证。请先运行 "kaiwu auth login"。');
     process.exit(1);
   }
 
@@ -99,6 +99,6 @@ export async function cmdSessionRunList(
     return;
   }
 
-  console.log(chalk.green('✓'), 'execution runs listed');
+  console.log(chalk.green('✓'), '已列出运行');
   await writeJsonStdout(runPayload, { pretty: true });
 }

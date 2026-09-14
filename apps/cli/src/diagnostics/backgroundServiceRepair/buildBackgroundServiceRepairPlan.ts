@@ -272,8 +272,12 @@ export function buildBackgroundServiceRepairPlan(params: Readonly<{
   }
 
   const shouldInstallDefaultFollowingService =
-    (!compatibleDefaultService && removableServices.length > 0)
-    || (!compatibleDefaultService && repairableExternalDefaultServices.length > 0)
+    !compatibleDefaultService
+    && (
+      params.services.length === 0
+      || removableServices.length > 0
+      || repairableExternalDefaultServices.length > 0
+    )
     || compatibleDefaultServiceNeedsReinstall;
 
   if (shouldInstallDefaultFollowingService) {

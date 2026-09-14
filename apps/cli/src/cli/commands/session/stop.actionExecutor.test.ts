@@ -78,7 +78,7 @@ describe('happier session stop (action executor)', () => {
 
       expect(consoleLogSpy).toHaveBeenCalledWith(
         expect.any(String),
-        'session stopped; status update not yet observed',
+        '会话已停止；尚未观察到状态更新',
       );
       expect(consoleLogSpy).not.toHaveBeenCalledWith(
         expect.any(String),
@@ -114,11 +114,11 @@ describe('happier session stop (action executor)', () => {
 
       expect(consoleLogSpy).toHaveBeenCalledWith(
         expect.any(String),
-        'session stopped; local cleanup could not be completed',
+        '会话已停止；本地清理未能完成',
       );
       expect(consoleLogSpy).not.toHaveBeenCalledWith(
         expect.any(String),
-        'stop could not be confirmed',
+        '无法确认停止状态',
       );
     } finally {
       consoleLogSpy.mockRestore();

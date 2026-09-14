@@ -20,7 +20,7 @@ export async function cmdMcpServersAdd(
       await printJsonEnvelope({ ok: false, kind: 'mcp_servers_add', error: { code: 'not_authenticated' } }, { exitCode: 1 });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
+    console.error(chalk.red('错误：'), '尚未登录。请先运行 "kaiwu auth login"。');
     process.exitCode = 1;
     return;
   }
@@ -30,9 +30,9 @@ export async function cmdMcpServersAdd(
   const command = readFlagValue(argv, '--command');
   const args = readRepeatedFlagValues(argv, '--arg');
 
-  if (!name) throw new Error('Usage: kaiwu mcp servers add --name <name> --transport stdio --command <cmd> [--arg <arg>] [--json]');
-  if (transport !== 'stdio') throw new Error('Only stdio transport is supported by this command currently.');
-  if (!command) throw new Error('Missing --command');
+  if (!name) throw new Error('用法：kaiwu mcp servers add --name <name> --transport stdio --command <cmd> [--arg <arg>] [--json]');
+  if (transport !== 'stdio') throw new Error('当前命令仅支持 stdio 传输方式。');
+  if (!command) throw new Error('缺少 --command');
 
   const id = deps.randomUUID();
   const now = deps.nowMs();
@@ -42,7 +42,7 @@ export async function cmdMcpServersAdd(
     mutate: (settings: Readonly<Record<string, unknown>>) => {
       const current = readMcpServersSettingsFromAccountSettings(settings);
       if (current.servers.some((s) => s.name === name)) {
-        throw new Error(`MCP server name already exists: ${name}`);
+        throw new Error(`MCP 服务器名称已存在：${name}`);
       }
       const next = McpServersSettingsV1Schema.parse({
         ...current,
@@ -68,6 +68,5 @@ export async function cmdMcpServersAdd(
     return;
   }
 
-  console.log(chalk.green('✓'), `MCP server added: ${name}`);
+  console.log(chalk.green('✓'), `MCP 服务器已添加：${name}`);
 }
-

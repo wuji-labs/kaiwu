@@ -144,11 +144,11 @@ export function parseSetupArgs(args: readonly string[]): SetupArgs {
     if (chosenFlag && chosenFlag !== flag) {
       return {
         kind: 'invalid',
-        message: `Choose one relay: ${chosenFlag} and ${flag} cannot both be given.`,
+        message: `只能选择一个中继：${chosenFlag} 和 ${flag} 不能同时使用。`,
       };
     }
     if (chosenFlag === flag) {
-      return { kind: 'invalid', message: `${flag} was given twice.` };
+      return { kind: 'invalid', message: `${flag} 不能重复指定。` };
     }
     chosenFlag = flag;
     relaySelection = selection;
@@ -178,7 +178,7 @@ export function parseSetupArgs(args: readonly string[]): SetupArgs {
     if (arg === '--relay') {
       const value = String(args[index + 1] ?? '').trim();
       if (!value || value.startsWith('-')) {
-        return { kind: 'invalid', message: '--relay needs a relay URL, for example `--relay https://relay.example.com`.' };
+        return { kind: 'invalid', message: '--relay 需要中继 URL，例如：`--relay https://relay.example.com`。'};
       }
       const conflict = choose(arg, { kind: 'existing', url: value });
       if (conflict) return conflict;
@@ -187,7 +187,7 @@ export function parseSetupArgs(args: readonly string[]): SetupArgs {
     }
     return {
       kind: 'invalid',
-      message: `Unknown option: ${arg}. Known options: ${KNOWN_FLAGS.join(', ')}.`,
+      message: `未知选项：${arg}。已知选项：${KNOWN_FLAGS.join(', ')}。`,
     };
   }
 
@@ -198,7 +198,7 @@ export function parseSetupArgs(args: readonly string[]): SetupArgs {
     // write state nobody asked for.
     return {
       kind: 'invalid',
-      message: 'Choose one: --yes runs every step that needs no answer, --non-interactive changes nothing.',
+      message: '只能选择一个：--yes 执行所有无需回答的步骤，--non-interactive 不修改任何内容。',
     };
   }
 
@@ -266,8 +266,8 @@ function normalizeUrl(value: string): string {
  * named.
  */
 const RELAY_CHOICE_REQUIRED = [
-  'Setup will not choose a relay for you — your account lives on the one you pick.',
-  'Name it:',
+  'Setup 不会替您选择中继——您的账户将绑定到您指定的中继。',
+  '请明确指定：',
   '',
   '  kaiwu setup --cloud --yes',
   '  kaiwu setup --relay https://relay.example.com --yes',
@@ -282,7 +282,7 @@ const RELAY_CHOICE_REQUIRED = [
  * run by the time this is printed.
  */
 const SIGN_IN_REQUIRED = [
-  'Setup needs you for the last step — signing in has to be approved on a device.',
+  'Setup 还需要您完成最后一步——登录必须在设备上批准。',
   '',
   '  kaiwu auth login',
 ].join('\n');
@@ -298,11 +298,11 @@ export function buildSetupPlan(params: BuildSetupPlanParams): SetupPlan {
       stop: {
         reason: 'relay-unavailable',
         detail: [
-          `The selected relay (${activeRelayUrl}) did not answer, so its stored sign-in could not be verified.`,
-          'Your relay selection and credentials were kept unchanged.',
+          `所选中继（${activeRelayUrl}）没有响应，因此无法验证已保存的登录状态。`,
+          '您的中继选择和凭据均未修改。',
           '',
           'Retry: `kaiwu setup`',
-          'Choose another relay explicitly: `kaiwu setup --cloud` or `kaiwu setup --relay <url>`',
+          '如需更换中继，请明确指定：`kaiwu setup --cloud` 或 `kaiwu setup --relay <url>`',
         ].join('\n'),
       },
     };
@@ -323,7 +323,7 @@ export function buildSetupPlan(params: BuildSetupPlanParams): SetupPlan {
         steps: [],
         stop: {
           reason: 'needs-interactive',
-          detail: 'This account is already selected, but this computer still needs to be registered. Run `kaiwu auth login` in a terminal to finish.',
+          detail: '此账户已选定，但这台电脑仍需注册。请在终端运行 `kaiwu auth login` 完成设置。',
         },
       };
     }
@@ -351,11 +351,10 @@ export function buildSetupPlan(params: BuildSetupPlanParams): SetupPlan {
       stop: {
         reason: 'needs-interactive',
         detail: selection
-          ? 'Setup changes nothing unattended unless you ask it to. Run `kaiwu setup --yes` to do the '
-            + 'steps that need no answer, then `kaiwu auth login` to finish — signing in has to be '
-            + 'approved on your phone or in a browser.'
-          : 'Setup needs a terminal to ask where your relay lives. Run `kaiwu setup` directly, or name '
-            + 'the relay yourself: `kaiwu setup --cloud --yes`.',
+          ? '无人值守时 Setup 不会修改任何内容，除非您明确要求。运行 `kaiwu setup --yes` 执行 '
+            + '无需回答的步骤，然后运行 `kaiwu auth login` 完成设置——登录必须在手机或浏览器上批准。'
+          : 'Setup 需要终端询问您的中继位置。请直接运行 `kaiwu setup`，或自行指定中继：'
+            + '`kaiwu setup --cloud --yes`。',
       },
     };
   }

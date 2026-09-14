@@ -19,15 +19,15 @@ export function argvValue(args: ReadonlyArray<string>, name: string): string {
 
 export function normalizeUrlOrThrow(raw: string, label: string): string {
   const value = String(raw ?? '').trim();
-  if (!value) throw new Error(`Missing ${label}`);
+  if (!value) throw new Error(`缺少 ${label}`);
   let url: URL;
   try {
     url = new URL(value);
   } catch {
-    throw new Error(`Invalid ${label}: ${value}`);
+    throw new Error(`${label} 无效：${value}`);
   }
   if (url.protocol !== 'http:' && url.protocol !== 'https:') {
-    throw new Error(`Invalid ${label} protocol: ${url.protocol} (expected http/https)`);
+    throw new Error(`${label} 协议无效：${url.protocol}（应为 http/https）`);
   }
   return url.toString().replace(/\/+$/, '');
 }
@@ -71,7 +71,7 @@ export async function runCliAction(args: string[]): Promise<void> {
     child.on('error', reject);
     child.on('close', (code) => {
       if (code === 0) resolve();
-      else reject(new Error(`Command failed (exit ${code ?? 1}): kaiwu ${args.join(' ')}`));
+      else reject(new Error(`命令失败（退出码 ${code ?? 1}）：kaiwu ${args.join(' ')}`));
     });
   });
 }

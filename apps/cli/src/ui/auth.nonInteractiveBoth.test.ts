@@ -116,10 +116,10 @@ describe.sequential('doAuth (non-interactive)', () => {
       expect(creds?.token).toBe('tok');
 
       const out = output.logs.join('\n');
-      expect(out).toContain('Relay URL: https://server.example.test');
-      expect(out).toContain('Web app URL: https://webapp.example.test');
-      expect(out).toContain('Mobile (recommended)');
-      expect(out).toContain('Web (fallback)');
+      expect(out).toContain('中继 URL: https://server.example.test');
+      expect(out).toContain('Web 应用 URL: https://webapp.example.test');
+      expect(out).toContain('手机 App（推荐）');
+      expect(out).toContain('网页端（备用）');
       expect(out).toContain('webapp.example.test/terminal/connect#key=');
       expect(out).toContain('happier://terminal?');
       expect(displayQRCodeMock).toHaveBeenCalledTimes(1);
@@ -235,8 +235,8 @@ describe.sequential('doAuth (non-interactive)', () => {
       const creds = await doAuth();
       expect(creds?.token).toBe('tok');
 
-      const out = output.logs.join('\n').toLowerCase();
-      expect(out).toContain('does not include a relay url');
+      const out = output.logs.join('\n');
+      expect(out).toContain('未包含中继 URL');
       expect(displayQRCodeMock).toHaveBeenCalledTimes(1);
     } finally {
       output.restore();
@@ -271,11 +271,11 @@ describe.sequential('doAuth (non-interactive)', () => {
       const creds = await doAuth();
       expect(creds?.token).toBe('tok');
 
-      const out = output.logs.join('\n').toLowerCase();
-      expect(out).toContain(encodeURIComponent('http://localhost:3010').toLowerCase());
-      expect(out).toContain('same machine');
-      expect(out).not.toContain('same lan');
-      expect(out).toContain('does not include a relay url');
+      const out = output.logs.join('\n');
+      expect(out.toLowerCase()).toContain(encodeURIComponent('http://localhost:3010').toLowerCase());
+      expect(out.toLowerCase()).toContain('same machine');
+      expect(out.toLowerCase()).not.toContain('same lan');
+      expect(out).toContain('未包含中继 URL');
     } finally {
       output.restore();
       restoreTty();
@@ -375,7 +375,7 @@ describe.sequential('doAuth (non-interactive)', () => {
       const creds = await doAuth();
 
       expect(creds).toBeNull();
-      expect(output.logs.join('\n')).toContain('Unexpected response from the relay. Please try again.');
+      expect(output.logs.join('\n')).toContain('收到来自中继服务的不符合预期响应，请重试。');
     } finally {
       axiosDefault.post = originalPost;
       output.restore();

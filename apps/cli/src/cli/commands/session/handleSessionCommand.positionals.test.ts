@@ -37,7 +37,7 @@ describe('handleSessionCommand required positionals', () => {
   });
 
   it.each([
-    ['unknown list options', ['list', '--definitely-invalid', '--json'], 'Usage: happier session list'],
+    ['unknown list options', ['list', '--definitely-invalid', '--json'], 'Usage: kaiwu session list'],
     ['invalid list limits', ['list', '--limit', '0', '--json'], 'Invalid --limit'],
   ] as const)('rejects %s with a truthful JSON error and exit code', async (_label, argv, expectedMessage) => {
     const readCredentialsFn = vi.fn(async () => {

@@ -178,7 +178,7 @@ function takeFlagValue(args: string[], name: string): { value: string | null; re
     if (current === name) {
       const next = String(args[index + 1] ?? '');
       if (!next) {
-        throw new Error(`Missing value for ${name}`);
+        throw new Error(`缺少 ${name} 的值`);
       }
       value = next;
       index += 1;
@@ -203,7 +203,7 @@ function takeRepeatedFlagValues(args: string[], name: string): { values: string[
     if (current === name) {
       const next = String(args[index + 1] ?? '');
       if (!next || next.startsWith('--')) {
-        throw new Error(`Missing value for ${name}`);
+        throw new Error(`缺少 ${name} 的值`);
       }
       values.push(next);
       index += 1;
@@ -212,7 +212,7 @@ function takeRepeatedFlagValues(args: string[], name: string): { values: string[
     if (current.startsWith(`${name}=`)) {
       const next = current.slice(`${name}=`.length);
       if (!next) {
-        throw new Error(`Missing value for ${name}`);
+        throw new Error(`缺少 ${name} 的值`);
       }
       values.push(next);
       continue;
@@ -230,12 +230,12 @@ function parseEnvOverrides(values: readonly string[]): Record<string, string> {
     if (!entry) continue;
     const eq = entry.indexOf('=');
     if (eq < 0) {
-      throw new Error(`Invalid --env value (expected KEY=VALUE): ${entry}`);
+      throw new Error(`无效的 --env 值（应为 KEY=VALUE）：${entry}`);
     }
     const key = entry.slice(0, eq).trim();
     const value = entry.slice(eq + 1);
     if (!key) {
-      throw new Error(`Invalid --env value (expected KEY=VALUE): ${entry}`);
+      throw new Error(`无效的 --env 值（应为 KEY=VALUE）：${entry}`);
     }
     env[key] = value;
   }
@@ -267,10 +267,10 @@ function resolveTestFirstPartyPayloadOverride(): Readonly<{ payloadRoot: string;
   if (!payloadRoot) return null;
   const versionId = String(process.env[TEST_FIRST_PARTY_PAYLOAD_VERSION_ID_ENV] ?? '').trim() || 'test';
   if (!existsSync(payloadRoot)) {
-    throw new Error(`Invalid ${TEST_FIRST_PARTY_PAYLOAD_ROOT_ENV}: path does not exist`);
+    throw new Error(`${TEST_FIRST_PARTY_PAYLOAD_ROOT_ENV} 无效：路径不存在`);
   }
   if (!lstatSync(payloadRoot).isDirectory()) {
-    throw new Error(`Invalid ${TEST_FIRST_PARTY_PAYLOAD_ROOT_ENV}: expected a directory`);
+    throw new Error(`${TEST_FIRST_PARTY_PAYLOAD_ROOT_ENV} 无效：应为目录`);
   }
   return { payloadRoot, versionId };
 }
@@ -305,14 +305,14 @@ function resolveLocalServerPayloadOverrideFromBinaryPath(serverBinaryPath: strin
 }> {
   const binaryPath = String(serverBinaryPath ?? '').trim();
   if (!binaryPath || !existsSync(binaryPath)) {
-    throw new Error(`relay binary not found: ${binaryPath || '(empty)'}`);
+    throw new Error(`未找到中继二进制文件：${binaryPath || '（空）'}`);
   }
   const binaryDir = dirname(binaryPath);
   const payloadRoot = basename(binaryDir) === 'bin'
     ? dirname(binaryDir)
     : binaryDir;
   if (!existsSync(payloadRoot) || !lstatSync(payloadRoot).isDirectory()) {
-    throw new Error(`relay payload root not found: ${payloadRoot}`);
+    throw new Error(`未找到中继运行包根目录：${payloadRoot}`);
   }
   return {
     payloadRoot,
@@ -355,7 +355,7 @@ function buildSshArgs(params: Readonly<{
 
   if (params.knownHostsMode === 'app') {
     if (!params.ssh.knownHostsPath) {
-      throw new Error('knownHostsPath is required when using app-managed known hosts');
+      throw new Error('使用应用管理的已知主机时必须提供 knownHostsPath');
     }
     args.push(
       '-o',
@@ -372,7 +372,7 @@ function buildSshArgs(params: Readonly<{
 
   if (params.ssh.auth === 'keyfile') {
     if (!params.ssh.identityFile) {
-      throw new Error('identityFile is required for keyfile auth');
+      throw new Error('使用密钥文件认证时必须提供 identityFile');
     }
     args.push('-i', params.ssh.identityFile);
   }
@@ -411,7 +411,7 @@ function buildScpArgs(params: Readonly<{
 
   if (params.knownHostsMode === 'app') {
     if (!params.ssh.knownHostsPath) {
-      throw new Error('knownHostsPath is required when using app-managed known hosts');
+      throw new Error('使用应用管理的已知主机时必须提供 knownHostsPath');
     }
     args.push(
       '-o',
@@ -428,7 +428,7 @@ function buildScpArgs(params: Readonly<{
 
   if (params.ssh.auth === 'keyfile') {
     if (!params.ssh.identityFile) {
-      throw new Error('identityFile is required for keyfile auth');
+      throw new Error('使用密钥文件认证时必须提供 identityFile');
     }
     args.push('-i', params.ssh.identityFile);
   }
@@ -466,7 +466,7 @@ function buildSshRunner(ssh: SystemTaskSshConnectionConfig) {
     copyLocalDirectoryToRemote: async (localPath: string, remotePath: string) => {
       const result = runCommandCapture('scp', buildScpArgs({ ssh, knownHostsMode, localPath, remotePath }));
       if (result.status !== 0) {
-        throw new Error(result.stderr.trim() || 'SCP failed');
+        throw new Error(result.stderr.trim() || 'SCP 失败');
       }
     },
   };
@@ -482,7 +482,7 @@ function createMemoizedResolveRemoteReleaseTarget(runner: ReturnType<typeof buil
       '"$(uname -m | tr \'[:upper:]\' \'[:lower:]\')"',
     ].join(' '));
     if (result.status !== 0) {
-      const message = result.stderr.trim() || `SSH failed while detecting remote platform (exit ${result.status}).`;
+      const message = result.stderr.trim() || `检测远程平台时 SSH 失败（退出码 ${result.status}）。`;
       throw new Error(message);
     }
     let parsed: { platform?: unknown; arch?: unknown } = {};
@@ -490,7 +490,7 @@ function createMemoizedResolveRemoteReleaseTarget(runner: ReturnType<typeof buil
       parsed = JSON.parse(result.stdout || '{}') as { platform?: unknown; arch?: unknown };
     } catch (error) {
       const suffix = result.stderr.trim();
-      throw new Error(suffix || `Unable to parse remote platform probe output: ${error instanceof Error ? error.message : String(error ?? '')}`);
+      throw new Error(suffix || `无法解析远程平台探测输出：${error instanceof Error ? error.message : String(error ?? '')}`);
     }
     cached = {
       os: normalizeRemoteReleaseOs(parsed.platform),
@@ -509,16 +509,16 @@ function createLocalRelayHostEngine(params: Readonly<{
 }>) {
   return createRelayHostEngine({
     installRemoteComponent: async () => {
-      throw new Error('Remote component installation is not available for local relay host commands.');
+      throw new Error('本地中继主机命令不支持远程组件安装。');
     },
     resolveRemoteReleaseTarget: async () => {
-      throw new Error('Remote target resolution is not available for local relay host commands.');
+      throw new Error('本地中继主机命令不支持解析远程目标。');
     },
     runRemoteText: async () => {
-      throw new Error('Remote execution is not available for local relay host commands.');
+      throw new Error('本地中继主机命令不支持远程执行。');
     },
     copyLocalDirectoryToRemote: async () => {
-      throw new Error('Remote copy is not available for local relay host commands.');
+      throw new Error('本地中继主机命令不支持远程复制。');
     },
     ...(params.resolveLocalInstallVersion ? { resolveLocalInstallVersion: params.resolveLocalInstallVersion } : {}),
   });
@@ -540,7 +540,7 @@ export async function runRelayHostSubcommand(args: string[]): Promise<void> {
   const json = wantsJson(args);
   const op = String(args[0] ?? '').trim();
   if (!op) {
-    throw new Error('Usage: kaiwu relay host <install|status|start|stop|restart|uninstall> [--ssh <user@host>] [--mode user|system] [--channel stable|preview|dev] [--env KEY=VALUE]... [--server-binary <path>] [--lan | --expose | --host <ip>] [--preserve-active-server] [--yes] [--json]');
+    throw new Error('用法：kaiwu relay host <install|status|start|stop|restart|uninstall> [--ssh <user@host>] [--mode user|system] [--channel stable|preview|dev] [--env KEY=VALUE]... [--server-binary <path>] [--lan | --expose | --host <ip>] [--preserve-active-server] [--yes] [--json]');
   }
 
   let rest = args.slice(1);
@@ -580,18 +580,18 @@ export async function runRelayHostSubcommand(args: string[]): Promise<void> {
   rest = jsonFlag.rest;
 
   if (rest.length > 0) {
-    throw createInvalidArgumentsError(`Unknown relay host arguments: ${rest.join(' ')}`);
+    throw createInvalidArgumentsError(`未知的 relay host 参数：${rest.join(' ')}`);
   }
 
   const bindFlagCount = [lanFlag.present, exposeFlag.present, hostFlag.value !== null].filter(Boolean).length;
   if (bindFlagCount > 1) {
-    throw createInvalidArgumentsError('--lan, --expose, and --host are mutually exclusive.');
+    throw createInvalidArgumentsError('--lan、--expose 和 --host 互斥，不能同时使用。');
   }
   if (bindFlagCount > 0 && sshFlag.value) {
-    throw createInvalidArgumentsError('--lan, --expose, and --host cannot be used with --ssh (applies to local installs only).');
+    throw createInvalidArgumentsError('--lan、--expose 和 --host 不能与 --ssh 同时使用（仅适用于本地安装）。');
   }
   if (bindFlagCount > 0 && op !== 'install') {
-    throw createInvalidArgumentsError('--lan, --expose, and --host can only be used with the install subcommand.');
+    throw createInvalidArgumentsError('--lan、--expose 和 --host 只能与 install 子命令一起使用。');
   }
 
   const channel = normalizeChannel(channelFlag.value);
@@ -611,13 +611,13 @@ export async function runRelayHostSubcommand(args: string[]): Promise<void> {
     : null;
 
   if (ssh && !ssh.target) {
-    throw createInvalidArgumentsError('Missing required flag: --ssh <user@host>');
+    throw createInvalidArgumentsError('缺少必填参数：--ssh <user@host>');
   }
   if (serverBinaryFlag.value && selfHostServerBinaryFlag.value) {
-    throw createInvalidArgumentsError('Do not combine --server-binary with --self-host-server-binary.');
+    throw createInvalidArgumentsError('--server-binary 与 --self-host-server-binary 不能同时使用。');
   }
   if (ssh && selfHostServerBinaryFlag.value) {
-    throw createInvalidArgumentsError('Use --server-binary instead of --self-host-server-binary for relay host install over SSH.');
+    throw createInvalidArgumentsError('通过 SSH 安装中继主机时，请使用 --server-binary，不要使用 --self-host-server-binary。');
   }
 
   const taskParams = resolveRelayRuntimeTaskParams({ channel, mode, ssh });
@@ -637,7 +637,7 @@ export async function runRelayHostSubcommand(args: string[]): Promise<void> {
               await runner.copyLocalDirectoryToRemote(localPath, remotePath);
             },
             installRemoteComponent: async () => {
-              throw new Error('Remote component installation is not required for status');
+              throw new Error('查询状态不需要安装远程组件');
             },
           });
         })()
@@ -663,13 +663,13 @@ export async function runRelayHostSubcommand(args: string[]): Promise<void> {
       return;
     }
 
-    console.log(chalk.bold('Relay host status'));
-    console.log(chalk.gray(`  url: ${status.relayUrl ?? '(not installed)'}`));
-    console.log(chalk.gray(`  installed: ${status.installed ? 'yes' : 'no'}`));
-    if (status.version) console.log(chalk.gray(`  version: ${status.version}`));
-    console.log(chalk.gray(`  service: ${status.service.active ? 'running' : 'stopped'}`));
+    console.log(chalk.bold('中继主机状态'));
+    console.log(chalk.gray(`  地址：${status.relayUrl ?? '（未安装）'}`));
+    console.log(chalk.gray(`  已安装：${status.installed ? '是' : '否'}`));
+    if (status.version) console.log(chalk.gray(`  版本：${status.version}`));
+    console.log(chalk.gray(`  服务：${status.service.active ? '运行中' : '已停止'}`));
     for (const warning of status.warnings ?? []) {
-      console.log(chalk.yellow(`  warning: ${warning}`));
+      console.log(chalk.yellow(`  警告：${warning}`));
     }
     return;
   }
@@ -698,27 +698,27 @@ export async function runRelayHostSubcommand(args: string[]): Promise<void> {
     } else if (lanFlag.present) {
       const entries = listCurrentMachineNetworkAddressCandidates().filter((entry) => entry.family === 4);
       if (entries.length === 0) {
-        throw new Error('No LAN/Tailscale network interfaces detected. Use --host <ip> to specify a bind address explicitly.');
+        throw new Error('未检测到 LAN/Tailscale 网络接口。请使用 --host <ip> 明确指定绑定地址。');
       }
       if (entries.length === 1) {
         bindHost = entries[0].address;
-        console.log(chalk.gray(`→ Binding to ${entries[0].label} ${entries[0].address}`));
+        console.log(chalk.gray(`→ 将绑定到 ${entries[0].label} ${entries[0].address}`));
       } else if (isInteractiveTerminal()) {
-        console.log('Multiple network interfaces found. Which one should the relay listen on?\n');
+        console.log('检测到多个网络接口。中继应监听哪一个？\n');
         for (let i = 0; i < entries.length; i++) {
           console.log(`  ${i + 1}) ${entries[i].label}   ${entries[i].address}`);
         }
         console.log('');
-        const answer = await promptInput(`Enter a number (1–${entries.length}): `);
+        const answer = await promptInput(`请输入编号（1–${entries.length}）：`);
         const index = Number(answer.trim()) - 1;
         if (!Number.isInteger(index) || index < 0 || index >= entries.length) {
-          throw new Error(`Invalid selection. Expected a number between 1 and ${entries.length}.`);
+          throw new Error(`选择无效。请输入 1 到 ${entries.length} 之间的数字。`);
         }
         bindHost = entries[index].address;
-        console.log(chalk.gray(`→ Binding to ${entries[index].label} ${bindHost}`));
+        console.log(chalk.gray(`→ 将绑定到 ${entries[index].label} ${bindHost}`));
       } else {
         const list = entries.map((e, i) => `  ${i + 1}) ${e.label}   ${e.address}`).join('\n');
-        throw new Error(`Multiple LAN/Tailscale interfaces detected:\n${list}\nUse --host <ip> to specify one explicitly.`);
+        throw new Error(`检测到多个 LAN/Tailscale 网络接口：\n${list}\n请使用 --host <ip> 明确指定一个。`);
       }
     } else if (hostFlag.value) {
       bindHost = hostFlag.value.trim();
@@ -815,7 +815,7 @@ export async function runRelayHostSubcommand(args: string[]): Promise<void> {
           try {
             const serverBinaryPath = selfHostRelayBinaryOverride || resolveLocalServerBinaryFromPayloadRoot(prepared.payloadRoot);
             if (!serverBinaryPath) {
-              throw new Error('Unable to resolve relay binary (happier-server) from prepared payload.');
+              throw new Error('无法从准备好的运行包中找到中继二进制文件（happier-server）。');
             }
 
             const engine = createLocalRelayHostEngine({
@@ -840,14 +840,14 @@ export async function runRelayHostSubcommand(args: string[]): Promise<void> {
     const payload: RelayHostInstallJson = await result;
 
     if (!json) {
-      console.log(chalk.green('✓ Relay host installed'));
+      console.log(chalk.green('✓ 中继主机已安装'));
       console.log(chalk.gray(`  ${payload.relayUrl}`));
       if (localRelayDataDir && !relayDataDirExistedBeforeInstall) {
         console.log('');
-        console.log(chalk.yellow('  This relay generated a master secret in'));
+        console.log(chalk.yellow('  此中继已在以下位置生成主密钥：'));
         console.log(chalk.gray(`    ${localRelayDataDir}`));
-        console.log(chalk.gray('  It encrypts what the relay stores, is saved nowhere else, and cannot be'));
-        console.log(chalk.gray("  regenerated. Keep it with your backup of the relay's database."));
+        console.log(chalk.gray('  它用于加密中继存储的数据，不会保存到其他位置，也无法重新生成。'));
+        console.log(chalk.gray('  请将它与中继数据库备份一同妥善保存。'));
         console.log('');
       }
 
@@ -910,17 +910,17 @@ export async function runRelayHostSubcommand(args: string[]): Promise<void> {
       });
 
       if (publish.kind === 'conflict') {
-        console.log(chalk.yellow(`  Tailscale ${publish.exposure === 'funnel' ? 'Funnel' : 'Serve'} already uses this HTTPS address.`));
+        console.log(chalk.yellow(`  Tailscale ${publish.exposure === 'funnel' ? 'Funnel' : 'Serve'} 已在使用此 HTTPS 地址。`));
         if (publish.httpsUrl) console.log(chalk.gray(`    ${publish.httpsUrl}`));
-        console.log(chalk.gray('  Existing Tailscale routing was left unchanged.'));
+        console.log(chalk.gray('  现有 Tailscale 路由未修改。'));
       } else if (publish.kind === 'approvalNeeded') {
-        console.log(chalk.yellow('  Your tailnet needs an admin to approve this before the address works:'));
+        console.log(chalk.yellow('  您的 tailnet 需要管理员批准后，此地址才能生效：'));
         console.log(chalk.yellow(`    ${publish.approvalUrl}`));
-        console.log(chalk.gray('  Re-run `kaiwu relay host install` once it is approved.'));
+        console.log(chalk.gray('  获得批准后，请重新运行 `kaiwu relay host install`。'));
       } else if (publish.kind === 'failed') {
         // The relay is installed by now; a Serve failure must not unwind it.
-        console.log(chalk.yellow(`  Could not publish on your tailnet: ${publish.message}`));
-        console.log(chalk.gray('  The relay is installed. You can publish it later with `tailscale serve`.'));
+        console.log(chalk.yellow(`  无法在您的 tailnet 上发布：${publish.message}`));
+        console.log(chalk.gray('  中继已安装。您稍后可以使用 `tailscale serve` 发布它。'));
       }
     }
 
@@ -937,17 +937,17 @@ export async function runRelayHostSubcommand(args: string[]): Promise<void> {
       }
     } else if (reachable?.kind === 'selected') {
       if (reachable.chosenBy === 'default') {
-        console.log(chalk.gray('  Reachable from other devices at:'));
+        console.log(chalk.gray('  其他设备可通过以下地址访问：'));
         for (const candidate of reachable.candidates) {
           console.log(chalk.gray(`    ${candidate.url} (${candidate.label})`));
         }
         if (reachable.rejectedAnswer) {
-          console.log(chalk.yellow(`  Not a usable relay URL: ${reachable.rejectedAnswer}`));
+          console.log(chalk.yellow(`  不是可用的中继地址：${reachable.rejectedAnswer}`));
         }
       }
-      console.log(chalk.gray(`  Using ${reachable.url} as this relay's address.`));
+      console.log(chalk.gray(`  将 ${reachable.url} 作为此中继的访问地址。`));
       if (reachable.chosenBy === 'default') {
-        console.log(chalk.gray('  Run `kaiwu server add` to use a different address.'));
+        console.log(chalk.gray('  如需使用其他地址，请运行 `kaiwu server add`。'));
       }
     }
 
@@ -1000,7 +1000,7 @@ export async function runRelayHostSubcommand(args: string[]): Promise<void> {
               await runner.copyLocalDirectoryToRemote(localPath, remotePath);
             },
             installRemoteComponent: async () => {
-              throw new Error('Remote component installation is not required for control');
+              throw new Error('执行控制操作不需要安装远程组件');
             },
           });
         })()
@@ -1024,14 +1024,14 @@ export async function runRelayHostSubcommand(args: string[]): Promise<void> {
     // Past tense reflects what `launchctl list` / `systemctl status` will
     // report immediately after.
     const verbPastTense: Record<string, string> = {
-      uninstall: 'uninstalled',
-      start: 'started',
-      stop: 'stopped',
-      restart: 'restarted',
+      uninstall: '已卸载',
+      start: '已启动',
+      stop: '已停止',
+      restart: '已重启',
     };
-    console.log(chalk.green(`✓ Relay host ${verbPastTense[op] ?? `${op}ed`}`));
+    console.log(chalk.green(`✓ 中继主机${verbPastTense[op] ?? '操作完成'}`));
     return;
   }
 
-  throw new Error(`Unknown relay host subcommand: ${op}`);
+  throw new Error(`未知的 relay host 子命令：${op}`);
 }

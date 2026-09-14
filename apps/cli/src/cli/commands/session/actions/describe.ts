@@ -20,6 +20,6 @@ export async function cmdSessionActionsDescribe(argv: string[]): Promise<void> {
     return;
   }
 
-  console.log(chalk.green('✓'), 'action described');
+  console.log(chalk.green('✓'), '已获取操作详情');
   await writeJsonStdout(serialized, { pretty: true });
 }

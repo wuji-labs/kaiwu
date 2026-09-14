@@ -95,28 +95,28 @@ export function explainAttachIneligibility(input: Readonly<{
   if (eligibility.reasonCode === 'archived' || eligibility.reasonCode === 'inactive') {
     return {
       category: 'archived_or_inactive',
-      shortReason: eligibility.reasonCode === 'archived' ? 'archived' : 'no longer active',
+      shortReason: eligibility.reasonCode === 'archived' ? '已归档' : '不再活跃',
       fullReason: eligibility.reasonCode === 'archived'
-        ? 'This session is archived and cannot be attached.'
-        : 'This session is no longer active and cannot be attached.',
-      nextStepHint: 'Use `happier resume` to revive a stopped session.',
+        ? '此会话已归档，无法接入。'
+        : '此会话不再处于活跃状态，无法接入。',
+      nextStepHint: '请使用 `kaiwu resume` 恢复已停止的会话。',
     };
   }
 
   if (eligibility.reasonCode === 'metadata_unavailable') {
     return {
       category: 'metadata_unreadable',
-      shortReason: 'metadata cannot be decrypted on this machine',
-      fullReason: 'This CLI cannot decrypt this session\'s metadata on this machine.',
-      nextStepHint: 'Sign in again with the device that originally created the session, or run `happier auth pair-remote`.',
+      shortReason: '无法在此机器上解密元数据',
+      fullReason: '此 CLI 无法在此机器上解密该会话的元数据。',
+      nextStepHint: '请使用最初创建会话的设备重新登录，或运行 `kaiwu auth pair-remote`。',
     };
   }
 
   if (input.agentAttachStrategy === 'unsupported') {
     return {
       category: 'unsupported_agent',
-      shortReason: 'agent does not support attach',
-      fullReason: 'This session\'s agent does not support local terminal attach.',
+      shortReason: 'Agent 不支持接入',
+      fullReason: '此会话的 Agent 不支持本地终端接入。',
     };
   }
 
@@ -133,18 +133,18 @@ export function explainAttachIneligibility(input: Readonly<{
   ) {
     return {
       category: 'windows_hidden',
-      shortReason: 'Windows session was started hidden',
-      fullReason: eligibility.reason ?? 'This Windows session was started hidden and cannot be attached later.',
-      nextStepHint: 'Restart the session with a visible terminal if you need to attach to it later.',
+      shortReason: 'Windows 会话已隐藏启动',
+      fullReason: '此 Windows 会话已隐藏启动，后续无法接入。',
+      nextStepHint: '如需后续接入，请在启动会话时使用可见终端。',
     };
   }
 
   if (terminalMode === 'plain' && input.agentAttachStrategy === 'tmux') {
     return {
       category: 'started_outside_tmux',
-      shortReason: 'started outside tmux',
-      fullReason: 'This session was started outside tmux and can\'t be attached.',
-      nextStepHint: 'Enable "Spawn Sessions in Tmux" in the Kaiwu app → Session Settings, then start a new session.',
+      shortReason: '在 tmux 外部启动',
+      fullReason: '此会话在 tmux 外部启动，无法接入。',
+      nextStepHint: '请在 Kaiwu 应用 → 会话设置中启用“在 tmux 中启动会话”，然后启动新会话。',
     };
   }
 
@@ -155,9 +155,9 @@ export function explainAttachIneligibility(input: Readonly<{
   if (input.agentAttachStrategy === 'tmux' && !input.tmuxAvailable) {
     return {
       category: 'tmux_unavailable',
-      shortReason: 'tmux is not installed on this computer',
-      fullReason: 'tmux is required to attach to this session, but it isn\'t installed on this computer.',
-      nextStepHint: 'Install tmux (e.g. `brew install tmux` on macOS) and retry.',
+      shortReason: '此计算机上未安装 tmux',
+      fullReason: '接入此会话需要 tmux，但此计算机上未安装 tmux。',
+      nextStepHint: '请安装 tmux（例如 macOS 上运行 `brew install tmux`）后重试。',
     };
   }
 
@@ -170,20 +170,20 @@ export function explainAttachIneligibility(input: Readonly<{
     if (sessionHost && input.currentMachineHost && compareMachineHosts(sessionHost, input.currentMachineHost)) {
       return {
         category: 'machine_identity_mismatch',
-        shortReason: 'different Kaiwu machine identity; no terminal attach target',
-        fullReason: 'This session is running on this computer under a different Kaiwu machine identity, but this CLI does not have a tmux target or local attachment marker for it.',
-        nextStepHint: 'Use the same Kaiwu app or daemon that started the session, or start a new tmux-backed session from this CLI profile.',
+        shortReason: 'Kaiwu 机器标识不同；无可用终端接入目标',
+        fullReason: '此会话以不同的 Kaiwu 机器标识在此计算机上运行，但此 CLI 没有对应的 tmux 目标或本地接入标记。',
+        nextStepHint: '请使用启动该会话的同一 Kaiwu 应用或守护进程，或从此 CLI 配置启动新的基于 tmux 的会话。',
       };
     }
 
-    const remoteSuffix = sessionHost ? ` on ${sessionHost}` : '';
+    const remoteSuffix = sessionHost ? `（${sessionHost}）` : '';
     return {
       category: 'remote_machine',
-      shortReason: `running on another machine${remoteSuffix ? ` (${sessionHost})` : ''}`,
+      shortReason: `正在另一台机器上运行${remoteSuffix}`,
       fullReason: sessionHost
-        ? `This session is running${remoteSuffix} and can't be attached from this computer.`
-        : 'Session belongs to another machine and cannot be attached from this computer.',
-      nextStepHint: 'Switch to that machine, or use `happier session list --active` to see all running sessions.',
+        ? `此会话正在 ${sessionHost} 上运行，无法从此计算机接入。`
+        : '会话属于另一台机器，无法从此计算机接入。',
+      nextStepHint: '请切换到该机器，或使用 `kaiwu session list --active` 查看所有正在运行的会话。',
     };
   }
 
@@ -195,9 +195,9 @@ export function explainAttachIneligibility(input: Readonly<{
     if (sessionHost && !compareMachineHosts(sessionHost, input.currentMachineHost)) {
       return {
         category: 'remote_machine',
-        shortReason: `running on ${sessionHost}`,
-        fullReason: `This session is running on ${sessionHost} and can't be attached from this computer.`,
-        nextStepHint: 'Switch to that machine, or use `happier session list --active` to see all running sessions.',
+        shortReason: `正在 ${sessionHost} 上运行`,
+        fullReason: `此会话正在 ${sessionHost} 上运行，无法从此计算机接入。`,
+        nextStepHint: '请切换到该机器，或使用 `kaiwu session list --active` 查看所有正在运行的会话。',
       };
     }
   }
@@ -206,9 +206,9 @@ export function explainAttachIneligibility(input: Readonly<{
   // session_machine_unknown, provider_attach_unavailable, terminal_not_attachable.
   return {
     category: 'no_local_state',
-    shortReason: 'attachment state not available on this computer',
-    fullReason: eligibility.reason ?? 'No local attachment state is available for this session on this computer.',
-    nextStepHint: 'Start the daemon with `happier daemon start` and retry, or attach from the original terminal.',
+    shortReason: '此计算机上无可用接入状态',
+    fullReason: '此计算机上没有该会话的本地接入状态。',
+    nextStepHint: '请使用 `kaiwu daemon start` 启动守护进程并重试，或从原始终端接入。',
   };
 }
 

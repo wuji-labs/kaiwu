@@ -24,7 +24,9 @@ export async function runMcpServeCommand(
   const defaultSessionId = readFlagValue(argv, '--session');
   const credentials = await deps.readCredentials();
   if (!credentials) {
-    throw new Error('not_authenticated');
+    const error = new Error('尚未登录。请先运行 "kaiwu auth login"。') as Error & { code?: string };
+    error.code = 'not_authenticated';
+    throw error;
   }
 
   await deps.ensureMachineIdForCredentials(credentials);

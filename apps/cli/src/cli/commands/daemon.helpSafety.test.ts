@@ -101,7 +101,7 @@ describe('happier daemon help safety', () => {
       });
 
       expect(output.text()).toContain('kaiwu daemon');
-      expect(output.text()).toContain('Usage:');
+      expect(output.text()).toContain('用法:');
       for (const mock of Object.values(sideEffects)) {
         expect(mock).not.toHaveBeenCalled();
       }

@@ -2,15 +2,8 @@ import { accessSync, constants, existsSync, statSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 
 import { commandExistsInPath } from '@/daemon/service/commandExistsInPath';
-import { resolveProviderCliCommand } from '@/runtime/managedTools/providerCliResolution';
 import { resolveWindowsCommandInvocation } from '@happier-dev/cli-common/process';
-import { resolveCodexOverrideCommand } from '@/backends/codex/utils/resolveCodexCliInvocation';
-
-const CODEX_APP_SERVER_OVERRIDE_KEYS = [
-  'HAPPIER_CODEX_APP_SERVER_BIN',
-  'HAPPIER_CODEX_TUI_BIN',
-  'HAPPY_CODEX_TUI_BIN',
-] as const;
+import { resolveCodexAppServerCommand } from '@/backends/codex/utils/resolveCodexCliInvocation';
 
 function looksLikeFilePath(command: string): boolean {
   return command.includes('/') || command.includes('\\') || command.startsWith('.');
@@ -47,36 +40,26 @@ export function probeCodexAppServerExecutionRunAvailability(opts: Readonly<{
 }> = {}): boolean {
   const env = opts.env ?? process.env;
   const cwd = opts.cwd ?? process.cwd();
-  const rawOverrideCommand = resolveCodexOverrideCommand(env, CODEX_APP_SERVER_OVERRIDE_KEYS, cwd);
-  const overrideCommand = rawOverrideCommand
-    ?? (() => {
-      for (const key of CODEX_APP_SERVER_OVERRIDE_KEYS) {
-        const value = typeof env[key] === 'string' ? env[key].trim() : '';
-        if (value) return value;
-      }
-      return null;
-    })();
-  if (overrideCommand) {
-    const exists = looksLikeFilePath(overrideCommand)
-      ? (() => {
-          try {
-            if (!existsSync(overrideCommand)) return false;
-            const stats = statSync(overrideCommand);
-            if (!stats.isFile()) return false;
-            accessSync(overrideCommand, constants.X_OK);
-            return true;
-          } catch {
-            return false;
-          }
-        })()
-      : commandExistsInPath({
-          cmd: overrideCommand,
-          envPath: env.PATH,
-          platform: process.platform,
-          pathext: env.PATHEXT,
-        });
-    return exists && supportsAppServerSubcommand(overrideCommand, env);
-  }
-  const resolved = resolveProviderCliCommand('codex', { processEnv: env });
-  return resolved !== null && supportsAppServerSubcommand(resolved.command, env);
+  const command = resolveCodexAppServerCommand(env, cwd);
+  if (!command) return false;
+
+  const exists = looksLikeFilePath(command)
+    ? (() => {
+        try {
+          if (!existsSync(command)) return false;
+          const stats = statSync(command);
+          if (!stats.isFile()) return false;
+          accessSync(command, constants.X_OK);
+          return true;
+        } catch {
+          return false;
+        }
+      })()
+    : commandExistsInPath({
+        cmd: command,
+        envPath: env.PATH,
+        platform: process.platform,
+        pathext: env.PATHEXT,
+      });
+  return exists && supportsAppServerSubcommand(command, env);
 }

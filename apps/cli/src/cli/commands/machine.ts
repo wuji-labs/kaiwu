@@ -82,7 +82,7 @@ function takeFlagValue(args: string[], name: string): { value: string | null; re
     if (current === name) {
       const next = String(args[index + 1] ?? '');
       if (!next || next.startsWith('--')) {
-        throw new Error(`Missing value for ${name}`);
+        throw new Error(`缺少 ${name} 的值`);
       }
       value = next;
       index += 1;
@@ -91,7 +91,7 @@ function takeFlagValue(args: string[], name: string): { value: string | null; re
     if (current.startsWith(`${name}=`)) {
       const next = current.slice(`${name}=`.length);
       if (!next) {
-        throw new Error(`Missing value for ${name}`);
+        throw new Error(`缺少 ${name} 的值`);
       }
       value = next;
       continue;
@@ -147,7 +147,7 @@ function buildMachineSetupSpec(params: Readonly<{
   const ssh = takeFlagValue(args, '--ssh');
   args = ssh.rest;
   if (!ssh.value) {
-    throw new Error('Missing required flag: --ssh <user@host>');
+    throw new Error('缺少必填参数：--ssh <user@host>');
   }
 
   const identityFile = takeFlagValue(args, '--identity-file');
@@ -165,7 +165,7 @@ function buildMachineSetupSpec(params: Readonly<{
   const installRelayRuntime = takeFlag(args, '--install-relay-runtime');
   args = installRelayRuntime.rest;
   if (args.length > 0) {
-    throw new Error(`Unknown machine setup arguments: ${args.join(' ')}`);
+    throw new Error(`未知的 machine setup 参数：${args.join(' ')}`);
   }
 
   const usesKeyfileAuth = Boolean(identityFile.value && identityFile.value.trim());
@@ -213,23 +213,23 @@ function formatPromptMessage(prompt: Readonly<{ kind: string; data: SystemTaskJs
     const fingerprint = typeof prompt.data.fingerprint === 'string' ? prompt.data.fingerprint : '';
     const existingFingerprint = typeof prompt.data.existingFingerprint === 'string' ? prompt.data.existingFingerprint : '';
     return [
-      fallbackMessage || 'Trust remote SSH host key?',
-      host ? `Host: ${host}` : '',
-      keyType ? `Key type: ${keyType}` : '',
-      fingerprint ? `Fingerprint: ${fingerprint}` : '',
-      existingFingerprint ? `Existing fingerprint: ${existingFingerprint}` : '',
+      fallbackMessage || '是否信任远程 SSH 主机密钥？',
+      host ? `主机：${host}` : '',
+      keyType ? `密钥类型：${keyType}` : '',
+      fingerprint ? `指纹：${fingerprint}` : '',
+      existingFingerprint ? `现有指纹：${existingFingerprint}` : '',
     ].filter(Boolean).join('\n');
   }
 
   if (prompt.kind === 'auth.approveRemoteProvisioning') {
     const publicKey = typeof prompt.data.publicKey === 'string' ? prompt.data.publicKey : '';
     return [
-      fallbackMessage || 'Approve remote machine pairing?',
-      publicKey ? `Public key: ${publicKey}` : '',
+      fallbackMessage || '是否批准远程机器配对？',
+      publicKey ? `公钥：${publicKey}` : '',
     ].filter(Boolean).join('\n');
   }
 
-  return fallbackMessage || `Task requires input: ${prompt.kind}`;
+  return fallbackMessage || `任务需要输入：${prompt.kind}`;
 }
 
 function formatRemoteBackgroundServicePrompt(prompt: Readonly<{ kind: string; data: SystemTaskJsonObject }>, fallbackMessage = ''): string | null {
@@ -292,22 +292,22 @@ async function resolvePromptAnswer(params: Readonly<{
   }
 
   if (!params.interactive) {
-    throw new Error('Non-interactive mode requires --yes for setup prompts.');
+    throw new Error('非交互模式下，设置提示必须使用 --yes。');
   }
 
   if (params.prompt.kind === 'ssh.trustHost' || params.prompt.kind === 'ssh.replaceHostKey') {
-    const answer = await params.promptInput(`${params.message}\nTrust this host key? [y/N]: `);
+    const answer = await params.promptInput(`${params.message}\n信任此主机密钥吗？[y/N]：`);
     return { trusted: /^y(?:es)?$/i.test(answer.trim()) };
   }
   if (params.prompt.kind === 'auth.approveRemoteProvisioning') {
-    const answer = await params.promptInput(`${params.message}\nApprove pairing? [Y/n]: `);
+    const answer = await params.promptInput(`${params.message}\n批准配对吗？[Y/n]：`);
     return { approved: !/^n(?:o)?$/i.test(answer.trim()) };
   }
   if (params.prompt.kind === 'daemon.replaceRemoteBackgroundServices') {
-    const answer = await params.promptInput(`${params.message}\nReplace existing background services? [Y/n]: `);
+    const answer = await params.promptInput(`${params.message}\n替换现有后台服务吗？[Y/n]：`);
     return { replaceExistingServices: !/^n(?:o)?$/i.test(answer.trim()) };
   }
-  await params.promptInput(`${params.message}\nPress Enter to continue...`);
+  await params.promptInput(`${params.message}\n按回车键继续……`);
   return {};
 }
 
@@ -408,15 +408,15 @@ async function runSetupSubcommand(argsRaw: string[], deps: MachineCommandDeps): 
         machineId?: unknown;
         relayRuntime?: { relayUrl?: unknown } | null;
       };
-      console.log(chalk.green('Remote machine ready.'));
+      console.log(chalk.green('远程机器已就绪。'));
       if (typeof data.machineId === 'string' && data.machineId.trim()) {
-        console.log(`Machine ID: ${data.machineId.trim()}`);
+        console.log(`机器 ID：${data.machineId.trim()}`);
       }
       const relayRuntimeUrl = typeof data.relayRuntime?.relayUrl === 'string'
         ? data.relayRuntime.relayUrl.trim()
         : '';
       if (relayRuntimeUrl) {
-        console.log(`Remote relay URL: ${relayRuntimeUrl}`);
+        console.log(`远程中继地址：${relayRuntimeUrl}`);
       }
       return;
     }
@@ -440,7 +440,7 @@ export async function handleMachineCommand(args: string[], deps: Partial<Machine
     }
 
     if (subcommand !== 'setup') {
-      throw new Error(`Unknown machine subcommand: ${subcommand}`);
+      throw new Error(`未知的 machine 子命令：${subcommand}`);
     }
 
     await runSetupSubcommand(args.slice(1), effectiveDeps);
@@ -458,7 +458,7 @@ export async function handleMachineCommand(args: string[], deps: Partial<Machine
       return;
     }
 
-    console.error(chalk.red('Error:'), error instanceof Error ? error.message : 'Unknown error');
+    console.error(chalk.red('错误：'), error instanceof Error ? error.message : '未知错误');
     showMachineHelp();
     if (process.env.DEBUG) {
       console.error(error);

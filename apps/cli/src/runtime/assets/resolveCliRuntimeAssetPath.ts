@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 
 import { projectPath, projectPathFromModuleUrl } from '@/projectPath';
@@ -58,6 +59,12 @@ export function resolveCliRuntimeRootPath(
 ): string {
   const installedCliRuntimeRoot = resolveInstalledCliRuntimeRootPath(execPath);
   if (installedCliRuntimeRoot) {
+    if (!existsSync(installedCliRuntimeRoot)) {
+      const normalizedExecPath = normalizePathLike(execPath);
+      if (isSelfContainedCliBinary(normalizedExecPath)) {
+        return dirname(normalizedExecPath);
+      }
+    }
     return installedCliRuntimeRoot;
   }
 

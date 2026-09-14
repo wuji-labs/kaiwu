@@ -30,9 +30,8 @@ export async function cmdMcpServersDetect(
     return;
   }
 
-  console.log(chalk.gray(`Detected MCP servers: ${detected.servers.length}`));
+  console.log(chalk.gray(`检测到的 MCP 服务器：${detected.servers.length}`));
   for (const server of detected.servers) {
     console.log(`- ${server.provider}:${server.name} (${server.transport})`);
   }
 }
-

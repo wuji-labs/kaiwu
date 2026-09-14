@@ -9,30 +9,30 @@ import { readProfilesFromAccountSettings } from '@/settings/profiles/readProfile
 import { mapProfileToListItem, type ProfilesListItem } from '@/settings/profiles/profileListProjection';
 
 function printProfilesHuman(profiles: ReadonlyArray<ProfilesListItem>, authenticated: boolean): void {
-  console.log(chalk.bold(`Backend profiles (${profiles.length})`));
+  console.log(chalk.bold(`智能体后端配置（${profiles.length}）`));
   for (const profile of profiles) {
-    const suffix = profile.isBuiltIn ? chalk.gray('built-in') : chalk.cyan('custom');
+    const suffix = profile.isBuiltIn ? chalk.gray('内置') : chalk.cyan('自定义');
     console.log(`- ${chalk.bold(profile.id)} (${profile.name}) ${chalk.gray(`[${suffix}]`)}`);
     if (profile.description) console.log(`  ${profile.description}`);
     if (profile.supportedAgentIds.length > 0) {
-      console.log(`  Agents: ${profile.supportedAgentIds.join(', ')}`);
+      console.log(`  智能体：${profile.supportedAgentIds.join(', ')}`);
     }
     if (profile.requiredSecretEnvVarNames.length > 0) {
-      console.log(`  Required secrets: ${profile.requiredSecretEnvVarNames.join(', ')}`);
+      console.log(`  必需密钥：${profile.requiredSecretEnvVarNames.join(', ')}`);
     }
     if (profile.requiredConfigEnvVarNames.length > 0) {
-      console.log(`  Required config: ${profile.requiredConfigEnvVarNames.join(', ')}`);
+      console.log(`  必需配置：${profile.requiredConfigEnvVarNames.join(', ')}`);
     }
     if (profile.requiresMachineLoginTargetKey) {
-      console.log(`  Requires machine login target: ${profile.requiresMachineLoginTargetKey}`);
+      console.log(`  必需机器登录目标：${profile.requiresMachineLoginTargetKey}`);
     }
     if (profile.requiresMachineLogin) {
-      console.log(`  Requires machine login: ${profile.requiresMachineLogin}`);
+      console.log(`  必需机器登录：${profile.requiresMachineLogin}`);
     }
   }
 
   if (!authenticated) {
-    console.log(chalk.gray('Log in to see custom profiles.'));
+    console.log(chalk.gray('登录后才能查看自定义配置。'));
   }
 }
 

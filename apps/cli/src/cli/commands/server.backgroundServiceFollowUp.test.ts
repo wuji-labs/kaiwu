@@ -306,7 +306,7 @@ describe('happier server background service follow-up', () => {
             await handleServerCommand(['use', serverB.id]);
 
             expect(promptQuestions).toEqual([
-                'Authenticate Happier against https://b.example.test now? [Y/n]: ',
+                'Authenticate Kaiwu against https://b.example.test now? [Y/n]: ',
             ]);
             expect(spawnHappyCLIMock).toHaveBeenNthCalledWith(1, ['auth', 'login'], expect.objectContaining({
                 stdio: 'inherit',
@@ -455,7 +455,7 @@ describe('happier server background service follow-up', () => {
             expect(spawnHappyCLIMock).not.toHaveBeenCalled();
             expect(axiosGetMock).toHaveBeenCalledTimes(1);
             const out = output.logs.join('\n');
-            expect(out).toContain('Authenticate Happier against https://b.example.test and then restart the background service so it follows that server:');
+            expect(out).toContain('Authenticate Kaiwu against https://b.example.test and then restart the background service so it follows that server:');
             expect(out).toContain('kaiwu auth login');
             expect(out).toContain('kaiwu service restart');
         } finally {
@@ -536,7 +536,7 @@ describe('happier server background service follow-up', () => {
 
             expect(spawnHappyCLIMock).not.toHaveBeenCalled();
             expect(output.logs.join('\n')).toContain('Multiple default-following background services are installed');
-            expect(output.logs.join('\n')).toContain('sudo happier doctor repair --yes');
+            expect(output.logs.join('\n')).toContain('sudo kaiwu doctor repair --yes');
         } finally {
             output.restore();
             if (previousHome === undefined) delete process.env.HAPPIER_HOME_DIR;
@@ -662,7 +662,7 @@ describe('happier server background service follow-up', () => {
         });
 
         expect(runCliAction).not.toHaveBeenCalled();
-        expect(output.join('\n')).toContain('missing Happier home metadata');
+        expect(output.join('\n')).toContain('missing Kaiwu home metadata');
         expect(output.join('\n')).toContain('kaiwu doctor repair --yes');
     });
 
@@ -724,6 +724,22 @@ describe('happier server background service follow-up', () => {
 
         expect(runCliAction).toHaveBeenCalledTimes(1);
         expect(runCliAction).toHaveBeenCalledWith(['service', 'restart', '--mode', 'system']);
+        expect(promptQuestions).toEqual([]);
+    });
+
+    it('installs the default-following service after authentication when none exists', async () => {
+        const { reconcileDefaultFollowingBackgroundServicesAfterAuthentication } =
+            await import('./backgroundServiceFollowUp');
+        const runCliAction = vi.fn(async () => undefined);
+
+        await expect(reconcileDefaultFollowingBackgroundServicesAfterAuthentication({
+            services: [],
+            runCliAction,
+            log: vi.fn(),
+        })).resolves.toBe(true);
+
+        expect(runCliAction).toHaveBeenCalledTimes(1);
+        expect(runCliAction).toHaveBeenCalledWith(['doctor', 'repair', '--yes']);
         expect(promptQuestions).toEqual([]);
     });
 

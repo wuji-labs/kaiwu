@@ -58,6 +58,7 @@ describe('happier attach', () => {
       readSettingsFn: async (): Promise<Settings> => ({ machineId: 'machine-local' } as Settings),
       fetchSessionByIdFn: async () => rawSession,
       readTerminalAttachmentInfoFn: async () => null,
+      isTmuxAvailableFn: async () => true,
       runProviderAttachFn: vi.fn(async () => false),
       runTmuxAttachFn: vi.fn(async () => 0),
     })).rejects.toThrow('process.exit(1)');
@@ -763,5 +764,35 @@ describe('happier attach', () => {
 
     expect(errorSpy).toHaveBeenCalledWith(expect.anything(), 'This Windows session was started hidden and cannot be attached later.');
     errorSpy.mockRestore();
+  });
+
+  it('prints error and usage in Simplified Chinese when session ID is missing or empty', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    try {
+      await expect((handleAttachCommand as any)([''], {
+        canUseInkSelectorFn: () => false,
+      })).rejects.toThrow('process.exit(1)');
+
+      expect(errorSpy).toHaveBeenCalledWith(expect.anything(), '交互式接入不可用（不支持原始 TTY 模式）。');
+      const logs = logSpy.mock.calls.flat().join('\n');
+      expect(logs).toContain('提示：请先运行 `kaiwu session list --active`，然后运行 `kaiwu attach <session-id>`。');
+    } finally {
+      errorSpy.mockRestore();
+      logSpy.mockRestore();
+    }
+  });
+
+  it('prints localized help for attach --help', async () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    try {
+      await (handleAttachCommand as any)(['--help']);
+      const logs = logSpy.mock.calls.flat().join('\n');
+      expect(logs).toContain('kaiwu attach');
+      expect(logs).toContain('将终端接入此计算机上正在运行的会话。');
+    } finally {
+      logSpy.mockRestore();
+    }
   });
 });

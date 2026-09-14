@@ -225,6 +225,7 @@ describe('executionRunBackendFactory (codex)', () => {
     const appServerCalls: Array<Record<string, unknown>> = [];
 
     vi.stubEnv('HAPPIER_CODEX_APP_SERVER_BIN', '/tmp/fake-codex-app-server');
+    vi.stubEnv('KAIWU_CODEX_APP_SERVER_BIN', '/tmp/fake-kaiwu-codex-app-server');
     vi.stubEnv('HAPPIER_CODEX_EXECUTION_RUN_TRANSPORT', 'appServer');
     vi.stubEnv('HAPPIER_CODEX_APP_SERVER_RPC_TIMEOUT_MS', '1234');
 
@@ -255,6 +256,7 @@ describe('executionRunBackendFactory (codex)', () => {
 
     expect(appServerCalls).toHaveLength(1);
     expect(appServerCalls[0]?.env).toMatchObject({
+      KAIWU_CODEX_APP_SERVER_BIN: '/tmp/fake-kaiwu-codex-app-server',
       HAPPIER_CODEX_APP_SERVER_BIN: '/tmp/fake-codex-app-server',
       HAPPIER_CODEX_EXECUTION_RUN_TRANSPORT: 'appServer',
       HAPPIER_CODEX_APP_SERVER_RPC_TIMEOUT_MS: '1234',

@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
@@ -19,6 +19,52 @@ import {
 } from '../testkit/fakeCodexAppServer';
 
 describe('createCodexAppServerClient', () => {
+    it('uses the provider Codex entrypoint instead of a TUI shim for app-server startup', async () => {
+        await withTempDir('happier-codex-app-server-client-tui-shim-', async (root) => {
+            const fakeAppServer = await writeFakeCodexAppServerScript({
+                dir: root,
+                bodyLines: [
+                    'for await (const line of rl) {',
+                    '  if (!line.trim()) continue;',
+                    '  const msg = JSON.parse(line);',
+                    '  if (msg.method === "initialize") {',
+                    '    process.stdout.write(JSON.stringify({ id: msg.id, result: { serverInfo: { name: "fake", version: "0.0.0" } } }) + "\\n");',
+                    '    continue;',
+                    '  }',
+                    '  if (msg.method === "initialized") continue;',
+                    '  if (msg.method === "state/read") {',
+                    '    process.stdout.write(JSON.stringify({ id: msg.id, result: { ok: true } }) + "\\n");',
+                    '    continue;',
+                    '  }',
+                    '}',
+                ],
+            });
+            const tuiShim = join(root, process.platform === 'win32' ? 'codex-tui.cmd' : 'codex-tui');
+            await writeFile(
+                tuiShim,
+                process.platform === 'win32' ? '@echo off\r\nexit /b 2\r\n' : '#!/bin/sh\nexit 2\n',
+                'utf8',
+            );
+            if (process.platform !== 'win32') await chmod(tuiShim, 0o755);
+
+            const client = await createCodexAppServerClient({
+                processEnv: createCodexAppServerProcessEnv(fakeAppServer, {
+                    KAIWU_CODEX_APP_SERVER_BIN: fakeAppServer,
+                    HAPPIER_CODEX_APP_SERVER_BIN: undefined,
+                    HAPPIER_CODEX_TUI_BIN: tuiShim,
+                    HAPPY_CODEX_TUI_BIN: undefined,
+                    HAPPIER_CODEX_PATH: undefined,
+                }),
+            });
+
+            try {
+                await expect(client.request('state/read')).resolves.toEqual({ ok: true });
+            } finally {
+                await client.dispose();
+            }
+        });
+    });
+
     it('terminates the complete app-server process tree when disposed', async () => {
         await withTempDir('happier-codex-app-server-client-process-tree-', async (root) => {
             const fakeAppServer = await writeFakeCodexAppServerScript({
@@ -114,7 +160,7 @@ describe('createCodexAppServerClient', () => {
                     initializeParams: {
                         clientInfo: {
                             name: 'happier_cli',
-                            title: 'Happier',
+                            title: 'Kaiwu',
                             version: '0.1.0',
                         },
                         capabilities: {
@@ -364,10 +410,16 @@ describe('createCodexAppServerClient', () => {
             });
 
             const pending = client.request('slow/request');
-            const pendingExpectation = expect(pending).rejects.toThrow('disposed');
+            const pendingResult = pending.then(
+                () => ({ ok: true as const }),
+                (error) => ({ ok: false as const, error }),
+            );
             await client.dispose();
 
-            await pendingExpectation;
+            await expect(pendingResult).resolves.toMatchObject({
+                ok: false,
+                error: expect.objectContaining({ message: expect.stringContaining('disposed') }),
+            });
             await expect(client.request('slow/request')).rejects.toThrow('disposed');
             await expect(client.notify('client/trigger')).rejects.toThrow('disposed');
             await expect(client.dispose()).resolves.toBeUndefined();
@@ -401,9 +453,16 @@ describe('createCodexAppServerClient', () => {
                     timeoutMs: null,
                     signal: controller.signal,
                 });
+                const pendingResult = pending.then(
+                    () => ({ ok: true as const }),
+                    (error) => ({ ok: false as const, error }),
+                );
                 controller.abort();
 
-                await expect(pending).rejects.toMatchObject({ name: 'AbortError' });
+                await expect(pendingResult).resolves.toMatchObject({
+                    ok: false,
+                    error: expect.objectContaining({ name: 'AbortError' }),
+                });
             } finally {
                 await client.dispose();
             }

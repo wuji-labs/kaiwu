@@ -13,7 +13,7 @@ export async function cmdSessionActionsList(argv: string[]): Promise<void> {
     return;
   }
 
-  console.log(chalk.green('✓'), 'actions listed');
+  console.log(chalk.green('✓'), '已列出可用操作');
   for (const spec of listActionSpecs()) {
     console.log(`- ${spec.id}: ${spec.title}`);
   }

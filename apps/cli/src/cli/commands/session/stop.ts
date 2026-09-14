@@ -23,7 +23,7 @@ export async function cmdSessionStop(
       await printJsonEnvelope({ ok: false, kind: 'session_stop', error: { code: 'not_authenticated' } });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
+    console.error(chalk.red('错误:'), '未认证。请先运行 "kaiwu auth login"。');
     process.exit(1);
   }
 
@@ -64,7 +64,7 @@ export async function cmdSessionStop(
   }
 
   if (result.stopped) {
-    console.log(chalk.green('✓'), 'session stopped');
+    console.log(chalk.green('✓'), '会话已停止');
     return;
   }
 
@@ -72,19 +72,19 @@ export async function cmdSessionStop(
   // this state it fell through to "stop could not be confirmed", which told the
   // user an already-stopped Session was indeterminate.
   if (result.stopOutcome?.status === 'already_stopped') {
-    console.log(chalk.green('✓'), 'session already stopped');
+    console.log(chalk.green('✓'), '会话已处于停止状态');
     return;
   }
 
   if (result.stopOutcome?.status === 'stopped_projection_unconfirmed') {
-    console.log(chalk.yellow('!'), 'session stopped; status update not yet observed');
+    console.log(chalk.yellow('!'), '会话已停止；尚未观察到状态更新');
     return;
   }
 
   if (result.stopOutcome?.status === 'stopped_cleanup_incomplete') {
-    console.log(chalk.yellow('!'), 'session stopped; local cleanup could not be completed');
+    console.log(chalk.yellow('!'), '会话已停止；本地清理未能完成');
     return;
   }
 
-  console.log(chalk.yellow('!'), 'stop could not be confirmed');
+  console.log(chalk.yellow('!'), '无法确认停止状态');
 }

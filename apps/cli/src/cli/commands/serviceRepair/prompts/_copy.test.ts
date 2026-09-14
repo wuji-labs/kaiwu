@@ -6,14 +6,22 @@ import type {
   AutomaticStartupEntry,
   AutomaticStartupLaneMismatch,
   AutomaticStartupLegacyPinnedCurrentServer,
+  AutomaticStartupMissing,
+  NoActiveStackYet,
 } from '@/diagnostics/doctorRepair';
 
 import {
+  CLEAN_STATE_HEADER,
+  confirmBackgroundServiceRestarted,
+  confirmDaemonRestarted,
   copyAuthExpiredForActiveProfile,
   copyAuthMissingForProfile,
   copyLaneMismatch,
   copyLegacyPinnedCurrentServer,
   copyNoServersConfigured,
+  findingHeadline,
+  MISMATCHED_STATE_HEADER,
+  recapNothingToDo,
 } from './_copy';
 
 function makeEntry(
@@ -40,6 +48,32 @@ function makeEntry(
 }
 
 describe('serviceRepair prompt copy', () => {
+  it('renders localized headers, headlines, and recaps in natural simplified Chinese', () => {
+    expect(CLEAN_STATE_HEADER).toContain('Kaiwu 安装状态良好');
+    expect(MISMATCHED_STATE_HEADER).toContain('Kaiwu 配置可能需要处理');
+
+    const noStackFinding: NoActiveStackYet = {
+      kind: 'no_active_stack_yet',
+      severity: 'info',
+      autoApplyWithoutPrompt: false,
+      releaseChannel: 'stable',
+    };
+    expect(findingHeadline(noStackFinding)).toBe('尚无运行中的 Kaiwu 服务栈 — 启动一个即可开始使用 Kaiwu');
+
+    const missingFinding: AutomaticStartupMissing = {
+      kind: 'automatic_startup_missing',
+      severity: 'warning',
+      autoApplyWithoutPrompt: false,
+      targetReleaseChannel: 'stable',
+      preferredMode: 'user',
+    };
+    expect(findingHeadline(missingFinding)).toBe('未配置开机自启后台服务');
+
+    expect(recapNothingToDo('kaiwu')).toBe('全部完成。随时可以安全地重新运行 `kaiwu doctor repair`。');
+    expect(confirmBackgroundServiceRestarted()).toBe(' ✔ 后台服务已重启。');
+    expect(confirmDaemonRestarted(1234)).toBe(' ✔ 守护进程已重启（pid 1234）。');
+  });
+
   it('mentions the selected channel in lane-mismatch move question', () => {
     const finding: AutomaticStartupLaneMismatch = {
       kind: 'automatic_startup_lane_mismatch',
@@ -49,9 +83,9 @@ describe('serviceRepair prompt copy', () => {
       targetReleaseChannel: 'dev',
     };
     const copy = copyLaneMismatch(finding, { releaseChannel: 'dev', version: '0.2.6-dev.2.1' });
-    expect(copy.question).toBe('Move the auto-starting background service to the dev channel?');
-    expect(copy.body).toContain('CLI you just installed:      dev • 0.2.6-dev.2.1');
-    expect(copy.body).toContain('Auto-starting service is on: preview • 0.2.6-preview.1.1');
+    expect(copy.question).toBe('是否将自动启动的后台服务切换到 dev 频道？');
+    expect(copy.body).toContain('刚安装的 CLI:           dev • 0.2.6-dev.2.1');
+    expect(copy.body).toContain('自动启动服务当前位于:   preview • 0.2.6-preview.1.1');
   });
 
   it('explains default-following and includes channel in legacy-pinned question', () => {
@@ -66,12 +100,12 @@ describe('serviceRepair prompt copy', () => {
       version: '0.2.6-dev.2.1',
     });
     expect(copy.question).toBe(
-      'Switch this auto-starting background service to the default-following setup on dev?',
+      '是否将此自动启动后台服务切换为 dev 上的跟随默认配置？',
     );
-    expect(copy.body).toContain('The current recommendation is a dynamic (default-following) setup that follows');
-    expect(copy.body).toContain("whichever server you're using, so you don't have to reinstall it when you switch servers.");
-    expect(copy.body).toContain('CLI you just installed:      dev • 0.2.6-dev.2.1');
-    expect(copy.body).toContain('Auto-starting service is on: preview • 0.2.6-preview.1.1');
+    expect(copy.body).toContain('当前推荐使用动态配置（跟随默认设置），自动跟随当前使用的服务器，');
+    expect(copy.body).toContain('这样在切换服务器时无需重新安装。');
+    expect(copy.body).toContain('刚安装的 CLI:           dev • 0.2.6-dev.2.1');
+    expect(copy.body).toContain('自动启动服务当前位于:   preview • 0.2.6-preview.1.1');
   });
 
   it('prints an executable sign-in command for an expired active profile', () => {

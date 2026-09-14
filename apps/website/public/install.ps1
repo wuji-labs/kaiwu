@@ -1,2571 +1,294 @@
-# PositionalBinding=$false: without it the [string] parameters below bind
-# positionally and silently swallow -Run arguments (e.g. `-Run setup-relay
-# --flag` set $Channel to '--flag'), so $RunArgs never received them.
-[CmdletBinding(PositionalBinding = $false)]
+& {
+# 无极开物 CLI 官方极速安装脚本 (Windows)
+# WUJI-Labs · 乾元执中
+#
+# 特性：
+# 1. 纯原生绿色免安装单文件架构：内置所有 runtime 与本地模型调度依赖，无需 Node.js、npm 或 C++ 编译环境。
+# 2. 全程走国内腾讯云上海 BGP 对象存储高速通道，数秒极速完成。
+# 3. 自动解压至 ~/.kaiwu/bin，并注册系统用户 PATH 环境变量（永久生效）。
+# 4. 自动持久化配置无极开物中继服务端 (KAIWU_SERVER_URL / HAPPIER_SERVER_URL)。
+# 5. 同时提供 kaiwu 与 happier 双命令别名，完全无缝兼容。
+
+[CmdletBinding()]
 param(
-  [string] $Channel = $(if ($env:Kaiwu_CHANNEL) { $env:Kaiwu_CHANNEL } else { "stable" }),
-  [string] $Version = $(if ($env:Kaiwu_INSTALL_VERSION) { $env:Kaiwu_INSTALL_VERSION } else { "" }),
-  [switch] $SetupRelay,
-  [switch] $Rollback,
-  [switch] $WithDaemon,
-  [switch] $WithoutDaemon,
-  [string] $Run = $(if ($env:Kaiwu_INSTALLER_RUN_ACTION) { $env:Kaiwu_INSTALLER_RUN_ACTION } else { "" }),
-  # Declared as $Yes with -NonInteractive as an alias on purpose: PowerShell
-  # variable names are case-insensitive, so a [switch] $NonInteractive would
-  # collide with the $Noninteractive string below.
-  [Alias('NonInteractive')]
-  [switch] $Yes,
-  [Parameter(ValueFromRemainingArguments = $true)]
-  [string[]] $RunArgs = @()
+    [string]$Version = "",
+    [string]$ServerUrl = "",
+    [string]$InstallDir = ""
 )
 
 $ErrorActionPreference = "Stop"
 
-if ($WithDaemon.IsPresent -and $WithoutDaemon.IsPresent) {
-  throw "Specify either -WithDaemon or -WithoutDaemon, not both."
-}
-
-if ($env:Kaiwu_INSTALLER_SETUP_RELAY -and $env:Kaiwu_INSTALLER_SETUP_RELAY -ne "0") {
-  $SetupRelay = $true
-}
-
-$InstallerAction = if ($env:Kaiwu_INSTALLER_ACTION) { ([string]$env:Kaiwu_INSTALLER_ACTION).Trim().ToLowerInvariant() } else { "install" }
-if ($Rollback.IsPresent) {
-  $InstallerAction = "rollback"
-}
-if ($InstallerAction -eq "reinstall") {
-  $InstallerAction = "install"
-}
-if ($InstallerAction -ne "install" -and $InstallerAction -ne "rollback") {
-  throw "Unsupported Kaiwu_INSTALLER_ACTION '$InstallerAction' for install.ps1. Expected install or rollback."
-}
-if ($Version -and $Version -notmatch '^[A-Za-z0-9][A-Za-z0-9._+-]*$') {
-  throw "Invalid install version '$Version'. Expected a release version such as 0.2.1."
-}
-
-function Normalize-Channel {
-  param (
-    [Parameter(Mandatory = $true)] [string] $Raw
-  )
-  $value = $Raw.Trim().ToLowerInvariant()
-  if (-not $value) { return "stable" }
-  switch ($value) {
-    "stable" { return "stable" }
-    "preview" { return "preview" }
-    "dev" { return "publicdev" }
-    "publicdev" { return "publicdev" }
-    default { throw "Invalid Kaiwu_CHANNEL '$Raw'. Expected stable, preview, or dev." }
-  }
-}
-
-$Channel = Normalize-Channel -Raw ([string]$Channel)
-
-$Repo = if ($env:Kaiwu_GITHUB_REPO) { $env:Kaiwu_GITHUB_REPO } else { "Kaiwu-dev/Kaiwu" }
-$Token = if ($env:Kaiwu_GITHUB_TOKEN) { $env:Kaiwu_GITHUB_TOKEN } elseif ($env:GITHUB_TOKEN) { $env:GITHUB_TOKEN } else { "" }
-$ReleaseAssetsDir = if ($env:Kaiwu_RELEASE_ASSETS_DIR) { $env:Kaiwu_RELEASE_ASSETS_DIR } else { "" }
-$GitHubHeaders = @{
-  "X-GitHub-Api-Version" = "2022-11-28"
-}
-if ($Token) {
-  $GitHubHeaders["Authorization"] = "Bearer $Token"
-}
-$InstallDir = if ($env:Kaiwu_INSTALL_DIR) { $env:Kaiwu_INSTALL_DIR } elseif ($env:Kaiwu_HOME_DIR) { $env:Kaiwu_HOME_DIR } else { Join-Path $env:USERPROFILE ".Kaiwu" }
-$DaemonServiceStateHomeDir = if ($env:Kaiwu_HOME_DIR) { $env:Kaiwu_HOME_DIR } else { $InstallDir }
-$LegacyBinDir = Join-Path $env:USERPROFILE ".local\bin"
-$BinDir = Join-Path $InstallDir "bin"
-if ($env:Kaiwu_BIN_DIR) {
-  $requestedBinDir = $env:Kaiwu_BIN_DIR
-  if ($requestedBinDir -ne $BinDir) {
-    Write-Warning "Ignoring Kaiwu_BIN_DIR on Windows; the managed install bin directory is the canonical PATH target."
-  }
-}
-$Noninteractive = if ($Yes.IsPresent) { "1" } elseif ($env:Kaiwu_NONINTERACTIVE) { $env:Kaiwu_NONINTERACTIVE } else { "0" }
-if ($Yes.IsPresent) {
-  # Mirror install.sh: the flag must reach every child `Kaiwu` invocation too.
-  $env:Kaiwu_NONINTERACTIVE = "1"
-}
-$NoPathUpdate = if ($env:Kaiwu_NO_PATH_UPDATE) { $env:Kaiwu_NO_PATH_UPDATE } else { "0" }
-$WithDaemonExplicit = $false
-if ($WithDaemon.IsPresent) {
-  $WithDaemonPreference = "1"
-  $WithDaemonExplicit = $true
-}
-elseif ($WithoutDaemon.IsPresent) {
-  $WithDaemonPreference = "0"
-  $WithDaemonExplicit = $true
-}
-elseif ($env:Kaiwu_WITH_DAEMON) {
-  $WithDaemonPreference = $env:Kaiwu_WITH_DAEMON
-  $WithDaemonExplicit = $true
-}
-else {
-  $WithDaemonPreference = "0"
-}
-$DefaultMinisignPubKey = @"
-untrusted comment: minisign public key 91AE28177BF6E43C
-RWQ85PZ7FyiukYbL3qv/bKnwgbT68wLVzotapeMFIb8n+c7pBQ7U8W2t
-"@
-$MinisignPubKey = if ($env:Kaiwu_MINISIGN_PUBKEY) { $env:Kaiwu_MINISIGN_PUBKEY } else { $DefaultMinisignPubKey.Trim() }
-$MinisignPubKeyUrl = if ($env:Kaiwu_MINISIGN_PUBKEY_URL) { $env:Kaiwu_MINISIGN_PUBKEY_URL } else { "https://kaiwu.chengqiyun.com/Kaiwu-release.pub" }
-
-function Resolve-CliShimName {
-  if ($Channel -eq "preview") { return "hprev" }
-  if ($Channel -eq "publicdev") { return "hdev" }
-  return "Kaiwu"
-}
-
-function Resolve-CliInstallRootName {
-  if ($Channel -eq "preview") { return "cli-preview" }
-  if ($Channel -eq "publicdev") { return "cli-dev" }
-  return "cli"
-}
-
-function Resolve-InstalledCliInvoker {
-  $shim = Resolve-CliShimName
-
-  $candidates = @(
-    (Join-Path $BinDir "$shim.exe"),
-    (Join-Path $BinDir $shim),
-    (Join-Path $InstallDir "bin\\$shim.exe"),
-    (Join-Path $InstallDir "bin\\$shim")
-  )
-
-  foreach ($candidate in $candidates) {
-    if ($candidate -and (Test-Path $candidate)) {
-      return $candidate
-    }
-  }
-
-  foreach ($name in @($shim, "$shim.exe")) {
-    $cmd = Get-Command $name -ErrorAction SilentlyContinue
-    if ($cmd -and $cmd.Source -and (Test-Path $cmd.Source)) {
-      return $cmd.Source
-    }
-  }
-
-  return $null
-}
-
-function Read-InstallerMarkerFile {
-  param (
-    [Parameter(Mandatory = $true)] [string] $Path
-  )
-  if (-not (Test-Path $Path -PathType Leaf)) {
-    return ""
-  }
-  $value = Get-Content -Path $Path -TotalCount 1 -ErrorAction SilentlyContinue
-  return ([string]$value).Trim()
-}
-
-function Test-InstallerPayloadDirectCopyFallbackSafe {
-  $installRoot = Join-Path $InstallDir (Resolve-CliInstallRootName)
-  $versionsDir = Join-Path $installRoot "versions"
-  $currentVersionMarkerPath = Join-Path $installRoot "current.version"
-  $currentPointerPath = Join-Path $installRoot "current"
-  $managedShimPath = Join-Path $BinDir "$((Resolve-CliShimName)).exe"
-
-  $partialVersionDirs = @()
-  if (Test-Path $versionsDir -PathType Container) {
-    $partialVersionDirs = @(
-      Get-ChildItem -Path $versionsDir -Directory -Force -ErrorAction SilentlyContinue |
-        Where-Object { $_.Name -match '^\..*\.tmp-' }
-    )
-  }
-  if ($partialVersionDirs.Count -gt 0) {
-    return $false
-  }
-
-  $currentVersion = Read-InstallerMarkerFile -Path $currentVersionMarkerPath
-  $currentPointerExists = Test-Path $currentPointerPath -PathType Container
-  $managedShimExists = Test-Path $managedShimPath -PathType Leaf
-
-  if (-not $currentVersion -and -not $currentPointerExists) {
-    return $true
-  }
-
-  if (-not $managedShimExists -and -not $currentPointerExists) {
-    return $true
-  }
-
-  return $false
-}
-
-function New-InstallerStagingDirectory {
-  param (
-    [Parameter(Mandatory = $true)] [string] $InstallHomeDir
-  )
-
-  $stagingParent = Join-Path $InstallHomeDir ".install-staging"
-  New-Item -ItemType Directory -Path $stagingParent -Force | Out-Null
-  return New-Item -ItemType Directory -Path (Join-Path $stagingParent ("Kaiwu-install-" + [System.Guid]::NewGuid().ToString("N")))
-}
-
-function Remove-InstallerStagingDirectory {
-  param (
-    [Parameter(Mandatory = $false)] $Directory
-  )
-
-  if (-not $Directory -or -not $Directory.FullName) {
-    return
-  }
-
-  $stagingParent = Split-Path -Parent $Directory.FullName
-  Remove-Item -Path $Directory.FullName -Recurse -Force -ErrorAction SilentlyContinue
-  if ($stagingParent -and (Test-Path $stagingParent -PathType Container)) {
-    $remaining = @(Get-ChildItem -Path $stagingParent -Force -ErrorAction SilentlyContinue | Select-Object -First 1)
-    if ($remaining.Count -eq 0) {
-      Remove-Item -Path $stagingParent -Force -ErrorAction SilentlyContinue
-    }
-  }
-}
-
-function Set-InstallerDirectoryPointer {
-  param (
-    [Parameter(Mandatory = $true)] [string] $Path,
-    [Parameter(Mandatory = $true)] [string] $Target
-  )
-  Remove-Item -Path $Path -Recurse -Force -ErrorAction SilentlyContinue
-  try {
-    New-Item -ItemType Junction -Path $Path -Target $Target -Force | Out-Null
-  }
-  catch {
-    Copy-Item -Path $Target -Destination $Path -Recurse -Force
-  }
-}
-
-function Test-InstallerDefaultChannelMatchesSelectedChannel {
-  $statePath = Join-Path $InstallDir "default-cli-release-channel.json"
-  if (Test-Path $statePath -PathType Leaf) {
-    $raw = Get-Content -Path $statePath -Raw -ErrorAction SilentlyContinue
-    return $raw -match ('"releaseChannel"\s*:\s*"' + [Regex]::Escape($Channel) + '"')
-  }
-  return $Channel -eq "stable"
-}
-
-function Sync-InstallerCliRollbackShim {
-  param (
-    [Parameter(Mandatory = $true)] [string] $ShimName,
-    [Parameter(Mandatory = $true)] [string] $BinaryPath
-  )
-  New-Item -ItemType Directory -Path $BinDir -Force | Out-Null
-  $shimPath = Join-Path $BinDir "$ShimName.exe"
-  Remove-Item -Path $shimPath -Force -ErrorAction SilentlyContinue
-  try {
-    New-Item -ItemType HardLink -Path $shimPath -Target $BinaryPath -Force | Out-Null
-  }
-  catch {
-    Copy-Item -Path $BinaryPath -Destination $shimPath -Force
-  }
-}
-
-function Invoke-InstallerCliRollback {
-  $managedRoot = Resolve-CliInstallRootName
-  $installRoot = Join-Path $InstallDir $managedRoot
-  $previousVersion = Read-InstallerMarkerFile -Path (Join-Path $installRoot "previous.version")
-  if (-not $previousVersion) {
-    throw "No previous $(Resolve-CliShimName) version is available for rollback."
-  }
-
-  $previousDir = Join-Path (Join-Path $installRoot "versions") $previousVersion
-  $previousBinary = Join-Path $previousDir "Kaiwu.exe"
-  if (-not (Test-Path $previousBinary -PathType Leaf)) {
-    throw "Rollback target is missing or incomplete: $previousDir"
-  }
-
-  $currentVersion = Read-InstallerMarkerFile -Path (Join-Path $installRoot "current.version")
-  Set-InstallerDirectoryPointer -Path (Join-Path $installRoot "current") -Target $previousDir
-  Set-Content -Path (Join-Path $installRoot "current.version") -Value "$previousVersion`n" -NoNewline
-
-  if ($currentVersion) {
-    $currentDir = Join-Path (Join-Path $installRoot "versions") $currentVersion
-    if (Test-Path $currentDir -PathType Container) {
-      Set-InstallerDirectoryPointer -Path (Join-Path $installRoot "previous") -Target $currentDir
-      Set-Content -Path (Join-Path $installRoot "previous.version") -Value "$currentVersion`n" -NoNewline
-    }
-  }
-
-  $shimName = Resolve-CliShimName
-  Sync-InstallerCliRollbackShim -ShimName $shimName -BinaryPath $previousBinary
-  if ($shimName -ne "Kaiwu" -and (Test-InstallerDefaultChannelMatchesSelectedChannel)) {
-    Sync-InstallerCliRollbackShim -ShimName "Kaiwu" -BinaryPath $previousBinary
-  }
-
-  Write-Host "Rolled back $shimName from $(if ($currentVersion) { $currentVersion } else { 'current' }) to $previousVersion."
-}
-
-function Resolve-TarExecutablePath {
-  $cmd = Get-Command "tar.exe" -ErrorAction SilentlyContinue
-  if ($cmd -and $cmd.Source -and (Test-Path $cmd.Source)) {
-    return $cmd.Source
-  }
-
-  $pathEntries = @()
-  foreach ($rawPath in @(
-      $env:Path,
-      [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User),
-      [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::Machine)
-    )) {
-    if ($rawPath) {
-      $pathEntries += $rawPath -split ';'
-    }
-  }
-  if ($env:WINDIR) {
-    $pathEntries += Join-Path $env:WINDIR "System32"
-  }
-
-  foreach ($entry in $pathEntries) {
-    $trimmedEntry = ([string]$entry).Trim()
-    if (-not $trimmedEntry) {
-      continue
-    }
-    $candidate = Join-Path $trimmedEntry "tar.exe"
-    if (Test-Path $candidate) {
-      return $candidate
-    }
-  }
-
-  throw "Failed to locate tar.exe. Ensure Windows System32 is available or install tar before retrying."
-}
-
-function Show-PathReloadGuidance {
-  param (
-    [Parameter(Mandatory = $true)] [string] $ShimName,
-    [Parameter(Mandatory = $true)] [string] $BinDir
-  )
-
-  Write-Host ""
-  Write-Host "Next steps"
-  Write-Host "The current PowerShell session can use $ShimName immediately."
-  Write-Host "Other already-open terminals keep their old PATH until you restart them."
-  Write-Host "Managed bin directory: $BinDir"
-}
-
-function ConvertTo-InstallerBoolean {
-  param (
-    [Parameter(Mandatory = $true)] [string] $Raw
-  )
-
-  $value = $Raw.Trim().ToLowerInvariant()
-  switch ($value) {
-    "1" { return "1" }
-    "true" { return "1" }
-    "yes" { return "1" }
-    "on" { return "1" }
-    "0" { return "0" }
-    "false" { return "0" }
-    "no" { return "0" }
-    "off" { return "0" }
-    "" { return "0" }
-    default { throw "Invalid Kaiwu_WITH_DAEMON value '$Raw'. Expected 0/1, true/false, yes/no, or on/off." }
-  }
-}
-
-function Get-DefaultBackgroundServiceChoice {
-  if ($Noninteractive -eq "1") {
-    return "0"
-  }
-  if ($Channel -eq "stable") {
-    return "1"
-  }
-  return "0"
-}
-
-function Test-InteractiveInstallerPromptAvailable {
-  if ($Noninteractive -eq "1") {
-    return $false
-  }
-  try {
-    return [Environment]::UserInteractive -and -not [Console]::IsInputRedirected
-  }
-  catch {
-    return $false
-  }
-}
-
-function Get-InstallerDisplayChannelLabel {
-  param (
-    [Parameter(Mandatory = $true)] [string] $Value
-  )
-
-  if ($Value -eq "publicdev" -or $Value -eq "dev") {
-    return "dev"
-  }
-
-  return $Value
-}
-
-function Write-InstallerBullet {
-  param (
-    [Parameter(Mandatory = $true)] [string] $Text,
-    [ConsoleColor] $Color
-  )
-
-  if ($PSBoundParameters.ContainsKey('Color')) {
-    Write-Host "  • $Text" -ForegroundColor $Color
-    return
-  }
-
-  Write-Host "  • $Text"
-}
-
-function Write-InstallerDetailBullet {
-  param (
-    [Parameter(Mandatory = $true)] [string] $Label,
-    [Parameter(Mandatory = $true)] [string] $Value
-  )
-
-  Write-Host "    • " -NoNewline -ForegroundColor DarkGray
-  Write-Host ("{0}:" -f $Label) -NoNewline -ForegroundColor Gray
-  Write-Host " $Value"
-}
-
-function Read-BackgroundServicePromptChoice {
-  param (
-    [Parameter(Mandatory = $true)] [string] $DefaultChoice,
-    [Parameter(Mandatory = $true)] [bool] $HasExistingServices
-  )
-
-  if (-not (Test-InteractiveInstallerPromptAvailable)) {
-    return $DefaultChoice
-  }
-
-  $channelLabel = Get-InstallerDisplayChannelLabel -Value $Channel
-  $defaultHint = "y/N"
-  $recommendedNote = "recommended: no"
-  if ($DefaultChoice -eq "1") {
-    $defaultHint = "Y/n"
-    $recommendedNote = "recommended: yes"
-  }
-
-  $prompt = "Set up automatic startup for the $channelLabel CLI?"
-  if ($HasExistingServices) {
-    $prompt = "Update automatic startup for the $channelLabel CLI?"
-  }
-
-  while ($true) {
-    $answer = Read-Host "$prompt [$defaultHint] ($recommendedNote)"
-    $normalized = ([string]$answer).Trim().ToLowerInvariant()
-    switch ($normalized) {
-      "" { return $DefaultChoice }
-      "y" { return "1" }
-      "yes" { return "1" }
-      "n" { return "0" }
-      "no" { return "0" }
-      default { Write-Warning "Please answer yes or no." }
-    }
-  }
-}
-
-function Read-InstallerYesNoChoice {
-  param (
-    [Parameter(Mandatory = $true)] [string] $Prompt,
-    [Parameter(Mandatory = $true)] [string] $DefaultChoice
-  )
-
-  if (-not (Test-InteractiveInstallerPromptAvailable)) {
-    return $DefaultChoice
-  }
-
-  $defaultHint = "y/N"
-  $recommendedNote = "recommended: no"
-  if ($DefaultChoice -eq "1") {
-    $defaultHint = "Y/n"
-    $recommendedNote = "recommended: yes"
-  }
-
-  while ($true) {
-    $answer = Read-Host "$Prompt [$defaultHint] ($recommendedNote)"
-    $normalized = ([string]$answer).Trim().ToLowerInvariant()
-    switch ($normalized) {
-      "" { return $DefaultChoice }
-      "y" { return "1" }
-      "yes" { return "1" }
-      "n" { return "0" }
-      "no" { return "0" }
-      default { Write-Warning "Please answer yes or no." }
-    }
-  }
-}
-
-function Resolve-WithDaemonPreference {
-  param (
-    [Parameter(Mandatory = $false)] [object[]] $Entries = @(),
-    [Parameter()] $DefaultFollowingMatchesSelectedReleaseChannel = $null
-  )
-
-  if ($WithDaemonExplicit) {
-    return ConvertTo-InstallerBoolean -Raw ([string]$WithDaemonPreference)
-  }
-
-  $defaultChoice = Get-DefaultBackgroundServiceChoice
-  $hasExistingServices = $Entries.Count -gt 0
-  if ($Noninteractive -eq "1") {
-    if ($hasExistingServices) {
-      return "1"
-    }
-    return $defaultChoice
-  }
-
-  if ($hasExistingServices -and (Test-BackgroundServiceInventoryHasMatchingDefaultFollowing -Entries $Entries -DefaultFollowingMatchesSelectedReleaseChannel $DefaultFollowingMatchesSelectedReleaseChannel)) {
-    return "0"
-  }
-
-  return Read-BackgroundServicePromptChoice -DefaultChoice $defaultChoice -HasExistingServices $hasExistingServices
-}
-
-function Invoke-InstallerCommandWithDaemonServiceContext {
-  param (
-    [Parameter(Mandatory = $true)] [string] $CliPath,
-    [Parameter(Mandatory = $true)] [string[]] $CommandArgs,
-    [Parameter(Mandatory = $true)] [string] $HomeDir
-  )
-
-  $previousHomeDir = $env:Kaiwu_HOME_DIR
-  $previousNoninteractive = $env:Kaiwu_NONINTERACTIVE
-  $previousPublicReleaseChannel = $env:Kaiwu_PUBLIC_RELEASE_CHANNEL
-  $previousDaemonServiceChannel = $env:Kaiwu_DAEMON_SERVICE_CHANNEL
-  $previousInstallerDaemonServiceStrategy = $env:Kaiwu_INSTALLER_DAEMON_SERVICE_STRATEGY
-  try {
-    $channelLabel = if ($Channel -eq "publicdev") { "dev" } else { $Channel }
-    $env:Kaiwu_HOME_DIR = $HomeDir
-    if ($null -eq $previousNoninteractive) {
-      Remove-Item Env:Kaiwu_NONINTERACTIVE -ErrorAction SilentlyContinue
-    }
-    else {
-      $env:Kaiwu_NONINTERACTIVE = $previousNoninteractive
-    }
-    $env:Kaiwu_PUBLIC_RELEASE_CHANNEL = $channelLabel
-    $env:Kaiwu_DAEMON_SERVICE_CHANNEL = $channelLabel
-    if ($env:Kaiwu_INSTALLER_DAEMON_SERVICE_STRATEGY) {
-      $env:Kaiwu_INSTALLER_DAEMON_SERVICE_STRATEGY = $env:Kaiwu_INSTALLER_DAEMON_SERVICE_STRATEGY
-    }
-    & $CliPath @CommandArgs
-    # A native command exiting non-zero does NOT throw under
-    # $ErrorActionPreference = 'Stop' in Windows PowerShell 5.1 (verified on a
-    # real 5.1 host). $LASTEXITCODE is the only signal, so capture it here --
-    # before the finally block runs -- and let callers decide what it means.
-    $script:LastInstallerCommandExitCode = if ($null -eq $LASTEXITCODE) { 0 } else { [int]$LASTEXITCODE }
-  }
-  finally {
-    if ($null -eq $previousHomeDir) {
-      Remove-Item Env:Kaiwu_HOME_DIR -ErrorAction SilentlyContinue
-    }
-    else {
-      $env:Kaiwu_HOME_DIR = $previousHomeDir
-    }
-    if ($null -eq $previousNoninteractive) {
-      Remove-Item Env:Kaiwu_NONINTERACTIVE -ErrorAction SilentlyContinue
-    }
-    else {
-      $env:Kaiwu_NONINTERACTIVE = $previousNoninteractive
-    }
-    if ($null -eq $previousPublicReleaseChannel) {
-      Remove-Item Env:Kaiwu_PUBLIC_RELEASE_CHANNEL -ErrorAction SilentlyContinue
-    }
-    else {
-      $env:Kaiwu_PUBLIC_RELEASE_CHANNEL = $previousPublicReleaseChannel
-    }
-    if ($null -eq $previousDaemonServiceChannel) {
-      Remove-Item Env:Kaiwu_DAEMON_SERVICE_CHANNEL -ErrorAction SilentlyContinue
-    }
-    else {
-      $env:Kaiwu_DAEMON_SERVICE_CHANNEL = $previousDaemonServiceChannel
-    }
-    if ($null -eq $previousInstallerDaemonServiceStrategy) {
-      Remove-Item Env:Kaiwu_INSTALLER_DAEMON_SERVICE_STRATEGY -ErrorAction SilentlyContinue
-    }
-    else {
-      $env:Kaiwu_INSTALLER_DAEMON_SERVICE_STRATEGY = $previousInstallerDaemonServiceStrategy
-    }
-  }
-}
-
-function Resolve-InstallerPreInstallCommandTimeoutMs {
-  $raw = [string]$env:Kaiwu_INSTALLER_PRE_INSTALL_COMMAND_TIMEOUT_MS
-  if (-not $raw) {
-    return 30000
-  }
-
-  $parsed = 0
-  if (-not [int]::TryParse($raw.Trim(), [ref]$parsed)) {
-    return 30000
-  }
-  if ($parsed -lt 5000) {
-    return 5000
-  }
-  if ($parsed -gt 120000) {
-    return 120000
-  }
-  return $parsed
-}
-
-function Stop-InstallerProcessTree {
-  param (
-    [Parameter(Mandatory = $true)] [System.Diagnostics.Process] $Process
-  )
-
-  if ($null -eq $Process) {
-    return
-  }
-
-  $processId = [int]$Process.Id
-  if ($processId -le 0) {
-    return
-  }
-
-  try {
-    if (-not $Process.HasExited) {
-      $Process.Kill($true)
-      return
-    }
-  }
-  catch {
-  }
-
-  try {
-    $taskkillCommand = Get-Command "taskkill.exe" -ErrorAction SilentlyContinue
-    if ($taskkillCommand -and $taskkillCommand.Source) {
-      & $taskkillCommand.Source "/T" "/F" "/PID" ([string]$processId) *> $null
-      if ($LASTEXITCODE -eq 0) {
-        return
-      }
-    }
-  }
-  catch {
-  }
-
-  try {
-    Stop-Process -Id $processId -Force -ErrorAction SilentlyContinue
-  }
-  catch {
-  }
-}
-
-function Invoke-InstallerCommandWithDaemonServiceContextCapturingOutputWithTimeout {
-  param (
-    [Parameter(Mandatory = $true)] [string] $CliPath,
-    [Parameter(Mandatory = $true)] [string[]] $CommandArgs,
-    [Parameter(Mandatory = $true)] [string] $HomeDir,
-    [Parameter(Mandatory = $true)] [int] $timeoutMs
-  )
-
-  $previousHomeDir = $env:Kaiwu_HOME_DIR
-  $previousNoninteractive = $env:Kaiwu_NONINTERACTIVE
-  $previousPublicReleaseChannel = $env:Kaiwu_PUBLIC_RELEASE_CHANNEL
-  $previousDaemonServiceChannel = $env:Kaiwu_DAEMON_SERVICE_CHANNEL
-  $previousInstallerDaemonServiceStrategy = $env:Kaiwu_INSTALLER_DAEMON_SERVICE_STRATEGY
-  $runToken = [System.Guid]::NewGuid().ToString("N")
-  $stdoutPath = Join-Path $env:TEMP "Kaiwu-pre-install-$runToken.stdout.log"
-  $stderrPath = Join-Path $env:TEMP "Kaiwu-pre-install-$runToken.stderr.log"
-
-  try {
-    $channelLabel = if ($Channel -eq "publicdev") { "dev" } else { $Channel }
-    $env:Kaiwu_HOME_DIR = $HomeDir
-    if ($null -eq $previousNoninteractive) {
-      Remove-Item Env:Kaiwu_NONINTERACTIVE -ErrorAction SilentlyContinue
-    }
-    else {
-      $env:Kaiwu_NONINTERACTIVE = $previousNoninteractive
-    }
-    $env:Kaiwu_PUBLIC_RELEASE_CHANNEL = $channelLabel
-    $env:Kaiwu_DAEMON_SERVICE_CHANNEL = $channelLabel
-    if ($env:Kaiwu_INSTALLER_DAEMON_SERVICE_STRATEGY) {
-      $env:Kaiwu_INSTALLER_DAEMON_SERVICE_STRATEGY = $env:Kaiwu_INSTALLER_DAEMON_SERVICE_STRATEGY
-    }
-
-    $process = Start-Process -FilePath $CliPath -ArgumentList $CommandArgs -PassThru -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath -WindowStyle Hidden
-    $completed = $process.WaitForExit($timeoutMs)
-    if (-not $completed) {
-      Stop-InstallerProcessTree -Process $process
-
-      $stdout = if (Test-Path $stdoutPath -PathType Leaf) { Get-Content -Path $stdoutPath -Raw -ErrorAction SilentlyContinue } else { "" }
-      $stderr = if (Test-Path $stderrPath -PathType Leaf) { Get-Content -Path $stderrPath -Raw -ErrorAction SilentlyContinue } else { "" }
-      $output = @("Pre-install command timed out after $timeoutMs ms: $($CommandArgs -join ' ')", $stdout, $stderr) -join ""
-      return @{
-        ExitCode = 124
-        Output = [string]$output
-        TimedOut = $true
-      }
-    }
-
-    $stdout = if (Test-Path $stdoutPath -PathType Leaf) { Get-Content -Path $stdoutPath -Raw -ErrorAction SilentlyContinue } else { "" }
-    $stderr = if (Test-Path $stderrPath -PathType Leaf) { Get-Content -Path $stderrPath -Raw -ErrorAction SilentlyContinue } else { "" }
-    $output = @($stdout, $stderr) -join ""
-
-    return @{
-      ExitCode = [int]$process.ExitCode
-      Output = [string]$output
-      TimedOut = $false
-    }
-  }
-  finally {
-    Remove-Item -Path $stdoutPath -Force -ErrorAction SilentlyContinue
-    Remove-Item -Path $stderrPath -Force -ErrorAction SilentlyContinue
-
-    if ($null -eq $previousHomeDir) {
-      Remove-Item Env:Kaiwu_HOME_DIR -ErrorAction SilentlyContinue
-    }
-    else {
-      $env:Kaiwu_HOME_DIR = $previousHomeDir
-    }
-    if ($null -eq $previousNoninteractive) {
-      Remove-Item Env:Kaiwu_NONINTERACTIVE -ErrorAction SilentlyContinue
-    }
-    else {
-      $env:Kaiwu_NONINTERACTIVE = $previousNoninteractive
-    }
-    if ($null -eq $previousPublicReleaseChannel) {
-      Remove-Item Env:Kaiwu_PUBLIC_RELEASE_CHANNEL -ErrorAction SilentlyContinue
-    }
-    else {
-      $env:Kaiwu_PUBLIC_RELEASE_CHANNEL = $previousPublicReleaseChannel
-    }
-    if ($null -eq $previousDaemonServiceChannel) {
-      Remove-Item Env:Kaiwu_DAEMON_SERVICE_CHANNEL -ErrorAction SilentlyContinue
-    }
-    else {
-      $env:Kaiwu_DAEMON_SERVICE_CHANNEL = $previousDaemonServiceChannel
-    }
-    if ($null -eq $previousInstallerDaemonServiceStrategy) {
-      Remove-Item Env:Kaiwu_INSTALLER_DAEMON_SERVICE_STRATEGY -ErrorAction SilentlyContinue
-    }
-    else {
-      $env:Kaiwu_INSTALLER_DAEMON_SERVICE_STRATEGY = $previousInstallerDaemonServiceStrategy
-    }
-  }
-}
-
-function Test-DoctorRepairPreflightLooksLikePlainDoctorReport {
-  param (
-    [Parameter()] [string] $Output = ""
-  )
-
-  # Mirror install.sh:823-862: an older CLI that doesn't understand
-  # `doctor repair --json` may instead emit a plain-text "Kaiwu CLI Doctor"
-  # report. We must reject that — even if portions of it accidentally parse
-  # as JSON — and fall through to the legacy `service list --json` probe.
-  return $Output -match 'Kaiwu CLI Doctor'
-}
-
-function Test-DoctorRepairPreflightJsonIsSupported {
-  param (
-    [Parameter()] [string] $Output = ""
-  )
-
-  # Mirror install.sh's `background_service_inventory_json_is_supported`:
-  # the trimmed payload must be a single JSON object (starts with `{`, ends
-  # with `}`) AND must contain at least one of the known inventory keys
-  # (`entries`, `services`, `existingServices`).
-  $trimmed = $Output.Trim()
-  if (-not $trimmed.StartsWith('{') -or -not $trimmed.EndsWith('}')) {
-    return $false
-  }
-  return $trimmed -match '"(entries|services|existingServices)"\s*:'
-}
-
-function Get-InstalledBackgroundServiceInventory {
-  param (
-    [Parameter(Mandatory = $true)] [string] $CliPath
-  )
-
-  try {
-    $doctorPreflightResult = Invoke-NativeCommandCapturingOutput {
-      Invoke-InstallerCommandWithDaemonServiceContext -CliPath $CliPath -CommandArgs @("doctor", "repair", "--json") -HomeDir $DaemonServiceStateHomeDir
-    }
-    $preflightOutput = if ($doctorPreflightResult.Output) { [string]$doctorPreflightResult.Output } else { "" }
-    $preflightLooksLikePlainReport = Test-DoctorRepairPreflightLooksLikePlainDoctorReport -Output $preflightOutput
-    $preflightJsonIsSupported = Test-DoctorRepairPreflightJsonIsSupported -Output $preflightOutput
-    if ($doctorPreflightResult.ExitCode -eq 0 -and $preflightJsonIsSupported -and -not $preflightLooksLikePlainReport) {
-      $payload = $preflightOutput | ConvertFrom-Json
-      $propertyNames = @($payload.PSObject.Properties.Name)
-      $entries = if ($propertyNames -contains 'entries') { @($payload.entries) } elseif ($propertyNames -contains 'existingServices') { @($payload.existingServices) } else { @() }
-      $services = if ($propertyNames -contains 'services') { @($payload.services) } elseif ($propertyNames -contains 'existingServices') { @($payload.existingServices) } else { @() }
-      if ($entries.Count -gt 0 -or $services.Count -gt 0 -or $propertyNames -contains 'existingServices' -or $propertyNames -contains 'entries' -or $propertyNames -contains 'services') {
-        return @{
-          Supported = $true
-          RepairSupported = $true
-          Entries = $entries
-          Services = $services
-          DaemonStatus = if ($propertyNames -contains 'daemonStatus') { $payload.daemonStatus } else { $null }
-          DaemonRunning = if ($propertyNames -contains 'daemonRunning') { $payload.daemonRunning } else { $null }
-          DefaultFollowingMatchesSelectedReleaseChannel = if ($propertyNames -contains 'defaultFollowingMatchesSelectedReleaseChannel') { $payload.defaultFollowingMatchesSelectedReleaseChannel } else { $null }
-          Relays = if ($propertyNames -contains 'relays') { @($payload.relays) } else { @() }
-          Payload = $payload
-        }
-      }
-    }
-    elseif (-not $preflightLooksLikePlainReport `
-        -and -not $preflightJsonIsSupported `
-        -and -not (Test-InstallerCommandLooksUnsupported -Output $preflightOutput)) {
-      Write-Warning "Automatic startup inspection failed; continuing without blocking install. You can retry manually: `"$CliPath doctor repair`""
-    }
-  }
-  catch {
-    Write-Warning "Automatic startup inspection failed; continuing without blocking install. You can retry manually: `"$CliPath doctor repair`""
-  }
-
-  try {
-    $serviceListResult = Invoke-NativeCommandCapturingOutput {
-      Invoke-InstallerCommandWithDaemonServiceContext -CliPath $CliPath -CommandArgs @("service", "list", "--json") -HomeDir $DaemonServiceStateHomeDir
-    }
-    if ($serviceListResult.ExitCode -ne 0 -or -not $serviceListResult.Output) {
-      return @{
-        Supported = $false
-        RepairSupported = $false
-        Entries = @()
-        Services = @()
-        DaemonStatus = $null
-        DaemonRunning = $null
-        Relays = @()
-        Payload = $null
-      }
-    }
-    $payload = $serviceListResult.Output | ConvertFrom-Json
-    $propertyNames = @($payload.PSObject.Properties.Name)
-    $entries = if ($propertyNames -contains 'entries') { @($payload.entries) } else { @() }
-    $services = if ($propertyNames -contains 'services') { @($payload.services) } else { @() }
-    if ($entries.Count -gt 0 -or $services.Count -gt 0 -or $propertyNames -contains 'entries' -or $propertyNames -contains 'services') {
-      return @{
-        Supported = $true
-        RepairSupported = $false
-        Entries = $entries
-        Services = $services
-        DaemonStatus = $null
-        DaemonRunning = $null
-        DefaultFollowingMatchesSelectedReleaseChannel = $null
-        Relays = @()
-        Payload = $payload
-      }
-    }
-  }
-  catch {
-    return @{
-      Supported = $false
-      RepairSupported = $false
-      Entries = @()
-      Services = @()
-      DaemonStatus = $null
-      DaemonRunning = $null
-      DefaultFollowingMatchesSelectedReleaseChannel = $null
-      Relays = @()
-      Payload = $null
-    }
-  }
-
-  return @{
-    Supported = $false
-    RepairSupported = $false
-    Entries = @()
-    Services = @()
-    DaemonStatus = $null
-    DaemonRunning = $null
-    DefaultFollowingMatchesSelectedReleaseChannel = $null
-    Relays = @()
-    Payload = $null
-  }
-}
-
-function Test-BackgroundServiceInventoryHasDefaultFollowing {
-  param (
-    [Parameter(Mandatory = $true)] [object[]] $Entries
-  )
-
-  return @($Entries | Where-Object { $_.targetMode -eq 'default-following' }).Count -gt 0
-}
-
-function Get-BackgroundServiceDefaultFollowingChannel {
-  param (
-    [Parameter(Mandatory = $true)] [object[]] $Entries
-  )
-
-  $entry = @($Entries | Where-Object { $_.targetMode -eq 'default-following' } | Select-Object -First 1)
-  if ($entry.Count -eq 0 -or -not $entry[0].releaseChannel) {
-    return ""
-  }
-
-  return Get-InstallerDisplayChannelLabel -Value ([string]$entry[0].releaseChannel)
-}
-
-function Test-BackgroundServiceInventoryHasMatchingDefaultFollowing {
-  param (
-    [Parameter(Mandatory = $true)] [object[]] $Entries,
-    [Parameter()] $DefaultFollowingMatchesSelectedReleaseChannel = $null
-  )
-
-  # Mirror install.sh:1037-1056: prefer the CLI-emitted authoritative signal
-  # `defaultFollowingMatchesSelectedReleaseChannel` when present. The CLI
-  # knows about default-shim resolution that the installer can't easily
-  # reconstruct from a label comparison alone (matters for multi-channel
-  # installs where the default shim points to a non-current channel).
-  if ($null -ne $DefaultFollowingMatchesSelectedReleaseChannel) {
-    return [bool]$DefaultFollowingMatchesSelectedReleaseChannel
-  }
-
-  $defaultChannel = Get-BackgroundServiceDefaultFollowingChannel -Entries $Entries
-  if (-not $defaultChannel) {
-    return $false
-  }
-
-  return $defaultChannel -eq (Get-InstallerDisplayChannelLabel -Value $Channel)
-}
-
-function Test-InstallerCommandLooksUnsupported {
-  param (
-    [Parameter()] [string] $Output = ""
-  )
-
-  return $Output -match '(?i)unknown (option|command|subcommand)|invalid option|usage: Kaiwu <command>|does not support'
-}
-
-function Get-BackgroundServiceInstallManualCommand {
-  param (
-    [Parameter(Mandatory = $true)] [string] $CliPath
-  )
-
-  return "$CliPath service install"
-}
-
-function Invoke-BackgroundServiceInstallCompatibly {
-  param (
-    [Parameter(Mandatory = $true)] [string] $CliPath
-  )
-
-  $installResult = Invoke-NativeCommandCapturingOutput {
-    Invoke-InstallerCommandWithDaemonServiceContext -CliPath $CliPath -CommandArgs @("service", "install", "--yes") -HomeDir $DaemonServiceStateHomeDir
-  }
-  if ($installResult.ExitCode -eq 0) {
-    return @{
-      Ok = $true
-      Output = $installResult.Output
-    }
-  }
-
-  if (Test-InstallerCommandLooksUnsupported -Output $installResult.Output) {
-    $legacyInstallResult = Invoke-NativeCommandCapturingOutput {
-      Invoke-InstallerCommandWithDaemonServiceContext -CliPath $CliPath -CommandArgs @("service", "install") -HomeDir $DaemonServiceStateHomeDir
-    }
-    if ($legacyInstallResult.ExitCode -eq 0) {
-      return @{
-        Ok = $true
-        Output = $legacyInstallResult.Output
-      }
-    }
-    return @{
-      Ok = $false
-      Output = $legacyInstallResult.Output
-    }
-  }
-
-  return @{
-    Ok = $false
-    Output = $installResult.Output
-  }
-}
-
-function Invoke-DoctorRepairIfSupported {
-  param (
-    [Parameter(Mandatory = $true)] [string] $CliPath
-  )
-
-  $repairResult = Invoke-NativeCommandCapturingOutput {
-    Invoke-InstallerCommandWithDaemonServiceContext -CliPath $CliPath -CommandArgs @("doctor", "repair", "--yes") -HomeDir $DaemonServiceStateHomeDir
-  }
-  if ($repairResult.ExitCode -eq 0) {
-    return @{
-      Status = 'applied'
-      Output = $repairResult.Output
-    }
-  }
-  if (Test-InstallerCommandLooksUnsupported -Output $repairResult.Output) {
-    return @{
-      Status = 'unsupported'
-      Output = $repairResult.Output
-    }
-  }
-  return @{
-    Status = 'failed'
-    Output = $repairResult.Output
-  }
-}
-
-function Resolve-ExistingBackgroundServiceInstallStrategy {
-  param (
-    [Parameter(Mandatory = $true)] [object[]] $Entries,
-    [Parameter()] $DefaultFollowingMatchesSelectedReleaseChannel = $null
-  )
-
-  if ($Noninteractive -eq "1") {
-    return ""
-  }
-
-  if ($Entries.Count -eq 0) {
-    return ""
-  }
-
-  if (Test-BackgroundServiceInventoryHasMatchingDefaultFollowing -Entries $Entries -DefaultFollowingMatchesSelectedReleaseChannel $DefaultFollowingMatchesSelectedReleaseChannel) {
-    return "skip"
-  }
-
-  $replacePrompt = "Use this installation for automatic startup?"
-  if (Test-BackgroundServiceInventoryHasDefaultFollowing -Entries $Entries) {
-    $replacePrompt = "Use this installation for automatic startup?"
-  }
-
-  $replaceChoice = Read-InstallerYesNoChoice -Prompt $replacePrompt -DefaultChoice "1"
-  if ($replaceChoice -eq "1") {
-    return "replace-all"
-  }
-
-  if (Test-BackgroundServiceInventoryHasDefaultFollowing -Entries $Entries) {
-    return "skip"
-  }
-
-  $addChoice = Read-InstallerYesNoChoice -Prompt "Install an additional background service alongside the existing one(s)?" -DefaultChoice "0"
-  if ($addChoice -eq "1") {
-    return "add"
-  }
-
-  return "skip"
-}
-
-function Get-SupportedSetupRelayDefaultArgs {
-  param (
-    [Parameter(Mandatory = $true)] [string] $CliPath
-  )
-
-  $defaultArgs = @("--mode", "user", "--yes", "--channel", $(if ($Channel -eq "publicdev") { "dev" } else { $Channel }), "--preserve-active-server")
-  $helpResult = Invoke-NativeCommandCapturingOutput {
-    & $CliPath relay host install --help
-  }
-  $helpOutput = [string]$helpResult.Output
-  if ([string]::IsNullOrWhiteSpace($helpOutput)) {
-    return $defaultArgs
-  }
-
-  $filteredArgs = @()
-  if ($helpOutput -match '(?m)--mode\b') {
-    $filteredArgs += @("--mode", "user")
-  }
-  if ($helpOutput -match '(?m)--yes\b') {
-    $filteredArgs += @("--yes")
-  }
-  if ($helpOutput -match '(?m)--channel\b') {
-    $filteredArgs += @("--channel", $(if ($Channel -eq "publicdev") { "dev" } else { $Channel }))
-  }
-  if ($helpOutput -match '(?m)--preserve-active-server\b') {
-    $filteredArgs += @("--preserve-active-server")
-  }
-  return $filteredArgs
-}
-
-# Root help is asked for once per surface check; a real CLI start-up is slow
-# enough that repeating it on the first-run path is worth avoiding.
-$script:InstalledCliRootHelpPath = ""
-$script:InstalledCliRootHelp = ""
-
-function Get-InstalledCliRootHelp {
-  param (
-    [Parameter(Mandatory = $true)] [string] $CliPath
-  )
-
-  if ($script:InstalledCliRootHelpPath -ne $CliPath) {
-    $help = ""
-    try {
-      $help = (& $CliPath --help 2>$null | Out-String)
-    }
-    catch {
-      $help = ""
-    }
-    $script:InstalledCliRootHelp = [string]$help
-    $script:InstalledCliRootHelpPath = $CliPath
-  }
-  return $script:InstalledCliRootHelp
-}
-
-# Mirror install.sh's installed_cli_supports_command_surface: the single owner for
-# "does the installed CLI actually expose this command surface?". Older CLI builds
-# let an unknown subcommand fall through into the default "start a session" path,
-# which can prompt for authentication, so every installer-initiated invocation
-# checks the CLI's own help first.
-function Test-InstalledCliSupportsCommandSurface {
-  param (
-    [Parameter(Mandatory = $true)] [string] $CliPath,
-    # Deliberately lower-cased: installers_windows_run_actions pins the exact
-    # `$pattern` literal below, including the variable name it interpolates.
-    [Parameter(Mandatory = $true)] [string] $requiredSubcommand
-  )
-
-  $invokerName = (Split-Path -Leaf $CliPath)
-  if ([string]::IsNullOrWhiteSpace($invokerName)) { $invokerName = "Kaiwu" }
-
-  $helpOutput = ""
-  if ($requiredSubcommand -eq "relay") {
-    try {
-      $helpOutput = (& $CliPath relay --help 2>$null | Out-String)
-    }
-    catch {
-      $helpOutput = ""
-    }
-  }
-  else {
-    $helpOutput = Get-InstalledCliRootHelp -CliPath $CliPath
-  }
-
-  $pattern = "(?m)^\s*($([Regex]::Escape($invokerName))|Kaiwu)\s+$([Regex]::Escape($requiredSubcommand))\b"
-  return [bool]($helpOutput -match $pattern)
-}
-
-# `Kaiwu setup` is the CLI's own guided first run. The installer hands off to
-# it after the binary is ready; every question a first run needs to ask belongs
-# to the CLI.
-# Whether this computer already has an account on its active relay. Ask the CLI
-# instead of re-deriving credential paths here: which credential file counts
-# depends on the active relay profile, and that is the CLI's to own.
-$script:PostInstallMachineIsConfigured = $false
-# Whether guided setup has already been completed during this installer run.
-$script:PostInstallSetupIsDone = $false
-
-function Test-InstalledCliReportsConfiguredMachine {
-  param (
-    [Parameter(Mandatory = $true)] [string] $CliPath
-  )
-
-  if (-not (Test-InstalledCliSupportsCommandSurface -CliPath $CliPath -requiredSubcommand "auth")) {
-    return $false
-  }
-
-  try {
-    $statusResult = Invoke-InstallerCommandWithDaemonServiceContextCapturingOutputWithTimeout `
-      -CliPath $CliPath `
-      -CommandArgs @("auth", "status", "--json") `
-      -HomeDir $DaemonServiceStateHomeDir `
-      -TimeoutMs (Resolve-InstallerPreInstallCommandTimeoutMs)
-  }
-  catch {
-    return $false
-  }
-
-  $statusJson = [string]$statusResult.Output
-  return [bool](
-    ($statusJson -match '"authenticated"\s*:\s*true') -and
-    ($statusJson -match '"machineRegistered"\s*:\s*true')
-  )
-}
-
-# Hand off only when a person is actually watching. -Yes / -NonInteractive,
-# Kaiwu_NONINTERACTIVE=1 and redirected stdin all mean "decline optional
-# setup", exactly like the background-service prompt. An already-configured
-# machine is left alone: a re-install is not a first run.
-function Test-ShouldHandOffToGuidedSetup {
-  param (
-    [Parameter(Mandatory = $true)] [string] $CliPath
-  )
-
-  if ($InstallerAction -ne "install") { return $false }
-  if ($script:PostInstallMachineIsConfigured) { return $false }
-  if (-not (Test-InteractiveInstallerPromptAvailable)) { return $false }
-  return (Test-InstalledCliSupportsCommandSurface -CliPath $CliPath -requiredSubcommand "setup")
-}
-
-# The one-liner must never end on a version string. Name the commands that take
-# the user forward from wherever this install actually left them -- and never
-# point an already-configured machine back at setup.
-function Write-PostInstallGetStarted {
-  param (
-    [Parameter(Mandatory = $true)] [string] $CliName
-  )
-
-  Write-Host ""
-  Write-Host "Get started"
-  if (-not $script:PostInstallSetupIsDone) {
-    Write-Host ("  {0,-20} {1}" -f "$CliName setup", "Connect this computer and sign in")
-  }
-  Write-Host ("  {0,-20} {1}" -f $CliName, "Start a session")
-  Write-Host ("  {0,-20} {1}" -f "$CliName status", "Check this computer's connection")
-}
-
-function Invoke-PostInstallAction {
-  param (
-    [Parameter(Mandatory = $true)] [string] $CliPath
-  )
-
-  $setupRelayDefaultArgs = @("--mode", "user", "--yes", "--channel", $(if ($Channel -eq "publicdev") { "dev" } else { $Channel }), "--preserve-active-server")
-  if ($SetupRelay -and -not $Run) {
-    $Run = "setup-relay"
-  }
-  if (-not $Run) {
-    return
-  }
-
-  $runValue = $Run.Trim().ToLowerInvariant()
-  if ($runValue -eq "setup-relay" -and $setupRelayDefaultArgs.Count -eq 0) {
-    $setupRelayDefaultArgs = @("--mode", "user", "--yes", "--channel", $(if ($Channel -eq "publicdev") { "dev" } else { $Channel }), "--preserve-active-server")
-  }
-  if ($runValue -eq "setup-relay") {
-    $setupRelayDefaultArgs = Get-SupportedSetupRelayDefaultArgs -CliPath $CliPath
-  }
-  $requiredSubcommand = $null
-  $argsToPass = @()
-  switch ($runValue) {
-    "setup-relay" {
-      $argsToPass = @("relay", "host", "install") + $setupRelayDefaultArgs + $RunArgs
-      $requiredSubcommand = "relay"
-    }
-    "relay-host-install" {
-      $argsToPass = @("relay", "host", "install") + $RunArgs
-      $requiredSubcommand = "relay"
-    }
-    "setup" {
-      $argsToPass = @("setup") + $RunArgs
-      $requiredSubcommand = "setup"
-    }
-    "auth-login" {
-      $argsToPass = @("auth", "login") + $RunArgs
-      $requiredSubcommand = "auth"
-    }
-    "service-install" {
-      $argsToPass = @("service", "install") + $RunArgs
-      $requiredSubcommand = "service"
-    }
-    "daemon-install" {
-      $argsToPass = @("service", "install") + $RunArgs
-      $requiredSubcommand = "service"
-    }
-    "providers-setup" {
-      $argsToPass = @("providers", "setup") + $RunArgs
-      $requiredSubcommand = "providers"
-    }
-    default {
-      throw "Unknown -Run action '$Run'. Expected one of: setup-relay, setup, auth-login, service-install, providers-setup."
-    }
-  }
-
-  if ($requiredSubcommand) {
-    if (-not (Test-InstalledCliSupportsCommandSurface -CliPath $CliPath -requiredSubcommand $requiredSubcommand)) {
-      throw "Installed Kaiwu CLI does not support the '$requiredSubcommand' command surface required for -Run $runValue. Update your Kaiwu CLI (or switch installer channel) and try again."
-    }
-  }
-  Invoke-InstallerCommandWithDaemonServiceContext -CliPath $CliPath -CommandArgs $argsToPass -HomeDir $DaemonServiceStateHomeDir
-}
-
-if ($InstallerAction -eq "rollback") {
-  Invoke-InstallerCliRollback
-  exit 0
-}
-
-if ($Run -and -not $SetupRelay -and ($existing = Resolve-InstalledCliInvoker)) {
-  $script:LastInstallerCommandExitCode = 0
-  Invoke-PostInstallAction -CliPath $existing
-  # Match install.sh: an explicit --run/-Run propagates the command's status
-  # (install.sh:2734). Only the automatic handoff is allowed to swallow it.
-  exit $script:LastInstallerCommandExitCode
-}
-
-function Get-InstallerAssetVersionSortKey {
-  param (
-    [Parameter(Mandatory = $true)] [string] $Name
-  )
-
-  $version = ""
-  if ($Name -match '^checksums-.+-v(.+)\.txt\.minisig$') {
-    $version = $matches[1]
-  }
-  elseif ($Name -match '^checksums-.+-v(.+)\.txt$') {
-    $version = $matches[1]
-  }
-  elseif ($Name -match '^.+-v(.+)-(linux|darwin|windows)-[^-]+\.tar\.gz$') {
-    $version = $matches[1]
-  }
-  if (-not $version) {
-    return $Name
-  }
-
-  $versionWithoutBuild = $version -replace '\+.*$', ''
-  $core = $versionWithoutBuild
-  $prerelease = ""
-  if ($versionWithoutBuild.Contains('-')) {
-    $versionParts = $versionWithoutBuild -split '-', 2
-    $core = $versionParts[0]
-    $prerelease = $versionParts[1]
-  }
-
-  $coreParts = $core -split '\.'
-  $major = if ($coreParts.Length -gt 0 -and $coreParts[0] -match '^\d+$') { [int]$coreParts[0] } else { 0 }
-  $minor = if ($coreParts.Length -gt 1 -and $coreParts[1] -match '^\d+$') { [int]$coreParts[1] } else { 0 }
-  $patch = if ($coreParts.Length -gt 2 -and $coreParts[2] -match '^\d+$') { [int]$coreParts[2] } else { 0 }
-  $sortKey = '{0:D9}|{1:D9}|{2:D9}|' -f $major, $minor, $patch
-
-  if (-not $prerelease) {
-    return "${sortKey}1|stable|$Name"
-  }
-
-  $prereleaseRank = '0|'
-  foreach ($part in ($prerelease -split '\.')) {
-    if ($part -match '^\d+$') {
-      $prereleaseRank += '0|{0:D9}|' -f [int]$part
-    }
-    else {
-      $prereleaseRank += "1|$part|"
-    }
-  }
-  return "$sortKey$prereleaseRank$Name"
-}
-
-function Select-NewestInstallerAsset {
-  param (
-    [Parameter(Mandatory = $true)] [object[]] $Assets
-  )
-
-  $selected = $null
-  $selectedSortKey = ""
-  foreach ($asset in @($Assets)) {
-    if ($null -eq $asset) {
-      continue
-    }
-    $sortKey = Get-InstallerAssetVersionSortKey -Name ([string]$asset.name)
-    if ($null -eq $selected -or $sortKey -gt $selectedSortKey) {
-      $selected = $asset
-      $selectedSortKey = $sortKey
-    }
-  }
-  return $selected
-}
-
-function Get-AssetByPattern {
-  param (
-    [Parameter(Mandatory = $true)] [object] $Release,
-    [Parameter(Mandatory = $true)] [string] $Pattern
-  )
-  return Select-NewestInstallerAsset -Assets @($Release.assets | Where-Object { $_.name -match $Pattern })
-}
-
-function Get-LocalAssetByPattern {
-  param (
-    [Parameter(Mandatory = $true)] [string] $Pattern
-  )
-  if (-not $ReleaseAssetsDir) {
-    return $null
-  }
-  if (-not (Test-Path $ReleaseAssetsDir -PathType Container)) {
-    throw "Kaiwu_RELEASE_ASSETS_DIR does not exist: $ReleaseAssetsDir"
-  }
-  return Select-NewestInstallerAsset -Assets @(Get-ChildItem -Path $ReleaseAssetsDir -File | Where-Object { $_.Name -match $Pattern })
-}
-
-function Resolve-InstallerRequestedVersionPattern {
-  param (
-    [Parameter(Mandatory = $true)] [string] $Prefix,
-    [Parameter(Mandatory = $true)] [string] $Suffix
-  )
-  if ($Version) {
-    return "^$([Regex]::Escape($Prefix))$([Regex]::Escape($Version))$([Regex]::Escape($Suffix))$"
-  }
-  return "^$([Regex]::Escape($Prefix)).*$([Regex]::Escape($Suffix))$"
-}
-
-function Resolve-InstallerAsset {
-  param (
-    [Parameter(Mandatory = $false)] [object] $Release,
-    [Parameter(Mandatory = $true)] [string] $Pattern
-  )
-  $localAsset = Get-LocalAssetByPattern -Pattern $Pattern
-  if ($localAsset) {
-    return @{
-      Name = $localAsset.Name
-      Source = $localAsset.FullName
-    }
-  }
-
-  $asset = Get-AssetByPattern -Release $Release -Pattern $Pattern
-  if (-not $asset) {
-    return $null
-  }
-  return @{
-    Name = [string]$asset.name
-    Source = [string]$asset.browser_download_url
-  }
-}
-
-function Copy-OrDownloadInstallerAsset {
-  param (
-    [Parameter(Mandatory = $true)] [string] $Source,
-    [Parameter(Mandatory = $true)] [string] $DestinationPath
-  )
-  if (Test-Path $Source) {
-    Copy-Item -Path $Source -Destination $DestinationPath -Force
-    return
-  }
-  Invoke-InstallerWebRequestWithRetry -Uri $Source -Headers $GitHubHeaders -OutFile $DestinationPath
-}
-
-function Test-InstallerTransientWebException {
-  param (
-    [Parameter(Mandatory = $true)] [System.Management.Automation.ErrorRecord] $ErrorRecord
-  )
-
-  $retryableStatusCodes = @(404, 502, 503, 504)
-  $exception = $ErrorRecord.Exception
-  $statusCode = $null
-  if ($exception -and $exception.Response -and $exception.Response.StatusCode) {
-    try {
-      $statusCode = [int]$exception.Response.StatusCode
-    }
-    catch {
-      $statusCode = $null
-    }
-  }
-  if ($null -ne $statusCode -and $retryableStatusCodes -contains $statusCode) {
-    return $true
-  }
-
-  $message = if ($exception) { [string]$exception.Message } else { [string]$ErrorRecord }
-  foreach ($code in $retryableStatusCodes) {
-    if ($message -match "(^|\D)$code(\D|$)") {
-      return $true
-    }
-  }
-
-  return $false
-}
-
-function Invoke-InstallerWebRequestWithRetry {
-  param (
-    [Parameter(Mandatory = $true)] [string] $Uri,
-    [hashtable] $Headers,
-    [string] $OutFile
-  )
-
-  $retryDelaysMs = @(250, 1000)
-  for ($attempt = 0; $attempt -le $retryDelaysMs.Length; $attempt += 1) {
-    try {
-      $params = @{ Uri = $Uri; UseBasicParsing = $true }
-      if ($Headers) {
-        $params.Headers = $Headers
-      }
-      if ($OutFile) {
-        $params.OutFile = $OutFile
-      }
-      return Invoke-WebRequest @params
-    }
-    catch {
-      if ($attempt -ge $retryDelaysMs.Length -or -not (Test-InstallerTransientWebException -ErrorRecord $_)) {
-        throw
-      }
-      Start-Sleep -Milliseconds $retryDelaysMs[$attempt]
-    }
-  }
-}
-
-function Invoke-InstallerRestMethodWithRetry {
-  param (
-    [Parameter(Mandatory = $true)] [string] $Uri,
-    [hashtable] $Headers
-  )
-
-  $retryDelaysMs = @(250, 1000)
-  for ($attempt = 0; $attempt -le $retryDelaysMs.Length; $attempt += 1) {
-    try {
-      $params = @{ Uri = $Uri }
-      if ($Headers) {
-        $params.Headers = $Headers
-      }
-      return Invoke-RestMethod @params
-    }
-    catch {
-      if ($attempt -ge $retryDelaysMs.Length -or -not (Test-InstallerTransientWebException -ErrorRecord $_)) {
-        throw
-      }
-      Start-Sleep -Milliseconds $retryDelaysMs[$attempt]
-    }
-  }
-}
-
-function Resolve-MinisignExecutablePath {
-  param (
-    [string[]] $AdditionalPathEntries = @()
-  )
-
-  $command = Get-Command minisign -ErrorAction SilentlyContinue
-  if ($command) {
-    return $command.Source
-  }
-
-  $pathEntries = @()
-  if ($env:Path) {
-    $pathEntries += $env:Path -split ';'
-  }
-  $userPath = [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User)
-  if ($userPath) {
-    $pathEntries += $userPath -split ';'
-  }
-  $machinePath = [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::Machine)
-  if ($machinePath) {
-    $pathEntries += $machinePath -split ';'
-  }
-  if ($env:LOCALAPPDATA) {
-    $pathEntries += Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Links"
-    $pathEntries += Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Packages"
-  }
-  $pathEntries += $AdditionalPathEntries
-
-  foreach ($pathEntry in $pathEntries) {
-    $trimmedEntry = [string]$pathEntry
-    if (-not $trimmedEntry) {
-      continue
-    }
-
-    $candidate = Join-Path $trimmedEntry.Trim() "minisign.exe"
-    if (Test-Path $candidate) {
-      return $candidate
-    }
-
-    if ($trimmedEntry -match '[\\/]WinGet[\\/]Packages$' -and (Test-Path $trimmedEntry)) {
-      $nestedCandidate = Get-ChildItem -Path $trimmedEntry.Trim() -Filter "minisign.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-      if ($nestedCandidate) {
-        return $nestedCandidate.FullName
-      }
-    }
-  }
-
-  return $null
-}
-
-function Invoke-NativeCommandCapturingOutput {
-  param (
-    [Parameter(Mandatory = $true)] [scriptblock] $Command
-  )
-
-  $previousErrorActionPreference = $ErrorActionPreference
-  try {
-    $ErrorActionPreference = "Continue"
-    $output = & $Command 2>&1 | Out-String
-    $exitCode = $LASTEXITCODE
-    if ($null -eq $exitCode) {
-      $exitCode = 1
-    }
-    return @{
-      Output = if ($null -eq $output) { "" } else { $output }
-      ExitCode = $exitCode
-    }
-  }
-  finally {
-    $ErrorActionPreference = $previousErrorActionPreference
-  }
-}
-
-function Resolve-InstallerPayloadPromotionTimeoutMs {
-  $raw = [string]$env:Kaiwu_INSTALLER_PAYLOAD_PROMOTION_TIMEOUT_MS
-  if (-not $raw) {
-    return 120000
-  }
-  $parsed = 0
-  if (-not [int]::TryParse($raw.Trim(), [ref]$parsed)) {
-    return 120000
-  }
-  if ($parsed -lt 30000) {
-    return 30000
-  }
-  if ($parsed -gt 600000) {
-    return 600000
-  }
-  return $parsed
-}
-
-function Normalize-InstallerLockHygienePathNeedle {
-  param (
-    [string] $Value
-  )
-
-  if (-not $Value) {
-    return ""
-  }
-
-  $normalized = ([string]$Value).Trim()
-  if ($normalized.Length -ge 2) {
-    if (($normalized.StartsWith('"') -and $normalized.EndsWith('"')) -or ($normalized.StartsWith("'") -and $normalized.EndsWith("'"))) {
-      $normalized = $normalized.Substring(1, $normalized.Length - 2).Trim()
-    }
-  }
-
-  $normalized = $normalized.Replace('\', '/').ToLowerInvariant()
-  while ($normalized.Length -gt 1 -and $normalized.EndsWith('/')) {
-    $normalized = $normalized.Substring(0, $normalized.Length - 1)
-  }
-
-  return $normalized
-}
-
-function Resolve-InstallerLockHygieneExecutablePathFromCommandLine {
-  param (
-    [string] $CommandLine
-  )
-
-  if (-not $CommandLine) {
-    return ""
-  }
-
-  $trimmed = ([string]$CommandLine).Trim()
-  if (-not $trimmed) {
-    return ""
-  }
-
-  if ($trimmed.StartsWith('"')) {
-    $endQuote = $trimmed.IndexOf('"', 1)
-    if ($endQuote -gt 1) {
-      return $trimmed.Substring(1, $endQuote - 1)
-    }
-  }
-
-  if ($trimmed.StartsWith("'")) {
-    $endQuote = $trimmed.IndexOf("'", 1)
-    if ($endQuote -gt 1) {
-      return $trimmed.Substring(1, $endQuote - 1)
-    }
-  }
-
-  $firstSpace = $trimmed.IndexOf(' ')
-  if ($firstSpace -gt 0) {
-    return $trimmed.Substring(0, $firstSpace)
-  }
-
-  return $trimmed
-}
-
-function Test-InstallerLockHygienePathInScope {
-  param (
-    [string] $CandidatePath,
-    [Parameter(Mandatory = $true)] [string[]] $MatchNeedles
-  )
-
-  $candidate = Normalize-InstallerLockHygienePathNeedle -Value $CandidatePath
-  if (-not $candidate) {
-    return $false
-  }
-
-  foreach ($needle in $MatchNeedles) {
-    $scope = Normalize-InstallerLockHygienePathNeedle -Value $needle
-    if (-not $scope) {
-      continue
-    }
-
-    $scopePrefix = "$scope/"
-    if ($candidate.StartsWith($scopePrefix) -or $candidate -eq $scope) {
-      return $true
-    }
-  }
-
-  return $false
-}
-
-function Test-InstallerLockHygieneTextBoundaryCharacter {
-  param (
-    [string] $Character
-  )
-
-  if (-not $Character) {
-    return $true
-  }
-
-  $boundaryCharacters = @(" ", "`t", "`r", "`n", '"', "'", "=", ";", ",", "(", ")", "[", "]", "{", "}")
-  return $boundaryCharacters.Contains($Character)
-}
-
-function Test-InstallerLockHygieneTextContainsScopedPath {
-  param (
-    [string] $Text,
-    [Parameter(Mandatory = $true)] [string[]] $MatchNeedles
-  )
-
-  $searchText = Normalize-InstallerLockHygienePathNeedle -Value $Text
-  if (-not $searchText) {
-    return $false
-  }
-
-  foreach ($needle in $MatchNeedles) {
-    $scope = Normalize-InstallerLockHygienePathNeedle -Value $needle
-    if (-not $scope) {
-      continue
-    }
-
-    $startIndex = 0
-    while ($startIndex -lt $searchText.Length) {
-      $index = $searchText.IndexOf($scope, $startIndex, [System.StringComparison]::Ordinal)
-      if ($index -lt 0) {
-        break
-      }
-
-      $before = if ($index -eq 0) { "" } else { $searchText.Substring($index - 1, 1) }
-      $afterIndex = $index + $scope.Length
-      $after = if ($afterIndex -ge $searchText.Length) { "" } else { $searchText.Substring($afterIndex, 1) }
-      $beforeOk = Test-InstallerLockHygieneTextBoundaryCharacter -Character $before
-      $afterOk = $after -eq "/" -or (Test-InstallerLockHygieneTextBoundaryCharacter -Character $after)
-      if ($beforeOk -and $afterOk) {
-        return $true
-      }
-
-      $startIndex = $index + $scope.Length
-    }
-  }
-
-  return $false
-}
-
-function Test-InstallerLockHygieneDaemonServiceLabelInScope {
-  param (
-    [string] $Label
-  )
-
-  $normalizedLabel = ([string]$Label).Trim().ToLowerInvariant().Replace("/", "\")
-  if (-not $normalizedLabel) {
-    return $false
-  }
-
-  $leafLabel = $normalizedLabel
-  $lastSeparatorIndex = $leafLabel.LastIndexOf('\')
-  if ($lastSeparatorIndex -ge 0) {
-    if ($lastSeparatorIndex -ge ($leafLabel.Length - 1)) {
-      return $false
-    }
-    $leafLabel = $leafLabel.Substring($lastSeparatorIndex + 1)
-  }
-
-  return $leafLabel -eq "Kaiwu-daemon" -or $leafLabel.StartsWith("Kaiwu-daemon.")
-}
-
-function Resolve-InstallerLockHygieneWaitMs {
-  $raw = [string]$env:Kaiwu_INSTALLER_LOCK_HYGIENE_WAIT_MS
-  if (-not $raw) {
-    return 30000
-  }
-
-  $parsed = 0
-  if (-not [int]::TryParse($raw.Trim(), [ref]$parsed)) {
-    return 30000
-  }
-  if ($parsed -lt 5000) {
-    return 5000
-  }
-  if ($parsed -gt 120000) {
-    return 120000
-  }
-  return $parsed
-}
-
-function Get-InstallerLockHygieneMatchNeedles {
-  param (
-    [Parameter(Mandatory = $true)] [string] $InstallHomeDir
-  )
-
-  $cliInstallRoot = Join-Path $InstallHomeDir (Resolve-CliInstallRootName)
-  $versionsRoot = Join-Path $cliInstallRoot "versions"
-  $managedBinDir = Join-Path $InstallHomeDir "bin"
-  $shimName = Resolve-CliShimName
-
-  $candidates = @(
-    $InstallHomeDir
-    $cliInstallRoot
-    $versionsRoot
-    $managedBinDir
-    (Join-Path $managedBinDir "$shimName.exe")
-    (Join-Path $managedBinDir "$shimName")
-    (Join-Path $managedBinDir "Kaiwu.exe")
-    (Join-Path $managedBinDir "hprev.exe")
-    (Join-Path $managedBinDir "hdev.exe")
-  )
-
-  $needles = New-Object System.Collections.Generic.List[string]
-  foreach ($candidate in $candidates) {
-    $normalized = Normalize-InstallerLockHygienePathNeedle -Value $candidate
-    if ($normalized -and -not $needles.Contains($normalized)) {
-      $needles.Add($normalized)
-    }
-  }
-
-  return $needles.ToArray()
-}
-
-function Get-InstallerScopedKaiwuProcesses {
-  param (
-    [Parameter(Mandatory = $true)] [string[]] $MatchNeedles
-  )
-
-  $KaiwuProcessNames = @("Kaiwu", "hprev", "hdev")
-  $processes = Get-CimInstance Win32_Process -Filter "Name='Kaiwu.exe' OR Name='hprev.exe' OR Name='hdev.exe'" -ErrorAction SilentlyContinue
-  if (-not $processes) {
-    return @()
-  }
-
-  $matched = New-Object System.Collections.Generic.List[object]
-  foreach ($process in $processes) {
-    if ($null -eq $process -or $process.ProcessId -eq $PID) {
-      continue
-    }
-
-    $rawName = [string]$process.Name
-    $normalizedName = $rawName.ToLowerInvariant()
-    if ($normalizedName.EndsWith(".exe")) {
-      $normalizedName = $normalizedName.Substring(0, $normalizedName.Length - 4)
-    }
-    if (-not ($KaiwuProcessNames -contains $normalizedName)) {
-      continue
-    }
-
-    $commandExecutablePath = Resolve-InstallerLockHygieneExecutablePathFromCommandLine -CommandLine ([string]$process.CommandLine)
-    $executablePath = [string]$process.ExecutablePath
-    $matchesScope = (Test-InstallerLockHygienePathInScope -CandidatePath $executablePath -MatchNeedles $MatchNeedles) -or (Test-InstallerLockHygienePathInScope -CandidatePath $commandExecutablePath -MatchNeedles $MatchNeedles)
-
-    if ($matchesScope) {
-      $matched.Add($process)
-    }
-  }
-
-  return $matched.ToArray()
-}
-
-function Get-InstallerScopedKaiwuServices {
-  param (
-    [Parameter(Mandatory = $true)] [string[]] $MatchNeedles
-  )
-
-  $services = Get-CimInstance Win32_Service -ErrorAction SilentlyContinue
-  if (-not $services) {
-    return @()
-  }
-
-  $matched = New-Object System.Collections.Generic.List[object]
-  foreach ($service in $services) {
-    if ($null -eq $service) {
-      continue
-    }
-
-    $matchesDaemonServiceLabel =
-      (Test-InstallerLockHygieneDaemonServiceLabelInScope -Label $service.Name) -or
-      (Test-InstallerLockHygieneDaemonServiceLabelInScope -Label $service.DisplayName)
-    if (-not $matchesDaemonServiceLabel) {
-      continue
-    }
-
-    $activeServiceStates = @("running", "start pending", "stop pending", "continue pending", "pause pending")
-    $serviceState = ([string]$service.State).Trim().ToLowerInvariant()
-    if ($serviceState -and -not $activeServiceStates.Contains($serviceState)) {
-      continue
-    }
-
-    $servicePathText = [string]$service.PathName
-    $serviceExecutablePath = Resolve-InstallerLockHygieneExecutablePathFromCommandLine -CommandLine $servicePathText
-    if (
-      (Test-InstallerLockHygienePathInScope -CandidatePath $serviceExecutablePath -MatchNeedles $MatchNeedles) -or
-      (Test-InstallerLockHygieneTextContainsScopedPath -Text $servicePathText -MatchNeedles $MatchNeedles)
-    ) {
-      $matched.Add($service)
-    }
-  }
-
-  return $matched.ToArray()
-}
-
-function Get-InstallerScopedKaiwuScheduledTasks {
-  param (
-    [Parameter(Mandatory = $true)] [string[]] $MatchNeedles
-  )
-
-  $tasks = @()
-  try {
-    $tasks = Get-ScheduledTask -TaskPath "\Kaiwu\" -ErrorAction SilentlyContinue
-  }
-  catch {
-    return @()
-  }
-  if (-not $tasks) {
-    return @()
-  }
-
-  $activeTaskStates = @("running", "queued")
-  $matched = New-Object System.Collections.Generic.List[object]
-  foreach ($task in $tasks) {
-    if ($null -eq $task) {
-      continue
-    }
-
-    $taskLabel = "$([string]$task.TaskPath)$([string]$task.TaskName)"
-    if (-not (Test-InstallerLockHygieneDaemonServiceLabelInScope -Label $taskLabel)) {
-      continue
-    }
-
-    $taskState = ([string]$task.State).Trim().ToLowerInvariant()
-    if ($taskState -and -not $activeTaskStates.Contains($taskState)) {
-      continue
-    }
-
-    foreach ($action in @($task.Actions)) {
-      if ($null -eq $action) {
-        continue
-      }
-
-      $actionExecutablePath = Resolve-InstallerLockHygieneExecutablePathFromCommandLine -CommandLine ([string]$action.Execute)
-      $actionText = "$([string]$action.Execute) $([string]$action.Arguments)"
-      if (
-        (Test-InstallerLockHygienePathInScope -CandidatePath $actionExecutablePath -MatchNeedles $MatchNeedles) -or
-        (Test-InstallerLockHygieneTextContainsScopedPath -Text $actionText -MatchNeedles $MatchNeedles)
-      ) {
-        $matched.Add($task)
-        break
-      }
-    }
-  }
-
-  return $matched.ToArray()
-}
-
-function Wait-InstallerLockHygieneProcessesToExit {
-  param (
-    [Parameter(Mandatory = $true)] [string[]] $MatchNeedles,
-    [Parameter(Mandatory = $true)] [int] $WaitMs
-  )
-
-  $deadline = (Get-Date).AddMilliseconds($WaitMs)
-  while ((Get-Date) -lt $deadline) {
-    $remaining = Get-InstallerScopedKaiwuProcesses -MatchNeedles $MatchNeedles
-    if ($remaining.Count -eq 0) {
-      return @()
-    }
-    Start-Sleep -Milliseconds 250
-  }
-
-  return Get-InstallerScopedKaiwuProcesses -MatchNeedles $MatchNeedles
-}
-
-function Remove-StaleInstallerVersionBackups {
-  param (
-    [Parameter(Mandatory = $true)] [string] $InstallHomeDir
-  )
-
-  $versionsDir = Join-Path (Join-Path $InstallHomeDir (Resolve-CliInstallRootName)) "versions"
-  if (-not (Test-Path $versionsDir -PathType Container)) {
-    return
-  }
-
-  $backupDirectories = @(
-    Get-ChildItem -Path $versionsDir -Directory -ErrorAction SilentlyContinue |
-      Where-Object { $_.Name -match '\.bak-' }
-  )
-
-  foreach ($backupDirectory in $backupDirectories) {
-    try {
-      Remove-Item -Path $backupDirectory.FullName -Recurse -Force -ErrorAction Stop
-    }
-    catch {
-      Write-Warning "Failed to remove stale backup directory $($backupDirectory.FullName): $($_.Exception.Message)"
-    }
-  }
-}
-
-function Invoke-InstallerPreInstallLockHygiene {
-  param (
-    [Parameter(Mandatory = $true)] [string] $InstallHomeDir
-  )
-
-  $matchNeedles = Get-InstallerLockHygieneMatchNeedles -InstallHomeDir $InstallHomeDir
-  $existingInvoker = Resolve-InstalledCliInvoker
-  if ($existingInvoker) {
-    $preInstallCommandTimeoutMs = Resolve-InstallerPreInstallCommandTimeoutMs
-    foreach ($commandArgs in @(
-        @("service", "stop", "--json"),
-        @("daemon", "stop", "--all", "--kill-sessions", "--json")
-      )) {
-      try {
-        $commandResult = Invoke-InstallerCommandWithDaemonServiceContextCapturingOutputWithTimeout -CliPath $existingInvoker -CommandArgs $commandArgs -HomeDir $InstallHomeDir -TimeoutMs $preInstallCommandTimeoutMs
-        if ([int]$commandResult.ExitCode -ne 0) {
-          $output = ([string]$commandResult.Output).Trim()
-          if ($commandResult.TimedOut) {
-            Write-Warning "Pre-install lock hygiene command timed out after $preInstallCommandTimeoutMs ms ($($commandArgs -join ' ')); continuing with scoped process cleanup."
-          }
-          else {
-            Write-Warning "Pre-install lock hygiene command exited with code $($commandResult.ExitCode) ($($commandArgs -join ' ')); continuing with scoped process cleanup."
-          }
-          if ($output) {
-            Write-Warning "Pre-install lock hygiene command output ($($commandArgs -join ' ')): $output"
-          }
-        }
-      }
-      catch {
-        Write-Warning "Pre-install lock hygiene command failed ($($commandArgs -join ' ')): $($_.Exception.Message)"
-      }
-    }
-  }
-
-  $matchingProcesses = Get-InstallerScopedKaiwuProcesses -MatchNeedles $matchNeedles
-  foreach ($process in $matchingProcesses) {
-    Stop-Process -Id $process.ProcessId -Force -ErrorAction SilentlyContinue
-  }
-
-  $waitMs = Resolve-InstallerLockHygieneWaitMs
-  $remainingProcesses = Wait-InstallerLockHygieneProcessesToExit -MatchNeedles $matchNeedles -WaitMs $waitMs
-  if ($remainingProcesses.Count -gt 0) {
-    $details = $remainingProcesses |
-      ForEach-Object {
-        "$($_.ProcessId):$([string]$_.Name)"
-      } |
-      Sort-Object -Unique
-    throw "Pre-install lock hygiene failed to quiesce managed runtime holders within $waitMs ms: $($details -join ', ')"
-  }
-
-  $remainingServices = Get-InstallerScopedKaiwuServices -MatchNeedles $matchNeedles
-  if ($remainingServices.Count -gt 0) {
-    $details = $remainingServices |
-      ForEach-Object {
-        "$([string]$_.Name):$([string]$_.State)"
-      } |
-      Sort-Object -Unique
-    throw "Pre-install lock hygiene found scoped managed services still active after cleanup: $($details -join ', ')"
-  }
-
-  $remainingScheduledTasks = Get-InstallerScopedKaiwuScheduledTasks -MatchNeedles $matchNeedles
-  if ($remainingScheduledTasks.Count -gt 0) {
-    $details = $remainingScheduledTasks |
-      ForEach-Object {
-        "$([string]$_.TaskPath)$([string]$_.TaskName):$([string]$_.State)"
-      } |
-      Sort-Object -Unique
-    throw "Pre-install lock hygiene found scoped managed scheduled tasks still active after cleanup: $($details -join ', ')"
-  }
-
-  Remove-StaleInstallerVersionBackups -InstallHomeDir $InstallHomeDir
-}
-
-function Resolve-InstallerPowerShellExecutablePath {
-  $currentHostExecutableName = if ($PSVersionTable -and $PSVersionTable.PSEdition -eq "Core") {
-    "pwsh.exe"
-  }
-  else {
-    "powershell.exe"
-  }
-
-  if ($PSHOME) {
-    $currentHostExecutablePath = Join-Path $PSHOME $currentHostExecutableName
-    if (Test-Path -LiteralPath $currentHostExecutablePath -PathType Leaf) {
-      return $currentHostExecutablePath
-    }
-  }
-
-  foreach ($commandName in @("pwsh.exe", "pwsh", "powershell.exe", "powershell")) {
-    $command = Get-Command -Name $commandName -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
-    if ($command -and $command.Source -and (Test-Path -LiteralPath $command.Source -PathType Leaf)) {
-      return $command.Source
-    }
-  }
-
-  throw "Unable to locate PowerShell executable for installer payload promotion."
-}
-
-function Invoke-InstallerPayloadPromotionWithTimeout {
-  param (
-    [Parameter(Mandatory = $true)] [string] $BinaryPath,
-    [Parameter(Mandatory = $true)] [string] $PayloadRoot,
-    [Parameter(Mandatory = $true)] [string] $Version,
-    [Parameter(Mandatory = $true)] [string] $ChannelValue,
-    [Parameter(Mandatory = $true)] [string] $InstallHomeDir
-  )
-
-  $timeoutMs = Resolve-InstallerPayloadPromotionTimeoutMs
-  $runToken = [System.Guid]::NewGuid().ToString("N")
-  $runnerBinaryPath = Join-Path $env:TEMP "Kaiwu-payload-promotion-$runToken.exe"
-  $runnerScriptPath = Join-Path $env:TEMP "Kaiwu-payload-promotion-$runToken.ps1"
-  $stdoutPath = Join-Path $env:TEMP "Kaiwu-payload-promotion-$runToken.stdout.log"
-  $stderrPath = Join-Path $env:TEMP "Kaiwu-payload-promotion-$runToken.stderr.log"
-
-  $escapeSingleQuotedLiteral = {
-    param([string] $Value)
-    return $Value.Replace("'", "''")
-  }
-
-  $runnerScript = @"
-`$ErrorActionPreference = 'Stop'
-`$previousHappyHomeDir = `$env:Kaiwu_HOME_DIR
-`$previousSkipPayloadOwnerStopCommands = `$env:Kaiwu_CLI_SKIP_PAYLOAD_OWNER_STOP_COMMANDS
-`$previousSkipInstallPayloadMigration = `$env:Kaiwu_CLI_SKIP_INSTALL_PAYLOAD_MIGRATION
+# 解决 PowerShell 控制台编码输出乱码
 try {
-  `$env:Kaiwu_HOME_DIR = '$(& $escapeSingleQuotedLiteral $InstallHomeDir)'
-  `$env:Kaiwu_CLI_SKIP_PAYLOAD_OWNER_STOP_COMMANDS = '1'
-  `$env:Kaiwu_CLI_SKIP_INSTALL_PAYLOAD_MIGRATION = '1'
-  & '$(& $escapeSingleQuotedLiteral $runnerBinaryPath)' self __install-payload --component Kaiwu-cli --payload-root '$(& $escapeSingleQuotedLiteral $PayloadRoot)' --version '$(& $escapeSingleQuotedLiteral $Version)' --channel '$(& $escapeSingleQuotedLiteral $ChannelValue)'
-  `$exitCode = `$LASTEXITCODE
-  if (`$null -eq `$exitCode) {
-    `$exitCode = 1
-  }
-  exit `$exitCode
-}
-finally {
-  if (`$null -eq `$previousHappyHomeDir) {
-    Remove-Item Env:Kaiwu_HOME_DIR -ErrorAction SilentlyContinue
-  }
-  else {
-    `$env:Kaiwu_HOME_DIR = `$previousHappyHomeDir
-  }
-  if (`$null -eq `$previousSkipPayloadOwnerStopCommands) {
-    Remove-Item Env:Kaiwu_CLI_SKIP_PAYLOAD_OWNER_STOP_COMMANDS -ErrorAction SilentlyContinue
-  }
-  else {
-    `$env:Kaiwu_CLI_SKIP_PAYLOAD_OWNER_STOP_COMMANDS = `$previousSkipPayloadOwnerStopCommands
-  }
-  if (`$null -eq `$previousSkipInstallPayloadMigration) {
-    Remove-Item Env:Kaiwu_CLI_SKIP_INSTALL_PAYLOAD_MIGRATION -ErrorAction SilentlyContinue
-  }
-  else {
-    `$env:Kaiwu_CLI_SKIP_INSTALL_PAYLOAD_MIGRATION = `$previousSkipInstallPayloadMigration
-  }
-}
-"@
+    $utf8 = New-Object System.Text.UTF8Encoding($false)
+    [Console]::OutputEncoding = $utf8
+    [Console]::InputEncoding = $utf8
+    $OutputEncoding = $utf8
+} catch {}
 
-  try {
-    Copy-Item -Path $BinaryPath -Destination $runnerBinaryPath -Force
-    Set-Content -Path $runnerScriptPath -Value $runnerScript -Encoding utf8
-
-    $powerShellExecutablePath = Resolve-InstallerPowerShellExecutablePath
-    $process = Start-Process -FilePath $powerShellExecutablePath -ArgumentList @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $runnerScriptPath) -PassThru -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath -WindowStyle Hidden
-
-    $completed = $process.WaitForExit($timeoutMs)
-    if (-not $completed) {
-      Stop-InstallerProcessTree -Process $process
-
-      return @{
-        ExitCode = 124
-        Output = "Payload promotion timed out after $timeoutMs ms."
-        TimedOut = $true
-      }
-    }
-
-    $stdout = if (Test-Path $stdoutPath -PathType Leaf) { Get-Content -Path $stdoutPath -Raw -ErrorAction SilentlyContinue } else { "" }
-    $stderr = if (Test-Path $stderrPath -PathType Leaf) { Get-Content -Path $stderrPath -Raw -ErrorAction SilentlyContinue } else { "" }
-    $output = @($stdout, $stderr) -join ""
-
-    return @{
-      ExitCode = [int]$process.ExitCode
-      Output = [string]$output
-      TimedOut = $false
-    }
-  }
-  finally {
-    Remove-Item -Path $runnerBinaryPath -Force -ErrorAction SilentlyContinue
-    Remove-Item -Path $runnerScriptPath -Force -ErrorAction SilentlyContinue
-    Remove-Item -Path $stdoutPath -Force -ErrorAction SilentlyContinue
-    Remove-Item -Path $stderrPath -Force -ErrorAction SilentlyContinue
-  }
+$KAIWU_SERVER_URL = if ($ServerUrl) {
+    $ServerUrl
+} elseif ($env:KAIWU_SERVER_URL) {
+    $env:KAIWU_SERVER_URL
+} elseif ($env:HAPPIER_SERVER_URL) {
+    $env:HAPPIER_SERVER_URL
+} else {
+    "https://kaiwu.chengqiyun.com"
 }
 
-function Ensure-Minisign {
-  param (
-    [Parameter(Mandatory = $true)] [string] $TempRoot
-  )
-  $existingMinisign = Resolve-MinisignExecutablePath
-  if ($existingMinisign) {
-    return $existingMinisign
-  }
+$LATEST_METADATA_URL = "https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/latest.json"
+$DEFAULT_VERSION = "0.2.15"
+$DEFAULT_ARCHIVE_URL = "https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/$DEFAULT_VERSION/kaiwu-v$DEFAULT_VERSION-windows-x64.tar.gz"
+$DEFAULT_ARCHIVE_SHA256 = "099c45f4aba81d7e15c4bf2aeac8e8e8fec56809a4090c94d43bfdb9e20d984c"
 
-  # Self-contained fallback: download a known minisign release asset.
-  $minisignVersion = "0.12"
-  $asset = "minisign-$minisignVersion-win64.zip"
-  $expectedSha = "37b600344e20c19314b2e82813db2bfdcc408b77b876f7727889dbd46d539479"
-  $zipPath = Join-Path $TempRoot $asset
-  Invoke-InstallerWebRequestWithRetry -Uri "https://github.com/jedisct1/minisign/releases/download/$minisignVersion/$asset" -OutFile $zipPath
-  $actualSha = (Get-FileHash -Path $zipPath -Algorithm SHA256).Hash.ToLowerInvariant()
-  if ($actualSha -ne $expectedSha) {
-    throw "minisign bootstrap checksum mismatch (expected $expectedSha, got $actualSha)."
-  }
-
-  $extractDir = Join-Path $TempRoot "minisign-extract"
-  New-Item -ItemType Directory -Path $extractDir -Force | Out-Null
-  Expand-Archive -Path $zipPath -DestinationPath $extractDir -Force
-  $exe = Get-ChildItem -Path $extractDir -Filter "minisign.exe" -Recurse | Select-Object -First 1
-  if (-not $exe) {
-    throw "Failed to locate minisign.exe in bootstrap archive."
-  }
-
-  try {
-    & $exe.FullName --version *> $null
-  }
-  catch {
-    Write-Warning "Downloaded minisign binary is not compatible with this system."
-    Write-Host "Installing minisign with winget..."
-    $wingetInstallResult = Invoke-NativeCommandCapturingOutput {
-      winget install --id jedisct1.minisign --accept-source-agreements --accept-package-agreements
-    }
-    if ($wingetInstallResult.ExitCode -ne 0) {
-      throw "Unable to install minisign via winget. $($wingetInstallResult.Output)"
-    }
-    $installedMinisign = Resolve-MinisignExecutablePath
-    if ($installedMinisign) {
-      return $installedMinisign
-    }
-    throw "winget installed minisign, but minisign.exe was not found on PATH or in standard WinGet locations."
-  }
-
-  return $exe.FullName
+function Write-Info {
+    param([string]$Message)
+    Write-Host "==> $Message" -ForegroundColor Cyan
 }
 
-function Resolve-MinisignPublicKey {
-  param (
-    [Parameter(Mandatory = $true)] [string] $TargetPath
-  )
-  if ($MinisignPubKey) {
-    Set-Content -Path $TargetPath -Value "$MinisignPubKey`n" -NoNewline
-    return
-  }
-  if (-not $MinisignPubKeyUrl) {
-    throw "Kaiwu_MINISIGN_PUBKEY_URL is empty; cannot fetch minisign public key."
-  }
-  Invoke-InstallerWebRequestWithRetry -Uri $MinisignPubKeyUrl -OutFile $TargetPath
+function Write-Success {
+    param([string]$Message)
+    Write-Host "==> $Message" -ForegroundColor Green
 }
 
-$tag = if ($Channel -eq "preview") { "cli-preview" } elseif ($Channel -eq "publicdev") { "cli-dev" } else { "cli-stable" }
-if (-not $ReleaseAssetsDir) {
-  Write-Host "Fetching $tag release metadata..."
-  try {
-    $release = Invoke-InstallerRestMethodWithRetry -Uri "https://api.github.com/repos/$Repo/releases/tags/$tag" -Headers $GitHubHeaders
-  }
-  catch {
-    if ($Channel -eq "stable") {
-      throw "No stable releases found for Kaiwu CLI."
-    }
-    if ($Channel -eq "publicdev") {
-      throw "No dev releases found for Kaiwu CLI."
-    }
-    throw "No preview releases found for Kaiwu CLI."
-  }
-}
-else {
-  $release = $null
-}
-$assetPattern = Resolve-InstallerRequestedVersionPattern -Prefix "Kaiwu-v" -Suffix "-windows-x64.tar.gz"
-$checksumsPattern = Resolve-InstallerRequestedVersionPattern -Prefix "checksums-Kaiwu-v" -Suffix ".txt"
-$signaturePattern = Resolve-InstallerRequestedVersionPattern -Prefix "checksums-Kaiwu-v" -Suffix ".txt.minisig"
-$asset = Resolve-InstallerAsset -Release $release -Pattern $assetPattern
-$checksumsAsset = Resolve-InstallerAsset -Release $release -Pattern $checksumsPattern
-$signatureAsset = Resolve-InstallerAsset -Release $release -Pattern $signaturePattern
-if (-not $asset) {
-  throw "Unable to locate Windows x64 binary on release tag $tag."
-}
-if (-not $checksumsAsset) {
-  throw "Unable to locate checksum asset on release tag $tag."
-}
-if (-not $signatureAsset) {
-  throw "Unable to locate minisign signature asset on release tag $tag."
+function Write-Warn {
+    param([string]$Message)
+    Write-Host "[警告] $Message" -ForegroundColor Yellow
 }
 
-$script:PostInstallRunStatus = 0
-$script:PostInstallActionWasExplicit = [bool]($Run -or $SetupRelay)
-$tmpDir = New-InstallerStagingDirectory -InstallHomeDir $InstallDir
+function Write-Err {
+    param([string]$Message)
+    Write-Host "[错误] $Message" -ForegroundColor Red
+}
+
+Write-Host ""
+Write-Host "==================================================" -ForegroundColor Cyan
+Write-Host "         无极开物 (Kaiwu) CLI 快速安装程序        " -ForegroundColor Cyan
+Write-Host "==================================================" -ForegroundColor Cyan
+Write-Host ""
+
+# 1. 检测系统架构
+if ([IntPtr]::Size -ne 8) {
+    Write-Err "当前仅支持 Windows 64位 (x64) 操作系统。"
+    exit 1
+}
+
+# 2. 获取版本信息
+Write-Info "正在获取最新发布版本..."
+$downloadUrl = $DEFAULT_ARCHIVE_URL
+$targetVersion = $DEFAULT_VERSION
+$expectedSha = $DEFAULT_ARCHIVE_SHA256
+
 try {
-  $archivePath = Join-Path $tmpDir.FullName "Kaiwu.tar.gz"
-  $checksumsPath = Join-Path $tmpDir.FullName "checksums.txt"
-  $signaturePath = Join-Path $tmpDir.FullName "checksums.txt.minisig"
-  $pubKeyPath = Join-Path $tmpDir.FullName "minisign.pub"
-
-  Copy-OrDownloadInstallerAsset -Source $asset.Source -DestinationPath $archivePath
-  Copy-OrDownloadInstallerAsset -Source $checksumsAsset.Source -DestinationPath $checksumsPath
-  Copy-OrDownloadInstallerAsset -Source $signatureAsset.Source -DestinationPath $signaturePath
-
-  $assetName = [string]$asset.Name
-  $expectedSha = $null
-  foreach ($line in (Get-Content -Path $checksumsPath)) {
-    if ($line -match '^([a-fA-F0-9]{64})\s{2}(.+)$' -and $matches[2] -eq $assetName) {
-      $expectedSha = $matches[1].ToLowerInvariant()
-      break
+    $meta = Invoke-RestMethod -Uri $LATEST_METADATA_URL -UseBasicParsing -TimeoutSec 5
+    if ($meta -and $meta.version -and $meta.windows_x64 -and $meta.windows_x64_sha256) {
+        $downloadUrl = $meta.windows_x64
+        $targetVersion = $meta.version
+        $expectedSha = ([string]$meta.windows_x64_sha256).ToLowerInvariant()
     }
-  }
-  if (-not $expectedSha) {
-    throw "Failed to resolve checksum for $assetName"
-  }
-  $actualSha = (Get-FileHash -Path $archivePath -Algorithm SHA256).Hash.ToLowerInvariant()
-  if ($expectedSha -ne $actualSha) {
-    throw "Checksum verification failed."
-  }
-  Write-Host "Checksum verified."
+} catch {
+    Write-Warn "未能从元数据中心获取最新版本，回退至内置稳定版本 ($targetVersion)"
+}
 
-  $minisign = Ensure-Minisign -TempRoot $tmpDir.FullName
-  Resolve-MinisignPublicKey -TargetPath $pubKeyPath
-  $minisignVerifyResult = Invoke-NativeCommandCapturingOutput {
-    & $minisign -Vm $checksumsPath -x $signaturePath -p $pubKeyPath
-  }
-  if ($minisignVerifyResult.ExitCode -ne 0) {
-    if ($minisignVerifyResult.Output) {
-      Write-Warning $minisignVerifyResult.Output.Trim()
+Write-Info "准备安装版本: v$targetVersion (免 Node.js 独立完整运行版)"
+
+# 3. 准备目标安装路径 (~/.kaiwu/bin)
+if ($InstallDir) {
+    $kaiwuHome = $InstallDir
+} else {
+    $kaiwuHome = Join-Path $HOME ".kaiwu"
+}
+$binDir = Join-Path $kaiwuHome "bin"
+$tempDir = Join-Path $kaiwuHome "temp"
+
+if (-not (Test-Path $binDir)) {
+    New-Item -ItemType Directory -Force -Path $binDir | Out-Null
+}
+if (-not (Test-Path $tempDir)) {
+    New-Item -ItemType Directory -Force -Path $tempDir | Out-Null
+}
+
+$tarGzFile = Join-Path $tempDir "kaiwu-latest-windows-x64.tar.gz"
+
+# 4. 高速下载预编译包
+Write-Info "正在从国内腾讯云 BGP 高速通道下载完整程序包..."
+try {
+    # 优先使用 WebClient / HttpClient 实现高吞吐下载
+    $wc = New-Object System.Net.WebClient
+    $wc.DownloadFile($downloadUrl, $tarGzFile)
+} catch {
+    Write-Warn "WebClient 下载异常，尝试使用 Invoke-WebRequest..."
+    Invoke-WebRequest -Uri $downloadUrl -OutFile $tarGzFile -UseBasicParsing
+}
+
+if (-not (Test-Path $tarGzFile)) {
+    Write-Err "下载发布包失败，请检查网络连接。"
+    exit 1
+}
+
+if ($expectedSha -and $expectedSha -notmatch '^[a-f0-9]{64}$') {
+    Write-Err "发布元数据中的 SHA256 格式无效，拒绝继续安装。"
+    exit 1
+}
+if ($expectedSha) {
+    $actualSha = (Get-FileHash -Path $tarGzFile -Algorithm SHA256).Hash.ToLowerInvariant()
+    if ($actualSha -ne $expectedSha) {
+        Write-Err "发布包 SHA256 校验失败，拒绝安装。"
+        exit 1
     }
-    throw "Signature verification failed."
-  }
-  Write-Host "Signature verified."
+    Write-Info "发布包 SHA256 校验通过。"
+}
 
-  $extractDir = Join-Path $tmpDir.FullName "extract"
-  New-Item -ItemType Directory -Path $extractDir | Out-Null
-  $tarPath = Resolve-TarExecutablePath
-  & $tarPath -xzf $archivePath -C $extractDir
-  $version = $assetName -replace '^Kaiwu-v', '' -replace '-windows-x64\.tar\.gz$', ''
-  if (-not $version -or $version -eq $assetName) {
-    throw "Failed to infer release version from asset name: $assetName"
-  }
-  $payloadRoot = Join-Path $extractDir "Kaiwu-v$version-windows-x64"
-  if (-not (Test-Path $payloadRoot)) {
-    throw "Failed to locate extracted payload root: $payloadRoot"
-  }
-  $binary = Join-Path $payloadRoot "Kaiwu.exe"
-  if (-not (Test-Path $binary)) {
-    throw "Failed to locate extracted Kaiwu.exe"
-  }
+# 5. 解压程序
+Write-Info "正在展开并配置开物运行时..."
+$extractTemp = Join-Path $tempDir "extract"
+if (Test-Path $extractTemp) {
+    Remove-Item -LiteralPath $extractTemp -Recurse -Force -ErrorAction SilentlyContinue
+}
+New-Item -ItemType Directory -Force -Path $extractTemp | Out-Null
 
-  New-Item -ItemType Directory -Path $BinDir -Force | Out-Null
-  $target = Join-Path $BinDir "$((Resolve-CliShimName)).exe"
+$tarExe = "C:\Windows\System32\tar.exe"
+if (Get-Command tar -ErrorAction SilentlyContinue) {
+    $tarExe = (Get-Command tar).Source
+}
 
-  Invoke-InstallerPreInstallLockHygiene -InstallHomeDir $InstallDir
-  $promotionResult = Invoke-InstallerPayloadPromotionWithTimeout -BinaryPath $binary -PayloadRoot $payloadRoot -Version $version -ChannelValue $Channel -InstallHomeDir $InstallDir
-  if ($promotionResult.ExitCode -ne 0) {
-    $promotionOutput = if ($promotionResult.Output) { $promotionResult.Output.Trim() } else { "" }
-    if ($promotionResult.TimedOut) {
-      if ($promotionOutput) {
-        Write-Warning $promotionOutput
-      }
-      throw "Payload promotion timed out. Refusing direct binary copy to avoid partial install state drift (versioned payload/current marker/shim/channel migration)."
+if (Test-Path $tarExe) {
+    & $tarExe -xzf $tarGzFile -C $extractTemp
+} else {
+    Write-Err "未在系统中找到 tar.exe 解压工具（Windows 10 17063+ 原生内置）。"
+    exit 1
+}
+
+# 查找解压出的目录并展平单层目录结构
+$extractedEntries = @(Get-ChildItem -Path $extractTemp -Force)
+$extractedDirs = @($extractedEntries | Where-Object { $_.PSIsContainer })
+$extractedFiles = @($extractedEntries | Where-Object { -not $_.PSIsContainer })
+
+# 若只有一个顶层目录（无同级文件），则取该目录内容；否则直接用提取根
+if ($extractedDirs.Count -eq 1 -and $extractedFiles.Count -eq 0) {
+    $extractedFolder = $extractedDirs[0]
+    Write-Info "检测到单层顶级目录 '$($extractedFolder.Name)'，展平其内容至 bin"
+} else {
+    $extractedFolder = Get-Item -Path $extractTemp
+}
+
+if (-not $extractedFolder) {
+    Write-Err "解压目录结构异常，请重试。"
+    exit 1
+}
+
+# 清理 bin 目录下的旧目录，确保整体替换
+foreach ($dir in @("package-dist", "node_modules", "scripts", "tools")) {
+    $dirPath = Join-Path $binDir $dir
+    if (Test-Path $dirPath) {
+        Remove-Item -Path $dirPath -Recurse -Force -ErrorAction SilentlyContinue
     }
-    $payloadPromotionFallbackSafe = Test-InstallerPayloadDirectCopyFallbackSafe
-    $legacyFallbackCompatible = $promotionOutput -match 'Unknown self subcommand:\s+__install-payload'
-    $longPathOrMissingSourceSignature = $promotionOutput -match '(ENOENT: no such file or directory, copyfile|ENOENT: no such file or directory, open|ENAMETOOLONG|name too long|path too long)'
+}
 
-    if ($payloadPromotionFallbackSafe -and ($legacyFallbackCompatible -or $longPathOrMissingSourceSignature)) {
-      Write-Warning "Payload promotion is unsupported by this CLI build, falling back to legacy direct binary copy."
-      if ($promotionOutput) {
-        Write-Warning $promotionOutput
-      }
-      Copy-Item -Path $binary -Destination $target -Force
-    }
-    elseif ($longPathOrMissingSourceSignature) {
-      if ($promotionOutput) {
-        Write-Warning $promotionOutput
-      }
-      throw "Payload promotion failed without a safe fallback. Refusing direct binary copy to avoid partial install state drift (versioned payload/current marker/shim/channel migration)."
-    }
-    else {
-      if ($promotionOutput) {
-        Write-Warning $promotionOutput
-      }
-      throw "Payload promotion failed."
-    }
-  }
-  if ($LegacyBinDir -ne $BinDir) {
-    Remove-Item -Path (Join-Path $LegacyBinDir "Kaiwu.exe") -Force -ErrorAction SilentlyContinue
-  }
+# 将二进制与 bundle 复制到 bin 目录 (使用 robocopy 处理深层嵌套的 node_modules)
+$extractPath = $extractedFolder.FullName
+$robocopyExe = "C:\Windows\System32\robocopy.exe"
 
-  if ($NoPathUpdate -ne "1") {
-    $userPath = [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User)
-    $pathEntries = @()
-    if ($userPath) {
-      $pathEntries = @(
-        $userPath -split ';' |
-          ForEach-Object { $_.Trim() } |
-          Where-Object { $_ -and $_ -ne $BinDir }
-      )
+if (Test-Path $robocopyExe) {
+    # 使用 robocopy 复制整个目录树，忽略长路径问题
+    & $robocopyExe $extractPath $binDir /E /NFL /NDL /NJH /NJS /NC /NS /NP 2>&1 | Out-Null
+} else {
+    # 后备方案：逐个复制子项 (避免通配符问题)
+    Get-ChildItem -Path $extractPath | ForEach-Object {
+        Copy-Item -Path $_.FullName -Destination $binDir -Recurse -Force
     }
-    $updatedPathEntries = @($BinDir) + $pathEntries
-    [Environment]::SetEnvironmentVariable("Path", ($updatedPathEntries -join ';'), [EnvironmentVariableTarget]::User)
-    $machinePath = [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::Machine)
-    $machinePathEntries = @()
-    if ($machinePath) {
-      $machinePathEntries = @(
-        $machinePath -split ';' |
-          ForEach-Object { $_.Trim() } |
-          Where-Object { $_ -and $updatedPathEntries -notcontains $_ }
-      )
-    }
-    $processPathEntries = @($updatedPathEntries) + @($machinePathEntries)
-    $env:Path = ($processPathEntries -join ';')
-    if ($pathEntries.Length -eq 0 -or $userPath -notmatch [Regex]::Escape($BinDir)) {
-      Write-Host "Added $BinDir to user PATH."
-      Show-PathReloadGuidance -ShimName (Resolve-CliShimName) -BinDir $BinDir
-    }
-  }
-  else {
-    Write-Host "Skipped PATH update because Kaiwu_NO_PATH_UPDATE=1."
-  }
+}
 
-  $invoker = Resolve-InstalledCliInvoker
-  if (-not $invoker) {
-    $invoker = $target
-  }
+# 清理临时下载文件
+try {
+    if (Test-Path $tarGzFile) { Remove-Item -Force $tarGzFile -ErrorAction SilentlyContinue }
+} catch {}
 
-  # Mirror install.sh:2305-2331: print a labeled summary block so the user
-  # can see both the managed binary path and the shim that PATH resolves to.
-  # The shim/binary distinction matters when users embed the path in build
-  # scripts — they typically want the shim, but the binary path is the
-  # authoritative location of the installed CLI.
-  $displayShimPath = $target
-  $displayShimDir = Split-Path -Parent $displayShimPath
-  $displayShimBasename = [System.IO.Path]::GetFileNameWithoutExtension($displayShimPath)
-  $displayBinaryPath = $invoker
-  Write-Host ""
-  Write-Host "Kaiwu CLI installed:"
-  Write-Host "  binary: $displayBinaryPath"
-  Write-Host "  shim:   $displayShimPath"
-  Write-Host ""
+# 6. 配置用户级环境变量 PATH 与 KAIWU_SERVER_URL
+Write-Info "正在配置环境变量与系统连接..."
+$userPath = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::User)
+if (-not $userPath) { $userPath = "" }
 
-  $shimDirOnCurrentPath = $false
-  if ($env:Path) {
-    foreach ($pathEntry in ($env:Path -split ';')) {
-      if ($pathEntry.Trim() -eq $displayShimDir) {
-        $shimDirOnCurrentPath = $true
-        break
-      }
-    }
-  }
-  if ($shimDirOnCurrentPath) {
-    Write-Host "You can run ``$displayShimBasename`` right away."
-  }
-  elseif ($NoPathUpdate -eq "1") {
-    Write-Host "PATH update was skipped. Run directly using the absolute path:"
-    Write-Host "  $displayShimPath"
-  }
-  else {
-    Write-Host "To use ``$displayShimBasename`` from any new shell, $displayShimDir has been added to your PATH."
-    Write-Host "In THIS shell, restart PowerShell or run directly using the absolute path:"
-    Write-Host "  $displayShimPath"
-  }
-  Write-Host ""
+$pathEntries = $userPath.Split(';') | ForEach-Object { $_.Trim() } | Where-Object { $_ }
+if ($pathEntries -notcontains $binDir) {
+    $newPath = ($pathEntries + $binDir) -join ';'
+    [System.Environment]::SetEnvironmentVariable("Path", $newPath, [System.EnvironmentVariableTarget]::User)
+    Write-Info "已将 $binDir 添加至用户 PATH 环境变量"
+}
 
-  & $invoker --version
+# 立即刷新当前进程环境
+if ($env:Path -split ';' -notcontains $binDir) {
+    $env:Path = "$binDir;$env:Path"
+}
 
-  $backgroundServiceInventory = @{
-    Supported = $false
-    Entries = @()
-  }
-  $shouldInspectBackgroundServices = $true
-  if ($WithDaemonExplicit -and (ConvertTo-InstallerBoolean -Raw ([string]$WithDaemonPreference)) -eq "0") {
-    $shouldInspectBackgroundServices = $false
-  }
-  if ($shouldInspectBackgroundServices) {
-    $backgroundServiceInventory = Get-InstalledBackgroundServiceInventory -CliPath $invoker
-  }
-  if ($shouldInspectBackgroundServices -and $Noninteractive -ne "1" -and $backgroundServiceInventory.RepairSupported) {
-    # Mirror install.sh:864-882: when the installer has a real TTY (UserInteractive
-    # AND stdin not redirected), hand off to the CLI's interactive `doctor repair`
-    # so the user can accept/reject each finding inline. Otherwise fall back to
-    # the read-only report, which prints the CTA "To handle these interactively:"
-    # footer so the user still knows the next step.
+# 设置并持久化开物服务端连接
+[System.Environment]::SetEnvironmentVariable('KAIWU_SERVER_URL', $KAIWU_SERVER_URL, [System.EnvironmentVariableTarget]::User)
+[System.Environment]::SetEnvironmentVariable('HAPPIER_SERVER_URL', $KAIWU_SERVER_URL, [System.EnvironmentVariableTarget]::User)
+$env:KAIWU_SERVER_URL = $KAIWU_SERVER_URL
+$env:HAPPIER_SERVER_URL = $KAIWU_SERVER_URL
+Write-Info "已配置开物服务端连接: $KAIWU_SERVER_URL"
+
+# 创建 happier.exe 兼容别名
+$kaiwuExePath = Join-Path $binDir "kaiwu.exe"
+$happierExePath = Join-Path $binDir "happier.exe"
+if (Test-Path $kaiwuExePath) {
+    Copy-Item -Path $kaiwuExePath -Destination $happierExePath -Force
+}
+
+# 确保运行时资产目录联接 (cli/current -> bin)，保证 Claude Code 专用 hook 与 sidecar 脚本正常加载
+$cliCurrentDir = Join-Path $kaiwuHome "cli\current"
+if (-not (Test-Path $cliCurrentDir)) {
     try {
-      if (Test-InteractiveInstallerPromptAvailable) {
-        Invoke-InstallerCommandWithDaemonServiceContext -CliPath $invoker -CommandArgs @("doctor", "repair") -HomeDir $DaemonServiceStateHomeDir
-      }
-      else {
-        Invoke-InstallerCommandWithDaemonServiceContext -CliPath $invoker -CommandArgs @("doctor", "repair", "--report-only") -HomeDir $DaemonServiceStateHomeDir
-      }
+        $cliParentDir = Join-Path $kaiwuHome "cli"
+        if (-not (Test-Path $cliParentDir)) {
+            New-Item -ItemType Directory -Force -Path $cliParentDir | Out-Null
+        }
+        New-Item -ItemType Junction -Path $cliCurrentDir -Target $binDir | Out-Null
+        Write-Info "已建立运行时资产目录联接: $cliCurrentDir -> $binDir"
+    } catch {
+        Write-Warn "建立目录联接失败，尝试创建软链接: $_"
+        try {
+            New-Item -ItemType SymbolicLink -Path $cliCurrentDir -Target $binDir | Out-Null
+        } catch {}
     }
-    catch {
-      # ignore: doctor repair output is best-effort and should never block installs/updates
-    }
-  }
+}
 
-  $resolvedWithDaemon = Resolve-WithDaemonPreference -Entries $backgroundServiceInventory.Entries -DefaultFollowingMatchesSelectedReleaseChannel $backgroundServiceInventory.DefaultFollowingMatchesSelectedReleaseChannel
-  if ($resolvedWithDaemon -ne "0") {
-    if ($backgroundServiceInventory.Supported) {
-      $installStrategy = Resolve-ExistingBackgroundServiceInstallStrategy -Entries $backgroundServiceInventory.Entries -DefaultFollowingMatchesSelectedReleaseChannel $backgroundServiceInventory.DefaultFollowingMatchesSelectedReleaseChannel
-      $installCommand = Get-BackgroundServiceInstallManualCommand -CliPath $invoker
-      if ($installStrategy -eq "replace-all") {
-        $repairResult = Invoke-DoctorRepairIfSupported -CliPath $invoker
-        if ($repairResult.Status -eq 'applied') {
-          Write-Host "Updating automatic startup to this release channel..."
-        }
-        elseif ($repairResult.Status -eq 'unsupported') {
-          Write-Host "Setting up automatic startup (user-mode)..."
-          $installResult = Invoke-BackgroundServiceInstallCompatibly -CliPath $invoker
-          if (-not $installResult.Ok) {
-            Write-Warning "background service install failed. You can retry manually: `"$installCommand`""
-          }
-        }
-        else {
-          if ($backgroundServiceInventory.RepairSupported -and @($backgroundServiceInventory.Entries | Where-Object { $_.mode -eq 'system' }).Count -gt 0) {
-            Write-Warning "system background services require an elevated PowerShell to repair or switch. Retry from an elevated PowerShell: `"$invoker doctor repair --yes`""
-          }
-          else {
-            Write-Warning "background service install failed. You can retry manually: `"$invoker doctor repair --yes`""
-          }
-        }
-      }
-      elseif ($installStrategy -eq "add") {
-        Write-Host "Setting up automatic startup (additional service, user-mode)..."
-        $installResult = Invoke-BackgroundServiceInstallCompatibly -CliPath $invoker
-        if (-not $installResult.Ok) {
-          Write-Warning "background service install failed. You can retry manually: `"$installCommand`""
-        }
-      }
-      elseif ($installStrategy -eq "skip") {
-        Write-Host "Keeping existing background services unchanged."
-      }
-      else {
-        $skipBackgroundServiceInstall = $false
-        if ($Noninteractive -eq "1") {
-          $repairResult = Invoke-DoctorRepairIfSupported -CliPath $invoker
-          if ($repairResult.Status -eq 'applied') {
-            Write-Host "Repairing automatic startup (best-effort)..."
-          }
-          elseif ($repairResult.Status -eq 'failed') {
-            if ($backgroundServiceInventory.RepairSupported -and @($backgroundServiceInventory.Entries | Where-Object { $_.mode -eq 'system' }).Count -gt 0) {
-              Write-Warning "system background services require an elevated PowerShell to repair or switch. Retry from an elevated PowerShell: `"$invoker doctor repair --yes`""
-              $skipBackgroundServiceInstall = $true
-            }
-            else {
-              Write-Host "Repairing automatic startup (best-effort)..."
-              Write-Warning "background service repair failed. You can retry manually: `"$invoker doctor repair --yes`""
-              $skipBackgroundServiceInstall = $true
-            }
-          }
-        }
-        if (-not $skipBackgroundServiceInstall) {
-          Write-Host "Setting up automatic startup (user-mode)..."
-          $installResult = Invoke-BackgroundServiceInstallCompatibly -CliPath $invoker
-          if (-not $installResult.Ok) {
-            Write-Warning "background service install failed. You can retry manually: `"$installCommand`""
-          }
-        }
-      }
-    }
-  }
+# 7. 运行验证 (强制性自检，失败则报错退出)
+Write-Host ""
+Write-Info "执行安装后自检..."
+Write-Host ""
 
-  $script:PostInstallMachineIsConfigured = Test-InstalledCliReportsConfiguredMachine -CliPath $invoker
-  $script:PostInstallSetupIsDone = $script:PostInstallMachineIsConfigured
+$exePath = Join-Path $binDir "kaiwu.exe"
+if (-not (Test-Path $exePath)) {
+    Write-Err "自检失败：未找到 $exePath"
+    exit 1
+}
 
-  if ($Run -or $SetupRelay) {
-    $script:LastInstallerCommandExitCode = 0
-    Invoke-PostInstallAction -CliPath $invoker
-    $script:PostInstallRunStatus = $script:LastInstallerCommandExitCode
-    if (([string]$Run).Trim().ToLowerInvariant() -eq "setup" -and $script:PostInstallRunStatus -eq 0) {
-      $script:PostInstallSetupIsDone = $true
+try {
+    $v = & $exePath --version 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        Write-Err "自检失败：kaiwu.exe --version 返回错误代码 $LASTEXITCODE"
+        exit 1
     }
-  }
-  elseif (Test-ShouldHandOffToGuidedSetup -CliPath $invoker) {
+    Write-Success "恭喜！无极开物 CLI 已秒级安装就绪！"
     Write-Host ""
-    # Reuse the existing -Run machinery rather than adding a second dispatch path.
-    $Run = "setup"
-    $RunArgs = @()
-    try {
-      $script:LastInstallerCommandExitCode = 0
-      Invoke-PostInstallAction -CliPath $invoker
-      # `Kaiwu setup` exits non-zero when it stops short of finishing -- for
-      # example when it has set the relay but sign-in still needs a person. That
-      # is not "done", and it must not fail the install either.
-      $script:PostInstallSetupIsDone = ($script:LastInstallerCommandExitCode -eq 0)
-    }
-    catch {
-      # A declined or failed setup does not fail the install; the next-steps
-      # block below still tells the user how to pick it back up.
-      Write-Warning "Guided setup did not finish: $($_.Exception.Message)"
-    }
-  }
-
-  Write-PostInstallGetStarted -CliName $displayShimBasename
-}
-finally {
-  Remove-InstallerStagingDirectory -Directory $tmpDir
+    Write-Host "  • 当前安装版本: v$v" -ForegroundColor Green
+    Write-Host "  • 程序所在目录: $binDir" -ForegroundColor Gray
+    Write-Host "  • 开物中继服务: $KAIWU_SERVER_URL" -ForegroundColor Gray
+    Write-Host "  • 包含命令别名: kaiwu, happier" -ForegroundColor Gray
+} catch {
+    Write-Err "自检失败：执行 kaiwu.exe --version 时出错：$_"
+    exit 1
 }
 
-# Match install.sh: an explicitly requested post-install action is part of the
-# command's contract and propagates its status. The automatic guided handoff is
-# best-effort and never turns a successful binary install into a failed install.
-if ($script:PostInstallActionWasExplicit) {
-  exit $script:PostInstallRunStatus
-}
+Write-Host ""
+Write-Host "下一步快速开始：" -ForegroundColor White
+Write-Host "  1. 连接配对本机与手机/控制台：" -ForegroundColor Yellow
+Write-Host "     kaiwu setup" -ForegroundColor Cyan
+Write-Host "  2. 在任何项目目录中启动 AI 编程会话：" -ForegroundColor Yellow
+Write-Host "     cd D:\你的代码目录" -ForegroundColor Gray
+Write-Host "     kaiwu" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "注：若在其他现有终端窗口中使用，请重新开启终端窗口以加载最新 PATH。" -ForegroundColor DarkGray
+Write-Host ""
+} @args

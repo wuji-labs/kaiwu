@@ -34,7 +34,7 @@ export async function cmdMcpServersList(
       await printJsonEnvelope({ ok: false, kind: 'mcp_servers_list', error: { code: 'not_authenticated' } }, { exitCode: 1 });
       return;
     }
-    console.error(chalk.red('Error:'), 'Not authenticated. Run "kaiwu auth login" first.');
+    console.error(chalk.red('错误：'), '尚未登录。请先运行 "kaiwu auth login"。');
     process.exitCode = 1;
     return;
   }
@@ -47,7 +47,7 @@ export async function cmdMcpServersList(
     return;
   }
 
-  console.log(chalk.gray(`MCP servers: ${mcpSettings.servers.length}`));
+  console.log(chalk.gray(`MCP 服务器：${mcpSettings.servers.length}`));
   for (const server of mcpSettings.servers) {
     console.log(`- ${server.name} (${server.transport})`);
   }
