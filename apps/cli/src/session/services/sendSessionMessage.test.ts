@@ -177,6 +177,52 @@ describe('sendSessionMessage', () => {
         };
     }
 
+    it('rejects an implicit send before enqueue when the target mode exceeds the caller permission ceiling', async () => {
+        const enqueuePendingQueueV2MessageViaHttp = vi.fn(async () => undefined);
+        const callSessionRpc = vi.fn(async () => ({ ok: true }));
+
+        vi.doMock('@/api/session/pendingQueueV2Transport', () => ({
+            enqueuePendingQueueV2MessageViaHttp,
+        }));
+        vi.doMock('@/session/transport/rpc/sessionRpc', () => ({ callSessionRpc }));
+        vi.doMock('./resolveSessionTransportContext', () => ({
+            resolveSessionTransportContext: vi.fn(async ({ idOrPrefix }: { idOrPrefix: string }) => ({
+                ok: true,
+                sessionId: idOrPrefix,
+                mode: 'plain',
+                ctx: { encryptionKey: new Uint8Array(32).fill(1), encryptionVariant: 'dataKey' },
+                rawSession: {
+                    id: idOrPrefix,
+                    active: true,
+                    encryptionMode: 'plain',
+                    metadata: JSON.stringify({
+                        permissionMode: idOrPrefix === 'higher-target' ? 'safe-yolo' : 'default',
+                        permissionModeUpdatedAt: 10,
+                    }),
+                },
+            })),
+        }));
+
+        const { sendSessionMessage } = await import('./sendSessionMessage');
+        const machineKey = new Uint8Array(32).fill(1);
+
+        await expect(sendSessionMessage({
+            credentials: { token: 'token', encryption: { type: 'dataKey', publicKey: machineKey, machineKey } },
+            idOrPrefix: 'higher-target',
+            message: 'do privileged work',
+            wait: false,
+            timeoutMs: 1,
+            permissionModeCeiling: 'default',
+        })).resolves.toEqual({
+            ok: false,
+            code: 'permission_escalation_denied',
+        });
+
+        expect(enqueuePendingQueueV2MessageViaHttp).not.toHaveBeenCalled();
+        expect(callSessionRpc).not.toHaveBeenCalled();
+
+    });
+
     function rawClaudeOutput(params: Readonly<{
         content: readonly unknown[];
         stopReason?: string;

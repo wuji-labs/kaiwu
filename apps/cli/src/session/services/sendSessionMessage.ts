@@ -1,10 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
 import {
-  parsePermissionIntentAlias,
   resolveMetadataStringOverrideV1,
-  resolvePermissionIntentFromSessionMetadata,
-  type PermissionIntent,
 } from '@happier-dev/agents';
 import { SESSION_RPC_METHODS } from '@happier-dev/protocol/rpc';
 import { readPendingLocalId, type PendingRequestedActionV1 } from '@happier-dev/protocol';
@@ -40,6 +37,7 @@ import {
 
 import { resolveSessionTransportContext } from './resolveSessionTransportContext';
 import { requestInactiveSessionResume } from './requestInactiveSessionResume';
+import { resolveSessionMessagePermissionIntent } from './resolveSessionMessagePermissionIntent';
 
 export type SendSessionMessageResult =
   | Readonly<{ ok: true; sessionId: string; localId: string; waited: boolean; suppressed?: true }>
@@ -51,31 +49,10 @@ export type SendSessionMessageResult =
        * from `unsupported`, which claims this Session or daemon cannot do it at
        * all — see `InactiveSessionResumeResult`.
        */
-      code: 'session_not_found' | 'session_id_ambiguous' | 'session_lookup_timeout' | 'session_archived' | 'unsupported' | 'resume_failed' | 'timeout' | 'wait_failed';
+      code: 'session_not_found' | 'session_id_ambiguous' | 'session_lookup_timeout' | 'session_archived' | 'permission_escalation_denied' | 'unsupported' | 'resume_failed' | 'timeout' | 'wait_failed';
       candidates?: string[];
       message?: string;
     }>;
-
-function parsePermissionIntentOrThrow(raw: string): PermissionIntent {
-  const parsed = parsePermissionIntentAlias(raw);
-  if (!parsed) {
-    const err = new Error(`Invalid permission mode: ${raw}`);
-    (err as any).code = 'invalid_arguments';
-    throw err;
-  }
-  return parsed;
-}
-
-function resolvePermissionIntent(params: Readonly<{
-  permissionModeOverride?: string;
-  decryptedMetadata: unknown;
-}>): PermissionIntent {
-  if (params.permissionModeOverride) {
-    return parsePermissionIntentOrThrow(params.permissionModeOverride);
-  }
-  const resolved = resolvePermissionIntentFromSessionMetadata(params.decryptedMetadata);
-  return resolved?.intent ?? 'default';
-}
 
 function resolveModelId(params: Readonly<{
   modelOverride?: string | null;
@@ -435,6 +412,7 @@ export async function sendSessionMessage(params: Readonly<{
   localId?: string;
   resumeInactiveSession?: boolean;
   permissionModeOverride?: string;
+  permissionModeCeiling?: string;
   modelOverride?: string | null;
   requestedAction?: PendingRequestedActionV1;
   pendingAdmissionMode?: 'continuation_if_no_queued_user_input';
@@ -467,10 +445,15 @@ export async function sendSessionMessage(params: Readonly<{
     credentials: params.credentials,
     rawSession: sessionTarget.rawSession,
   });
-  const permissionIntent = resolvePermissionIntent({
+  const permissionResolution = resolveSessionMessagePermissionIntent({
     permissionModeOverride: params.permissionModeOverride,
+    permissionModeCeiling: params.permissionModeCeiling,
     decryptedMetadata,
   });
+  if (!permissionResolution.ok) {
+    return permissionResolution;
+  }
+  const permissionIntent = permissionResolution.permissionIntent;
   const modelId = resolveModelId({
     modelOverride: params.modelOverride,
     decryptedMetadata,
