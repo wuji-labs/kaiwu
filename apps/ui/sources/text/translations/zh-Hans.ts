@@ -6641,6 +6641,7 @@ export const zhHans: TranslationStructure = {
       replaceAll: "全部替换",
       summaryEdits: ({ count }: { count: number }) => `${count} 次编辑`,
     },
+    subAgentTitle: ({ label }: { label: string }) => `${label}智能体`,
     names: {
       task: "任务",
       subAgent: "子代理",

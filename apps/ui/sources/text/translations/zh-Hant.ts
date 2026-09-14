@@ -5765,6 +5765,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
             replaceAll: '全部取代',
             summaryEdits: ({ count }: { count: number }) => `${count} 次編輯`,
         },
+        subAgentTitle: ({ label }: { label: string }) => `${label}代理`,
         names: {
             task: '任務',
             subAgent: '子代理',

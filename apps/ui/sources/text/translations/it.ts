@@ -7233,6 +7233,7 @@ export const it: TranslationStructure = {
       summaryEdits: ({ count }: { count: number }) =>
         `${count} ${plural({ count, singular: "modifica", plural: "modifiche" })}`,
     },
+    subAgentTitle: ({ label }: { label: string }) => `${label} Agente`,
     names: {
       task: "Attività",
       subAgent: "Sub-agente",

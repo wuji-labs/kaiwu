@@ -6441,6 +6441,7 @@ export const fr: TranslationStructure = {
             replaceAll: 'Tout remplacer',
             summaryEdits: ({ count }: { count: number }) => `${count} modification${count === 1 ? '' : 's'}`,
         },
+        subAgentTitle: ({ label }: { label: string }) => `${label} Agent`,
         names: {
             task: 'Tâche',
             subAgent: 'Subagent',

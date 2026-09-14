@@ -1,13 +1,17 @@
 import type { Metadata } from '@/sync/domains/state/storageTypes';
 import type { ToolCall, Message } from '@/sync/domains/messages/messageTypes';
-import { t } from '@/text';
 import { ICON_TASK } from '../icons';
 import type { KnownToolDefinition } from '../_types';
 import { SubAgentInputV2Schema, TaskInputV2Schema } from '@happier-dev/protocol';
+import { AgentIcon } from '@/agents/registry/AgentIcon';
+import { resolveSubagentToolPresentation } from './subAgentPresentation';
 
 const subAgentToolDefinition = {
-        title: () => t('tools.names.subAgent'),
-        icon: ICON_TASK,
+        title: (opts: { metadata: Metadata | null, tool: ToolCall }) => resolveSubagentToolPresentation(opts).title,
+        icon: (size: number, color: string, opts?: { metadata: Metadata | null, tool: ToolCall }) => {
+            const agentId = opts ? resolveSubagentToolPresentation(opts).iconAgentId : null;
+            return agentId ? <AgentIcon agentId={agentId} size={size} /> : ICON_TASK(size, color);
+        },
         isMutable: true,
         extractSubtitle: (opts: { metadata: Metadata | null, tool: ToolCall }) => {
             const raw = (opts.tool.input as any)?.description;

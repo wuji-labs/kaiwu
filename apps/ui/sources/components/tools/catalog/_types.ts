@@ -5,7 +5,7 @@ import type * as z from 'zod';
 
 export type KnownToolDefinition = {
     title?: string | ((opts: { metadata: Metadata | null, tool: ToolCall }) => string);
-    icon: (size: number, color: string) => ReactNode;
+    icon: (size: number, color: string, opts?: { metadata: Metadata | null, tool: ToolCall }) => ReactNode;
     noStatus?: boolean;
     hideDefaultError?: boolean;
     isMutable?: boolean;
@@ -16,4 +16,3 @@ export type KnownToolDefinition = {
     extractSubtitle?: (opts: { metadata: Metadata | null, tool: ToolCall }) => string | null;
     extractStatus?: (opts: { metadata: Metadata | null, tool: ToolCall }) => string | null;
 };
-

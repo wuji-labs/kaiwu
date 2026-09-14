@@ -59,11 +59,32 @@ describe('resolveToolHeaderTextPresentation (real known tools)', () => {
         expect(model.subtitle).toBe('how to test X');
     });
 
-    it('renders Task with Sub-agent title and description subtitle', () => {
+    it('labels a provider-native Task with the session model and reported subagent type', () => {
+        const tool = makeToolCall({
+            name: 'Task',
+            input: { description: 'Summarize third run', subagent_type: 'explore' },
+        });
+        const model = resolveToolHeaderTextPresentation({
+            tool,
+            metadata: {
+                flavor: 'opencode',
+                sessionModelsV1: {
+                    v: 1,
+                    provider: 'opencode',
+                    updatedAt: 1,
+                    currentModelId: 'muse-spark-1.3',
+                    availableModels: [{ id: 'muse-spark-1.3', name: 'Muse Spark 1.3' }],
+                },
+            } as any,
+        });
+        expect(model.title).toBe('Muse Spark 1.3 Explore Agent');
+        expect(model.subtitle).toBe('Summarize third run');
+    });
+
+    it('keeps the generic Subagent fallback when no model, agent, or subagent type is known', () => {
         const tool = makeToolCall({ name: 'Task', input: { description: 'Summarize third run' } });
         const model = resolveToolHeaderTextPresentation({ tool, metadata: null });
         expect(model.title).toBe('Subagent');
-        expect(model.subtitle).toBe('Summarize third run');
     });
 
     it('renders SubAgentRun with Sub-agent title and compacted subtitle', () => {
@@ -77,17 +98,33 @@ describe('resolveToolHeaderTextPresentation (real known tools)', () => {
         expect(model.subtitle).toBe('Timed out after 120000ms');
     });
 
-    it('renders SubAgentRun with intent/backend context while running before transcript content arrives', () => {
+    it('labels a managed execution run with its requested model and intent', () => {
         const tool = makeToolCall({
             name: 'SubAgentRun',
             state: 'running',
-            input: { intent: 'review', backendId: 'codex' },
+            input: {
+                intent: 'review',
+                backendTarget: { kind: 'builtInAgent', agentId: 'codex' },
+                requestedConfiguration: { modelId: 'gpt-5.6-sol' },
+            },
             description: null,
             result: null,
         });
-        const model = resolveToolHeaderTextPresentation({ tool, metadata: null });
-        expect(model.title).toBe('Subagent');
-        expect(model.subtitle).toBe('review · codex');
+        const model = resolveToolHeaderTextPresentation({
+            tool,
+            metadata: {
+                flavor: 'codex',
+                sessionModelsV1: {
+                    v: 1,
+                    provider: 'codex',
+                    updatedAt: 1,
+                    currentModelId: 'gpt-5.6-sol',
+                    availableModels: [{ id: 'gpt-5.6-sol', name: 'GPT-5.6-Sol' }],
+                },
+            } as any,
+        });
+        expect(model.title).toBe('GPT-5.6-Sol Review Agent');
+        expect(model.subtitle).toBe('review');
     });
 
     it('normalizes TaskCreate to SubAgent for rendering', () => {
