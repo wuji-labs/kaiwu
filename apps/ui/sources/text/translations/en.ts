@@ -6458,6 +6458,7 @@ export const en = {
             replaceAll: 'Replace All',
             summaryEdits: ({ count }: { count: number }) => `${count} edit${count === 1 ? '' : 's'}`,
         },
+        subAgentTitle: ({ label }: { label: string }) => `${label} Agent`,
         names: {
             task: 'Task',
             subAgent: 'Subagent',

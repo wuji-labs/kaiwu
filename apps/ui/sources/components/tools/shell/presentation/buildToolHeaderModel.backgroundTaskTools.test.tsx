@@ -20,9 +20,16 @@ vi.mock('@/agents/catalog/catalog', async (importOriginal) => {
     return {
         ...actual,
         resolveAgentIdFromFlavor: () => null,
-        getAgentCore: () => ({ toolRendering: { hideUnknownToolsByDefault: false } }),
+        getAgentCore: () => ({
+            displayNameKey: 'agentInput.agent.codex',
+            toolRendering: { hideUnknownToolsByDefault: false },
+        }),
     };
 });
+
+vi.mock('@/agents/registry/AgentIcon', () => ({
+    AgentIcon: (props: Record<string, unknown>) => React.createElement('AgentIcon', props),
+}));
 
 function makeTool(overrides: Partial<ToolCall>): ToolCall {
     return {
@@ -39,10 +46,10 @@ function makeTool(overrides: Partial<ToolCall>): ToolCall {
     };
 }
 
-function buildHeader(tool: ToolCall) {
+function buildHeader(tool: ToolCall, metadata: any = null) {
     return buildToolHeaderModel({
         tool,
-        metadata: null,
+        metadata,
         iconSize: 18,
         iconColorPrimary: '#111',
         iconColorSecondary: '#555',
@@ -54,6 +61,20 @@ function iconName(icon: React.ReactNode): unknown {
 }
 
 describe('buildToolHeaderModel (background task tools)', () => {
+    it('uses the managed execution run agent logo instead of the generic subagent glyph', () => {
+        const model = buildHeader(makeTool({
+            name: 'SubAgentRun',
+            state: 'running',
+            input: {
+                intent: 'review',
+                backendTarget: { kind: 'builtInAgent', agentId: 'codex' },
+            },
+        }));
+
+        expect(React.isValidElement(model.icon)).toBe(true);
+        expect((model.icon as React.ReactElement<{ agentId?: unknown }>).props.agentId).toBe('codex');
+    });
+
     it('gives TaskOutput and TaskStop real glyphs instead of the unknown-tool wrench', () => {
         const taskOutput = buildHeader(makeTool({ name: 'TaskOutput', input: { task_id: 'task_1' } }));
         const taskStop = buildHeader(makeTool({ name: 'TaskStop', input: { task_id: 'task_1' } }));

@@ -6452,6 +6452,7 @@ deps: {
             replaceAll: 'Reemplaça tot',
             summaryEdits: ({ count }: { count: number }) => `${count} ${plural({ count, singular: 'edició', plural: 'edicions' })}`,
         },
+        subAgentTitle: ({ label }: { label: string }) => `${label} Agent`,
         names: {
             task: 'Tasca',
             subAgent: 'Sub-agent',
