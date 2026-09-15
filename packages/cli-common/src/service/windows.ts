@@ -187,6 +187,8 @@ export function renderWindowsScheduledTaskWrapperPs1(params: Readonly<{
     wd ? `Set-Location -LiteralPath ${psQuoted(wd)}` : '',
     envLines,
     cmd ? `${cmd}${redirect}` : '',
+    cmd ? '$exitCode = [int]$LASTEXITCODE' : '',
+    cmd ? 'exit $exitCode' : '',
     '',
   ]
     .filter(Boolean)

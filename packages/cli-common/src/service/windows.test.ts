@@ -1,3 +1,8 @@
+import { spawnSync } from 'node:child_process';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -5,6 +10,7 @@ import {
   buildReadWindowsScheduledTaskStatusPowerShellCommand,
   buildStopWindowsScheduledTaskIfRunningPowerShellCommand,
   parseWindowsScheduledTaskStatusPowerShellJson,
+  renderWindowsScheduledTaskWrapperPs1,
 } from './windows';
 
 describe('Windows scheduled task PowerShell status helper', () => {
@@ -47,6 +53,69 @@ describe('Windows scheduled task PowerShell status helper', () => {
 });
 
 describe('Windows scheduled task lifecycle PowerShell helpers', () => {
+  it('propagates the daemon exit code from the generated wrapper', () => {
+    const wrapper = renderWindowsScheduledTaskWrapperPs1({
+      programArgs: ['C:\\Users\\test\\.kaiwu\\bin\\kaiwu-daemon.exe', 'daemon', 'start-sync'],
+      stdoutPath: 'C:\\Users\\test\\.kaiwu\\logs\\daemon.out.log',
+      stderrPath: 'C:\\Users\\test\\.kaiwu\\logs\\daemon.err.log',
+    });
+
+    const commandIndex = wrapper.indexOf('& "C:\\Users\\test\\.kaiwu\\bin\\kaiwu-daemon.exe"');
+    const captureIndex = wrapper.indexOf('$exitCode = [int]$LASTEXITCODE');
+    const exitIndex = wrapper.indexOf('exit $exitCode');
+
+    expect(commandIndex).toBeGreaterThanOrEqual(0);
+    expect(captureIndex).toBeGreaterThan(commandIndex);
+    expect(exitIndex).toBeGreaterThan(captureIndex);
+  });
+
+  it('returns both successful and failed child exits to Task Scheduler on Windows', () => {
+    if (process.platform !== 'win32') return;
+
+    const root = mkdtempSync(join(tmpdir(), 'happier-windows-wrapper-'));
+    const childPath = join(root, 'child.ps1');
+    const wrapperPath = join(root, 'wrapper.ps1');
+    const stdoutPath = join(root, 'daemon.out.log');
+    const stderrPath = join(root, 'daemon.err.log');
+
+    try {
+      writeFileSync(childPath, 'param([int]$Code)\nexit $Code\n', 'utf8');
+
+      for (const expectedExitCode of [0, 7]) {
+        writeFileSync(
+          wrapperPath,
+          renderWindowsScheduledTaskWrapperPs1({
+            programArgs: [
+              'powershell.exe',
+              '-NoProfile',
+              '-NonInteractive',
+              '-ExecutionPolicy',
+              'Bypass',
+              '-File',
+              childPath,
+              '-Code',
+              String(expectedExitCode),
+            ],
+            stdoutPath,
+            stderrPath,
+          }),
+          'utf8',
+        );
+
+        const result = spawnSync(
+          'powershell.exe',
+          ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', wrapperPath],
+          { encoding: 'utf8' },
+        );
+
+        expect(result.error).toBeUndefined();
+        expect(result.status).toBe(expectedExitCode);
+      }
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it('stops only an existing running task through typed scheduler state', () => {
     const command = buildStopWindowsScheduledTaskIfRunningPowerShellCommand({
       qualifiedTaskName: 'Happier\\happier-daemon.default',
