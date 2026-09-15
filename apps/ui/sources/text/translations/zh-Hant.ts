@@ -2922,7 +2922,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
             maxAttachmentSize: {
                 title: '附件最大大小（位元組）',
                 promptTitle: '附件最大大小（位元組）',
-                promptMessage: '範例：25MB 為 26214400。',
+                promptMessage: '範例：50MB 為 52428800。',
                 invalidValueMessage: '請輸入 1024 到 1073741824 之間的數字。',
             },
         },
