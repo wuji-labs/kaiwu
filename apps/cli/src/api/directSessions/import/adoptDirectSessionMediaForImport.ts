@@ -13,7 +13,7 @@ function readString(value: unknown): string | null {
 }
 
 function isDurableSessionMediaPath(value: string): boolean {
-  if (!value.startsWith('.happier/uploads/')) return false;
+  if (!value.startsWith('.kaiwu/uploads/') && !value.startsWith('.happier/uploads/')) return false;
   if (value.includes('\\') || value.startsWith('/') || /^[a-zA-Z]:[\\/]/.test(value)) return false;
   if (value.startsWith('file://') || /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(value)) return false;
   const segments = value.split('/');

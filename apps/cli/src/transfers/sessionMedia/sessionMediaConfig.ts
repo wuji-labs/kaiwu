@@ -10,7 +10,7 @@ export type SessionMediaTransferConfig = Readonly<{
 
 export const DEFAULT_SESSION_MEDIA_TRANSFER_CONFIG: SessionMediaTransferConfig = {
     uploadLocation: 'workspace',
-    workspaceRelativeDir: '.happier/uploads',
+    workspaceRelativeDir: '.kaiwu/uploads',
     vcsIgnoreStrategy: 'git_info_exclude',
     vcsIgnoreWritesEnabled: true,
 };

@@ -15,7 +15,7 @@ export function useAttachmentsUploadConfig(): AttachmentsUploadConfig {
         const workspaceRelativeDir =
             typeof attachmentsUploadsWorkspaceRelativeDir === 'string' && attachmentsUploadsWorkspaceRelativeDir.trim().length > 0
                 ? attachmentsUploadsWorkspaceRelativeDir.trim()
-                : '.happier/uploads';
+                : '.kaiwu/uploads';
         const vcsIgnoreStrategy =
             attachmentsUploadsVcsIgnoreStrategy === 'gitignore' || attachmentsUploadsVcsIgnoreStrategy === 'none'
                 ? attachmentsUploadsVcsIgnoreStrategy

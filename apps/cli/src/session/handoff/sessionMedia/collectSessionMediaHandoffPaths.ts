@@ -4,9 +4,12 @@ import { createInterface } from 'node:readline';
 
 const SESSION_MEDIA_ENVELOPE_KIND = 'session_media.v1';
 const ATTACHMENTS_ENVELOPE_KIND = 'attachments.v1';
-const ATTACHMENT_MEDIA_PREFIX = '.happier/uploads/messages/';
-const GENERATED_MEDIA_PREFIX = '.happier/uploads/generated/';
-const ARTIFACT_MEDIA_PREFIX = '.happier/uploads/artifacts/';
+const ATTACHMENT_MEDIA_PREFIX_KAIWU = '.kaiwu/uploads/messages/';
+const ATTACHMENT_MEDIA_PREFIX_HAPPIER = '.happier/uploads/messages/';
+const GENERATED_MEDIA_PREFIX_KAIWU = '.kaiwu/uploads/generated/';
+const GENERATED_MEDIA_PREFIX_HAPPIER = '.happier/uploads/generated/';
+const ARTIFACT_MEDIA_PREFIX_KAIWU = '.kaiwu/uploads/artifacts/';
+const ARTIFACT_MEDIA_PREFIX_HAPPIER = '.happier/uploads/artifacts/';
 const MAX_LITERAL_GIT_PATHSPEC_PATH_LENGTH = 500;
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -41,9 +44,9 @@ function readMediaEnvelopePaths(envelope: unknown): readonly string[] {
     if (!path) continue;
 
     if (
-      (category === 'attachment' && path.startsWith(ATTACHMENT_MEDIA_PREFIX))
-      || (category === 'generated' && path.startsWith(GENERATED_MEDIA_PREFIX))
-      || (category === 'tool-artifact' && path.startsWith(ARTIFACT_MEDIA_PREFIX))
+      (category === 'attachment' && (path.startsWith(ATTACHMENT_MEDIA_PREFIX_KAIWU) || path.startsWith(ATTACHMENT_MEDIA_PREFIX_HAPPIER)))
+      || (category === 'generated' && (path.startsWith(GENERATED_MEDIA_PREFIX_KAIWU) || path.startsWith(GENERATED_MEDIA_PREFIX_HAPPIER)))
+      || (category === 'tool-artifact' && (path.startsWith(ARTIFACT_MEDIA_PREFIX_KAIWU) || path.startsWith(ARTIFACT_MEDIA_PREFIX_HAPPIER)))
     ) {
       paths.push(path);
     }
@@ -62,7 +65,7 @@ function readLegacyAttachmentEnvelopePaths(envelope: unknown): readonly string[]
     const attachmentRecord = asRecord(item);
     if (!attachmentRecord) continue;
     const path = normalizeDurableSessionMediaPath(attachmentRecord.path);
-    if (path?.startsWith(ATTACHMENT_MEDIA_PREFIX)) {
+    if (path && (path.startsWith(ATTACHMENT_MEDIA_PREFIX_KAIWU) || path.startsWith(ATTACHMENT_MEDIA_PREFIX_HAPPIER))) {
       paths.push(path);
     }
   }

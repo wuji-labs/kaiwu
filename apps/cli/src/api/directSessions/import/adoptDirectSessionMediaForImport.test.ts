@@ -18,9 +18,10 @@ vi.mock('node:fs/promises', async (importOriginal) => {
       destination: Parameters<typeof actual.copyFile>[1],
       mode?: Parameters<typeof actual.copyFile>[2],
     ) => {
+      const normalizedDest = String(destination).replaceAll('\\', '/');
       if (
         filesystemBoundary.failedManagedCopiesRemaining > 0
-        && String(destination).replaceAll('\\', '/').includes('/.happier/uploads/')
+        && (normalizedDest.includes('/.kaiwu/uploads/') || normalizedDest.includes('/.happier/uploads/'))
       ) {
         filesystemBoundary.failedManagedCopiesRemaining -= 1;
         throw new Error('simulated managed-media copy failure');
@@ -84,7 +85,7 @@ describe('adoptDirectSessionMediaForImport', () => {
       const adoptedMedia = adoptedPayload.media as Array<Record<string, unknown>>;
       const adoptedPath = String(adoptedMedia[0]?.path ?? '');
 
-      expect(adoptedPath).toMatch(/^\.happier\/uploads\/generated\/direct-item-1\//);
+      expect(adoptedPath).toMatch(/^(\.kaiwu|\.happier)\/uploads\/generated\/direct-item-1\//);
       expect(isAbsolute(adoptedPath)).toBe(false);
       expect(adoptedPath).not.toContain(providerDirectory);
       expect(JSON.stringify(adoptedRaw)).not.toContain(providerImagePath);
