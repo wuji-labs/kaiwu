@@ -137,7 +137,6 @@
     "@noble/ciphers": "^2.2.0",
     "@noble/hashes": "^1.8.0",
     "@peoplesgrocers/seti-ui-file-icons": "1.11.3",
-    "@pierre/diffs": "1.1.0-beta.13",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dismissable-layer": "^1.1.11",
     "@react-native-async-storage/async-storage": "2.2.0",
