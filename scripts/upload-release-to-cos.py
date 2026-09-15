@@ -41,7 +41,7 @@ def load_cos_client(env_file: str) -> tuple[CosS3Client, str]:
 
 
 def main():
-    repo_root = Path(r"D:\Projects\wuji-labs-app")
+    repo_root = Path(r"D:\Projects\kaiwu")
     env_file = Path(r"D:\Projects\qianyuan-wuji\secrets\kaiwu-server\cos.env")
 
     client, bucket = load_cos_client(str(env_file))
