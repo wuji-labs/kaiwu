@@ -3,11 +3,11 @@
 set -euo pipefail
 
 # 默认配置
-KAIWU_SERVER_URL="${KAIWU_SERVER_URL:-${HAPPIER_SERVER_URL:-https://kaiwu.chengqiyun.com}}"
+KAIWU_SERVER_URL="${KAIWU_SERVER_URL:-https://kaiwu.chengqiyun.com}"
 LATEST_METADATA_URL="https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/latest.json"
-DEFAULT_VERSION="0.2.15"
+DEFAULT_VERSION="0.2.16"
 FALLBACK_TGZ_URL="https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/${DEFAULT_VERSION}/kaiwu-cli-${DEFAULT_VERSION}.tgz"
-FALLBACK_TGZ_SHA256="6bebae181cea62bb6322568a2e22dda97eb56e0e144d392ae794a85276887370"
+FALLBACK_TGZ_SHA256="66d6e377377244a946c8d1c0ab2ccdce39c72486dfa7cd06f05d01e288fa9d8d"
 
 # 颜色输出
 if [[ -t 1 ]] && [[ "${TERM:-}" != "dumb" ]]; then
@@ -178,16 +178,16 @@ fi
 INSTALL_SUCCESS=0
 if npm install -g "$TGZ_FILE" >/dev/null 2>&1; then
     INSTALL_SUCCESS=1
-    GLOBAL_HAPPIER="$(command -v happier 2>/dev/null || true)"
-    if [[ -z "$GLOBAL_HAPPIER" ]]; then
+    GLOBAL_KAIWU="$(command -v kaiwu 2>/dev/null || true)"
+    if [[ -z "$GLOBAL_KAIWU" ]]; then
         NPM_BIN_PATH="$(npm bin -g 2>/dev/null || true)"
-        if [[ -n "$NPM_BIN_PATH" ]] && [[ -f "$NPM_BIN_PATH/happier" ]]; then
-            GLOBAL_HAPPIER="$NPM_BIN_PATH/happier"
+        if [[ -n "$NPM_BIN_PATH" ]] && [[ -f "$NPM_BIN_PATH/kaiwu" ]]; then
+            GLOBAL_KAIWU="$NPM_BIN_PATH/kaiwu"
         fi
     fi
-    if [[ -n "$GLOBAL_HAPPIER" ]]; then
+    if [[ -n "$GLOBAL_KAIWU" ]]; then
         mkdir -p "$HOME/.local/bin"
-        ln -sf "$GLOBAL_HAPPIER" "$HOME/.local/bin/kaiwu"
+        ln -sf "$GLOBAL_KAIWU" "$HOME/.local/bin/kaiwu"
         chmod +x "$HOME/.local/bin/kaiwu"
     fi
 else
@@ -199,27 +199,21 @@ else
     if [[ ! -f "$CLI_BIN" ]]; then
         CLI_BIN="$HOME/.kaiwu/lib/node_modules/.bin/kaiwu"
     fi
-    ln -sf "$CLI_BIN" "$HOME/.kaiwu/lib/node_modules/@happier-dev/cli/bin/happier.mjs" 2>/dev/null || true
     ln -sf "$CLI_BIN" "$HOME/.local/bin/kaiwu"
-    ln -sf "$CLI_BIN" "$HOME/.local/bin/happier"
-    chmod +x "$HOME/.local/bin/kaiwu" "$HOME/.local/bin/happier"
+    chmod +x "$HOME/.local/bin/kaiwu"
     export PATH="$HOME/.local/bin:$PATH"
     INSTALL_SUCCESS=1
 fi
 
-if ! command -v kaiwu >/dev/null 2>&1 && ! command -v happier >/dev/null 2>&1; then
+if ! command -v kaiwu >/dev/null 2>&1; then
     # 尝试查找 npm bin 目录
     NPM_BIN_PATH="$(npm bin -g 2>/dev/null || true)"
-    if [[ -n "$NPM_BIN_PATH" ]] && [[ -f "$NPM_BIN_PATH/happier" ]]; then
+    if [[ -n "$NPM_BIN_PATH" ]] && [[ -f "$NPM_BIN_PATH/kaiwu" ]]; then
         export PATH="$NPM_BIN_PATH:$PATH"
         mkdir -p "$HOME/.local/bin"
-        ln -sf "$NPM_BIN_PATH/happier" "$HOME/.local/bin/kaiwu"
+        ln -sf "$NPM_BIN_PATH/kaiwu" "$HOME/.local/bin/kaiwu"
         chmod +x "$HOME/.local/bin/kaiwu"
     fi
-elif ! command -v kaiwu >/dev/null 2>&1 && command -v happier >/dev/null 2>&1; then
-    mkdir -p "$HOME/.local/bin"
-    ln -sf "$(command -v happier)" "$HOME/.local/bin/kaiwu"
-    chmod +x "$HOME/.local/bin/kaiwu"
 fi
 
 # 4. 配置用户 Shell 环境变量与 PATH
@@ -235,7 +229,6 @@ fi
 ENV_SNIPPET="
 # >>> 无极开物 CLI 配置 >>>
 export KAIWU_SERVER_URL=\"${KAIWU_SERVER_URL}\"
-export HAPPIER_SERVER_URL=\"${KAIWU_SERVER_URL}\"
 if [ -d \"\$HOME/.kaiwu/node/bin\" ]; then
     export PATH=\"\$HOME/.kaiwu/node/bin:\$PATH\"
 fi
@@ -246,14 +239,13 @@ fi
 "
 
 for prof in "${CONFIG_PROFILES[@]}"; do
-    if ! grep -q "KAIWU_SERVER_URL" "$prof" 2>/dev/null && ! grep -q "HAPPIER_SERVER_URL" "$prof" 2>/dev/null; then
+    if ! grep -q "KAIWU_SERVER_URL" "$prof" 2>/dev/null; then
         printf "%s\n" "$ENV_SNIPPET" >> "$prof"
         info "已写入环境变量与路径至: $prof"
     fi
 done
 
 export KAIWU_SERVER_URL="${KAIWU_SERVER_URL}"
-export HAPPIER_SERVER_URL="${KAIWU_SERVER_URL}"
 
 # 5. 验证与指引 (强制性自检，失败则报错退出)
 echo
@@ -261,9 +253,6 @@ info "执行安装后自检..."
 echo
 
 MAIN_CMD="kaiwu"
-if ! command -v kaiwu >/dev/null 2>&1 && command -v happier >/dev/null 2>&1; then
-    MAIN_CMD="happier"
-fi
 
 if ! command -v "$MAIN_CMD" >/dev/null 2>&1; then
     error "自检失败：未找到 $MAIN_CMD 命令"
@@ -280,7 +269,7 @@ echo
     echo "  • 安装版本: $($MAIN_CMD --version)"
     echo "  • 命令路径: $(command -v "$MAIN_CMD")"
     echo "  • 默认连接: $KAIWU_SERVER_URL"
-    echo "  • 包含命令别名: kaiwu, happier"
+    echo "  • 核心命令: kaiwu"
 
 echo
 echo "${COLOR_BOLD}下一步快速指引：${COLOR_RESET}"

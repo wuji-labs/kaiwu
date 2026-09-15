@@ -6,8 +6,8 @@
 # 1. 纯原生绿色免安装单文件架构：内置所有 runtime 与本地模型调度依赖，无需 Node.js、npm 或 C++ 编译环境。
 # 2. 全程走国内腾讯云上海 BGP 对象存储高速通道，数秒极速完成。
 # 3. 自动解压至 ~/.kaiwu/bin，并注册系统用户 PATH 环境变量（永久生效）。
-# 4. 自动持久化配置无极开物中继服务端 (KAIWU_SERVER_URL / HAPPIER_SERVER_URL)。
-# 5. 同时提供 kaiwu 与 happier 双命令别名，完全无缝兼容。
+# 4. 自动持久化配置无极开物中继服务端 (KAIWU_SERVER_URL)。
+# 5. 原生注册唯一官方主命令 kaiwu。
 
 [CmdletBinding()]
 param(
@@ -30,16 +30,14 @@ $KAIWU_SERVER_URL = if ($ServerUrl) {
     $ServerUrl
 } elseif ($env:KAIWU_SERVER_URL) {
     $env:KAIWU_SERVER_URL
-} elseif ($env:HAPPIER_SERVER_URL) {
-    $env:HAPPIER_SERVER_URL
 } else {
     "https://kaiwu.chengqiyun.com"
 }
 
 $LATEST_METADATA_URL = "https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/latest.json"
-$DEFAULT_VERSION = "0.2.15"
+$DEFAULT_VERSION = "0.2.16"
 $DEFAULT_ARCHIVE_URL = "https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/$DEFAULT_VERSION/kaiwu-v$DEFAULT_VERSION-windows-x64.tar.gz"
-$DEFAULT_ARCHIVE_SHA256 = "099c45f4aba81d7e15c4bf2aeac8e8e8fec56809a4090c94d43bfdb9e20d984c"
+$DEFAULT_ARCHIVE_SHA256 = "0c731060355027324d146575ed4cfd9f93558e8b206e1d4fba10d727201ffe96"
 
 function Write-Info {
     param([string]$Message)
@@ -223,16 +221,13 @@ if ($env:Path -split ';' -notcontains $binDir) {
 
 # 设置并持久化开物服务端连接
 [System.Environment]::SetEnvironmentVariable('KAIWU_SERVER_URL', $KAIWU_SERVER_URL, [System.EnvironmentVariableTarget]::User)
-[System.Environment]::SetEnvironmentVariable('HAPPIER_SERVER_URL', $KAIWU_SERVER_URL, [System.EnvironmentVariableTarget]::User)
 $env:KAIWU_SERVER_URL = $KAIWU_SERVER_URL
-$env:HAPPIER_SERVER_URL = $KAIWU_SERVER_URL
 Write-Info "已配置开物服务端连接: $KAIWU_SERVER_URL"
 
-# 创建 happier.exe 兼容别名
-$kaiwuExePath = Join-Path $binDir "kaiwu.exe"
+# 清理历史旧版可能遗留的 happier.exe
 $happierExePath = Join-Path $binDir "happier.exe"
-if (Test-Path $kaiwuExePath) {
-    Copy-Item -Path $kaiwuExePath -Destination $happierExePath -Force
+if (Test-Path $happierExePath) {
+    Remove-Item -Force $happierExePath -ErrorAction SilentlyContinue
 }
 
 # 确保运行时资产目录联接 (cli/current -> bin)，保证 Claude Code 专用 hook 与 sidecar 脚本正常加载
@@ -275,7 +270,7 @@ try {
     Write-Host "  • 当前安装版本: v$v" -ForegroundColor Green
     Write-Host "  • 程序所在目录: $binDir" -ForegroundColor Gray
     Write-Host "  • 开物中继服务: $KAIWU_SERVER_URL" -ForegroundColor Gray
-    Write-Host "  • 包含命令别名: kaiwu, happier" -ForegroundColor Gray
+    Write-Host "  • 核心命令: kaiwu" -ForegroundColor Gray
 } catch {
     Write-Err "自检失败：执行 kaiwu.exe --version 时出错：$_"
     exit 1

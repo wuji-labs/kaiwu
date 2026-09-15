@@ -47,7 +47,7 @@ def main():
     client, bucket = load_cos_client(str(env_file))
     print(f"Connected to COS bucket: {bucket}")
 
-    version = "0.2.15"
+    version = "0.2.16"
     cli_assets_dir = repo_root / "dist" / "release-assets" / "cli"
     website_public_dir = repo_root / "apps" / "website" / "public"
 
