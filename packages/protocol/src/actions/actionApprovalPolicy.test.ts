@@ -137,6 +137,22 @@ describe('isApprovalRequiredByActionsSettings', () => {
     })).toEqual({ required: false, flow: 'deferred', result: 'none' });
   });
 
+  it('bypasses approval routing when caller is in full-access yolo mode', () => {
+    expect(resolveActionApprovalRouting({
+      actionId: 'session.list' as any,
+      spec: getActionSpec('session.list'),
+      context: { surface: 'mcp', callerPermissionMode: 'yolo' } as any,
+      requiredByPolicy: true,
+    })).toEqual({ required: false, flow: 'blocking', result: 'required' });
+
+    expect(resolveActionApprovalRouting({
+      actionId: 'session.title.set' as any,
+      spec: getActionSpec('session.title.set'),
+      context: { surface: 'session_agent', callerPermissionMode: 'bypassPermissions' } as any,
+      requiredByPolicy: true,
+    })).toEqual({ required: false, flow: 'deferred', result: 'none' });
+  });
+
   it('exports approval routing through action and protocol barrels', () => {
     const args: ResolveActionApprovalRoutingArgs = {
       actionId: 'session.list' as any,
