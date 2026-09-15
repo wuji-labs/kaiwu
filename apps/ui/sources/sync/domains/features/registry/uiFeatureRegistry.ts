@@ -286,8 +286,8 @@ export const UI_FEATURE_REGISTRY = {
     'attachments.uploads': {
         settingsToggle: {
             showInSettings: true,
-            isExperimental: true,
-            defaultEnabled: false,
+            isExperimental: false,
+            defaultEnabled: true,
             titleKey: 'settingsFeatures.expAttachmentsUploads',
             subtitleKey: 'settingsFeatures.expAttachmentsUploadsSubtitle',
             icon: { ioniconName: 'attach-outline', color: '#007AFF' },
