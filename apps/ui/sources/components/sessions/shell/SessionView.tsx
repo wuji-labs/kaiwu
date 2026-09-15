@@ -3800,7 +3800,9 @@ function SessionViewLoaded({
         serverId: capabilityServerId,
     });
     const attachmentsUploadsTransferAvailable = useSessionFileUploadAvailability(sessionId);
-    const attachmentsUploadsEnabled = attachmentsUploadsFeatureEnabled && attachmentsUploadsTransferAvailable;
+    // When the feature is enabled, keep the attachment upload entrypoint and composer surfaces
+    // active by default so users can draft and attach images/files across devices.
+    const attachmentsUploadsEnabled = attachmentsUploadsFeatureEnabled;
     const sessionProviderUsageGaugeMode = useSetting('sessionProviderUsageGaugeMode');
     const sessionProviderUsageGaugeWindowModeSetting = useSetting('sessionProviderUsageGaugeWindowMode');
     const sessionProviderUsageGaugeWindowMode: ConnectedServiceQuotaGaugeWindowMode =
