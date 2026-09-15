@@ -43,7 +43,6 @@ import { configureBugReportUserActionTrail } from '@/utils/system/bugReportActio
 import { useUnistyles } from 'react-native-unistyles';
 import { AsyncLock } from '@/utils/system/lock';
 import { useWebUiFontScale } from '@/components/ui/text/useWebUiFontScale';
-import { usePierreDiffWorkerPoolWarmup } from '@/components/ui/code/diff/pierre/usePierreDiffWorkerPoolWarmup';
 import { useWebBackdropBlurPreference } from '@/components/ui/overlays/useWebBackdropBlurPreference';
 import { initializeSentryOnce, wrapWithSentryIfEnabled } from '@/utils/system/sentry';
 import { t } from '@/text';
@@ -579,7 +578,6 @@ function RootLayout() {
     const isDesktopPetOverlayWindow = isDesktopPetOverlayWindowContext();
     useWebUiFontScale();
     useWebBackdropBlurPreference();
-    usePierreDiffWorkerPoolWarmup();
     const background = isDesktopPetOverlayWindow ? 'transparent' : theme.colors.background.canvas;
     const navigationTheme = React.useMemo(() => {
         if (theme.dark) {
