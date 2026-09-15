@@ -22,7 +22,8 @@ describe('HAPPIER_BASE_SYSTEM_PROMPT_V1', () => {
 
   it('documents options format while defaulting to autonomous execution', () => {
     expect(HAPPIER_BASE_SYSTEM_PROMPT_V1).toContain('<options>');
-    expect(HAPPIER_BASE_SYSTEM_PROMPT_V1).toContain('Execute tasks autonomously to completion by default');
+    expect(HAPPIER_BASE_SYSTEM_PROMPT_V1).toContain('Treat the user\'s prompt as the seed of intent, not a cage');
+    expect(HAPPIER_BASE_SYSTEM_PROMPT_V1).toContain('唯有决定性之实、独操作者能授者，方发一问，一问而止');
     expect(HAPPIER_BASE_SYSTEM_PROMPT_V1).not.toContain('Always prefer to use the options mode');
     expect(HAPPIER_BASE_SYSTEM_PROMPT_V1).not.toContain('Plan mode with options');
   });
