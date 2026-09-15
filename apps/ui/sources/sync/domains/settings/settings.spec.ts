@@ -1334,10 +1334,10 @@ describe('settings', () => {
                 },
             ]);
             expect((settingsDefaults as any).attachmentsUploadsUploadLocation).toBe('workspace');
-            expect((settingsDefaults as any).attachmentsUploadsWorkspaceRelativeDir).toBe('.happier/uploads');
+            expect((settingsDefaults as any).attachmentsUploadsWorkspaceRelativeDir).toBe('.kaiwu/uploads');
             expect((settingsDefaults as any).attachmentsUploadsVcsIgnoreStrategy).toBe('git_info_exclude');
             expect((settingsDefaults as any).attachmentsUploadsVcsIgnoreWritesEnabled).toBe(true);
-            expect((settingsDefaults as any).attachmentsUploadsMaxFileBytes).toBe(25 * 1024 * 1024);
+            expect((settingsDefaults as any).attachmentsUploadsMaxFileBytes).toBe(50 * 1024 * 1024);
             expect((settingsDefaults as any).expGemini).toBeUndefined();
             expect((settingsDefaults as any).sessionDefaultPermissionModeClaude).toBeUndefined();
             expect((settingsDefaults as any).sessionDefaultPermissionModeCodex).toBeUndefined();
