@@ -427,7 +427,7 @@ describe('SessionView attachments gating', () => {
     expect(agentInput.props.onAttachmentsAdded).toBeUndefined();
   });
 
-  it('fails closed when attachments.uploads is enabled but session file upload availability is false', async () => {
+  it('wires attachments when attachments.uploads is enabled even if session file upload availability is false initially', async () => {
     attachmentsFeatureScopeState.enabledForServerId = null;
     featureEnabledState['attachments.uploads'] = true;
     attachmentsTransferAvailableState.value = false;
@@ -438,7 +438,7 @@ describe('SessionView attachments gating', () => {
         </AppPaneProvider>)).tree;
 
     const agentInput = tree.findByType('AgentInput' as any);
-    expect(agentInput.props.onAttachmentsAdded).toBeUndefined();
+    expect(agentInput.props.onAttachmentsAdded).toEqual(expect.any(Function));
   });
 
   it('wires attachments when the viewed session server enables uploads', async () => {
