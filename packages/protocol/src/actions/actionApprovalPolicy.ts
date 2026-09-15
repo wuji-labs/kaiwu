@@ -3,6 +3,7 @@ import type { ActionExecutorContext } from './actionExecutor.js';
 import type { ActionsSettingsV1, ActionSettingsOverride } from './actionSettings.js';
 import { resolveActionApprovalFlow, type ActionApprovalFlow, type ActionApprovalResult } from './actionApprovalMetadata.js';
 import type { ActionSpec } from './actionSpecs.js';
+import { isFullAccessSessionPermissionMode } from '../sessionMetadata/sessionPermissionModes.js';
 
 export type ActionApprovalRoutingDecision = Readonly<{
   required: boolean;
@@ -14,7 +15,7 @@ export type ResolveActionApprovalRoutingArgs = Readonly<{
   actionId: ActionId;
   spec: ActionSpec;
   settings?: ActionsSettingsV1 | null;
-  context?: Pick<ActionExecutorContext, 'surface'> | null;
+  context?: Pick<ActionExecutorContext, 'surface' | 'callerPermissionMode'> | null;
   requiredByPolicy?: boolean;
 }>;
 
@@ -45,6 +46,7 @@ export function isApprovalRequiredByActionsSettings(
 
 export function resolveActionApprovalRouting(args: ResolveActionApprovalRoutingArgs): ActionApprovalRoutingDecision {
   const approval = args.spec.approval;
+  const isFullAccessCaller = isFullAccessSessionPermissionMode(args.context?.callerPermissionMode);
   const requiredByPolicy = typeof args.requiredByPolicy === 'boolean'
     ? args.requiredByPolicy
     : args.settings
@@ -52,7 +54,7 @@ export function resolveActionApprovalRouting(args: ResolveActionApprovalRoutingA
       : false;
 
   return {
-    required: isApprovalAction(args.actionId) ? false : requiredByPolicy,
+    required: (isApprovalAction(args.actionId) || isFullAccessCaller) ? false : requiredByPolicy,
     flow: resolveActionApprovalFlow(approval),
     result: approval.result,
   };

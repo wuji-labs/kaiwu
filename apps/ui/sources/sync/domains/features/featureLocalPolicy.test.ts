@@ -88,11 +88,19 @@ describe('featureLocalPolicy', () => {
         })).toBe(false);
     });
 
-    it('disables attachments.uploads by default when experiments are on', () => {
+    it('enables attachments.uploads by default', () => {
         expect(resolveLocalFeaturePolicyEnabled('attachments.uploads', {
             ...settingsDefaults,
-            experiments: true,
+            experiments: false,
             featureToggles: {},
+        })).toBe(true);
+    });
+
+    it('disables attachments.uploads when explicitly disabled', () => {
+        expect(resolveLocalFeaturePolicyEnabled('attachments.uploads', {
+            ...settingsDefaults,
+            experiments: false,
+            featureToggles: { 'attachments.uploads': false },
         })).toBe(false);
     });
 

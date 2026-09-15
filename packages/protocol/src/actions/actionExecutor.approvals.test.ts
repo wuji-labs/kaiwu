@@ -534,6 +534,28 @@ describe('createActionExecutor (approvals)', () => {
     }));
   });
 
+  it('bypasses approval requests when caller is in full-access yolo mode', async () => {
+    const approvalsCreate = vi.fn(async () => ({ artifactId: 'a1' }));
+    const sessionTitleSet = vi.fn(async () => ({ ok: true }));
+
+    const executor = createExecutor({
+      approvalsCreate,
+      sessionTitleSet,
+      isActionApprovalRequired: (actionId) => actionId === 'session.title.set',
+    } as any);
+
+    const res = await executor.execute(
+      'session.title.set' as any,
+      { sessionId: 's1', title: 'Renamed' },
+      { surface: 'mcp', defaultSessionId: null, callerPermissionMode: 'yolo' },
+    );
+
+    expect(res.ok).toBe(true);
+    expect(res).toEqual({ ok: true, result: { ok: true } });
+    expect(sessionTitleSet).toHaveBeenCalledTimes(1);
+    expect(approvalsCreate).not.toHaveBeenCalled();
+  });
+
   it('allows approval.request.create for any action (except approval actions)', async () => {
     const approvalsCreate = vi.fn(async () => ({ artifactId: 'a1' }));
 
