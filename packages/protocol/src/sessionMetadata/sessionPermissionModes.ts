@@ -99,3 +99,9 @@ export function createSessionPermissionModeSchema(zod: typeof z) {
 }
 
 export const SessionPermissionModeSchema = createSessionPermissionModeSchema(z);
+
+export function isFullAccessSessionPermissionMode(raw: unknown): boolean {
+  if (typeof raw !== 'string') return false;
+  const parsed = parseSessionPermissionModeAlias(raw);
+  return parsed === 'yolo' || parsed === 'bypassPermissions';
+}

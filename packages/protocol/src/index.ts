@@ -1887,6 +1887,7 @@ export {
   type SessionPermissionMode,
   createSessionPermissionModeInputSchema,
   createSessionPermissionModeSchema,
+  isFullAccessSessionPermissionMode,
   parseSessionPermissionModeAlias,
 } from './sessionMetadata/sessionPermissionModes.js';
 

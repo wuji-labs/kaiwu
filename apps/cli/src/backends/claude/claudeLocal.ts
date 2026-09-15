@@ -390,6 +390,9 @@ export async function claudeLocal(opts: {
             const permissionMode = trailingPermissionFlagArgs[0] === '--permission-mode'
                 ? trailingPermissionFlagArgs[1]
                 : undefined;
+            if (permissionMode === 'bypassPermissions') {
+                flagArgs.push('--allow-dangerously-skip-permissions');
+            }
             const settingsOverlay = resolveClaudeLaunchSettingsOverlayArg({
                 settingsPath: opts.hookSettingsPath,
                 launchSettings: buildClaudePermissionModeLaunchSettings(permissionMode),
