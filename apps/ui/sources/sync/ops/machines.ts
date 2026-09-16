@@ -43,6 +43,7 @@ import { storage } from '../domains/state/storage';
 import { readMachineDaemonCliVersionForServerScope } from '../domains/machines/readMachineDaemonCliVersionForServerScope';
 import { isPlainObject, normalizeSpawnSessionResult } from './_shared';
 import { isSocketIoAckTimeoutError } from '@/sync/runtime/socketIoAckTimeout';
+import { isDisconnectedSocketError } from '@/sync/api/session/connection/createSyncSocketTransport';
 import { mergeMachineMetadataForVersionMismatch } from './machineMetadataMerge';
 import { machineRpcWithServerScope } from '@/sync/runtime/orchestration/serverScopedRpc/serverScopedMachineRpc';
 import { isMachineRpcTimeoutError } from '@/sync/runtime/orchestration/serverScopedRpc/machineRpcTimeoutError';
@@ -506,7 +507,7 @@ export async function machineSpawnNewSession(options: SpawnSessionOptions): Prom
                     `The daemon may be stopped, still starting, or not connected to the server.`,
             };
         }
-        if (isSocketIoAckTimeoutError(error) || isMachineRpcTimeoutError(error)) {
+        if (isSocketIoAckTimeoutError(error) || isMachineRpcTimeoutError(error) || isDisconnectedSocketError(error)) {
             if (custody) {
                 if (requiresDaemonSourceContextValidation) {
                     return buildPendingSpawnResolutionError({ status: 'transport_error' }, custody.record);
