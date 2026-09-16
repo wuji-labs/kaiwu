@@ -1193,6 +1193,38 @@ describe('machineSpawnNewSession error mapping', () => {
     expect(result.errorMessage.length).toBeGreaterThan(0);
   });
 
+  it('reconciles a disconnected socket transport error during spawn through the accepted nonce', async () => {
+    machineRpcWithServerScopeMock
+      .mockRejectedValueOnce(new Error('socket has been disconnected'))
+      .mockResolvedValueOnce({
+        status: 'success',
+        sessionId: 'session-after-socket-disconnect',
+      });
+
+    const { machineSpawnNewSession } = await import('./machines');
+    const result = await machineSpawnNewSession({
+      machineId: 'machine-1',
+      directory: '/tmp',
+      backendTarget: { kind: 'builtInAgent', agentId: 'claude' },
+      serverId: 'server-b',
+      spawnNonce: 'spawn-nonce-socket-disconnect',
+    });
+
+    expect(result).toMatchObject({
+      type: 'success',
+      sessionId: 'session-after-socket-disconnect',
+      spawnAttemptCustody: {
+        status: 'completed',
+        spawnNonce: 'spawn-nonce-socket-disconnect',
+        createdSessionId: 'session-after-socket-disconnect',
+      },
+    });
+    expect(machineRpcWithServerScopeMock.mock.calls.map(([call]) => call.method)).toEqual([
+      RPC_METHODS.SPAWN_HAPPY_SESSION_PROVIDER_SAFE,
+      RPC_METHODS.DAEMON_SPAWN_SESSION_RESOLVE,
+    ]);
+  });
+
   it('reconciles a server-scoped machine RPC timeout through the accepted nonce without spawning twice', async () => {
     machineRpcWithServerScopeMock
       .mockRejectedValueOnce(Object.assign(new Error('scoped spawn exceeded its RPC budget'), {

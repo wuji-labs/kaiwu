@@ -9,9 +9,16 @@ function isSocketActive(socket: SyncSocket): boolean {
     return (socket as unknown as { active?: boolean }).active === true;
 }
 
-function isAlreadyDisconnectedSocketError(error: unknown): boolean {
+export function isDisconnectedSocketError(error: unknown): boolean {
     if (!(error instanceof Error)) return false;
-    return error.message.toLowerCase().includes('socket has been disconnected');
+    const msg = error.message.toLowerCase();
+    return msg.includes('socket has been disconnected')
+        || msg.includes('socket not connected')
+        || msg.includes('socket disconnected');
+}
+
+function isAlreadyDisconnectedSocketError(error: unknown): boolean {
+    return isDisconnectedSocketError(error);
 }
 
 export function createSyncSocketTransport(params: Readonly<{

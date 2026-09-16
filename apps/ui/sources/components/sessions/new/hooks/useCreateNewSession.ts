@@ -77,6 +77,10 @@ import { rollbackNewSessionArtifacts } from '@/components/sessions/new/modules/r
 import { resolveConnectedServiceSwitchUnavailablePresentation } from '@/components/sessions/new/modules/connectedServiceSwitchUnavailable';
 import { translateConnectedServiceUxDiagnosticBody } from '@/components/sessions/connectedServices/diagnostics/connectedServiceUxDiagnostics';
 import {
+    resolveNewSessionPathForLaunch,
+    type NewSessionPathSelectionSource,
+} from '@/components/sessions/new/hooks/screenModel/resolveNewSessionPathForLaunch';
+import {
     followUpSpawnedSessionWithServerScope,
     requireSpawnedSessionVisibleForRoute,
 } from '@/sync/runtime/orchestration/serverScopedRpc/followUpSpawnedSession';
@@ -209,7 +213,9 @@ function isDetachedTrackedSpawnTransportError(error: unknown): boolean {
     if (isSocketIoAckTimeoutError(error)) return true;
     if (!(error instanceof Error)) return false;
     const message = error.message.toLowerCase();
-    return message.includes('socket not connected') || message.includes('socket disconnected');
+    return message.includes('socket not connected')
+        || message.includes('socket disconnected')
+        || message.includes('socket has been disconnected');
 }
 
 function readNewSessionConnectedServicesOption(
@@ -224,6 +230,9 @@ export function useCreateNewSession(params: Readonly<{
     selectedMachineId: string | null;
     selectedPath: string;
     getRequestedPath?: () => string;
+    selectedPathSource?: NewSessionPathSelectionSource;
+    getAutomaticPathCandidatesForMachine?: (machineId: string | null) => ReadonlyArray<string>;
+    setRecoveredPath?: (path: string) => void;
     selectedMachine: any;
 
     setIsCreating: (v: boolean) => void;
@@ -345,10 +354,10 @@ export function useCreateNewSession(params: Readonly<{
         const requestedPath = typeof current.getRequestedPath === 'function'
             ? current.getRequestedPath()
             : current.selectedPath;
-        const effectiveSelectedPath = (typeof requestedPath === 'string'
+        const requestedSelectedPath = (typeof requestedPath === 'string'
             ? requestedPath
             : current.selectedPath).trim();
-        const trimmedEffectiveSelectedPath = effectiveSelectedPath;
+        let effectiveSelectedPath = requestedSelectedPath;
         let rollbackActualPath: string | null = null;
         let rollbackServerId: string | null = current.targetServerId ?? null;
         let confirmedCreatedSessionId: string | null = null;
@@ -360,7 +369,7 @@ export function useCreateNewSession(params: Readonly<{
             Modal.alert(t('common.error'), t('newSession.noMachineSelected'));
             return;
         }
-        if (trimmedEffectiveSelectedPath.length === 0) {
+        if (requestedSelectedPath.length === 0) {
             Modal.alert(t('common.error'), t('newSession.noPathSelected'));
             return;
         }
@@ -396,10 +405,21 @@ export function useCreateNewSession(params: Readonly<{
                 ? targetResolution.targetServerId
                 : snapshot.serverId;
             rollbackServerId = resolvedTargetServerId;
+            const pathResolution = await resolveNewSessionPathForLaunch({
+                machineId: current.selectedMachineId,
+                serverId: resolvedTargetServerId,
+                selectedPath: requestedSelectedPath,
+                fallbackPaths: current.getAutomaticPathCandidatesForMachine?.(current.selectedMachineId) ?? [],
+                source: current.selectedPathSource ?? 'explicit',
+            });
+            effectiveSelectedPath = pathResolution.path;
+            if (pathResolution.recovered) {
+                current.setRecoveredPath?.(effectiveSelectedPath);
+            }
             const launchScopeKey = buildNewSessionLaunchScopeKey({
                 machineId: current.selectedMachineId,
                 serverId: resolvedTargetServerId,
-                selectedPath: trimmedEffectiveSelectedPath,
+                selectedPath: effectiveSelectedPath,
                 useProfiles: current.useProfiles,
                 selectedProfileId: current.useProfiles ? current.selectedProfileId : null,
             });
@@ -880,7 +900,7 @@ export function useCreateNewSession(params: Readonly<{
                     return;
                 }
                 actualPath = checkoutResult.path;
-                const sessionPath = checkoutResult.sessionPath.trim() || trimmedEffectiveSelectedPath;
+                const sessionPath = checkoutResult.sessionPath.trim() || effectiveSelectedPath;
                 rollbackActualPath = actualPath;
 
                 const spawnOptions = {
@@ -1538,10 +1558,15 @@ export function useCreateNewSession(params: Readonly<{
                 ? error.message
                 : 'Failed to start session. Make sure the daemon is running on the target machine.';
             if (error instanceof Error) {
-                if (error.message.includes('timeout')) {
-                    errorMessage = 'Session startup timed out. The machine may be slow or the daemon may not be responding.';
-                } else if (error.message.includes('Socket not connected')) {
-                    errorMessage = 'Not connected to server. Check your internet connection.';
+                const lowerMsg = error.message.toLowerCase();
+                if (lowerMsg.includes('timeout')) {
+                    errorMessage = t('newSession.sessionTimeout');
+                } else if (
+                    lowerMsg.includes('socket not connected')
+                    || lowerMsg.includes('socket disconnected')
+                    || lowerMsg.includes('socket has been disconnected')
+                ) {
+                    errorMessage = t('newSession.notConnectedToServer');
                 }
             }
             if (confirmedCreatedSessionId) {
