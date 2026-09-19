@@ -32,6 +32,19 @@ describe('resolveSessionRunnerEntrypointIdentityFromProcessCommand', () => {
     }));
   });
 
+  it('parses quoted Windows pinned kaiwu.exe binary process commands', () => {
+    const identity = resolveSessionRunnerEntrypointIdentityFromProcessCommand(
+      '"C:\\Users\\alice\\.happier\\cli\\versions\\0.2.17\\kaiwu.exe" codex --started-by daemon',
+    );
+
+    expect(identity).toEqual(expect.objectContaining({
+      status: 'known',
+      source: 'process_command',
+      entrypointVersion: '0.2.17',
+      comparableId: 'version:0.2.17',
+    }));
+  });
+
   it('fails closed for mutable pointer commands', () => {
     const identity = resolveSessionRunnerEntrypointIdentityFromProcessCommand(
       'node /Users/alice/.happier/cli-dev/current/package-dist/index.mjs claude --started-by daemon',

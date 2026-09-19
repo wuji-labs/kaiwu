@@ -45,12 +45,19 @@ async function extractBinaryFromArchive(params: Readonly<{ archivePath: string; 
     archiveName: params.archiveName,
     extractDir: params.extractDir,
   });
-  const candidate = join(payloadRoot, process.platform === 'win32' ? 'happier.exe' : 'happier');
-  const info = await stat(candidate).catch(() => null);
-  if (!info?.isFile()) {
-    throw new Error(`extracted binary not found at expected path: ${candidate}`);
+  const primaryName = process.platform === 'win32' ? 'kaiwu.exe' : 'kaiwu';
+  const compatName = process.platform === 'win32' ? 'happier.exe' : 'happier';
+  const primaryCandidate = join(payloadRoot, primaryName);
+  const primaryInfo = await stat(primaryCandidate).catch(() => null);
+  if (primaryInfo?.isFile()) {
+    return primaryCandidate;
   }
-  return candidate;
+  const compatCandidate = join(payloadRoot, compatName);
+  const compatInfo = await stat(compatCandidate).catch(() => null);
+  if (compatInfo?.isFile()) {
+    return compatCandidate;
+  }
+  throw new Error(`extracted binary not found at expected path: ${primaryCandidate}`);
 }
 
 export async function updateBinaryFromReleaseAssets(params: Readonly<{

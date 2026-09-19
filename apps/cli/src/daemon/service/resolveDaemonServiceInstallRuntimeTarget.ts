@@ -17,25 +17,32 @@ async function resolveManagedReleaseChannelShimPath(params: Readonly<{
   channel: PublicReleaseRingId;
   processEnv: NodeJS.ProcessEnv;
 }>): Promise<string | null> {
-  const defaultShimPath = (await resolveDesiredShimTargets({
+  const desiredTargets = await resolveDesiredShimTargets({
     componentId: 'happier-daemon',
     channel: params.channel,
     processEnv: params.processEnv,
-  }))[0]?.shimPath ?? resolveInstalledFirstPartyComponentPaths({
+  });
+  const fallbackShimPaths = resolveInstalledFirstPartyComponentPaths({
     componentId: 'happier-daemon',
     channel: params.channel,
     processEnv: params.processEnv,
-  }).shimPaths[0];
-  if (!defaultShimPath) {
-    return null;
+  }).shimPaths;
+  const candidateShimPaths = [
+    ...desiredTargets.map((t) => t.shimPath),
+    ...fallbackShimPaths,
+  ];
+
+  for (const shimPath of candidateShimPaths) {
+    if (!shimPath) continue;
+    try {
+      await access(shimPath);
+      return shimPath;
+    } catch {
+      // probe next candidate
+    }
   }
 
-  try {
-    await access(defaultShimPath);
-    return defaultShimPath;
-  } catch {
-    return null;
-  }
+  return null;
 }
 
 async function resolveDefaultFollowingManagedShimPath(processEnv: NodeJS.ProcessEnv): Promise<string | null> {

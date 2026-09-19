@@ -9,6 +9,7 @@ import type { FilesystemAccessPolicy } from '@/rpc/handlers/fileSystem/accessPol
 import { authorizeFilesystemPath } from '@/rpc/handlers/fileSystem/accessPolicy/filesystemPathAuthorization';
 import { validatePath } from '@/rpc/handlers/pathSecurity';
 import { expandHomeDirPath } from '@/utils/path/expandHomeDirPath';
+import { killProcessTree } from '@/agent/runtime/process/killProcessTree';
 
 export type ScmExecResult = {
     success: boolean;
@@ -107,8 +108,29 @@ export function runScmCommand(input: {
         let timedOut = false;
         let outputLimitExceeded = false;
         let outputBytes = 0;
+        let terminationStarted = false;
         const timeoutMs = input.timeoutMs ?? 15_000;
         const maxOutputBytes = resolveScmMaxOutputBytes(input.maxOutputBytes);
+
+        const terminateChildTree = (): void => {
+            if (terminationStarted) return;
+            terminationStarted = true;
+            if (child.pid) {
+                void killProcessTree(child, { graceMs: 250 }).catch(() => {
+                    try {
+                        child.kill('SIGKILL');
+                    } catch {
+                        // Best-effort cleanup; the close/error handlers settle the command.
+                    }
+                });
+                return;
+            }
+            try {
+                child.kill('SIGKILL');
+            } catch {
+                // Best-effort cleanup; the close/error handlers settle the command.
+            }
+        };
 
         const done = (result: ScmExecResult) => {
             if (resolved) return;
@@ -123,7 +145,7 @@ export function runScmCommand(input: {
             if (remaining <= 0) {
                 outputLimitExceeded = true;
                 stderr += `\nSCM command output limit exceeded (${maxOutputBytes} bytes)`;
-                child.kill('SIGKILL');
+                terminateChildTree();
                 return;
             }
 
@@ -137,7 +159,7 @@ export function runScmCommand(input: {
                 outputBytes = maxOutputBytes;
                 outputLimitExceeded = true;
                 stderr += `\nSCM command output limit exceeded (${maxOutputBytes} bytes)`;
-                child.kill('SIGKILL');
+                terminateChildTree();
                 return;
             }
 
@@ -151,7 +173,7 @@ export function runScmCommand(input: {
 
         const timer = setTimeout(() => {
             timedOut = true;
-            child.kill('SIGKILL');
+            terminateChildTree();
         }, timeoutMs);
 
         child.stdout.on('data', (chunk) => {

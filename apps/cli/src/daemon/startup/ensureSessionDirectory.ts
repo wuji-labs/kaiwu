@@ -39,6 +39,8 @@ export async function ensureSessionDirectory(opts: {
         errorMessage += "Permission denied. You don't have write access to create a folder at this location. Try using a different path or check your permissions.";
       } else if (error.code === 'ENOTDIR') {
         errorMessage += 'A file already exists at this path or in the parent path. Cannot create a directory here. Please choose a different location.';
+      } else if (error.code === 'ENOENT') {
+        errorMessage += 'The drive or parent directory does not exist on this machine. Choose a path that is available here, or reconnect the drive.';
       } else if (error.code === 'ENOSPC') {
         errorMessage += 'No space left on device. Your disk is full. Please free up some space and try again.';
       } else if (error.code === 'EROFS') {

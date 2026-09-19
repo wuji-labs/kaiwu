@@ -161,20 +161,22 @@ function resolveWindowsSiblingPackagedBinary(packagedEntrypoint: string): string
   if (!runtimeRoot) {
     return null;
   }
-  const siblingBinaryForwardSlashes = `${runtimeRoot}/happier.exe`;
-  const siblingBinaryNativeSeparators = normalizedEntrypoint.includes('\\')
-    ? siblingBinaryForwardSlashes.replaceAll('/', '\\')
-    : siblingBinaryForwardSlashes;
-  if (
-    isEmbeddedBunBundlePath(siblingBinaryNativeSeparators)
-    || (
-      !existsSync(siblingBinaryNativeSeparators)
-      && !existsSync(siblingBinaryForwardSlashes)
-    )
-  ) {
-    return null;
+  for (const binaryName of ['kaiwu.exe', 'happier.exe']) {
+    const siblingBinaryForwardSlashes = `${runtimeRoot}/${binaryName}`;
+    const siblingBinaryNativeSeparators = normalizedEntrypoint.includes('\\')
+      ? siblingBinaryForwardSlashes.replaceAll('/', '\\')
+      : siblingBinaryForwardSlashes;
+    if (
+      !isEmbeddedBunBundlePath(siblingBinaryNativeSeparators)
+      && (
+        existsSync(siblingBinaryNativeSeparators)
+        || existsSync(siblingBinaryForwardSlashes)
+      )
+    ) {
+      return siblingBinaryNativeSeparators;
+    }
   }
-  return siblingBinaryNativeSeparators;
+  return null;
 }
 
 export async function resolveDaemonLaunchSpec(

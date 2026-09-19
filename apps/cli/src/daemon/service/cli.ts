@@ -16,6 +16,7 @@ import { applyDaemonServiceInstallPlan, runDaemonServiceCommands } from './apply
 import { buildServiceCommandEnv } from '@happier-dev/cli-common/service';
 
 import { resolveCliVersionFromBinary } from './resolveCliVersionFromBinary';
+import { resolveConfiguredCliBinaryPath } from './resolveConfiguredCliBinaryPath';
 import {
   describeDaemonServiceInstallConflict,
   installDaemonService,
@@ -1042,13 +1043,11 @@ function mapDaemonServiceListEntriesToInventory(
       return null;
     }
 
-    const installRoot = entry.releaseChannel === 'preview'
-      ? 'cli-preview'
-      : entry.releaseChannel === 'publicdev'
-        ? 'cli-dev'
-        : 'cli';
-    const binaryName = entry.platform === 'win32' ? 'happier.exe' : 'happier';
-    const binaryPath = join(happierHomeDir, installRoot, 'current', binaryName);
+    const binaryPath = resolveConfiguredCliBinaryPath({
+      happierHomeDir,
+      releaseChannel: entry.releaseChannel,
+      platform: entry.platform,
+    });
 
     if (configuredCliVersionByBinaryPathCache.has(binaryPath)) {
       return configuredCliVersionByBinaryPathCache.get(binaryPath) ?? null;

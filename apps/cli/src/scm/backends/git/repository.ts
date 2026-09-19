@@ -10,6 +10,7 @@ import { SCM_OPERATION_ERROR_CODES } from '@happier-dev/protocol';
 import { runScmCommand } from '../../runtime';
 import { normalizeRepoRootRelativePath } from '../../runtime';
 import { buildGitSnapshot, resolveGitHostingProviderFromOutputs } from './statusSnapshot';
+import { parseGitStatusPorcelainV2Z } from './statusParser';
 import { inspectGitCheckoutIdentity } from './checkoutIdentity';
 import { readGitBranchOperationState } from './operations/branchOperationState';
 import { defaultPrStatusCache } from '../../hostingProviders/prStatusCache';
@@ -19,8 +20,19 @@ import { parseGitWorktreeListPorcelain } from './worktreeListParser';
 import { readFile, realpath, stat } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
-const UNTRACKED_STATS_MAX_FILES = 512;
+const UNTRACKED_STATS_MAX_FILES = 128;
 const UNTRACKED_STATS_MAX_BYTES = 5_000_000;
+const UNTRACKED_STATS_MAX_TOTAL_BYTES = 2_000_000;
+const GIT_STATUS_TOTAL_TIMEOUT_MS = 5_000;
+const GIT_STATUS_TIMEOUT_MS = 2_500;
+const GIT_TRACKED_STATUS_TIMEOUT_MS = 2_500;
+const GIT_AHEAD_BEHIND_TIMEOUT_MS = 2_000;
+const GIT_STATUS_DEGRADED_THRESHOLD_MS = 1_500;
+const GIT_STATUS_MAX_OUTPUT_BYTES = 4 * 1024 * 1024;
+
+const GIT_READ_ONLY_ENV = {
+    GIT_OPTIONAL_LOCKS: '0',
+};
 
 function countTextLines(buffer: Buffer): number {
     if (buffer.length === 0) return 0;
@@ -31,19 +43,16 @@ function countTextLines(buffer: Buffer): number {
     return lines;
 }
 
-async function computeUntrackedStatsByPath(repoRoot: string): Promise<Record<string, { pendingAdded: number; isBinary: boolean }>> {
-    const result = await runScmCommand({
-        bin: 'git',
-        cwd: repoRoot,
-        args: ['ls-files', '--others', '--exclude-standard', '-z'],
-        timeoutMs: 10_000,
-    });
-    if (!result.success || typeof result.stdout !== 'string') return {};
-
-    const paths = result.stdout.split('\0').filter((p) => p.trim().length > 0).slice(0, UNTRACKED_STATS_MAX_FILES);
+async function computeUntrackedStatsByPath(
+    repoRoot: string,
+    untrackedPaths: readonly string[],
+): Promise<Record<string, { pendingAdded: number; isBinary: boolean }>> {
+    const paths = untrackedPaths.slice(0, UNTRACKED_STATS_MAX_FILES);
     const statsByPath: Record<string, { pendingAdded: number; isBinary: boolean }> = {};
+    let remainingBytes = UNTRACKED_STATS_MAX_TOTAL_BYTES;
 
     for (const rawPath of paths) {
+        if (remainingBytes <= 0) break;
         const normalized = normalizeRepoRootRelativePath(rawPath);
         if (!normalized.ok) continue;
         if (normalized.relativePath === '.' || normalized.relativePath.trim() === '') continue;
@@ -52,12 +61,13 @@ async function computeUntrackedStatsByPath(repoRoot: string): Promise<Record<str
         try {
             const info = await stat(absPath);
             if (!info.isFile()) continue;
-            if (info.size > UNTRACKED_STATS_MAX_BYTES) {
+            if (info.size > UNTRACKED_STATS_MAX_BYTES || info.size > remainingBytes) {
                 statsByPath[normalized.relativePath] = { pendingAdded: 0, isBinary: true };
                 continue;
             }
 
             const buf = await readFile(absPath);
+            remainingBytes -= buf.byteLength;
             const isBinary = buf.includes(0);
             statsByPath[normalized.relativePath] = {
                 pendingAdded: isBinary ? 0 : countTextLines(buf),
@@ -69,6 +79,29 @@ async function computeUntrackedStatsByPath(repoRoot: string): Promise<Record<str
     }
 
     return statsByPath;
+}
+
+async function readGitAheadBehind(input: Readonly<{
+    cwd: string;
+    hasUpstream: boolean;
+}>): Promise<{ ahead: number; behind: number } | null> {
+    if (!input.hasUpstream) return null;
+
+    const result = await runScmCommand({
+        bin: 'git',
+        cwd: input.cwd,
+        args: ['rev-list', '--left-right', '--count', 'HEAD...@{upstream}'],
+        timeoutMs: GIT_AHEAD_BEHIND_TIMEOUT_MS,
+        env: GIT_READ_ONLY_ENV,
+    });
+    if (!result.success) return null;
+
+    const match = /^\s*(\d+)\s+(\d+)\s*$/.exec(result.stdout.trim());
+    if (!match) return null;
+    return {
+        ahead: Number(match[1] ?? 0),
+        behind: Number(match[2] ?? 0),
+    };
 }
 
 function resolveMainWorktreePathFromCheckoutIdentity(
@@ -117,17 +150,62 @@ export async function getGitSnapshot(input: {
     const { context, request } = input;
     const repoRoot = context.detection.rootPath ?? context.cwd;
 
-    const statusResult = await runScmCommand({
+    const statusArgs = ['status', '--porcelain=v2', '-z', '--branch', '--show-stash', '--untracked-files=normal', '--no-ahead-behind'];
+    const statusStartedAt = Date.now();
+    let statusWasDegraded = false;
+    let statusResult = await runScmCommand({
         bin: 'git',
         cwd: context.cwd,
-        args: ['status', '--porcelain=v2', '-z', '--branch', '--show-stash', '--untracked-files=all'],
-        timeoutMs: 10_000,
+        args: statusArgs,
+        timeoutMs: GIT_STATUS_TIMEOUT_MS,
+        maxOutputBytes: GIT_STATUS_MAX_OUTPUT_BYTES,
+        env: GIT_READ_ONLY_ENV,
     });
+
+    // A large worktree can make Git's untracked walk exceed the availability
+    // budget. Retry once without untracked enumeration so tracked changes and
+    // branch metadata remain available without monopolising the daemon.
+    if (!statusResult.success && (statusResult.timedOut || statusResult.outputLimitExceeded)) {
+        statusWasDegraded = true;
+        const remainingBudgetMs = GIT_STATUS_TOTAL_TIMEOUT_MS - (Date.now() - statusStartedAt);
+        if (remainingBudgetMs > 0) {
+            statusResult = await runScmCommand({
+                bin: 'git',
+                cwd: context.cwd,
+                args: ['status', '--porcelain=v2', '-z', '--branch', '--show-stash', '--untracked-files=no', '--no-ahead-behind'],
+                timeoutMs: Math.min(GIT_TRACKED_STATUS_TIMEOUT_MS, remainingBudgetMs),
+                maxOutputBytes: GIT_STATUS_MAX_OUTPUT_BYTES,
+                env: GIT_READ_ONLY_ENV,
+            });
+        }
+    }
     if (!statusResult.success) {
         return {
             success: false,
             errorCode: SCM_OPERATION_ERROR_CODES.COMMAND_FAILED,
             error: statusResult.stderr || 'Failed to read repository status',
+        };
+    }
+
+    const statusRaw = statusResult.stdout ?? '';
+    const parsedStatus = parseGitStatusPorcelainV2Z(statusRaw);
+
+    // A status command that consumed most of the availability budget is itself
+    // the signal that optional diff/worktree/remote enrichment is unsafe for
+    // this request. Return the core status snapshot now; a later coalesced
+    // refresh can retry enrichment without blocking session lifecycle RPCs.
+    if (statusWasDegraded || Date.now() - statusStartedAt >= GIT_STATUS_DEGRADED_THRESHOLD_MS) {
+        return {
+            success: true,
+            snapshot: buildGitSnapshot({
+                projectKey: context.projectKey,
+                fetchedAt: Date.now(),
+                rootPath: context.detection.rootPath,
+                currentWorktreePath: context.cwd,
+                statusOutput: statusRaw,
+                includedNumStatOutput: '',
+                pendingNumStatOutput: '',
+            }),
         };
     }
 
@@ -168,9 +246,13 @@ export async function getGitSnapshot(input: {
     const checkoutIdentity = await inspectGitCheckoutIdentity({ cwd: context.cwd });
     const operationState = await readGitBranchOperationState(context);
 
-    const statusRaw = statusResult.stdout ?? '';
-    const hasUntrackedHint = /(?:^|\0)\?\s/.test(statusRaw);
-    const untrackedStatsByPath = repoRoot && hasUntrackedHint ? await computeUntrackedStatsByPath(repoRoot) : {};
+    const aheadBehind = await readGitAheadBehind({
+        cwd: context.cwd,
+        hasUpstream: Boolean(parsedStatus.branch.upstream),
+    });
+    const untrackedStatsByPath = repoRoot && parsedStatus.notAdded.length > 0
+        ? await computeUntrackedStatsByPath(repoRoot, parsedStatus.notAdded)
+        : {};
     const remotesOutput = remotesResult.success ? (remotesResult.stdout ?? '') : '';
     const hostingProvider = resolveGitHostingProviderFromOutputs({
         statusOutput: statusRaw,
@@ -190,6 +272,8 @@ export async function getGitSnapshot(input: {
         statusOutput: statusResult.stdout ?? '',
         includedNumStatOutput: includedResult.success ? (includedResult.stdout ?? '') : '',
         pendingNumStatOutput: pendingResult.success ? (pendingResult.stdout ?? '') : '',
+        branchAhead: aheadBehind?.ahead,
+        branchBehind: aheadBehind?.behind,
         untrackedStatsByPath,
         worktreesOutput: worktreesResult.success ? (worktreesResult.stdout ?? '') : '',
         remotesOutput,

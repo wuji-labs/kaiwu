@@ -273,12 +273,15 @@ function buildCurrentProcessBinaryFallbackInvocation(args: string[]): HappyCliSu
   };
 }
 
-function resolveSiblingWindowsPackagedBinary(entrypoint: string): string | null {
+export function resolveSiblingWindowsPackagedBinary(entrypoint: string): string | null {
   if (process.platform !== 'win32') return null;
   const distDir = dirname(entrypoint);
   if (basename(distDir).toLowerCase() !== 'package-dist') return null;
-  const binaryPath = join(dirname(distDir), 'happier.exe');
-  return existsSync(binaryPath) ? binaryPath : null;
+  const parentDir = dirname(distDir);
+  const primaryPath = join(parentDir, 'kaiwu.exe');
+  if (existsSync(primaryPath)) return primaryPath;
+  const compatPath = join(parentDir, 'happier.exe');
+  return existsSync(compatPath) ? compatPath : null;
 }
 
 function shouldUseWindowsPackagedBinary(options: HappyCliSubprocessLaunchOptions | undefined): boolean {

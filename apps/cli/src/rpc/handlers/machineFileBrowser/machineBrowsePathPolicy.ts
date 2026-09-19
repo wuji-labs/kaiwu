@@ -13,6 +13,25 @@ type ValidateMachineBrowsePathInput = Readonly<{
   platform?: NodeJS.Platform
 }>
 
+type WindowsDriveRootAvailabilityInput = Readonly<{
+  targetPath: string
+  roots: readonly MachineFileBrowserRoot[]
+  platform?: NodeJS.Platform
+}>
+
+function getWindowsDriveRoot(rawPath: string): string | null {
+  const match = /^([A-Za-z]):(?:[\\/]|$)/.exec(rawPath.trim())
+  return match ? `${match[1]!.toUpperCase()}:\\` : null
+}
+
+/** Distinguish a stale drive from a path outside a configured browse root. */
+export function isWindowsDriveRootUnavailable(input: WindowsDriveRootAvailabilityInput): boolean {
+  if ((input.platform ?? process.platform) !== 'win32') return false
+  const driveRoot = getWindowsDriveRoot(input.targetPath)
+  if (!driveRoot) return false
+  return !input.roots.some((root) => getWindowsDriveRoot(root.path) === driveRoot)
+}
+
 function isWithinRoot(rootPath: string, targetPath: string, platform: NodeJS.Platform): boolean {
   if (platform === 'win32') {
     const normalizedRoot = resolvePathForComparison(rootPath, platform)

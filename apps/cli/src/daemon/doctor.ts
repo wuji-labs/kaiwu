@@ -20,7 +20,7 @@ const DAEMON_OWNERSHIP_ENVIRONMENT_VARIABLE_KEYS = [
   'HAPPIER_WEBAPP_URL',
   'HAPPIER_PUBLIC_SERVER_URL',
 ] as const;
-const WINDOWS_HAPPY_HOST_PROCESS_NAMES = new Set(['happier', 'happier.exe', 'node', 'node.exe', 'bun', 'bun.exe', 'mainthread']);
+const WINDOWS_HAPPY_HOST_PROCESS_NAMES = new Set(['kaiwu', 'kaiwu.exe', 'happier', 'happier.exe', 'node', 'node.exe', 'bun', 'bun.exe', 'mainthread']);
 
 export type DaemonOwnershipEnvironmentVariables = Partial<Record<
   typeof DAEMON_OWNERSHIP_ENVIRONMENT_VARIABLE_KEYS[number],
@@ -324,8 +324,11 @@ export function classifyHappyProcess(proc: RawProcessInfo): HappyProcessInfo | n
             normalizedCommand.includes('@happier-dev/cli') ||
             isCliSourceSnapshotCommand)))) ||
     normalizedCommand.includes('happier.mjs') ||
+    normalizedCommand.includes('kaiwu.mjs') ||
     normalizedCommand.includes('@happier-dev/cli') ||
     normalizedCommand.includes('package-dist/index.mjs') ||
+    normalizedName === 'kaiwu' ||
+    normalizedName === 'kaiwu.exe' ||
     normalizedName === 'happier' ||
     normalizedName === 'happier.exe';
 

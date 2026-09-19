@@ -82,7 +82,26 @@ function collectDeclarationTargets(value, result) {
   }
 }
 
-function resolveWorkspaceDeclarationPaths(packageDir, readFile = readFileSync) {
+function collectManifestRelativeTargets(value, result) {
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed || trimmed.includes('*')) return;
+    if (trimmed.startsWith('./')) {
+      result.add(trimmed.slice(2));
+      return;
+    }
+    if (!trimmed.startsWith('/') && !trimmed.startsWith('\\') && !trimmed.includes(':')) {
+      result.add(trimmed);
+    }
+    return;
+  }
+  if (!value || typeof value !== 'object') return;
+  for (const nested of Array.isArray(value) ? value : Object.values(value)) {
+    collectManifestRelativeTargets(nested, result);
+  }
+}
+
+export function resolveWorkspaceDeclarationPaths(packageDir, readFile = readFileSync) {
   const targets = new Set();
   try {
     const packageJson = JSON.parse(readFile(resolve(packageDir, 'package.json'), 'utf8'));
@@ -95,12 +114,31 @@ function resolveWorkspaceDeclarationPaths(packageDir, readFile = readFileSync) {
   return [...targets].map((target) => resolve(packageDir, target));
 }
 
+function resolveWorkspaceFreshnessPaths(packageDir, readFile = readFileSync) {
+  const targets = new Set();
+  let hasDeclarationTarget = false;
+  try {
+    const packageJson = JSON.parse(readFile(resolve(packageDir, 'package.json'), 'utf8'));
+    collectManifestRelativeTargets(packageJson.main, targets);
+    collectManifestRelativeTargets(packageJson.module, targets);
+    collectManifestRelativeTargets(packageJson.types, targets);
+    collectManifestRelativeTargets(packageJson.typings, targets);
+    collectManifestRelativeTargets(packageJson.exports, targets);
+    collectManifestRelativeTargets(packageJson.bin, targets);
+    hasDeclarationTarget = [...targets].some((target) => /\.d\.(?:ts|mts|cts)$/.test(target));
+  } catch {
+    // A malformed or absent manifest is handled as a missing declaration below.
+  }
+  if (!hasDeclarationTarget) targets.add('dist/index.d.ts');
+  return [...targets].map((target) => resolve(packageDir, target));
+}
+
 function isBundledDeclarationCopyStale({ root, packageDir, workspaceName, fsOps = {} }) {
   const exists = fsOps.exists ?? existsSync;
   const stat = fsOps.stat ?? statSync;
   const destPackageDir = resolve(root, 'apps', 'cli', 'node_modules', '@happier-dev', workspaceName);
   if (!exists(resolve(destPackageDir, 'package.json'))) return true;
-  for (const sourcePath of resolveWorkspaceDeclarationPaths(packageDir, fsOps.readFile ?? readFileSync)) {
+  for (const sourcePath of resolveWorkspaceFreshnessPaths(packageDir, fsOps.readFile ?? readFileSync)) {
     const relativePath = sourcePath.slice(packageDir.length + 1);
     const destPath = resolve(destPackageDir, relativePath);
     if (!exists(destPath)) return true;
@@ -125,7 +163,7 @@ export async function ensureCliDeclarationPrerequisites(options = {}) {
     const packageDir = resolve(root, 'packages', name);
     return isBundledDeclarationCopyStale({ root, packageDir, workspaceName: name, fsOps });
   });
-  const ensureWorkspaceOutputs = () => ensureWorkspacePackagesBuiltForComponent(resolve(root, 'apps', 'cli'), {
+  const ensureWorkspaceOutputs = () => (options.ensureWorkspacePackagesBuiltImpl ?? ensureWorkspacePackagesBuiltForComponent)(resolve(root, 'apps', 'cli'), {
     quiet: options.quiet !== false,
     env: options.env ?? process.env,
   });
