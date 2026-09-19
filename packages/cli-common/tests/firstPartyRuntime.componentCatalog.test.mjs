@@ -7,6 +7,19 @@ import {
   resolveFirstPartyComponentPublicReleaseVariant,
 } from '../dist/firstPartyRuntime/index.js';
 
+test('happier-cli and happier-daemon use kaiwu as canonical executable with happier compatibility shim', () => {
+  const cli = getFirstPartyComponentCatalogEntry('happier-cli');
+  const daemon = getFirstPartyComponentCatalogEntry('happier-daemon');
+
+  assert.equal(cli.executableBaseName, 'kaiwu');
+  assert.equal(cli.binaryRelativePath, 'kaiwu');
+  assert.deepEqual(cli.installShims, ['kaiwu', 'happier']);
+
+  assert.equal(daemon.executableBaseName, 'kaiwu');
+  assert.equal(daemon.binaryRelativePath, 'kaiwu');
+  assert.deepEqual(daemon.installShims, ['kaiwu', 'happier']);
+});
+
 test('first-party runtime catalog exposes the expected component identities', () => {
   const ids = listFirstPartyComponentCatalogEntries().map((entry) => entry.id);
   assert.deepEqual(ids, ['happier-cli', 'happier-daemon', 'happier-server', 'hstack']);

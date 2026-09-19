@@ -27,13 +27,22 @@ export async function syncInstalledFirstPartyShims(params: Readonly<{
   });
 
   if (process.platform === 'win32') {
-    for (const { shimPath, binaryPath } of targets) {
+    for (let index = 0; index < targets.length; index++) {
+      const { shimPath, binaryPath } = targets[index];
       mkdirSync(dirname(shimPath), { recursive: true });
-      rmSync(shimPath, { force: true, recursive: true });
       try {
-        linkSync(binaryPath, shimPath);
-      } catch {
-        copyFileSync(binaryPath, shimPath);
+        rmSync(shimPath, { force: true, recursive: true });
+        try {
+          linkSync(binaryPath, shimPath);
+        } catch {
+          copyFileSync(binaryPath, shimPath);
+        }
+      } catch (error) {
+        if (index > 0) {
+          console.warn(`[kaiwu] Unable to refresh compatibility alias at ${shimPath}: ${(error as Error)?.message ?? String(error)} (canonical daemon path remains safe)`);
+        } else {
+          throw error;
+        }
       }
     }
     return {

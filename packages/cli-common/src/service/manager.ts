@@ -186,6 +186,7 @@ export function buildServiceDefinition(params: Readonly<{ backend: ServiceBacken
       env: mergedEnv,
       stdoutPath: s.stdoutPath,
       stderrPath: s.stderrPath,
+      restartPolicy: s.restartPolicy,
     });
     return { kind: 'windows-wrapper-ps1', path, contents, mode: 0o644 };
   }

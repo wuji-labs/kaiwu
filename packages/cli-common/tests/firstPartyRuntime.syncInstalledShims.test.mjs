@@ -14,20 +14,23 @@ import {
 async function createStagedPayload(rootDir, versionId, contents) {
   const stagedPayloadPath = join(rootDir, `stage-${versionId}`);
   await mkdir(stagedPayloadPath, { recursive: true });
+  await writeFile(join(stagedPayloadPath, 'kaiwu'), contents, 'utf8');
+  await writeFile(join(stagedPayloadPath, 'kaiwu.exe'), contents, 'utf8');
   await writeFile(join(stagedPayloadPath, 'happier'), contents, 'utf8');
+  await writeFile(join(stagedPayloadPath, 'happier.exe'), contents, 'utf8');
   await mkdir(join(stagedPayloadPath, 'package-dist'), { recursive: true });
   await writeFile(join(stagedPayloadPath, 'package-dist', 'index.mjs'), `export default ${JSON.stringify(versionId)};\n`, 'utf8');
   return stagedPayloadPath;
 }
 
 for (const [releaseRing, shimName, installRootPattern] of [
-  ['stable', 'happier', /cli\/current\/happier|..\/cli\/current\/happier/],
-  ['preview', 'hprev', /cli-preview\/current\/happier|..\/cli-preview\/current\/happier/],
-  ['publicdev', 'hdev', /cli-dev\/current\/happier|..\/cli-dev\/current\/happier/],
+  ['stable', 'kaiwu', /cli\/current\/kaiwu|..\/cli\/current\/kaiwu/],
+  ['preview', 'hprev', /cli-preview\/current\/kaiwu|..\/cli-preview\/current\/kaiwu/],
+  ['publicdev', 'hdev', /cli-dev\/current\/kaiwu|..\/cli-dev\/current\/kaiwu/],
 ]) {
   test(`syncInstalledFirstPartyShims points the ${releaseRing} shim at the current payload binary`, async () => {
     const homeDir = await mkdtemp(join(tmpdir(), 'happier-first-party-runtime-'));
-    const env = { ...process.env, HAPPIER_HOME_DIR: homeDir };
+    const env = { ...process.env, HAPPIER_HOME_DIR: homeDir, KAIWU_HOME_DIR: homeDir };
 
     try {
       await promoteVersionedPayload({
@@ -49,7 +52,8 @@ for (const [releaseRing, shimName, installRootPattern] of [
         releaseRing,
       });
       assert.deepEqual(result.shimPaths, paths.shimPaths);
-      assert.equal(paths.shimPaths[0], join(homeDir, 'bin', shimName));
+      const expectedShim = process.platform === 'win32' ? `${shimName}.exe` : shimName;
+      assert.equal(paths.shimPaths[0], join(homeDir, 'bin', expectedShim));
       assert.equal(existsSync(paths.shimPaths[0]), true);
 
       if (process.platform === 'win32') {

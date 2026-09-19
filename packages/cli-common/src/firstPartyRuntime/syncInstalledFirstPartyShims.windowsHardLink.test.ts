@@ -31,6 +31,7 @@ async function createStagedPayload(rootDir: string, versionId: string, contents:
     const stagedPayloadPath = join(rootDir, `stage-${versionId}`);
     await mkdir(stagedPayloadPath, { recursive: true });
     await mkdir(join(stagedPayloadPath, 'package-dist'), { recursive: true });
+    await writeFile(join(stagedPayloadPath, 'kaiwu.exe'), contents, 'utf8');
     await writeFile(join(stagedPayloadPath, 'happier.exe'), contents, 'utf8');
     await writeFile(join(stagedPayloadPath, 'package-dist', 'index.mjs'), `export default ${JSON.stringify(versionId)};\n`, 'utf8');
     return stagedPayloadPath;
@@ -40,7 +41,7 @@ describe('syncInstalledFirstPartyShims Windows hard-link path', () => {
     it('prefers hard links for Windows shim installation', async () => {
         await withPlatform('win32', async () => {
             const homeDir = await mkdtemp(join(tmpdir(), 'happier-sync-shims-win32-link-'));
-            const env = { ...process.env, HAPPIER_HOME_DIR: homeDir };
+            const env = { ...process.env, HAPPIER_HOME_DIR: homeDir, KAIWU_HOME_DIR: homeDir };
 
             try {
                 await writeDefaultManagedReleaseChannel({
@@ -63,7 +64,7 @@ describe('syncInstalledFirstPartyShims Windows hard-link path', () => {
                 });
 
                 expect(result.shimPaths).toEqual([
-                    join(homeDir, 'bin', 'happier.exe'),
+                    join(homeDir, 'bin', 'kaiwu.exe'),
                     join(homeDir, 'bin', 'hprev.exe'),
                 ]);
                 expect(await readFile(result.shimPaths[0]!, 'utf8')).toBe('preview-binary');

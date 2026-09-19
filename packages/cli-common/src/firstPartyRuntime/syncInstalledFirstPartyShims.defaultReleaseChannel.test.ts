@@ -13,7 +13,10 @@ async function createStagedPayload(rootDir: string, versionId: string, contents:
   const stagedPayloadPath = join(rootDir, `stage-${versionId}`);
   await mkdir(stagedPayloadPath, { recursive: true });
   await mkdir(join(stagedPayloadPath, 'package-dist'), { recursive: true });
+  await writeFile(join(stagedPayloadPath, 'kaiwu'), contents, 'utf8');
+  await writeFile(join(stagedPayloadPath, 'kaiwu.exe'), contents, 'utf8');
   await writeFile(join(stagedPayloadPath, 'happier'), contents, 'utf8');
+  await writeFile(join(stagedPayloadPath, 'happier.exe'), contents, 'utf8');
   await writeFile(join(stagedPayloadPath, 'package-dist', 'index.mjs'), `export default ${JSON.stringify(versionId)};\n`, 'utf8');
   return stagedPayloadPath;
 }
@@ -21,7 +24,7 @@ async function createStagedPayload(rootDir: string, versionId: string, contents:
 describe('syncInstalledFirstPartyShims default release-channel handling', () => {
   it('keeps the happier shim pointed at the selected default release-channel', async () => {
     const homeDir = await mkdtemp(join(tmpdir(), 'happier-first-party-runtime-'));
-    const env = { ...process.env, HAPPIER_HOME_DIR: homeDir };
+    const env = { ...process.env, HAPPIER_HOME_DIR: homeDir, KAIWU_HOME_DIR: homeDir };
 
     try {
       await writeDefaultManagedReleaseChannel({
@@ -54,14 +57,14 @@ describe('syncInstalledFirstPartyShims default release-channel handling', () => 
         releaseRing: 'stable',
       });
 
-      const defaultShimPath = join(homeDir, 'bin', process.platform === 'win32' ? 'happier.exe' : 'happier');
+      const defaultShimPath = join(homeDir, 'bin', process.platform === 'win32' ? 'kaiwu.exe' : 'kaiwu');
       expect(existsSync(defaultShimPath)).toBe(true);
 
       if (process.platform === 'win32') {
         await expect(readFile(defaultShimPath, 'utf8')).resolves.toBe('preview-binary');
       } else {
         expect(lstatSync(defaultShimPath).isSymbolicLink()).toBe(true);
-        expect(readlinkSync(defaultShimPath)).toMatch(/cli-preview\/current\/happier|..\/cli-preview\/current\/happier/);
+        expect(readlinkSync(defaultShimPath)).toMatch(/cli-preview\/current\/kaiwu|..\/cli-preview\/current\/kaiwu/);
       }
     } finally {
       await rm(homeDir, { recursive: true, force: true });

@@ -9,6 +9,22 @@ import { extractReleasePayloadRootFromArchive } from './extractReleasePayloadRoo
 import { resolveCliBinaryAssetBundleFromReleaseAssets } from './releaseAssetBundle';
 
 describe('releaseAssetBundle', () => {
+    it('prefers canonical kaiwu release assets while retaining the legacy happier format', () => {
+        const bundle = resolveCliBinaryAssetBundleFromReleaseAssets({
+            assets: [
+                { name: 'kaiwu-v1.0.2-linux-x64.tar.gz', browser_download_url: 'https://example.test/kaiwu.tgz' },
+                { name: 'checksums-kaiwu-v1.0.2.txt', browser_download_url: 'https://example.test/kaiwu.txt' },
+                { name: 'checksums-kaiwu-v1.0.2.txt.minisig', browser_download_url: 'https://example.test/kaiwu.minisig' },
+            ],
+            os: 'linux',
+            arch: 'x64',
+            preferVersion: null,
+        });
+
+        expect(bundle.version).toBe('1.0.2');
+        expect(bundle.archive.name).toBe('kaiwu-v1.0.2-linux-x64.tar.gz');
+    });
+
     it('picks the newest matching rolling asset bundle', () => {
         const bundle = resolveCliBinaryAssetBundleFromReleaseAssets({
             assets: [

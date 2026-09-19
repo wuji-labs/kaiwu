@@ -40,22 +40,20 @@ export function buildStopWindowsScheduledTaskIfRunningPowerShellCommand(params: 
     '$task = Get-ScheduledTask -TaskPath $taskPath -TaskName $taskName -ErrorAction SilentlyContinue',
     'if ($null -ne $task -and [int]$task.State -eq 4) {',
     // Stop-ScheduledTask terminates the PowerShell action but can leave the
-    // executable launched by that wrapper running. Find only this task's
-    // wrapper by its exact -File argument, then terminate each direct child
-    // process tree while the wrapper is still alive. This also works for
-    // wrappers installed before this lifecycle fix.
+    // executable launched by that wrapper running. Capture only this task's
+    // wrapper and its direct child before stopping the task, stop the wrapper
+    // first so a retry loop cannot launch another child, then clean up the
+    // captured process trees. This also works for wrappers installed before
+    // this lifecycle fix.
     '  $allProcesses = @(Get-CimInstance Win32_Process -ErrorAction Stop)',
     '  $wrapperProcessIds = @($allProcesses | Where-Object { ([string]$_.CommandLine).IndexOf($wrapperActionToken, [StringComparison]::OrdinalIgnoreCase) -ge 0 } | ForEach-Object { [int]$_.ProcessId })',
     '  $serviceProcessIds = @($allProcesses | Where-Object { $wrapperProcessIds -contains [int]$_.ParentProcessId } | ForEach-Object { [int]$_.ProcessId })',
-    '  foreach ($serviceProcessId in $serviceProcessIds) {',
-    '    & taskkill.exe /PID $serviceProcessId /T /F | Out-Null',
-    '    if ($LASTEXITCODE -ne 0 -and $null -ne (Get-Process -Id $serviceProcessId -ErrorAction SilentlyContinue)) {',
-    '      throw "Failed to stop scheduled task child process $serviceProcessId (taskkill exit $LASTEXITCODE)"',
+    '  Stop-ScheduledTask -TaskPath $taskPath -TaskName $taskName -ErrorAction Stop',
+    '  foreach ($processId in @($wrapperProcessIds + $serviceProcessIds | Select-Object -Unique)) {',
+    '    & taskkill.exe /PID $processId /T /F | Out-Null',
+    '    if ($LASTEXITCODE -ne 0 -and $null -ne (Get-Process -Id $processId -ErrorAction SilentlyContinue)) {',
+    '      throw "Failed to stop scheduled task process $processId (taskkill exit $LASTEXITCODE)"',
     '    }',
-    '  }',
-    '  $task = Get-ScheduledTask -TaskPath $taskPath -TaskName $taskName -ErrorAction SilentlyContinue',
-    '  if ($null -ne $task -and [int]$task.State -eq 4) {',
-    '    Stop-ScheduledTask -TaskPath $taskPath -TaskName $taskName -ErrorAction Stop',
     '  }',
     '}',
     // A missing task is the intended no-op. Get-ScheduledTask with
@@ -168,11 +166,13 @@ export function renderWindowsScheduledTaskWrapperPs1(params: Readonly<{
   env?: Record<string, string>;
   stdoutPath?: string;
   stderrPath?: string;
+  restartPolicy?: 'always' | 'on-failure' | 'no';
 }>): string {
   const wd = String(params.workingDirectory ?? '').trim();
   const args = Array.isArray(params.programArgs) ? params.programArgs.map((a) => String(a ?? '')).filter(Boolean) : [];
   const out = String(params.stdoutPath ?? '').trim();
   const err = String(params.stderrPath ?? '').trim();
+  const shouldRetryOnFailure = params.restartPolicy !== 'no';
 
   const envLines = Object.entries(params.env ?? {})
     .filter(([k]) => String(k ?? '').trim())
@@ -182,13 +182,26 @@ export function renderWindowsScheduledTaskWrapperPs1(params: Readonly<{
   const cmd = args.length ? `& ${args.map(psQuoted).join(' ')}` : '';
   const redirect = out || err ? ` 1>> ${psQuoted(out)} 2>> ${psQuoted(err)}` : '';
 
+  const commandLines = shouldRetryOnFailure
+    ? [
+      'while ($true) {',
+      `  ${cmd}${redirect}`,
+      '  $exitCode = [int]$LASTEXITCODE',
+      '  if ($exitCode -eq 0) { exit 0 }',
+      '  Start-Sleep -Seconds 5',
+      '}',
+    ]
+    : [
+      `${cmd}${redirect}`,
+      '$exitCode = [int]$LASTEXITCODE',
+      'exit $exitCode',
+    ];
+
   return [
     '$ErrorActionPreference = "Stop"',
     wd ? `Set-Location -LiteralPath ${psQuoted(wd)}` : '',
     envLines,
-    cmd ? `${cmd}${redirect}` : '',
-    cmd ? '$exitCode = [int]$LASTEXITCODE' : '',
-    cmd ? 'exit $exitCode' : '',
+    cmd ? commandLines.join('\n') : '',
     '',
   ]
     .filter(Boolean)
