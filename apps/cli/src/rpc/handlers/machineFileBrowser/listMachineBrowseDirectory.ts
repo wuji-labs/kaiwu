@@ -3,7 +3,7 @@ import { DaemonFilesystemListDirectoryRequestSchema } from '@happier-dev/protoco
 
 import { listDirectoryEntries } from '@/rpc/handlers/fileSystem/directoryListing/listDirectoryEntries'
 
-import { validateMachineBrowsePath } from './machineBrowsePathPolicy'
+import { isWindowsDriveRootUnavailable, validateMachineBrowsePath } from './machineBrowsePathPolicy'
 
 export async function listMachineBrowseDirectory(input: Readonly<{
   raw: unknown
@@ -15,6 +15,18 @@ export async function listMachineBrowseDirectory(input: Readonly<{
   const parsed = DaemonFilesystemListDirectoryRequestSchema.safeParse(input.raw)
   if (!parsed.success) {
     return { ok: false, error: 'Invalid machine file browser directory request', errorCode: 'invalid_request' }
+  }
+
+  if (isWindowsDriveRootUnavailable({
+    targetPath: parsed.data.path,
+    roots: input.roots,
+    platform: input.platform,
+  })) {
+    return {
+      ok: false,
+      error: 'The drive for this path is not available on this machine',
+      errorCode: 'not_found',
+    }
   }
 
   const validation = validateMachineBrowsePath({

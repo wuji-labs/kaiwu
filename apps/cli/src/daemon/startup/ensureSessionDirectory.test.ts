@@ -88,4 +88,31 @@ describe('ensureSessionDirectory', () => {
       expect(result.response.errorMessage).toContain('Cannot create a directory here');
     }
   });
+
+  it('returns a descriptive ENOENT error when a Windows drive or parent path is unavailable', async () => {
+    if (process.platform !== 'win32') return;
+
+    try {
+      await fs.access('Q:\\');
+      return;
+    } catch {
+      // The fixture intentionally uses a drive that is not mounted on this host.
+    }
+
+    const result = await ensureSessionDirectory({
+      directory: 'Q:\\qianyuan-wuji\\missing',
+      approvedNewDirectoryCreation: true,
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      throw new Error('expected directory creation to fail');
+    }
+
+    expect(result.response.type).toBe('error');
+    if (result.response.type === 'error') {
+      expect(result.response.errorCode).toBe('DIRECTORY_CREATE_FAILED');
+      expect(result.response.errorMessage).toContain('drive or parent directory does not exist');
+    }
+  });
 });

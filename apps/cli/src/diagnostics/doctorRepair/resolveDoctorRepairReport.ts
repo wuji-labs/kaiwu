@@ -4,11 +4,13 @@ import {
   type PublicReleaseRingLabel,
 } from '@happier-dev/release-runtime/releaseRings';
 
+import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 import { configuration } from '@/configuration';
 import { resolveInvokerName } from '@/cli/runtime/resolveInvokerName';
 import { resolveCliVersionFromBinary } from '@/daemon/service/resolveCliVersionFromBinary';
+import { resolveConfiguredCliBinaryPath } from '@/daemon/service/resolveConfiguredCliBinaryPath';
 import type { BackgroundServiceRepairPlan } from '@/diagnostics/backgroundServiceRepair';
 import { resolveBackgroundServiceRepairPlanForCurrentRuntime } from '@/diagnostics/backgroundServiceRepair/resolveBackgroundServiceRepairPlanForCurrentRuntime';
 import type { DaemonServiceMode } from '@/daemon/service/plan';
@@ -149,7 +151,10 @@ function buildCurrentCliInfo(
   // (e.g. repo package.json = `0.2.5`, installed package.json = `0.2.5-dev.15.1`),
   // and the installed one is what matters for version-stale comparisons and
   // for the user's mental model of "what did I just install?".
-  const installedVersion = readInstalledCliVersion(binaryPath, runtime.platform);
+  const installedVersion = readInstalledCliVersion(binaryPath, runtime.platform, {
+    happierHomeDir: runtime.happierHomeDir,
+    releaseChannel: ringId,
+  });
   const version = installedVersion
     ?? (String(configuration.currentCliVersion ?? '').trim() || '(unknown)');
 
@@ -187,15 +192,36 @@ function buildCurrentCliInfo(
  * something like `0.2.5-dev.15.1`. For "did the user install a new CLI?" we
  * want the installed version, not the loaded-from-repo bundled constant.
  *
- * `entryPath` is the Node entrypoint path (`<installRoot>/current/package-dist/index.mjs`).
- * The shim we invoke sits two directories up: `<installRoot>/current/happier`
- * on unix, `<installRoot>\current\happier.exe` on Windows.
+ * Prefer the same managed shim resolver used by background-service inventory.
+ * `entryPath` remains the compatibility input for older callers that do not
+ * have a managed home directory available.
  */
-function readInstalledCliVersion(entryPath: string | null, platform: NodeJS.Platform): string | null {
-  if (!entryPath) return null;
-  const currentDir = dirname(dirname(entryPath));
-  const shim = platform === 'win32' ? 'happier.exe' : 'happier';
-  return resolveCliVersionFromBinary({ binaryPath: join(currentDir, shim), platform });
+export function readInstalledCliVersion(
+  entryPath: string | null,
+  platform: NodeJS.Platform,
+  options: Readonly<{
+    happierHomeDir?: string | null;
+    releaseChannel?: string | null;
+  }> = {},
+): string | null {
+  const happierHomeDir = String(options.happierHomeDir ?? '').trim();
+  const binaryPath = happierHomeDir
+    ? resolveConfiguredCliBinaryPath({
+        happierHomeDir,
+        releaseChannel: options.releaseChannel,
+        platform,
+      })
+    : (() => {
+        if (!entryPath) return null;
+        const currentDir = dirname(dirname(entryPath));
+        const primaryShim = platform === 'win32' ? 'kaiwu.exe' : 'kaiwu';
+        const compatShim = platform === 'win32' ? 'happier.exe' : 'happier';
+        const primaryPath = join(currentDir, primaryShim);
+        const compatPath = join(currentDir, compatShim);
+        return existsSync(primaryPath) ? primaryPath : existsSync(compatPath) ? compatPath : primaryPath;
+      })();
+  if (!binaryPath) return null;
+  return resolveCliVersionFromBinary({ binaryPath, platform });
 }
 
 function buildAutomaticStartupEntries(params: Readonly<{

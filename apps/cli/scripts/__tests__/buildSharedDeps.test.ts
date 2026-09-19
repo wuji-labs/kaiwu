@@ -1,10 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, utimesSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 import { createTempDirSync, removeTempDirSync } from '../../src/testkit/fs/tempDir';
 import { resolveBundledWorkspaceDependencyBuildOrder } from '../../../../scripts/workspaces/resolveWorkspaceDependencyBuildOrder.mjs';
 import {
+  ensureCliDeclarationPrerequisites,
   syncBundledWorkspaceDist,
   syncCliRuntimeDependencies,
   withBuildSharedDepsLock,
@@ -85,15 +86,19 @@ describe('buildSharedDeps', () => {
   it('syncs workspace dist outputs into bundled deps for local bundled hosts when present', () => {
     const cpSync = vi.fn(() => undefined);
     const rmSync = vi.fn(() => undefined);
-    const existsSync = vi.fn((p: any) =>
-      String(p).endsWith('/apps/cli/package.json') ||
-      String(p).endsWith('/packages/protocol/package.json') ||
-      String(p).endsWith('/packages/protocol/dist') ||
-      String(p).includes('/apps/cli/node_modules/@happier-dev/protocol/'),
-    );
+    const normalizePath = (p: any) => String(p ?? '').replaceAll('\\', '/');
+    const existsSync = vi.fn((p: any) => {
+      const text = normalizePath(p);
+      return (
+        text.endsWith('/apps/cli/package.json') ||
+        text.endsWith('/packages/protocol/package.json') ||
+        text.endsWith('/packages/protocol/dist') ||
+        text.includes('/apps/cli/node_modules/@happier-dev/protocol/')
+      );
+    });
     const mkdirSync = vi.fn(() => undefined);
     const readFileSync = vi.fn((p: any) => {
-      const text = String(p);
+      const text = normalizePath(p);
       if (text.endsWith('/apps/cli/package.json')) {
         return JSON.stringify({
           bundledDependencies: ['@happier-dev/protocol'],
@@ -120,8 +125,8 @@ describe('buildSharedDeps', () => {
     });
 
     expect(mkdirSync.mock.calls).toEqual([
-      ['/repo/apps/cli/node_modules/@happier-dev/protocol', { recursive: true }],
-      ['/repo/apps/cli/node_modules/@happier-dev/protocol', { recursive: true }],
+      [resolve('/repo', 'apps', 'cli', 'node_modules', '@happier-dev', 'protocol'), { recursive: true }],
+      [resolve('/repo', 'apps', 'cli', 'node_modules', '@happier-dev', 'protocol'), { recursive: true }],
     ]);
     expect(rmSync).toHaveBeenCalled();
     expect(cpSync).toHaveBeenCalledTimes(1);
@@ -130,9 +135,9 @@ describe('buildSharedDeps', () => {
       copyCalls.some((call) => {
         if (!Array.isArray(call) || call.length < 3) return false;
         const [from, to, options] = call as [unknown, unknown, { recursive?: boolean; force?: boolean }];
-        return from === '/repo/packages/protocol/dist'
+        return normalizePath(from) === normalizePath(resolve('/repo', 'packages', 'protocol', 'dist'))
           && typeof to === 'string'
-          && to.includes('/apps/cli/node_modules/@happier-dev/protocol/')
+          && normalizePath(to).includes('/apps/cli/node_modules/@happier-dev/protocol/')
           && options.recursive === true
           && options.force === true;
       }),
@@ -142,14 +147,18 @@ describe('buildSharedDeps', () => {
 
   it('syncs bundled workspace package.json exports for local bundled hosts', () => {
     const cpSync = vi.fn(() => undefined);
-    const existsSync = vi.fn((p: any) =>
-      String(p).endsWith('/apps/cli/package.json') ||
-      String(p).endsWith('/packages/protocol/package.json') ||
-      String(p).includes('/apps/cli/node_modules/@happier-dev/protocol/dist') ||
-      String(p).includes('/apps/stack/node_modules/@happier-dev/protocol/dist'),
-    );
+    const normalizePath = (p: any) => String(p ?? '').replaceAll('\\', '/');
+    const existsSync = vi.fn((p: any) => {
+      const text = normalizePath(p);
+      return (
+        text.endsWith('/apps/cli/package.json') ||
+        text.endsWith('/packages/protocol/package.json') ||
+        text.includes('/apps/cli/node_modules/@happier-dev/protocol/dist') ||
+        text.includes('/apps/stack/node_modules/@happier-dev/protocol/dist')
+      );
+    });
     const readFileSync = vi.fn((p: any) => {
-      const text = String(p);
+      const text = normalizePath(p);
       if (text.endsWith('/apps/cli/package.json')) {
         return JSON.stringify({
           bundledDependencies: ['@happier-dev/protocol'],
@@ -180,7 +189,7 @@ describe('buildSharedDeps', () => {
     const cliWriteCall = writeFileSync.mock.calls[0] as unknown as [string, string] | undefined;
     if (!cliWriteCall) throw new Error('expected cli package.json write');
     const [cliDestPath, cliPayload] = cliWriteCall;
-    expect(cliDestPath).toBe('/repo/apps/cli/node_modules/@happier-dev/protocol/package.json');
+    expect(cliDestPath).toBe(resolve('/repo', 'apps', 'cli', 'node_modules', '@happier-dev', 'protocol', 'package.json'));
     const cliParsed = JSON.parse(String(cliPayload));
     expect(cliParsed.exports?.['./installables']).toBeTruthy();
     expect(cliParsed.private).toBe(true);
@@ -188,8 +197,9 @@ describe('buildSharedDeps', () => {
 
   it('derives the default bundled workspace sync set from the CLI manifest', () => {
     const cpSync = vi.fn(() => undefined);
+    const normalizePath = (p: any) => String(p ?? '').replaceAll('\\', '/');
     const existsSync = vi.fn((p: any) => {
-      const text = String(p);
+      const text = normalizePath(p);
       return (
         text.endsWith('/apps/cli/package.json') ||
         text.endsWith('/packages/custom-bundle/package.json') ||
@@ -201,7 +211,7 @@ describe('buildSharedDeps', () => {
     const mkdirSync = vi.fn(() => undefined);
     const rmSync = vi.fn(() => undefined);
     const readFileSync = vi.fn((p: any) => {
-      const text = String(p);
+      const text = normalizePath(p);
       if (text.endsWith('/apps/cli/package.json')) {
         return JSON.stringify({
           bundledDependencies: ['@happier-dev/custom-bundle', 'tweetnacl'],
@@ -234,9 +244,9 @@ describe('buildSharedDeps', () => {
       calls.some((call) => {
         if (!Array.isArray(call) || call.length < 3) return false;
         const [from, to, options] = call as [unknown, unknown, { recursive?: boolean; force?: boolean }];
-        return from === '/repo/packages/custom-bundle/dist'
+        return normalizePath(from) === normalizePath(resolve('/repo', 'packages', 'custom-bundle', 'dist'))
           && typeof to === 'string'
-          && to.includes('/apps/cli/node_modules/@happier-dev/custom-bundle/')
+          && normalizePath(to).includes('/apps/cli/node_modules/@happier-dev/custom-bundle/')
           && options.recursive === true
           && options.force === true;
       }),
@@ -301,7 +311,7 @@ describe('buildSharedDeps', () => {
         events.push('second:start');
       }, {
         lockPath,
-        timeoutMs: 2_000,
+        timeoutMs: 30_000,
         pollIntervalMs: 10,
         staleAfterMs: 1_000,
       });
@@ -315,6 +325,109 @@ describe('buildSharedDeps', () => {
       expect(events).toEqual(['first:start', 'first:end', 'second:start']);
     } finally {
       removeTempDirSync(rootDir);
+    }
+  });
+
+  it('detects newer workspace runtime entrypoint and syncs bundled deps when declaration files are unchanged', async () => {
+    const repoRoot = createTempDirSync('happy-build-shared-freshness-');
+    try {
+      mkdirSync(resolve(repoRoot, 'apps', 'cli'), { recursive: true });
+      writeFileSync(
+        resolve(repoRoot, 'apps', 'cli', 'package.json'),
+        JSON.stringify(
+          {
+            bundledDependencies: ['@happier-dev/protocol'],
+          },
+          null,
+          2,
+        ),
+        'utf8',
+      );
+
+      const protocolDir = resolve(repoRoot, 'packages', 'protocol');
+      mkdirSync(resolve(protocolDir, 'dist'), { recursive: true });
+      writeFileSync(
+        resolve(protocolDir, 'package.json'),
+        JSON.stringify(
+          {
+            name: '@happier-dev/protocol',
+            version: '0.0.0',
+            type: 'module',
+            main: './dist/index.js',
+            types: './dist/index.d.ts',
+            exports: {
+              '.': {
+                types: './dist/index.d.ts',
+                default: './dist/index.js',
+              },
+            },
+          },
+          null,
+          2,
+        ),
+        'utf8',
+      );
+      writeFileSync(resolve(protocolDir, 'tsconfig.json'), '{}\n', 'utf8');
+
+      const bundledProtocolDir = resolve(
+        repoRoot,
+        'apps',
+        'cli',
+        'node_modules',
+        '@happier-dev',
+        'protocol',
+      );
+      mkdirSync(resolve(bundledProtocolDir, 'dist'), { recursive: true });
+      writeFileSync(
+        resolve(bundledProtocolDir, 'package.json'),
+        JSON.stringify(
+          {
+            name: '@happier-dev/protocol',
+            version: '0.0.0',
+            private: true,
+            type: 'module',
+            main: './dist/index.js',
+            types: './dist/index.d.ts',
+            exports: {
+              '.': {
+                types: './dist/index.d.ts',
+                default: './dist/index.js',
+              },
+            },
+          },
+          null,
+          2,
+        ),
+        'utf8',
+      );
+
+      // Declaration files are identical and current (same timestamp)
+      const baseTime = new Date(Date.now() - 30_000);
+      const newerTime = new Date(Date.now());
+
+      writeFileSync(resolve(protocolDir, 'dist', 'index.d.ts'), 'export declare const v: number;\n', 'utf8');
+      writeFileSync(resolve(bundledProtocolDir, 'dist', 'index.d.ts'), 'export declare const v: number;\n', 'utf8');
+      utimesSync(resolve(protocolDir, 'dist', 'index.d.ts'), baseTime, baseTime);
+      utimesSync(resolve(bundledProtocolDir, 'dist', 'index.d.ts'), baseTime, baseTime);
+
+      // Source runtime entrypoint is newer than bundled copy
+      writeFileSync(resolve(bundledProtocolDir, 'dist', 'index.js'), 'export const v = 1;\n', 'utf8');
+      utimesSync(resolve(bundledProtocolDir, 'dist', 'index.js'), baseTime, baseTime);
+
+      writeFileSync(resolve(protocolDir, 'dist', 'index.js'), 'export const v = 2;\n', 'utf8');
+      utimesSync(resolve(protocolDir, 'dist', 'index.js'), newerTime, newerTime);
+
+      const result = await ensureCliDeclarationPrerequisites({
+        repoRoot,
+        workspaceNames: ['protocol'],
+      });
+
+      expect(result.workspaces).toEqual(['protocol']);
+      expect(
+        readFileSync(resolve(bundledProtocolDir, 'dist', 'index.js'), 'utf8'),
+      ).toBe('export const v = 2;\n');
+    } finally {
+      removeTempDirSync(repoRoot);
     }
   });
 

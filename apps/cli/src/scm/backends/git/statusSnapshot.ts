@@ -145,6 +145,8 @@ export function buildGitSnapshot(input: {
     statusOutput: string;
     includedNumStatOutput: string;
     pendingNumStatOutput: string;
+    branchAhead?: number;
+    branchBehind?: number;
     untrackedStatsByPath?: Record<string, { pendingAdded: number; isBinary: boolean }>;
     worktreesOutput?: string;
     remotesOutput?: string;
@@ -282,8 +284,8 @@ export function buildGitSnapshot(input: {
         branch: {
             head: detached ? null : headRaw,
             upstream: parsedStatus.branch.upstream ?? null,
-            ahead: parsedStatus.branch.ahead ?? 0,
-            behind: parsedStatus.branch.behind ?? 0,
+            ahead: input.branchAhead ?? parsedStatus.branch.ahead ?? 0,
+            behind: input.branchBehind ?? parsedStatus.branch.behind ?? 0,
             detached,
         },
         stashCount: parsedStatus.stashCount,

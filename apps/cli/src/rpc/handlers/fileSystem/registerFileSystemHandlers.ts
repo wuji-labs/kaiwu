@@ -5,6 +5,7 @@ import { registerReadFileHandler } from './readFileHandler';
 import { registerWriteFileHandler } from './writeFileHandler';
 import { registerDirectoryHandlers } from './directoryHandlers';
 import { registerPathMutationHandlers } from './pathMutationHandlers';
+import { registerOpenInEditorHandler } from './openInEditorHandler';
 import { registerSessionTransferRpcHandlers } from '@/transfers/rpc/registerSessionTransferRpcHandlers';
 import { resolveSessionRpcTransferMaxBytes } from '@/transfers/policy/sessionRpcTransferPolicy';
 import { createTransferPathAllowanceRegistry } from '@/transfers/targets/createTransferPathAllowanceRegistry';
@@ -67,6 +68,11 @@ export function registerFileSystemHandlers(
     accessPolicy,
     getAdditionalAllowedReadDirs: () => normalizeAllowedDirectories(getAdditionalAllowedReadDirs),
     getAdditionalAllowedWriteDirs: () => normalizeAllowedDirectories(getAdditionalAllowedWriteDirs),
+  });
+  registerOpenInEditorHandler(rpcHandlerManager, {
+    defaultDirectory: effectiveWorkingDirectory,
+    accessPolicy,
+    getAdditionalAllowedReadDirs: () => normalizeAllowedDirectories(getAdditionalAllowedReadDirs),
   });
   registerSessionTransferRpcHandlers(rpcHandlerManager, {
     workingDirectory: effectiveWorkingDirectory,

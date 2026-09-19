@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 import { readFile, realpath } from 'node:fs/promises';
 
@@ -61,7 +62,12 @@ function resolveBinaryPathForVersion(params: Readonly<{
     versionId: params.versionId,
     processEnv: process.env,
   });
-  return join(versionRoot, process.platform === 'win32' ? 'happier.exe' : 'happier');
+  const primaryName = process.platform === 'win32' ? 'kaiwu.exe' : 'kaiwu';
+  const compatName = process.platform === 'win32' ? 'happier.exe' : 'happier';
+  const primaryPath = join(versionRoot, primaryName);
+  if (existsSync(primaryPath)) return primaryPath;
+  const compatPath = join(versionRoot, compatName);
+  return existsSync(compatPath) ? compatPath : primaryPath;
 }
 
 function isPathDirectoryOnPath(path: string): boolean {

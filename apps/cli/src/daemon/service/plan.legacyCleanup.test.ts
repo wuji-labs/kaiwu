@@ -121,4 +121,27 @@ describe('daemon service legacy cleanup planning', () => {
       ignoreFailure: true,
     });
   });
+
+  it('marks raw legacy Windows scheduled-task cleanup as optional during default-following uninstalls', () => {
+    const plan = planDaemonServiceUninstall({
+      platform: 'win32',
+      mode: 'user',
+      channel: 'stable',
+      targetMode: 'default-following',
+      instanceId: 'cloud',
+      userHomeDir: 'C:\\Users\\tester',
+      happierHomeDir: 'C:\\Users\\tester\\.happier',
+    });
+
+    expect(plan.commands).toContainEqual({
+      cmd: 'schtasks',
+      args: ['/End', '/TN', 'Happier\\happier-daemon'],
+      ignoreFailure: true,
+    });
+    expect(plan.commands).toContainEqual({
+      cmd: 'schtasks',
+      args: ['/Delete', '/F', '/TN', 'Happier\\happier-daemon'],
+      ignoreFailure: true,
+    });
+  });
 });

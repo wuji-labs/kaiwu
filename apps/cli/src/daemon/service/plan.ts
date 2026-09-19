@@ -1,4 +1,4 @@
-import { basename, join, win32 as win32Path } from 'node:path';
+import { basename, join, posix as posixPath, win32 as win32Path } from 'node:path';
 
 import { getReleaseRingCatalogEntry, type PublicReleaseRingId } from '@happier-dev/release-runtime/releaseRings';
 import { isServerIdFilesystemSafe } from '@/server/serverId';
@@ -530,8 +530,8 @@ export function planDaemonServiceUninstall(params: Readonly<{
     }
     if (shouldApplyRawLegacyDefaultFollowingCleanup({ targetMode })) {
       const legacyUnitLabel = DAEMON_SERVICE_SYSTEMD_UNIT_PREFIX;
-      commands.push({ cmd: 'schtasks', args: ['/End', '/TN', `Happier\\${legacyUnitLabel}`] });
-      commands.push({ cmd: 'schtasks', args: ['/Delete', '/F', '/TN', `Happier\\${legacyUnitLabel}`] });
+      commands.push({ cmd: 'schtasks', args: ['/End', '/TN', `Happier\\${legacyUnitLabel}`], ignoreFailure: true });
+      commands.push({ cmd: 'schtasks', args: ['/Delete', '/F', '/TN', `Happier\\${legacyUnitLabel}`], ignoreFailure: true });
     }
     commands.push(...plan.commands.map((c) => ({ cmd: c.cmd, args: c.args })));
     const filesToRemove = [wrapperPath];
@@ -568,12 +568,12 @@ export function planDaemonServiceUninstall(params: Readonly<{
     : null;
   const legacyScopedDefaultUnitPath = legacyScopedDefaultUnitName
     ? mode === 'system'
-      ? join('/etc', 'systemd', 'system', legacyScopedDefaultUnitName)
-      : join(params.userHomeDir, '.config', 'systemd', 'user', legacyScopedDefaultUnitName)
+      ? posixPath.join('/etc', 'systemd', 'system', legacyScopedDefaultUnitName)
+      : posixPath.join(params.userHomeDir, '.config', 'systemd', 'user', legacyScopedDefaultUnitName)
     : null;
   const legacyUnitPath = mode === 'system'
-    ? join('/etc', 'systemd', 'system', LEGACY_DAEMON_SERVICE_SYSTEMD_UNIT_NAME)
-    : join(params.userHomeDir, '.config', 'systemd', 'user', LEGACY_DAEMON_SERVICE_SYSTEMD_UNIT_NAME);
+    ? posixPath.join('/etc', 'systemd', 'system', LEGACY_DAEMON_SERVICE_SYSTEMD_UNIT_NAME)
+    : posixPath.join(params.userHomeDir, '.config', 'systemd', 'user', LEGACY_DAEMON_SERVICE_SYSTEMD_UNIT_NAME);
   return {
     platform: 'linux',
     filesToRemove: [
