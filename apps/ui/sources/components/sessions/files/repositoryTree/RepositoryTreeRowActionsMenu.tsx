@@ -7,6 +7,7 @@ import { t } from '@/text';
 import { toTestIdSafeValue } from '@/utils/ui/toTestIdSafeValue';
 
 export type RepositoryTreeRowActionMenuItemId =
+    | 'repository-tree-menuitem-open-in-editor'
     | 'repository-tree-menuitem-rename'
     | 'repository-tree-menuitem-delete'
     | 'repository-tree-menuitem-download'
@@ -25,6 +26,12 @@ export function RepositoryTreeRowActionsMenu(props: Readonly<{
     const { theme } = useUnistyles();
 
     const items = React.useMemo<RepositoryTreeRowActionItem[]>(() => {
+        const openInEditorItem: RepositoryTreeRowActionItem = {
+            id: 'repository-tree-menuitem-open-in-editor',
+            title: t('files.repositoryTree.actions.openInEditor'),
+            icon: 'arrow-square-out',
+            color: theme.colors.text.secondary,
+        };
         const renameItem: RepositoryTreeRowActionItem = {
             id: 'repository-tree-menuitem-rename',
             title: t('common.rename'),
@@ -49,6 +56,7 @@ export function RepositoryTreeRowActionsMenu(props: Readonly<{
 
         if (props.kind === 'file') {
             return [
+                openInEditorItem,
                 renameItem,
                 deleteItem,
                 ...(props.downloadActionsEnabled
@@ -72,6 +80,7 @@ export function RepositoryTreeRowActionsMenu(props: Readonly<{
         }
 
         return [
+            openInEditorItem,
             renameItem,
             deleteItem,
             ...(props.downloadActionsEnabled

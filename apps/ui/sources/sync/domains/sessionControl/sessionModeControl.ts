@@ -4,19 +4,20 @@ import type { Metadata } from '@/sync/domains/state/storageTypes';
 import { parsePermissionIntentAlias } from '@happier-dev/agents';
 import { resolveRequestedSessionModeId } from '@happier-dev/protocol';
 import { tLoose } from '@/text';
+import {
+    normalizeSessionModeOptions,
+    resolveSessionModeDisplayName,
+    type SessionModeOption,
+} from '@/sync/domains/sessionModes/sessionModeOptions';
 
 import { readSessionModeOverrideState, readSessionModesState } from './readSessionControlMetadata';
+
+export { type SessionModeOption };
 
 export function supportsSessionModeOverrides(agentId: AgentId): boolean {
     const kind = getAgentCore(agentId).sessionModes.kind;
     return kind !== 'none';
 }
-
-export type SessionModeOption = Readonly<{
-    id: string;
-    name: string;
-    description?: string;
-}>;
 
 export type SessionModePickerControl = Readonly<{
     options: readonly SessionModeOption[];
@@ -51,7 +52,7 @@ function computeStaticSessionModePickerControl(params: {
     const staticOptionsRaw = core.sessionModes.staticOptions ?? [];
     if (!Array.isArray(staticOptionsRaw) || staticOptionsRaw.length === 0) return null;
 
-    const options: SessionModeOption[] = staticOptionsRaw
+    const rawOptions: SessionModeOption[] = staticOptionsRaw
         .filter((opt) => opt && typeof opt.id === 'string' && typeof opt.nameKey === 'string')
         .map((opt) => ({
             id: opt.id,
@@ -60,6 +61,7 @@ function computeStaticSessionModePickerControl(params: {
         }))
         .filter((opt) => opt.id.trim().length > 0 && opt.name.trim().length > 0);
 
+    const options = normalizeSessionModeOptions(rawOptions);
     const defaultOption = options.find((o) => o.id === 'default') ?? null;
     if (!defaultOption) return null;
 
@@ -83,9 +85,9 @@ function computeStaticSessionModePickerControl(params: {
         currentModeId,
         currentModeName,
         requestedModeId,
-        requestedModeName: requestedMode?.name ?? requestedModeId,
+        requestedModeName: requestedMode ? requestedMode.name : (requestedModeId ? resolveSessionModeDisplayName(requestedModeId) : null),
         effectiveModeId,
-        effectiveModeName: effectiveMode?.name ?? effectiveModeId,
+        effectiveModeName: effectiveMode ? effectiveMode.name : resolveSessionModeDisplayName(effectiveModeId),
         isPending,
     };
 }
@@ -102,7 +104,7 @@ function computeDynamicSessionModePickerControlInternal(params: {
     if (state.provider !== params.agentId) return null;
     if (state.availableModes.length === 0) return null;
 
-    const options = state.availableModes;
+    const options = normalizeSessionModeOptions(state.availableModes);
     const currentModeId = state.currentModeId;
     if (!currentModeId) return null;
 
@@ -121,11 +123,11 @@ function computeDynamicSessionModePickerControlInternal(params: {
     return {
         options,
         currentModeId,
-        currentModeName: currentMode?.name ?? currentModeId,
+        currentModeName: currentMode ? currentMode.name : resolveSessionModeDisplayName(currentModeId),
         requestedModeId,
-        requestedModeName: requestedMode?.name ?? requestedModeId,
+        requestedModeName: requestedMode ? requestedMode.name : (requestedModeId ? resolveSessionModeDisplayName(requestedModeId) : null),
         effectiveModeId,
-        effectiveModeName: effectiveMode?.name ?? effectiveModeId,
+        effectiveModeName: effectiveMode ? effectiveMode.name : resolveSessionModeDisplayName(effectiveModeId),
         isPending,
     };
 }

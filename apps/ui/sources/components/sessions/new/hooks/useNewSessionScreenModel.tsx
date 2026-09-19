@@ -692,6 +692,10 @@ export function useNewSessionScreenModel(params?: Readonly<{ draftId?: string }>
         setDraftSelectedPath,
         getRequestedPath,
         getBestPathForMachine,
+        getAutomaticPathCandidatesForMachine,
+        selectedPathSource,
+        setAutomaticPathForMachine,
+        setRecoveredPath,
     } = useNewSessionMachinePathState({
         machines,
         recentMachinePaths,
@@ -705,10 +709,6 @@ export function useNewSessionScreenModel(params?: Readonly<{ draftId?: string }>
 
     const emptyAutocompleteKinds = NEW_SESSION_COMPOSER_SUGGESTION_KINDS;
 
-    const getBestPathForMachineRef = React.useRef(getBestPathForMachine);
-    React.useEffect(() => {
-        getBestPathForMachineRef.current = getBestPathForMachine;
-    }, [getBestPathForMachine]);
     const [pathPickerSearchQuery, setPathPickerSearchQuery] = React.useState('');
     const repoScmSnapshot = useNewSessionRepoScmSnapshot({
         machineId: selectedMachineId,
@@ -1278,12 +1278,12 @@ export function useNewSessionScreenModel(params?: Readonly<{ draftId?: string }>
                 serverId={selectedServerId}
                 onSelectMachine={(machine) => {
                     setSelectedMachineId(machine.id);
-                    setSelectedPath(getBestPathForMachineRef.current(machine.id));
+                    setAutomaticPathForMachine(machine.id);
                     deferAgentInputPopoverClose(requestClose);
                 }}
                 onSelectScopedMachine={(machine) => {
                     setSelectedMachineId(machine.id);
-                    setSelectedPath(getBestPathForMachineRef.current(machine.id));
+                    setAutomaticPathForMachine(machine.id);
                     deferAgentInputPopoverClose(requestClose);
                 }}
                 showSearch={useMachinePickerSearch}
@@ -1302,7 +1302,7 @@ export function useNewSessionScreenModel(params?: Readonly<{ draftId?: string }>
     }), [
         machinePopoverSignature,
         setSelectedMachineId,
-        setSelectedPath,
+        setAutomaticPathForMachine,
     ]);
 
     const resolvePreferredCompatibleProfileBackendEntry = React.useCallback((profile: AIBackendProfile) => {
@@ -1782,6 +1782,9 @@ export function useNewSessionScreenModel(params?: Readonly<{ draftId?: string }>
         selectedMachineId,
         selectedPath,
         getRequestedPath,
+        selectedPathSource,
+        getAutomaticPathCandidatesForMachine,
+        setRecoveredPath,
         selectedMachine,
         setIsCreating,
         setIsResumeSupportChecking,

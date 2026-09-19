@@ -24,6 +24,7 @@ const {
     sessionRenamePathSpy,
     sessionStatFileSpy,
     sessionDeletePathSpy,
+    sessionOpenInEditorSpy,
     downloadAvailabilityState,
     modalShowStrategy,
     renameConflictStrategyState,
@@ -64,6 +65,7 @@ const {
         sessionDeletePathSpy: vi.fn<(_sessionId: string, _path: string) => Promise<SessionDeletePathLikeResult>>(
             async (_sessionId: string, _path: string) => ({ success: true }),
         ),
+        sessionOpenInEditorSpy: vi.fn(async (_sessionId: string, _input: any) => ({ success: true, targetPath: 'test', editorUsed: 'code' })),
         downloadAvailabilityState: { value: true },
         modalShowStrategy,
         renameConflictStrategyState: renameConflictStrategy,
@@ -147,6 +149,7 @@ vi.mock('@/sync/ops', () => ({
     sessionRenamePath: (sessionId: string, input: { from: string; to: string; overwrite?: boolean }) => sessionRenamePathSpy(sessionId, input),
     sessionStatFile: (sessionId: string, path: string) => sessionStatFileSpy(sessionId, path),
     sessionDeletePath: (sessionId: string, path: string) => sessionDeletePathSpy(sessionId, path),
+    sessionOpenInEditor: (sessionId: string, input: any) => sessionOpenInEditorSpy(sessionId, input),
 }));
 
 vi.mock('@/components/sessions/files/useSessionFileTransferAvailability', () => ({
@@ -262,6 +265,7 @@ describe('RepositoryTreeList (row menu)', () => {
         expect(fileMenu.props.compactThreshold).toBe(Number.POSITIVE_INFINITY);
         expect(fileMenu.props.compactActionIds).toEqual([]);
         expect(fileMenu.props.actions.map((item: any) => item.id)).toEqual([
+            'repository-tree-menuitem-open-in-editor',
             'repository-tree-menuitem-rename',
             'repository-tree-menuitem-delete',
             'repository-tree-menuitem-download',
@@ -271,6 +275,7 @@ describe('RepositoryTreeList (row menu)', () => {
 
         const directoryMenu = findRowActions(screen, 'src');
         expect(directoryMenu.props.actions.map((item: any) => item.id)).toEqual([
+            'repository-tree-menuitem-open-in-editor',
             'repository-tree-menuitem-rename',
             'repository-tree-menuitem-delete',
             'repository-tree-menuitem-zip',
@@ -294,6 +299,7 @@ describe('RepositoryTreeList (row menu)', () => {
 
         const fileMenu = findRowActions(screen, 'README.md');
         expect(fileMenu.props.actions.map((item: any) => item.id)).toEqual([
+            'repository-tree-menuitem-open-in-editor',
             'repository-tree-menuitem-rename',
             'repository-tree-menuitem-delete',
             'repository-tree-menuitem-copy-path',
@@ -301,6 +307,7 @@ describe('RepositoryTreeList (row menu)', () => {
 
         const directoryMenu = findRowActions(screen, 'src');
         expect(directoryMenu.props.actions.map((item: any) => item.id)).toEqual([
+            'repository-tree-menuitem-open-in-editor',
             'repository-tree-menuitem-rename',
             'repository-tree-menuitem-delete',
             'repository-tree-menuitem-copy-path',
@@ -321,6 +328,7 @@ describe('RepositoryTreeList (row menu)', () => {
 
         const fileMenu = findRowActions(screen, 'README.md');
         expect(fileMenu.props.actions.map((item: any) => item.id)).toEqual([
+            'repository-tree-menuitem-open-in-editor',
             'repository-tree-menuitem-rename',
             'repository-tree-menuitem-delete',
             'repository-tree-menuitem-copy-path',

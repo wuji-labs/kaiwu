@@ -66,6 +66,7 @@ type FileActionToolbarProps = {
     onStartEditingFile?: () => void;
     onCancelEditingFile?: () => void;
     onSaveEditingFile?: () => void;
+    onOpenInEditor?: () => void;
     /** Raw<->Rich toggle (Lane I / I3): only shown for an editable markdown file. */
     showMarkdownEditToggle?: boolean;
     markdownEditMode?: MarkdownEditMode;
@@ -122,6 +123,7 @@ export function FileActionToolbar(props: FileActionToolbarProps) {
         onStartEditingFile,
         onCancelEditingFile,
         onSaveEditingFile,
+        onOpenInEditor,
         showMarkdownEditToggle,
         markdownEditMode,
         onMarkdownEditMode,
@@ -422,6 +424,16 @@ export function FileActionToolbar(props: FileActionToolbarProps) {
             ) : null}
 
             {showWrapLinesToggle === true ? <WrapLinesToggleButton /> : null}
+
+            {onOpenInEditor ? (
+                <IconAction
+                    onPress={onOpenInEditor}
+                    testID="file-details-open-in-editor"
+                    accessibilityLabel={t('files.repositoryTree.actions.openInEditor')}
+                >
+                    <Icon name="arrow-square-out" size={commandIconSize} color={theme.colors.text.secondary} />
+                </IconAction>
+            ) : null}
 
             {showFileEditorActions && !isEditingFile && onStartEditingFile ? (
                 <IconAction

@@ -119,3 +119,52 @@ export async function sessionDeletePath(
     }),
   });
 }
+
+type SessionOpenInEditorRequest = Readonly<{
+  path: string;
+  line?: number;
+  column?: number;
+  editor?: 'code' | 'cursor' | 'system';
+}>;
+
+export type SessionOpenInEditorResponse =
+  | Readonly<{ success: true; targetPath: string; editorUsed: string }>
+  | Readonly<{ success: false; error: string; errorCode?: string }>;
+
+export async function sessionOpenInEditor(
+  sessionId: string,
+  input: Readonly<{ path: string; line?: number; column?: number; editor?: 'code' | 'cursor' | 'system' }>,
+): Promise<SessionOpenInEditorResponse> {
+  const request: SessionOpenInEditorRequest = {
+    path: input.path,
+    line: input.line,
+    column: input.column,
+    editor: input.editor,
+  };
+
+  return await callSessionMachineRpcWithFallback<
+    SessionOpenInEditorResponse,
+    SessionOpenInEditorRequest,
+    Extract<SessionOpenInEditorResponse, { success: false }>
+  >({
+    sessionId,
+    request,
+    machineMethod: RPC_METHODS.OPEN_IN_EDITOR,
+    sessionMethod: RPC_METHODS.OPEN_IN_EDITOR,
+    toMachineRequest: rebasePathRequestToMachineTarget,
+    resolveFallbackRoute: async () =>
+      resolveDefaultSessionRpcFallbackRoute({
+        sessionId,
+        inactiveResponse: {
+          success: false,
+          error: INACTIVE_SESSION_RPC_UNAVAILABLE_ERROR,
+          errorCode: RPC_ERROR_CODES.METHOD_NOT_AVAILABLE,
+        },
+      }),
+    errorResponse: (error) => ({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      errorCode: readRpcErrorCode(error),
+    }),
+  });
+}

@@ -26,7 +26,26 @@ type ListMachineFileBrowserRootsResult =
 
 type ListMachineFileBrowserDirectoryEntriesResult =
     | { ok: true; entries: MachineFileBrowserEntry[]; truncated: boolean }
-    | { ok: false; error: string };
+    | { ok: false; error: string; errorCode?: string };
+
+export type MachineFileBrowserDirectoryCheck =
+    | { status: 'exists' }
+    | { status: 'not_found'; error: string }
+    | { status: 'unavailable'; error: string; errorCode?: string };
+
+export function isMachineFileBrowserPathNotFoundError(input: Readonly<{
+    error?: string;
+    errorCode?: string;
+}>): boolean {
+    const errorCode = typeof input.errorCode === 'string' ? input.errorCode.trim().toLowerCase() : '';
+    if (errorCode === 'not_found' || errorCode === 'enoent' || errorCode === 'enotdir') return true;
+    const normalized = typeof input.error === 'string' ? input.error.toLowerCase() : '';
+    return normalized.includes('enoent')
+        || normalized.includes('enotdir')
+        || normalized.includes('no such file or directory')
+        || normalized.includes('not a directory')
+        || normalized.includes('drive for this path is not available');
+}
 
 type CachedDirectoryEntries = Readonly<{
     entries: MachineFileBrowserEntry[];
@@ -164,7 +183,11 @@ export async function listMachineFileBrowserRoots(input: {
     const response = await machineFilesystemListRoots(input.machineId, { serverId: input.serverId });
     if (!response.ok) {
         const error = typeof response.error === 'string' ? response.error.trim() : '';
-        return { ok: false, error: error || 'unknown_error' };
+        return {
+            ok: false,
+            error: error || 'unknown_error',
+            ...(typeof response.errorCode === 'string' ? { errorCode: response.errorCode } : {}),
+        };
     }
 
     const roots = response.roots
@@ -211,7 +234,11 @@ export async function listMachineFileBrowserDirectoryEntries(input: {
 
     if (!response.ok) {
         const error = typeof response.error === 'string' ? response.error.trim() : '';
-        return { ok: false, error: error || 'unknown_error' };
+        return {
+            ok: false,
+            error: error || 'unknown_error',
+            ...(typeof response.errorCode === 'string' ? { errorCode: response.errorCode } : {}),
+        };
     }
 
     const entries = sortDirectoryEntries(response.entries.flatMap((entry) => {
@@ -238,6 +265,28 @@ export async function listMachineFileBrowserDirectoryEntries(input: {
         truncated: response.truncated === true,
     });
     return { ok: true, entries, truncated: response.truncated === true };
+}
+
+export async function checkMachineFileBrowserDirectory(input: Readonly<{
+    machineId: string;
+    directoryPath: string;
+    serverId?: string | null;
+}>): Promise<MachineFileBrowserDirectoryCheck> {
+    const result = await listMachineFileBrowserDirectoryEntries({
+        machineId: input.machineId,
+        directoryPath: input.directoryPath,
+        includeFiles: false,
+        serverId: input.serverId,
+    });
+    if (result.ok) return { status: 'exists' };
+    if (isMachineFileBrowserPathNotFoundError(result)) {
+        return { status: 'not_found', error: result.error };
+    }
+    return {
+        status: 'unavailable',
+        error: result.error,
+        ...(result.errorCode ? { errorCode: result.errorCode } : {}),
+    };
 }
 
 export async function warmMachineFileBrowserDirectoryCache(input: {

@@ -127,6 +127,18 @@ describe('resolveTranscriptMarkdownFileLink', () => {
         })).toBeNull();
     });
 
+    it('maps relative paths with Windows backslashes and anchors', () => {
+        expect(resolveTranscriptMarkdownFileLink({
+            url: 'src\\components\\index.ts:15:2',
+            workspacePath: 'D:\\Projects\\kaiwu',
+        })).toEqual({
+            filePath: 'src/components/index.ts',
+            line: 15,
+            column: 2,
+            anchor: { kind: 'line', filePath: 'src/components/index.ts', line: 15 },
+        });
+    });
+
     it('does not trust arbitrary https origins for local file navigation', () => {
         expect(resolveTranscriptMarkdownFileLink({
             url: 'https://example.com/Users/leeroy/project/src/index.ts:8',
