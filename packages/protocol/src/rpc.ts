@@ -117,6 +117,7 @@ export const RPC_METHODS = {
   DAEMON_FILESYSTEM_LIST_ROOTS: 'daemon.filesystem.listRoots',
   DAEMON_FILESYSTEM_LIST_DIRECTORY: 'daemon.filesystem.listDirectory',
   STAT_FILE: 'statFile',
+  OPEN_IN_EDITOR: 'openInEditor',
   RENAME_PATH: 'renamePath',
   DELETE_PATH: 'deletePath',
   RIPGREP: 'ripgrep',

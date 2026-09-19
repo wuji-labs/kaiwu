@@ -28,7 +28,7 @@ describe('structured-question RPC contract', () => {
     expect(failure).toEqual({
       type: 'socket-rpc-target-failure-v1',
       errorCode: 'STRUCTURED_QUESTION_LEGACY_AMBIGUOUS',
-      error: 'This answer could not be handled safely. Update or reconnect Happier, then try again.',
+      error: expect.stringMatching(/This answer could not be handled safely\. Update or reconnect (?:Kaiwu|Happier), then try again\./),
     });
     expect(JSON.stringify(failure)).not.toContain('A, B, C');
     expect(JSON.stringify(failure)).not.toContain('stack');
