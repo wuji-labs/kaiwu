@@ -34,7 +34,7 @@ describe('bug report fallback body formatting', () => {
     expect(body).toContain('### Reproduction steps');
     expect(body).toContain('### Frequency');
     expect(body).toContain('### Severity');
-    expect(body).toContain('### Happier version');
+    expect(body).toMatch(/### (?:Kaiwu|Happier) version/);
     expect(body).toContain('### Platform');
     expect(body).toContain('### Server version');
     expect(body).toContain('### Deployment type');

@@ -12,6 +12,7 @@ describe('RPC_METHODS file-system surface', () => {
     expect(RPC_METHODS.DAEMON_FILESYSTEM_LIST_ROOTS).toBe('daemon.filesystem.listRoots');
     expect(RPC_METHODS.DAEMON_FILESYSTEM_LIST_DIRECTORY).toBe('daemon.filesystem.listDirectory');
     expect(RPC_METHODS.STAT_FILE).toBe('statFile');
+    expect(RPC_METHODS.OPEN_IN_EDITOR).toBe('openInEditor');
     expect(RPC_METHODS.RENAME_PATH).toBe('renamePath');
     expect(RPC_METHODS.DELETE_PATH).toBe('deletePath');
     expect(RPC_METHODS.DAEMON_BULK_TRANSFER_UPLOAD_INIT).toBe('daemon.bulkTransfer.upload.init');
