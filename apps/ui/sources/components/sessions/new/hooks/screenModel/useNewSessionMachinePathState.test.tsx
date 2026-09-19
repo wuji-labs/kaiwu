@@ -314,6 +314,7 @@ describe('useNewSessionMachinePathState', () => {
             selectedPath: '/repo/current',
         });
         expect(hook.getCurrent().getRequestedPath()).toBe('/repo/draft');
+        expect(hook.getCurrent().selectedPathSource).toBe('explicit');
 
         await act(async () => {
             hook.getCurrent().setSelectedPath('/repo/committed');
@@ -324,6 +325,34 @@ describe('useNewSessionMachinePathState', () => {
             selectedPath: '/repo/committed',
         });
         expect(hook.getCurrent().getRequestedPath()).toBe('/repo/committed');
+
+        await hook.unmount();
+    });
+
+    it('tracks automatic recent paths separately from explicit user paths and exposes same-machine fallbacks', async () => {
+        const hook = await renderMachinePathState({
+            machines: toMachines({ id: 'machine-online', metadata: { homeDir: '/Users/test' }, active: true }),
+            recentMachinePaths: [{ machineId: 'machine-online', path: '/repo/recent' }],
+            machineIdParam: null,
+            pathParam: null,
+        });
+
+        expect(hook.getCurrent().selectedPathSource).toBe('recent');
+        expect(hook.getCurrent().getAutomaticPathCandidatesForMachine('machine-online')).toEqual([
+            '/repo/recent',
+            '/Users/test',
+        ]);
+
+        await act(async () => {
+            hook.getCurrent().setSelectedPath('/repo/explicit');
+        });
+        expect(hook.getCurrent().selectedPathSource).toBe('explicit');
+
+        await act(async () => {
+            hook.getCurrent().setRecoveredPath('/Users/test');
+        });
+        expect(hook.getCurrent().selectedPathSource).toBe('recovered');
+        expect(hook.getCurrent().selectedPath).toBe('/Users/test');
 
         await hook.unmount();
     });

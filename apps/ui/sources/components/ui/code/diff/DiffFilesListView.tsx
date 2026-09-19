@@ -9,7 +9,6 @@ import { DiffViewer } from '@/components/ui/code/diff/DiffViewer';
 import { Text } from '@/components/ui/text/Text';
 import { t } from '@/text';
 import { resolveInlineDiffVirtualization } from '@/components/ui/code/diff/resolveInlineDiffVirtualization';
-import { PierreScrollRootVirtualizerProvider } from '@/components/ui/code/diff/pierre/PierreScrollRootVirtualizerProvider';
 import { useInlineDiffVirtualizationThresholds } from '@/components/ui/code/diff/useInlineDiffVirtualizationThresholds';
 import { resolveInlineDiffVirtualizedMaxHeight } from '@/components/ui/code/diff/resolveInlineDiffVirtualizedMaxHeight';
 import { resolveInlineDiffVirtualizedViewportStyle } from '@/components/ui/code/diff/resolveInlineDiffVirtualizedViewportStyle';
@@ -470,7 +469,7 @@ export const DiffFilesListView = React.forwardRef<DiffFilesListViewHandle, DiffF
     );
 
     return (
-        <PierreScrollRootVirtualizerProvider>
+        <React.Fragment>
             {shouldUseVirtualizedList && !(Platform.OS === 'web' && webFlashListCrashed) ? (
                 <FlashList
                     ref={listRef}
@@ -530,7 +529,7 @@ export const DiffFilesListView = React.forwardRef<DiffFilesListViewHandle, DiffF
                         : null}
                 </View>
             )}
-        </PierreScrollRootVirtualizerProvider>
+        </React.Fragment>
     );
 });
 

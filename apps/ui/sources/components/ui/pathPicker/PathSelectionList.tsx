@@ -39,7 +39,10 @@ import { formatPathRelativeToHome } from '@/utils/sessions/formatPathRelativeToH
 import { resolveDirectoryFavoriteComparisonKey } from '@/components/sessions/new/hooks/favoriteDirectoriesToggle';
 import { InputBrowseButton } from '@/components/ui/buttons/InputBrowseButton';
 import { useModalPortalTarget } from '@/modal/portal/ModalPortalTarget';
-import { listMachineFileBrowserDirectoryEntries } from '@/sync/domains/input/machineFileBrowser';
+import {
+    isMachineFileBrowserPathNotFoundError,
+    listMachineFileBrowserDirectoryEntries,
+} from '@/sync/domains/input/machineFileBrowser';
 import { t } from '@/text';
 import { Pressable, type GestureResponderEvent } from 'react-native';
 import { useUnistyles } from 'react-native-unistyles';
@@ -98,13 +101,7 @@ export type PathSelectionListRecent = Readonly<{ path: string; lastUsedAt: numbe
  * Exported for unit testing. Case-insensitive.
  */
 export function isPathNotFoundErrorMessage(message: string): boolean {
-    const normalized = message.toLowerCase();
-    if (normalized.length === 0) return false;
-    if (normalized.includes('enoent')) return true;
-    if (normalized.includes('enotdir')) return true;
-    if (normalized.includes('no such file or directory')) return true;
-    if (normalized.includes('not a directory')) return true;
-    return false;
+    return isMachineFileBrowserPathNotFoundError({ error: message });
 }
 
 export type PathSelectionListProps = Readonly<{

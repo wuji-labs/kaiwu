@@ -49,10 +49,6 @@ vi.mock('@/components/ui/text/Text', () => ({
     Text: 'Text',
 }));
 
-vi.mock('@/components/ui/code/diff/pierre/PierreScrollRootVirtualizerProvider', () => ({
-    PierreScrollRootVirtualizerProvider: (props: any) => React.createElement(React.Fragment, null, props.children),
-}));
-
 vi.mock('@/components/ui/code/diff/DiffViewer', () => ({
     DiffViewer: () => React.createElement('DiffViewer'),
 }));

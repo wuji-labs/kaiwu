@@ -116,8 +116,8 @@ describe('sessionModeControl', () => {
     expect(res?.effectiveModeId).toBe('plan');
   });
 
-  it('computeSessionModePickerControl returns Codex app-server modes from generic session metadata', async () => {
-    const { computeSessionModePickerControl } = await import('./sessionModeControl');
+    it('computeSessionModePickerControl returns Codex app-server modes from generic session metadata', async () => {
+        const { computeSessionModePickerControl } = await import('./sessionModeControl');
     const metadata = createMetadata({
       sessionModesV1: {
         v: 1,
@@ -137,6 +137,7 @@ describe('sessionModeControl', () => {
     expect(res?.effectiveModeId).toBe('plan');
     expect(res?.isPending).toBe(true);
     expect(res?.options.map((option) => option.id)).toEqual(['default', 'plan']);
+    expect(res?.options.map((option) => option.name)).toEqual(['Default', 'Plan']);
   });
 
   it('publishes the real default mode id when the provider exposes default as an actual option', async () => {

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Modal } from '@/modal';
 import { t } from '@/text';
 import { resolveKeepBothTargetPath } from '@/sync/domains/files/resolveKeepBothTargetPath';
-import { sessionDeletePath, sessionRenamePath, sessionStatFile } from '@/sync/ops';
+import { sessionDeletePath, sessionOpenInEditor, sessionRenamePath, sessionStatFile } from '@/sync/ops';
 import { setClipboardStringSafe } from '@/utils/ui/clipboard';
 
 import type { RepositoryTreeRowActionMenuItemId } from './RepositoryTreeRowActionsMenu';
@@ -81,6 +81,14 @@ export function useRepositoryTreeRowActions(params: Readonly<{
     }, []);
 
     const onSelectRowMenuItem = React.useCallback(async (node: RepositoryTreeNodeLike, itemId: RepositoryTreeRowActionMenuItemId) => {
+        if (itemId === 'repository-tree-menuitem-open-in-editor') {
+            const res = await sessionOpenInEditor(sessionId, { path: node.path });
+            if (!res.success) {
+                Modal.alert(t('common.error'), res.error || t('files.repositoryTree.openInEditor.failed'));
+            }
+            return;
+        }
+
         if (itemId === 'repository-tree-menuitem-copy-path') {
             const ok = await setClipboardStringSafe(node.path);
             if (ok) {

@@ -45,6 +45,8 @@ import { ScrollEdgeFades } from '@/components/ui/scroll/ScrollEdgeFades';
 import { ScrollEdgeIndicators } from '@/components/ui/scroll/ScrollEdgeIndicators';
 import { useAppPaneScope } from '@/components/appShell/panes/hooks/useAppPaneScope';
 import { useSessionFileDownloadAvailability } from '@/components/sessions/files/useSessionFileDownloadAvailability';
+import { sessionOpenInEditor } from '@/sync/ops';
+import { Modal } from '@/modal';
 import { useWorkspaceScopeForSession } from '@/sync/domains/session/resolveWorkspaceScopeForSession';
 import { useSessionImagePreview } from '@/components/sessions/files/content/imagePreview/useSessionImagePreview';
 import { useSessionMediaPreview } from '@/components/sessions/files/content/mediaPreview/useSessionMediaPreview';
@@ -623,6 +625,12 @@ export function SessionFileDetailsView(props: SessionFileDetailsViewProps) {
                     onStartEditingFile={handleStartEditingFile}
                     onCancelEditingFile={cancelEditingFile}
                     onSaveEditingFile={saveFileEdits}
+                    onOpenInEditor={async () => {
+                        const res = await sessionOpenInEditor(sessionId, { path: filePath });
+                        if (!res.success) {
+                            Modal.alert(t('common.error'), res.error || t('files.repositoryTree.openInEditor.failed'));
+                        }
+                    }}
                     showMarkdownEditToggle={showMarkdownEditToggle}
                     markdownEditMode={markdownEditMode}
                     onMarkdownEditMode={onMarkdownEditMode}
