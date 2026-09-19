@@ -58,6 +58,7 @@ async function createStagedPayload(rootDir: string, versionId: string, contents:
     const stagedPayloadPath = join(rootDir, `stage-${versionId}`);
     await mkdir(stagedPayloadPath, { recursive: true });
     await mkdir(join(stagedPayloadPath, 'package-dist'), { recursive: true });
+    await writeFile(join(stagedPayloadPath, 'kaiwu.exe'), contents, 'utf8');
     await writeFile(join(stagedPayloadPath, 'happier.exe'), contents, 'utf8');
     await writeFile(join(stagedPayloadPath, 'package-dist', 'index.mjs'), `export default ${JSON.stringify(versionId)};\n`, 'utf8');
     return stagedPayloadPath;
@@ -72,7 +73,7 @@ describe('syncInstalledFirstPartyShims Windows copy fallback', () => {
     it('falls back to copyFile when Windows hard-link creation fails', async () => {
         await withPlatform('win32', async () => {
             const homeDir = await mkdtemp(join(tmpdir(), 'happier-sync-shims-win32-copy-fallback-'));
-            const env = { ...process.env, HAPPIER_HOME_DIR: homeDir };
+            const env = { ...process.env, HAPPIER_HOME_DIR: homeDir, KAIWU_HOME_DIR: homeDir };
 
             try {
                 const { promoteVersionedPayload, syncInstalledFirstPartyShims } = await import('./index.js');
@@ -88,9 +89,9 @@ describe('syncInstalledFirstPartyShims Windows copy fallback', () => {
                     stagedPayloadPath: await createStagedPayload(homeDir, '1.0.0-preview.1', 'preview-binary'),
                 });
 
-                const happierShimPath = join(homeDir, 'bin', 'happier.exe');
+                const kaiwuShimPath = join(homeDir, 'bin', 'kaiwu.exe');
                 const hprevShimPath = join(homeDir, 'bin', 'hprev.exe');
-                linkFailureTargets.add(happierShimPath);
+                linkFailureTargets.add(kaiwuShimPath);
                 linkFailureTargets.add(hprevShimPath);
 
                 const result = await syncInstalledFirstPartyShims({
@@ -100,10 +101,10 @@ describe('syncInstalledFirstPartyShims Windows copy fallback', () => {
                     defaultReleaseChannelOverride: 'preview',
                 });
 
-                expect(result.shimPaths).toEqual([happierShimPath, hprevShimPath]);
-                expect(existsSync(happierShimPath)).toBe(true);
+                expect(result.shimPaths).toEqual([kaiwuShimPath, hprevShimPath]);
+                expect(existsSync(kaiwuShimPath)).toBe(true);
                 expect(existsSync(hprevShimPath)).toBe(true);
-                expect(await readFile(happierShimPath, 'utf8')).toBe('preview-binary');
+                expect(await readFile(kaiwuShimPath, 'utf8')).toBe('preview-binary');
                 expect(await readFile(hprevShimPath, 'utf8')).toBe('preview-binary');
             }
             finally {

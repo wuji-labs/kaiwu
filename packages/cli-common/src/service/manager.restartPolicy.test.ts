@@ -17,6 +17,36 @@ describe('buildServiceDefinition restart policy', () => {
     expect(definition.contents).toContain('Restart=on-failure');
     expect(definition.contents).not.toContain('Restart=always');
   });
+
+  it('passes the Windows failure-retry policy into the generated wrapper', () => {
+    const definition = buildServiceDefinition({
+      backend: 'schtasks-user',
+      homeDir: 'C:\\Users\\alice',
+      spec: {
+        label: 'happier-daemon.default',
+        programArgs: ['C:\\Users\\alice\\.kaiwu\\bin\\happier.exe', 'daemon', 'start-sync'],
+        restartPolicy: 'on-failure',
+      },
+    });
+
+    expect(definition.contents).toContain('while ($true)');
+    expect(definition.contents).toContain('Start-Sleep -Seconds 5');
+  });
+
+  it('keeps an explicit Windows no-restart policy one-shot', () => {
+    const definition = buildServiceDefinition({
+      backend: 'schtasks-user',
+      homeDir: 'C:\\Users\\alice',
+      spec: {
+        label: 'happier-daemon.default',
+        programArgs: ['C:\\Users\\alice\\.kaiwu\\bin\\happier.exe', 'daemon', 'start-sync'],
+        restartPolicy: 'no',
+      },
+    });
+
+    expect(definition.contents).not.toContain('while ($true)');
+    expect(definition.contents).toContain('exit $exitCode');
+  });
 });
 
 describe('planServiceAction restart policy (Windows)', () => {

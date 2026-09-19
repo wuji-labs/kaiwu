@@ -9,6 +9,8 @@ export type ReleaseAssetBundle = Readonly<{
   checksumsSig: ReleaseAsset;
 }>;
 
+const CLI_RELEASE_PRODUCTS = ['kaiwu', 'happier'] as const;
+
 export function resolveCliBinaryAssetBundleFromReleaseAssets(params: Readonly<{
   assets: unknown;
   os: string;
@@ -20,38 +22,52 @@ export function resolveCliBinaryAssetBundleFromReleaseAssets(params: Readonly<{
   if (!os) throw new Error('os is required');
   if (!arch) throw new Error('arch is required');
 
-  const preferVersion = String(params.preferVersion ?? '').trim() || inferRollingReleaseVersion({
-    assets: params.assets,
-    os,
-    arch,
-  });
-  if (preferVersion) {
-    return resolveReleaseAssetBundleForPreferredVersion({
+  let lastError: unknown = null;
+  for (const product of CLI_RELEASE_PRODUCTS) {
+    const preferVersion = String(params.preferVersion ?? '').trim() || inferRollingReleaseVersion({
       assets: params.assets,
       os,
       arch,
-      version: preferVersion,
+      product,
     });
+    try {
+      if (preferVersion) {
+        return resolveReleaseAssetBundleForPreferredVersion({
+          assets: params.assets,
+          os,
+          arch,
+          product,
+          version: preferVersion,
+        });
+      }
+
+      return resolveReleaseAssetBundle({
+        assets: params.assets,
+        product,
+        os,
+        arch,
+        preferZipOnWindows: true,
+      });
+    } catch (error) {
+      lastError = error;
+    }
   }
 
-  return resolveReleaseAssetBundle({
-    assets: params.assets,
-    product: 'happier',
-    os,
-    arch,
-    preferZipOnWindows: true,
-  });
+  throw lastError instanceof Error
+    ? lastError
+    : new Error('[release-assets] unable to resolve CLI release asset bundle');
 }
 
 function inferRollingReleaseVersion(params: Readonly<{
   assets: unknown;
   os: string;
   arch: string;
+  product: string;
 }>): string | null {
   const archiveExtensions = params.os.toLowerCase() === 'windows'
     ? ['.zip', '.tar.gz']
     : ['.tar.gz'];
-  const archiveBasePrefix = `happier-v`;
+  const archiveBasePrefix = `${params.product}-v`;
   const archiveSuffix = `-${params.os}-${params.arch}`;
   const assets = Array.isArray(params.assets) ? params.assets : [];
 
@@ -81,12 +97,13 @@ function resolveReleaseAssetBundleForPreferredVersion(params: Readonly<{
   assets: unknown;
   os: string;
   arch: string;
+  product: string;
   version: string;
 }>): ReleaseAssetBundle {
   const desiredVersion = params.version;
-  const desiredChecksumsName = `checksums-happier-v${desiredVersion}.txt`;
+  const desiredChecksumsName = `checksums-${params.product}-v${desiredVersion}.txt`;
   const desiredChecksumsSigName = `${desiredChecksumsName}.minisig`;
-  const desiredArchiveBase = `happier-v${desiredVersion}-${params.os}-${params.arch}`;
+  const desiredArchiveBase = `${params.product}-v${desiredVersion}-${params.os}-${params.arch}`;
   const desiredArchiveNames = params.os.toLowerCase() === 'windows'
     ? [`${desiredArchiveBase}.zip`, `${desiredArchiveBase}.tar.gz`]
     : [`${desiredArchiveBase}.tar.gz`];
@@ -106,7 +123,7 @@ function resolveReleaseAssetBundleForPreferredVersion(params: Readonly<{
 
   const resolved = resolveReleaseAssetBundle({
     assets: filteredAssets,
-    product: 'happier',
+    product: params.product,
     os: params.os,
     arch: params.arch,
     preferZipOnWindows: true,
