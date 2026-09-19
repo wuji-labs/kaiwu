@@ -224,10 +224,16 @@ if ($env:Path -split ';' -notcontains $binDir) {
 $env:KAIWU_SERVER_URL = $KAIWU_SERVER_URL
 Write-Info "已配置开物服务端连接: $KAIWU_SERVER_URL"
 
-# 清理历史旧版可能遗留的 happier.exe
+# 配置或刷新向后兼容别名 happier.exe（指向主程序 kaiwu.exe）
+$kaiwuExePath = Join-Path $binDir "kaiwu.exe"
 $happierExePath = Join-Path $binDir "happier.exe"
-if (Test-Path $happierExePath) {
-    Remove-Item -Force $happierExePath -ErrorAction SilentlyContinue
+if (Test-Path $kaiwuExePath) {
+    try {
+        Copy-Item -Path $kaiwuExePath -Destination $happierExePath -Force -ErrorAction Stop
+        Write-Info "已建立兼容别名: happier.exe -> kaiwu.exe"
+    } catch {
+        Write-Warn "未能刷新兼容别名 $happierExePath (文件被运行中进程锁定)。主命令 kaiwu.exe 已就绪，后台服务与 CLI 均使用主可执行文件，系统运行安全不受影响。"
+    }
 }
 
 # 确保运行时资产目录联接 (cli/current -> bin)，保证 Claude Code 专用 hook 与 sidecar 脚本正常加载
