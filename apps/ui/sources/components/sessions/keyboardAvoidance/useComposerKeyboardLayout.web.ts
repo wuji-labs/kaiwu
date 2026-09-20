@@ -22,6 +22,31 @@ function isMobileLikeHost(width: number): boolean {
     return width < 768;
 }
 
+function getWindowScrollY(): number {
+    if (typeof window === 'undefined') return 0;
+    const documentScrollTop = typeof document !== 'undefined'
+        ? (document.documentElement?.scrollTop || document.body?.scrollTop || 0)
+        : 0;
+    return Math.max(0, window.scrollY || window.pageYOffset || documentScrollTop || 0);
+}
+
+function resetWindowScroll(): void {
+    if (typeof window === 'undefined') return;
+    if (window.scrollY !== 0 || window.scrollX !== 0) {
+        window.scrollTo(0, 0);
+    }
+    if (typeof document !== 'undefined') {
+        if (document.documentElement && (document.documentElement.scrollTop !== 0 || document.documentElement.scrollLeft !== 0)) {
+            document.documentElement.scrollTop = 0;
+            document.documentElement.scrollLeft = 0;
+        }
+        if (document.body && (document.body.scrollTop !== 0 || document.body.scrollLeft !== 0)) {
+            document.body.scrollTop = 0;
+            document.body.scrollLeft = 0;
+        }
+    }
+}
+
 function readVisualViewportKeyboardInset(): number {
     if (typeof window === 'undefined') return 0;
     const visualViewport = window.visualViewport;
@@ -30,6 +55,7 @@ function readVisualViewportKeyboardInset(): number {
         layoutViewportHeight: window.innerHeight,
         visualViewportHeight: visualViewport.height,
         visualViewportOffsetTop: visualViewport.offsetTop,
+        windowScrollY: getWindowScrollY(),
         isEditableElementFocused: isEditableElementFocused(),
         isMobileLikeHost: isMobileLikeHost(visualViewport.width),
     });
@@ -141,21 +167,64 @@ export function useComposerKeyboardLayout(options: ComposerKeyboardLayoutOptions
     ]);
 
     React.useEffect(() => {
+        let scrollResetRafId: number | null = null;
+        let scrollResetTimerId: ReturnType<typeof setTimeout> | null = null;
+
+        const cancelPendingScrollResets = () => {
+            if (scrollResetRafId !== null) {
+                cancelAnimationFrame(scrollResetRafId);
+                scrollResetRafId = null;
+            }
+            if (scrollResetTimerId !== null) {
+                clearTimeout(scrollResetTimerId);
+                scrollResetTimerId = null;
+            }
+        };
+
         const update = () => {
             recompute(readVisualViewportKeyboardInset());
         };
+
+        const handleFocusIn = () => {
+            update();
+            cancelPendingScrollResets();
+            // Counteract iOS Safari's native auto-scroll on focus. Even in an SPA with body overflow:hidden,
+            // WebKit forcibly scrolls window.scrollY when focusing an input near the bottom. Resetting
+            // window scroll ensures the composer does not suffer from double-lift displacement.
+            resetWindowScroll();
+            if (typeof requestAnimationFrame !== 'undefined') {
+                scrollResetRafId = requestAnimationFrame(() => {
+                    resetWindowScroll();
+                    update();
+                    scrollResetTimerId = setTimeout(() => {
+                        resetWindowScroll();
+                        update();
+                    }, 80);
+                });
+            }
+        };
+
+        const handleFocusOut = () => {
+            cancelPendingScrollResets();
+            resetWindowScroll();
+            update();
+        };
+
         update();
         if (typeof window === 'undefined') return undefined;
         const visualViewport = window.visualViewport;
         visualViewport?.addEventListener('resize', update);
         visualViewport?.addEventListener('scroll', update);
-        window.addEventListener('focusin', update);
-        window.addEventListener('focusout', update);
+        window.addEventListener('scroll', update, { passive: true });
+        window.addEventListener('focusin', handleFocusIn);
+        window.addEventListener('focusout', handleFocusOut);
         return () => {
+            cancelPendingScrollResets();
             visualViewport?.removeEventListener('resize', update);
             visualViewport?.removeEventListener('scroll', update);
-            window.removeEventListener('focusin', update);
-            window.removeEventListener('focusout', update);
+            window.removeEventListener('scroll', update);
+            window.removeEventListener('focusin', handleFocusIn);
+            window.removeEventListener('focusout', handleFocusOut);
         };
     }, [recompute]);
 

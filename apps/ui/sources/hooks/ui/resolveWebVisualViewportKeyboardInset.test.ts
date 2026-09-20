@@ -55,4 +55,26 @@ describe('resolveWebVisualViewportKeyboardInset', () => {
             isMobileLikeHost: true,
         })).toBe(256);
     });
+
+    it('subtracts windowScrollY to prevent iOS Safari double-lift when browser auto-scrolls', () => {
+        expect(resolveWebVisualViewportKeyboardInset({
+            layoutViewportHeight: 844,
+            visualViewportHeight: 544,
+            visualViewportOffsetTop: 0,
+            windowScrollY: 120,
+            isEditableElementFocused: true,
+            isMobileLikeHost: true,
+        })).toBe(180);
+    });
+
+    it('returns zero when windowScrollY covers the keyboard delta', () => {
+        expect(resolveWebVisualViewportKeyboardInset({
+            layoutViewportHeight: 844,
+            visualViewportHeight: 544,
+            visualViewportOffsetTop: 0,
+            windowScrollY: 300,
+            isEditableElementFocused: true,
+            isMobileLikeHost: true,
+        })).toBe(0);
+    });
 });
