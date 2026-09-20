@@ -71,6 +71,20 @@ export function getResolvedBackendCatalogEntries(params: Readonly<{
     ];
 }
 
+/**
+ * The name the app shows for a built-in agent — "Factory Droid", never the raw `droid` id — or
+ * `null` when the id is not a catalog agent at all (a machine-reported native review engine, or a
+ * stale persisted settings entry).
+ *
+ * This is the one owner for that lookup. Execution-run rows, the run launcher, action field
+ * options and the voice review-engine tool each used to carry their own copy, and they disagreed:
+ * some fell back to the id, some cast blindly into `getAgentCore`, and the run list painted the
+ * raw id outright. Call this instead of reaching for `getAgentCore(...).displayNameKey`.
+ */
+export function resolveBuiltInAgentTitle(id: string): string | null {
+    return isAgentId(id) ? t(getAgentCore(id).displayNameKey) : null;
+}
+
 export function resolveProviderAgentIdForBackendTarget(target: BackendTargetRefV1): AgentId {
     return isBuiltInAgentTarget(target) && isAgentId(target.agentId) ? target.agentId : 'customAcp';
 }
