@@ -7,7 +7,7 @@ vi.mock('@/text', async () => {
     });
 });
 
-import { getResolvedBackendCatalogEntries } from './getResolvedBackendCatalogEntries';
+import { getResolvedBackendCatalogEntries, resolveBuiltInAgentTitle } from './getResolvedBackendCatalogEntries';
 
 describe('getResolvedBackendCatalogEntries', () => {
     it('returns built-in agents followed by configured ACP backends without surfacing the custom ACP container backend', () => {
@@ -136,5 +136,18 @@ describe('getResolvedBackendCatalogEntries', () => {
             family: 'configuredAcpBackend',
             providerAgentId: 'customAcp',
         }));
+    });
+});
+
+describe('resolveBuiltInAgentTitle', () => {
+    it('returns the localized title for known built-in agents', () => {
+        expect(resolveBuiltInAgentTitle('claude')).toBe('t:agentInput.agent.claude');
+        expect(resolveBuiltInAgentTitle('codex')).toBe('t:agentInput.agent.codex');
+        expect(resolveBuiltInAgentTitle('customAcp')).toBe('t:agentInput.agent.customAcp');
+    });
+
+    it('returns null for ids outside the catalog', () => {
+        expect(resolveBuiltInAgentTitle('unknown-agent')).toBeNull();
+        expect(resolveBuiltInAgentTitle('native-review-engine')).toBeNull();
     });
 });
