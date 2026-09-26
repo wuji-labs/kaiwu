@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { act } from 'react-test-renderer';
 import { describe, expect, it } from 'vitest';
 
@@ -699,6 +700,45 @@ describe('useNewSessionMachinePathState', () => {
             selectedMachineId: 'machine-a',
             selectedPath: '/repo',
         });
+
+        await hook.unmount();
+    });
+
+    it('does not ping-pong with draft auto-persist when a non-user path change diverges from the persisted draft path', async () => {
+        const machines = toMachines({ id: 'machine-1', metadata: { homeDir: '/Users/test' }, activeAt: Date.now() - 10_000 });
+        // Mirrors the screen model: the draft auto-persist stages the current selectedPath into the
+        // draft store inside an effect, and the hook reads that store back as persistedPath.
+        let renders = 0;
+        const hook = await renderHook(() => {
+            renders += 1;
+            if (renders > 200) throw new Error('machine path state ping-pongs with draft auto-persist');
+            const [persistedPath, setPersistedPath] = React.useState('/repo/persisted');
+            const state = useNewSessionMachinePathState({
+                machines,
+                recentMachinePaths: [],
+                machineIdParam: null,
+                pathParam: null,
+                persistedMachineId: 'machine-1',
+                persistedPath,
+            });
+            React.useEffect(() => {
+                setPersistedPath(state.selectedPath);
+            }, [state.selectedPath]);
+            return state;
+        }, { initialProps: undefined });
+
+        expect(hook.getCurrent().selectedPath).toBe('/repo/persisted');
+
+        await act(async () => {
+            hook.getCurrent().setRecoveredPath('/repo/recovered');
+        });
+        expect(hook.getCurrent().selectedPath).toBe('/repo/recovered');
+        expect(hook.getCurrent().selectedPathSource).toBe('recovered');
+
+        await act(async () => {
+            hook.getCurrent().setAutomaticPathForMachine('machine-1');
+        });
+        expect(hook.getCurrent().selectedPath).toBe('/Users/test');
 
         await hook.unmount();
     });
