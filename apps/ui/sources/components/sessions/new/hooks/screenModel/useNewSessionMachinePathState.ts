@@ -160,6 +160,7 @@ export function useNewSessionMachinePathState(params: Readonly<{
     const hasUserEditedPathRef = React.useRef(false);
     const lastAppliedMachineParamRef = React.useRef<string>('');
     const lastAppliedPathParamRef = React.useRef<string>('');
+    const lastAppliedPersistedPathKeyRef = React.useRef<string>('');
     const applyCommittedSelectedPath = React.useCallback((nextPath: string, source: NewSessionPathSelectionSource) => {
         selectedPathDraftRef.current = nextPath;
         setSelectedPathSource(source);
@@ -361,6 +362,14 @@ export function useNewSessionMachinePathState(params: Readonly<{
 
         const persistedPath = getPersistedPathForMachine(selectedMachineId);
         if (persistedPath) {
+            // Apply each hydrated (machine, path) pair once. The draft auto-persist stages the live
+            // selectedPath back into this same persisted value, so re-enforcing it on every change
+            // would fight any non-user path update (recovery, automatic machine path) forever.
+            const persistedPathKey = `${selectedMachineId}\n${persistedPath}`;
+            if (lastAppliedPersistedPathKeyRef.current === persistedPathKey) {
+                return;
+            }
+            lastAppliedPersistedPathKeyRef.current = persistedPathKey;
             if (selectedPath !== persistedPath) {
                 applyCommittedSelectedPath(persistedPath, 'persisted');
             }
