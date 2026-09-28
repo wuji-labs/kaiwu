@@ -182,6 +182,19 @@ export function resolveEntrypointIdentityFromLaunchSpec(
   launchSpec: HappyCliSubprocessLaunchSpec | null | undefined,
 ): SessionRunnerEntrypointIdentity {
   if (!launchSpec) return unknownIdentity('empty_launch_spec');
+  // The installed compiled CLI can also serve as its own JS runtime
+  // (`kaiwu.exe <...>/cli/current/package-dist/index.mjs ...`). The code that runs is the binary's
+  // embedded build, so identify it by the binary's own version — mirroring
+  // resolveSessionRunnerEntrypointIdentity, which keys runners launched by a CLI binary on
+  // spawnedWithCliVersion — instead of the (mutable, junction-backed) script argument.
+  if (launchSpec.runtime !== 'binary' && isCliBinaryPath(launchSpec.filePath) && !resolveVersion(launchSpec.filePath)) {
+    return {
+      status: 'known',
+      source: 'launch_spec',
+      comparableId: `version:${packageJson.version}`,
+      entrypointVersion: packageJson.version,
+    };
+  }
   if (launchSpec.runtime === 'binary') {
     const filePath = launchSpec.filePath;
     if (isCliBinaryPath(filePath)) {

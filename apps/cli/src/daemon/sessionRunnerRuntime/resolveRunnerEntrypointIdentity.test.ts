@@ -146,6 +146,23 @@ describe('resolveEntrypointIdentityFromLaunchSpec', () => {
     }));
   });
 
+  it('identifies the installed binary acting as its own JS runtime by its package version, not the mutable script arg', () => {
+    // Live shape observed on 2026-09-29 (Windows, 0.2.20): the daemon spawns runners as
+    // `kaiwu.exe <home>/cli/current/package-dist/index.mjs ...`, where cli/current is a junction.
+    const identity = resolveEntrypointIdentityFromLaunchSpec({
+      runtime: 'node',
+      filePath: 'C:\\Users\\WUJI\\.kaiwu\\bin\\kaiwu.exe',
+      args: ['C:\\Users\\WUJI\\.kaiwu\\cli\\current\\package-dist\\index.mjs', 'claude'],
+    });
+
+    expect(identity).toEqual(expect.objectContaining({
+      status: 'known',
+      source: 'launch_spec',
+      comparableId: `version:${packageJson.version}`,
+      entrypointVersion: packageJson.version,
+    }));
+  });
+
   it('derives launch identity from binary runtime pointing to cli binary without versions dir as package version', () => {
     const identity = resolveEntrypointIdentityFromLaunchSpec({
       runtime: 'binary',
