@@ -144,7 +144,10 @@ export function resolvePackagedRuntimeProjectRoots(): string[] {
 
 export function resolvePackagedRuntimeEntrypoint(
   relativePath: string,
-  options: Readonly<{ packageDistOnly?: boolean }> = {},
+  options: Readonly<{
+    packageDistOnly?: boolean;
+    validate?: (candidatePath: string) => boolean;
+  }> = {},
 ): string {
   const normalizedRelativePath = String(relativePath ?? '').trim();
   if (!normalizedRelativePath) {
@@ -163,6 +166,9 @@ export function resolvePackagedRuntimeEntrypoint(
       firstCandidate ??= candidates[0] ?? null;
       for (const candidate of candidates) {
         if (existsSync(candidate)) {
+          if (options.validate && !options.validate(candidate)) {
+            continue;
+          }
           return candidate;
         }
       }
@@ -177,9 +183,18 @@ export function resolvePackagedRuntimeEntrypoint(
 
     for (const candidate of candidates) {
       if (existsSync(candidate)) {
+        if (options.validate && !options.validate(candidate)) {
+          continue;
+        }
         return candidate;
       }
     }
+  }
+
+  if (options.validate) {
+    throw new Error(
+      `Failed to resolve valid packaged runtime entrypoint for "${relativePath}" (all candidates failed validation)`,
+    );
   }
 
   return firstCandidate ?? join(projectPath(), 'package-dist', normalizedRelativePath);

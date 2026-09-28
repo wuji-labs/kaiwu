@@ -15,7 +15,7 @@ import { defaultNameFromUrl, defaultWebappUrlFromServerUrl } from '@/cli/command
 import { applyDaemonServiceInstallPlan, runDaemonServiceCommands } from './apply';
 import { buildServiceCommandEnv } from '@happier-dev/cli-common/service';
 
-import { resolveCliVersionFromBinary } from './resolveCliVersionFromBinary';
+import { probeCliVersion, resolveCliVersionFromBinary } from './resolveCliVersionFromBinary';
 import { resolveConfiguredCliBinaryPath } from './resolveConfiguredCliBinaryPath';
 import {
   describeDaemonServiceInstallConflict,
@@ -1374,6 +1374,7 @@ export async function runDaemonServiceCliCommand(params: Readonly<{
       targetMode: runtime.targetMode,
       channel: runtime.channel,
       processEnv: process.env,
+      expectedVersion: configuration.currentCliVersion,
     });
     const installRuntime = {
       ...runtime,
@@ -1772,6 +1773,15 @@ export async function runDaemonServiceCliCommand(params: Readonly<{
     let serviceDefinitionReloadCommands: DaemonServicePlannedCommand[] = [];
     if (action === 'start' || action === 'restart') {
       try {
+        const driftRuntimeTarget = await resolveDaemonServiceInstallRuntimeTarget({
+          currentExecPath: process.execPath,
+          explicitNodePath: process.env.HAPPIER_DAEMON_SERVICE_NODE_PATH ?? '',
+          explicitEntryPath: process.env.HAPPIER_DAEMON_SERVICE_ENTRY_PATH ?? '',
+          targetMode: runtime.targetMode,
+          channel: runtime.channel,
+          processEnv: process.env,
+          expectedVersion: configuration.currentCliVersion,
+        });
         const expectedPlan = planDaemonServiceInstall({
           platform: runtime.platform,
           mode,
@@ -1786,8 +1796,8 @@ export async function runDaemonServiceCliCommand(params: Readonly<{
           serverUrl: runtime.serverUrl,
           webappUrl: runtime.webappUrl,
           publicServerUrl: runtime.publicServerUrl,
-          nodePath: runtime.nodePath,
-          entryPath: runtime.entryPath,
+          nodePath: driftRuntimeTarget.nodePath,
+          entryPath: driftRuntimeTarget.entryPath,
         });
         const expectedFile = expectedPlan.files[0];
         if (expectedFile) {
@@ -1797,6 +1807,15 @@ export async function runDaemonServiceCliCommand(params: Readonly<{
             expectedContents: expectedFile.content,
           });
           if (!matches) {
+            const probe = probeCliVersion({
+              nodePath: driftRuntimeTarget.nodePath,
+              entryPath: driftRuntimeTarget.entryPath || null,
+              expectedVersion: configuration.currentCliVersion,
+              processEnv: process.env,
+            });
+            if (!probe.ok) {
+              throw new Error(`拒绝重生成服务脚本：目标入口验明正身失败（${probe.reason}）`);
+            }
             process.stderr.write('正在刷新后台服务定义（当前文件已偏离最新模板）。\n');
             await applyDaemonServiceInstallPlan(expectedPlan, { runCommands: false });
             refreshedInstalledServiceDefinition = true;
