@@ -48,29 +48,60 @@ function resolveFileIconName(mimeType?: string, fileName?: string): IconName {
     return 'file';
 }
 
-export const SendFileView = React.memo<ToolViewProps>(({ tool, detailLevel, sessionId }) => {
-    if (detailLevel === 'title') return null;
+// Tool results may arrive as a plain object, a JSON string, or MCP-style text content blocks.
+function parseSendFileResult(value: unknown): Record<string, unknown> | null {
+    const asRecord = (v: unknown): Record<string, unknown> | null =>
+        v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : null;
+    const fromJson = (text: string): Record<string, unknown> | null => {
+        try {
+            return asRecord(JSON.parse(text));
+        } catch {
+            return null;
+        }
+    };
+    if (typeof value === 'string') return fromJson(value);
+    if (Array.isArray(value)) {
+        for (const block of value) {
+            const text = asRecord(block)?.text;
+            if (typeof text === 'string') {
+                const parsed = fromJson(text);
+                if (parsed) return parsed;
+            }
+        }
+        return null;
+    }
+    const record = asRecord(value);
+    if (record && Array.isArray(record.content)) return parseSendFileResult(record.content) ?? record;
+    return record;
+}
 
+export const SendFileView = React.memo<ToolViewProps>(({ tool, detailLevel, sessionId }) => {
     const { theme } = useUnistyles();
     const router = useRouter();
 
-    const result = tool.result && typeof tool.result === 'object' && !Array.isArray(tool.result)
-        ? (tool.result as Record<string, unknown>)
-        : null;
+    const result = parseSendFileResult(tool.result);
     const input = tool.input && typeof tool.input === 'object' && !Array.isArray(tool.input)
         ? (tool.input as Record<string, unknown>)
         : null;
 
-    const rawPath = typeof result?.path === 'string' && result.path.trim().length > 0
+    // Only a completed, non-rejected call may expose preview/download for its path.
+    const rejected = result?.ok === false || typeof result?.errorCode === 'string';
+    const delivered = tool.state === 'completed' && !rejected;
+
+    const rawPath = !delivered
+        ? ''
+        : typeof result?.path === 'string' && result.path.trim().length > 0
         ? result.path.trim()
         : typeof input?.path === 'string' && input.path.trim().length > 0
         ? input.path.trim()
         : '';
+    const displayPath = rawPath
+        || (typeof input?.path === 'string' ? input.path.trim() : '');
 
     const fileName = typeof result?.fileName === 'string' && result.fileName.trim().length > 0
         ? result.fileName.trim()
-        : rawPath
-        ? rawPath.split(/[/\\]/).pop() || rawPath
+        : displayPath
+        ? displayPath.split(/[/\\]/).pop() || displayPath
         : '';
 
     const sizeBytes = typeof result?.sizeBytes === 'number' && Number.isFinite(result.sizeBytes)
@@ -118,6 +149,9 @@ export const SendFileView = React.memo<ToolViewProps>(({ tool, detailLevel, sess
 
     const iconName = resolveFileIconName(mimeType, fileName);
 
+    // Early return only after all hooks have run (rules of hooks).
+    if (detailLevel === 'title') return null;
+
     return (
         <ToolSectionView>
             <View testID="send-file-view" style={styles.card}>
@@ -156,6 +190,13 @@ export const SendFileView = React.memo<ToolViewProps>(({ tool, detailLevel, sess
                     </Text>
                 ) : null}
 
+                {rejected && typeof result?.error === 'string' ? (
+                    <Text testID="send-file-rejected" style={styles.errorText}>
+                        {result.error}
+                    </Text>
+                ) : null}
+
+                {rawPath ? (
                 <View style={styles.actionRow}>
                     <Pressable
                         testID="send-file-preview-button"
@@ -201,6 +242,7 @@ export const SendFileView = React.memo<ToolViewProps>(({ tool, detailLevel, sess
                         </Text>
                     </Pressable>
                 </View>
+                ) : null}
             </View>
         </ToolSectionView>
     );
