@@ -1230,6 +1230,21 @@ export async function claudeRemoteLauncher(
         },
     });
 
+    // Declared outside the try so the finally block can dispose its timer.
+    const providerUnavailableWindowTracker = createClaudeUnifiedProviderUnavailableDeliveryWindowTracker({
+        onWindowEnded: () => {
+            void (async () => {
+                try {
+                    await session.client.redeliverProviderUnavailableBlockedPendingMessages?.();
+                } catch (error) {
+                    logger.debug('[remote] provider-unavailable pending redelivery failed', error);
+                } finally {
+                    session.client.wakePendingMaterialization?.();
+                }
+            })();
+        },
+    });
+
     try {
         let pending: MessageBatch<EnhancedMode, string> | null = null;
         let activeRuntimeModeKind: NormalizedClaudeRemoteModeKind | null = options.initialMode
@@ -1258,17 +1273,6 @@ export async function claudeRemoteLauncher(
         let forceNewSession = false;
         let waitForMessageBeforeNextLaunch = false;
         let consecutiveUnifiedParkRelaunches = 0;
-        const providerUnavailableWindowTracker = createClaudeUnifiedProviderUnavailableDeliveryWindowTracker({
-            onWindowEnded: () => {
-                void (async () => {
-                    try {
-                        await session.client.redeliverProviderUnavailableBlockedPendingMessages?.();
-                    } finally {
-                        session.client.wakePendingMaterialization?.();
-                    }
-                })();
-            },
-        });
         let usageLimitDialogVisible = false;
         const resetUnifiedParkRelaunchBudget = (): void => {
             consecutiveUnifiedParkRelaunches = 0;
@@ -1984,6 +1988,7 @@ export async function claudeRemoteLauncher(
                             if (!usageLimitDialogVisible) return;
                             usageLimitDialogVisible = false;
                             providerUnavailableWindowTracker.setWindow(null);
+                            sustainedPendingDeliveryBlockHandler.wakePendingMaterialization();
                         };
                         const sharedTerminalCallbacks = createClaudeUnifiedTerminalSharedCallbacks({
                             sessionClient: session.client,
