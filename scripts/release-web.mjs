@@ -16,6 +16,7 @@
 // Usage: node scripts/release-web.mjs [--no-deploy]
 //   --no-deploy  stop after the COS verification (nothing live changes)
 // Env: KAIWU_DEPLOY_SSH_KEY (default ~/.ssh/chengqiyun_lighthouse_id_ed25519)
+//      KAIWU_DEPLOY_SSH_BIN / KAIWU_DEPLOY_SCP_BIN (default: Windows OpenSSH on win32, else PATH)
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -31,8 +32,9 @@ const SITE = 'https://kaiwu.chengqiyun.com';
 const SERVER = 'ubuntu@150.158.55.6';
 const REMOTE_DIST = '/opt/wuji-kaiwu/ui-dist';
 const isWindows = process.platform === 'win32';
-const sshBin = isWindows ? 'C:\\Windows\\System32\\OpenSSH\\ssh.exe' : 'ssh';
-const scpBin = isWindows ? 'C:\\Windows\\System32\\OpenSSH\\scp.exe' : 'scp';
+// Overridable because a broken Windows OpenSSH install silently exits 255; Git's ssh/scp work as a drop-in.
+const sshBin = process.env.KAIWU_DEPLOY_SSH_BIN || (isWindows ? 'C:\\Windows\\System32\\OpenSSH\\ssh.exe' : 'ssh');
+const scpBin = process.env.KAIWU_DEPLOY_SCP_BIN || (isWindows ? 'C:\\Windows\\System32\\OpenSSH\\scp.exe' : 'scp');
 // Git Bash's GNU tar reads "D:\..." as a remote host; the system bsdtar handles drive letters.
 const tarBin = isWindows ? 'C:\\Windows\\System32\\tar.exe' : 'tar';
 const sshKey = process.env.KAIWU_DEPLOY_SSH_KEY || join(homedir(), '.ssh', 'chengqiyun_lighthouse_id_ed25519');
