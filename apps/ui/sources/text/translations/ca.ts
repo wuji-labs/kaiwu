@@ -3058,7 +3058,7 @@ export const ca: TranslationStructure = {
             maxAttachmentSize: {
                 title: 'Mida màxima de l’adjunt (bytes)',
                 promptTitle: 'Mida màxima de l’adjunt (bytes)',
-                promptMessage: 'Exemple: 52428800 per a 50MB.',
+                promptMessage: 'Exemple: 104857600 per a 100MB.',
                 invalidValueMessage: 'Introdueix un número entre 1024 i 1073741824.',
             },
         },

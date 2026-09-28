@@ -3177,7 +3177,7 @@ export const ru: TranslationStructure = {
       maxAttachmentSize: {
         title: "Макс. размер вложения (байт)",
         promptTitle: "Макс. размер вложения (байт)",
-        promptMessage: "Пример: 52428800 для 50MB.",
+        promptMessage: "Пример: 104857600 для 100MB.",
         invalidValueMessage: "Введите число от 1024 до 1073741824.",
       },
     },

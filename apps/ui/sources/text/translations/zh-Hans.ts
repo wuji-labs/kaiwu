@@ -3130,7 +3130,7 @@ export const zhHans: TranslationStructure = {
       maxAttachmentSize: {
         title: "附件最大大小（字节）",
         promptTitle: "附件最大大小（字节）",
-        promptMessage: "示例：50MB 为 52428800。",
+        promptMessage: "示例：100MB 为 104857600。",
         invalidValueMessage: "请输入 1024 到 1073741824 之间的数字。",
       },
     },

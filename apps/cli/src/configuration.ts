@@ -496,9 +496,9 @@ class Configuration {
       min: 1000, max: 60 * 60_000, default: 10 * 60_000,
     });
 
-    // Default: 50MB. Defensive minimum: 1 byte.
+    // Default: 100MB. Defensive minimum: 1 byte.
     this.filesUploadMaxFileBytes = resolveIntEnvWithBounds('HAPPIER_FILES_UPLOAD_MAX_FILE_BYTES', {
-      min: 1, default: 50 * 1024 * 1024,
+      min: 1, default: 100 * 1024 * 1024,
     });
 
     // Default: 100MB. Defensive minimum: 1 byte.
