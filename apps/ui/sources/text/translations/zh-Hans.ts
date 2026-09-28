@@ -6668,6 +6668,16 @@ export const zhHans: TranslationStructure = {
       switchMode: "切换模式",
       taskOutput: "任务输出",
       taskStop: "停止任务",
+      sendFileToUser: "发送文件给用户",
+    },
+    sendFileView: {
+      title: "文件已发送",
+      preview: "预览",
+      download: "下载",
+      downloading: "正在下载…",
+      failedToDownload: "下载文件失败",
+      openInPreview: "在预览中打开",
+      note: "说明",
     },
     geminiExecute: {
       cwd: ({ cwd }: { cwd: string }) => `📁 ${cwd}`,

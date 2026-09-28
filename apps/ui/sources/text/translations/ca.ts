@@ -6479,6 +6479,16 @@ deps: {
             switchMode: 'Canvia el mode',
             taskOutput: 'Sortida de la tasca',
             taskStop: 'Atura la tasca',
+            sendFileToUser: 'Envia el fitxer a l’usuari',
+        },
+        sendFileView: {
+            title: 'Fitxer lliurat',
+            preview: 'Previsualitza',
+            download: 'Descarrega',
+            downloading: 'Descarregant…',
+            failedToDownload: 'No s’ha pogut descarregar el fitxer',
+            openInPreview: 'Obre a la previsualització',
+            note: 'Nota',
         },
         geminiExecute: {
             cwd: ({ cwd }: { cwd: string }) => `📁 ${cwd}`,

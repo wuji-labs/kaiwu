@@ -34,6 +34,7 @@ vi.mock('../system/MCPToolView', () => ({
     formatMCPTitle: () => 'MCP',
     formatMCPSubtitle: () => '',
 }));
+vi.mock('../files/SendFileView', () => ({ SendFileView: () => null }));
 
 async function loadRegistry() {
     const [{ getToolViewComponent }, views] = await Promise.all([import('./_registry'), import('./_registry')]);
@@ -119,9 +120,16 @@ describe('toolViewRegistry', () => {
         expect(getToolViewComponent('AgentTeamSendMessage')).toBe(toolViewRegistry.AgentTeamSendMessage);
     });
 
-    it('uses the MCP tool renderer for any mcp__* tool name', async () => {
+    it('uses the MCP tool renderer for any unknown mcp__* tool name', async () => {
         const [{ getToolViewComponent }, { MCPToolView }] = await Promise.all([import('./_registry'), import('../system/MCPToolView')]);
         expect(getToolViewComponent('mcp__linear__create_issue')).toBe(MCPToolView);
+    });
+
+    it('maps send_file_to_user and its MCP aliases to SendFileView', async () => {
+        const [{ getToolViewComponent }, { SendFileView }] = await Promise.all([import('./_registry'), import('../files/SendFileView')]);
+        expect(getToolViewComponent('send_file_to_user')).toBe(SendFileView);
+        expect(getToolViewComponent('mcp__happier__send_file_to_user')).toBe(SendFileView);
+        expect(getToolViewComponent('deliver_file')).toBe(SendFileView);
     });
 
     it('does not route malformed slash-delimited change title names directly to the dedicated renderer', async () => {
