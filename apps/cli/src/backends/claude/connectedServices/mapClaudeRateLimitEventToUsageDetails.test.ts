@@ -297,6 +297,57 @@ describe('mapClaudeRateLimitEventToUsageDetails', () => {
     });
   });
 
+  it('maps Claude model-scoped limit assistant error to model_limit providerLimitId', () => {
+    const details = mapClaudeRateLimitEventToUsageDetails({
+      type: 'assistant',
+      isApiErrorMessage: true,
+      message: {
+        content: [{
+          type: 'text',
+          text: "You've reached your Fable limit. Switch to another model, or manage usage credits ...",
+        }],
+      },
+    });
+
+    expect(details).not.toBeNull();
+    expect(details).toMatchObject({
+      v: 1,
+      providerLimitId: 'model_limit:fable',
+      quotaScope: 'account',
+      recoverability: 'wait',
+    });
+  });
+
+  it('maps account-level session limit assistant error to non-model providerLimitId', () => {
+    const hitDetails = mapClaudeRateLimitEventToUsageDetails({
+      type: 'assistant',
+      isApiErrorMessage: true,
+      message: {
+        content: [{
+          type: 'text',
+          text: "You've hit your session limit · resets 11pm (Europe/Zurich)",
+        }],
+      },
+    });
+
+    expect(hitDetails).not.toBeNull();
+    expect(hitDetails?.providerLimitId?.startsWith('model_limit:')).toBeFalsy();
+
+    const reachedDetails = mapClaudeRateLimitEventToUsageDetails({
+      type: 'assistant',
+      isApiErrorMessage: true,
+      message: {
+        content: [{
+          type: 'text',
+          text: "You've reached your session limit.",
+        }],
+      },
+    });
+
+    expect(reachedDetails).not.toBeNull();
+    expect(reachedDetails?.providerLimitId?.startsWith('model_limit:')).toBeFalsy();
+  });
+
   it('ignores synthetic Claude API-error records without rate-limit evidence', () => {
     expect(mapClaudeRateLimitEventToUsageDetails({
       type: 'assistant',

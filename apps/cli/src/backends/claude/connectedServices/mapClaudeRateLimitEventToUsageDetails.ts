@@ -135,7 +135,7 @@ function containsRateLimitEvidence(value: unknown): boolean {
 
 function containsClaudeUsageLimitEvidence(value: unknown): boolean {
   if (typeof value === 'string') {
-    return /usage\s+limit|limit\s+reached/iu.test(value);
+    return /usage\s+limit|limit\s+reached|reached\s+your\s+[A-Za-z][\w.-]*\s+limit|session\s+limit/iu.test(value);
   }
   if (Array.isArray(value)) {
     return value.some(containsClaudeUsageLimitEvidence);
@@ -153,6 +153,60 @@ function containsClaudeUsageLimitEvidence(value: unknown): boolean {
     value.text,
     value.content,
   ].some(containsClaudeUsageLimitEvidence);
+}
+
+const CLAUDE_MODEL_LIMIT_PATTERN = /reached\s+your\s+([A-Za-z][\w.-]*)\s+limit/iu;
+const CLAUDE_ACCOUNT_LIMIT_WORDS = new Set([
+  'session',
+  'usage',
+  'weekly',
+  'daily',
+  'hourly',
+  'rate',
+  'spend',
+  'monthly',
+  'plan',
+]);
+
+function findClaudeModelLimitFamilyInValue(value: unknown): string | null {
+  if (typeof value === 'string') {
+    const match = CLAUDE_MODEL_LIMIT_PATTERN.exec(value);
+    if (!match) return null;
+    const word = match[1].toLowerCase();
+    return CLAUDE_ACCOUNT_LIMIT_WORDS.has(word) ? null : word;
+  }
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const family = findClaudeModelLimitFamilyInValue(item);
+      if (family) return family;
+    }
+    return null;
+  }
+  if (!isRecord(value)) return null;
+  for (const key of [
+    'error',
+    'code',
+    'type',
+    'kind',
+    'message',
+    'detail',
+    'details',
+    'description',
+    'text',
+    'content',
+  ]) {
+    const family = findClaudeModelLimitFamilyInValue(value[key]);
+    if (family) return family;
+  }
+  return null;
+}
+
+function extractClaudeModelLimitFamily(records: readonly Record<string, unknown>[]): string | null {
+  for (const record of records) {
+    const family = findClaudeModelLimitFamilyInValue(record);
+    if (family) return family;
+  }
+  return null;
 }
 
 const CLAUDE_PIPE_EPOCH_RESET_PATTERN = /limit\s+reached\s*\|\s*(\d{10,13})\b/iu;
@@ -339,7 +393,9 @@ function mapSyntheticClaudeApiErrorToUsageDetails(record: Record<string, unknown
   const timing = resolveClaudeUsageLimitResetTiming(record, Date.now());
   const resetAtMs = readSyntheticResetAtMs(records) ?? timing.resetAtMs;
   const retryAfterMs = readSyntheticRetryAfterMs(records) ?? timing.retryAfterMs;
-  const providerLimitId = readSyntheticProviderLimitId(records)
+  const modelLimitFamily = extractClaudeModelLimitFamily(records);
+  const providerLimitId = (modelLimitFamily ? `model_limit:${modelLimitFamily}` : undefined)
+    ?? readSyntheticProviderLimitId(records)
     ?? (status === 429 ? 'rate_limit' : undefined);
 
   return {

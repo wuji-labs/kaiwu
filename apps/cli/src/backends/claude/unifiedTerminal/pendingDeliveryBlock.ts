@@ -16,7 +16,10 @@ export type ClaudeUnifiedPendingDeliveryBlock = Readonly<{
 
 export type ClaudeUnifiedProviderUnavailablePromptDeliveryWindow = Readonly<{
   unavailableUntilMs: number;
+  modelFamily?: string;
 }>;
+
+export const CLAUDE_UNIFIED_CAPACITY_PROVIDER_UNAVAILABLE_MAX_WINDOW_MS = 30_000;
 
 const CLAUDE_UNIFIED_USAGE_LIMIT_DIALOG_PROVIDER_UNAVAILABLE_WINDOW_MS = 5 * 60_000;
 
@@ -30,6 +33,23 @@ function readPositiveDurationMs(value: unknown): number | null {
   if (typeof value !== 'number' || !Number.isFinite(value)) return null;
   const durationMs = Math.trunc(value);
   return durationMs > 0 ? durationMs : null;
+}
+
+export function resolveClaudeModelScopedLimitFamily(
+  details: NormalizedProviderUsageLimitDetailsV1,
+): string | null {
+  const providerLimitId = details.providerLimitId;
+  if (!providerLimitId) return null;
+  if (providerLimitId.startsWith('model_limit:')) {
+    const family = providerLimitId.slice('model_limit:'.length).trim().toLowerCase();
+    return family.length > 0 ? family : null;
+  }
+  const lower = providerLimitId.toLowerCase();
+  const match = lower.match(/(opus|sonnet|haiku|fable)/);
+  if (match) {
+    return match[1];
+  }
+  return null;
 }
 
 export function resolveClaudeUnifiedProviderUnavailableUntilMs(
@@ -46,7 +66,15 @@ export function resolveClaudeUnifiedProviderUnavailableUntilMs(
   }
 
   const futureCandidates = candidates.filter((candidate): candidate is number => candidate !== null);
-  return futureCandidates.length > 0 ? Math.max(...futureCandidates) : null;
+  const candidateUntilMs = futureCandidates.length > 0 ? Math.max(...futureCandidates) : null;
+  if (details.limitCategory === 'capacity') {
+    const maxWindowUntilMs = observedAtMs + CLAUDE_UNIFIED_CAPACITY_PROVIDER_UNAVAILABLE_MAX_WINDOW_MS;
+    if (candidateUntilMs === null) {
+      return maxWindowUntilMs;
+    }
+    return Math.min(candidateUntilMs, maxWindowUntilMs);
+  }
+  return candidateUntilMs;
 }
 
 export function resolveClaudeUnifiedProviderUnavailableWindowForUsageLimitDialog(
@@ -75,8 +103,22 @@ export function resolveClaudeUnifiedProviderUnavailableWindowForUsageLimitDialog
 export function isClaudeUnifiedProviderUnavailablePromptDeliveryWindowActive(
   window: ClaudeUnifiedProviderUnavailablePromptDeliveryWindow | null,
   nowMs: number,
+  currentModelId?: string | null,
 ): window is ClaudeUnifiedProviderUnavailablePromptDeliveryWindow {
-  return window !== null && nowMs < window.unavailableUntilMs;
+  if (window === null || nowMs >= window.unavailableUntilMs) {
+    return false;
+  }
+  if (
+    typeof window.modelFamily === 'string' &&
+    window.modelFamily.length > 0 &&
+    typeof currentModelId === 'string' &&
+    currentModelId.trim().length > 0
+  ) {
+    if (!currentModelId.toLowerCase().includes(window.modelFamily.toLowerCase())) {
+      return false;
+    }
+  }
+  return true;
 }
 
 function readUserMessageLocalIds(error: unknown): string[] {
