@@ -1,4 +1,4 @@
-export const DEFAULT_WEB_DOWNLOAD_MAX_BYTES = 50_000_000;
+export const DEFAULT_WEB_DOWNLOAD_MAX_BYTES = 100 * 1024 * 1024;
 
 function parseOptionalPositiveInt(value: unknown): number | undefined {
   if (typeof value !== 'string') return undefined;

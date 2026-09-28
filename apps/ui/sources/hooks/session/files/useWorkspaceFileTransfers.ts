@@ -60,7 +60,7 @@ function resolveWebDownloadMaxBytes(): number {
         ?? parseOptionalPositiveInt(process.env.EXPO_PUBLIC_HAPPY_FILES_PREVIEW_MAX_BYTES)
         ?? parseOptionalPositiveInt(process.env.EXPO_PUBLIC_FILES_PREVIEW_MAX_BYTES)
         // Conservative default to prevent unbounded buffering on web.
-        ?? 50_000_000
+        ?? 100 * 1024 * 1024
     );
 }
 
