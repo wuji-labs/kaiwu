@@ -53,6 +53,14 @@ jobs:
           cd apps/ui
           corepack yarn -s ensure:workspace:built
 
+      # Fail-closed release gate shared with the web release (scripts/release-web.mjs):
+      # critical-flow tests + typecheck ratchet. The 0.2.11 IPA shipped the React #185
+      # new-session crash because nothing ran between the commit and the build.
+      - name: Release gate (critical tests + typecheck ratchet)
+        run: |
+          set -euo pipefail
+          node scripts/release-critical-tests.mjs
+
       - name: Prebuild iOS project
         env:
           APP_ENV: production
