@@ -517,6 +517,7 @@ async function waitForExpectedDaemonServiceOwnership(params: Readonly<{
   expectedInstalledServiceContents?: string | null;
   installedServicePath?: string | null;
   healthCommand?: Readonly<{ cmd: string; args: readonly string[] }> | null;
+  expectedVersion?: string | null;
 }>): Promise<boolean> {
   let stableSince: number | null = null;
   return await waitForDaemonRunningWithinBudget({
@@ -566,6 +567,16 @@ async function waitForExpectedDaemonServiceOwnership(params: Readonly<{
         return false;
       }
 
+      if (params.expectedVersion && (ownership.kind === 'compatible' || ownership.kind === 'conflict')) {
+        const daemonVersion = ownership.owner.state.startedWithCliVersion;
+        const normDaemon = String(daemonVersion ?? '').trim().replace(/^v/i, '');
+        const normExpected = String(params.expectedVersion).trim().replace(/^v/i, '');
+        if (normDaemon !== 'unknown' && normDaemon !== normExpected) {
+          stableSince = null;
+          return false;
+        }
+      }
+
       if (params.healthCommand && !runCommandCaptureBestEffort(params.healthCommand).ok) {
         stableSince = null;
         return false;
@@ -589,6 +600,7 @@ async function assertExpectedDaemonServiceOwnership(params: Readonly<{
   expectedInstalledServiceContents?: string | null;
   installedServicePath?: string | null;
   healthCommand?: Readonly<{ cmd: string; args: readonly string[] }> | null;
+  expectedVersion?: string | null;
   /**
    * Windows-only post-mortem hooks. When the wait times out on Windows we
    * query scheduled-task launch metadata and tail the wrapper's stdout/stderr
@@ -602,7 +614,9 @@ async function assertExpectedDaemonServiceOwnership(params: Readonly<{
   }> | null;
 }>): Promise<void> {
   const waitTimeoutOverrideRaw = String(process.env.HAPPIER_DAEMON_SERVICE_OWNERSHIP_WAIT_TIMEOUT_MS ?? '').trim();
-  const defaultTimeoutMs = params.platform === 'win32' ? 120_000 : 15_000;
+  const defaultTimeoutMs = params.platform === 'win32'
+    ? 60_000
+    : (params.action === 'start' || params.action === 'restart' ? 60_000 : 15_000);
   const timeoutMs = readPositiveIntEnv('HAPPIER_DAEMON_SERVICE_OWNERSHIP_WAIT_TIMEOUT_MS', defaultTimeoutMs);
   // Task Scheduler can return before the wrapper actually relaunches the managed runtime on Windows.
   // Give Windows an extra default grace window, while still letting explicit env overrides take precedence.
@@ -626,6 +640,7 @@ async function assertExpectedDaemonServiceOwnership(params: Readonly<{
     expectedInstalledServiceContents: params.expectedInstalledServiceContents,
     installedServicePath: params.installedServicePath,
     healthCommand: params.healthCommand,
+    expectedVersion: params.expectedVersion,
   });
   if (expectedOwnerObserved) {
     return;
@@ -645,6 +660,7 @@ async function assertExpectedDaemonServiceOwnership(params: Readonly<{
       expectedInstalledServiceContents: params.expectedInstalledServiceContents,
       installedServicePath: params.installedServicePath,
       healthCommand: params.healthCommand,
+      expectedVersion: params.expectedVersion,
     });
     if (expectedOwnerObservedDuringGrace) {
       return;
@@ -1771,7 +1787,17 @@ export async function runDaemonServiceCliCommand(params: Readonly<{
     let expectedInstalledServiceContents: string | null = null;
     let refreshedInstalledServiceDefinition = false;
     let serviceDefinitionReloadCommands: DaemonServicePlannedCommand[] = [];
+    let backupServiceScript: string | null = null;
+    let backupServiceScriptMode: number | undefined;
     if (action === 'start' || action === 'restart') {
+      if (paths.installedPath && fs.existsSync(paths.installedPath)) {
+        try {
+          backupServiceScript = fs.readFileSync(paths.installedPath, 'utf8');
+          backupServiceScriptMode = fs.statSync(paths.installedPath).mode;
+        } catch {
+          backupServiceScript = null;
+        }
+      }
       try {
         const driftRuntimeTarget = await resolveDaemonServiceInstallRuntimeTarget({
           currentExecPath: process.execPath,
@@ -1933,49 +1959,88 @@ export async function runDaemonServiceCliCommand(params: Readonly<{
         return;
       }
 
-      await withManualRelayTakeoverRecovery({
-        shouldTakeOverManualOwner: takeoverDecision.kind === 'manual-owner-takeover',
-        action,
-        run: async () => {
-          await stopCurrentWindowsServiceOwnerIfNeeded({
-            platform: runtime.platform,
-            ownership,
-            expectedServiceLabel: paths.label,
-            action,
-          });
-          if (
-            runtime.platform === 'darwin'
-            && plan.commands.some((command) => command.cmd === 'launchctl' && command.args[0] === 'bootstrap')
-          ) {
-            refreshDarwinLaunchAgentDefinitionForBootstrap(paths.installedPath);
+      try {
+        await withManualRelayTakeoverRecovery({
+          shouldTakeOverManualOwner: takeoverDecision.kind === 'manual-owner-takeover',
+          action,
+          run: async () => {
+            await stopCurrentWindowsServiceOwnerIfNeeded({
+              platform: runtime.platform,
+              ownership,
+              expectedServiceLabel: paths.label,
+              action,
+            });
+            if (
+              runtime.platform === 'darwin'
+              && plan.commands.some((command) => command.cmd === 'launchctl' && command.args[0] === 'bootstrap')
+            ) {
+              refreshDarwinLaunchAgentDefinitionForBootstrap(paths.installedPath);
+            }
+            runDaemonServiceCommands(plan.commands, { failureMode: 'strict' });
+            await assertExpectedDaemonServiceOwnership({
+              action,
+              platform: runtime.platform,
+              commandPath,
+              expectedServiceLabel: paths.label,
+              expectedInstalledServiceContents,
+              installedServicePath: paths.installedPath,
+              healthCommand: ownershipHealthCommand,
+              expectedVersion: configuration.currentCliVersion,
+              windowsLaunchDiagnostics: runtime.platform === 'win32'
+                ? {
+                    taskName: resolveWindowsDaemonTaskName({
+                      instanceId: runtime.instanceId,
+                      channel: runtime.channel,
+                      targetMode: runtime.targetMode,
+                    }),
+                    ...resolveWindowsDaemonServiceLogPaths({
+                      happierHomeDir: runtime.happierHomeDir,
+                      instanceId: runtime.instanceId,
+                      channel: runtime.channel,
+                      targetMode: runtime.targetMode,
+                    }),
+                  }
+                : null,
+            });
+          },
+        });
+      } catch (primaryErr) {
+        if (backupServiceScript !== null && paths.installedPath) {
+          process.stderr.write('后台服务启动验证失败，正在自动恢复重启前的服务定义并重新尝试启动...\n');
+          try {
+            fs.writeFileSync(paths.installedPath, backupServiceScript, {
+              encoding: 'utf8',
+              mode: backupServiceScriptMode,
+            });
+            const rollbackPlan = planDaemonServiceLifecycle({
+              platform: runtime.platform,
+              action: 'start',
+              mode,
+              channel: runtime.channel,
+              targetMode: runtime.targetMode,
+              instanceId: runtime.instanceId,
+              userHomeDir: runtime.userHomeDir,
+              happierHomeDir: runtime.happierHomeDir,
+              uid: runtime.uid ?? undefined,
+            });
+            const rollbackReloadCommands = runtime.platform === 'linux'
+              ? [
+                  mode === 'system'
+                    ? { cmd: 'systemctl', args: ['daemon-reload'] }
+                    : { cmd: 'systemctl', args: ['--user', 'daemon-reload'] },
+                ]
+              : [];
+            const rollbackCommands = [...rollbackReloadCommands, ...rollbackPlan.commands];
+            runDaemonServiceCommands(rollbackCommands, { failureMode: 'best-effort' });
+          } catch (rollbackErr) {
+            process.stderr.write(`服务脚本自动回滚时出错：${rollbackErr instanceof Error ? rollbackErr.message : String(rollbackErr)}\n`);
           }
-          runDaemonServiceCommands(plan.commands, { failureMode: 'strict' });
-          await assertExpectedDaemonServiceOwnership({
-            action,
-            platform: runtime.platform,
-            commandPath,
-            expectedServiceLabel: paths.label,
-            expectedInstalledServiceContents,
-            installedServicePath: paths.installedPath,
-            healthCommand: ownershipHealthCommand,
-            windowsLaunchDiagnostics: runtime.platform === 'win32'
-              ? {
-                  taskName: resolveWindowsDaemonTaskName({
-                    instanceId: runtime.instanceId,
-                    channel: runtime.channel,
-                    targetMode: runtime.targetMode,
-                  }),
-                  ...resolveWindowsDaemonServiceLogPaths({
-                    happierHomeDir: runtime.happierHomeDir,
-                    instanceId: runtime.instanceId,
-                    channel: runtime.channel,
-                    targetMode: runtime.targetMode,
-                  }),
-                }
-              : null,
-          });
-        },
-      });
+          throw new Error(
+            `后台服务未能正常启动（守护进程未就绪或版本不匹配），已自动恢复重启前备份的服务脚本并尝试重新启动。\n原错误：${primaryErr instanceof Error ? primaryErr.message : String(primaryErr)}`,
+          );
+        }
+        throw primaryErr;
+      }
 
       if (flags.json) {
         printJson({
