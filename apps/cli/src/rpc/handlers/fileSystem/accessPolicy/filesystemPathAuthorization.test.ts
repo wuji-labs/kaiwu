@@ -102,7 +102,7 @@ describe('authorizeFilesystemPath', () => {
     const allowed = createTempRoot('happier-fs-policy-allowed');
     const outside = createTempRoot('happier-fs-policy-outside');
     const link = join(allowed, 'link');
-    symlinkSync(outside, link);
+    symlinkSync(outside, link, process.platform === 'win32' ? 'junction' : undefined);
 
     const result = authorizeFilesystemPath({
       targetPath: join(link, 'missing', 'secret.txt'),
@@ -120,7 +120,7 @@ describe('authorizeFilesystemPath', () => {
     const realRoot = join(container, 'real-root');
     const aliasRoot = join(container, 'alias-root');
     mkdirSync(realRoot, { recursive: true });
-    symlinkSync(realRoot, aliasRoot);
+    symlinkSync(realRoot, aliasRoot, process.platform === 'win32' ? 'junction' : undefined);
 
     const result = authorizeFilesystemPath({
       targetPath: join(aliasRoot, '.happier', 'uploads', 'generated'),
@@ -132,6 +132,20 @@ describe('authorizeFilesystemPath', () => {
       valid: true,
       resolvedPath: join(aliasRoot, '.happier', 'uploads', 'generated'),
     });
+  });
+
+  it('rejects Windows reserved device names', () => {
+    for (const name of ['CON', 'con.txt', 'PRN', 'aux', 'nul', 'COM1', 'lpt9.dat', 'sub/NUL']) {
+      const result = authorizeFilesystemPath({
+        targetPath: name,
+        defaultDirectory: 'C:\\Users\\alice\\work',
+        accessPolicy: { kind: 'restrictedRoots', roots: ['C:\\Users\\alice\\work'] },
+        platform: 'win32',
+      });
+      expect(result.valid).toBe(false);
+      if (result.valid) throw new Error(`expected ${name} to fail`);
+      expect(result.error).toContain('reserved Windows device name');
+    }
   });
 
   it('handles Windows sibling-prefix collisions and mixed separators', () => {
@@ -170,7 +184,7 @@ describe('prepareFilesystemPathAuthorizer', () => {
     const allowed = createTempRoot('happier-fs-policy-async-allowed');
     const outside = createTempRoot('happier-fs-policy-async-outside');
     const link = join(allowed, 'link');
-    symlinkSync(outside, link);
+    symlinkSync(outside, link, process.platform === 'win32' ? 'junction' : undefined);
 
     const authorizePath = await prepareFilesystemPathAuthorizer({
       defaultDirectory: allowed,
@@ -185,7 +199,7 @@ describe('prepareFilesystemPathAuthorizer', () => {
     const realRoot = join(container, 'real-root');
     const aliasRoot = join(container, 'alias-root');
     mkdirSync(realRoot, { recursive: true });
-    symlinkSync(realRoot, aliasRoot);
+    symlinkSync(realRoot, aliasRoot, process.platform === 'win32' ? 'junction' : undefined);
 
     const authorizePath = await prepareFilesystemPathAuthorizer({
       defaultDirectory: aliasRoot,

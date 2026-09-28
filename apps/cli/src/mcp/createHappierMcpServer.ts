@@ -274,6 +274,17 @@ export function createHappierMcpServer(
       executeActionByToolName: actionToolBridge.executeActionByToolName,
       resolveActionOptions: (args) => actionToolBridge.resolveActionOptions(args, client.sessionId),
       isActionEnabled: actionToolBridge.isActionEnabled,
+      resolveSessionDirectory: () => {
+        const loc = resolveLiveClientLocation(client);
+        if (typeof loc?.path === 'string' && loc.path.trim().length > 0) {
+          return loc.path.trim();
+        }
+        const meta = client.getMetadataSnapshot?.();
+        if (typeof (meta as any)?.path === 'string' && (meta as any).path.trim().length > 0) {
+          return (meta as any).path.trim();
+        }
+        return process.cwd();
+      },
     },
   });
 

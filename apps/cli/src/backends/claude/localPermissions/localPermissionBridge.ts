@@ -29,7 +29,7 @@ import {
     CLAUDE_LOCAL_PERMISSION_BRIDGE_STOPPED_REASON,
     isClaudeLocalPermissionBridgeAgentStateRequest,
 } from '@happier-dev/agents';
-import { isChangeTitleToolLikeName } from '@happier-dev/protocol/tools/v2';
+import { isChangeTitleToolLikeName, isSendFileToUserToolLikeName } from '@happier-dev/protocol/tools/v2';
 import { isAskUserQuestionToolName } from '@happier-dev/protocol';
 import { normalizeClaudeAskUserQuestionInputForPublication } from '../utils/normalizeClaudeAskUserQuestionInput';
 import { buildAskUserQuestionAnswersForClaude } from '../utils/askUserQuestionAnswersForClaude';
@@ -453,7 +453,7 @@ export class ClaudeLocalPermissionBridge {
     }
 
     private computePolicyDecision(toolName: string): 'prompt' | 'allow' | 'deny' {
-        if (isChangeTitleToolLikeName(toolName)) return 'allow';
+        if (isChangeTitleToolLikeName(toolName) || isSendFileToUserToolLikeName(toolName)) return 'allow';
         const mode = this.permissionMode;
         if (mode === 'yolo') return 'allow';
         if (mode === 'safe-yolo') {

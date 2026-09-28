@@ -1,3 +1,5 @@
+import { stat } from 'node:fs/promises';
+import { basename, relative } from 'node:path';
 import { z } from 'zod';
 import {
   buildBackendTargetKey,
@@ -8,6 +10,7 @@ import {
   type ExecutionRunStartRequest,
   type ResolvedActionOption,
 } from '@happier-dev/protocol';
+import { authorizeFilesystemPath } from '@/rpc/handlers/fileSystem/accessPolicy/filesystemPathAuthorization';
 import {
   getEquivalentActionIdForBuiltInTool,
   isActionDirectToolAvailableOnToolSurface,
@@ -25,7 +28,12 @@ import {
   changeTitleToolInputSchema,
   executionRunStartToolInputSchema,
   normalizeExecutionRunStartToolInput,
+  sendFileToUserToolInputSchema,
 } from './manualToolContracts';
+import {
+  inferFileMimeType,
+  resolveWebDownloadMaxBytes,
+} from './sendFileToUserLimits';
 
 type DispatchDeps = Readonly<{
   changeTitle: (
@@ -61,6 +69,7 @@ type DispatchDeps = Readonly<{
     | null
   >;
   isActionEnabled?: (id: ActionId) => boolean;
+  resolveSessionDirectory?: (sessionId: string) => Promise<string | null> | string | null;
 }>;
 
 const ACTION_TOOL_NAMES = new Set(
@@ -131,6 +140,8 @@ export async function dispatchBuiltInHappierTool(params: Readonly<{
   actionsSettings?: ActionsSettingsV1 | null;
   getActionsSettings?: (() => ActionsSettingsV1 | null) | null;
   approvalOrigin?: ApprovalRequestOriginV1 | null;
+  sessionDirectory?: string | null;
+  platform?: NodeJS.Platform;
   deps: DispatchDeps;
 }>): Promise<HappierBuiltInToolDispatchResult> {
   const isActionEnabled = params.deps.isActionEnabled ?? (() => true);
@@ -205,6 +216,71 @@ export async function dispatchBuiltInHappierTool(params: Readonly<{
       parsed.data.title,
       ...(actionExecutionOptions ? [actionExecutionOptions] as const : [] as const),
     ));
+  }
+
+  if (params.toolName === 'send_file_to_user') {
+    const parsed = sendFileToUserToolInputSchema.safeParse(params.args ?? {});
+    if (!parsed.success) {
+      return err('invalid_action_input', 'Invalid send_file_to_user payload: path is required');
+    }
+
+    // Fail closed: never fall back to the daemon cwd, which may be far broader than the session workspace.
+    const resolvedSessionDir = params.sessionDirectory
+      ?? (await params.deps.resolveSessionDirectory?.(params.sessionId))
+      ?? null;
+    if (typeof resolvedSessionDir !== 'string' || resolvedSessionDir.trim().length === 0) {
+      return err('session_directory_unavailable', 'Cannot send file: session workspace directory is unknown');
+    }
+    const sessionDir = resolvedSessionDir.trim();
+
+    const authResult = authorizeFilesystemPath({
+      targetPath: parsed.data.path,
+      defaultDirectory: sessionDir,
+      accessPolicy: { kind: 'restrictedRoots', roots: [sessionDir] },
+      platform: params.platform,
+    });
+    if (!authResult.valid) {
+      return err('access_denied', authResult.error);
+    }
+
+    const resolvedPath = authResult.resolvedPath;
+    let fileStat: import('node:fs').Stats;
+    try {
+      fileStat = await stat(resolvedPath);
+    } catch (error: any) {
+      if (error?.code === 'ENOENT') {
+        return err('file_not_found', `File does not exist: ${parsed.data.path}`);
+      }
+      return err('file_read_error', `Failed to access file: ${error?.message || String(error)}`);
+    }
+
+    if (fileStat.isDirectory()) {
+      return err('is_directory', `Path is a directory, not a regular file: ${parsed.data.path}`);
+    }
+    if (!fileStat.isFile()) {
+      return err('not_a_file', `Path is not a regular file: ${parsed.data.path}`);
+    }
+
+    const maxBytes = resolveWebDownloadMaxBytes();
+    if (fileStat.size > maxBytes) {
+      return err(
+        'file_too_large',
+        `File size (${fileStat.size} bytes) exceeds maximum allowed download size (${maxBytes} bytes)`,
+      );
+    }
+
+    const fileName = basename(resolvedPath);
+    const mimeType = inferFileMimeType(fileName);
+    const relativePath = relative(sessionDir, resolvedPath).replace(/\\/g, '/');
+
+    return ok({
+      ok: true,
+      path: relativePath,
+      fileName,
+      sizeBytes: fileStat.size,
+      mimeType,
+      ...(parsed.data.message ? { message: parsed.data.message } : {}),
+    });
   }
 
   if (params.toolName === 'action_spec_search') {

@@ -47,7 +47,7 @@ import {
     isClaudeUnifiedTerminalDialogChoiceAgentStateRequest,
     SESSION_MODE_OVERRIDE_KEY,
 } from '@happier-dev/agents';
-import { isChangeTitleToolLikeName } from '@happier-dev/protocol/tools/v2';
+import { isChangeTitleToolLikeName, isSendFileToUserToolLikeName } from '@happier-dev/protocol/tools/v2';
 import { isAskUserQuestionToolName, type StructuredQuestionAnswersV1 } from '@happier-dev/protocol';
 import {
     normalizeLegacyStructuredQuestionAnswers,
@@ -668,7 +668,7 @@ export class PermissionHandler {
             return { behavior: 'allow', updatedInput: rewrittenInput as Record<string, unknown> };
         }
 
-        if (isChangeTitleToolLikeName(toolName)) {
+        if (isChangeTitleToolLikeName(toolName) || isSendFileToUserToolLikeName(toolName)) {
             return { behavior: 'allow', updatedInput: rewrittenInput as Record<string, unknown> };
         }
 
