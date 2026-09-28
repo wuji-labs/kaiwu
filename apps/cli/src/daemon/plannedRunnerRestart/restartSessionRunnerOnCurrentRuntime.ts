@@ -5,7 +5,7 @@ import { readTerminalAttachmentInfo } from '@/terminal/attachment/terminalAttach
 
 import type { SessionRunnerEntrypointIdentity } from '../sessionRunnerRuntime/types';
 import { resolveSessionRunnerRuntimeState } from '../sessionRunnerRuntime/resolveRuntimeState';
-import { resolveSessionRunnerEntrypointIdentityFromProcessCommand } from '../sessionRunnerRuntime/resolveRunnerEntrypointIdentity';
+import { resolveSessionRunnerEntrypointIdentity } from '../sessionRunnerRuntime/resolveRunnerEntrypointIdentity';
 import { resolveSessionRunnerRestartEligibility } from '../sessionRunnerRuntime/resolveRestartEligibility';
 import type {
   PlannedRunnerRestartMode,
@@ -48,7 +48,7 @@ function isActivePid(value: unknown): value is number {
 }
 
 export function summarizeSessionRunnerEndpoint(tracked: TrackedSession): RestartSessionRunnerEndpointSummary {
-  const runnerIdentity = resolveSessionRunnerEntrypointIdentityFromProcessCommand(tracked.processCommand);
+  const runnerIdentity = resolveSessionRunnerEntrypointIdentity(tracked);
   return {
     pid: tracked.pid,
     cliVersion: runnerIdentity.status === 'known' ? runnerIdentity.entrypointVersion ?? null : null,
@@ -103,7 +103,7 @@ function validateRestartContext(input: Readonly<{
 
   const expectedEntrypoint = normalizeString(input.request.expectedRunnerEntrypointIdentity);
   if (expectedEntrypoint) {
-    const runnerIdentity = resolveSessionRunnerEntrypointIdentityFromProcessCommand(tracked.processCommand);
+    const runnerIdentity = resolveSessionRunnerEntrypointIdentity(tracked);
     if (runnerIdentity.status !== 'known' || runnerIdentity.comparableId !== expectedEntrypoint) {
       return skipped('runner_identity_changed', sessionId);
     }

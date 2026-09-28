@@ -28,6 +28,9 @@ async function withPlatform<T>(platform: NodeJS.Platform, run: () => Promise<T>)
 async function createPayload(rootDir: string, versionId: string, contents: string): Promise<string> {
     const payloadRoot = join(rootDir, `payload-${versionId}`);
     await mkdir(join(payloadRoot, 'package-dist'), { recursive: true });
+    await writeFile(join(payloadRoot, 'kaiwu'), contents, 'utf8');
+    await writeFile(join(payloadRoot, 'kaiwu.exe'), contents, 'utf8');
+    await writeFile(join(payloadRoot, 'happier'), contents, 'utf8');
     await writeFile(join(payloadRoot, 'happier.exe'), contents, 'utf8');
     await writeFile(join(payloadRoot, 'package-dist', 'index.mjs'), `export default ${JSON.stringify(versionId)};\n`, 'utf8');
     return payloadRoot;
@@ -37,7 +40,7 @@ describe('promoteVersionedPayload Windows junction pointer', () => {
     it('uses a junction for the current payload pointer on Windows when the platform allows it', async () => {
         await withPlatform('win32', async () => {
             const homeDir = await mkdtemp(join(tmpdir(), 'happier-promote-versioned-payload-win32-junction-'));
-            const env = { ...process.env, HAPPIER_HOME_DIR: homeDir };
+            const env = { ...process.env, HAPPIER_HOME_DIR: homeDir, KAIWU_HOME_DIR: homeDir };
 
             try {
                 await promoteVersionedPayload({

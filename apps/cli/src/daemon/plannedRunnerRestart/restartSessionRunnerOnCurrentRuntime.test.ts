@@ -620,6 +620,92 @@ describe('restartSessionRunnerOnCurrentRuntime', () => {
     expect(result.status).toBe('dry_run_restartable');
     expect(requestRestart).not.toHaveBeenCalled();
   });
+
+  it('restarts stale binary runner when spawnedWithCliVersion differs from current daemon identity', async () => {
+    const requestRestart = vi.fn(async () => ({ signaled: true }));
+
+    const result = await restartSessionRunnerOnCurrentRuntime({
+      request: {
+        sessionId: 'sess-1',
+        mode: 'if_stale',
+        reason: 'daemon_restart_session_runners_command',
+      },
+      tracked: trackedSession({
+        processCommand:
+          'C:\\Users\\alice\\.kaiwu\\bin\\kaiwu.exe --no-warnings C:\\Users\\alice\\.kaiwu\\cli\\versions\\1.0.0\\package-dist\\index.mjs codex --happy-starting-mode remote --started-by daemon',
+        spawnedWithCliVersion: '0.2.18',
+      }),
+      currentIdentity: currentIdentity('0.2.19'),
+      requestRestart,
+    });
+
+    expect(result).toEqual(expect.objectContaining({
+      ok: true,
+      status: 'restarted',
+      sessionId: 'sess-1',
+      previous: expect.objectContaining({
+        pid: 4242,
+        cliVersion: '0.2.18',
+        entrypointVersion: '0.2.18',
+      }),
+    }));
+    expect(requestRestart).toHaveBeenCalledTimes(1);
+  });
+
+  it('skips binary runner as already_current when spawnedWithCliVersion matches current daemon identity, even if args mention older index.mjs', async () => {
+    const requestRestart = vi.fn(async () => ({ signaled: true }));
+
+    const result = await restartSessionRunnerOnCurrentRuntime({
+      request: {
+        sessionId: 'sess-1',
+        mode: 'if_stale',
+        reason: 'daemon_restart_session_runners_command',
+      },
+      tracked: trackedSession({
+        processCommand:
+          'C:\\Users\\alice\\.kaiwu\\bin\\kaiwu.exe --no-warnings C:\\Users\\alice\\.kaiwu\\cli\\versions\\1.0.0\\package-dist\\index.mjs codex --happy-starting-mode remote --started-by daemon',
+        spawnedWithCliVersion: '0.2.19',
+      }),
+      currentIdentity: currentIdentity('0.2.19'),
+      requestRestart,
+    });
+
+    expect(result).toEqual(expect.objectContaining({
+      ok: true,
+      status: 'already_current',
+      sessionId: 'sess-1',
+      previous: expect.objectContaining({
+        pid: 4242,
+        cliVersion: '0.2.19',
+      }),
+    }));
+    expect(requestRestart).not.toHaveBeenCalled();
+  });
+
+  it('restarts unrecorded binary runner when current daemon identity is known', async () => {
+    const requestRestart = vi.fn(async () => ({ signaled: true }));
+
+    const result = await restartSessionRunnerOnCurrentRuntime({
+      request: {
+        sessionId: 'sess-1',
+        mode: 'if_stale',
+        reason: 'daemon_restart_session_runners_command',
+      },
+      tracked: trackedSession({
+        processCommand:
+          'C:\\Users\\alice\\.kaiwu\\bin\\kaiwu.exe codex --happy-starting-mode remote --started-by daemon',
+      }),
+      currentIdentity: currentIdentity('0.2.19'),
+      requestRestart,
+    });
+
+    expect(result).toEqual(expect.objectContaining({
+      ok: true,
+      status: 'restarted',
+      sessionId: 'sess-1',
+    }));
+    expect(requestRestart).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('restartAllSessionRunnersOnCurrentRuntime', () => {

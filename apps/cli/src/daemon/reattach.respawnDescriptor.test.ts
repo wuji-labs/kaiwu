@@ -487,4 +487,30 @@ describe('adoptSessionsFromMarkers respawn descriptor', () => {
     expect(map.get(782)?.vendorResumeId).toBe('vendor-argv-782');
     expect(resolveSessionRunnerRestartEligibility(map.get(782)).eligible).toBe(true);
   });
+
+  it('restores spawnedWithCliVersion from the marker so runner identity survives adoption', async () => {
+    const command = `${process.execPath} -e "setInterval(()=>{}, 1000)" --happy-starting-mode remote --started-by daemon`;
+    const marker = {
+      pid: 783,
+      happySessionId: 'sess-783',
+      happyHomeDir: '/tmp/happy-home',
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      startedBy: 'daemon' as const,
+      cwd: '/tmp/workspace',
+      processCommandHash: hashProcessCommand(command),
+      processCommand: command,
+      spawnedWithCliVersion: '0.2.19',
+    };
+
+    const map = new Map<number, TrackedSession>();
+    const { adopted } = await adoptSessionsFromMarkers({
+      markers: [marker],
+      happyProcesses: [{ pid: 783, command, type: 'daemon-spawned-session' } satisfies HappyProcessInfo],
+      pidToTrackedSession: map,
+    });
+
+    expect(adopted).toBe(1);
+    expect(map.get(783)?.spawnedWithCliVersion).toBe('0.2.19');
+  });
 });

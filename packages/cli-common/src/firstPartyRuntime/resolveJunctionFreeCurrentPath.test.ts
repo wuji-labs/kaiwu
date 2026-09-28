@@ -10,7 +10,7 @@ import { resolveJunctionFreeCurrentPath } from './resolveJunctionFreeCurrentPath
 describe('resolveJunctionFreeCurrentPath', () => {
   it('uses current.version to bypass the current pointer', async () => {
     const homeDir = await mkdtemp(join(tmpdir(), 'happier-junction-free-current-'));
-    const env = { ...process.env, HAPPIER_HOME_DIR: homeDir };
+    const env = { ...process.env, HAPPIER_HOME_DIR: homeDir, KAIWU_HOME_DIR: homeDir };
     const layout = resolveFirstPartyInstallLayout({
       componentId: 'happier-cli',
       channel: 'publicdev',
@@ -31,7 +31,7 @@ describe('resolveJunctionFreeCurrentPath', () => {
 
   it('falls back to currentPath when current.version is absent', async () => {
     const homeDir = await mkdtemp(join(tmpdir(), 'happier-junction-free-current-missing-'));
-    const env = { ...process.env, HAPPIER_HOME_DIR: homeDir };
+    const env = { ...process.env, HAPPIER_HOME_DIR: homeDir, KAIWU_HOME_DIR: homeDir };
     const layout = resolveFirstPartyInstallLayout({
       componentId: 'happier-cli',
       channel: 'publicdev',
@@ -47,7 +47,7 @@ describe('resolveJunctionFreeCurrentPath', () => {
 
   it('does not treat path-shaped marker contents as a version id', async () => {
     const homeDir = await mkdtemp(join(tmpdir(), 'happier-junction-free-current-unsafe-'));
-    const env = { ...process.env, HAPPIER_HOME_DIR: homeDir };
+    const env = { ...process.env, HAPPIER_HOME_DIR: homeDir, KAIWU_HOME_DIR: homeDir };
     const layout = resolveFirstPartyInstallLayout({
       componentId: 'happier-cli',
       channel: 'publicdev',

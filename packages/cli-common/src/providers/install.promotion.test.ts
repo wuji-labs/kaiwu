@@ -50,6 +50,7 @@ async function installCodexFixture(params: Readonly<{
     env: {
       ...process.env,
       HAPPIER_HOME_DIR: params.homeDir,
+      KAIWU_HOME_DIR: params.homeDir,
       PATH: '',
     },
     skipIfInstalled: false,
@@ -154,6 +155,7 @@ describe('installProviderCli managed promotion', () => {
         env: {
           ...process.env,
           HAPPIER_HOME_DIR: homeDir,
+          KAIWU_HOME_DIR: homeDir,
           PATH: '',
         },
         skipIfInstalled: false,

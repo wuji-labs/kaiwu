@@ -20,7 +20,7 @@ describe('ensureManagedJavaScriptRuntimeCommand bootstrap', () => {
   it('selects the existing skip-links policy for the verified managed Node archive', async () => {
     const homeDir = join(tmpdir(), `happier-managed-runtime-links-${randomUUID()}`);
     tempDirs.push(homeDir);
-    const env = { ...process.env, HAPPIER_HOME_DIR: homeDir, PATH: '' };
+    const env = { ...process.env, HAPPIER_HOME_DIR: homeDir, KAIWU_HOME_DIR: homeDir, PATH: '' };
     const extractGitHubReleaseAsset = vi.fn(async (params: Readonly<{ outputPath: string }>) => {
       const nodePath = process.platform === 'win32'
         ? join(params.outputPath, 'node.exe')
@@ -57,7 +57,7 @@ describe('ensureManagedJavaScriptRuntimeCommand bootstrap', () => {
     const archiveError = new Error('unsupported archive entry type: SymbolicLink');
 
     await expect(ensureManagedJavaScriptRuntimeCommand(
-      { ...process.env, HAPPIER_HOME_DIR: homeDir, PATH: '' },
+      { ...process.env, HAPPIER_HOME_DIR: homeDir, KAIWU_HOME_DIR: homeDir, PATH: '' },
       {
         fetchNodeRuntimeReleaseAsset: async () => ({
           name: 'node-v25.8.0-linux-x64.tar.gz',

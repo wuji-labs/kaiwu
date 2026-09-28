@@ -282,4 +282,76 @@ describe('resolveSessionRunnerRuntimeState', () => {
     expect(state.plannedRestart.eligible).toBe(false);
     expect(state.plannedRestart.disabledReason).toBe('turn_in_progress');
   });
+
+  it('classifies unrecorded binary runner as stale and restart eligible when current daemon identity is known', () => {
+    const state = resolveSessionRunnerRuntimeState({
+      sessionId: 'sess-1',
+      tracked: trackedSession({
+        processCommand: 'C:\\Users\\alice\\.kaiwu\\bin\\kaiwu.exe codex --happy-starting-mode remote --started-by daemon',
+      }),
+      currentIdentity: currentIdentity('0.2.19'),
+      observedAtMs: 100,
+    });
+
+    expect(state.versionState).toBe('stale');
+    expect(state.statusSource).toBe('unknown');
+    expect(state.plannedRestart.supported).toBe(true);
+    expect(state.plannedRestart.eligible).toBe(true);
+    expect(state.plannedRestart.disabledReason).toBe(null);
+    expect(SessionRunnerRuntimeStateV1Schema.parse(state)).toEqual(state);
+  });
+
+  it('fails closed for unrecorded binary runner when current daemon identity is unknown', () => {
+    const state = resolveSessionRunnerRuntimeState({
+      sessionId: 'sess-1',
+      tracked: trackedSession({
+        processCommand: 'C:\\Users\\alice\\.kaiwu\\bin\\kaiwu.exe codex --happy-starting-mode remote --started-by daemon',
+      }),
+      currentIdentity: unknownCurrentIdentity(),
+      observedAtMs: 100,
+    });
+
+    expect(state.versionState).toBe('unknown');
+    expect(state.plannedRestart.eligible).toBe(false);
+    expect(state.plannedRestart.disabledReason).toBe('current_entrypoint_unknown');
+    expect(SessionRunnerRuntimeStateV1Schema.parse(state)).toEqual(state);
+  });
+
+  it('classifies binary runner with matching spawnedWithCliVersion as current with daemon_tracking statusSource', () => {
+    const state = resolveSessionRunnerRuntimeState({
+      sessionId: 'sess-1',
+      tracked: trackedSession({
+        processCommand: 'C:\\Users\\alice\\.kaiwu\\bin\\kaiwu.exe codex --happy-starting-mode remote --started-by daemon',
+        spawnedWithCliVersion: '0.2.19',
+      }),
+      currentIdentity: currentIdentity('0.2.19'),
+      observedAtMs: 100,
+    });
+
+    expect(state.versionState).toBe('current');
+    expect(state.statusSource).toBe('daemon_tracking');
+    expect(state.runner.cliVersion).toBe('0.2.19');
+    expect(state.runner.entrypointVersion).toBe('0.2.19');
+    expect(state.runner.entrypointSource).toBe('structured_state');
+    expect(state.plannedRestart.eligible).toBe(true);
+    expect(SessionRunnerRuntimeStateV1Schema.parse(state)).toEqual(state);
+  });
+
+  it('classifies binary runner with older spawnedWithCliVersion as stale with daemon_tracking statusSource', () => {
+    const state = resolveSessionRunnerRuntimeState({
+      sessionId: 'sess-1',
+      tracked: trackedSession({
+        processCommand: 'C:\\Users\\alice\\.kaiwu\\bin\\kaiwu.exe codex --happy-starting-mode remote --started-by daemon',
+        spawnedWithCliVersion: '0.2.18',
+      }),
+      currentIdentity: currentIdentity('0.2.19'),
+      observedAtMs: 100,
+    });
+
+    expect(state.versionState).toBe('stale');
+    expect(state.statusSource).toBe('daemon_tracking');
+    expect(state.runner.cliVersion).toBe('0.2.18');
+    expect(state.plannedRestart.eligible).toBe(true);
+    expect(SessionRunnerRuntimeStateV1Schema.parse(state)).toEqual(state);
+  });
 });

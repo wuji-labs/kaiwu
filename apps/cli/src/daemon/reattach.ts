@@ -248,6 +248,7 @@ export async function adoptSessionsFromMarkers(params: {
       ...(spawnOptions ? { spawnOptions } : {}),
       ...(vendorResumeId ? { vendorResumeId } : {}),
       ...(marker.activeTurnId ? { activeTurnId: marker.activeTurnId } : {}),
+      ...(marker.spawnedWithCliVersion ? { spawnedWithCliVersion: marker.spawnedWithCliVersion } : {}),
       pid: marker.pid,
       processCommandHash: currentHash,
       ...(currentProcessInstanceFingerprint ? { processInstanceFingerprint: currentProcessInstanceFingerprint } : {}),

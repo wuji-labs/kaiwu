@@ -18,6 +18,11 @@ async function createPayload(
     const payloadRoot = join(rootDir, `payload-${versionId}`);
     await mkdir(join(payloadRoot, 'package-dist'), { recursive: true });
     await writeFile(join(payloadRoot, binaryName), contents, 'utf8');
+    await writeFile(join(payloadRoot, `${binaryName}.exe`), contents, 'utf8');
+    if (binaryName === 'happier') {
+        await writeFile(join(payloadRoot, 'kaiwu'), contents, 'utf8');
+        await writeFile(join(payloadRoot, 'kaiwu.exe'), contents, 'utf8');
+    }
     await writeFile(join(payloadRoot, 'package-dist', 'index.mjs'), `export default ${JSON.stringify(versionId)};\n`, 'utf8');
     return payloadRoot;
 }
@@ -30,7 +35,7 @@ async function readJsonReleaseChannel(path: string): Promise<string> {
 describe('installVersionedPayload default release-channel persistence', () => {
     it('writes the effective default release channel for stable and preview installs', async () => {
         const homeDir = await mkdtemp(join(tmpdir(), 'happier-install-versioned-payload-channel-'));
-        const env = { ...process.env, HAPPIER_HOME_DIR: homeDir };
+        const env = { ...process.env, HAPPIER_HOME_DIR: homeDir, KAIWU_HOME_DIR: homeDir };
         const statePath = resolveDefaultManagedReleaseChannelStatePath({ processEnv: env });
 
         try {
@@ -57,7 +62,7 @@ describe('installVersionedPayload default release-channel persistence', () => {
 
     it('does not advance the persisted default release channel when shim sync fails', async () => {
         const homeDir = await mkdtemp(join(tmpdir(), 'happier-install-versioned-payload-channel-failure-'));
-        const env = { ...process.env, HAPPIER_HOME_DIR: homeDir };
+        const env = { ...process.env, HAPPIER_HOME_DIR: homeDir, KAIWU_HOME_DIR: homeDir };
         const statePath = resolveDefaultManagedReleaseChannelStatePath({ processEnv: env });
 
         try {
@@ -88,7 +93,7 @@ describe('installVersionedPayload default release-channel persistence', () => {
 
     it('does not update the persisted default release channel when installing non-default-shim components', async () => {
         const homeDir = await mkdtemp(join(tmpdir(), 'happier-install-versioned-payload-channel-non-cli-'));
-        const env = { ...process.env, HAPPIER_HOME_DIR: homeDir };
+        const env = { ...process.env, HAPPIER_HOME_DIR: homeDir, KAIWU_HOME_DIR: homeDir };
         const statePath = resolveDefaultManagedReleaseChannelStatePath({ processEnv: env });
 
         try {

@@ -75,4 +75,8 @@ export interface TrackedSession {
    */
   publishedTerminalControlServiceabilityAttachmentId?: string;
   terminalHostHealth?: TerminalHostHealthState;
+  /**
+   * CLI package version recorded at the time this runner process was spawned by the daemon.
+   */
+  spawnedWithCliVersion?: string;
 }

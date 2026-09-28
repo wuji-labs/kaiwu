@@ -48,6 +48,7 @@ const DaemonSessionMarkerSchema = z.object({
     reason: z.string().trim().min(1),
   }).optional(),
   activeTurnId: z.string().trim().min(1).max(512).optional(),
+  spawnedWithCliVersion: z.string().trim().min(1).optional(),
 });
 
 export type DaemonSessionMarker = z.infer<typeof DaemonSessionMarkerSchema>;
@@ -178,12 +179,18 @@ async function writeSessionMarkerUnlocked(
     && existingMarkerFromDisk?.happySessionId === marker.happySessionId
       ? existingMarkerFromDisk.terminalHostHealth
       : undefined;
+  const preservedSpawnedWithCliVersion =
+    marker.spawnedWithCliVersion === undefined
+    && existingMarkerFromDisk?.happySessionId === marker.happySessionId
+      ? existingMarkerFromDisk.spawnedWithCliVersion
+      : undefined;
   const payload: DaemonSessionMarker = DaemonSessionMarkerSchema.parse({
     ...marker,
     ...(preservedConnectedServiceRestartIntent
       ? { connectedServiceRestartIntent: preservedConnectedServiceRestartIntent }
       : {}),
     ...(preservedTerminalHostHealth ? { terminalHostHealth: preservedTerminalHostHealth } : {}),
+    ...(preservedSpawnedWithCliVersion ? { spawnedWithCliVersion: preservedSpawnedWithCliVersion } : {}),
     ...(marker.metadata === undefined
       ? {}
       : { metadata: withoutMirroredReplaySeedText(marker.metadata) }),
