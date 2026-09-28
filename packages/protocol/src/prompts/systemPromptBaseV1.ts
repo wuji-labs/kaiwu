@@ -60,9 +60,18 @@ export const HAPPIER_BASE_SYSTEM_PROMPT_LINKED_WORKSPACE_FILES_V1 = trimIdent(`
   Treat these \`@path\` references as file paths relative to the session/worktree. When you see them, open and analyze the referenced files before answering.
 `);
 
+export const HAPPIER_BASE_SYSTEM_PROMPT_SEND_FILE_TO_USER_V1 = trimIdent(`
+  # Sending files to the user
+
+  When you generate reports, build artifacts, diagrams, exports, or when the user asks you to provide/send/give them a file, call the \`send_file_to_user\` tool with the file's workspace-relative path.
+
+  The file must already exist in the workspace before calling this tool. The user will receive an interactive card in their chat feed to preview or download it directly.
+`);
+
 export function buildHappierBaseSystemPromptV1(args?: Readonly<{
   settings?: Record<string, unknown> | null | undefined;
   sessionTitleToolAvailable?: boolean;
+  sendFileToUserToolAvailable?: boolean;
 }>): string {
   const blocks: string[] = [];
   const sessionTitleUpdatesMode = resolveCodingPromptSessionTitleUpdatesModeV1(args?.settings);
@@ -78,6 +87,9 @@ export function buildHappierBaseSystemPromptV1(args?: Readonly<{
     HAPPIER_BASE_SYSTEM_PROMPT_ATTACHMENTS_V1,
     HAPPIER_BASE_SYSTEM_PROMPT_LINKED_WORKSPACE_FILES_V1,
   );
+  if (args?.sendFileToUserToolAvailable !== false) {
+    blocks.push(HAPPIER_BASE_SYSTEM_PROMPT_SEND_FILE_TO_USER_V1);
+  }
   return blocks.join('\n\n').trim();
 }
 

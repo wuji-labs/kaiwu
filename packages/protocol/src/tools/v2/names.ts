@@ -36,6 +36,7 @@ export const KNOWN_CANONICAL_TOOL_NAMES_V2 = [
   'AcpHistoryImport',
   'WorkspaceIndexingPermission',
   'change_title',
+  'send_file_to_user',
   'SubAgentRun',
   // Agent teams / swarm orchestration events (provider-agnostic).
   'AgentTeamCreate',
