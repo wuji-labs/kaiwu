@@ -19,8 +19,13 @@ function isJavaScriptRuntimeExecutable(pathLike: string | null | undefined): boo
   return JAVA_SCRIPT_RUNTIME_BASENAMES.has(normalizeBasename(pathLike));
 }
 
-function resolveBundledDaemonEntrypoint(): string {
-  return resolvePackagedRuntimeEntrypoint('index.mjs', { packageDistOnly: true });
+export function resolveBundledDaemonEntrypoint(options: Readonly<{
+  validateCandidate?: (candidatePath: string) => boolean;
+}> = {}): string {
+  return resolvePackagedRuntimeEntrypoint('index.mjs', {
+    packageDistOnly: true,
+    validate: options.validateCandidate,
+  });
 }
 
 export function resolveDaemonServiceRuntimeTarget(params: Readonly<{
@@ -28,6 +33,7 @@ export function resolveDaemonServiceRuntimeTarget(params: Readonly<{
   runtimeExecutable?: string | null;
   explicitNodePath?: string | null;
   explicitEntryPath?: string | null;
+  validateEntrypointCandidate?: (candidatePath: string) => boolean;
 }>): Readonly<{
   nodePath: string;
   entryPath: string;
@@ -47,7 +53,12 @@ export function resolveDaemonServiceRuntimeTarget(params: Readonly<{
   }
 
   if (isJavaScriptRuntimeExecutable(nodePath)) {
-    return { nodePath, entryPath: resolveBundledDaemonEntrypoint() };
+    return {
+      nodePath,
+      entryPath: resolveBundledDaemonEntrypoint({
+        validateCandidate: params.validateEntrypointCandidate,
+      }),
+    };
   }
 
   return { nodePath, entryPath: '' };

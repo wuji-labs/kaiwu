@@ -13,6 +13,7 @@ const {
   readDefaultManagedReleaseChannelMock,
   resolveDesiredShimTargetsMock,
   resolveInstalledFirstPartyComponentPathsMock,
+  probeCliVersionMock,
 } = vi.hoisted(() => ({
   ensureJavaScriptRuntimeExecutableMock: vi.fn(async () => '/managed/node'),
   discoverInstalledDaemonServiceEntriesMock: vi.fn(async () => []),
@@ -26,6 +27,13 @@ const {
   readDefaultManagedReleaseChannelMock: vi.fn(async () => 'stable'),
   resolveDesiredShimTargetsMock: vi.fn(async (): Promise<Array<{ shimPath: string; binaryPath: string }>> => []),
   resolveInstalledFirstPartyComponentPathsMock: vi.fn(() => ({ shimPaths: [] })),
+  probeCliVersionMock: vi.fn(() => ({ ok: true as const, version: '1.0.0' })),
+}));
+
+vi.mock('./resolveCliVersionFromBinary', () => ({
+  probeCliVersion: probeCliVersionMock,
+  resolveCliVersionFromBinary: vi.fn(() => '1.0.0'),
+  isValidCliSemver: vi.fn(() => true),
 }));
 
 vi.mock('@/runtime/js/ensureJavaScriptRuntimeExecutable', () => ({
