@@ -121,6 +121,85 @@ export function isClaudeUnifiedProviderUnavailablePromptDeliveryWindowActive(
   return true;
 }
 
+export type ClaudeUnifiedProviderUnavailableDeliveryWindowTracker = Readonly<{
+  getWindow(): ClaudeUnifiedProviderUnavailablePromptDeliveryWindow | null;
+  setWindow(window: ClaudeUnifiedProviderUnavailablePromptDeliveryWindow | null): void;
+  isActive(nowMs?: number, currentModelId?: string | null): boolean;
+  dispose(): void;
+}>;
+
+export function createClaudeUnifiedProviderUnavailableDeliveryWindowTracker(params: Readonly<{
+  onWindowEnded: () => void | Promise<unknown>;
+  nowMs?: (() => number) | undefined;
+  setTimeout?: ((callback: () => void, ms: number) => any) | undefined;
+  clearTimeout?: ((timer: any) => void) | undefined;
+}>): ClaudeUnifiedProviderUnavailableDeliveryWindowTracker {
+  let currentWindow: ClaudeUnifiedProviderUnavailablePromptDeliveryWindow | null = null;
+  let activeTimer: any = null;
+  let isDisposed = false;
+
+  const clearActiveTimer = (): void => {
+    if (activeTimer !== null) {
+      const clearFn = params.clearTimeout ?? clearTimeout;
+      clearFn(activeTimer);
+      activeTimer = null;
+    }
+  };
+
+  const scheduleTimerForWindow = (window: ClaudeUnifiedProviderUnavailablePromptDeliveryWindow): void => {
+    const now = params.nowMs?.() ?? Date.now();
+    const delay = Math.max(0, window.unavailableUntilMs - now);
+    const timeoutFn = params.setTimeout ?? setTimeout;
+    activeTimer = timeoutFn(() => {
+      activeTimer = null;
+      if (isDisposed) return;
+      if (currentWindow === window) {
+        currentWindow = null;
+        void params.onWindowEnded();
+      }
+    }, delay);
+  };
+
+  const setWindow = (window: ClaudeUnifiedProviderUnavailablePromptDeliveryWindow | null): void => {
+    if (isDisposed) return;
+    if (window === null) {
+      if (currentWindow !== null || activeTimer !== null) {
+        clearActiveTimer();
+        currentWindow = null;
+        void params.onWindowEnded();
+      }
+      return;
+    }
+
+    clearActiveTimer();
+    currentWindow = window;
+    scheduleTimerForWindow(window);
+  };
+
+  const isActive = (nowMs?: number, currentModelId?: string | null): boolean => {
+    if (isDisposed || currentWindow === null) return false;
+    const now = nowMs ?? (params.nowMs?.() ?? Date.now());
+    if (!isClaudeUnifiedProviderUnavailablePromptDeliveryWindowActive(currentWindow, now, currentModelId)) {
+      setWindow(null);
+      return false;
+    }
+    return true;
+  };
+
+  const dispose = (): void => {
+    isDisposed = true;
+    clearActiveTimer();
+    currentWindow = null;
+  };
+
+  return {
+    getWindow: () => currentWindow,
+    setWindow,
+    isActive,
+    dispose,
+  };
+}
+
 function readUserMessageLocalIds(error: unknown): string[] {
   const raw = (error as { userMessageLocalIds?: unknown }).userMessageLocalIds;
   if (!Array.isArray(raw)) return [];

@@ -183,6 +183,7 @@ import {
     listPendingQueueV2ProviderDeliveryLocalIdsFromServer,
     materializeNextPendingQueueV2Message,
     blockPendingQueueV2Delivery,
+    restorePendingQueueV2Message,
     PendingQueueAcceptedSettlementError,
     PendingQueueMaterializationTransportAmbiguousError,
     isAcceptedPendingQueueV2DeliveryNotFound,
@@ -599,6 +600,10 @@ export class ApiSessionClient extends EventEmitter {
     // Generic reversible provider-path blocks retain identity so exact late provider evidence can
     // still settle the row. A proven pre-provider lifecycle failure retires it after durable block.
     private readonly serverBlockedCanonicalPendingDeliveryLocalIds = new Set<string>();
+    // Messages blocked specifically for provider_unavailable_before_acceptance with providerEffect: 'none'
+    // are automatically redelivered when the provider unavailable window ends.
+    private readonly providerUnavailableBlockedPendingLocalIds = new Set<string>();
+    private readonly providerUnavailableRedeliveryInFlightLocalIds = new Set<string>();
     // The provider can report a precise rejection while a terminal turn observer reports only
     // ambiguity. Serialize those writes per exact claim so a later weaker report observes the
     // already-settled claim instead of overwriting the durable reason.
@@ -1798,6 +1803,9 @@ export class ApiSessionClient extends EventEmitter {
                 } else {
                     this.serverBlockedCanonicalPendingDeliveryLocalIds.add(localId);
                 }
+            }
+            if (reason === 'provider_unavailable_before_acceptance' && opts.providerEffect === 'none') {
+                this.providerUnavailableBlockedPendingLocalIds.add(localId);
             }
             if (result.pendingQueueState) {
                 this.applyPendingQueueState(result.pendingQueueState, { emit: true });
@@ -5690,6 +5698,8 @@ export class ApiSessionClient extends EventEmitter {
         this.pendingQueueMaterializedLocalIds.clear();
         this.canonicalPendingDeliveryByLocalId.clear();
         this.serverBlockedCanonicalPendingDeliveryLocalIds.clear();
+        this.providerUnavailableBlockedPendingLocalIds.clear();
+        this.providerUnavailableRedeliveryInFlightLocalIds.clear();
         this.canonicalPendingDeliveryBlockWritesByLocalId.clear();
         this.sourceCutoverDeferredPendingLocalIds.clear();
         this.committedUserMessageSeqTracker.clear();
@@ -5931,6 +5941,79 @@ export class ApiSessionClient extends EventEmitter {
             requireOnline: false,
             request,
         });
+    }
+
+    public getProviderUnavailableBlockedPendingLocalIds(): ReadonlySet<string> {
+        return this.providerUnavailableBlockedPendingLocalIds;
+    }
+
+    public async redeliverProviderUnavailableBlockedPendingMessages(): Promise<number> {
+        if (this.closed) return 0;
+        if (this.providerUnavailableBlockedPendingLocalIds.size === 0) return 0;
+
+        const candidateLocalIds = [...this.providerUnavailableBlockedPendingLocalIds];
+        let redeliveredCount = 0;
+
+        for (const localId of candidateLocalIds) {
+            if (this.closed) break;
+            if (!this.providerUnavailableBlockedPendingLocalIds.has(localId)) continue;
+            if (this.providerUnavailableRedeliveryInFlightLocalIds.has(localId)) continue;
+
+            this.providerUnavailableRedeliveryInFlightLocalIds.add(localId);
+            try {
+                const supervisor = this.sessionConnectionSupervisor;
+                const request = () => restorePendingQueueV2Message({
+                    token: this.token,
+                    sessionId: this.sessionId,
+                    localId,
+                });
+                const result = supervisor
+                    ? await runSupervisedRequest({
+                        supervisor,
+                        purpose: 'durable_write',
+                        requireAuth: true,
+                        requireOnline: false,
+                        request,
+                    })
+                    : await request();
+
+                this.providerUnavailableBlockedPendingLocalIds.delete(localId);
+                this.clearCanonicalPendingDeliveryLocalState(localId);
+                if (result.pendingQueueState) {
+                    this.applyPendingQueueState(result.pendingQueueState, { emit: true });
+                } else if (!this.closed) {
+                    this.pendingWakeSeq += 1;
+                    this.emit('metadata-updated');
+                    this.emitPendingEligibilityUpdated();
+                }
+                redeliveredCount += 1;
+                logger.debug('[pendingQueue] restored provider unavailable blocked message', {
+                    sessionId: this.sessionId,
+                    localId,
+                });
+            } catch (error) {
+                const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+                if (status === 404 || status === 409) {
+                    this.providerUnavailableBlockedPendingLocalIds.delete(localId);
+                    this.clearCanonicalPendingDeliveryLocalState(localId);
+                    logger.debug('[pendingQueue] provider unavailable blocked message already handled (404/409)', {
+                        sessionId: this.sessionId,
+                        localId,
+                        status,
+                    });
+                } else {
+                    logger.debug('[pendingQueue] failed to redeliver provider unavailable blocked message, retaining for next attempt', {
+                        sessionId: this.sessionId,
+                        localId,
+                        error: serializeAxiosErrorForLog(error),
+                    });
+                }
+            } finally {
+                this.providerUnavailableRedeliveryInFlightLocalIds.delete(localId);
+            }
+        }
+
+        return redeliveredCount;
     }
 
     async discardCommittedMessageLocalIds(opts: { localIds: string[]; reason: 'switch_to_local' | 'manual' }): Promise<number> {

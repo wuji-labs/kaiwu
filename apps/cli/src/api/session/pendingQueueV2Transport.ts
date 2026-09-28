@@ -953,6 +953,35 @@ export async function markPendingQueueV2DeliveryHandled(params: {
     });
 }
 
+export async function restorePendingQueueV2Message(params: {
+    token: string;
+    sessionId: string;
+    localId: string;
+}): Promise<{ pendingQueueState?: KnownPendingQueueState }> {
+    const localId = requirePendingLocalId(params.localId);
+    const serverUrl = resolveServerHttpBaseUrl();
+    const response = await axios.post(
+        `${serverUrl}/v2/sessions/${encodeURIComponent(params.sessionId)}/pending/${encodeURIComponent(localId)}/restore`,
+        {},
+        {
+            headers: buildSessionRunnerHttpHeaders(params.token, 'application/json'),
+            timeout: 10_000,
+        },
+    );
+    const data = response?.data;
+    if (!data || typeof data !== 'object') {
+        throw new Error('Invalid pending message restore response');
+    }
+    if ((data as Record<string, unknown>).ok !== true) {
+        const error = (data as Record<string, unknown>).error;
+        throw new Error(`Pending message restore failed: ${typeof error === 'string' ? error : 'unknown'}`);
+    }
+    const pendingQueueState = readKnownPendingQueueState(data);
+    return {
+        ...(pendingQueueState ? { pendingQueueState } : {}),
+    };
+}
+
 async function postPendingQueueV2DeliveryAction(params: {
     token: string;
     sessionId: string;
