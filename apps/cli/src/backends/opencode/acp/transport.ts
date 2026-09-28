@@ -16,6 +16,7 @@
 import {
   CHANGE_TITLE_TOOL_NAME_ALIASES,
   isChangeTitleToolNameAlias,
+  SEND_FILE_TO_USER_TOOL_NAME_ALIASES,
   redactBugReportSensitiveText,
 } from '@happier-dev/protocol';
 import type {
@@ -109,6 +110,11 @@ const OPENCODE_TOOL_PATTERNS: readonly ToolPatternWithInputFields[] = [
     name: 'change_title',
     patterns: CHANGE_TITLE_TOOL_NAME_ALIASES,
     inputFields: ['title'],
+  },
+  {
+    name: 'send_file_to_user',
+    patterns: SEND_FILE_TO_USER_TOOL_NAME_ALIASES,
+    inputFields: ['path'],
   },
 ] as const;
 

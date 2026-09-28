@@ -1,6 +1,6 @@
 import type { PermissionMode } from '@/api/types';
 import { normalizePermissionModeToIntent } from '@/agent/runtime/permission/permissionModeCanonical';
-import { CHANGE_TITLE_TOOL_NAME_ALIASES } from '@happier-dev/protocol/tools/v2';
+import { CHANGE_TITLE_TOOL_NAME_ALIASES, SEND_FILE_TO_USER_TOOL_NAME_ALIASES } from '@happier-dev/protocol/tools/v2';
 
 export type OpenCodePermissionValue = 'allow' | 'deny' | 'ask';
 
@@ -26,6 +26,7 @@ const OPENCODE_HAPPIER_ACTION_TOOL_NAME_ALIASES = [
 ] as const;
 const OPENCODE_ALWAYS_ALLOW_PERMISSIONS = [
   ...CHANGE_TITLE_TOOL_NAME_ALIASES,
+  ...SEND_FILE_TO_USER_TOOL_NAME_ALIASES,
   ...OPENCODE_HAPPIER_ACTION_TOOL_NAME_ALIASES,
   'save_memory',
   'think',

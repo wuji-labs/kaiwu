@@ -1,4 +1,9 @@
-import { CHANGE_TITLE_TOOL_NAME_ALIASES, isChangeTitleToolNameAlias } from '@happier-dev/protocol/tools/v2';
+import {
+  CHANGE_TITLE_TOOL_NAME_ALIASES,
+  isChangeTitleToolNameAlias,
+  SEND_FILE_TO_USER_TOOL_NAME_ALIASES,
+  isSendFileToUserToolNameAlias,
+} from '@happier-dev/protocol/tools/v2';
 
 import { DefaultTransport } from '@/agent/transport/DefaultTransport';
 import type { ToolPattern, ToolNameContext } from '@/agent/transport/TransportHandler';
@@ -11,6 +16,12 @@ const CODEX_TOOL_PATTERNS: readonly ToolPatternWithInputFields[] = [
     inputFields: ['title'],
     emptyInputDefault: true,
   },
+  {
+    name: 'send_file_to_user',
+    patterns: SEND_FILE_TO_USER_TOOL_NAME_ALIASES,
+    inputFields: ['path'],
+    emptyInputDefault: false,
+  },
 ] as const;
 
 function canonicalizeCodexExplicitToolHint(value: unknown): string | null {
@@ -22,6 +33,7 @@ function canonicalizeCodexExplicitToolHint(value: unknown): string | null {
   if (!normalizedHint) return null;
 
   if (isChangeTitleToolNameAlias(normalizedHint)) return 'change_title';
+  if (isSendFileToUserToolNameAlias(normalizedHint)) return 'send_file_to_user';
   if (normalizedHint.startsWith('mcp__')) return normalizedHint;
 
   const slashParts = normalizedHint.split('/').filter(Boolean);

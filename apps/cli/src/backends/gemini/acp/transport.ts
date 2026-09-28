@@ -20,7 +20,7 @@ import type {
   ToolNameContext,
 } from '@/agent/transport/TransportHandler';
 import type { AgentMessage } from '@/agent/core';
-import { CHANGE_TITLE_TOOL_NAME_ALIASES } from '@happier-dev/protocol/tools/v2';
+import { CHANGE_TITLE_TOOL_NAME_ALIASES, SEND_FILE_TO_USER_TOOL_NAME_ALIASES } from '@happier-dev/protocol/tools/v2';
 import { logger } from '@/ui/logger';
 import { filterJsonObjectOrArrayLine } from '@/agent/transport/utils/jsonStdoutFilter';
 import { extractHappierToolsShellBridgeToolNameHint } from '@/agent/transport/utils/happierToolsShellBridgeToolNameHint';
@@ -81,6 +81,11 @@ const GEMINI_TOOL_PATTERNS: ToolPatternWithInputFields[] = [
     name: 'change_title',
     patterns: CHANGE_TITLE_TOOL_NAME_ALIASES,
     inputFields: ['title'],
+  },
+  {
+    name: 'send_file_to_user',
+    patterns: SEND_FILE_TO_USER_TOOL_NAME_ALIASES,
+    inputFields: ['path'],
   },
   {
     name: 'save_memory',
