@@ -47,7 +47,7 @@ export function getSessionModeOptionsForPreflightModeList(list: PreflightSession
     const existingDefault = dynamic.find((m) => m.id.trim().toLowerCase() === 'default') ?? null;
     const defaultOption: SessionModeOption = existingDefault
         ? normalizeSessionModeOption(existingDefault)
-        : { id: 'default', name: tLoose('agentInput.mode.build') };
+        : { id: 'default', name: resolveSessionModeDisplayName('default') };
 
     const otherOptions = dynamic
         .filter((m) => m.id.trim().toLowerCase() !== 'default')

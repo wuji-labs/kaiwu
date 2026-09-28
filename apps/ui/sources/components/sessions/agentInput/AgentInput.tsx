@@ -114,6 +114,10 @@ import { useAgentInputSelectionAnchors } from './selection/useAgentInputSelectio
 import { useAgentInputSelectionOverlayController } from './selection/useAgentInputSelectionOverlayController';
 import { computeSessionModePickerControl } from '@/sync/domains/sessionControl/sessionModeControl';
 import {
+    normalizeSessionModeOptions,
+    resolveSessionModeDisplayName,
+} from '@/sync/domains/sessionModes/sessionModeOptions';
+import {
     computeSessionConfigOptionControls,
     computeSessionConfigOptionControlsForProvider,
     computeSessionConfigOptionControlsFromOverride,
@@ -1989,7 +1993,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
                 ...(typeof m.description === 'string' ? { description: m.description } : {}),
             }))
             .filter((m) => m.id.trim().length > 0 && m.name.trim().length > 0);
-        return cleaned.length > 0 ? cleaned : null;
+        return cleaned.length > 0 ? normalizeSessionModeOptions(cleaned) : null;
     }, [props.acpSessionModeOptionsOverride]);
 
     const sessionModePickerControl = React.useMemo(() => {
@@ -2006,7 +2010,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
             : '';
         const effectiveId = selected || 'default';
         const opt = preflightAcpSessionModeOptions?.find((o) => o.id === effectiveId) ?? null;
-        return { id: effectiveId, name: opt?.name ?? (effectiveId === 'default' ? t('common.default') : effectiveId) };
+        return { id: effectiveId, name: opt?.name ?? resolveSessionModeDisplayName(effectiveId) };
     }, [preflightAcpSessionModeOptions, props.acpSessionModeSelectedIdOverride]);
     const sessionModeOptionsOverrideProbe = props.acpSessionModeOptionsOverrideProbe ?? null;
     const acpConfigOptionsOverrideProbe = props.acpConfigOptionsOverrideProbe ?? null;
@@ -2053,7 +2057,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
         );
         return uniqueIds.map((id) => ({
             id,
-            label: optionsById.get(id)?.name ?? (id === 'default' ? t('common.default') : id),
+            label: optionsById.get(id)?.name ?? resolveSessionModeDisplayName(id),
             subtitle: optionsById.get(id)?.description,
         }));
     }, [sessionModeChipControl]);

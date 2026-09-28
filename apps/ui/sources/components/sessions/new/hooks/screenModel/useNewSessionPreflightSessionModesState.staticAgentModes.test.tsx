@@ -33,7 +33,7 @@ vi.mock('@/agents/catalog/catalog', async (importOriginal) => {
       sessionModes: {
         kind: 'staticAgentModes',
         staticOptions: [
-          { id: 'default', nameKey: 'agentInput.mode.build', descriptionKey: 'agentInput.mode.buildDescription' },
+          { id: 'default', nameKey: 'common.default', descriptionKey: 'agentInput.mode.buildDescription' },
           { id: 'plan', nameKey: 'agentInput.mode.plan', descriptionKey: 'agentInput.mode.planDescription' },
         ],
       },

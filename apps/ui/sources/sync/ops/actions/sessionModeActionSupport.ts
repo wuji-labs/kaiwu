@@ -6,7 +6,7 @@ import {
   resolveRequestedSessionModeIdForMetadata,
   type SessionModePickerControl,
 } from '@/sync/domains/sessionControl/sessionModeControl';
-import { t } from '@/text';
+import { resolveSessionModeDisplayName } from '@/sync/domains/sessionModes/sessionModeOptions';
 import { readNonBlankSessionControlIdentifier } from '@/sync/domains/sessionControl/opaqueIdentifiers';
 
 export function normalizeRequestedSessionModeId(
@@ -63,7 +63,7 @@ export function serializeSessionModeActionOptions(
   return [
     {
       value: 'default',
-      label: t('common.default'),
+      label: resolveSessionModeDisplayName('default'),
     },
     ...options,
   ];

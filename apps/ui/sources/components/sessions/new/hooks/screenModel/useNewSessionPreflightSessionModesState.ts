@@ -12,6 +12,8 @@ import { machineCapabilitiesInvoke } from '@/sync/ops/capabilities';
 import { tLoose, type TranslationKeyNoParams } from '@/text';
 import {
     getSessionModeOptionsForPreflightModeList,
+    normalizeSessionModeOptions,
+    resolveSessionModeDisplayName,
     type PreflightSessionModeList,
     type SessionModeOption,
 } from '@/sync/domains/sessionModes/sessionModeOptions';
@@ -149,7 +151,7 @@ export function useNewSessionPreflightSessionModesState(params: Readonly<{
             .filter((opt) => opt.id.trim().length > 0 && opt.name.trim().length > 0);
 
         const seen = new Set<string>();
-        const deduped = mapped.filter((opt) => {
+        const deduped = normalizeSessionModeOptions(mapped).filter((opt) => {
             if (seen.has(opt.id)) return false;
             seen.add(opt.id);
             return true;
@@ -162,7 +164,7 @@ export function useNewSessionPreflightSessionModesState(params: Readonly<{
                 ...deduped.filter((opt) => opt.id !== 'default'),
             ]
             : [
-                { id: 'default', name: tLoose('common.default') },
+                { id: 'default', name: resolveSessionModeDisplayName('default') },
                 ...deduped,
             ];
     }, [agentType]);
@@ -321,7 +323,7 @@ export function useNewSessionPreflightSessionModesState(params: Readonly<{
         }
         if (supportsPreflightModeProbe && params.selectedMachineId) {
             // Provide a stable placeholder so the UI can show loading/refreshing states.
-            return [{ id: 'default', name: 'Default' }];
+            return [{ id: 'default', name: resolveSessionModeDisplayName('default') }];
         }
         return [];
     }, [params.selectedMachineId, preflightModes, staticModeOptions, supportsPreflightModeProbe]);

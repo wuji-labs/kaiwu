@@ -722,6 +722,35 @@ describe('AgentInput (modelOptionsOverride)', () => {
         expect(screen.findByTestId('agent-input-selection-list-popover')).toBeNull();
     });
 
+    it('normalizes a provider Default label to the shared Build display label', async () => {
+        const { AgentInput } = await import('./AgentInput');
+
+        const screen = await renderScreen(React.createElement(AgentInput, {
+            value: 'hello',
+            placeholder: 'placeholder',
+            onChangeText: () => {},
+            onSend: () => {},
+            autocompleteKinds: [],
+            autocompleteSuggestions: async () => [],
+            agentType: 'opencode',
+            permissionMode: 'default',
+            onPermissionModeChange: () => {},
+            modelMode: 'default',
+            onModelModeChange: () => {},
+            acpSessionModeOptionsOverride: [
+                { id: 'default', name: 'Default' },
+                { id: 'plan', name: 'Plan' },
+            ],
+            acpSessionModeSelectedIdOverride: null,
+            onAcpSessionModeChange: () => {},
+        } as any));
+
+        const modeChip = screen.findByTestId('agent-input-session-mode-chip');
+        expect(modeChip).toBeTruthy();
+        expect(modeChip?.props.accessibilityLabel).toContain('Build');
+        expect(modeChip?.props.accessibilityLabel).not.toContain('Default');
+    });
+
     it('calls onAcpSessionModeChange when selecting a preflight ACP mode', async () => {
         const { AgentInput } = await import('./AgentInput');
         const onAcpSessionModeChange = vi.fn();
