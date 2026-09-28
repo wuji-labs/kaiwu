@@ -21,6 +21,7 @@ modules/*/ios/build/
 node_modules/
 .expo/
 dist/
+dist-release/
 web-build/
 
 # Vendored by postinstall for Monaco web editor surface (do not commit).

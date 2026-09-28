@@ -1,0 +1,21 @@
+{
+  "note": "Historical apps/ui type errors per file. May only shrink; see scripts/release-critical-tests.mjs.",
+  "total": 47,
+  "errorsByFile": {
+    "sources/components/sessions/files/file/FileActionToolbar.tsx": 1,
+    "sources/components/sessions/files/repositoryTree/RepositoryTreeRowActionsMenu.tsx": 1,
+    "sources/components/sessions/files/repositoryTree/useRepositoryTreeRowActions.ts": 1,
+    "sources/components/sessions/files/views/SessionFileDetailsView.tsx": 1,
+    "sources/components/ui/code/diff/DiffFilesList.test.ts": 1,
+    "sources/components/ui/code/diff/DiffFilesList.tsx": 3,
+    "sources/components/ui/code/diff/DiffFileView.test.ts": 1,
+    "sources/components/ui/code/diff/DiffFileView.tsx": 5,
+    "sources/components/ui/code/diff/DiffHeaderRight.tsx": 13,
+    "sources/components/ui/code/diff/DiffImageView.tsx": 3,
+    "sources/components/ui/code/diff/DiffPalette.ts": 7,
+    "sources/components/ui/code/diff/engine/highlight.ts": 7,
+    "sources/components/ui/code/diff/syntax/usePreparedSyntax.spec.ts": 1,
+    "sources/components/ui/code/diff/syntax/useSyntaxExpansion.spec.ts": 1,
+    "sources/components/ui/code/diff/useProgressiveRows.spec.ts": 1
+  }
+}
