@@ -137,6 +137,15 @@ export async function callBuiltInHappierTool(params: Readonly<{
       executeActionByToolName: actionToolBridge.executeActionByToolName,
       resolveActionOptions: (args) => actionToolBridge.resolveActionOptions(args, sessionId),
       isActionEnabled: actionToolBridge.isActionEnabled,
+      resolveSessionDirectory: () => {
+        if (typeof rawSession.path === 'string' && rawSession.path.trim().length > 0) {
+          return rawSession.path.trim();
+        }
+        if (sessionMetadata && typeof (sessionMetadata as any).path === 'string' && (sessionMetadata as any).path.trim().length > 0) {
+          return (sessionMetadata as any).path.trim();
+        }
+        return null;
+      },
     },
   });
 }

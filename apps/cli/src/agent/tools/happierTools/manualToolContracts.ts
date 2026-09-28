@@ -15,6 +15,11 @@ export const changeTitleToolInputSchema = z.object({
   title: z.string().min(1),
 }).passthrough();
 
+export const sendFileToUserToolInputSchema = z.object({
+  path: z.string().min(1).describe('The relative path of the file in the workspace to send to the user (e.g., "dist/bundle.zip", "reports/summary.pdf").'),
+  message: z.string().optional().describe('An optional friendly note or summary describing the file for the user.'),
+}).passthrough();
+
 export const actionExecuteToolInputSchema = z.object({
   actionId: z.string().min(1),
   input: z.unknown().optional(),

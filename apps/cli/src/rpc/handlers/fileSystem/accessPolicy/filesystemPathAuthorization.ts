@@ -107,6 +107,13 @@ function normalizeAdditionalAllowedDirs(
     .map((value) => normalizeFilesystemPathForPolicy(value, platform));
 }
 
+export const WINDOWS_RESERVED_DEVICE_NAME_REGEX = /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i;
+
+export function hasWindowsReservedDeviceName(pathValue: string): boolean {
+  const segments = pathValue.split(/[/\\]/);
+  return segments.some((segment) => WINDOWS_RESERVED_DEVICE_NAME_REGEX.test(segment.trim()));
+}
+
 export function resolveFilesystemTargetPath(input: Readonly<{
   targetPath: unknown;
   defaultDirectory: string;
@@ -120,6 +127,9 @@ export function resolveFilesystemTargetPath(input: Readonly<{
   }
   if (targetPath.includes('\0')) {
     return { valid: false, error: 'Path contains invalid characters' };
+  }
+  if (platform === 'win32' && hasWindowsReservedDeviceName(targetPath)) {
+    return { valid: false, error: 'Access denied: Path contains reserved Windows device name' };
   }
   if (!input.defaultDirectory || typeof input.defaultDirectory !== 'string') {
     return { valid: false, error: 'Access denied: Invalid default directory' };

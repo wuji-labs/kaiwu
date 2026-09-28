@@ -135,7 +135,8 @@ function buildExistingSessionAttachContext(params: Readonly<{
 export async function resolveExistingSessionAttachContext(_params: Readonly<{
   token: string;
   sessionId: string;
-  agent: unknown;
+  agent?: unknown;
+  backendTarget?: unknown;
   credentials: Credentials | null;
   reason?: SessionSnapshotRefreshReasonInput;
 }>): Promise<ExistingSessionAttachContext | ExistingSessionAttachContextFailure> {

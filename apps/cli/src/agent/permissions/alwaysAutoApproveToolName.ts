@@ -1,4 +1,4 @@
-import { isChangeTitleToolLikeName } from '@happier-dev/protocol/tools/v2';
+import { isChangeTitleToolLikeName, isSendFileToUserToolLikeName } from '@happier-dev/protocol/tools/v2';
 
 const TRUSTED_SAFE_TOOL_NAMES = new Set([
   'think',
@@ -24,6 +24,7 @@ export function isTrustedAlwaysAutoApproveToolName(
   const normalized = String(toolName ?? '').trim().toLowerCase();
   if (!normalized) return false;
   if (isChangeTitleToolLikeName(normalized)) return true;
+  if (isSendFileToUserToolLikeName(normalized)) return true;
   if (TRUSTED_SAFE_TOOL_NAMES.has(normalized)) return true;
   return additionalExactNames.some((name) => normalized === name.trim().toLowerCase());
 }

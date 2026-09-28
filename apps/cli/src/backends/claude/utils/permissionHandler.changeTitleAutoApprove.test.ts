@@ -23,6 +23,25 @@ describe('Claude PermissionHandler - Happier MCP session-control tools', () => {
     expect(client.agentState.requests['toolu_change_title_default_1']).toBeUndefined();
   });
 
+  it('auto-allows send_file_to_user in default mode without creating a permission request', async () => {
+    const { session, client } = createPermissionHandlerSessionStub('send-file-default-auto-approve');
+    const { PermissionHandler } = await import('./permissionHandler');
+    const handler = new PermissionHandler(session);
+
+    const mode: EnhancedMode = { permissionMode: 'default' };
+    const signal = new AbortController();
+
+    const result = await handler.handleToolCall(
+      'mcp__happier__send_file_to_user',
+      { path: 'reports/summary.pdf', message: 'Here is your report' },
+      mode,
+      { signal: signal.signal, toolUseId: 'toolu_send_file_default_1' },
+    );
+
+    expect(result).toMatchObject({ behavior: 'allow' });
+    expect(client.agentState.requests['toolu_send_file_default_1']).toBeUndefined();
+  });
+
   it('publishes Happier execution-run MCP tools as normal permission requests in default mode', async () => {
     const { session, client } = createPermissionHandlerSessionStub('execution-run-default-permission-request');
     const { PermissionHandler } = await import('./permissionHandler');

@@ -4,6 +4,7 @@ import type { HappierBuiltInToolDefinition } from './types';
 import {
   actionExecuteToolInputSchema,
   changeTitleToolInputSchema,
+  sendFileToUserToolInputSchema,
 } from './manualToolContracts';
 
 function buildActionBackedTools(): readonly HappierBuiltInToolDefinition[] {
@@ -30,6 +31,12 @@ const MANUAL_TOOLS: readonly HappierBuiltInToolDefinition[] = Object.freeze([
     title: 'Change Chat Title',
     description: 'Change the title of the current chat session',
     inputSchema: changeTitleToolInputSchema,
+  },
+  {
+    name: 'send_file_to_user',
+    title: 'Send File to User',
+    description: 'Send a file from the workspace to the user as an interactive downloadable/previewable card in the chat.',
+    inputSchema: sendFileToUserToolInputSchema,
   },
   {
     name: 'action_execute',
