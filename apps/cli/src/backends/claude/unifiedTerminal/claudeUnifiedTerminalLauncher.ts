@@ -47,6 +47,7 @@ import {
   isClaudeUnifiedTerminalRecoverableProviderAcceptanceUnknownFailure,
 } from './terminalInjectionFailureError';
 import {
+  createClaudeUnifiedProviderUnavailableDeliveryWindowTracker,
   isClaudeUnifiedProviderUnavailablePromptDeliveryWindowActive,
   resolveClaudeModelScopedLimitFamily,
   resolveClaudeUnifiedProviderUnavailableUntilMs,
@@ -357,7 +358,17 @@ export async function claudeUnifiedTerminalLauncher(
    */
   let ownedTerminalHostDestroyedForExplicitStop = false;
   let lastSurfacedRuntimeAuthFailureAtMs: number | null = null;
-  let recentPrimaryProviderUnavailableForPromptDelivery: ClaudeUnifiedProviderUnavailablePromptDeliveryWindow | null = null;
+  const providerUnavailableWindowTracker = createClaudeUnifiedProviderUnavailableDeliveryWindowTracker({
+    onWindowEnded: () => {
+      void (async () => {
+        try {
+          await session.client.redeliverProviderUnavailableBlockedPendingMessages?.();
+        } finally {
+          session.client.wakePendingMaterialization?.();
+        }
+      })();
+    },
+  });
   let usageLimitDialogVisible = false;
   const readyHandler = createClaudeReadyHandler({
     session: session.client,
@@ -402,12 +413,12 @@ export async function claudeUnifiedTerminalLauncher(
       const observedAtMs = Date.now();
       const unavailableUntilMs = resolveClaudeUnifiedProviderUnavailableUntilMs(details, observedAtMs);
       const modelFamily = resolveClaudeModelScopedLimitFamily(details) ?? undefined;
-      recentPrimaryProviderUnavailableForPromptDelivery = unavailableUntilMs === null
+      providerUnavailableWindowTracker.setWindow(unavailableUntilMs === null
         ? null
         : {
             unavailableUntilMs,
             ...(modelFamily !== undefined ? { modelFamily } : {}),
-          };
+          });
     }
   };
 
@@ -466,10 +477,10 @@ export async function claudeUnifiedTerminalLauncher(
   > => {
     const result = await handleClaudeUnifiedTerminalRuntimeIssuePendingDeliveryBlock({
       error,
-      providerUnavailableWindow: recentPrimaryProviderUnavailableForPromptDelivery,
+      providerUnavailableWindow: providerUnavailableWindowTracker.getWindow(),
       currentModelId: resolveClaudeCurrentModelIdFromMetadata(session.client.getMetadataSnapshot?.() as Record<string, unknown> | undefined),
       setProviderUnavailableWindow: (window) => {
-        recentPrimaryProviderUnavailableForPromptDelivery = window;
+        providerUnavailableWindowTracker.setWindow(window);
       },
       blockPendingMessageDelivery: options?.allowPendingDeliveryBlock === false
         ? undefined
@@ -552,13 +563,13 @@ export async function claudeUnifiedTerminalLauncher(
   });
   const releaseUsageLimitPendingBlock = (): void => {
     usageLimitDialogVisible = false;
-    recentPrimaryProviderUnavailableForPromptDelivery = null;
-    sustainedPendingDeliveryBlockHandler.wakePendingMaterialization();
+    providerUnavailableWindowTracker.setWindow(null);
   };
   const observeTerminalScreen = (observation: ClaudeUnifiedTerminalScreenObservation): void => {
     if (observation.screenState.usageLimitDialogVisible) {
-      recentPrimaryProviderUnavailableForPromptDelivery =
-        resolveClaudeUnifiedProviderUnavailableWindowForUsageLimitDialog(Date.now());
+      providerUnavailableWindowTracker.setWindow(
+        resolveClaudeUnifiedProviderUnavailableWindowForUsageLimitDialog(Date.now()),
+      );
       usageLimitDialogVisible = true;
       void sustainedPendingDeliveryBlockHandler.blockForSustainedBlocker({
         localIds: observation.userMessageLocalIds,
@@ -843,8 +854,7 @@ export async function claudeUnifiedTerminalLauncher(
         providerInputOutcomes.observeEffectMayHaveOccurred({
           userMessageLocalIds: error.userMessageLocalIds,
         });
-        if (isClaudeUnifiedProviderUnavailablePromptDeliveryWindowActive(
-          recentPrimaryProviderUnavailableForPromptDelivery,
+        if (providerUnavailableWindowTracker.isActive(
           Date.now(),
           resolveClaudeCurrentModelIdFromMetadata(session.client.getMetadataSnapshot?.() as Record<string, unknown> | undefined),
         )) {
@@ -1364,6 +1374,7 @@ export async function claudeUnifiedTerminalLauncher(
     transcriptProjector.reset();
     await dialogChoiceBroker.dispose();
     inFlightSteerCapabilityPublisher.dispose();
+    providerUnavailableWindowTracker.dispose();
     removeExternalAbortListener?.();
   }
 }

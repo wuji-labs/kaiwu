@@ -187,6 +187,7 @@ export interface SessionClientPort {
   popPendingMessage(): Promise<boolean>;
 
   peekPendingMessageQueueV2Count(opts?: PendingQueueReadOptions): Promise<number>;
+  redeliverProviderUnavailableBlockedPendingMessages?(): Promise<number>;
   discardPendingMessageQueueV2All(opts: { reason: 'switch_to_local' | 'manual' }): Promise<number>;
   discardCommittedMessageLocalIds(opts: { localIds: string[]; reason: 'switch_to_local' | 'manual' }): Promise<number>;
 

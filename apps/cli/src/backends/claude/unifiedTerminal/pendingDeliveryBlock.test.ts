@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import {
   CLAUDE_UNIFIED_CAPACITY_PROVIDER_UNAVAILABLE_MAX_WINDOW_MS,
+  createClaudeUnifiedProviderUnavailableDeliveryWindowTracker,
   isClaudeUnifiedProviderUnavailablePromptDeliveryWindowActive,
   resolveClaudeModelScopedLimitFamily,
   resolveClaudeUnifiedPendingDeliveryBlock,
@@ -338,5 +339,140 @@ describe('isClaudeUnifiedProviderUnavailablePromptDeliveryWindowActive', () => {
 
     // Expired window is not active
     expect(isClaudeUnifiedProviderUnavailablePromptDeliveryWindowActive(window, nowMs + 70_000, 'claude-opus-5-5')).toBe(false);
+  });
+});
+
+describe('createClaudeUnifiedProviderUnavailableDeliveryWindowTracker', () => {
+  it('triggers onWindowEnded when window expires on timer and clears window', () => {
+    vi.useFakeTimers();
+    try {
+      let now = 100_000;
+      const onWindowEnded = vi.fn();
+      const tracker = createClaudeUnifiedProviderUnavailableDeliveryWindowTracker({
+        onWindowEnded,
+        nowMs: () => now,
+      });
+
+      tracker.setWindow({ unavailableUntilMs: now + 5_000 });
+      expect(tracker.getWindow()).toEqual({ unavailableUntilMs: 105_000 });
+      expect(tracker.isActive(now)).toBe(true);
+
+      now += 4_999;
+      vi.advanceTimersByTime(4_999);
+      expect(onWindowEnded).not.toHaveBeenCalled();
+
+      now += 1;
+      vi.advanceTimersByTime(1);
+      expect(onWindowEnded).toHaveBeenCalledTimes(1);
+      expect(tracker.getWindow()).toBeNull();
+      expect(tracker.isActive(now)).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('cancels previous timer when replaced with a new window', () => {
+    vi.useFakeTimers();
+    try {
+      let now = 100_000;
+      const onWindowEnded = vi.fn();
+      const tracker = createClaudeUnifiedProviderUnavailableDeliveryWindowTracker({
+        onWindowEnded,
+        nowMs: () => now,
+      });
+
+      tracker.setWindow({ unavailableUntilMs: now + 5_000 });
+      now += 2_000;
+      vi.advanceTimersByTime(2_000);
+
+      // Replace window with a longer one
+      tracker.setWindow({ unavailableUntilMs: now + 10_000 });
+      expect(tracker.getWindow()).toEqual({ unavailableUntilMs: 112_000 });
+
+      // Advance past the first timer's deadline
+      now += 4_000;
+      vi.advanceTimersByTime(4_000);
+      expect(onWindowEnded).not.toHaveBeenCalled();
+
+      // Advance past the second timer's deadline
+      now += 6_000;
+      vi.advanceTimersByTime(6_000);
+      expect(onWindowEnded).toHaveBeenCalledTimes(1);
+      expect(tracker.getWindow()).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('triggers onWindowEnded immediately when window is explicitly set to null', () => {
+    vi.useFakeTimers();
+    try {
+      const now = 100_000;
+      const onWindowEnded = vi.fn();
+      const tracker = createClaudeUnifiedProviderUnavailableDeliveryWindowTracker({
+        onWindowEnded,
+        nowMs: () => now,
+      });
+
+      tracker.setWindow({ unavailableUntilMs: now + 5_000 });
+      expect(tracker.getWindow()).not.toBeNull();
+
+      tracker.setWindow(null);
+      expect(onWindowEnded).toHaveBeenCalledTimes(1);
+      expect(tracker.getWindow()).toBeNull();
+
+      // Advancing timer does not trigger again
+      vi.advanceTimersByTime(10_000);
+      expect(onWindowEnded).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('triggers onWindowEnded when model mismatch deactivates window via isActive', () => {
+    vi.useFakeTimers();
+    try {
+      const now = 100_000;
+      const onWindowEnded = vi.fn();
+      const tracker = createClaudeUnifiedProviderUnavailableDeliveryWindowTracker({
+        onWindowEnded,
+        nowMs: () => now,
+      });
+
+      tracker.setWindow({ unavailableUntilMs: now + 5_000, modelFamily: 'fable' });
+      expect(tracker.getWindow()).not.toBeNull();
+
+      // Matching model: remains active
+      expect(tracker.isActive(now, 'claude-fable-5-1')).toBe(true);
+      expect(onWindowEnded).not.toHaveBeenCalled();
+
+      // Mismatched model: deactivates and triggers onWindowEnded
+      expect(tracker.isActive(now, 'claude-opus-5-5')).toBe(false);
+      expect(onWindowEnded).toHaveBeenCalledTimes(1);
+      expect(tracker.getWindow()).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('does not trigger onWindowEnded on expiration after dispose is called', () => {
+    vi.useFakeTimers();
+    try {
+      const now = 100_000;
+      const onWindowEnded = vi.fn();
+      const tracker = createClaudeUnifiedProviderUnavailableDeliveryWindowTracker({
+        onWindowEnded,
+        nowMs: () => now,
+      });
+
+      tracker.setWindow({ unavailableUntilMs: now + 5_000 });
+      tracker.dispose();
+      expect(tracker.getWindow()).toBeNull();
+
+      vi.advanceTimersByTime(10_000);
+      expect(onWindowEnded).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
