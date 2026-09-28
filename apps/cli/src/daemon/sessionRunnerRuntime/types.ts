@@ -24,7 +24,8 @@ export type UnknownSessionRunnerEntrypointIdentity = Readonly<{
     | 'mutable_entrypoint_pointer'
     | 'empty_command'
     | 'empty_launch_spec'
-    | 'unsupported_launch_spec';
+    | 'unsupported_launch_spec'
+    | 'binary_runner_version_unrecorded';
 }>;
 
 export type SessionRunnerEntrypointIdentity =

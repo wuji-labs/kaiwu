@@ -2906,6 +2906,7 @@ export async function startDaemon(options: Readonly<{ takeover?: boolean }> = {}
           spawnOptions: SpawnSessionOptions;
           directory: string;
           existingSessionId?: string;
+          spawnedWithCliVersion?: string;
         }>): Promise<void> => {
           const respawn = buildSessionRunnerRespawnDescriptorV1FromSpawnOptions(
             {
@@ -2927,6 +2928,7 @@ export async function startDaemon(options: Readonly<{ takeover?: boolean }> = {}
             startedBy: 'daemon',
             cwd: params.directory,
             ...(processInstanceFingerprint ? { processInstanceFingerprint } : {}),
+            ...(params.spawnedWithCliVersion ? { spawnedWithCliVersion: params.spawnedWithCliVersion } : {}),
             respawn,
           });
         };
@@ -3857,6 +3859,7 @@ export async function startDaemon(options: Readonly<{ takeover?: boolean }> = {}
                   happySessionId: normalizedExistingSessionId || undefined,
                   pid: tmuxPid, // Real PID from tmux -P flag
                   spawnOptions: trackedSpawnOptions,
+                  spawnedWithCliVersion: packageJson.version,
                   tmuxSessionId: tmuxResult.sessionId,
                   tmuxTmpDir: typeof tmuxTmpDir === 'string' && tmuxTmpDir.trim().length > 0 ? tmuxTmpDir.trim() : undefined,
                   vendorResumeId: effectiveResume || undefined,
@@ -3873,6 +3876,7 @@ export async function startDaemon(options: Readonly<{ takeover?: boolean }> = {}
                 spawnOptions: trackedSpawnOptions,
                 directory: resolvedDirectory,
                 existingSessionId: normalizedExistingSessionId,
+                spawnedWithCliVersion: packageJson.version,
               });
               if (connectedServiceAuth && effectiveConnectedServicesBindings) {
                 registerConnectedServiceRuntimeTargetForDaemon({
@@ -4030,6 +4034,7 @@ export async function startDaemon(options: Readonly<{ takeover?: boolean }> = {}
                   happySessionId: normalizedExistingSessionId || undefined,
                   pid: params.pid,
                   spawnOptions: trackedSpawnOptions,
+                  spawnedWithCliVersion: packageJson.version,
                   vendorResumeId: effectiveResume || undefined,
                   hostedTerminal: params.terminal,
                   directoryCreated,
@@ -4041,6 +4046,7 @@ export async function startDaemon(options: Readonly<{ takeover?: boolean }> = {}
                   spawnOptions: trackedSpawnOptions,
                   directory: resolvedDirectory,
                   existingSessionId: normalizedExistingSessionId,
+                  spawnedWithCliVersion: packageJson.version,
                 });
                 if (connectedServiceAuth && effectiveConnectedServicesBindings) {
                   registerConnectedServiceRuntimeTargetForDaemon({
@@ -4341,6 +4347,7 @@ export async function startDaemon(options: Readonly<{ takeover?: boolean }> = {}
                     pid: happyProcess.pid,
                     childProcess: happyProcess,
                     spawnOptions: trackedSpawnOptions,
+                    spawnedWithCliVersion: packageJson.version,
                     vendorResumeId: effectiveResume || undefined,
                     directoryCreated,
                     message: directoryCreated ? `The path '${resolvedDirectory}' did not exist. We created a new folder and spawned a new session there.` : undefined
@@ -4352,6 +4359,7 @@ export async function startDaemon(options: Readonly<{ takeover?: boolean }> = {}
             spawnOptions: trackedSpawnOptions,
             directory: resolvedDirectory,
             existingSessionId: normalizedExistingSessionId,
+            spawnedWithCliVersion: packageJson.version,
           });
           // Clear any stale stop request on an explicit (re)spawn/resume of this session, so a later
           // GENUINE crash of a resumed-after-stop session can respawn. The per-session stop flag is

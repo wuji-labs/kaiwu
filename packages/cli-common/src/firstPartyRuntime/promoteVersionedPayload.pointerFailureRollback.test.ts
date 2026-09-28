@@ -47,7 +47,10 @@ async function withPlatform<T>(platform: NodeJS.Platform, run: () => Promise<T>)
 async function createPayload(rootDir: string, versionId: string, contents: string): Promise<string> {
     const payloadRoot = join(rootDir, `payload-${versionId}`);
     await mkdir(join(payloadRoot, 'package-dist'), { recursive: true });
+    await writeFile(join(payloadRoot, 'kaiwu'), contents, 'utf8');
+    await writeFile(join(payloadRoot, 'kaiwu.exe'), contents, 'utf8');
     await writeFile(join(payloadRoot, 'happier'), contents, 'utf8');
+    await writeFile(join(payloadRoot, 'happier.exe'), contents, 'utf8');
     await writeFile(join(payloadRoot, 'package-dist', 'index.mjs'), `export default ${JSON.stringify(versionId)};\n`, 'utf8');
     return payloadRoot;
 }
@@ -56,7 +59,7 @@ describe('promoteVersionedPayload pointer swap atomicity', () => {
     it('fails closed without breaking the existing current pointer when symlink creation fails', async () => {
         await withPlatform('linux', async () => {
             const homeDir = await mkdtemp(join(tmpdir(), 'happier-promote-pointer-failure-'));
-            const env = { ...process.env, HAPPIER_HOME_DIR: homeDir };
+            const env = { ...process.env, HAPPIER_HOME_DIR: homeDir, KAIWU_HOME_DIR: homeDir };
 
             try {
                 const { promoteVersionedPayload, resolveInstalledFirstPartyComponentPaths } = await import('./index.js');

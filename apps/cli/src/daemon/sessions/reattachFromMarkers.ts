@@ -206,6 +206,7 @@ async function recoverMarkerlessDaemonSpawnedSessions(params: Readonly<{
     metadata?: unknown;
     respawn?: unknown;
     connectedServiceRestartIntent?: DaemonSessionMarker['connectedServiceRestartIntent'];
+    spawnedWithCliVersion?: string;
   }>>;
   markedPids: ReadonlySet<number>;
   pidToTrackedSession: Map<number, TrackedSession>;
@@ -306,6 +307,7 @@ async function recoverMarkerlessDaemonSpawnedSessions(params: Readonly<{
       reattachedFromDiskMarker: true,
       ...(vendorResumeId ? { vendorResumeId } : {}),
       ...(spawnOptions ? { spawnOptions } : {}),
+      ...(incompleteMarker?.spawnedWithCliVersion ? { spawnedWithCliVersion: incompleteMarker.spawnedWithCliVersion } : {}),
     };
     pidToTrackedSession.set(processInfo.pid, trackedSession);
 
@@ -325,6 +327,7 @@ async function recoverMarkerlessDaemonSpawnedSessions(params: Readonly<{
         ? { processInstanceFingerprint: trackedSession.processInstanceFingerprint }
         : {}),
       processCommand: processInfo.command,
+      ...(incompleteMarker?.spawnedWithCliVersion ? { spawnedWithCliVersion: incompleteMarker.spawnedWithCliVersion } : {}),
       ...(respawn ? { respawn } : {}),
       ...(incompleteMarker?.connectedServiceRestartIntent
         ? { connectedServiceRestartIntent: incompleteMarker.connectedServiceRestartIntent }
@@ -525,6 +528,7 @@ export async function reattachTrackedSessionsFromMarkers(params: Readonly<{
             metadata: marker.metadata,
             respawn: marker.respawn,
             connectedServiceRestartIntent: marker.connectedServiceRestartIntent,
+            spawnedWithCliVersion: marker.spawnedWithCliVersion,
           },
         ] as const),
     );

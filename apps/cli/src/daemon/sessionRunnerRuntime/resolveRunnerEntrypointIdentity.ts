@@ -1,5 +1,6 @@
 import type { HappyCliSubprocessLaunchSpec } from '@/utils/spawnHappyCLI';
 import { buildHappyCliSubprocessLaunchSpec } from '@/utils/spawnHappyCLI';
+import packageJson from '../../../package.json';
 
 import type {
   SessionRunnerEntrypointIdentity,
@@ -181,15 +182,61 @@ export function resolveEntrypointIdentityFromLaunchSpec(
   launchSpec: HappyCliSubprocessLaunchSpec | null | undefined,
 ): SessionRunnerEntrypointIdentity {
   if (!launchSpec) return unknownIdentity('empty_launch_spec');
-  const candidates = launchSpec.runtime === 'binary'
-    ? [launchSpec.filePath]
-    : launchSpec.args;
-  const entrypoint = findEntrypointToken(candidates);
-  if (!entrypoint && launchSpec.runtime === 'binary') {
-    return resolveEntrypointPathIdentity(launchSpec.filePath, 'launch_spec');
+  if (launchSpec.runtime === 'binary') {
+    const filePath = launchSpec.filePath;
+    if (isCliBinaryPath(filePath)) {
+      const version = resolveVersion(filePath);
+      if (version) {
+        return {
+          status: 'known',
+          source: 'launch_spec',
+          comparableId: `version:${version}`,
+          entrypointVersion: version,
+        };
+      }
+      return {
+        status: 'known',
+        source: 'launch_spec',
+        comparableId: `version:${packageJson.version}`,
+        entrypointVersion: packageJson.version,
+      };
+    }
+    return resolveEntrypointPathIdentity(filePath, 'launch_spec');
   }
+  const entrypoint = findEntrypointToken(launchSpec.args);
   if (!entrypoint) return unknownIdentity('entrypoint_not_found');
   return resolveEntrypointPathIdentity(entrypoint, 'launch_spec');
+}
+
+export type SessionRunnerEntrypointTrackedTarget = Readonly<{
+  processCommand?: string;
+  spawnedWithCliVersion?: string;
+}>;
+
+export function resolveSessionRunnerEntrypointIdentity(
+  tracked: SessionRunnerEntrypointTrackedTarget | null | undefined,
+): SessionRunnerEntrypointIdentity {
+  const command = typeof tracked?.processCommand === 'string' ? tracked.processCommand.trim() : '';
+  if (!command) return unknownIdentity('empty_command');
+
+  const tokens = tokenizeCommandLine(command);
+  const firstToken = tokens[0] ?? '';
+  if (isCliBinaryPath(firstToken)) {
+    const spawnedVersion = typeof tracked?.spawnedWithCliVersion === 'string'
+      ? tracked.spawnedWithCliVersion.trim()
+      : '';
+    if (spawnedVersion) {
+      return {
+        status: 'known',
+        source: 'structured_state',
+        comparableId: `version:${spawnedVersion}`,
+        entrypointVersion: spawnedVersion,
+      };
+    }
+    return unknownIdentity('binary_runner_version_unrecorded');
+  }
+
+  return resolveSessionRunnerEntrypointIdentityFromProcessCommand(command);
 }
 
 export function resolveCurrentSessionRunnerLaunchIdentity(): SessionRunnerEntrypointIdentity {

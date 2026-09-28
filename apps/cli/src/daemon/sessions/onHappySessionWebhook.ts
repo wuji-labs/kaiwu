@@ -408,6 +408,7 @@ export function createOnHappySessionWebhook(params: Readonly<{
         metadata: normalizedMetadata,
         ...(respawn ? { respawn } : {}),
         ...(trackedForPid?.activeTurnId ? { activeTurnId: trackedForPid.activeTurnId } : {}),
+        ...(trackedForPid?.spawnedWithCliVersion ? { spawnedWithCliVersion: trackedForPid.spawnedWithCliVersion } : {}),
       });
     })().catch((e) => {
       logger.debug('[DAEMON RUN] Failed to write session marker', e);

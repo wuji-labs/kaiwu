@@ -3,7 +3,7 @@ import type { SessionRunnerDaemonEntrypointSourceV1 } from '@happier-dev/protoco
 
 import {
   isGenerationAttestedComparableId,
-  resolveSessionRunnerEntrypointIdentityFromProcessCommand,
+  resolveSessionRunnerEntrypointIdentity,
 } from './resolveRunnerEntrypointIdentity';
 import { readSessionRunnerStartingModeFromProcessCommand } from './readSessionRunnerStartingMode';
 import { resolveSessionRunnerRestartEligibility } from './resolveRestartEligibility';
@@ -53,7 +53,12 @@ function resolveIdentityDisabledReason(input: Readonly<{
   currentIdentity: SessionRunnerEntrypointIdentity;
 }>): SessionRunnerRestartDisabledReason | null {
   if (input.currentIdentity.status !== 'known') return 'current_entrypoint_unknown';
-  if (input.runnerIdentity.status !== 'known') return 'runner_entrypoint_unknown';
+  if (input.runnerIdentity.status !== 'known') {
+    if (input.runnerIdentity.reason === 'binary_runner_version_unrecorded') {
+      return null;
+    }
+    return 'runner_entrypoint_unknown';
+  }
   // Equal MUTABLE roots (tsx source mode, in-place dist) cannot attest the running generation:
   // the runner froze the root's content at spawn, so equality proves neither current nor stale.
   if (isUnattestedEqualGeneration(input)) return 'runner_generation_unattested';
@@ -64,7 +69,16 @@ function resolveVersionState(input: Readonly<{
   runnerIdentity: SessionRunnerEntrypointIdentity;
   currentIdentity: SessionRunnerEntrypointIdentity;
 }>): SessionRunnerVersionState {
-  if (input.runnerIdentity.status !== 'known' || input.currentIdentity.status !== 'known') {
+  if (input.runnerIdentity.status !== 'known') {
+    if (
+      input.runnerIdentity.reason === 'binary_runner_version_unrecorded'
+      && input.currentIdentity.status === 'known'
+    ) {
+      return 'stale';
+    }
+    return 'unknown';
+  }
+  if (input.currentIdentity.status !== 'known') {
     return 'unknown';
   }
   if (input.runnerIdentity.comparableId !== input.currentIdentity.comparableId) return 'stale';
@@ -83,7 +97,7 @@ export function resolveSessionRunnerRuntimeState(params: Readonly<{
   const tracked = params.tracked ?? null;
   const sessionId = normalizeString(params.sessionId) || normalizeString(tracked?.happySessionId);
   const runnerIdentity = tracked
-    ? resolveSessionRunnerEntrypointIdentityFromProcessCommand(tracked.processCommand)
+    ? resolveSessionRunnerEntrypointIdentity(tracked)
     : { status: 'unknown', source: 'unknown', reason: 'empty_command' } satisfies SessionRunnerEntrypointIdentity;
   const disabledReason =
     resolveDisabledReason(tracked) ??
@@ -119,7 +133,11 @@ export function resolveSessionRunnerRuntimeState(params: Readonly<{
       currentEntrypointSource: readDaemonEntrypointSource(params.currentIdentity),
     },
     versionState: resolveVersionState({ runnerIdentity, currentIdentity: params.currentIdentity }),
-    statusSource: runnerIdentity.status === 'known' ? 'process_command_inferred' : 'unknown',
+    statusSource: runnerIdentity.source === 'structured_state'
+      ? 'daemon_tracking'
+      : runnerIdentity.status === 'known'
+        ? 'process_command_inferred'
+        : 'unknown',
     plannedRestart: {
       supported: !!tracked,
       eligible: disabledReason === null,

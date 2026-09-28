@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import packageJson from '../../../package.json';
 
 import {
   resolveEntrypointIdentityFromLaunchSpec,
+  resolveSessionRunnerEntrypointIdentity,
   resolveSessionRunnerEntrypointIdentityFromProcessCommand,
 } from './resolveRunnerEntrypointIdentity';
 
@@ -141,6 +143,101 @@ describe('resolveEntrypointIdentityFromLaunchSpec', () => {
       source: 'launch_spec',
       entrypointVersion: '0.2.12',
       comparableId: 'version:0.2.12',
+    }));
+  });
+
+  it('derives launch identity from binary runtime pointing to cli binary without versions dir as package version', () => {
+    const identity = resolveEntrypointIdentityFromLaunchSpec({
+      runtime: 'binary',
+      filePath: 'C:\\Users\\alice\\.kaiwu\\bin\\kaiwu.exe',
+      args: [
+        '--no-warnings',
+        'C:\\Users\\alice\\.kaiwu\\cli\\versions\\1.0.0\\package-dist\\index.mjs',
+        'daemon',
+        'start-sync',
+      ],
+    });
+
+    expect(identity).toEqual({
+      status: 'known',
+      source: 'launch_spec',
+      comparableId: `version:${packageJson.version}`,
+      entrypointVersion: packageJson.version,
+    });
+  });
+
+  it('derives launch identity from binary runtime pointing to versioned cli binary', () => {
+    const identity = resolveEntrypointIdentityFromLaunchSpec({
+      runtime: 'binary',
+      filePath: '/Users/alice/.kaiwu/cli/versions/0.2.15/kaiwu',
+      args: ['daemon', 'start-sync'],
+    });
+
+    expect(identity).toEqual({
+      status: 'known',
+      source: 'launch_spec',
+      comparableId: 'version:0.2.15',
+      entrypointVersion: '0.2.15',
+    });
+  });
+});
+
+describe('resolveSessionRunnerEntrypointIdentity', () => {
+  it('resolves binary runner with spawnedWithCliVersion using structured_state', () => {
+    const identity = resolveSessionRunnerEntrypointIdentity({
+      processCommand:
+        'C:\\Users\\alice\\.kaiwu\\bin\\kaiwu.exe --no-warnings C:\\Users\\alice\\.kaiwu\\cli\\versions\\1.0.0\\package-dist\\index.mjs codex --happy-starting-mode remote --started-by daemon',
+      spawnedWithCliVersion: '0.2.19',
+    });
+
+    expect(identity).toEqual({
+      status: 'known',
+      source: 'structured_state',
+      comparableId: 'version:0.2.19',
+      entrypointVersion: '0.2.19',
+    });
+  });
+
+  it('resolves quoted binary runner with spawnedWithCliVersion using structured_state', () => {
+    const identity = resolveSessionRunnerEntrypointIdentity({
+      processCommand:
+        '"C:\\Users\\alice\\.kaiwu\\bin\\kaiwu.exe" codex --happy-starting-mode remote --started-by daemon',
+      spawnedWithCliVersion: '0.2.18',
+    });
+
+    expect(identity).toEqual({
+      status: 'known',
+      source: 'structured_state',
+      comparableId: 'version:0.2.18',
+      entrypointVersion: '0.2.18',
+    });
+  });
+
+  it('resolves binary runner without spawnedWithCliVersion as binary_runner_version_unrecorded', () => {
+    const identity = resolveSessionRunnerEntrypointIdentity({
+      processCommand:
+        '"C:\\Users\\alice\\.kaiwu\\bin\\kaiwu.exe" codex --happy-starting-mode remote --started-by daemon',
+    });
+
+    expect(identity).toEqual({
+      status: 'unknown',
+      source: 'unknown',
+      reason: 'binary_runner_version_unrecorded',
+    });
+  });
+
+  it('falls back to process command parsing for non-binary runners', () => {
+    const identity = resolveSessionRunnerEntrypointIdentity({
+      processCommand:
+        'node --no-warnings /Users/alice/.happier/cli-dev/versions/0.2.10/package-dist/index.mjs claude --happy-starting-mode remote --started-by daemon',
+      spawnedWithCliVersion: '0.2.19',
+    });
+
+    expect(identity).toEqual(expect.objectContaining({
+      status: 'known',
+      source: 'process_command',
+      comparableId: 'version:0.2.10',
+      entrypointVersion: '0.2.10',
     }));
   });
 });

@@ -13,7 +13,10 @@ import {
 async function createPayload(rootDir: string, versionId: string, contents: string): Promise<string> {
     const payloadRoot = join(rootDir, `payload-${versionId}`);
     await mkdir(join(payloadRoot, 'package-dist'), { recursive: true });
+    await writeFile(join(payloadRoot, 'kaiwu'), contents, 'utf8');
+    await writeFile(join(payloadRoot, 'kaiwu.exe'), contents, 'utf8');
     await writeFile(join(payloadRoot, 'happier'), contents, 'utf8');
+    await writeFile(join(payloadRoot, 'happier.exe'), contents, 'utf8');
     await writeFile(join(payloadRoot, 'package-dist', 'index.mjs'), `export default ${JSON.stringify(versionId)};\n`, 'utf8');
     return payloadRoot;
 }
@@ -21,7 +24,7 @@ async function createPayload(rootDir: string, versionId: string, contents: strin
 describe('promoteVersionedPayload', () => {
     it('ignores AppleDouble metadata files in the staged payload', async () => {
         const homeDir = await mkdtemp(join(tmpdir(), 'happier-promote-versioned-payload-appledouble-'));
-        const env = { ...process.env, HAPPIER_HOME_DIR: homeDir };
+        const env = { ...process.env, HAPPIER_HOME_DIR: homeDir, KAIWU_HOME_DIR: homeDir };
 
         try {
             const stagedPayloadPath = await createPayload(homeDir, '1.0.0', 'first-version');
@@ -52,7 +55,7 @@ describe('promoteVersionedPayload', () => {
 
     it('moves the staged payload into the versioned install tree on posix platforms', async () => {
         const homeDir = await mkdtemp(join(tmpdir(), 'happier-promote-versioned-payload-move-'));
-        const env = { ...process.env, HAPPIER_HOME_DIR: homeDir };
+        const env = { ...process.env, HAPPIER_HOME_DIR: homeDir, KAIWU_HOME_DIR: homeDir };
 
         try {
             const stagedPayloadPath = await createPayload(homeDir, '1.0.1', 'moved-version');
@@ -75,6 +78,40 @@ describe('promoteVersionedPayload', () => {
             expect((await lstat(paths.currentPath)).isSymbolicLink()).toBe(true);
         } finally {
             await rm(homeDir, { recursive: true, force: true });
+        }
+    });
+
+    it('does not generate cli-preview in sentinel directory when running with temporary processEnv', async () => {
+        const sentinelDir = await mkdtemp(join(tmpdir(), 'happier-sentinel-home-'));
+        const tempHome = await mkdtemp(join(tmpdir(), 'happier-temp-home-'));
+        const originalKaiwu = process.env.KAIWU_HOME_DIR;
+        const originalHappier = process.env.HAPPIER_HOME_DIR;
+
+        try {
+            process.env.KAIWU_HOME_DIR = sentinelDir;
+            process.env.HAPPIER_HOME_DIR = sentinelDir;
+
+            const tempEnv = { ...process.env, HAPPIER_HOME_DIR: tempHome, KAIWU_HOME_DIR: tempHome };
+            const stagedPayloadPath = await createPayload(tempHome, '1.0.0-preview.1', 'preview-payload');
+
+            const promotion = await promoteVersionedPayload({
+                componentId: 'happier-cli',
+                channel: 'preview',
+                processEnv: tempEnv,
+                versionId: '1.0.0-preview.1',
+                stagedPayloadPath,
+            });
+
+            expect(promotion.currentVersionId).toBe('1.0.0-preview.1');
+            expect(existsSync(join(sentinelDir, 'cli-preview'))).toBe(false);
+            expect(existsSync(join(tempHome, 'cli-preview'))).toBe(true);
+        } finally {
+            if (originalKaiwu !== undefined) process.env.KAIWU_HOME_DIR = originalKaiwu;
+            else delete process.env.KAIWU_HOME_DIR;
+            if (originalHappier !== undefined) process.env.HAPPIER_HOME_DIR = originalHappier;
+            else delete process.env.HAPPIER_HOME_DIR;
+            await rm(sentinelDir, { recursive: true, force: true });
+            await rm(tempHome, { recursive: true, force: true });
         }
     });
 });

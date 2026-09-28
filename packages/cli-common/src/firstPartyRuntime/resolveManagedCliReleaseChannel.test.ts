@@ -17,7 +17,7 @@ function withDefaultChannelMarker<T>(releaseChannel: string, run: (env: NodeJS.P
       `${JSON.stringify({ releaseChannel })}\n`,
       'utf8',
     );
-    return run({ HAPPIER_HOME_DIR: homeDir });
+    return run({ HAPPIER_HOME_DIR: homeDir, KAIWU_HOME_DIR: homeDir });
   } finally {
     rmSync(homeDir, { recursive: true, force: true });
   }
@@ -34,7 +34,7 @@ async function withDefaultChannelMarkerAsync<T>(
       `${JSON.stringify({ releaseChannel })}\n`,
       'utf8',
     );
-    return await run({ HAPPIER_HOME_DIR: homeDir });
+    return await run({ HAPPIER_HOME_DIR: homeDir, KAIWU_HOME_DIR: homeDir });
   } finally {
     rmSync(homeDir, { recursive: true, force: true });
   }
