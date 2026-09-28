@@ -7002,6 +7002,7 @@ export const pl: TranslationStructure = {
 	        copyPath: "Kopiuj ścieżkę",
 	        download: "Pobierz",
 	        downloadAsZip: "Pobierz jako ZIP",
+	        openInEditor: "Otwórz w edytorze",
 	      },
 	      dropToUpload: "Upuść pliki, aby przesłać",
 	      rename: {
@@ -7030,6 +7031,9 @@ export const pl: TranslationStructure = {
 	      },
 	      download: {
 	        notReady: "Pobieranie nie jest jeszcze dostępne.",
+	      },
+	      openInEditor: {
+	        failed: "Nie udało się otworzyć w edytorze.",
 	      },
 	    },
 	    changeRow: {

@@ -6542,6 +6542,7 @@ export const fr: TranslationStructure = {
 	                        copyPath: 'Copier le chemin',
 	                        download: 'Télécharger',
 	                        downloadAsZip: 'Télécharger en zip',
+	                        openInEditor: "Ouvrir dans l'éditeur",
 	                    },
 	                    dropToUpload: 'Dépose des fichiers à envoyer',
 	                    rename: {
@@ -6568,6 +6569,9 @@ export const fr: TranslationStructure = {
 	                    },
 	                    download: {
 	                        notReady: 'Le téléchargement n’est pas encore disponible.',
+	                    },
+	                    openInEditor: {
+	                        failed: "Impossible d'ouvrir dans l'éditeur.",
 	                    },
 	                },
 	                changeRow: {

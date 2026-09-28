@@ -6982,6 +6982,7 @@ export const es: TranslationStructure = {
 	        copyPath: "Copiar ruta",
 	        download: "Descargar",
 	        downloadAsZip: "Descargar como ZIP",
+	        openInEditor: "Abrir en el editor",
 	      },
 	      dropToUpload: "Suelta archivos para subir",
 	      rename: {
@@ -7010,6 +7011,9 @@ export const es: TranslationStructure = {
 	      },
 	      download: {
 	        notReady: "La descarga todavía no está disponible.",
+	      },
+	      openInEditor: {
+	        failed: "No se pudo abrir en el editor.",
 	      },
 	    },
 	    changeRow: {

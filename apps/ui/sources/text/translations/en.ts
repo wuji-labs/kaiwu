@@ -6559,6 +6559,7 @@ export const en = {
 	                        copyPath: 'Copy path',
 	                        download: 'Download',
 	                        downloadAsZip: 'Download as zip',
+	                        openInEditor: "Open in editor",
 	                    },
 	                    dropToUpload: 'Drop files to upload',
 	                    rename: {
@@ -6585,6 +6586,9 @@ export const en = {
 	                    },
 	                    download: {
 	                        notReady: 'Download is not available yet.',
+	                    },
+	                    openInEditor: {
+	                        failed: "Failed to open in editor.",
 	                    },
 	                },
 	                changeRow: {

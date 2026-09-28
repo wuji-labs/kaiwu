@@ -7244,6 +7244,7 @@ localTailscale: {
 	        copyPath: "パスをコピー",
 	        download: "ダウンロード",
 	        downloadAsZip: "ZIPでダウンロード",
+	        openInEditor: "エディタで開く",
 	      },
 	      dropToUpload: "ファイルをドロップしてアップロード",
 	      rename: {
@@ -7272,6 +7273,9 @@ localTailscale: {
 	      },
 	      download: {
 	        notReady: "ダウンロードはまだ利用できません。",
+	      },
+	      openInEditor: {
+	        failed: "エディタで開けませんでした。",
 	      },
 	    },
 	    changeRow: {

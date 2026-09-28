@@ -6984,6 +6984,7 @@ export const ru: TranslationStructure = {
 	        copyPath: "Копировать путь",
 	        download: "Скачать",
 	        downloadAsZip: "Скачать как ZIP",
+	        openInEditor: "Открыть в редакторе",
 	      },
 	      dropToUpload: "Перетащите файлы для загрузки",
 	      rename: {
@@ -7012,6 +7013,9 @@ export const ru: TranslationStructure = {
 	      },
 	      download: {
 	        notReady: "Скачивание пока недоступно.",
+	      },
+	      openInEditor: {
+	        failed: "Не удалось открыть в редакторе.",
 	      },
 	    },
 	    changeRow: {
