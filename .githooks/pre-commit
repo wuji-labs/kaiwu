@@ -1,0 +1,74 @@
+#!/bin/sh
+# Kaiwu commit gate — enforced by git itself, so it holds for every session, human or AI,
+# regardless of wrapper scripts or guard overrides.
+#
+# Why: on 2026-09-19 a session ran `git add apps/ui && git commit`, sweeping another
+# session's four-day-old uncommitted edits into its commit. That swept-in code caused an
+# infinite render loop (React #185) that shipped to web and iOS.
+#
+# Rule 1: commit only the paths you changed, with `git commit -m "..." -- <file>...`.
+#         Staged-index commits (`git add` then `git commit`, or `git commit -a`) are refused,
+#         because the shared index silently carries whatever anyone else staged or modified.
+# Rule 2: refuse files whose working-tree change is older than KAIWU_STALE_WIP_HOURS (12h):
+#         a change nobody touched for half a day is someone else's abandoned work-in-progress.
+#
+# Escapes (each one is appended to .git/kaiwu-commit-audit.log):
+#   KAIWU_ALLOW_INDEX_COMMIT=1  — hand-resolved merge/rebase, or a deliberate full-index commit
+#   KAIWU_ADOPT_STALE_WIP=1     — you reviewed the old change and are taking ownership of it
+
+git_dir=$(git rev-parse --git-dir)
+audit="$git_dir/kaiwu-commit-audit.log"
+now=$(date +%s)
+
+log_escape() {
+    printf '%s\t%s\t%s\n' "$(date '+%Y-%m-%dT%H:%M:%S%z')" "$1" "$2" >> "$audit"
+}
+
+# Merge / cherry-pick / revert / rebase commits legitimately use the shared index.
+in_sequencer=0
+for marker in MERGE_HEAD CHERRY_PICK_HEAD REVERT_HEAD rebase-merge rebase-apply; do
+    [ -e "$git_dir/$marker" ] && in_sequencer=1
+done
+
+index_name=$(basename "${GIT_INDEX_FILE:-$git_dir/index}")
+case "$index_name" in
+    next-index-*.lock) ;;  # `git commit -- <paths>`: git built a private index for exactly these paths
+    *)
+        if [ "$in_sequencer" = 1 ]; then
+            :
+        elif [ "${KAIWU_ALLOW_INDEX_COMMIT:-}" = 1 ]; then
+            log_escape "KAIWU_ALLOW_INDEX_COMMIT" "$(git diff --cached --name-only | wc -l | tr -d ' ') staged files"
+        else
+            echo "kaiwu pre-commit: refused - this commit uses the shared staging index." >&2
+            echo "  Commit only your own files:  git commit -m \"<msg>\" -- <file> [<file>...]" >&2
+            echo "  (name files, not directories: a directory pathspec sweeps in other sessions' edits)" >&2
+            echo "  Deliberate full-index commit: KAIWU_ALLOW_INDEX_COMMIT=1 (audited)" >&2
+            exit 1
+        fi
+        ;;
+esac
+
+[ "$in_sequencer" = 1 ] && exit 0
+
+stale_hours=${KAIWU_STALE_WIP_HOURS:-12}
+stale_seconds=$((stale_hours * 3600))
+top=$(git rev-parse --show-toplevel)
+stale_list=$(git diff --cached --name-only --diff-filter=AM | while IFS= read -r f; do
+    [ -f "$top/$f" ] || continue
+    mtime=$(date -r "$top/$f" +%s 2>/dev/null) || continue
+    [ $((now - mtime)) -gt "$stale_seconds" ] && printf '%s\n' "$f"
+done)
+
+if [ -n "$stale_list" ]; then
+    if [ "${KAIWU_ADOPT_STALE_WIP:-}" = 1 ]; then
+        log_escape "KAIWU_ADOPT_STALE_WIP" "$(printf '%s' "$stale_list" | tr '\n' ' ')"
+    else
+        echo "kaiwu pre-commit: refused - these files were last modified more than ${stale_hours}h ago:" >&2
+        printf '%s\n' "$stale_list" | sed 's/^/  /' >&2
+        echo "  They are probably another session's unfinished work. Leave them out of your commit." >&2
+        echo "  If you reviewed them and are taking ownership: KAIWU_ADOPT_STALE_WIP=1 (audited)" >&2
+        exit 1
+    fi
+fi
+
+exit 0
