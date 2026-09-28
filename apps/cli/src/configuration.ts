@@ -501,9 +501,9 @@ class Configuration {
       min: 1, default: 50 * 1024 * 1024,
     });
 
-    // Default: 50MB. Defensive minimum: 1 byte.
+    // Default: 100MB. Defensive minimum: 1 byte.
     this.filesDownloadMaxFileBytes = resolveIntEnvWithBounds('HAPPIER_FILES_DOWNLOAD_MAX_FILE_BYTES', {
-      min: 1, default: 50 * 1024 * 1024,
+      min: 1, default: 100 * 1024 * 1024,
     });
 
     // Default: 100MB. Defensive minimum: 1 byte.
