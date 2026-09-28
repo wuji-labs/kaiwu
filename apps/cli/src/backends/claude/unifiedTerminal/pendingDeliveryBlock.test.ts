@@ -1,8 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  CLAUDE_UNIFIED_CAPACITY_PROVIDER_UNAVAILABLE_MAX_WINDOW_MS,
+  isClaudeUnifiedProviderUnavailablePromptDeliveryWindowActive,
+  resolveClaudeModelScopedLimitFamily,
   resolveClaudeUnifiedPendingDeliveryBlock,
   resolveClaudeUnifiedPendingDeliveryBlockForDeliveryBlocker,
+  resolveClaudeUnifiedProviderUnavailableUntilMs,
 } from './pendingDeliveryBlock';
 import { ClaudeUnifiedTerminalInjectionFailureError } from './terminalInjectionFailureError';
 
@@ -206,5 +210,133 @@ describe('resolveClaudeUnifiedPendingDeliveryBlock', () => {
       localIds: ['pending-local-dialog'],
       reason: 'runtime_config_blocked',
     });
+  });
+});
+
+describe('resolveClaudeModelScopedLimitFamily', () => {
+  it('extracts model family from model_limit prefix', () => {
+    expect(resolveClaudeModelScopedLimitFamily({
+      v: 1,
+      resetAtMs: null,
+      retryAfterMs: null,
+      quotaScope: 'account',
+      recoverability: 'wait',
+      providerLimitId: 'model_limit:fable',
+      planType: null,
+      utilization: null,
+      overage: null,
+      action: null,
+      connectedService: null,
+    })).toBe('fable');
+  });
+
+  it('extracts model family from rate limit type containing model names like seven_day_opus', () => {
+    expect(resolveClaudeModelScopedLimitFamily({
+      v: 1,
+      resetAtMs: null,
+      retryAfterMs: null,
+      quotaScope: 'account',
+      recoverability: 'wait',
+      providerLimitId: 'seven_day_opus',
+      planType: null,
+      utilization: null,
+      overage: null,
+      action: null,
+      connectedService: null,
+    })).toBe('opus');
+  });
+
+  it('returns null for generic rate limits like five_hour', () => {
+    expect(resolveClaudeModelScopedLimitFamily({
+      v: 1,
+      resetAtMs: null,
+      retryAfterMs: null,
+      quotaScope: 'account',
+      recoverability: 'wait',
+      providerLimitId: 'five_hour',
+      planType: null,
+      utilization: null,
+      overage: null,
+      action: null,
+      connectedService: null,
+    })).toBeNull();
+  });
+});
+
+describe('resolveClaudeUnifiedProviderUnavailableUntilMs', () => {
+  it('clamps capacity window to at most 30s when resetAt is 2 hours away', () => {
+    const observedAtMs = 1_000_000;
+    const resetAtMs = observedAtMs + 2 * 3600 * 1000;
+    const untilMs = resolveClaudeUnifiedProviderUnavailableUntilMs({
+      v: 1,
+      resetAtMs,
+      retryAfterMs: null,
+      limitCategory: 'capacity',
+      quotaScope: 'account',
+      recoverability: 'wait',
+      providerLimitId: 'server_overloaded',
+      planType: null,
+      utilization: null,
+      overage: null,
+      action: null,
+      connectedService: null,
+    }, observedAtMs);
+
+    expect(untilMs).toBe(observedAtMs + CLAUDE_UNIFIED_CAPACITY_PROVIDER_UNAVAILABLE_MAX_WINDOW_MS);
+    expect(untilMs! - observedAtMs).toBe(30_000);
+  });
+
+  it('returns exactly 30s when capacity error has no future timestamps', () => {
+    const observedAtMs = 1_000_000;
+    const untilMs = resolveClaudeUnifiedProviderUnavailableUntilMs({
+      v: 1,
+      resetAtMs: null,
+      retryAfterMs: null,
+      limitCategory: 'capacity',
+      quotaScope: 'account',
+      recoverability: 'wait',
+      providerLimitId: 'server_overloaded',
+      planType: null,
+      utilization: null,
+      overage: null,
+      action: null,
+      connectedService: null,
+    }, observedAtMs);
+
+    expect(untilMs).toBe(observedAtMs + 30_000);
+  });
+});
+
+describe('isClaudeUnifiedProviderUnavailablePromptDeliveryWindowActive', () => {
+  it('deactivates model-scoped window when current model differs, activates when matching or unknown', () => {
+    const nowMs = 1_000_000;
+    const window = {
+      unavailableUntilMs: nowMs + 60_000,
+      modelFamily: 'fable',
+    };
+
+    // modelFamily=fable 加上 currentModelId=claude-opus-5-5，不激活
+    expect(isClaudeUnifiedProviderUnavailablePromptDeliveryWindowActive(window, nowMs, 'claude-opus-5-5')).toBe(false);
+
+    // 加上 claude-fable-5-1，激活
+    expect(isClaudeUnifiedProviderUnavailablePromptDeliveryWindowActive(window, nowMs, 'claude-fable-5-1')).toBe(true);
+
+    // currentModelId 为 null，激活
+    expect(isClaudeUnifiedProviderUnavailablePromptDeliveryWindowActive(window, nowMs, null)).toBe(true);
+    expect(isClaudeUnifiedProviderUnavailablePromptDeliveryWindowActive(window, nowMs)).toBe(true);
+  });
+
+  it('preserves existing active behavior for window without modelFamily', () => {
+    const nowMs = 1_000_000;
+    const window = {
+      unavailableUntilMs: nowMs + 60_000,
+    };
+
+    expect(isClaudeUnifiedProviderUnavailablePromptDeliveryWindowActive(window, nowMs, 'claude-opus-5-5')).toBe(true);
+    expect(isClaudeUnifiedProviderUnavailablePromptDeliveryWindowActive(window, nowMs, null)).toBe(true);
+    expect(isClaudeUnifiedProviderUnavailablePromptDeliveryWindowActive(window, nowMs)).toBe(true);
+
+    // Expired window is not active
+    expect(isClaudeUnifiedProviderUnavailablePromptDeliveryWindowActive(window, nowMs + 70_000, 'claude-opus-5-5')).toBe(false);
   });
 });

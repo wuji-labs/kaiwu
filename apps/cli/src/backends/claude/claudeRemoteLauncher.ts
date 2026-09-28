@@ -39,6 +39,7 @@ import { bindClaudeUnifiedTerminalSession } from './unifiedTerminal/bindClaudeUn
 import { surfaceClaudeUnifiedTerminalRuntimeIssue } from './unifiedTerminal/surfaceClaudeUnifiedTerminalRuntimeIssue';
 import {
     isClaudeUnifiedProviderUnavailablePromptDeliveryWindowActive,
+    resolveClaudeModelScopedLimitFamily,
     resolveClaudeUnifiedProviderUnavailableUntilMs,
     resolveClaudeUnifiedProviderUnavailableWindowForUsageLimitDialog,
     type ClaudeUnifiedProviderUnavailablePromptDeliveryWindow,
@@ -299,7 +300,7 @@ function resolveClaudeCodeArtifacts(error: unknown): ClaudeCodeArtifacts | null 
     return { debugFilePath, stderrFilePath };
 }
 
-function resolveClaudeCurrentModelIdFromMetadata(metadata: Record<string, unknown> | null | undefined): string | null {
+export function resolveClaudeCurrentModelIdFromMetadata(metadata: Record<string, unknown> | null | undefined): string | null {
     const preferred = typeof (metadata as any)?.modelOverrideV1?.modelId === 'string'
         ? String((metadata as any).modelOverrideV1.modelId).trim()
         : '';
@@ -1265,9 +1266,13 @@ export async function claudeRemoteLauncher(
             if (details.sourcedFromSidechain === true) return;
             const observedAtMs = Date.now();
             const unavailableUntilMs = resolveClaudeUnifiedProviderUnavailableUntilMs(details, observedAtMs);
+            const modelFamily = resolveClaudeModelScopedLimitFamily(details) ?? undefined;
             recentPrimaryProviderUnavailableForPromptDelivery = unavailableUntilMs === null
                 ? null
-                : { unavailableUntilMs };
+                : {
+                    unavailableUntilMs,
+                    ...(modelFamily !== undefined ? { modelFamily } : {}),
+                };
         };
         const surfaceRemoteRateLimitRuntimeIssue = async (details: NormalizedProviderUsageLimitDetailsV1): Promise<void> => {
             recordPrimaryProviderUnavailableForPromptDelivery(details);
@@ -1528,6 +1533,7 @@ export async function claudeRemoteLauncher(
                         setProviderUnavailableWindow: (window) => {
                             recentPrimaryProviderUnavailableForPromptDelivery = window;
                         },
+                        currentModelId: resolveClaudeCurrentModelIdFromMetadata(session.client.getMetadataSnapshot?.() as Record<string, unknown> | undefined),
                         blockPendingMessageDelivery: session.client.blockPendingMessageDelivery?.bind(session.client),
                         logPrefix: '[remote]',
                         logDebug: (message, logError) => logger.debug(message, logError),
@@ -1913,6 +1919,7 @@ export async function claudeRemoteLauncher(
                                 if (isClaudeUnifiedProviderUnavailablePromptDeliveryWindowActive(
                                     recentPrimaryProviderUnavailableForPromptDelivery,
                                     Date.now(),
+                                    resolveClaudeCurrentModelIdFromMetadata(session.client.getMetadataSnapshot?.() as Record<string, unknown> | undefined),
                                 )) {
                                     return { action: 'surfaced_runtime_issue' };
                                 }

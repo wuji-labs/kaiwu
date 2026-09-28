@@ -131,6 +131,7 @@ export async function handleClaudeUnifiedTerminalRuntimeIssuePendingDeliveryBloc
   setProviderUnavailableWindow: (window: ClaudeUnifiedProviderUnavailablePromptDeliveryWindow | null) => void;
   blockPendingMessageDelivery?: PendingDeliveryBlocker | undefined;
   nowMs?: (() => number) | undefined;
+  currentModelId?: string | null | undefined;
   logPrefix: string;
   logDebug: (message: string, error: unknown) => void;
   deferAmbiguousRuntimeIssue?: boolean | undefined;
@@ -139,7 +140,7 @@ export async function handleClaudeUnifiedTerminalRuntimeIssuePendingDeliveryBloc
   onSurfacedRuntimeIssue?: (() => void | Promise<void>) | undefined;
 }>): Promise<ClaudeUnifiedTerminalRuntimeIssueHandlingResult> {
   const nowMs = params.nowMs?.() ?? Date.now();
-  if (!isClaudeUnifiedProviderUnavailablePromptDeliveryWindowActive(params.providerUnavailableWindow, nowMs)) {
+  if (!isClaudeUnifiedProviderUnavailablePromptDeliveryWindowActive(params.providerUnavailableWindow, nowMs, params.currentModelId)) {
     params.setProviderUnavailableWindow(null);
   }
 

@@ -48,10 +48,12 @@ import {
 } from './terminalInjectionFailureError';
 import {
   isClaudeUnifiedProviderUnavailablePromptDeliveryWindowActive,
+  resolveClaudeModelScopedLimitFamily,
   resolveClaudeUnifiedProviderUnavailableUntilMs,
   resolveClaudeUnifiedProviderUnavailableWindowForUsageLimitDialog,
   type ClaudeUnifiedProviderUnavailablePromptDeliveryWindow,
 } from './pendingDeliveryBlock';
+import { resolveClaudeCurrentModelIdFromMetadata } from '../claudeRemoteLauncher';
 import {
   createClaudeUnifiedSustainedPendingDeliveryBlockHandler,
   handleClaudeUnifiedTerminalRuntimeIssuePendingDeliveryBlock,
@@ -399,9 +401,13 @@ export async function claudeUnifiedTerminalLauncher(
     if (details.sourcedFromSidechain !== true) {
       const observedAtMs = Date.now();
       const unavailableUntilMs = resolveClaudeUnifiedProviderUnavailableUntilMs(details, observedAtMs);
+      const modelFamily = resolveClaudeModelScopedLimitFamily(details) ?? undefined;
       recentPrimaryProviderUnavailableForPromptDelivery = unavailableUntilMs === null
         ? null
-        : { unavailableUntilMs };
+        : {
+            unavailableUntilMs,
+            ...(modelFamily !== undefined ? { modelFamily } : {}),
+          };
     }
   };
 
@@ -461,6 +467,7 @@ export async function claudeUnifiedTerminalLauncher(
     const result = await handleClaudeUnifiedTerminalRuntimeIssuePendingDeliveryBlock({
       error,
       providerUnavailableWindow: recentPrimaryProviderUnavailableForPromptDelivery,
+      currentModelId: resolveClaudeCurrentModelIdFromMetadata(session.client.getMetadataSnapshot?.() as Record<string, unknown> | undefined),
       setProviderUnavailableWindow: (window) => {
         recentPrimaryProviderUnavailableForPromptDelivery = window;
       },
@@ -839,6 +846,7 @@ export async function claudeUnifiedTerminalLauncher(
         if (isClaudeUnifiedProviderUnavailablePromptDeliveryWindowActive(
           recentPrimaryProviderUnavailableForPromptDelivery,
           Date.now(),
+          resolveClaudeCurrentModelIdFromMetadata(session.client.getMetadataSnapshot?.() as Record<string, unknown> | undefined),
         )) {
           // Positive usage-limit evidence already owns the primary failure. Do not overwrite it
           // with a generic provider-session timeout merely because acceptance remains uncertain.
