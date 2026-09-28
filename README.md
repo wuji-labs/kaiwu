@@ -12,6 +12,11 @@
   **End-to-end encrypted. Self-hostable. Built by developers, for developers.**
 </div>
 
+<p align="center">
+  <img src="assets/wechat-personal.jpg" alt="Add WUJI on WeChat" width="200">
+</p>
+<p align="center">扫码添加作者微信 · Scan to add the author on WeChat</p>
+
 ## 什么是无极开物 (What is Kaiwu)?
 
 **无极开物 (Kaiwu)** 是一个开源、端到端加密的跨设备 AI 编程助手与客户端。
@@ -205,7 +210,3 @@ MIT License — 详见 [LICENSE](LICENCE) 文件。
 ⸻
 
 Code faster. Code together. 乾元执中 · 开物成务。
-
-## 联系 · Contact
-扫码添加无极微信，交流合作 · Scan to add WUJI on WeChat
-<img src="assets/wechat-qr.png" width="200" alt="WUJI WeChat QR">
