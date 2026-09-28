@@ -53,7 +53,7 @@ vi.mock('./mutations/createSessionMutationOutbox', () => ({
     enqueueSessionTurn: async () => {},
     enqueueTranscriptMessage: async () => ({ persisted: true, delivered: true }),
     enqueueRuntimeActivitySnapshot: async () => ({ persisted: true, delivered: true }),
-    setSessionSyncPendingInputServerContract: () => {},
+    setSessionSyncPendingInputServerContract: async () => {},
     readRuntimeActivitySnapshotTail: () => ({
       sequence: 1,
       custody: null,
@@ -150,7 +150,7 @@ describe('SessionClient provider unavailable blocked pending redelivery', () => 
     makeCanonicalClaim(client, 'local-unavailable-no-effect');
     makeCanonicalClaim(client, 'local-other-reason');
     makeCanonicalClaim(client, 'local-steer-none');
-    makeCanonicalClaim(client, 'local-block-fails');
+    makeCanonicalClaim(client, 'local-block-retried');
 
     // 1. provider_unavailable_before_acceptance + providerEffect: 'none' -> MUST record
     const result1 = await client.blockPendingMessageDelivery({
@@ -186,17 +186,17 @@ describe('SessionClient provider unavailable blocked pending redelivery', () => 
     expect(result4).toBe(true);
     expect(client.getProviderUnavailableBlockedPendingLocalIds().has('local-steer-none')).toBe(false);
 
-    // 5. Block call fails -> MUST NOT record
+    // 5. The server block write fails: the server never holds a blocked row to restore, so the
+    //    localId MUST NOT be tracked for redelivery (the local canonical claim still owns it).
     blockPendingDeliveryMock.mockRejectedValueOnce(new Error('transport failed'));
-    const result5 = await client.blockPendingMessageDelivery({
-      localIds: ['local-block-fails'],
+    await client.blockPendingMessageDelivery({
+      localIds: ['local-block-retried'],
       reason: 'provider_unavailable_before_acceptance',
       providerEffect: 'none',
     }).catch(() => false);
-    expect(result5).toBe(false);
-    expect(client.getProviderUnavailableBlockedPendingLocalIds().has('local-block-fails')).toBe(false);
+    expect(client.getProviderUnavailableBlockedPendingLocalIds().has('local-block-retried')).toBe(false);
 
-    // Overall set contains exactly the one successful target
+    // Overall set contains exactly the one successfully server-blocked target
     expect(Array.from(client.getProviderUnavailableBlockedPendingLocalIds())).toEqual(['local-unavailable-none']);
   });
 

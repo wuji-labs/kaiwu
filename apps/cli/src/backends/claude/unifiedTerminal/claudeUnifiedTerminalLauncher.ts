@@ -363,6 +363,8 @@ export async function claudeUnifiedTerminalLauncher(
       void (async () => {
         try {
           await session.client.redeliverProviderUnavailableBlockedPendingMessages?.();
+        } catch (error) {
+          logger.debug('[unified] provider-unavailable pending redelivery failed', error);
         } finally {
           session.client.wakePendingMaterialization?.();
         }
@@ -564,6 +566,8 @@ export async function claudeUnifiedTerminalLauncher(
   const releaseUsageLimitPendingBlock = (): void => {
     usageLimitDialogVisible = false;
     providerUnavailableWindowTracker.setWindow(null);
+    // Always wake, even when no window was open (e.g. connected-service switch).
+    sustainedPendingDeliveryBlockHandler.wakePendingMaterialization();
   };
   const observeTerminalScreen = (observation: ClaudeUnifiedTerminalScreenObservation): void => {
     if (observation.screenState.usageLimitDialogVisible) {
