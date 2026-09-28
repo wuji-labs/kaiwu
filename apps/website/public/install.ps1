@@ -183,13 +183,25 @@ foreach ($dir in @("package-dist", "node_modules", "scripts", "tools")) {
     }
 }
 
+# 运行中的后台服务会锁住 kaiwu.exe；Windows 允许给运行中的程序改名，先挪开旧文件，新文件才能写入
+$existingExe = Join-Path $binDir "kaiwu.exe"
+if (Test-Path $existingExe) {
+    $parkedExe = "kaiwu.exe.$(Get-Date -Format 'yyyyMMddHHmmss').old"
+    try {
+        Rename-Item -LiteralPath $existingExe -NewName $parkedExe -ErrorAction Stop
+        Write-Info "已将旧版 kaiwu.exe 改名为 $parkedExe（重启后台服务后可删除）"
+    } catch {
+        Write-Warn "未能改名旧版 kaiwu.exe：$_"
+    }
+}
+
 # 将二进制与 bundle 复制到 bin 目录 (使用 robocopy 处理深层嵌套的 node_modules)
 $extractPath = $extractedFolder.FullName
 $robocopyExe = "C:\Windows\System32\robocopy.exe"
 
 if (Test-Path $robocopyExe) {
-    # 使用 robocopy 复制整个目录树，忽略长路径问题
-    & $robocopyExe $extractPath $binDir /E /NFL /NDL /NJH /NJS /NC /NS /NP 2>&1 | Out-Null
+    # 使用 robocopy 复制整个目录树，忽略长路径问题；/R /W 限制锁定文件的重试，避免默认的近乎无限重试卡死安装
+    & $robocopyExe $extractPath $binDir /E /R:3 /W:5 /NFL /NDL /NJH /NJS /NC /NS /NP 2>&1 | Out-Null
 } else {
     # 后备方案：逐个复制子项 (避免通配符问题)
     Get-ChildItem -Path $extractPath | ForEach-Object {
