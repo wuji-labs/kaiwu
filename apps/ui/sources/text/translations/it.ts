@@ -7320,6 +7320,7 @@ export const it: TranslationStructure = {
 	        copyPath: "Copia percorso",
 	        download: "Scarica",
 	        downloadAsZip: "Scarica come ZIP",
+	        openInEditor: "Apri nell'editor",
 	      },
 	      dropToUpload: "Trascina i file per caricare",
 	      rename: {
@@ -7348,6 +7349,9 @@ export const it: TranslationStructure = {
 	      },
 	      download: {
 	        notReady: "Il download non è ancora disponibile.",
+	      },
+	      openInEditor: {
+	        failed: "Impossibile aprire nell'editor.",
 	      },
 	    },
 	    changeRow: {

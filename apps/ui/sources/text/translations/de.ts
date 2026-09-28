@@ -6555,6 +6555,7 @@ export const de: TranslationStructure = {
 	                        copyPath: 'Pfad kopieren',
 	                        download: 'Herunterladen',
 	                        downloadAsZip: 'Als ZIP herunterladen',
+	                        openInEditor: "Im Editor öffnen",
 	                    },
 	                    dropToUpload: 'Dateien zum Hochladen hierher ziehen',
 	                    rename: {
@@ -6581,6 +6582,9 @@ export const de: TranslationStructure = {
 	                    },
 	                    download: {
 	                        notReady: 'Herunterladen ist noch nicht verfügbar.',
+	                    },
+	                    openInEditor: {
+	                        failed: "Öffnen im Editor fehlgeschlagen.",
 	                    },
 	                },
 	                changeRow: {

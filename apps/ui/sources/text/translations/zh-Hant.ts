@@ -4809,7 +4809,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                 },
                 intent: {
                   review: "審查",
-                  plan: "規劃",
+                  plan: "計畫",
                   delegate: "委派",
                 },
             },
@@ -5503,12 +5503,12 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
             default: '預設',
             acceptEdits: '接受編輯',
             safeYolo: '自動',
-            plan: '計畫模式',
+            plan: '計畫',
             bypassPermissions: 'Yolo 模式',
             badgeSafeYolo: '自動',
             badgeAcceptAllEdits: '接受所有編輯',
             badgeBypassAllPermissions: '繞過所有權限',
-            badgePlanMode: '計畫模式',
+            badgePlanMode: '計畫',
         },
         agent: {
             claude: "Claude",
@@ -5861,6 +5861,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
                 copyPath: '複製路徑',
                 download: '下載',
                 downloadAsZip: '以 ZIP 下載',
+                openInEditor: "在編輯器中開啟",
             },
             dropToUpload: '拖放檔案以上傳',
             rename: {
@@ -5887,6 +5888,9 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
             },
             download: {
                 notReady: '下載暫不可用。',
+            },
+            openInEditor: {
+                failed: "無法在編輯器中開啟。",
             },
         },
         changeRow: {

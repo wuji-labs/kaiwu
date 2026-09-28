@@ -1,11 +1,7 @@
 {
   "note": "Historical apps/ui type errors per file. May only shrink; see scripts/release-critical-tests.mjs.",
-  "total": 47,
+  "total": 43,
   "errorsByFile": {
-    "sources/components/sessions/files/file/FileActionToolbar.tsx": 1,
-    "sources/components/sessions/files/repositoryTree/RepositoryTreeRowActionsMenu.tsx": 1,
-    "sources/components/sessions/files/repositoryTree/useRepositoryTreeRowActions.ts": 1,
-    "sources/components/sessions/files/views/SessionFileDetailsView.tsx": 1,
     "sources/components/ui/code/diff/DiffFilesList.test.ts": 1,
     "sources/components/ui/code/diff/DiffFilesList.tsx": 3,
     "sources/components/ui/code/diff/DiffFileView.test.ts": 1,

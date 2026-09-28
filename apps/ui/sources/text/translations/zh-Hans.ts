@@ -5327,7 +5327,7 @@ export const zhHans: TranslationStructure = {
         },
         intent: {
           review: "审查",
-          plan: "规划",
+          plan: "计划",
           delegate: "委派",
         },
       },
@@ -6319,7 +6319,7 @@ export const zhHans: TranslationStructure = {
       acceptEdits: "接受编辑",
       safeYolo: "自动",
       yolo: "YOLO",
-      plan: "计划模式",
+      plan: "计划",
       bypassPermissions: "Yolo 模式",
       badgeAccept: "接受",
       badgePlan: "计划",
@@ -6328,7 +6328,7 @@ export const zhHans: TranslationStructure = {
       badgeYolo: "YOLO",
       badgeAcceptAllEdits: "接受所有编辑",
       badgeBypassAllPermissions: "绕过所有权限",
-      badgePlanMode: "计划模式",
+      badgePlanMode: "计划",
     },
     agent: {
       claude: "Claude",
@@ -6370,7 +6370,7 @@ export const zhHans: TranslationStructure = {
     codexPermissionMode: {
       title: "权限模式",
       default: "CLI 设置",
-      plan: "计划模式",
+      plan: "计划",
       readOnly: "只读模式",
       safeYolo: "自动",
       yolo: "YOLO",
@@ -6759,6 +6759,7 @@ export const zhHans: TranslationStructure = {
 	        copyPath: "复制路径",
 	        download: "下载",
 	        downloadAsZip: "以 ZIP 下载",
+	        openInEditor: "在编辑器中打开",
 	      },
 	      dropToUpload: "拖放文件以上传",
 	      rename: {
@@ -6786,6 +6787,9 @@ export const zhHans: TranslationStructure = {
 	      },
 	      download: {
 	        notReady: "下载暂不可用。",
+	      },
+	      openInEditor: {
+	        failed: "无法在编辑器中打开。",
 	      },
 	    },
 	    changeRow: {

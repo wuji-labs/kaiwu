@@ -6553,6 +6553,7 @@ deps: {
 	                    copyPath: 'Copia el camí',
 	                    download: 'Descarrega',
 	                    downloadAsZip: 'Descarrega com a ZIP',
+	                    openInEditor: "Obre a l'editor",
 	                },
 	                dropToUpload: 'Deixa anar fitxers per pujar',
 	                rename: {
@@ -6580,6 +6581,9 @@ deps: {
 	                },
 	                download: {
 	                    notReady: 'La descàrrega encara no està disponible.',
+	                },
+	                openInEditor: {
+	                    failed: "No s'ha pogut obrir a l'editor.",
 	                },
 	            },
 	          changeRow: {
