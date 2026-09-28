@@ -13,8 +13,7 @@
 // Usage: node scripts/release-critical-tests.mjs [--tests-only] [--typecheck-only] [--update-baseline]
 import { spawnSync } from 'node:child_process';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
-import { createRequire } from 'node:module';
-import { dirname, join } from 'node:path';
+import { delimiter, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -30,8 +29,9 @@ export const CRITICAL_TEST_PATHS = [
     'sources/components/sessions/agentInput/AgentInput.modelOptionsOverride.test.tsx',
 ];
 
-// Single Vitest processes over many files grow the heap until OOM (see apps/ui/scripts/runVitestShards.mjs).
-const SHARDS = 2;
+// Run through the repo's own shard runner: it splits by file and sets the per-process heap
+// limit. A hand-rolled 2-shard loop ran out of heap on the 7 GB macOS CI runner (2026-09-28).
+const SHARDS = 8;
 
 const args = new Set(process.argv.slice(2));
 
@@ -41,19 +41,27 @@ function run(label, command, commandArgs, options = {}) {
     return result;
 }
 
+// The shard runner spawns `vitest` by name, as it does under `yarn test:unit`, where yarn puts
+// node_modules/.bin on PATH. Do the same here so the gate also runs under plain `node`.
+function envWithPackageBins() {
+    const env = { ...process.env, HAPPIER_UI_VITEST_SHARDS: String(SHARDS) };
+    const pathKey = Object.keys(env).find((key) => key.toLowerCase() === 'path') ?? 'PATH';
+    const bins = [join(uiRoot, 'node_modules', '.bin'), join(repoRoot, 'node_modules', '.bin')];
+    env[pathKey] = [...bins, env[pathKey] ?? ''].join(delimiter);
+    return env;
+}
+
 function runCriticalTests() {
-    const vitestEntry = join(dirname(createRequire(join(uiRoot, 'package.json')).resolve('vitest/package.json')), 'vitest.mjs');
-    for (let shard = 1; shard <= SHARDS; shard += 1) {
-        const result = run(
-            `critical tests shard ${shard}/${SHARDS}`,
-            process.execPath,
-            [vitestEntry, 'run', '--config', 'vitest.config.ts', `--shard=${shard}/${SHARDS}`, ...CRITICAL_TEST_PATHS],
-            { stdio: 'inherit' },
-        );
-        if (result.status !== 0) {
-            console.error(`[release-gate] FAIL: critical tests shard ${shard}/${SHARDS} exited ${result.status}`);
-            return false;
-        }
+    const shardRunner = join(uiRoot, 'scripts', 'runVitestShards.mjs');
+    const result = run(
+        `critical tests (${SHARDS} shards)`,
+        process.execPath,
+        [shardRunner, '--config', 'vitest.config.ts', ...CRITICAL_TEST_PATHS],
+        { stdio: 'inherit', env: envWithPackageBins() },
+    );
+    if (result.status !== 0) {
+        console.error(`[release-gate] FAIL: critical tests exited ${result.status}`);
+        return false;
     }
     console.log('[release-gate] PASS: critical tests');
     return true;
