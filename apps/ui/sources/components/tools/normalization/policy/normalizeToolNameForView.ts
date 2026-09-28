@@ -1,4 +1,8 @@
-import { canonicalizeGenericSubAgentToolName, isChangeTitleToolNameAlias } from '@happier-dev/protocol/tools/v2';
+import {
+    canonicalizeGenericSubAgentToolName,
+    isChangeTitleToolNameAlias,
+    isSendFileToUserToolNameAlias,
+} from '@happier-dev/protocol/tools/v2';
 
 const legacyToolNameToCanonical: Record<string, string> = {
     // Provider-branded historical names.
@@ -34,8 +38,9 @@ const legacyToolNameToCanonical: Record<string, string> = {
 };
 
 export function normalizeToolNameForView(toolName: string): string {
-    if (toolName.startsWith('mcp__')) return toolName;
     if (isChangeTitleToolNameAlias(toolName)) return 'change_title';
+    if (isSendFileToUserToolNameAlias(toolName)) return 'send_file_to_user';
+    if (toolName.startsWith('mcp__')) return toolName;
     const genericSubAgentToolName = canonicalizeGenericSubAgentToolName(toolName);
     if (genericSubAgentToolName) return genericSubAgentToolName;
     return legacyToolNameToCanonical[toolName] ?? toolName;

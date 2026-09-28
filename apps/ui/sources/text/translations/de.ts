@@ -6481,6 +6481,16 @@ export const de: TranslationStructure = {
             switchMode: 'Modus wechseln',
             taskOutput: 'Aufgabenausgabe',
             taskStop: 'Aufgabe stoppen',
+            sendFileToUser: 'Datei an Benutzer senden',
+        },
+        sendFileView: {
+            title: 'Datei gesendet',
+            preview: 'Vorschau',
+            download: 'Herunterladen',
+            downloading: 'Wird heruntergeladen…',
+            failedToDownload: 'Datei konnte nicht heruntergeladen werden',
+            openInPreview: 'In Vorschau öffnen',
+            note: 'Hinweis',
         },
         geminiExecute: {
             cwd: ({ cwd }: { cwd: string }) => `📁 ${cwd}`,

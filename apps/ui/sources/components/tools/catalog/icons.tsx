@@ -17,3 +17,4 @@ export const ICON_QUESTION = (size: number, color: string) => <Icon name="questi
 // Deliberately NOT `stop-circle`, which the agent-activity status table owns for `cancelled`.
 export const ICON_TASK_OUTPUT = (size: number, color: string) => <Icon name="tray" size={size} color={color} />;
 export const ICON_TASK_STOP = (size: number, color: string) => <Icon name="stop" size={size} color={color} />;
+export const ICON_SEND_FILE = (size: number, color: string) => <Icon name="paperclip" size={size} color={color} />;

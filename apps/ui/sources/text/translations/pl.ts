@@ -6904,6 +6904,16 @@ export const pl: TranslationStructure = {
       switchMode: "Zmień tryb",
       taskOutput: "Wynik zadania",
       taskStop: "Zatrzymaj zadanie",
+      sendFileToUser: "Wyślij plik do użytkownika",
+    },
+    sendFileView: {
+      title: "Plik dostarczony",
+      preview: "Podgląd",
+      download: "Pobierz",
+      downloading: "Pobieranie…",
+      failedToDownload: "Nie udało się pobrać pliku",
+      openInPreview: "Otwórz w podglądzie",
+      note: "Notatka",
     },
     geminiExecute: {
       cwd: ({ cwd }: { cwd: string }) => `📁 ${cwd}`,

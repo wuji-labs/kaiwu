@@ -7186,6 +7186,16 @@ localTailscale: {
       switchMode: "モードを切り替え",
       taskOutput: "タスクの出力",
       taskStop: "タスクを停止",
+      sendFileToUser: "ファイルをユーザーに送信",
+    },
+    sendFileView: {
+      title: "ファイルを送信しました",
+      preview: "プレビュー",
+      download: "ダウンロード",
+      downloading: "ダウンロード中…",
+      failedToDownload: "ファイルのダウンロードに失敗しました",
+      openInPreview: "プレビューで開く",
+      note: "メモ",
     },
     geminiExecute: {
       cwd: ({ cwd }: { cwd: string }) => `📁 ${cwd}`,

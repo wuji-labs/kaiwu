@@ -5792,6 +5792,16 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
             switchMode: '切換模式',
             taskOutput: '任務輸出',
             taskStop: '停止任務',
+            sendFileToUser: '傳送檔案給使用者',
+        },
+        sendFileView: {
+            title: '檔案已傳送',
+            preview: '預覽',
+            download: '下載',
+            downloading: '正在下載…',
+            failedToDownload: '下載檔案失敗',
+            openInPreview: '在預覽中開啟',
+            note: '說明',
         },
         geminiExecute: {
             cwd: ({ cwd }: { cwd: string }) => `📁 ${cwd}`,

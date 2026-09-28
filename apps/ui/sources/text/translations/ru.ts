@@ -6887,6 +6887,16 @@ export const ru: TranslationStructure = {
       switchMode: "Сменить режим",
       taskOutput: "Вывод задачи",
       taskStop: "Остановить задачу",
+      sendFileToUser: "Отправить файл пользователю",
+    },
+    sendFileView: {
+      title: "Файл доставлен",
+      preview: "Предпросмотр",
+      download: "Скачать",
+      downloading: "Загрузка…",
+      failedToDownload: "Не удалось скачать файл",
+      openInPreview: "Открыть в предпросмотре",
+      note: "Примечание",
     },
     geminiExecute: {
       cwd: ({ cwd }: { cwd: string }) => `📁 ${cwd}`,

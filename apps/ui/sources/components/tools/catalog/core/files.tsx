@@ -2,7 +2,7 @@ import type { Metadata } from '@/sync/domains/state/storageTypes';
 import type { ToolCall } from '@/sync/domains/messages/messageTypes';
 import { resolvePath } from '@/utils/path/pathUtils';
 import { t } from '@/text';
-import { ICON_READ, ICON_EDIT, ICON_DELETE } from '../icons';
+import { ICON_READ, ICON_EDIT, ICON_DELETE, ICON_SEND_FILE } from '../icons';
 import type { KnownToolDefinition } from '../_types';
 import {
     DeleteInputV2Schema,
@@ -10,6 +10,8 @@ import {
     MultiEditInputV2Schema,
     ReadInputV2Schema,
     ReadResultV2Schema,
+    SendFileToUserInputV2Schema,
+    SendFileToUserResultV2Schema,
     WriteInputV2Schema,
 } from '@happier-dev/protocol';
 
@@ -124,5 +126,16 @@ export const coreFileTools = {
         icon: ICON_DELETE,
         isMutable: true,
         input: DeleteInputV2Schema,
+    },
+    'send_file_to_user': {
+        title: () => t('tools.names.sendFileToUser'),
+        icon: ICON_SEND_FILE,
+        input: SendFileToUserInputV2Schema,
+        result: SendFileToUserResultV2Schema,
+        extractSubtitle: (opts: { metadata: Metadata | null, tool: ToolCall }) => {
+            const path = typeof (opts.tool.input as any)?.path === 'string' ? (opts.tool.input as any).path : null;
+            if (!path || path.trim().length === 0) return null;
+            return resolvePath(path, opts.metadata);
+        },
     },
 } satisfies Record<string, KnownToolDefinition>;

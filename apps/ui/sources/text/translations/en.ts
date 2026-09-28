@@ -6485,6 +6485,16 @@ export const en = {
             switchMode: 'Switch mode',
             taskOutput: 'Task output',
             taskStop: 'Stop task',
+            sendFileToUser: 'Send File to User',
+        },
+        sendFileView: {
+            title: 'File Delivered',
+            preview: 'Preview',
+            download: 'Download',
+            downloading: 'Downloading…',
+            failedToDownload: 'Failed to download file',
+            openInPreview: 'Open in preview',
+            note: 'Note',
         },
         geminiExecute: {
             cwd: ({ cwd }: { cwd: string }) => `📁 ${cwd}`,

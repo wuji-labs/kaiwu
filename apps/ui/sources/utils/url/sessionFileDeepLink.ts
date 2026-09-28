@@ -69,6 +69,23 @@ export function buildSessionFileDeepLink(params: {
     return `${base}&${parts.join('&')}`;
 }
 
+export type SessionFileDeepLinkRouter = {
+    push: (href: string) => void;
+};
+
+export function pushSessionFileDeepLink(
+    router: SessionFileDeepLinkRouter,
+    params: {
+        sessionId: string;
+        filePath: string;
+        source?: ReviewCommentSource;
+        anchor?: ReviewCommentAnchor;
+    },
+): void {
+    const href = buildSessionFileDeepLink(params);
+    router.push(href);
+}
+
 export function parseSessionFileDeepLinkAnchor(params: ExpoLocalSearchParams): {
     source: ReviewCommentSource;
     anchor: ReviewCommentAnchor;
