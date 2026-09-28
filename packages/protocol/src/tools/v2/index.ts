@@ -22,6 +22,11 @@ export {
   isChangeTitleToolLikeName,
   isChangeTitleToolNameAlias,
   type ChangeTitleToolNameAlias,
+  SEND_FILE_TO_USER_TOOL_NAME_ALIASES,
+  SendFileToUserToolNameAliasSchema,
+  isSendFileToUserToolLikeName,
+  isSendFileToUserToolNameAlias,
+  type SendFileToUserToolNameAlias,
 } from './aliases.js';
 
 export {
@@ -97,4 +102,6 @@ export {
   WorkspaceIndexingPermissionInputV2Schema,
   ChangeTitleInputV2Schema,
   ChangeTitleResultV2Schema,
+  SendFileToUserInputV2Schema,
+  SendFileToUserResultV2Schema,
 } from './schemas.js';

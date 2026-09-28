@@ -450,6 +450,20 @@ export const ChangeTitleResultV2Schema = BaseEnvelopeSchema.extend({
   title: z.string().optional(),
 }).passthrough();
 
+export const SendFileToUserInputV2Schema = BaseEnvelopeSchema.extend({
+  path: z.string().min(1).optional(),
+  message: z.string().optional(),
+}).passthrough();
+
+export const SendFileToUserResultV2Schema = BaseEnvelopeSchema.extend({
+  ok: z.boolean().optional(),
+  path: z.string().optional(),
+  fileName: z.string().optional(),
+  sizeBytes: z.number().optional(),
+  mimeType: z.string().optional(),
+  message: z.string().optional(),
+}).passthrough();
+
 const TOOL_INPUT_SCHEMAS: Record<KnownCanonicalToolNameV2, z.ZodTypeAny> = {
   Bash: BashInputV2Schema,
   Read: ReadInputV2Schema,
@@ -479,6 +493,7 @@ const TOOL_INPUT_SCHEMAS: Record<KnownCanonicalToolNameV2, z.ZodTypeAny> = {
   AcpHistoryImport: AcpHistoryImportInputV2Schema,
   WorkspaceIndexingPermission: WorkspaceIndexingPermissionInputV2Schema,
   change_title: ChangeTitleInputV2Schema,
+  send_file_to_user: SendFileToUserInputV2Schema,
   SubAgentRun: SubAgentRunInputV2Schema,
   AgentTeamCreate: AgentTeamCreateInputV2Schema,
   AgentTeamDelete: AgentTeamDeleteInputV2Schema,
@@ -514,6 +529,7 @@ const TOOL_RESULT_SCHEMAS: Record<KnownCanonicalToolNameV2, z.ZodTypeAny> = {
   AcpHistoryImport: BaseEnvelopeSchema.passthrough(),
   WorkspaceIndexingPermission: BaseEnvelopeSchema.passthrough(),
   change_title: ChangeTitleResultV2Schema,
+  send_file_to_user: SendFileToUserResultV2Schema,
   SubAgentRun: SubAgentRunResultV2Schema,
   AgentTeamCreate: AgentTeamCreateResultV2Schema,
   AgentTeamDelete: AgentTeamDeleteResultV2Schema,

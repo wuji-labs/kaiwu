@@ -67,4 +67,24 @@ describe('canonical Workflow tool name', () => {
     // Carries the canonical tool-use id used to join transcript cards to the activity snapshot.
     expect(resultSchema.safeParse({ task_id: 'w1', tool_use_id: 'toolu_1', status: 'completed' }).success).toBe(true);
   });
+
+  it('registers send_file_to_user as canonical tool name with input and result schemas', () => {
+    expect(KNOWN_CANONICAL_TOOL_NAMES_V2.includes('send_file_to_user')).toBe(true);
+    expect(KnownCanonicalToolNameV2Schema.safeParse('send_file_to_user').success).toBe(true);
+
+    const inputSchema = getToolInputSchemaV2('send_file_to_user');
+    const resultSchema = getToolResultSchemaV2('send_file_to_user');
+    expect(inputSchema).toBeDefined();
+    expect(resultSchema).toBeDefined();
+
+    expect(inputSchema.safeParse({ path: 'dist/report.pdf', message: 'Here is your report' }).success).toBe(true);
+    expect(resultSchema.safeParse({
+      ok: true,
+      path: 'dist/report.pdf',
+      fileName: 'report.pdf',
+      sizeBytes: 1024,
+      mimeType: 'application/pdf',
+      message: 'Here is your report',
+    }).success).toBe(true);
+  });
 });

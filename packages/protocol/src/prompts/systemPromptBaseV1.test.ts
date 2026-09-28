@@ -27,4 +27,10 @@ describe('HAPPIER_BASE_SYSTEM_PROMPT_V1', () => {
     expect(HAPPIER_BASE_SYSTEM_PROMPT_V1).not.toContain('Always prefer to use the options mode');
     expect(HAPPIER_BASE_SYSTEM_PROMPT_V1).not.toContain('Plan mode with options');
   });
+
+  it('documents send_file_to_user for delivering workspace files to the user', () => {
+    expect(HAPPIER_BASE_SYSTEM_PROMPT_V1).toContain('# Sending files to the user');
+    expect(HAPPIER_BASE_SYSTEM_PROMPT_V1).toContain('`send_file_to_user`');
+    expect(HAPPIER_BASE_SYSTEM_PROMPT_V1).toContain('The file must already exist in the workspace before calling this tool');
+  });
 });
