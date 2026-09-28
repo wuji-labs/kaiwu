@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import renderer, { act } from 'react-test-renderer';
 import { resetDynamicSessionModeProbeCacheForTests } from '@/sync/domains/sessionModes/dynamicSessionModeProbeCache';
 import { renderScreen } from '@/dev/testkit';
+import { tLoose } from '@/text';
 
 
 (globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
@@ -16,7 +17,12 @@ const machineCapabilitiesInvokeMock = vi.fn(async (_machineId: any, _request: an
     supported: true as const,
     response: {
       ok: true as const,
-      result: { availableModes: [{ id: 'plan', name: 'Plan' }] },
+      result: {
+        availableModes: [
+          { id: 'default', name: 'Default' },
+          { id: 'plan', name: 'Plan' },
+        ],
+      },
     },
   };
 });
@@ -59,13 +65,18 @@ describe('useNewSessionPreflightSessionModesState (loading placeholder)', () => 
     expect(machineCapabilitiesInvokeMock).toHaveBeenCalledTimes(1);
     expect(latest.probe.phase).toBe('loading');
     expect((latest.modeOptions ?? []).map((o: any) => o.id)).toEqual(['default']);
+    expect((latest.modeOptions ?? [])[0]?.name).toBe(tLoose('agentInput.mode.build'));
 
     await act(async () => {
       resolveProbe?.();
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
-    expect((latest.modeOptions ?? []).some((o: any) => o.id === 'plan')).toBe(true);
+    expect((latest.modeOptions ?? []).map((o: any) => o.id)).toEqual(['default', 'plan']);
+    expect((latest.modeOptions ?? []).map((o: any) => o.name)).toEqual([
+      tLoose('agentInput.mode.build'),
+      tLoose('agentInput.mode.plan'),
+    ]);
 
     await act(async () => {
       root.unmount();

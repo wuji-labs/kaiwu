@@ -5,8 +5,16 @@ import type { Metadata } from '../state/storageTypes';
 vi.mock('@/text', async () => {
     const { createTextModuleMock } = await import('@/dev/testkit/mocks/text');
     return createTextModuleMock({
-        translate: (key: string) => key,
-        translateLoose: (key: string) => key,
+        translate: (key: string) => {
+            if (key === 'agentInput.mode.build') return 'Build';
+            if (key === 'agentInput.mode.plan') return 'Plan';
+            return key;
+        },
+        translateLoose: (key: string) => {
+            if (key === 'agentInput.mode.build') return 'Build';
+            if (key === 'agentInput.mode.plan') return 'Plan';
+            return key;
+        },
     });
 });
 
@@ -46,6 +54,27 @@ describe('sessionModeControl', () => {
     expect(res?.currentModeId).toBe('build');
     expect(res?.effectiveModeId).toBe('build');
     expect(res?.options.map((option) => option.id)).toEqual(['build', 'plan']);
+  });
+
+  it('normalizes canonical mode labels while preserving opaque provider labels', async () => {
+    const { computeSessionModePickerControl } = await import('./sessionModeControl');
+    const metadata = createMetadata({
+      sessionModesV1: {
+        v: 1,
+        provider: 'opencode',
+        updatedAt: 1,
+        currentModeId: 'review',
+        availableModes: [
+          { id: 'default', name: 'Default' },
+          { id: 'plan', name: 'Plan' },
+          { id: 'review', name: 'Human review' },
+        ],
+      },
+    });
+
+    const res = computeSessionModePickerControl({ agentId: 'opencode', metadata });
+    expect(res?.options.map((option) => option.id)).toEqual(['default', 'plan', 'review']);
+    expect(res?.options.map((option) => option.name)).toEqual(['Build', 'Plan', 'Human review']);
   });
 
   it('computeSessionModePickerControl marks pending when requested override differs from current (ACP)', async () => {
@@ -137,7 +166,7 @@ describe('sessionModeControl', () => {
     expect(res?.effectiveModeId).toBe('plan');
     expect(res?.isPending).toBe(true);
     expect(res?.options.map((option) => option.id)).toEqual(['default', 'plan']);
-    expect(res?.options.map((option) => option.name)).toEqual(['Default', 'Plan']);
+    expect(res?.options.map((option) => option.name)).toEqual(['Build', 'Plan']);
   });
 
   it('publishes the real default mode id when the provider exposes default as an actual option', async () => {

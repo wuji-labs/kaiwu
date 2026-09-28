@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SESSION_RPC_METHODS } from '@happier-dev/protocol/rpc';
+import { tLoose } from '@/text';
 
 const executionRunStart = vi.fn(async () => ({ ok: true, runId: 'run_1' }));
 const executionRunList = vi.fn(async () => []);
@@ -324,9 +325,9 @@ describe('createDefaultActionExecutor plan mode integration', () => {
     expect(result.ok).toBe(true);
     expect((result as any).result.options).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ value: 'default', label: 'Default' }),
-        expect.objectContaining({ value: 'build', label: 'Build' }),
-        expect.objectContaining({ value: 'plan', label: 'Plan' }),
+        expect.objectContaining({ value: 'default', label: tLoose('agentInput.mode.build') }),
+        expect.objectContaining({ value: 'build', label: tLoose('agentInput.mode.build') }),
+        expect.objectContaining({ value: 'plan', label: tLoose('agentInput.mode.plan') }),
       ]),
     );
   });
