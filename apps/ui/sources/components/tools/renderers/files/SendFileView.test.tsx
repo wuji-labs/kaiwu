@@ -38,6 +38,54 @@ describe('SendFileView', () => {
         mockDownloadState = { status: 'idle' };
     });
 
+    it('hides preview/download and shows the reason when the send was rejected', async () => {
+        const tool = makeToolCall({
+            name: 'send_file_to_user',
+            state: 'completed',
+            input: { path: '../secret.txt' },
+            result: { ok: false, errorCode: 'access_denied', error: 'Access denied: path is outside the workspace' },
+        });
+
+        const screen = await renderScreen(
+            React.createElement(SendFileView, makeToolViewProps(tool, { sessionId: 'sess-123' })),
+        );
+
+        expect(screen.getTextContent()).toContain('Access denied: path is outside the workspace');
+        expect(screen.findByTestId('send-file-preview-button')).toBeNull();
+        expect(screen.findByTestId('send-file-download-button')).toBeNull();
+    });
+
+    it('hides preview/download while the call is still running', async () => {
+        const tool = makeToolCall({
+            name: 'send_file_to_user',
+            state: 'running',
+            input: { path: 'reports/summary.pdf' },
+        });
+
+        const screen = await renderScreen(
+            React.createElement(SendFileView, makeToolViewProps(tool, { sessionId: 'sess-123' })),
+        );
+
+        expect(screen.getTextContent()).toContain('summary.pdf');
+        expect(screen.findByTestId('send-file-preview-button')).toBeNull();
+    });
+
+    it('parses results delivered as MCP text content blocks', async () => {
+        const tool = makeToolCall({
+            name: 'send_file_to_user',
+            state: 'completed',
+            input: { path: 'out/logo.png' },
+            result: [{ type: 'text', text: JSON.stringify({ ok: true, path: 'out/logo.png', fileName: 'logo.png', sizeBytes: 4096, mimeType: 'image/png' }) }],
+        });
+
+        const screen = await renderScreen(
+            React.createElement(SendFileView, makeToolViewProps(tool, { sessionId: 'sess-123' })),
+        );
+
+        expect(screen.getTextContent()).toContain('4.0 KB');
+        expect(screen.findByTestId('send-file-download-button')).toBeTruthy();
+    });
+
     it('renders with message, file name, and formatted size', async () => {
         const tool = makeToolCall({
             name: 'send_file_to_user',
