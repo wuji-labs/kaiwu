@@ -76,4 +76,9 @@ describe('CodexAcpTransport determineToolName', () => {
       ),
     ).toBe('unknown');
   });
+
+  it('infers send_file_to_user from tool name aliases or input fields', () => {
+    expect(transport.determineToolName('deliver_file', 'tool-8', { path: 'reports/summary.pdf' }, ctx)).toBe('send_file_to_user');
+    expect(transport.determineToolName('unknown', 'send_file_to_user_call_1', { path: 'reports/summary.pdf' }, ctx)).toBe('send_file_to_user');
+  });
 });

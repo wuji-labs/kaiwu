@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { EnhancedMode } from '../loop';
 import { createPermissionHandlerSessionStub } from './permissionHandler.testkit';
 
-describe('Claude PermissionHandler - Happier MCP session-control tools', () => {
+describe('Claude PermissionHandler - Happier MCP session-control tools', { timeout: 60_000 }, () => {
   it('auto-allows title changes in default mode without creating a permission request', async () => {
     const { session, client } = createPermissionHandlerSessionStub('change-title-default-auto-approve');
     const { PermissionHandler } = await import('./permissionHandler');

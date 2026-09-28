@@ -31,7 +31,7 @@ import { parseTrustedHappierToolsShellBridgeCommand } from '@/agent/tools/happie
 
 export type { PermissionResult, PendingRequest };
 
-const AUTO_APPROVE_HAPPIER_SHELL_BRIDGE_TOOLS = new Set(['change_title', 'session_title_set', 'save_memory', 'think']);
+const AUTO_APPROVE_HAPPIER_SHELL_BRIDGE_TOOLS = new Set(['change_title', 'session_title_set', 'save_memory', 'think', 'send_file_to_user']);
 export { isDefaultWriteLikeToolName };
 
 export class CodexLikePermissionHandler extends BasePermissionHandler {

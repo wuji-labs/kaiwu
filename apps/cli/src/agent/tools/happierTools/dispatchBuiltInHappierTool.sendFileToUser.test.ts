@@ -226,6 +226,27 @@ describe('dispatchBuiltInHappierTool - send_file_to_user', () => {
     expect(result.ok ? '' : result.error).toContain('reserved Windows device name');
   });
 
+  it('rejects cross-drive paths on Windows with access_denied', async () => {
+    const result = await dispatchBuiltInHappierTool({
+      toolName: 'send_file_to_user',
+      args: { path: 'D:\\other_drive\\data.csv' },
+      sessionId: 'sess-1',
+      sessionDirectory: 'C:\\workspace',
+      platform: 'win32',
+      deps: {
+        changeTitle: async () => unsupported(),
+        startExecutionRun: async () => unsupported(),
+        executeActionByToolName: async () => unsupported(),
+      },
+    });
+
+    expect(result).toMatchObject({
+      ok: false,
+      errorCode: 'access_denied',
+    });
+    expect(result.ok ? '' : result.error).toContain('outside the allowed directories');
+  });
+
   it('rejects files exceeding maximum allowed download size with file_too_large', async () => {
     const largeFilePath = join(testWorkspace, 'large.bin');
     writeFileSync(largeFilePath, 'mock');

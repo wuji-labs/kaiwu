@@ -22,5 +22,23 @@ describe('CodexPermissionHandler - title changes', () => {
       }),
     );
   });
+
+  it('auto-approves send_file_to_user tool calls in read-only mode without creating a permission request', async () => {
+    const session = new FakePermissionSession();
+    const handler = new CodexPermissionHandler(session.asApiSessionClient());
+    handler.setPermissionMode('read-only');
+
+    const result = await handler.handleToolCall('tool-send-file-1', 'mcp__happier__send_file_to_user', { path: 'reports/summary.pdf' });
+
+    expect(result.decision).toBe('approved');
+    expect(session.snapshot().requests?.['tool-send-file-1']).toBeUndefined();
+    expect(session.snapshot().completedRequests?.['tool-send-file-1']).toEqual(
+      expect.objectContaining({
+        tool: 'mcp__happier__send_file_to_user',
+        status: 'approved',
+        decision: 'approved',
+      }),
+    );
+  });
 });
 

@@ -10,7 +10,7 @@ import {
   type PendingRequest,
   type PermissionResult,
 } from '@/agent/permissions/CodexLikePermissionHandler';
-import { isChangeTitleToolNameAlias } from '@happier-dev/protocol/tools/v2';
+import { isChangeTitleToolNameAlias, isSendFileToUserToolNameAlias } from '@happier-dev/protocol/tools/v2';
 
 export type { PermissionResult, PendingRequest };
 
@@ -33,6 +33,7 @@ export class GeminiPermissionHandler extends CodexLikePermissionHandler {
     const lowerName = toolName.toLowerCase();
     const isAlwaysAutoApprove =
       isChangeTitleToolNameAlias(toolName) ||
+      isSendFileToUserToolNameAlias(toolName) ||
       this.alwaysAutoApproveToolNameIncludes.some((t) => lowerName === t);
     if (isAlwaysAutoApprove) {
       this.recordAutoDecision(toolCallId, toolName, input, 'approved');

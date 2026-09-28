@@ -88,6 +88,19 @@ describe('GeminiPermissionHandler', () => {
     );
   });
 
+  it('always auto-approves send_file_to_user tools regardless of mode', async () => {
+    const session = new FakePermissionSession();
+    const handler = new GeminiPermissionHandler(session.asApiSessionClient());
+    handler.setPermissionMode('read-only');
+
+    const result = await handler.handleToolCall('tool-send-file-1', 'mcp__happier__send_file_to_user', { path: 'reports/summary.pdf' });
+    expect(result.decision).toBe('approved');
+    expect(session.snapshot().requests?.['tool-send-file-1']).toBeUndefined();
+    expect(session.snapshot().completedRequests?.['tool-send-file-1']).toEqual(
+      expect.objectContaining({ tool: 'mcp__happier__send_file_to_user', status: 'approved', decision: 'approved' }),
+    );
+  });
+
   it('refuses claimed IDs before Gemini-specific always-auto approval', async () => {
     const session = new FakePermissionSession();
     const opaqueClaim = { malformed: { future: true } };
