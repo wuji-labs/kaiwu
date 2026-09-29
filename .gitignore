@@ -53,6 +53,7 @@ apps/server/output/
 # macOS
 .DS_Store
 *.pem
+!apps/ui/certs/*.pem
 
 # local env files
 .env*.local
