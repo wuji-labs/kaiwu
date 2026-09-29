@@ -1,5 +1,9 @@
 import { asRecord, firstNonEmptyString, hasNonEmptyRecord } from './_shared';
-import { canonicalizeGenericSubAgentToolName, isChangeTitleToolNameAlias } from '@happier-dev/protocol/tools/v2';
+import {
+    canonicalizeGenericSubAgentToolName,
+    isChangeTitleToolNameAlias,
+    isSendFileToUserToolNameAlias,
+} from '@happier-dev/protocol/tools/v2';
 
 function isLegacySlashChangeTitleName(name: string): boolean {
     const normalized = typeof name === 'string' ? name.trim().toLowerCase() : '';
@@ -52,6 +56,10 @@ function canonicalizeToolNameNonV2(toolName: string, input: unknown, description
         if (contradictoryWrappedToolName) return 'unknown';
         return 'change_title';
     }
+
+    // Built-in MCP tools arrive as mcp__happier__*; canonicalize so the shell renders the dedicated
+    // file card instead of collapsing it into a generic MCP row.
+    if (isSendFileToUserToolNameAlias(toolName)) return 'send_file_to_user';
 
     const lower = toolName.toLowerCase();
     if (lower === 'patch') return 'Patch';
