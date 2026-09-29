@@ -76,6 +76,12 @@ function withCleanEnv<T>(fn: () => T): T {
         'EX_UPDATES_NATIVE_DEBUG',
         'EXPO_PUBLIC_HAPPIER_SYNC_TUNING_JSON',
         'HAPPIER_SYNC_TUNING_JSON',
+        'EXPO_IOS_BUILD_NUMBER',
+        'EXPO_APP_BUILD_NUMBER',
+        'IOS_BUILD_NUMBER',
+        'EXPO_ANDROID_VERSION_CODE',
+        'EXPO_APP_VERSION_CODE',
+        'ANDROID_VERSION_CODE',
     ] as const;
 
     const previous: Partial<Record<(typeof keys)[number], string | undefined>> = {};
@@ -236,6 +242,22 @@ describe('app.config.js', () => {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         const pkg = require('../../../package.json');
         expect(exp.version).toBe(pkg.version);
+    });
+
+    it('sets iOS buildNumber and Android versionCode based on app version by default', () => {
+        const exp = withCleanEnv(() => getPublicConfig());
+        expect(exp.ios?.buildNumber).toBe('24');
+        expect(exp.android?.versionCode).toBe(24);
+    });
+
+    it('allows overriding iOS buildNumber and Android versionCode via environment variables', () => {
+        const exp = withCleanEnv(() => {
+            process.env.EXPO_IOS_BUILD_NUMBER = '99';
+            process.env.EXPO_ANDROID_VERSION_CODE = '100';
+            return getPublicConfig();
+        });
+        expect(exp.ios?.buildNumber).toBe('99');
+        expect(exp.android?.versionCode).toBe(100);
     });
 
     it('defaults EXPO_PUBLIC_HAPPIER_FEATURE_POLICY_ENV based on the app variant', () => {

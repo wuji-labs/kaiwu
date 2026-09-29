@@ -92,6 +92,40 @@ const packageJsonRuntimeVersion =
 const rawAppEnvironment = (process.env.APP_VARIANT || process.env.APP_ENV || '').trim();
 const appEnvironmentConfig = getAppEnvironmentConfig(rawAppEnvironment);
 
+const iosBuildNumberOverride = (
+    process.env.EXPO_IOS_BUILD_NUMBER ||
+    process.env.EXPO_APP_BUILD_NUMBER ||
+    process.env.IOS_BUILD_NUMBER ||
+    ''
+).trim();
+const androidVersionCodeOverride = (
+    process.env.EXPO_ANDROID_VERSION_CODE ||
+    process.env.EXPO_APP_VERSION_CODE ||
+    process.env.ANDROID_VERSION_CODE ||
+    ''
+).trim();
+
+const defaultBuildNumber = (() => {
+    const rawVersion = (versionOverride || packageJsonVersion || '').trim();
+    const match = rawVersion.match(/^0\.2\.(\d+)$/);
+    if (match) {
+        return parseInt(match[1], 10);
+    }
+    return 24;
+})();
+
+const resolvedIosBuildNumber =
+    iosBuildNumberOverride ||
+    String(defaultBuildNumber);
+
+const resolvedAndroidVersionCode = (() => {
+    if (androidVersionCodeOverride) {
+        const parsed = parseInt(androidVersionCodeOverride, 10);
+        if (!Number.isNaN(parsed)) return parsed;
+    }
+    return defaultBuildNumber;
+})();
+
 // Android size tuning (primarily for direct-download APKs).
 // Prefer controlling these knobs from EAS build profile env so store builds (AAB) keep their defaults.
 const androidEnableMinifyInReleaseBuilds = readBoolEnv('HAPPIER_ANDROID_ENABLE_MINIFY', false);
@@ -294,6 +328,7 @@ const baseExpoConfig = {
         ios: {
             supportsTablet: true,
             bundleIdentifier: iosBundleId,
+            buildNumber: resolvedIosBuildNumber,
             config: {
                 usesNonExemptEncryption: false
             },
@@ -332,6 +367,7 @@ const baseExpoConfig = {
             ],
             edgeToEdgeEnabled: true,
             package: androidPackage,
+            versionCode: resolvedAndroidVersionCode,
             googleServicesFile: "./google-services.json",
             intentFilters: appEnvironmentConfig.enableAssociatedDomains ? [
                 {

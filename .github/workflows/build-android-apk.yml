@@ -177,6 +177,50 @@ jobs:
           ls -lh "$APK_PATH"
           echo "apk_path=$APK_PATH" >> "$GITHUB_OUTPUT"
 
+          echo "=== APK Version Proof ==="
+          python3 - << 'PYEOF'
+          import zipfile, struct, os, sys
+          apk_path = os.environ.get("APK_PATH")
+          with zipfile.ZipFile(apk_path) as z:
+              data = z.read("AndroidManifest.xml")
+          offset = 8
+          strings = []
+          version_code = None
+          version_name = None
+          while offset < len(data):
+              chunk_type, header_size, chunk_size = struct.unpack_from('<HHI', data, offset)
+              if chunk_type == 0x0001:
+                  string_count, style_count, flags, strings_start, styles_start = struct.unpack_from('<IIIII', data, offset + 8)
+                  is_utf8 = (flags & (1 << 8)) != 0
+                  offsets = [struct.unpack_from('<I', data, offset + 28 + i * 4)[0] for i in range(string_count)]
+                  pool_data = data[offset + strings_start : offset + chunk_size]
+                  for o in offsets:
+                      if is_utf8:
+                          u8_len = pool_data[o+1]
+                          s = pool_data[o+2:o+2+u8_len].decode('utf-8', 'replace')
+                      else:
+                          u16_len = struct.unpack_from('<H', pool_data, o)[0]
+                          s = pool_data[o+2:o+2+u16_len*2].decode('utf-16le', 'replace')
+                      strings.append(s)
+              elif chunk_type == 0x0102:
+                  tag_ns, tag_name = struct.unpack_from('<II', data, offset + 16)
+                  if strings[tag_name] == 'manifest':
+                      attr_start, attr_size, attr_count = struct.unpack_from('<HHH', data, offset + 24)
+                      attr_offset = offset + 16 + attr_start
+                      for i in range(attr_count):
+                          a_ns, a_name, a_val_str, a_type, a_data = struct.unpack_from('<IIIIHHI', data, attr_offset + i * 20)[:5]
+                          name_str = strings[a_name]
+                          if name_str == 'versionCode':
+                              version_code = a_data
+                          elif name_str == 'versionName':
+                              version_name = strings[a_val_str] if a_val_str != 0xffffffff else str(a_data)
+                      break
+              offset += chunk_size
+          print(f"versionName: {version_name}, versionCode: {version_code}")
+          PYEOF
+        env:
+          APK_PATH: ${{ steps.locate_apk.outputs.apk_path }}
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
