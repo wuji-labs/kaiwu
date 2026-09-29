@@ -1,0 +1,13 @@
+{
+  "name": "@kaiwu/ota-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "node ../../scripts/workspaces/runTypeScriptCli.mjs -p tsconfig.json",
+    "start": "node dist/index.js",
+    "dev": "node --experimental-strip-types src/index.ts",
+    "test": "node --experimental-strip-types --test test/*.test.ts"
+  }
+}
