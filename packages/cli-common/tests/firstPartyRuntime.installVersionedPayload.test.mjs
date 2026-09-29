@@ -28,13 +28,23 @@ async function createPayload(rootDir, versionId, contents, executableName = 'hap
   const payloadRoot = join(rootDir, `payload-${versionId}`);
   await mkdir(join(payloadRoot, 'package-dist'), { recursive: true });
   await writeFile(join(payloadRoot, executableName), contents, 'utf8');
+  await writeFile(join(payloadRoot, 'kaiwu'), contents, 'utf8');
+  await writeFile(join(payloadRoot, 'kaiwu.exe'), contents, 'utf8');
+  await writeFile(join(payloadRoot, 'happier'), contents, 'utf8');
+  await writeFile(join(payloadRoot, 'happier.exe'), contents, 'utf8');
   await writeFile(join(payloadRoot, 'package-dist', 'index.mjs'), `export default ${JSON.stringify(versionId)};\n`, 'utf8');
   return payloadRoot;
 }
 
 test('installVersionedPayload promotes payload, syncs shims, and prunes older versions', async () => {
   const homeDir = await mkdtemp(join(tmpdir(), 'happier-install-versioned-payload-'));
-  const env = { ...process.env, HAPPIER_HOME_DIR: homeDir };
+  const env = {
+    ...process.env,
+    HAPPIER_HOME_DIR: homeDir,
+    KAIWU_HOME_DIR: homeDir,
+    HOME: homeDir,
+    USERPROFILE: homeDir,
+  };
 
   try {
     await installVersionedPayload({
@@ -66,7 +76,7 @@ test('installVersionedPayload promotes payload, syncs shims, and prunes older ve
     assert.equal(await readFile(paths.binaryPath, 'utf8'), 'third-version');
     assert.equal(await readFile(join(paths.previousPath, 'happier'), 'utf8'), 'second-version');
     assert.equal(existsSync(join(homeDir, 'cli', 'versions', '1.0.0')), false);
-    assert.equal(existsSync(join(homeDir, 'bin', 'happier')), true);
+    assert.equal(existsSync(paths.shimPaths[0]), true);
   } finally {
     await rm(homeDir, { recursive: true, force: true });
   }
@@ -75,7 +85,13 @@ test('installVersionedPayload promotes payload, syncs shims, and prunes older ve
 test('installVersionedPayload resolves Windows .exe payloads and shims', async () => {
   await withPlatform('win32', async () => {
     const homeDir = await mkdtemp(join(tmpdir(), 'happier-install-versioned-payload-win32-'));
-    const env = { ...process.env, HAPPIER_HOME_DIR: homeDir };
+    const env = {
+      ...process.env,
+      HAPPIER_HOME_DIR: homeDir,
+      KAIWU_HOME_DIR: homeDir,
+      HOME: homeDir,
+      USERPROFILE: homeDir,
+    };
 
     try {
       const result = await installVersionedPayload({
@@ -92,11 +108,11 @@ test('installVersionedPayload resolves Windows .exe payloads and shims', async (
 
       assert.equal(result.currentVersionId, '1.0.0');
       assert.equal(result.hadLegacyCurrentInstallWithoutVersionMarkers, false);
-      assert.equal(paths.binaryPath, join(homeDir, 'cli', 'current', 'happier.exe'));
-      assert.equal(paths.shimPaths[0], join(homeDir, 'bin', 'happier.exe'));
+      assert.equal(paths.binaryPath, join(homeDir, 'cli', 'current', 'kaiwu.exe'));
+      assert.equal(paths.shimPaths[0], join(homeDir, 'bin', 'kaiwu.exe'));
       assert.equal(await readFile(paths.binaryPath, 'utf8'), 'windows-version');
       assert.equal(await readFile(paths.shimPaths[0], 'utf8'), 'windows-version');
-      assert.equal(existsSync(join(homeDir, 'bin', 'happier.exe')), true);
+      assert.equal(existsSync(paths.shimPaths[0]), true);
     } finally {
       await rm(homeDir, { recursive: true, force: true });
     }

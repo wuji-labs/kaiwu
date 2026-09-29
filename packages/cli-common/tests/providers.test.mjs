@@ -284,7 +284,8 @@ test('ensureManagedPnpmCommand replaces a non-executable managed pnpm binary ins
       ...process.env,
       HAPPIER_HOME_DIR: homeDir,
       KAIWU_HOME_DIR: homeDir,
-      KAIWU_HOME_DIR: homeDir,
+      HOME: homeDir,
+      USERPROFILE: homeDir,
       PATH: binDir,
     });
 
@@ -335,7 +336,8 @@ test('ensureManagedPnpmCommand bootstraps a managed pnpm binary even when PATH a
       ...process.env,
       HAPPIER_HOME_DIR: homeDir,
       KAIWU_HOME_DIR: homeDir,
-      KAIWU_HOME_DIR: homeDir,
+      HOME: homeDir,
+      USERPROFILE: homeDir,
       PATH: binDir,
     };
 
@@ -1341,7 +1343,8 @@ test('resolveProviderCliCommand does not treat non-executable PATH files as syst
       ...process.env,
       HAPPIER_HOME_DIR: homeDir,
       KAIWU_HOME_DIR: homeDir,
-      KAIWU_HOME_DIR: homeDir,
+      HOME: homeDir,
+      USERPROFILE: homeDir,
       PATH: binDir,
     };
 
@@ -1530,7 +1533,8 @@ test('resolveExistingPnpmCommand does not return non-executable PATH files on Un
       ...process.env,
       HAPPIER_HOME_DIR: homeDir,
       KAIWU_HOME_DIR: homeDir,
-      KAIWU_HOME_DIR: homeDir,
+      HOME: homeDir,
+      USERPROFILE: homeDir,
       PATH: binDir,
     };
 
