@@ -45,3 +45,11 @@ gh run watch <id> --exit-status; gh run download <id> -D dist/ios/<版本>
 - 规则：只保留最新 2 个版本。`latest.json` 指向的版本和安装脚本里的兜底版本永远不删。
 - 手动执行：`python scripts/cos-prune-releases.py`（默认只列出将删除的内容），加 `--apply` 才真正删除。
 - 定期执行：Windows 计划任务 `WUJI-Kaiwu-COS-Prune`，每周日 03:30，运行 `scripts/cos-prune-releases.ps1`；日志在 `~\.kaiwu-ops\cos-prune.log`。
+
+## 5. 文档站（kaiwu.chengqiyun.com/docs）
+1. 构建：`yarn --cwd apps/docs build`，输出目录 `apps/docs/out`。
+   - 已知问题：本地化（中文）页面与自动生成的英文参考页（`agents/capabilities`、`extras/feature-flags`）会被判为“生成页已过期”，导致构建失败。**不要执行 `generate:reference`**，它会用英文覆盖已翻译的页面。临时办法：调用 `runDocsBuild` 时只忽略 `generated` 这一类问题，链接和标签检查照常执行。根治办法是让生成器输出中文，或把中文译稿纳入生成源。
+2. 部署到服务器 `/opt/wuji-kaiwu/docs/html`（`kaiwu-docs` nginx 以只读方式绑定挂载）：
+   - 先备份：`rsync -a --exclude releases/ html/ html.bak-<时间戳>/`；
+   - 原地同步：`rsync -a --delete --exclude releases/ <新导出>/ html/`。**必须排除 `releases/`**，里面放着 APK/IPA 下载文件，它们不属于导出内容；
+   - 不要用 `mv` 整体替换目录：绑定挂载指向的是原目录的 inode，替换后容器仍会提供旧内容。
