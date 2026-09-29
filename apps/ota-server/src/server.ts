@@ -81,6 +81,15 @@ function handleManifestRequest(
   const runtimeVersion = (req.headers['expo-runtime-version'] as string | undefined)?.trim();
   const channel = ((req.headers['expo-channel-name'] as string | undefined) || 'production').trim();
   const expectSignature = req.headers['expo-expect-signature'] as string | undefined;
+  // One line per check-in so we can see which devices ask for updates and what they were given.
+  res.on('finish', () => {
+    console.log(
+      `[ota-server] manifest ${res.statusCode} platform=${platformHeader ?? '-'} runtime=${runtimeVersion ?? '-'} ` +
+        `channel=${channel} current=${String(req.headers['expo-current-update-id'] ?? '-')} ` +
+        `embedded=${String(req.headers['expo-embedded-update-id'] ?? '-')} sig=${expectSignature ? 'yes' : 'no'} ` +
+        `ua="${String(req.headers['user-agent'] ?? '')}"`,
+    );
+  });
 
   if (!platformHeader || (platformHeader !== 'ios' && platformHeader !== 'android')) {
     res.statusCode = 400;
