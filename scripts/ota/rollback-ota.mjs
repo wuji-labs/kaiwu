@@ -67,7 +67,7 @@ function resolveDefaultRuntimeVersion() {
   } catch {
     // Ignore error
   }
-  return '0.2.7-native';
+  return 'kaiwu-1-native';
 }
 
 function isSshTarget(target) {

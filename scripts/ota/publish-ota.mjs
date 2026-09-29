@@ -72,7 +72,7 @@ function resolveDefaultRuntimeVersion() {
   } catch {
     // Ignore error
   }
-  return '0.2.7-native';
+  return 'kaiwu-1-native';
 }
 
 function isSshTarget(target) {
@@ -112,6 +112,21 @@ function exportPlatform(platform, outputDir) {
     ['expo', 'export', '--platform', platform, '--output-dir', outputDir],
     { cwd: UI_DIR, env }
   );
+
+  // The manifest's extra.expoClient becomes Constants.expoConfig inside the updated app. Without it,
+  // everything that reads expoConfig.extra (app variant, feature policy, channel) breaks after an OTA.
+  console.log('[publish-ota] Capturing public expo config for manifest extra.expoClient...');
+  const configResult = spawnSync(
+    process.platform === 'win32' ? 'npx.cmd' : 'npx',
+    ['expo', 'config', '--type', 'public', '--json'],
+    { cwd: UI_DIR, env, encoding: 'utf8', shell: process.platform === 'win32', maxBuffer: 64 * 1024 * 1024 }
+  );
+  if (configResult.status !== 0 || !configResult.stdout) {
+    throw new Error(`expo config failed: ${configResult.stderr || configResult.status}`);
+  }
+  const jsonStart = configResult.stdout.indexOf('{');
+  const expoConfig = JSON.parse(configResult.stdout.slice(jsonStart));
+  fs.writeFileSync(path.join(outputDir, 'expoConfig.json'), JSON.stringify(expoConfig));
 }
 
 function deployToLocal(sourceDir, targetRoot, runtimeVersion, updateId, platform, channel, message) {
@@ -163,12 +178,17 @@ function deployToSsh(sourceDir, sshTarget, runtimeVersion, updateId, platform, c
 
   // Create staging tarball
   const tarballPath = path.join(os.tmpdir(), `kaiwu-ota-${updateId}.tar.gz`);
-  runCommand('tar', ['-czf', tarballPath, '-C', sourceDir, '.']);
+  const tarBin = process.platform === 'win32' ? 'C:\\Windows\\System32\\tar.exe' : 'tar';
+  runCommand(tarBin, ['-czf', tarballPath, '-C', sourceDir, '.']);
 
   const remoteUpdateDir = `${remotePath}/${runtimeVersion}/${updateId}`;
   const remoteRuntimeDir = `${remotePath}/${runtimeVersion}`;
   const remotePointerPath = `${remoteRuntimeDir}/current-${platform}-${channel}.json`;
   const remoteHistoryPath = `${remoteRuntimeDir}/history-${platform}-${channel}.json`;
+  const readRemote = (remoteFile) => {
+    const r = spawnSync(sshBin, [host, `cat "${remoteFile}" 2>/dev/null || true`], { encoding: 'utf8' });
+    return r.status === 0 ? r.stdout.trim() : '';
+  };
 
   try {
     // 1. Ensure remote directories
@@ -178,36 +198,32 @@ function deployToSsh(sourceDir, sshTarget, runtimeVersion, updateId, platform, c
     const remoteTarball = `/tmp/kaiwu-ota-${updateId}.tar.gz`;
     runCommand(scpBin, [tarballPath, `${host}:${remoteTarball}`]);
 
-    // 3. Extract tarball remotely and cleanup
+    // 3. Extract tarball remotely and clean up the staging tarball
     runCommand(sshBin, [host, `tar -xzf "${remoteTarball}" -C "${remoteUpdateDir}" && rm -f "${remoteTarball}"`]);
 
-    // 4. Update remote pointer & history
-    const pointerJson = JSON.stringify({
-      updateId,
-      createdAt: new Date().toISOString(),
-      runtimeVersion,
-      platform,
-      channel,
-      message: message || '',
-    });
-
-    const updateScript = `
-      if [ -f "${remotePointerPath}" ]; then
-        if [ ! -f "${remoteHistoryPath}" ]; then
-          echo '[]' > "${remoteHistoryPath}"
-        fi
-        node -e '
-          const fs = require("fs");
-          const cur = JSON.parse(fs.readFileSync("${remotePointerPath}", "utf8"));
-          const hist = JSON.parse(fs.readFileSync("${remoteHistoryPath}", "utf8"));
-          hist.push(cur);
-          fs.writeFileSync("${remoteHistoryPath}", JSON.stringify(hist, null, 2));
-        ' 2>/dev/null || cat "${remotePointerPath}" >> "${remoteHistoryPath}.bak"
-      fi
-      echo '${pointerJson}' > "${remotePointerPath}"
-    `;
-
-    runCommand(sshBin, [host, `bash -c '${updateScript.replace(/'/g, "'\\''")}'`]);
+    // 4. Update pointer & history. Computed locally (the server needs no node/python), uploaded to
+    //    temp names, then renamed so the OTA server never reads a half-written pointer.
+    const currentRaw = readRemote(remotePointerPath);
+    let history = [];
+    const historyRaw = readRemote(remoteHistoryPath);
+    if (historyRaw) {
+      try { history = JSON.parse(historyRaw); } catch { history = []; }
+    }
+    if (currentRaw) {
+      try { history.push(JSON.parse(currentRaw)); } catch { /* ignore unreadable pointer */ }
+    }
+    const pointer = { updateId, createdAt: new Date().toISOString(), runtimeVersion, platform, channel, message: message || '' };
+    const localPointer = path.join(os.tmpdir(), `kaiwu-ota-pointer-${updateId}.json`);
+    const localHistory = path.join(os.tmpdir(), `kaiwu-ota-history-${updateId}.json`);
+    fs.writeFileSync(localPointer, JSON.stringify(pointer, null, 2));
+    fs.writeFileSync(localHistory, JSON.stringify(history, null, 2));
+    try {
+      runCommand(scpBin, [localHistory, `${host}:${remoteHistoryPath}.tmp`]);
+      runCommand(scpBin, [localPointer, `${host}:${remotePointerPath}.tmp`]);
+      runCommand(sshBin, [host, `mv "${remoteHistoryPath}.tmp" "${remoteHistoryPath}" && mv "${remotePointerPath}.tmp" "${remotePointerPath}"`]);
+    } finally {
+      for (const p of [localPointer, localHistory]) { try { fs.unlinkSync(p); } catch { /* ignore */ } }
+    }
     console.log(`[publish-ota] Remote deploy completed successfully.`);
   } finally {
     try {
