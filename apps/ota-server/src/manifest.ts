@@ -163,7 +163,7 @@ export function formatMultipartResponse(
   const boundary = `----KaiwuOtaBoundary${crypto.randomBytes(8).toString('hex')}`;
   const parts: string[] = [
     `--${boundary}\r\n`,
-    `Content-Disposition: inline; name="${partName}"\r\n`,
+    `Content-Disposition: form-data; name="${partName}"\r\n`,
     `Content-Type: application/json; charset=utf-8\r\n`,
   ];
 

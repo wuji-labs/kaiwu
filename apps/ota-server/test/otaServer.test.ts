@@ -204,7 +204,7 @@ describe('OTA Server Contract O1 Tests', () => {
 
     const bodyText = await res.text();
     assert.ok(bodyText.includes(`--${boundary}`));
-    assert.ok(bodyText.includes('Content-Disposition: inline; name="manifest"'));
+    assert.ok(bodyText.includes('Content-Disposition: form-data; name="manifest"'));
     assert.ok(bodyText.includes('Content-Type: application/json; charset=utf-8'));
     assert.ok(bodyText.includes('expo-signature: sig="'));
 
@@ -261,7 +261,7 @@ describe('OTA Server Contract O1 Tests', () => {
 
     assert.strictEqual(res.status, 200);
     const bodyText = await res.text();
-    assert.ok(bodyText.includes('Content-Disposition: inline; name="directive"'));
+    assert.ok(bodyText.includes('Content-Disposition: form-data; name="directive"'));
     assert.ok(bodyText.includes('rollBackToEmbedded'));
 
     // Extract signature and JSON

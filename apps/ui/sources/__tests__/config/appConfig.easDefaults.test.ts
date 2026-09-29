@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const DEFAULT_EAS_PROJECT_ID = '2a550bd7-e4d2-4f59-ab47-dcb778775cee';
-const DEFAULT_UPDATES_URL = `https://u.expo.dev/${DEFAULT_EAS_PROJECT_ID}`;
+const DEFAULT_UPDATES_URL = 'https://kaiwu.chengqiyun.com/ota/api/manifest';
 
 function getUiDir(): string {
     return join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
@@ -105,16 +105,28 @@ function withCleanEnv<T>(fn: () => T): T {
 }
 
 describe('app.config.js', () => {
-    it('keeps OTA updates disabled by default so the fork never runs upstream Happier bundles', () => {
+    it('enables OTA updates from our own signed server by default and never from u.expo.dev', () => {
         const exp = withCleanEnv(() => getPublicConfig());
+
+        expect(exp.updates?.enabled).toBe(true);
+        expect(exp.updates?.checkAutomatically).toBe('ON_LOAD');
+        expect(exp.updates?.url).toBe(DEFAULT_UPDATES_URL);
+        expect(exp.updates?.codeSigningCertificate).toBe('./certs/kaiwu-ota-certificate.pem');
+        expect(exp.updates?.codeSigningMetadata).toEqual({ keyid: 'main', alg: 'rsa-v1_5-sha256' });
+    });
+
+    it('allows disabling OTA updates explicitly', () => {
+        const exp = withCleanEnv(() => {
+            process.env.KAIWU_EXPO_UPDATES_ENABLED = '0';
+            return getPublicConfig();
+        });
 
         expect(exp.updates?.enabled).toBe(false);
         expect(exp.updates?.checkAutomatically).toBe('NEVER');
     });
 
-    it('only enables OTA updates with an explicit opt-in and our own update URL', () => {
+    it('honors an explicit update URL override', () => {
         const exp = withCleanEnv(() => {
-            process.env.KAIWU_EXPO_UPDATES_ENABLED = '1';
             process.env.EXPO_UPDATES_URL = 'https://updates.example.invalid/kaiwu';
             return getPublicConfig();
         });
@@ -362,7 +374,7 @@ describe('app.config.js', () => {
         });
 
         expect(exp.extra?.eas?.projectId).toBe('public-project-id');
-        expect(exp.updates?.url).toBe('https://u.expo.dev/public-project-id');
+        expect(exp.updates?.url).toBe(DEFAULT_UPDATES_URL);
     });
 
     it('forwards sync tuning JSON into extra.app for native release builds', () => {
@@ -386,7 +398,7 @@ describe('app.config.js', () => {
         });
 
         expect(exp.extra?.eas?.projectId).toBe('eas-project-id');
-        expect(exp.updates?.url).toBe('https://u.expo.dev/eas-project-id');
+        expect(exp.updates?.url).toBe(DEFAULT_UPDATES_URL);
     });
 
     it('allows EXPO_UPDATES_URL override while keeping project id override intact', () => {

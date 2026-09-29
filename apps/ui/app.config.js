@@ -231,14 +231,14 @@ const updatesNativeDebugEnabled =
     parseOptionalBoolean(process.env.EX_UPDATES_NATIVE_DEBUG) ??
     null;
 
-const updatesUrl = (process.env.EXPO_UPDATES_URL || '').trim() || `https://u.expo.dev/${easProjectId}`;
+// Kaiwu fork: OTA updates come only from our self-hosted, code-signed server (apps/ota-server,
+// deployed at kaiwu.chengqiyun.com/ota). Never fall back to u.expo.dev: the default EAS project id
+// belongs to upstream Happier, and fetching from it replaced installed Kaiwu apps with upstream's JS.
+// Every manifest must carry a signature that verifies against certs/kaiwu-ota-certificate.pem.
+const KAIWU_OTA_MANIFEST_URL = 'https://kaiwu.chengqiyun.com/ota/api/manifest';
+const updatesUrl = (process.env.EXPO_UPDATES_URL || '').trim() || KAIWU_OTA_MANIFEST_URL;
 const updatesChannel = (process.env.EXPO_UPDATES_CHANNEL || '').trim() || appEnvironmentConfig.updatesChannel;
-// Kaiwu fork: OTA updates are OFF unless explicitly enabled with our own update server. The default
-// EAS project id belongs to upstream Happier, so leaving updates on made installed Kaiwu apps download
-// and run upstream's JS bundle (upstream branding, missing Kaiwu features) on the next launch.
-const updatesEnabled =
-    parseOptionalBoolean(process.env.KAIWU_EXPO_UPDATES_ENABLED) === true &&
-    (process.env.EXPO_UPDATES_URL || '').trim().length > 0;
+const updatesEnabled = parseOptionalBoolean(process.env.KAIWU_EXPO_UPDATES_ENABLED) !== false;
 const updatesConfig = {
     enabled: updatesEnabled,
     checkAutomatically: updatesEnabled ? 'ON_LOAD' : 'NEVER',

@@ -8,6 +8,6 @@
     "build": "node ../../scripts/workspaces/runTypeScriptCli.mjs -p tsconfig.json",
     "start": "node dist/index.js",
     "dev": "node --experimental-strip-types src/index.ts",
-    "test": "node --experimental-strip-types --test test/*.test.ts"
+    "test": "npm run build && node --experimental-strip-types --test test/*.test.ts"
   }
 }
