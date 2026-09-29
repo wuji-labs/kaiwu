@@ -1391,6 +1391,8 @@ export async function runDaemonServiceCliCommand(params: Readonly<{
       channel: runtime.channel,
       processEnv: process.env,
       expectedVersion: configuration.currentCliVersion,
+      // A dry run only plans; it must never execute candidate binaries.
+      skipProbe: flags.dryRun,
     });
     const installRuntime = {
       ...runtime,
