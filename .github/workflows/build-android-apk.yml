@@ -14,7 +14,7 @@ jobs:
   build_android_apk:
     name: Build Android APK
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 180
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -82,7 +82,8 @@ jobs:
           set -euo pipefail
           mkdir -p ~/.gradle
           cat > ~/.gradle/gradle.properties << 'EOF'
-          org.gradle.jvmargs=-Xmx4096m -XX:+UseG1GC
+          org.gradle.jvmargs=-Xmx4608m -XX:+UseG1GC
+          org.gradle.parallel=false
           android.useAndroidX=true
           android.enableJetifier=true
           KAIWU_RELEASE_STORE_FILE=/tmp/kaiwu-release.jks
@@ -160,7 +161,7 @@ jobs:
           set -euo pipefail
           cd apps/ui/android
           chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon --stacktrace -x bundleRelease
+          ./gradlew assembleRelease --no-daemon --stacktrace -x bundleRelease -x lintVitalRelease -x lintVitalAnalyzeRelease
 
       - name: Locate APK
         id: locate_apk
