@@ -22,4 +22,22 @@ describe('buildClaudeSubprocessEnv', () => {
       },
     })).toEqual({ PATH: '/bin' });
   });
+
+  it.runIf(process.platform === 'win32')('forwards standard Windows locations such as ProgramData (Windows OpenSSH exits 255 without it)', () => {
+    const env = buildClaudeSubprocessEnv({
+      baseEnv: {
+        PATH: 'C:\\Windows',
+        ProgramData: 'C:\\ProgramData',
+        ProgramFiles: 'C:\\Program Files',
+        SystemDrive: 'C:',
+        UNRELATED_SECRET: 'do-not-forward',
+      },
+    });
+    expect(env).toMatchObject({
+      ProgramData: 'C:\\ProgramData',
+      ProgramFiles: 'C:\\Program Files',
+      SystemDrive: 'C:',
+    });
+    expect(env.UNRELATED_SECRET).toBeUndefined();
+  });
 });
