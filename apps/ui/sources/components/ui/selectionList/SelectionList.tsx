@@ -13,6 +13,7 @@ import { SlideTransitionSwitch } from '@/components/ui/motion/SlideTransitionSwi
 import { useHasHardwareKeyboard } from '@/hooks/ui/useHasHardwareKeyboard';
 import { useReducedMotionPreference } from '@/hooks/ui/useReducedMotionPreference';
 import { t } from '@/text';
+import { isCoarsePrimaryPointerEnvironment } from '@/utils/platform/webMobileHeuristics';
 
 import { SelectionListAnimatedHeight } from './SelectionListAnimatedHeight';
 import { SelectionListBody } from './SelectionListBody';
@@ -685,6 +686,11 @@ export function SelectionList(props: SelectionListProps): React.ReactElement {
 
     React.useEffect(() => {
         if (!IS_WEB || props.autoFocusInputOnWeb !== true || !showSearchHeader) return;
+        // Touch-primary web hosts (iOS Safari, Android Chrome) summon the software keyboard on
+        // programmatic focus, same as native. The keyboard shrinks the visual viewport under an
+        // already-placed popover and collapses the composer it is anchored to, so follow the
+        // native rule there: let the user tap the input when they actually want to type.
+        if (isCoarsePrimaryPointerEnvironment()) return;
         searchInputRef.current?.focus?.();
     }, [currentStep.id, props.autoFocusInputOnWeb, showSearchHeader]);
 

@@ -10,6 +10,12 @@ vi.mock('react-native', async () => {
     return createReactNativeWebMock();
 });
 
+const pointerEnvironment = vi.hoisted(() => ({ coarsePrimary: false }));
+vi.mock('@/utils/platform/webMobileHeuristics', async (importOriginal) => ({
+    ...(await importOriginal<typeof import('@/utils/platform/webMobileHeuristics')>()),
+    isCoarsePrimaryPointerEnvironment: () => pointerEnvironment.coarsePrimary,
+}));
+
 function makeRootStep(overrides: Partial<SelectionListStep> = {}): SelectionListStep {
     return {
         id: 'root',
@@ -461,6 +467,22 @@ describe('SelectionList (orchestrator)', () => {
             { createNodeMock: createInputNodeMock(focus) },
         );
         expect(focus).toHaveBeenCalled();
+    });
+
+    it('does not auto-focus on touch-primary web so opening a popover never summons the software keyboard', async () => {
+        const focus = vi.fn();
+        pointerEnvironment.coarsePrimary = true;
+        try {
+            const { SelectionList } = await import('../SelectionList');
+            const screen = await renderScreen(
+                <SelectionList {...defaultProps({ autoFocusInputOnWeb: true })} />,
+                { createNodeMock: createInputNodeMock(focus) },
+            );
+            expect(screen.findByTestId('sl:header:input')).not.toBeNull();
+            expect(focus).not.toHaveBeenCalled();
+        } finally {
+            pointerEnvironment.coarsePrimary = false;
+        }
     });
 
     it('re-focuses the input on web when the user drills into a sub-step', async () => {

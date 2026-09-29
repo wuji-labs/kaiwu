@@ -483,7 +483,8 @@ export type SelectionListProps = Readonly<{
     keyboardHintsEnabled?: boolean;
     /**
      * Focus the search/value input when this list mounts or changes step on web.
-     * Ignored on native so opening a popover/modal never summons the software keyboard.
+     * Ignored on native and on touch-primary web hosts so opening a popover/modal never
+     * summons the software keyboard.
      */
     autoFocusInputOnWeb?: boolean;
     /** Disable internal step transitions for testing. */
