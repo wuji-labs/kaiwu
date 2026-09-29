@@ -233,7 +233,15 @@ const updatesNativeDebugEnabled =
 
 const updatesUrl = (process.env.EXPO_UPDATES_URL || '').trim() || `https://u.expo.dev/${easProjectId}`;
 const updatesChannel = (process.env.EXPO_UPDATES_CHANNEL || '').trim() || appEnvironmentConfig.updatesChannel;
+// Kaiwu fork: OTA updates are OFF unless explicitly enabled with our own update server. The default
+// EAS project id belongs to upstream Happier, so leaving updates on made installed Kaiwu apps download
+// and run upstream's JS bundle (upstream branding, missing Kaiwu features) on the next launch.
+const updatesEnabled =
+    parseOptionalBoolean(process.env.KAIWU_EXPO_UPDATES_ENABLED) === true &&
+    (process.env.EXPO_UPDATES_URL || '').trim().length > 0;
 const updatesConfig = {
+    enabled: updatesEnabled,
+    checkAutomatically: updatesEnabled ? 'ON_LOAD' : 'NEVER',
     url: updatesUrl,
     requestHeaders: {
         "expo-channel-name": updatesChannel
