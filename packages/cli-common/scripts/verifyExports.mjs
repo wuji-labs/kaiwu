@@ -17,7 +17,7 @@ export function collectMissingExportTargets({
     existsSyncImpl,
   }).map(({ target, path }) => ({
       target,
-      relativePath: relative(resolvedPackageDir, path),
+      relativePath: relative(resolvedPackageDir, path).replace(/\\/g, '/'),
     }));
 }
 

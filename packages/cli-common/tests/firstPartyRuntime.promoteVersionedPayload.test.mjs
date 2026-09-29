@@ -14,7 +14,10 @@ import {
 async function createStagedPayload(rootDir, versionId, contents) {
   const stagedPayloadPath = join(rootDir, `stage-${versionId}`);
   await mkdir(stagedPayloadPath, { recursive: true });
+  await writeFile(join(stagedPayloadPath, 'kaiwu'), contents, 'utf8');
+  await writeFile(join(stagedPayloadPath, 'kaiwu.exe'), contents, 'utf8');
   await writeFile(join(stagedPayloadPath, 'happier'), contents, 'utf8');
+  await writeFile(join(stagedPayloadPath, 'happier.exe'), contents, 'utf8');
   await mkdir(join(stagedPayloadPath, 'package-dist'), { recursive: true });
   await writeFile(join(stagedPayloadPath, 'package-dist', 'index.mjs'), `export default ${JSON.stringify(versionId)};\n`, 'utf8');
   return stagedPayloadPath;
@@ -22,7 +25,13 @@ async function createStagedPayload(rootDir, versionId, contents) {
 
 test('promoteVersionedPayload updates current payload and preserves previous payload', async () => {
   const homeDir = await mkdtemp(join(tmpdir(), 'happier-first-party-runtime-'));
-  const env = { ...process.env, HAPPIER_HOME_DIR: homeDir };
+  const env = {
+    ...process.env,
+    HAPPIER_HOME_DIR: homeDir,
+    KAIWU_HOME_DIR: homeDir,
+    HOME: homeDir,
+    USERPROFILE: homeDir,
+  };
 
   try {
     const firstStage = await createStagedPayload(homeDir, '1.0.0', 'first-version');
@@ -60,9 +69,15 @@ test('promoteVersionedPayload updates current payload and preserves previous pay
   }
 });
 
-test('promoteVersionedPayload fails closed without leaving a partial version directory', async () => {
+test('promoteVersionedPayload fails closed without leaving a partial version directory', { skip: process.platform === 'win32' }, async () => {
   const homeDir = await mkdtemp(join(tmpdir(), 'happier-first-party-runtime-atomic-'));
-  const env = { ...process.env, HAPPIER_HOME_DIR: homeDir };
+  const env = {
+    ...process.env,
+    HAPPIER_HOME_DIR: homeDir,
+    KAIWU_HOME_DIR: homeDir,
+    HOME: homeDir,
+    USERPROFILE: homeDir,
+  };
 
   try {
     const firstStage = await createStagedPayload(homeDir, '1.0.0', 'first-version');
@@ -106,7 +121,13 @@ test('promoteVersionedPayload fails closed without leaving a partial version dir
 
 test('promoteVersionedPayload detects a legacy current install when the current payload exists without version markers', async () => {
   const homeDir = await mkdtemp(join(tmpdir(), 'happier-first-party-runtime-legacy-'));
-  const env = { ...process.env, HAPPIER_HOME_DIR: homeDir };
+  const env = {
+    ...process.env,
+    HAPPIER_HOME_DIR: homeDir,
+    KAIWU_HOME_DIR: homeDir,
+    HOME: homeDir,
+    USERPROFILE: homeDir,
+  };
 
   try {
     const paths = resolveInstalledFirstPartyComponentPaths({
@@ -136,7 +157,13 @@ test('promoteVersionedPayload detects a legacy current install when the current 
 
 test('rollbackVersionedPayload swaps current and previous payloads', async () => {
   const homeDir = await mkdtemp(join(tmpdir(), 'happier-first-party-runtime-'));
-  const env = { ...process.env, HAPPIER_HOME_DIR: homeDir };
+  const env = {
+    ...process.env,
+    HAPPIER_HOME_DIR: homeDir,
+    KAIWU_HOME_DIR: homeDir,
+    HOME: homeDir,
+    USERPROFILE: homeDir,
+  };
 
   try {
     const firstStage = await createStagedPayload(homeDir, '1.0.0', 'first-version');

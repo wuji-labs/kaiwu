@@ -87,6 +87,10 @@
       "types": "./dist/fs/windowsProtectedAcl.d.ts",
       "default": "./dist/fs/windowsProtectedAcl.js"
     },
+    "./fs/testHomeDirectoryGuard": {
+      "types": "./dist/fs/testHomeDirectoryGuard.d.ts",
+      "default": "./dist/fs/testHomeDirectoryGuard.js"
+    },
     "./componentArtifacts": {
       "types": "./dist/componentArtifacts/index.d.ts",
       "default": "./dist/componentArtifacts/index.js"
