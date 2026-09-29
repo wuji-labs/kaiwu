@@ -218,13 +218,36 @@ config.resolver.blockList = Array.isArray(existingBlockList)
     ? [existingBlockList, testRouteBlockList, projectArtifactsBlockList, nextBuildArtifactsBlockList, transientGeneratedDirectoriesBlockList, cliRunnerSnapshotsBlockList, workspaceNodeModulesBlockList]
     : [testRouteBlockList, projectArtifactsBlockList, nextBuildArtifactsBlockList, transientGeneratedDirectoriesBlockList, cliRunnerSnapshotsBlockList, workspaceNodeModulesBlockList];
 
-const existingWatchFolders = Array.isArray(config.watchFolders) ? config.watchFolders : [];
-config.watchFolders = existingWatchFolders.filter(
-  (folder, index, all) => typeof folder === 'string' && folder.length > 0 && all.indexOf(folder) === index,
-);
-
-const rootNodeModules = path.resolve(__dirname, "../../node_modules");
+const candidateRootNodeModules = path.resolve(__dirname, "../../node_modules");
+const fallbackRootNodeModules = path.resolve(__dirname, "../../../../node_modules");
+const rootNodeModules = fs.existsSync(candidateRootNodeModules)
+  ? candidateRootNodeModules
+  : (fs.existsSync(fallbackRootNodeModules) ? fallbackRootNodeModules : candidateRootNodeModules);
 const appNodeModules = path.resolve(__dirname, "node_modules");
+
+const existingWatchFolders = Array.isArray(config.watchFolders) ? config.watchFolders : [];
+config.watchFolders = existingWatchFolders
+  .map((folder) => {
+    if (folder === candidateRootNodeModules && !fs.existsSync(folder) && fs.existsSync(fallbackRootNodeModules)) {
+      return fallbackRootNodeModules;
+    }
+    return folder;
+  })
+  .filter(
+    (folder, index, all) =>
+      typeof folder === 'string' &&
+      folder.length > 0 &&
+      fs.existsSync(folder) &&
+      all.indexOf(folder) === index,
+  );
+
+if (fs.existsSync(fallbackRootNodeModules)) {
+  const fallbackRepoRoot = path.resolve(fallbackRootNodeModules, "..");
+  const fallbackPackages = path.resolve(fallbackRepoRoot, "packages");
+  if (fs.existsSync(fallbackPackages) && !config.watchFolders.includes(fallbackPackages)) {
+    config.watchFolders.push(fallbackPackages);
+  }
+}
 const enrichedMarkdownStreamingRevealModule =
   "react-native-enriched-markdown/lib/module/web/streamingReveal.js";
 
@@ -400,7 +423,7 @@ for (const workletsRuntimeWatchFolder of workletsRuntimeWatchFolders) {
 const watchedHoistedNodeModuleRoots = [
   path.resolve(rootNodeModules, "expo-modules-core"),
   path.resolve(rootNodeModules, "expo-system-ui"),
-];
+].filter((folder) => fs.existsSync(folder));
 for (const folder of watchedHoistedNodeModuleRoots) {
   if (!config.watchFolders.includes(folder)) {
     config.watchFolders.push(folder);
@@ -423,7 +446,7 @@ config.watchFolders = config.watchFolders.filter((folder) => folder !== docsWork
 // Kokoro (kokoro-js) ships a `.web.js` prebundle that Metro cannot transform (it contains non-literal dynamic imports).
 // For Expo web, force Metro to resolve the package to its ESM entry and shim Node builtins that the ESM file imports
 // but never uses in browser mode.
-const kokoroEntryPoint = path.resolve(__dirname, "../../node_modules/kokoro-js/dist/kokoro.js");
+const kokoroEntryPoint = path.resolve(rootNodeModules, "kokoro-js/dist/kokoro.js");
 const nodePathShim = path.resolve(__dirname, "sources/platform/nodeShims/nodePathShim.ts");
 const nodeFsPromisesShim = path.resolve(__dirname, "sources/platform/nodeShims/nodeFsPromisesShim.ts");
 const nodeFsShim = path.resolve(__dirname, "sources/platform/nodeShims/nodeFsShim.ts");

@@ -109,7 +109,7 @@ function exportPlatform(platform, outputDir) {
   // Run npx expo export with local project npx
   runCommand(
     'npx',
-    ['expo', 'export', '--platform', platform, '--output-dir', `"${outputDir}"`],
+    ['expo', 'export', '--platform', platform, '--output-dir', outputDir],
     { cwd: UI_DIR, env }
   );
 }
@@ -163,7 +163,7 @@ function deployToSsh(sourceDir, sshTarget, runtimeVersion, updateId, platform, c
 
   // Create staging tarball
   const tarballPath = path.join(os.tmpdir(), `kaiwu-ota-${updateId}.tar.gz`);
-  runCommand('tar', ['-czf', `"${tarballPath}"`, '-C', `"${sourceDir}"`, '.']);
+  runCommand('tar', ['-czf', tarballPath, '-C', sourceDir, '.']);
 
   const remoteUpdateDir = `${remotePath}/${runtimeVersion}/${updateId}`;
   const remoteRuntimeDir = `${remotePath}/${runtimeVersion}`;
@@ -176,7 +176,7 @@ function deployToSsh(sourceDir, sshTarget, runtimeVersion, updateId, platform, c
 
     // 2. Transfer tarball
     const remoteTarball = `/tmp/kaiwu-ota-${updateId}.tar.gz`;
-    runCommand(scpBin, [`"${tarballPath}"`, `${host}:${remoteTarball}`]);
+    runCommand(scpBin, [tarballPath, `${host}:${remoteTarball}`]);
 
     // 3. Extract tarball remotely and cleanup
     runCommand(sshBin, [host, `tar -xzf "${remoteTarball}" -C "${remoteUpdateDir}" && rm -f "${remoteTarball}"`]);
