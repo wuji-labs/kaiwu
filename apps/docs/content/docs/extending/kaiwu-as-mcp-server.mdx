@@ -117,6 +117,7 @@ kaiwu mcp serve --session <session-id>
 - `session_list`
 - `session_message_send`
 - `change_title`
+- `send_file_to_user`
 - `session_title_set`
 - `session_permission_mode_set`
 
@@ -197,6 +198,23 @@ kaiwu mcp serve --session <session-id>
 }
 ```
 
+### 把文件发给用户
+
+把当前会话工作区里的一个文件发给用户。用户会在会话里看到一张文件卡片，可以直接预览或下载（端到端加密，走开物现有的文件通道）：
+
+调用 `send_file_to_user`：
+
+```json
+{
+  "path": "reports/summary.pdf",
+  "message": "本周报告，请查收"
+}
+```
+
+- `path` 是相对会话工作目录的路径；工作目录以外的路径、目录、不存在的文件、Windows 保留设备名都会被拒绝，并返回原因（`access_denied` / `file_not_found` / `is_directory` 等）。
+- 单个文件上限 100MB（可用环境变量 `HAPPIER_WEB_DOWNLOAD_MAX_BYTES` 调整）。
+- 该工具免审批；Claude、Codex、Gemini、OpenCode、Kilo 会话都可用。
+- 旧版客户端不认识文件卡片时，会显示为普通工具调用，不会报错。
 ### 修改会话的权限模式
 
 调用 `session_permission_mode_set`：
@@ -240,6 +258,7 @@ kaiwu mcp serve --session <session-id>
 - `session_stop`
 - `session_archive` / `session_unarchive`
 - `change_title`（重命名当前/默认会话）
+- `send_file_to_user`（把工作区里的文件以文件卡片发给用户）
 - `session_title_set`
 - `session_permission_mode_set`
 - `session_model_set`
