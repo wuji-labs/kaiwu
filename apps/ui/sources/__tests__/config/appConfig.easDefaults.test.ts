@@ -56,6 +56,7 @@ function withCleanEnv<T>(fn: () => T): T {
         'EAS_PROJECT_ID',
         'EXPO_EAS_PROJECT_ID',
         'EXPO_UPDATES_URL',
+        'KAIWU_EXPO_UPDATES_ENABLED',
         'EXPO_UPDATES_CHANNEL',
         'EXPO_APP_VERSION',
         'EXPO_APP_OWNER',
@@ -104,6 +105,24 @@ function withCleanEnv<T>(fn: () => T): T {
 }
 
 describe('app.config.js', () => {
+    it('keeps OTA updates disabled by default so the fork never runs upstream Happier bundles', () => {
+        const exp = withCleanEnv(() => getPublicConfig());
+
+        expect(exp.updates?.enabled).toBe(false);
+        expect(exp.updates?.checkAutomatically).toBe('NEVER');
+    });
+
+    it('only enables OTA updates with an explicit opt-in and our own update URL', () => {
+        const exp = withCleanEnv(() => {
+            process.env.KAIWU_EXPO_UPDATES_ENABLED = '1';
+            process.env.EXPO_UPDATES_URL = 'https://updates.example.invalid/kaiwu';
+            return getPublicConfig();
+        });
+
+        expect(exp.updates?.enabled).toBe(true);
+        expect(exp.updates?.url).toBe('https://updates.example.invalid/kaiwu');
+    });
+
     it('includes a default EAS project id so EAS can link dynamic configs', () => {
         const exp = withCleanEnv(() => getPublicConfig());
 
