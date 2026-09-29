@@ -1852,7 +1852,7 @@ export const en = {
         developerTools: 'Developer Tools',
         about: 'About',
         actionsSettingsAboutSubtitle: 'Enable or disable actions globally, per surface (UI/voice/MCP), and per placement (where they appear in the UI). Disabled actions are fail-closed at runtime.',
-        aboutFooter: 'Kaiwu is built by WUJI-Labs and operated by Qianyuan Zhizhong (Nanjing) Technology Co., Ltd. End-to-end encrypted by default, with account restore for your other devices. Not affiliated with Anthropic, OpenAI or other model vendors; Claude, Codex and others are trademarks of their respective owners.',
+        aboutFooter: 'Kaiwu is built by WUJI Labs. Communication is end-to-end encrypted by default, and your account can be restored on your other devices.',
         whatsNew: 'What\'s New',
         whatsNewSubtitle: 'See the latest updates and improvements',
         reportIssue: 'Report an Issue',

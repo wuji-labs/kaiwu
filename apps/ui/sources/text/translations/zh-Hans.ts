@@ -1981,7 +1981,7 @@ export const zhHans: TranslationStructure = {
     actionsSettingsAboutSubtitle:
       "可全局、按界面（UI/语音/MCP）以及按展示位置（在界面中出现的位置）启用或禁用操作。被禁用的操作在运行时会以安全方式（fail-closed）被阻止。",
     aboutFooter:
-      "无极开物由 WUJI-Labs 出品，运营主体为乾元执中（南京）科技有限公司。默认端到端加密，可在你的其他设备上恢复账号。与 Anthropic、OpenAI 等模型厂商无隶属关系；Claude、Codex 等为各自所有者的商标。",
+      "无极开物由 WUJI Labs 出品，通信默认端到端加密，账号可在你的其他设备上恢复。",
     whatsNew: "更新日志",
     whatsNewSubtitle: "查看最新更新和改进",
     reportIssue: "报告问题",
