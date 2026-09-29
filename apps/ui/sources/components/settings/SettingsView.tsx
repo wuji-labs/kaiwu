@@ -42,6 +42,8 @@ import { DesktopSettingsSection } from '@/components/settings/desktop/DesktopSet
 import { SettingsBelowFoldSections } from '@/components/settings/SettingsBelowFoldSections';
 import { runAfterInteractionsWithFallback } from '@/utils/timing/runAfterInteractionsWithFallback';
 import { Icon } from '@/components/ui/icons/Icon';
+import { readCurrentAppRuntimeInfo } from '@/sync/runtime/readCurrentAppRuntimeInfo';
+import { formatAppVersionDetail } from '@/components/settings/formatAppVersionDetail';
 
 const DEFER_BELOW_FOLD_SETTINGS_SECTIONS_DELAY_MS = 0;
 const DEFER_BELOW_FOLD_SETTINGS_STAGE_DELAY_MS = 16;
@@ -50,7 +52,10 @@ export const SettingsView = React.memo(function SettingsView() {
     const { theme } = useUnistyles();
     const router = useRouter();
     const { width, height } = useWindowDimensions();
-    const appVersion = Constants.expoConfig?.version || '1.0.0';
+    const appVersion = React.useMemo(
+        () => formatAppVersionDetail(Constants.expoConfig?.version || '1.0.0', readCurrentAppRuntimeInfo()),
+        [],
+    );
     const auth = useAuth();
     const isPhoneSizedWeb = Platform.OS === 'web' && (Math.min(width, height) <= 500 || isWebMobileLikeQrScannerHost({ width, height }));
     const [devModeEnabled, setDevModeEnabled] = useLocalSettingMutable('devModeEnabled');
