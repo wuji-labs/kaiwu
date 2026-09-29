@@ -133,7 +133,7 @@ jobs:
           cp -R "$RUNNER_TEMP/kaiwu.xcarchive/Products/Applications/"*.app Payload/
 
           echo "=== Info.plist Proof ==="
-          plutil -p Payload/*.app/Info.plist | grep -E "CFBundleIdentifier|CFBundleDisplayName|CFBundleShortVersionString"
+          plutil -p Payload/*.app/Info.plist | grep -E "CFBundleIdentifier|CFBundleDisplayName|CFBundleShortVersionString|CFBundleVersion"
 
           IPA_NAME="kaiwu-${VERSION}-unsigned.ipa"
           zip -qry "$IPA_NAME" Payload

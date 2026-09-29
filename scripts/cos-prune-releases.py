@@ -22,6 +22,7 @@ ENV_FILE = r"D:\Projects\qianyuan-wuji\secrets\kaiwu-server\cos.env"
 VERSIONED_PREFIXES = ["releases/cli/", "releases/ios/", "releases/android/"]
 LATEST_KEY = "releases/cli/latest.json"
 IOS_LATEST_KEY = "releases/ios/latest.json"
+ANDROID_LATEST_KEY = "releases/android/latest.json"
 INSTALLER_KEYS = ["install.ps1", "install.sh"]
 VERSION_RE = re.compile(r"^\d+\.\d+\.\d+$")
 
@@ -76,7 +77,13 @@ def main():
         ios_pinned = str(ios_latest.get("version", "")).strip()
     except Exception:
         pass
-    print(f"bucket={bucket} keep={args.keep} pinned(cli)={pinned} pinned(ios)={ios_pinned} installer-fallbacks={sorted(fallback_versions)} mode={'APPLY' if args.apply else 'DRY-RUN'}")
+    android_pinned = ""
+    try:
+        android_latest = json.loads(client.get_object(Bucket=bucket, Key=ANDROID_LATEST_KEY)["Body"].get_raw_stream().read())
+        android_pinned = str(android_latest.get("version", "")).strip()
+    except Exception:
+        pass
+    print(f"bucket={bucket} keep={args.keep} pinned(cli)={pinned} pinned(ios)={ios_pinned} pinned(android)={android_pinned} installer-fallbacks={sorted(fallback_versions)} mode={'APPLY' if args.apply else 'DRY-RUN'}")
 
     total_bytes = 0
     for prefix in VERSIONED_PREFIXES:
@@ -92,6 +99,8 @@ def main():
             keep.update(fallback_versions)
         elif prefix == "releases/ios/" and ios_pinned:
             keep.add(ios_pinned)
+        elif prefix == "releases/android/" and android_pinned:
+            keep.add(android_pinned)
         print(f"\n{prefix} versions={versions} keep={sorted(keep, key=version_tuple, reverse=True)}")
         for version in versions:
             if version in keep:
