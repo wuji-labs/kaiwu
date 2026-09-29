@@ -48,7 +48,13 @@ export function buildClaudeSubprocessEnv(params?: Readonly<{
   ]);
 
   if (process.platform === 'win32') {
-    for (const key of ['USERPROFILE', 'USERNAME', 'APPDATA', 'LOCALAPPDATA', 'SystemRoot', 'ComSpec', 'PATHEXT', 'WINDIR']) {
+    for (const key of [
+      'USERPROFILE', 'USERNAME', 'APPDATA', 'LOCALAPPDATA', 'SystemRoot', 'ComSpec', 'PATHEXT', 'WINDIR',
+      // Standard Windows locations many system tools read at startup; e.g. Windows OpenSSH exits 255 without ProgramData.
+      'ProgramData', 'ALLUSERSPROFILE', 'SystemDrive', 'HOMEDRIVE', 'HOMEPATH', 'PUBLIC',
+      'ProgramFiles', 'ProgramFiles(x86)', 'ProgramW6432', 'CommonProgramFiles', 'CommonProgramFiles(x86)', 'CommonProgramW6432',
+      'OS', 'PROCESSOR_ARCHITECTURE', 'NUMBER_OF_PROCESSORS',
+    ]) {
       allowExact.add(key);
     }
   }
