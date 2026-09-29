@@ -246,6 +246,11 @@ const updatesConfig = {
     requestHeaders: {
         "expo-channel-name": updatesChannel
     },
+    codeSigningCertificate: "./certs/kaiwu-ota-certificate.pem",
+    codeSigningMetadata: {
+        keyid: "main",
+        alg: "rsa-v1_5-sha256"
+    },
     ...(updatesNativeDebugEnabled === true ? { useNativeDebug: true } : {})
 };
 
