@@ -111,8 +111,10 @@ describe('app.config.js', () => {
         expect(exp.updates?.enabled).toBe(true);
         expect(exp.updates?.checkAutomatically).toBe('ON_LOAD');
         expect(exp.updates?.url).toBe(DEFAULT_UPDATES_URL);
-        expect(exp.updates?.codeSigningCertificate).toBe('./certs/kaiwu-ota-certificate.pem');
-        expect(exp.updates?.codeSigningMetadata).toEqual({ keyid: 'main', alg: 'rsa-v1_5-sha256' });
+        // Code signing settings are stripped from the public config; check the full (build-time) config.
+        const full = withCleanEnv(() => getConfig(getUiDir(), { skipSDKVersionRequirement: true }).exp);
+        expect(full.updates?.codeSigningCertificate).toBe('./certs/kaiwu-ota-certificate.pem');
+        expect(full.updates?.codeSigningMetadata).toEqual({ keyid: 'main', alg: 'rsa-v1_5-sha256' });
     });
 
     it('allows disabling OTA updates explicitly', () => {
