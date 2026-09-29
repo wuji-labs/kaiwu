@@ -53,3 +53,26 @@ gh run watch <id> --exit-status; gh run download <id> -D dist/ios/<版本>
    - 先备份：`rsync -a --exclude releases/ html/ html.bak-<时间戳>/`；
    - 原地同步：`rsync -a --delete --exclude releases/ <新导出>/ html/`。**必须排除 `releases/`**，里面放着 APK/IPA 下载文件，它们不属于导出内容；
    - 不要用 `mv` 整体替换目录：绑定挂载指向的是原目录的 inode，替换后容器仍会提供旧内容。
+
+## 6. 热更新（OTA，自建）
+开物 App 的界面代码通过**自建、带签名**的热更新服务推送，改界面不必重新打包原生 App。
+
+- **服务**：`apps/ota-server`（实现 expo-updates 协议 v1），生产环境是容器 `kaiwu-ota`（Lighthouse，`chengqiyun_default` 网络，256MB 内存）。Caddy 用 `handle /ota/*` 转发给它，对外地址 `https://kaiwu.chengqiyun.com/ota`。
+  - 数据目录：`/opt/wuji-kaiwu/ota/data`，只读挂载；
+  - 私钥：`/opt/wuji-kaiwu/ota/keys/private-key.pem`（600，只读挂载）。本机备份在 `D:\Projects\qianyuan-wuji\secrets\kaiwu-ota\private-key.pem`，**绝不进 git**。
+- **App 侧**（`apps/ui/app.config.js`）：
+  - 默认从 `https://kaiwu.chengqiyun.com/ota/api/manifest` 取更新；
+  - 用 `certs/kaiwu-ota-certificate.pem`（keyid `main`，rsa-v1_5-sha256）验签，签名不对的更新一律拒收；
+  - **永远不连 u.expo.dev**。2026-09-29 事故：默认 EAS 项目是上游 Happier 的，装好的开物 App 被换成了上游的界面代码；
+  - `KAIWU_EXPO_UPDATES_ENABLED=0` 可以关闭热更新。
+- **原生版本号**：`apps/ui/package.json` 里的 `happierExpoRuntimeVersion`（当前是 `kaiwu-1-native`）。热更新只会下发给原生版本号相同的 App。**改了原生层**（新增原生依赖、升级 Expo SDK、改原生配置）就必须同时升这个版本号（例如 `kaiwu-2-native`）并重新打原生包；只改 JS 或界面，就发热更新。
+- **发布**（PowerShell，先设置 `KAIWU_DEPLOY_SSH_BIN` 和 `KAIWU_DEPLOY_SCP_BIN` 指向 Git 的 ssh/scp）：
+  ```powershell
+  $env:APP_ENV='production'
+  node scripts/ota/publish-ota.mjs --platform all --channel production --target ubuntu@150.158.55.6:/opt/wuji-kaiwu/ota/data --message "<说明>"
+  node scripts/ota/verify-production.mjs --platform all   # 验签、检查 expoClient、抽查资源 hash
+  ```
+  每次发布会生成新的 updateId，写入 `<runtime>/<updateId>/`，并原子替换 `current-<platform>-<channel>.json`，旧指针记入 `history-*.json`。
+- **回滚**：`node scripts/ota/rollback-ota.mjs ...` 回到上一个 updateId；加 `--to-embedded` 则让客户端退回安装包内置的版本。
+- **注意**：iOS 的 JS 包约 67MB，源站带宽只有 6 Mbps。热更新只会下载变化过的资源，但 JS 包每次都要整个重新下载。
+
