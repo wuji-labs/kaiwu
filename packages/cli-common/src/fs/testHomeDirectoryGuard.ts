@@ -226,7 +226,9 @@ export function installTestHomeDirectoryGuard(
   process.env.HOME = isolatedHomeDir;
   process.env.USERPROFILE = isolatedHomeDir;
   process.env.HAPPIER_HOME_DIR = isolatedHomeDir;
-  process.env.KAIWU_HOME_DIR = isolatedHomeDir;
+  // Unset rather than set: KAIWU_HOME_DIR outranks HAPPIER_HOME_DIR, so setting it would silently
+  // override tests that point HAPPIER_HOME_DIR at their own fixture home.
+  delete process.env.KAIWU_HOME_DIR;
 
   const snapshots = new Map<string, ProtectedDirectorySnapshot>();
   for (const dir of protectedDirs) {

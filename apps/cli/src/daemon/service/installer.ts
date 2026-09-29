@@ -158,6 +158,8 @@ export async function previewDaemonServiceInstall(options: Readonly<{
     targetMode,
     channel,
     processEnv: process.env,
+    // Entrypoints can only be executed (probed) when installing for the host platform itself.
+    skipProbe: platform !== process.platform,
   });
   const strategy: DaemonServiceInstallStrategy = options.strategy
     ?? resolveDaemonServiceInstallerStrategyFromEnv(process.env);

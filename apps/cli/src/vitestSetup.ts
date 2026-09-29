@@ -13,7 +13,7 @@ import {
 const homeGuardState = installTestHomeDirectoryGuard();
 const defaultHomeDir = homeGuardState.isolatedHomeDir;
 process.env.HAPPIER_HOME_DIR = defaultHomeDir;
-process.env.KAIWU_HOME_DIR = defaultHomeDir;
+delete process.env.KAIWU_HOME_DIR;
 mkdirSync(defaultHomeDir, { recursive: true });
 
 afterEach(() => {
