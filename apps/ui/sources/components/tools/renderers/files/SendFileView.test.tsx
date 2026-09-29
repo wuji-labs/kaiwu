@@ -28,6 +28,11 @@ vi.mock('@/hooks/session/files/useWorkspaceFileTransfers', () => ({
     }),
 }));
 
+let mockImagePreview: any = { status: 'disabled', uri: null, error: null };
+vi.mock('@/components/sessions/files/content/imagePreview/useSessionImagePreview', () => ({
+    useSessionImagePreview: () => mockImagePreview,
+}));
+
 vi.mock('../../shell/presentation/ToolSectionView', () => ({
     ToolSectionView: ({ children }: any) => React.createElement(React.Fragment, null, children),
 }));
@@ -36,6 +41,39 @@ describe('SendFileView', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         mockDownloadState = { status: 'idle' };
+        mockImagePreview = { status: 'disabled', uri: null, error: null };
+    });
+
+    it('renders an inline preview for delivered images once the bytes are loaded', async () => {
+        mockImagePreview = { status: 'loaded', uri: 'blob:preview', svgXml: null, error: null };
+        const tool = makeToolCall({
+            name: 'send_file_to_user',
+            state: 'completed',
+            input: { path: 'baiying-logo/pwa-512.png' },
+            result: { ok: true, path: 'baiying-logo/pwa-512.png', fileName: 'pwa-512.png', sizeBytes: 13328, mimeType: 'image/png' },
+        });
+
+        const screen = await renderScreen(
+            React.createElement(SendFileView, makeToolViewProps(tool, { sessionId: 'sess-123' })),
+        );
+
+        expect(screen.findByTestId('send-file-image-preview')).toBeTruthy();
+    });
+
+    it('does not render an inline preview for non-image files', async () => {
+        mockImagePreview = { status: 'loaded', uri: 'blob:preview', svgXml: null, error: null };
+        const tool = makeToolCall({
+            name: 'send_file_to_user',
+            state: 'completed',
+            input: { path: 'reports/summary.pdf' },
+            result: { ok: true, path: 'reports/summary.pdf', fileName: 'summary.pdf', sizeBytes: 2048, mimeType: 'application/pdf' },
+        });
+
+        const screen = await renderScreen(
+            React.createElement(SendFileView, makeToolViewProps(tool, { sessionId: 'sess-123' })),
+        );
+
+        expect(screen.findByTestId('send-file-image-preview')).toBeNull();
     });
 
     it('hides preview/download and shows the reason when the send was rejected', async () => {

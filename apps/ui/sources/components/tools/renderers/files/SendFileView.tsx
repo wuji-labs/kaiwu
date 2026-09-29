@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Pressable, View } from 'react-native';
+import { Image, Platform, Pressable, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { useRouter } from 'expo-router';
 
@@ -11,6 +11,8 @@ import { ActivitySpinner } from '@/components/ui/feedback/ActivitySpinner';
 import { pushSessionFileDeepLink } from '@/utils/url/sessionFileDeepLink';
 import { useWorkspaceFileTransfers } from '@/hooks/session/files/useWorkspaceFileTransfers';
 import { t } from '@/text';
+import { useSessionImagePreview } from '@/components/sessions/files/content/imagePreview/useSessionImagePreview';
+import { SafeNativeSvgXml } from '@/components/ui/media/SafeNativeSvgXml';
 
 function formatBytes(bytes: number): string {
     const value = Number.isFinite(bytes) ? bytes : 0;
@@ -149,12 +151,32 @@ export const SendFileView = React.memo<ToolViewProps>(({ tool, detailLevel, sess
 
     const iconName = resolveFileIconName(mimeType, fileName);
 
+    // Images are previewed inline (through the same authorized daemon read path as the file viewer),
+    // so the user sees the picture without opening it.
+    const isImage = (mimeType ?? '').toLowerCase().startsWith('image/');
+    const imagePreview = useSessionImagePreview({
+        sessionId: activeSessionId,
+        filePath: rawPath,
+        enabled: isImage && !!activeSessionId && !!rawPath,
+        mimeType: mimeType ?? null,
+        sizeBytes: sizeBytes ?? null,
+    });
+
     // Early return only after all hooks have run (rules of hooks).
     if (detailLevel === 'title') return null;
 
     return (
         <ToolSectionView>
             <View testID="send-file-view" style={styles.card}>
+                {isImage && imagePreview.status === 'loaded' ? (
+                    <Pressable testID="send-file-image-preview" accessibilityRole="imagebutton" onPress={handlePreview} style={styles.imagePreview}>
+                        {Platform.OS !== 'web' && imagePreview.svgXml ? (
+                            <SafeNativeSvgXml xml={imagePreview.svgXml} width="100%" height="100%" />
+                        ) : (
+                            <Image source={{ uri: imagePreview.uri }} resizeMode="contain" style={styles.imagePreviewImage} />
+                        )}
+                    </Pressable>
+                ) : null}
                 <View style={styles.mainRow}>
                     <View testID="send-file-icon" style={styles.iconContainer}>
                         <Icon name={iconName} size={24} color={theme.colors.text.primary} />
@@ -293,6 +315,19 @@ const styles = StyleSheet.create((theme) => ({
     fileMime: {
         fontSize: 11,
         color: theme.colors.text.tertiary,
+    },
+    imagePreview: {
+        width: '100%',
+        height: 220,
+        borderRadius: 10,
+        overflow: 'hidden',
+        backgroundColor: theme.colors.surface.inset,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    imagePreviewImage: {
+        width: '100%',
+        height: '100%',
     },
     messageBox: {
         paddingHorizontal: 10,
