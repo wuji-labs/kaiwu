@@ -3,7 +3,6 @@ import { View } from 'react-native';
 
 import type { Message, ToolCallMessage } from '@/sync/domains/messages/messageTypes';
 import type { TranscriptListOrientation } from '@/components/sessions/transcript/listOrientation';
-import { resolveOlderNeighborRenderedIndex } from '@/components/sessions/transcript/listOrientation';
 import type { ChatListInternalProps, ChatTranscriptListItem } from '@/components/sessions/transcript/chatListTypes';
 import { ChatListMessageRow, TranscriptRowShell } from '@/components/sessions/transcript/ChatListRows';
 import {
@@ -409,24 +408,9 @@ export function useTranscriptItemRenderer(deps: TranscriptItemRendererDeps) {
         }
         if (item.kind === 'message') {
             const rowActiveThinkingMessageId = resolveTranscriptItemActiveThinkingMessageId(item, activeThinkingMessageId);
-            const toolChromeMode = toolTimelineChromeMode === 'activity_feed' ? 'activity_feed' : 'cards';
-            const neighborItems = listData[index]?.id === item.id
-                ? listData
-                : itemsRef.current;
-            const olderNeighborIndex = resolveOlderNeighborRenderedIndex(
-                index,
-                neighborItems.length,
-                listOrientation,
-            );
-            const prev = olderNeighborIndex != null
-                ? neighborItems[olderNeighborIndex]
-                : undefined;
-            const shouldTightenToolStack =
-                toolChromeMode === 'activity_feed' &&
-                resolveKindForMessageId(item.messageId) === 'tool-call' &&
-                prev?.kind === 'message' &&
-                resolveKindForMessageId(prev.messageId) === 'tool-call';
-            const wrapperStyle = shouldTightenToolStack ? { marginTop: -12 } : undefined;
+            // No negative margin between consecutive tool rows: every list row is its own container with
+            // CSS `contain: paint` on web, so pulling a row up by -12px clipped the top of its header.
+            const wrapperStyle = undefined;
             return wrapTranscriptItemForAnchor(item, (
                 <TranscriptEnterWrapper
                     id={item.id}

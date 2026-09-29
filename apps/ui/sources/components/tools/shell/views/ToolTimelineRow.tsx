@@ -111,7 +111,11 @@ export const ToolTimelineRow = React.memo((props: {
     });
     const forceExpandedForPendingUserAction = isPendingUserAction;
 
-    const initialIsExpandedRef = React.useRef<boolean>(toolViewTimelineFeedDefaultExpanded === true || forceExpandedForPendingUserAction);
+    // A file sent to the user is the deliverable itself: show its card without requiring a tap.
+    const forceExpandedByDefault = headerModel.normalizedToolName === 'send_file_to_user';
+    const initialIsExpandedRef = React.useRef<boolean>(
+        toolViewTimelineFeedDefaultExpanded === true || forceExpandedForPendingUserAction || forceExpandedByDefault,
+    );
     const [isExpanded, setIsExpanded] = React.useState<boolean>(initialIsExpandedRef.current);
     React.useEffect(() => {
         if (!forceExpandedForPendingUserAction) return;
