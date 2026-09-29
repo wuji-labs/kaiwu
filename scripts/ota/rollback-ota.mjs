@@ -84,7 +84,9 @@ function parseSshTarget(target) {
 function runCommand(command, args, options = {}) {
   const result = spawnSync(command, args, {
     stdio: 'inherit',
-    shell: true,
+    // Only npx needs a shell on Windows (it is a .cmd shim). Everything else is spawned directly so
+    // paths with spaces (e.g. C:\\Program Files\\Git\\usr\\bin\\ssh.exe) and quoted remote commands survive.
+    shell: process.platform === 'win32' && /^npx(\.cmd)?$/i.test(command),
     ...options,
   });
   if (result.status !== 0) {
