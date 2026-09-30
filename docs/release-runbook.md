@@ -74,5 +74,6 @@ gh run watch <id> --exit-status; gh run download <id> -D dist/ios/<版本>
   ```
   每次发布会生成新的 updateId，写入 `<runtime>/<updateId>/`，并原子替换 `current-<platform>-<channel>.json`，旧指针记入 `history-*.json`。
 - **回滚**：`node scripts/ota/rollback-ota.mjs ...` 回到上一个 updateId；加 `--to-embedded` 则让客户端退回安装包内置的版本。
+- **重打原生包后必须重发一次热更新**：客户端只会采用发布时间晚于安装包内置版本的更新，比内置版本旧的一律静默忽略（2026-09-30：00:49 发的更新比之后重打的 `204b24b` 原生包早，手机拿到清单却不应用）。
 - **注意**：iOS 的 JS 包约 67MB，源站带宽只有 6 Mbps。热更新只会下载变化过的资源，但 JS 包每次都要整个重新下载。
 
