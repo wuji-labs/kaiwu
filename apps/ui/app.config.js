@@ -107,11 +107,14 @@ const androidVersionCodeOverride = (
 
 const defaultBuildNumber = (() => {
     const rawVersion = (versionOverride || packageJsonVersion || '').trim();
-    const match = rawVersion.match(/^0\.2\.(\d+)$/);
-    if (match) {
-        return parseInt(match[1], 10);
+    const match = rawVersion.match(/^v?(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$/);
+    if (!match) {
+        throw new Error(`Failed to parse app version "${rawVersion}" for defaultBuildNumber`);
     }
-    return 24;
+    const major = parseInt(match[1], 10);
+    const minor = parseInt(match[2], 10);
+    const patch = parseInt(match[3], 10);
+    return major * 10000 + minor * 100 + patch;
 })();
 
 const resolvedIosBuildNumber =

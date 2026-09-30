@@ -279,8 +279,33 @@ describe('app.config.js', () => {
 
     it('sets iOS buildNumber and Android versionCode based on app version by default', () => {
         const exp = withCleanEnv(() => getPublicConfig());
-        expect(exp.ios?.buildNumber).toBe('24');
-        expect(exp.android?.versionCode).toBe(24);
+        expect(exp.ios?.buildNumber).toBe('224');
+        expect(exp.android?.versionCode).toBe(224);
+    });
+
+    it('calculates buildNumber and versionCode correctly for other versions (e.g. 0.3.0 and 1.0.0)', () => {
+        const exp030 = withCleanEnv(() => {
+            process.env.EXPO_APP_VERSION = '0.3.0';
+            return getPublicConfig();
+        });
+        expect(exp030.ios?.buildNumber).toBe('300');
+        expect(exp030.android?.versionCode).toBe(300);
+
+        const exp100 = withCleanEnv(() => {
+            process.env.EXPO_APP_VERSION = '1.0.0';
+            return getPublicConfig();
+        });
+        expect(exp100.ios?.buildNumber).toBe('10000');
+        expect(exp100.android?.versionCode).toBe(10000);
+    });
+
+    it('fails closed when app version cannot be parsed', () => {
+        expect(() => {
+            withCleanEnv(() => {
+                process.env.EXPO_APP_VERSION = 'invalid-version';
+                return getPublicConfig();
+            });
+        }).toThrow(/Failed to parse app version/);
     });
 
     it('allows overriding iOS buildNumber and Android versionCode via environment variables', () => {
