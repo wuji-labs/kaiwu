@@ -387,6 +387,8 @@ describe('daemon service install plan', () => {
     const cmdText = plan.commands.map((c) => `${c.cmd} ${c.args.join(' ')}`).join('\n');
     expect(cmdText).toContain('schtasks /Create');
     expect(cmdText).toContain('ONLOGON');
+    expect(cmdText).toContain('New-ScheduledTaskTrigger -AtStartup');
+    expect(cmdText).toContain('PT1M');
   });
 
   it('plans channel-scoped task names for dev (win32)', () => {

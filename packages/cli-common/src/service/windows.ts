@@ -227,6 +227,7 @@ export function buildApplyWindowsScheduledTaskServicePolicyPowerShellCommand(par
   restartPolicy: 'always' | 'on-failure' | 'no';
   restartIntervalMinutes?: number;
   restartCount?: number;
+  ensureBootTrigger?: boolean;
 }>): string {
   const { taskName, taskPath } = splitQualifiedWindowsScheduledTaskName(params.qualifiedTaskName);
   const restartIntervalMinutes = Number.isFinite(params.restartIntervalMinutes)
@@ -235,6 +236,7 @@ export function buildApplyWindowsScheduledTaskServicePolicyPowerShellCommand(par
   const restartCount = Number.isFinite(params.restartCount)
     ? Math.max(1, Math.trunc(Number(params.restartCount)))
     : 3;
+  const ensureBootTrigger = params.ensureBootTrigger !== false;
 
   // Task Scheduler only models restart-on-failure, so `always` and `on-failure`
   // resolve to the same settings. `no` opts out of restarting only.
@@ -255,11 +257,40 @@ export function buildApplyWindowsScheduledTaskServicePolicyPowerShellCommand(par
     '-MultipleInstances IgnoreNew',
   ].join(' ');
 
+  const bootTriggerCommands = ensureBootTrigger
+    ? [
+      'try {',
+      '  $t = Get-ScheduledTask -TaskPath $taskPath -TaskName $taskName -ErrorAction Stop',
+      '  $existingTriggers = @($t.Triggers)',
+      '  $hasBoot = $false',
+      '  foreach ($trig in $existingTriggers) {',
+      '    if ($null -ne $trig -and ($trig.CimClass.CimClassName -like "*BootTrigger*" -or [string]$trig.GetType().Name -like "*BootTrigger*")) {',
+      '      $hasBoot = $true',
+      '      break',
+      '    }',
+      '  }',
+      '  if (-not $hasBoot) {',
+      '    $boot = New-ScheduledTaskTrigger -AtStartup',
+      '    $boot.Delay = "PT1M"',
+      '    Set-ScheduledTask -TaskPath $taskPath -TaskName $taskName -Trigger (@($existingTriggers) + $boot) -ErrorAction Stop | Out-Null',
+      '  }',
+      '} catch {}',
+      'try {',
+      '  $p = (Get-ScheduledTask -TaskPath $taskPath -TaskName $taskName -ErrorAction Stop).Principal',
+      '  if ($null -ne $p -and [string]$p.LogonType -notin @("S4U", "2", "Password") -and [string]$p.UserId -notmatch "(?i)^(SYSTEM|LOCAL SERVICE|NETWORK SERVICE)$") {',
+      '    $s4u = New-ScheduledTaskPrincipal -UserId $p.UserId -LogonType S4U -RunLevel Limited',
+      '    Set-ScheduledTask -TaskPath $taskPath -TaskName $taskName -Principal $s4u -ErrorAction Stop | Out-Null',
+      '  }',
+      '} catch {}',
+    ]
+    : [];
+
   return [
     '$ErrorActionPreference = "Stop"',
     `$taskPath = ${psQuoted(taskPath)}`,
     `$taskName = ${psQuoted(taskName)}`,
     `$settings = New-ScheduledTaskSettingsSet ${settingsArgs}`,
     'Set-ScheduledTask -TaskPath $taskPath -TaskName $taskName -Settings $settings | Out-Null',
+    ...bootTriggerCommands,
   ].join('; ');
 }

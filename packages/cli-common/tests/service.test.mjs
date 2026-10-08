@@ -12,6 +12,7 @@ import {
   renderSystemdServiceUnit,
   renderWindowsScheduledTaskWrapperPs1,
   buildLaunchdPlistXml,
+  buildApplyWindowsScheduledTaskServicePolicyPowerShellCommand,
   applyServicePlan,
 } from '../dist/service/index.js';
 
@@ -460,3 +461,26 @@ test('applyServicePlan does not execute shell metacharacters while probing for c
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test('buildApplyWindowsScheduledTaskServicePolicyPowerShellCommand includes boot trigger and S4U augmentation', () => {
+  const cmd = buildApplyWindowsScheduledTaskServicePolicyPowerShellCommand({
+    qualifiedTaskName: 'Happier\\happier-daemon.default',
+    restartPolicy: 'always',
+  });
+  assert.match(cmd, /New-ScheduledTaskSettingsSet/);
+  assert.match(cmd, /Set-ScheduledTask -TaskPath/);
+  assert.match(cmd, /New-ScheduledTaskTrigger -AtStartup/);
+  assert.match(cmd, /Delay = "PT1M"/);
+  assert.match(cmd, /New-ScheduledTaskPrincipal -UserId \$p\.UserId -LogonType S4U/);
+});
+
+test('buildApplyWindowsScheduledTaskServicePolicyPowerShellCommand can disable boot trigger augmentation', () => {
+  const cmd = buildApplyWindowsScheduledTaskServicePolicyPowerShellCommand({
+    qualifiedTaskName: 'Happier\\happier-daemon.default',
+    restartPolicy: 'always',
+    ensureBootTrigger: false,
+  });
+  assert.match(cmd, /New-ScheduledTaskSettingsSet/);
+  assert.doesNotMatch(cmd, /New-ScheduledTaskTrigger -AtStartup/);
+});
+
