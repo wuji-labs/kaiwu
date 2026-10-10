@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
-// @ts-expect-error react-test-renderer has no declarations in this workspace.
 import TestRenderer, { act } from 'react-test-renderer';
 import { useProgressiveRows } from './useProgressiveRows';
 

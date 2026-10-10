@@ -4,9 +4,86 @@ import { buildBackendTargetKey } from '@happier-dev/protocol';
 
 import { settingsDefaults } from '@/sync/domains/settings/settings';
 
-import { applyAccountSettingsCompatibilityMigrations } from './accountSettingsCompatibilityMigrations';
+import {
+    applyAccountSettingsCompatibilityMigrations,
+    migrateLegacyAttachmentsUploadMaxFileBytes,
+} from './accountSettingsCompatibilityMigrations';
 
 describe('applyAccountSettingsCompatibilityMigrations', () => {
+    it('provides a narrow server-storage migration for the legacy attachment default', () => {
+        const raw = {
+            schemaVersion: 8,
+            attachmentsUploadsMaxFileBytes: 100 * 1024 * 1024,
+            untouchedRawField: { preserved: true },
+        };
+        const migrated = migrateLegacyAttachmentsUploadMaxFileBytes({
+            input: raw,
+            settings: raw,
+            inputSchemaVersion: 8,
+            supportedSchemaVersion: 9,
+        });
+
+        expect(migrated).toEqual({
+            schemaVersion: 9,
+            attachmentsUploadsMaxFileBytes: 300 * 1024 * 1024,
+            untouchedRawField: { preserved: true },
+        });
+    });
+
+    it('migrates the persisted legacy 100MiB attachment default to 300MiB', () => {
+        const migrated = applyAccountSettingsCompatibilityMigrations({
+            input: {
+                schemaVersion: 8,
+                attachmentsUploadsMaxFileBytes: 100 * 1024 * 1024,
+            },
+            settings: {
+                schemaVersion: 8,
+                attachmentsUploadsMaxFileBytes: 100 * 1024 * 1024,
+            },
+            inputSchemaVersion: 8,
+            supportedSchemaVersion: 9,
+        });
+
+        expect(migrated.attachmentsUploadsMaxFileBytes).toBe(300 * 1024 * 1024);
+        expect(migrated.schemaVersion).toBe(9);
+    });
+
+    it('preserves a custom attachment limit while upgrading the settings schema', () => {
+        const migrated = applyAccountSettingsCompatibilityMigrations({
+            input: {
+                schemaVersion: 8,
+                attachmentsUploadsMaxFileBytes: 25 * 1024 * 1024,
+            },
+            settings: {
+                schemaVersion: 8,
+                attachmentsUploadsMaxFileBytes: 25 * 1024 * 1024,
+            },
+            inputSchemaVersion: 8,
+            supportedSchemaVersion: 9,
+        });
+
+        expect(migrated.attachmentsUploadsMaxFileBytes).toBe(25 * 1024 * 1024);
+        expect(migrated.schemaVersion).toBe(9);
+    });
+
+    it('preserves an explicit 100MiB attachment limit after the migration', () => {
+        const migrated = applyAccountSettingsCompatibilityMigrations({
+            input: {
+                schemaVersion: 9,
+                attachmentsUploadsMaxFileBytes: 100 * 1024 * 1024,
+            },
+            settings: {
+                schemaVersion: 9,
+                attachmentsUploadsMaxFileBytes: 100 * 1024 * 1024,
+            },
+            inputSchemaVersion: 9,
+            supportedSchemaVersion: 9,
+        });
+
+        expect(migrated.attachmentsUploadsMaxFileBytes).toBe(100 * 1024 * 1024);
+        expect(migrated.schemaVersion).toBe(9);
+    });
+
     it('migrates legacy language, picker search, compact view, and feature toggle compatibility in one pass', () => {
         const legacyFeatureToggles: Record<string, boolean> = {
             'inbox.friends': true,

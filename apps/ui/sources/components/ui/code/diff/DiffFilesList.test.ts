@@ -1,5 +1,4 @@
 import * as React from 'react';
-// @ts-expect-error react-test-renderer has no declarations in this workspace.
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -283,7 +282,7 @@ describe('DiffFilesList — body messages', () => {
         });
         const texts = tree.root.findAllByType('Text').map((node: any) => textOf(node.props.children));
 
-        expect(texts).toContain('diff.noChanges');
+        expect(texts).toContain('files.noChanges');
         expect(tree.root.findAllByType('DiffFileView')).toHaveLength(0);
     });
 
@@ -302,6 +301,6 @@ describe('DiffFilesList — body messages', () => {
         const texts = tree.root.findAllByType('Text').map((node: any) => textOf(node.props.children));
 
         expect(texts).toContain('Diff is too large to render on this device.');
-        expect(texts).not.toContain('diff.noChanges');
+        expect(texts).not.toContain('files.noChanges');
     });
 });

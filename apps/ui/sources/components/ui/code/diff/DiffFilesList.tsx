@@ -145,7 +145,7 @@ export const DiffFilesList = React.memo(function DiffFilesList({
                 ListHeaderComponent={header ? <>{header}</> : undefined}
                 ListEmptyComponent={
                     <View style={{ padding: 32, alignItems: 'center' }}>
-                        <Text style={{ ...Typography.default(), color: palette.textSecondary }}>{emptyText ?? t('diff.noChanges')}</Text>
+                        <Text style={{ ...Typography.default(), color: palette.textSecondary }}>{emptyText ?? t('files.noChanges')}</Text>
                     </View>
                 }
                 contentContainerStyle={{ paddingBottom: 32 }}
@@ -227,7 +227,7 @@ const FileSection = React.memo(function FileSection({
                 showSizeHint ? (
                     <Pressable onPress={onToggle} style={{ paddingVertical: 12, alignItems: 'center' }}>
                         <Text style={{ ...Typography.default(), fontSize: 13, color: palette.textSecondary }}>
-                            {t('diff.tapToExpand', { count: item.additions + item.deletions })}
+                            {t('tools.workflowActivityView.showMore', { count: item.additions + item.deletions })}
                         </Text>
                     </Pressable>
                 ) : null
@@ -244,7 +244,7 @@ const FileSection = React.memo(function FileSection({
             ) : doc.error != null ? (
                 <Message text={doc.error} />
             ) : doc.files.length === 0 || (item.source.kind === 'contents' && !hasTextRows) ? (
-                <Message text={t('diff.noChanges')} />
+                <Message text={t('files.noChanges')} />
             ) : (
                 doc.files.map((file, i) => (
                     <DiffFileView

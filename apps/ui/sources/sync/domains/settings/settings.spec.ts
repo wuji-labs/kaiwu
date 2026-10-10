@@ -332,12 +332,12 @@ describe('settings', () => {
             } as any);
 
             expect((parsed as any).featureToggles?.['files.editor']).toBeUndefined();
-            expect((parsed as any).schemaVersion).toBe(8);
+            expect((parsed as any).schemaVersion).toBe(9);
         });
 
         it('keeps explicit disable for files.editor when schemaVersion matches current (user intent)', () => {
             const parsed = settingsParse({
-                schemaVersion: 8,
+                schemaVersion: 9,
                 experiments: false,
                 featureToggles: {
                     'files.editor': false,
@@ -345,7 +345,7 @@ describe('settings', () => {
             } as any);
 
             expect((parsed as any).featureToggles?.['files.editor']).toBe(false);
-            expect((parsed as any).schemaVersion).toBe(8);
+            expect((parsed as any).schemaVersion).toBe(9);
         });
 
         it('migrates legacy filesDiffPresentationStyle=split to unified (new default) for old schema versions', () => {
@@ -355,17 +355,17 @@ describe('settings', () => {
             } as any);
 
             expect((parsed as any).filesDiffPresentationStyle).toBe('unified');
-            expect((parsed as any).schemaVersion).toBe(8);
+            expect((parsed as any).schemaVersion).toBe(9);
         });
 
         it('keeps explicit filesDiffPresentationStyle=split when schemaVersion matches current (user intent)', () => {
             const parsed = settingsParse({
-                schemaVersion: 8,
+                schemaVersion: 9,
                 filesDiffPresentationStyle: 'split',
             } as any);
 
             expect((parsed as any).filesDiffPresentationStyle).toBe('split');
-            expect((parsed as any).schemaVersion).toBe(8);
+            expect((parsed as any).schemaVersion).toBe(9);
         });
 
         it('defaults alwaysShowContextSize to true', () => {
@@ -400,17 +400,17 @@ describe('settings', () => {
             } as any);
 
             expect(parsed.alwaysShowContextSize).toBe(true);
-            expect(parsed.schemaVersion).toBe(8);
+            expect(parsed.schemaVersion).toBe(9);
         });
 
         it('keeps explicit alwaysShowContextSize=false when schemaVersion matches current (user intent)', () => {
             const parsed = settingsParse({
-                schemaVersion: 8,
+                schemaVersion: 9,
                 alwaysShowContextSize: false,
             } as any);
 
             expect(parsed.alwaysShowContextSize).toBe(false);
-            expect(parsed.schemaVersion).toBe(8);
+            expect(parsed.schemaVersion).toBe(9);
         });
 
         it('migrates persisted old default avatar style to mesh gradient columns', () => {
@@ -420,7 +420,7 @@ describe('settings', () => {
             } as any);
 
             expect(parsed.avatarStyle).toBe('meshGradientColumns');
-            expect(parsed.schemaVersion).toBe(8);
+            expect(parsed.schemaVersion).toBe(9);
         });
 
         it('preserves non-default avatar styles during the mesh gradient columns migration', () => {
@@ -430,7 +430,7 @@ describe('settings', () => {
             } as any);
 
             expect(parsed.avatarStyle).toBe('gradient');
-            expect(parsed.schemaVersion).toBe(8);
+            expect(parsed.schemaVersion).toBe(9);
         });
 
         it('migrates legacy sessionListDensity=compact to cozy', () => {
@@ -1078,7 +1078,7 @@ describe('settings', () => {
 
         it('preserves consecutive tool-call grouping across schema migrations', () => {
             expect((settingsParse({
-                schemaVersion: 8,
+                schemaVersion: 9,
                 transcriptTurnToolCallsGroupStrategy: 'consecutive_tools',
             }) as any).transcriptTurnToolCallsGroupStrategy).toBe('consecutive_tools');
 
@@ -1245,7 +1245,7 @@ describe('settings', () => {
 
         describe('settingsDefaults', () => {
             it('should have correct default values', () => {
-            expect(settingsDefaults.schemaVersion).toBe(8);
+            expect(settingsDefaults.schemaVersion).toBe(9);
             expect(settingsDefaults.experiments).toBe(false);
             expect(settingsDefaults.avatarStyle).toBe('meshGradientColumns');
             expect(settingsDefaults.alwaysShowContextSize).toBe(true);
@@ -1337,7 +1337,7 @@ describe('settings', () => {
             expect((settingsDefaults as any).attachmentsUploadsWorkspaceRelativeDir).toBe('.kaiwu/uploads');
             expect((settingsDefaults as any).attachmentsUploadsVcsIgnoreStrategy).toBe('git_info_exclude');
             expect((settingsDefaults as any).attachmentsUploadsVcsIgnoreWritesEnabled).toBe(true);
-            expect((settingsDefaults as any).attachmentsUploadsMaxFileBytes).toBe(100 * 1024 * 1024);
+            expect((settingsDefaults as any).attachmentsUploadsMaxFileBytes).toBe(300 * 1024 * 1024);
             expect((settingsDefaults as any).expGemini).toBeUndefined();
             expect((settingsDefaults as any).sessionDefaultPermissionModeClaude).toBeUndefined();
             expect((settingsDefaults as any).sessionDefaultPermissionModeCodex).toBeUndefined();
@@ -1400,7 +1400,7 @@ describe('settings', () => {
 
         it('preserves legacy Codex backend mode when upgrading a pre-v6 payload', () => {
             const parsed = settingsParse({ schemaVersion: 5, codexBackendMode: 'mcp' } as any);
-            expect(parsed.schemaVersion).toBe(8);
+            expect(parsed.schemaVersion).toBe(9);
             expect((parsed as any).codexBackendMode).toBe('mcp');
         });
 

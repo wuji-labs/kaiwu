@@ -28,7 +28,7 @@ export const DiffImageView = React.memo(function DiffImageView({ before, after }
         return (
             <View style={{ paddingVertical: 16, alignItems: 'center' }}>
                 <Text style={{ ...Typography.default(), fontSize: 13, color: palette.textSecondary }}>
-                    {t('diff.binaryFile')}
+                    {t('files.binaryFile')}
                 </Text>
             </View>
         );
@@ -37,10 +37,10 @@ export const DiffImageView = React.memo(function DiffImageView({ before, after }
     return (
         <View style={{ flexDirection: 'row', padding: 12, gap: 12, backgroundColor: palette.surface }}>
             {before ? (
-                <Pane uri={before} label={t('diff.imageBefore')} tint={palette.marker.del} palette={palette} />
+                <Pane uri={before} label={t('common.previous')} tint={palette.marker.del} palette={palette} />
             ) : null}
             {after ? (
-                <Pane uri={after} label={t('diff.imageAfter')} tint={palette.marker.add} palette={palette} />
+                <Pane uri={after} label={t('common.next')} tint={palette.marker.add} palette={palette} />
             ) : null}
         </View>
     );

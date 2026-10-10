@@ -103,6 +103,7 @@ describe('SettingsBelowFoldSections ICP filing', () => {
 
         const icpItem = items.find((i: any) => i.props.title === '苏ICP备2026038842号-5A');
         expect(icpItem).toBeDefined();
+        if (!icpItem) throw new Error('ICP filing item was not rendered');
 
         const icpIndex = items.findIndex((i: any) => i.props.title === '苏ICP备2026038842号-5A');
         expect(icpIndex).toBe(versionIndex + 1);

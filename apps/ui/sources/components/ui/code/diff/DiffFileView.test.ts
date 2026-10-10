@@ -9,7 +9,6 @@
  */
 
 import * as React from 'react';
-// @ts-expect-error react-test-renderer has no declarations in this workspace.
 import { act, create, type ReactTestRenderer } from 'react-test-renderer';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
@@ -206,7 +205,7 @@ describe('DiffFileView — scroll layout', () => {
         const without = render({ file, showHunkHeaders: false });
 
         const hasHunk = (tree: ReactTestRenderer) =>
-            (tree.root.findAllByType('Text').map(textOf) as string[]).some((s) => s.includes('@@') || s.includes('diff.unchangedLines'));
+            (tree.root.findAllByType('Text').map(textOf) as string[]).some((s) => s.includes('@@') || s.includes('tools.workflowActivityView.showMore'));
 
         expect(hasHunk(withHeaders)).toBe(true);
         expect(hasHunk(without)).toBe(false);
@@ -228,7 +227,7 @@ describe('DiffFileView — collapsing', () => {
     it('holds back the tail and offers to show it', () => {
         const tree = render({ file: long(), collapseAfter: 10, showHunkHeaders: false });
         const texts = tree.root.findAllByType('Text').map(textOf) as string[];
-        const more = texts.find((s) => s.startsWith('diff.showMoreLines'));
+        const more = texts.find((s) => s.startsWith('tools.workflowActivityView.showMore'));
         expect(more).toBeDefined();
         expect(more).toContain('"count":50'); // 60 rows, 10 shown
     });
@@ -237,20 +236,20 @@ describe('DiffFileView — collapsing', () => {
         const tree = render({ file: long(), collapseAfter: 10, showHunkHeaders: false });
 
         const button = tree.root.findAllByType('Pressable').find((p: any) =>
-            textOf(p).startsWith('diff.showMoreLines'));
+            textOf(p).startsWith('tools.workflowActivityView.showMore'));
         expect(button).toBeDefined();
 
         act(() => { button!.props.onPress(); });
 
         const after = tree.root.findAllByType('Text').map(textOf) as string[];
-        expect(after.some((s) => s.startsWith('diff.showMoreLines'))).toBe(false);
+        expect(after.some((s) => s.startsWith('tools.workflowActivityView.showMore'))).toBe(false);
         expect(after.some((s) => s.includes('line 29'))).toBe(true);
     });
 
     it('shows no button when the file fits', () => {
         const tree = render({ file: fileFromPatch(SIMPLE), collapseAfter: 400 });
         const texts = tree.root.findAllByType('Text').map(textOf) as string[];
-        expect(texts.some((s) => s.startsWith('diff.showMoreLines'))).toBe(false);
+        expect(texts.some((s) => s.startsWith('tools.workflowActivityView.showMore'))).toBe(false);
     });
 });
 
@@ -308,6 +307,6 @@ describe('DiffFileView — messages', () => {
 
         const tree = render({ file });
         const texts = tree.root.findAllByType('Text').map(textOf) as string[];
-        expect(texts.some((s) => s.includes('diff.binaryFile'))).toBe(true);
+        expect(texts.some((s) => s.includes('files.binaryFile'))).toBe(true);
     });
 });

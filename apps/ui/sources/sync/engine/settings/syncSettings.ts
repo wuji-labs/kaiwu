@@ -1,6 +1,6 @@
 import { tracking } from '@/track';
 import { HappyError } from '@/utils/errors/errors';
-import { applySettings, settingsDefaults, settingsParse, type Settings } from '@/sync/domains/settings/settings';
+import { applySettings, settingsDefaults, settingsParse, SUPPORTED_SCHEMA_VERSION, type Settings } from '@/sync/domains/settings/settings';
 import { summarizeSettings, summarizeSettingsDelta, dbgSettings, isSettingsSyncDebugEnabled } from '@/sync/domains/settings/debugSettings';
 import {
     pickLocalOnlyAccountSettings,
@@ -58,6 +58,7 @@ import {
     markLegacySessionOrganizationImportComplete,
 } from './legacySessionOrganizationImport';
 import { assertUiAccountEncryptionModeAllowed } from '@/sync/domains/settings/clientEncryptionRequirement';
+import { migrateLegacyAttachmentsUploadMaxFileBytes } from '@/sync/domains/settings/parse/accountSettingsCompatibilityMigrations';
 
 export type SyncSettingsParams = {
     credentials: AuthCredentials;
@@ -398,23 +399,39 @@ export async function syncSettings(params: SyncSettingsParams): Promise<void> {
         mode: 'plain' | 'e2ee';
     }): { value: Record<string, unknown>; changed: boolean } {
         const strippedLocalOnly = stripLocalOnlyAccountSettings(params.raw);
-        const stripped = stripMigratedSessionOrganizationSettings(strippedLocalOnly as Record<string, unknown>);
-        const migratedOrganizationStripped = !areAccountSettingsRawObjectsEqual(
+        const inputSchemaVersion = typeof strippedLocalOnly.schemaVersion === 'number'
+            ? strippedLocalOnly.schemaVersion
+            : SUPPORTED_SCHEMA_VERSION;
+        const compatibilityMigrated = migrateLegacyAttachmentsUploadMaxFileBytes({
+            input: strippedLocalOnly as Record<string, unknown>,
+            settings: strippedLocalOnly as Record<string, unknown>,
+            inputSchemaVersion,
+            supportedSchemaVersion: SUPPORTED_SCHEMA_VERSION,
+        });
+        const compatibilityMigratedChanged = !areAccountSettingsRawObjectsEqual(
             strippedLocalOnly as Record<string, unknown>,
+            compatibilityMigrated,
+        );
+        const stripped = stripMigratedSessionOrganizationSettings(compatibilityMigrated);
+        const migratedOrganizationStripped = !areAccountSettingsRawObjectsEqual(
+            compatibilityMigrated,
             stripped,
         );
         if (params.mode === 'plain') {
             const unsealed = unsealSecretsDeepWithKeys(stripped, settingsSecretsReadKeys) as Record<string, unknown>;
-            return { value: unsealed, changed: migratedOrganizationStripped || unsealed !== stripped };
+            return { value: unsealed, changed: compatibilityMigratedChanged || migratedOrganizationStripped || unsealed !== stripped };
         }
         if (!settingsSecretsKey) {
-            return { value: stripped as Record<string, unknown>, changed: migratedOrganizationStripped };
+            return { value: stripped as Record<string, unknown>, changed: compatibilityMigratedChanged || migratedOrganizationStripped };
         }
         const resealed = resealSecretsDeep(stripped, {
             readKeys: settingsSecretsReadKeys,
             writeKey: settingsSecretsKey,
         });
-        return { value: resealed.value as Record<string, unknown>, changed: migratedOrganizationStripped || resealed.changed };
+        return {
+            value: resealed.value as Record<string, unknown>,
+            changed: compatibilityMigratedChanged || migratedOrganizationStripped || resealed.changed,
+        };
     }
 
     function createSettingsContentForWrite(raw: Record<string, unknown>): {

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Platform, Pressable, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { Text } from '@/components/StyledText';
+import { Text } from '@/components/ui/text/Text';
 import { Typography } from '@/constants/Typography';
 import { t } from '@/text';
 
@@ -32,35 +32,35 @@ export const DiffHeaderRight = React.memo(function DiffHeaderRight({
                     onPress={onRefresh}
                     disabled={refreshing}
                     hitSlop={8}
-                    accessibilityLabel={t('files.reload')}
+                    accessibilityLabel={t('common.refresh')}
                     style={{ opacity: refreshing ? 0.4 : 1 }}
                 >
-                    <Ionicons name="refresh" size={18} color={theme.colors.textSecondary} />
+                    <Ionicons name="refresh" size={18} color={theme.colors.text.secondary} />
                 </Pressable>
             ) : null}
             <Pressable
                 onPress={() => onIgnoreWhitespaceChange(!ignoreWhitespace)}
                 hitSlop={8}
-                accessibilityLabel={t('diff.ignoreWhitespace')}
+                accessibilityLabel={t('files.diff')}
                 style={({ pressed }) => [
                     styles.whitespaceToggle,
                     {
-                        backgroundColor: ignoreWhitespace ? theme.colors.surfaceHigh : 'transparent',
-                        borderColor: theme.colors.divider,
+                        backgroundColor: ignoreWhitespace ? theme.colors.surface.elevated : 'transparent',
+                        borderColor: theme.colors.border.default,
                         opacity: pressed ? 0.6 : 1,
                     },
                 ]}
             >
                 <Text style={[
                     styles.whitespaceToggleText,
-                    { color: ignoreWhitespace ? theme.colors.text : theme.colors.textSecondary },
+                    { color: ignoreWhitespace ? theme.colors.text.primary : theme.colors.text.secondary },
                 ]}>
                     {'\u00B7\u2192'}
                 </Text>
             </Pressable>
             {fileCount !== null ? (
-                <Text style={[styles.headerRightCount, { color: theme.colors.textSecondary }]}>
-                    {t('files.changedFiles', { count: fileCount })}
+                <Text style={[styles.headerRightCount, { color: theme.colors.text.secondary }]}>
+                    {t('files.sourceControlStatus.changedFilesLabel', { count: fileCount })}
                 </Text>
             ) : null}
             {Platform.OS === 'web' ? <DiffStyleToggle value={diffStyle} onChange={onDiffStyleChange} /> : null}
@@ -74,14 +74,14 @@ const DiffStyleToggle = React.memo(function DiffStyleToggle({ value, onChange }:
 }) {
     const { theme } = useUnistyles();
     return (
-        <View style={[styles.toggle, { backgroundColor: theme.colors.groupped.background, borderColor: theme.colors.divider }]}>
+        <View style={[styles.toggle, { backgroundColor: theme.colors.surface.sectionTint, borderColor: theme.colors.border.default }]}>
             {(['unified', 'split'] as const).map((style) => (
                 <Pressable
                     key={style}
                     onPress={() => onChange(style)}
-                    style={{ paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6, backgroundColor: value === style ? theme.colors.surface : 'transparent' }}
+                    style={{ paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6, backgroundColor: value === style ? theme.colors.surface.base : 'transparent' }}
                 >
-                    <Text style={{ fontSize: 12, ...Typography.default(value === style ? 'semiBold' : undefined), color: value === style ? theme.colors.text : theme.colors.textSecondary }}>
+                    <Text style={{ fontSize: 12, ...Typography.default(value === style ? 'semiBold' : undefined), color: value === style ? theme.colors.text.primary : theme.colors.text.secondary }}>
                         {style === 'unified' ? 'Unified' : 'Split'}
                     </Text>
                 </Pressable>

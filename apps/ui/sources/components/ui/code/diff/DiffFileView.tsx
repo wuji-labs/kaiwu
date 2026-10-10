@@ -182,7 +182,7 @@ export const DiffFileView = React.memo(function DiffFileView({
                 >
                     {expansion.busy ? <ActivityIndicator size="small" color={palette.hunkText} /> : null}
                     <Text style={{ ...Typography.default('semiBold'), fontSize: 13, color: palette.hunkText }}>
-                        {t('diff.showMoreLines', { count: hiddenRowCount })}
+                        {t('tools.workflowActivityView.showMore', { count: hiddenRowCount })}
                     </Text>
                 </Pressable>
             ) : null}
@@ -504,7 +504,7 @@ const DiffRowCode = React.memo(function DiffRowCode({
                     }}
                 >
                     {row.hidden
-                        ? `${canExpand ? '⤢' : '⋯'} ${t('diff.unchangedLines', { count: row.hidden })}`
+                        ? `${canExpand ? '⤢' : '⋯'} ${t('tools.workflowActivityView.showMore', { count: row.hidden })}`
                         : row.text}
                     {row.section ? <Text style={{ color: palette.sectionText }}>{`   ${row.section}`}</Text> : null}
                 </Text>
@@ -741,7 +741,7 @@ const HunkBar = React.memo(function HunkBar({
         >
             <Text numberOfLines={1} style={{ ...Typography.mono(), fontSize: metrics.fontSize - 1, color: palette.hunkText }}>
                 {row.hidden
-                    ? `${canExpand ? '⤢' : '⋯'} ${t('diff.unchangedLines', { count: row.hidden })}`
+                    ? `${canExpand ? '⤢' : '⋯'} ${t('tools.workflowActivityView.showMore', { count: row.hidden })}`
                     : row.text}
             </Text>
             {row.section ? (
@@ -758,7 +758,7 @@ const HunkBar = React.memo(function HunkBar({
 
 /** Message rows carry a marker rather than copy, so the text follows the app language. */
 function messageText(code: 'binary' | 'empty'): string {
-    return code === 'binary' ? t('diff.binaryFile') : t('diff.noChanges');
+    return code === 'binary' ? t('files.binaryFile') : t('files.noChanges');
 }
 
 /**

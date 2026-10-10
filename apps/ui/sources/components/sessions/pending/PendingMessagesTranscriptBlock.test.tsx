@@ -20,6 +20,10 @@ const QUEUE_CAP_PX = resolvePendingQueueHeadMaxHeightPx(LINE_PX) + 80;
 
 (globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
 
+vi.mock('@/text/deviceLocales', () => ({
+    getDeviceLocales: () => [{ languageCode: 'en', languageScriptCode: null }],
+}));
+
 async function loadPendingMessagesTranscriptBlock() {
     const mod = await import('./PendingMessagesTranscriptBlock');
     return mod.PendingMessagesTranscriptBlock;
@@ -675,7 +679,7 @@ describe('PendingMessagesTranscriptBlock', () => {
 
         expect(modalConfirm).toHaveBeenCalledWith(
             'Mark pending message handled?',
-            'Use this only if the provider already handled the message or you no longer want Happier to deliver it.',
+            'Use this only if the provider already handled the message or you no longer want Kaiwu to deliver it.',
             { confirmText: 'Mark handled' },
         );
         expect(modalConfirm.mock.invocationCallOrder[0]).toBeLessThan(markPendingDeliveryHandled.mock.invocationCallOrder[0]!);

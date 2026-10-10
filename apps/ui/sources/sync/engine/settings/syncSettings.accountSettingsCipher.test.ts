@@ -77,6 +77,7 @@ vi.mock('@/sync/domains/settings/settings', () => ({
     applySettings: mocks.applySettingsFn,
     settingsDefaults: { analyticsOptOut: false },
     settingsParse: mocks.settingsParse,
+    SUPPORTED_SCHEMA_VERSION: 9,
 }));
 
 vi.mock('@/sync/domains/settings/debugSettings', () => ({
@@ -317,6 +318,70 @@ describe('syncSettings account settings ciphertext', () => {
         );
 
         expect((encryptionStub.encryptRaw as unknown as ReturnType<typeof vi.fn>)).not.toHaveBeenCalled();
+    });
+
+    it('writes back the legacy 100MiB attachment default as 300MiB during settings sync', async () => {
+        const encryptionStub = {
+            getContentPrivateKey: () => TEST_MACHINE_KEY,
+            decryptRaw: vi.fn(async () => null),
+        } as unknown as Encryption;
+        const serverCiphertext = sealAccountScopedBlobCiphertext({
+            kind: 'account_settings',
+            material: { type: 'dataKey', machineKey: TEST_MACHINE_KEY },
+            payload: {
+                schemaVersion: 8,
+                attachmentsUploadsMaxFileBytes: 100 * 1024 * 1024,
+            },
+            randomBytes: mocks.getRandomBytes,
+        });
+
+        mocks.serverFetch
+            .mockResolvedValueOnce(
+                new Response(JSON.stringify({ mode: 'e2ee', updatedAt: Date.now() }), {
+                    status: 200,
+                    headers: { 'Content-Type': 'application/json' },
+                }),
+            )
+            .mockResolvedValueOnce(
+                new Response(JSON.stringify({ content: { t: 'encrypted', c: serverCiphertext }, version: 12 }), {
+                    status: 200,
+                    headers: { 'Content-Type': 'application/json' },
+                }),
+            )
+            .mockResolvedValueOnce(
+                new Response(JSON.stringify({ success: true, version: 13 }), {
+                    status: 200,
+                    headers: { 'Content-Type': 'application/json' },
+                }),
+            );
+
+        await syncSettings({
+            credentials,
+            encryption: encryptionStub,
+            pendingSettings: {},
+            clearPendingSettings: vi.fn(),
+        });
+
+        expect(mocks.serverFetch.mock.calls.map((call) => [call[0], call[1]?.method ?? 'GET'])).toEqual([
+            ['/v1/account/encryption', 'GET'],
+            ['/v2/account/settings', 'GET'],
+            ['/v2/account/settings', 'POST'],
+        ]);
+
+        const [, init] = mocks.serverFetch.mock.calls[2];
+        const body = JSON.parse(String(init?.body)) as { content?: { c?: unknown } };
+        const opened = openAccountScopedBlobCiphertext({
+            kind: 'account_settings',
+            material: { type: 'dataKey', machineKey: TEST_MACHINE_KEY },
+            ciphertext: String(body.content?.c ?? ''),
+        });
+
+        expect(opened?.value).toEqual(
+            expect.objectContaining({
+                schemaVersion: 9,
+                attachmentsUploadsMaxFileBytes: 300 * 1024 * 1024,
+            }),
+        );
     });
 
     it('preserves malformed known server fields when pending touches another setting', async () => {

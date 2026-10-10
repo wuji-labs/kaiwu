@@ -1,5 +1,4 @@
 import * as React from 'react';
-// @ts-expect-error react-test-renderer has no declarations in this workspace.
 import { act, create } from 'react-test-renderer';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildDiffFromPatch } from '../engine/buildDiff';

@@ -10,6 +10,29 @@ import { TRANSCRIPT_MESSAGE_TIMESTAMP_DISPLAY_MODE_VALUES } from '../registry/ac
 import { migrateAccountFeatureToggles } from './accountSettingsFeatureToggleMigration';
 import { normalizeAccountSettingsServerSelection } from './accountSettingsServerSelectionNormalization';
 
+const LEGACY_ATTACHMENTS_UPLOADS_MAX_FILE_BYTES = 100 * 1024 * 1024;
+const CURRENT_ATTACHMENTS_UPLOADS_MAX_FILE_BYTES = 300 * 1024 * 1024;
+
+export function migrateLegacyAttachmentsUploadMaxFileBytes<TSettings extends Record<string, unknown>>(params: {
+    input: Record<string, unknown>;
+    settings: TSettings;
+    inputSchemaVersion: number;
+    supportedSchemaVersion: number;
+}): TSettings {
+    const next = { ...params.settings } as Record<string, unknown>;
+
+    if (
+        params.inputSchemaVersion < params.supportedSchemaVersion
+        && Object.prototype.hasOwnProperty.call(params.input, 'attachmentsUploadsMaxFileBytes')
+        && params.input.attachmentsUploadsMaxFileBytes === LEGACY_ATTACHMENTS_UPLOADS_MAX_FILE_BYTES
+    ) {
+        next.attachmentsUploadsMaxFileBytes = CURRENT_ATTACHMENTS_UPLOADS_MAX_FILE_BYTES;
+        next.schemaVersion = params.supportedSchemaVersion;
+    }
+
+    return next as TSettings;
+}
+
 export function applyAccountSettingsCompatibilityMigrations<TSettings extends Record<string, unknown>>(params: {
     input: Record<string, unknown>;
     settings: TSettings;
@@ -17,7 +40,12 @@ export function applyAccountSettingsCompatibilityMigrations<TSettings extends Re
     supportedSchemaVersion: number;
 }): TSettings {
     const { input, inputSchemaVersion, supportedSchemaVersion } = params;
-    const next = { ...params.settings } as Record<string, unknown>;
+    const next = migrateLegacyAttachmentsUploadMaxFileBytes({
+        input,
+        settings: params.settings,
+        inputSchemaVersion,
+        supportedSchemaVersion,
+    }) as Record<string, unknown>;
 
     if (next.preferredLanguage === 'zh') {
         next.preferredLanguage = 'zh-Hans';

@@ -24,22 +24,76 @@ export interface DiffPalette {
 export function useDiffPalette(): DiffPalette {
     const { theme } = useUnistyles();
     return React.useMemo<DiffPalette>(() => {
-        const d = theme.colors.diff;
+        // Keep the resolver tolerant of the small legacy theme doubles used by
+        // renderer tests while the application itself reads the nested tokens.
+        const colors = theme.colors as unknown as {
+            surface: string | { base: string };
+            text: string | { primary: string; secondary: string; tertiary?: string };
+            border?: { default?: string };
+            divider?: string;
+            textSecondary?: string;
+            diff: {
+                added?: { background: string; foreground: string };
+                removed?: { background: string; foreground: string };
+                context?: { background: string; foreground: string };
+                lineNumber?: { foreground: string };
+                hunk?: { background: string; foreground: string };
+                inlineAdded?: { background: string };
+                inlineRemoved?: { background: string };
+                rowAddedBg?: string;
+                rowRemovedBg?: string;
+                rowContextBg?: string;
+                gutterAddedBg?: string;
+                gutterRemovedBg?: string;
+                gutterContextBg?: string;
+                gutterBorder?: string;
+                lineNumberText?: string;
+                markerAdded?: string;
+                markerRemoved?: string;
+                wordAddedBg?: string;
+                wordRemovedBg?: string;
+                hunkHeaderBg?: string;
+                hunkHeaderText?: string;
+                sectionText?: string;
+                syntax: Record<SpanKind, string>;
+            };
+        };
+        const d = colors.diff;
+        const text = typeof colors.text === 'string'
+            ? { primary: colors.text, secondary: colors.textSecondary ?? colors.text, tertiary: colors.textSecondary ?? colors.text }
+            : {
+                ...colors.text,
+                tertiary: colors.text.tertiary ?? colors.text.secondary,
+            };
+        const surface = typeof colors.surface === 'string' ? colors.surface : colors.surface.base;
+        const border = colors.border?.default ?? colors.divider ?? '#00000000';
+        const added = d.added ?? { background: d.rowAddedBg ?? 'transparent', foreground: d.markerAdded ?? text.primary };
+        const removed = d.removed ?? { background: d.rowRemovedBg ?? 'transparent', foreground: d.markerRemoved ?? text.primary };
+        const context = d.context ?? { background: d.rowContextBg ?? 'transparent', foreground: text.secondary };
+        const lineNumber = d.lineNumber?.foreground ?? d.lineNumberText ?? text.secondary;
+        const hunk = d.hunk ?? { background: d.hunkHeaderBg ?? 'transparent', foreground: d.hunkHeaderText ?? text.secondary };
         return {
-            surface: theme.colors.surface,
-            rowBg: { add: d.rowAddedBg, del: d.rowRemovedBg, ctx: d.rowContextBg },
-            gutterBg: { add: d.gutterAddedBg, del: d.gutterRemovedBg, ctx: d.gutterContextBg },
-            gutterBorder: d.gutterBorder,
-            lineNumber: d.lineNumberText,
-            marker: { add: d.markerAdded, del: d.markerRemoved, ctx: d.lineNumberText },
-            wordBg: { add: d.wordAddedBg, del: d.wordRemovedBg },
-            hunkBg: d.hunkHeaderBg,
-            hunkText: d.hunkHeaderText,
-            sectionText: d.sectionText,
+            surface,
+            rowBg: { add: added.background, del: removed.background, ctx: context.background },
+            gutterBg: {
+                add: d.gutterAddedBg ?? added.background,
+                del: d.gutterRemovedBg ?? removed.background,
+                ctx: d.gutterContextBg ?? context.background,
+            },
+            gutterBorder: d.gutterBorder ?? border,
+            lineNumber,
+            marker: { add: added.foreground, del: removed.foreground, ctx: lineNumber },
+            wordBg: {
+                add: d.inlineAdded?.background ?? d.wordAddedBg ?? added.background,
+                del: d.inlineRemoved?.background ?? d.wordRemovedBg ?? removed.background,
+            },
+            hunkBg: hunk.background,
+            hunkText: hunk.foreground,
+            sectionText: d.sectionText ?? text.tertiary,
             syntax: d.syntax,
-            divider: theme.colors.divider,
-            textSecondary: theme.colors.textSecondary,
-            text: theme.colors.text,
+            divider: border,
+            textSecondary: text.secondary,
+            text: text.primary,
         };
     }, [theme]);
 }
