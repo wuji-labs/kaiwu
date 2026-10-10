@@ -505,6 +505,11 @@ vi.mock('expo-modules-core', async () => await import('./expoModulesCoreStub'));
 
 // `expo-updates` is native-oriented and pulls in platform-specific modules that Node/Vitest can't parse.
 vi.mock('expo-updates', () => ({
+    channel: null,
+    updateId: null,
+    runtimeVersion: null,
+    createdAt: null,
+    isEmbeddedLaunch: true,
     useUpdates: () => ({
         currentlyRunning: {},
         isChecking: false,

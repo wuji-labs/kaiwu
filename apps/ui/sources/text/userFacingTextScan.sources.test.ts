@@ -17,6 +17,9 @@ const IGNORED_SCAN_TEXTS = new Set([
     '关闭',
     '打开微信「扫一扫」添加交流',
     '微信交流二维码',
+    '苏ICP备2026038842号-5A',
+    // DiffMetrics measurement sample string
+    'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM',
 ]);
 
 function isIgnoredHit(text: string): boolean {

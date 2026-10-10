@@ -460,6 +460,17 @@ const SettingsAboutSection = React.memo(function SettingsAboutSection({
                 onPress={handleVersionClick}
                 showChevron={false}
             />
+            <Item
+                title="苏ICP备2026038842号-5A"
+                icon={<Icon name="shield-check" size={29} color={theme.colors.accent.blue} />}
+                onPress={async () => {
+                    const url = 'https://beian.miit.gov.cn/';
+                    const supported = await Linking.canOpenURL(url);
+                    if (supported) {
+                        await Linking.openURL(url);
+                    }
+                }}
+            />
         </ItemGroup>
     );
 });
