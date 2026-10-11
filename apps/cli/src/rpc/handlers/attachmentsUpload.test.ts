@@ -172,6 +172,47 @@ describe('attachments upload (chunked)', () => {
     }
   });
 
+  it('allows a 106.6 MB recording under the default 300 MB attachment limit', async () => {
+    const workingDirectory = await mkdtemp(join(tmpdir(), 'happier-attach-default-limit-'));
+
+    try {
+      vi.stubEnv('HAPPIER_FILES_UPLOAD_MAX_FILE_BYTES', '');
+      reloadConfiguration();
+
+      const mgr = createRpcHandlerManager();
+      const pathAllowanceRegistry = createTransferPathAllowanceRegistry({
+        onReadDirsChange: () => {},
+        onWriteDirsChange: () => {},
+      });
+      registerTransferHandlersForTest(mgr as unknown as RpcHandlerManager, {
+        workingDirectory,
+        attachmentUpload: {
+          pathAllowanceRegistry,
+        },
+      });
+
+      const init = mgr.handlers.get(RPC_METHODS.DAEMON_BULK_TRANSFER_UPLOAD_INIT);
+      if (!init) throw new Error('expected attachments upload handlers to be registered');
+
+      const initRes = await init({
+        t: 'session_attachment_upload_v1',
+        messageLocalId: 'message-1',
+        fileName: 'meeting.m4a',
+        sizeBytes: 106_600_000,
+        uploadLocation: 'os_temp',
+        vcsIgnoreStrategy: 'none',
+        vcsIgnoreWritesEnabled: false,
+      });
+
+      expect(initRes).toMatchObject({
+        success: true,
+        recipientPublicKeyBase64: expect.any(String),
+      });
+    } finally {
+      await rm(workingDirectory, { recursive: true, force: true }).catch(() => {});
+    }
+  });
+
   it('rejects oversize attachment init at the files upload max without mutating ignore files or path allowances', async () => {
     const workingDirectory = await mkdtemp(join(tmpdir(), 'happier-attach-config-limit-'));
     const readAllowedDirs: { current: string[] } = { current: [] };
