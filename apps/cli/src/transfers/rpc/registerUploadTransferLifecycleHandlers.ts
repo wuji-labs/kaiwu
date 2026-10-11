@@ -211,6 +211,10 @@ export function registerUploadTransferLifecycleHandlers<TInitResponse, TFinalize
 
     const session = params.store.getUploadSession(uploadId);
     if (!session) {
+      const finalized = params.store.getFinalizedUpload(uploadId);
+      if (finalized) {
+        return params.buildFinalizeSuccessResponse(finalized);
+      }
       return params.buildFinalizeMissingSessionResponse();
     }
     if (session.receivedBytes !== session.expectedSizeBytes) {
@@ -234,7 +238,7 @@ export function registerUploadTransferLifecycleHandlers<TInitResponse, TFinalize
         return params.buildFinalizeFailureResponse(finalized.error);
       }
 
-      await params.store.finalizeUploadSession(uploadId);
+      await params.store.finalizeUploadSession(uploadId, { finalized, sha256 });
       return params.buildFinalizeSuccessResponse({
         finalized,
         sha256,

@@ -1,5 +1,6 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { describe, expect, it } from 'vitest';
 
@@ -37,8 +38,7 @@ async function listFilesRecursively(directory: string): Promise<string[]> {
 
 describe('bulkTransferPipeline (architecture)', () => {
     it('keeps chunk transfer plumbing scoped to bulkTransferPipeline/**', async () => {
-        const runtimeDirectory = new URL('../', import.meta.url);
-        const runtimePath = runtimeDirectory.pathname;
+        const runtimePath = fileURLToPath(new URL('../', import.meta.url));
         const files = (await listFilesRecursively(runtimePath)).filter((filePath) =>
             (filePath.endsWith('.ts') || filePath.endsWith('.tsx'))
             && !filePath.endsWith('.test.ts')
@@ -48,7 +48,7 @@ describe('bulkTransferPipeline (architecture)', () => {
         );
 
         for (const filePath of files) {
-            if (filePath.includes('/bulkTransferPipeline/')) {
+            if (filePath.replaceAll('\\', '/').includes('/bulkTransferPipeline/')) {
                 continue;
             }
             const source = await readFile(filePath, 'utf8');

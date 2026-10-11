@@ -1,4 +1,24 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+const runtimeLifecycle = vi.hoisted(() => ({
+    active: true,
+    listeners: new Set<() => void>(),
+    resolveForeground: null as (() => void) | null,
+}));
+
+vi.mock('@/utils/runtime/isRuntimeActive', () => ({
+    isRuntimeActive: () => runtimeLifecycle.active,
+    subscribeToRuntimeActiveChange: (listener: () => void) => {
+        runtimeLifecycle.listeners.add(listener);
+        return () => runtimeLifecycle.listeners.delete(listener);
+    },
+    waitForRuntimeActive: () => {
+        if (runtimeLifecycle.active) return Promise.resolve();
+        return new Promise<void>((resolve) => {
+            runtimeLifecycle.resolveForeground = resolve;
+        });
+    },
+}));
 
 import * as base64Module from '@/encryption/base64';
 import { downloadInChunks, uploadInChunks } from './chunkTransferClient';
@@ -10,6 +30,12 @@ import {
 // This suite intentionally lives alongside bulkTransferPipeline internals so feature code cannot
 // reach chunk-transfer plumbing outside the canonical pipeline boundary.
 describe('chunkTransferClient', () => {
+    afterEach(() => {
+        runtimeLifecycle.active = true;
+        runtimeLifecycle.listeners.clear();
+        runtimeLifecycle.resolveForeground = null;
+    });
+
     it('uploads data in chunks, reporting progress and finalizing', async () => {
         const bytes = new TextEncoder().encode('hello');
         const initSpy = vi.fn(async () => ({
@@ -106,6 +132,54 @@ describe('chunkTransferClient', () => {
         expect(chunkSpy).toHaveBeenCalledTimes(1);
         expect(finalizeSpy).not.toHaveBeenCalled();
         expect(abortSpy).toHaveBeenCalledWith({ uploadId: 'u1' });
+    });
+
+    it('waits for the app to return to the foreground and retries the interrupted chunk', async () => {
+        const bytes = new TextEncoder().encode('hello');
+        const initSpy = vi.fn(async () => ({
+            success: true as const,
+            uploadId: 'u1',
+            chunkSizeBytes: 5,
+            recipientPublicKeyBase64: Buffer.alloc(32, 9).toString('base64'),
+        }));
+        const chunkSpy = vi.fn(async (_req: {
+            uploadId: string;
+            index: number;
+            payloadBase64: string;
+            encryptedDataKeyEnvelopeBase64: string;
+        }) => {
+            if (chunkSpy.mock.calls.length === 1) {
+                runtimeLifecycle.active = false;
+                for (const listener of runtimeLifecycle.listeners) listener();
+                return { success: false as const, error: 'Socket not connected' };
+            }
+            return { success: true as const };
+        });
+        const finalizeSpy = vi.fn(async (_req: { uploadId: string }) => ({ success: true as const, path: 'file.txt' }));
+        const abortSpy = vi.fn(async (_req: { uploadId: string }) => ({ success: true as const }));
+
+        const uploadPromise = uploadInChunks({
+            totalBytes: bytes.byteLength,
+            readBytes: async (offset, length) => bytes.slice(offset, offset + length),
+            init: initSpy,
+            sendChunk: chunkSpy,
+            finalize: finalizeSpy,
+            abort: abortSpy,
+        });
+
+        await vi.waitFor(() => expect(chunkSpy).toHaveBeenCalledTimes(1));
+        expect(runtimeLifecycle.resolveForeground).not.toBeNull();
+
+        runtimeLifecycle.active = true;
+        runtimeLifecycle.resolveForeground?.();
+        runtimeLifecycle.resolveForeground = null;
+        for (const listener of runtimeLifecycle.listeners) listener();
+
+        await expect(uploadPromise).resolves.toMatchObject({ success: true, path: 'file.txt' });
+        expect(chunkSpy).toHaveBeenCalledTimes(2);
+        expect(chunkSpy.mock.calls[1]?.[0]).toMatchObject({ uploadId: 'u1', index: 0 });
+        expect(finalizeSpy).toHaveBeenCalledTimes(1);
+        expect(abortSpy).not.toHaveBeenCalled();
     });
 
     it('returns an upload error shape when chunk encryption throws', async () => {

@@ -3,11 +3,48 @@ import {
     decryptEncryptedTransferChunkEnvelope,
 } from './transferChunkEncryption';
 import { decodeBase64 } from '@/encryption/base64';
+import {
+    isRuntimeActive,
+    subscribeToRuntimeActiveChange,
+    waitForRuntimeActive,
+} from '@/utils/runtime/isRuntimeActive';
 
 export type ChunkUploadProgress = Readonly<{
     uploadedBytes: number;
     totalBytes: number;
 }>;
+
+async function runUploadRpcWithLifecycleRecovery<TResponse extends { success: boolean }>(
+    operation: () => Promise<TResponse>,
+): Promise<TResponse> {
+    while (true) {
+        await waitForRuntimeActive();
+
+        let interruptedByLifecycle = false;
+        const detachLifecycle = subscribeToRuntimeActiveChange(() => {
+            if (!isRuntimeActive()) {
+                interruptedByLifecycle = true;
+            }
+        });
+
+        try {
+            const response = await operation();
+            if (response?.success !== true && (interruptedByLifecycle || !isRuntimeActive())) {
+                await waitForRuntimeActive();
+                continue;
+            }
+            return response;
+        } catch (error) {
+            if (interruptedByLifecycle || !isRuntimeActive()) {
+                await waitForRuntimeActive();
+                continue;
+            }
+            throw error;
+        } finally {
+            detachLifecycle();
+        }
+    }
+}
 
 export async function uploadInChunks<
     TInit extends {
@@ -37,7 +74,7 @@ export async function uploadInChunks<
     let uploadId: string | null = null;
 
     try {
-        const init = await params.init();
+        const init = await runUploadRpcWithLifecycleRecovery(() => params.init());
         if (!init || typeof init !== 'object' || init.success !== true) {
             const error = typeof (init as any)?.error === 'string' ? (init as any).error : 'Upload init failed';
             return { success: false, error };
@@ -57,6 +94,7 @@ export async function uploadInChunks<
         }
 
         uploadId = initUploadId;
+        const currentUploadId = initUploadId;
         const emitProgress = (uploadedBytes: number) => {
             if (!params.onProgress) return;
             try {
@@ -90,12 +128,12 @@ export async function uploadInChunks<
                 return { success: false, error: 'Upload chunk encryption failed' };
             }
 
-            const chunk = await params.sendChunk({
-                uploadId,
-                index,
-                payloadBase64: encryptedChunk.payloadBase64,
-                encryptedDataKeyEnvelopeBase64: encryptedChunk.encryptedDataKeyEnvelopeBase64,
-            });
+            const chunk = await runUploadRpcWithLifecycleRecovery(() => params.sendChunk({
+                    uploadId: currentUploadId,
+                    index,
+                    payloadBase64: encryptedChunk.payloadBase64,
+                    encryptedDataKeyEnvelopeBase64: encryptedChunk.encryptedDataKeyEnvelopeBase64,
+                }));
             if (!chunk || typeof chunk !== 'object' || (chunk as any).success !== true) {
                 const error = typeof (chunk as any)?.error === 'string' ? (chunk as any).error : 'Upload chunk failed';
                 return { success: false, error };
@@ -106,7 +144,7 @@ export async function uploadInChunks<
             index += 1;
         }
 
-        const finalized = await params.finalize({ uploadId });
+        const finalized = await runUploadRpcWithLifecycleRecovery(() => params.finalize({ uploadId: currentUploadId }));
         if (!finalized || typeof finalized !== 'object' || (finalized as any).success !== true) {
             const error = typeof (finalized as any)?.error === 'string' ? (finalized as any).error : 'Upload finalize failed';
             return { success: false, error };

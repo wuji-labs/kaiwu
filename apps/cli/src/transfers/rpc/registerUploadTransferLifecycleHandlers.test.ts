@@ -3,7 +3,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { RpcHandlerRegistrar } from '@/api/rpc/types';
 
@@ -113,6 +113,69 @@ describe('registerUploadTransferLifecycleHandlers (hardening)', () => {
       });
 
       expect(response).toEqual({ success: false, error: 'Chunk exceeds configured chunk size' });
+    } finally {
+      await rm(tempDir, { recursive: true, force: true }).catch(() => undefined);
+    }
+  });
+
+  it('replays a successful finalize after the first response is lost', async () => {
+    const handlers = new Map<string, (data: unknown) => Promise<unknown>>();
+    const rpcHandlerManager: RpcHandlerRegistrar = {
+      registerHandler(method, handler) {
+        handlers.set(method, handler as (data: unknown) => Promise<unknown>);
+      },
+    };
+
+    const store = new TransferSessionStore({ ttlMs: 30_000 });
+    const tempDir = await mkdtemp(join(tmpdir(), 'happier-upload-finalize-idempotency-test-'));
+    const finalizeUpload = vi.fn(async () => ({
+      success: true as const,
+      path: join(tempDir, 'dest.bin'),
+      sizeBytes: 0,
+    }));
+    try {
+      registerUploadTransferLifecycleHandlers({
+        rpcHandlerManager,
+        store,
+        methods: { init: 'init', chunk: 'chunk', finalize: 'finalize', abort: 'abort' },
+        resolveInit: async () => ({ kind: 'rejected', response: { ok: false } }),
+        buildInitSuccessResponse: () => ({ ok: true }),
+        buildFinalizeMissingUploadIdResponse: () => ({ ok: false }),
+        buildFinalizeMissingSessionResponse: () => ({ ok: false }),
+        buildFinalizeSizeMismatchResponse: () => ({ ok: false }),
+        buildFinalizeHashMismatchResponse: () => ({ ok: false }),
+        buildFinalizeErrorResponse: () => ({ ok: false }),
+        buildFinalizeFailureResponse: () => ({ ok: false }),
+        buildFinalizeSuccessResponse: ({ finalized, sha256 }) => ({
+          ok: true,
+          path: finalized.path,
+          sizeBytes: finalized.sizeBytes,
+          sha256,
+        }),
+      });
+
+      const session = await store.createUploadSession({
+        destPath: join(tempDir, 'dest.bin'),
+        destDisplayPath: 'dest.bin',
+        overwrite: true,
+        expectedSizeBytes: 0,
+        finalizeUpload,
+        chunkSizeBytes: 2,
+        hash: createHash('sha256'),
+      });
+
+      const finalizeHandler = handlers.get('finalize');
+      expect(finalizeHandler).toBeTruthy();
+
+      await expect(finalizeHandler?.({ uploadId: session.uploadId })).resolves.toMatchObject({
+        ok: true,
+        path: join(tempDir, 'dest.bin'),
+      });
+      await expect(finalizeHandler?.({ uploadId: session.uploadId })).resolves.toMatchObject({
+        ok: true,
+        path: join(tempDir, 'dest.bin'),
+      });
+      expect(finalizeUpload).toHaveBeenCalledTimes(1);
     } finally {
       await rm(tempDir, { recursive: true, force: true }).catch(() => undefined);
     }

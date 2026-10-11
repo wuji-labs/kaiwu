@@ -34,15 +34,14 @@ export async function uploadBulkPayloadFromFile<TFinalize extends { success: boo
     signal?: AbortSignal | null;
 }>): Promise<TFinalize | BulkTransferFailureResponse> {
     try {
-        const init = await params.init();
-        if (init.success !== true) {
-            return init;
-        }
-
-        return await uploadInChunks<BulkTransferUploadInitSuccess, { success: boolean; error?: string }, TFinalize>({
+        return await uploadInChunks<
+            BulkTransferUploadInitSuccess | BulkTransferFailureResponse,
+            { success: boolean; error?: string },
+            TFinalize
+        >({
             totalBytes: params.fileReader.sizeBytes,
             readBytes: async (offset, length) => await params.fileReader.readBytes(offset, length),
-            init: async () => init,
+            init: async () => await params.init(),
             sendChunk: async (request) => await params.sendChunk(request),
             finalize: async (request) => await params.finalize(request),
             abort: params.abort ?? null,

@@ -87,6 +87,39 @@ export function subscribeToRuntimeActiveChange(listener: () => void): () => void
 }
 
 /**
+ * Waits until the JavaScript runtime is active again.
+ *
+ * Native app backgrounding can suspend the JS thread and the sync owner may
+ * intentionally tear down its socket in the same lifecycle transition. Work
+ * that can resume safely must wait here instead of turning that transition
+ * into a terminal failure.
+ */
+export function waitForRuntimeActive(): Promise<void> {
+    if (isRuntimeActive()) return Promise.resolve();
+
+    return new Promise<void>((resolve) => {
+        let settled = false;
+        let detach: (() => void) | null = null;
+
+        const finish = () => {
+            if (settled) return;
+            settled = true;
+            detach?.();
+            detach = null;
+            resolve();
+        };
+
+        detach = subscribeToRuntimeActiveChange(() => {
+            if (isRuntimeActive()) finish();
+        });
+
+        // The runtime may have become active between the first check and
+        // listener registration.
+        if (isRuntimeActive()) finish();
+    });
+}
+
+/**
  * Runs an interval only while the runtime is active. If regular ticks were
  * skipped while inactive, the callback runs once immediately when the runtime
  * returns to active and the interval is overdue.

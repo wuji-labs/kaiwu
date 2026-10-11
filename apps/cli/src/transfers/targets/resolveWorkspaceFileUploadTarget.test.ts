@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 
 import { SESSION_RPC_FILE_TRANSFER_SIZE_LIMIT_ERROR } from '../policy/sessionRpcTransferPolicy';
 import { resolveWorkspaceFileUploadTarget } from './resolveWorkspaceFileUploadTarget';
@@ -67,7 +67,7 @@ describe('resolveWorkspaceFileUploadTarget', () => {
         });
         expect(result.success).toBe(true);
         if (result.success) {
-            expect(result.target.destPath.endsWith('/nested/file.txt')).toBe(true);
+            expect(result.target.destPath.replaceAll('\\', '/').endsWith('/nested/file.txt')).toBe(true);
             expect(result.target.destPath).toContain('happier-transfer-upload-target-');
         }
     });

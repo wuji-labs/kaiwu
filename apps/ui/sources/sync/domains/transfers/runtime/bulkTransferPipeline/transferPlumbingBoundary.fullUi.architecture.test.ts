@@ -48,7 +48,7 @@ describe('bulkTransferPipeline (architecture)', () => {
         );
 
         for (const filePath of files) {
-            if (filePath.includes('/bulkTransferPipeline/')) {
+            if (filePath.replaceAll('\\', '/').includes('/bulkTransferPipeline/')) {
                 continue;
             }
             const source = await readFile(filePath, 'utf8');
@@ -70,7 +70,7 @@ describe('bulkTransferPipeline (architecture)', () => {
             assertDoesNotImportModule(source, 'bulkTransferPipeline/daemonPromptRegistries', filePath);
             // Prevent bypass via direct base64 file writes. These must remain behind the
             // centralized policy/fallback choke point (and/or the bulk transfer pipeline).
-            if (!filePath.endsWith('/sync/runtime/sessionMachineRpcFallback.ts')) {
+            if (!filePath.replaceAll('\\', '/').endsWith('/sync/runtime/sessionMachineRpcFallback.ts')) {
                 assertDoesNotContainToken(source, 'RPC_METHODS.WRITE_FILE', filePath);
                 // Prevent bypass via raw method strings (no chunk-loop reimplementation outside the pipeline).
                 assertDoesNotContainToken(source, 'daemon.bulkTransfer.', filePath);

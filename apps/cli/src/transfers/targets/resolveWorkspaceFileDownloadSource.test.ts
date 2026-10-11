@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 
 import { SESSION_RPC_FILE_TRANSFER_SIZE_LIMIT_ERROR } from '../policy/sessionRpcTransferPolicy';
 import { resolveWorkspaceFileDownloadSource } from './resolveWorkspaceFileDownloadSource';
@@ -66,7 +66,7 @@ describe('resolveWorkspaceFileDownloadSource', () => {
         });
         expect(result.success).toBe(true);
         if (result.success) {
-            expect(result.source.filePath.endsWith('/hello.txt')).toBe(true);
+            expect(result.source.filePath.replaceAll('\\', '/').endsWith('/hello.txt')).toBe(true);
             expect(result.source.filePath).toContain('happier-transfer-download-source-');
         }
     });

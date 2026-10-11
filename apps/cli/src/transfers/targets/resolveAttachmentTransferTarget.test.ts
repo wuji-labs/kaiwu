@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { join } from 'node:path';
 
 import {
   resolveAttachmentTransferTarget,
@@ -55,6 +56,8 @@ describe('resolveAttachmentTransferTarget', () => {
   });
 
   it('keeps os_temp uploads inside the configured temp transfer root', () => {
+    const tempUploadRoot = join('/tmp/happier/uploads', 'session-2');
+    const uploadBasePath = join(tempUploadRoot, 'messages');
     const result = resolveConfiguredAttachmentTransferTarget({
       config: {
         uploadLocation: 'os_temp',
@@ -62,18 +65,18 @@ describe('resolveAttachmentTransferTarget', () => {
         vcsIgnoreStrategy: 'none',
         vcsIgnoreWritesEnabled: false,
       },
-      tempUploadRoot: '/tmp/happier/uploads/session-2',
+      tempUploadRoot,
       workingDirectory: '/repo',
     });
 
     expect(result).toEqual({
       success: true,
       target: {
-        uploadBasePath: '/tmp/happier/uploads/session-2/messages',
-        additionalAllowedReadDirs: ['/tmp/happier/uploads/session-2'],
-        additionalAllowedWriteDirs: ['/tmp/happier/uploads/session-2'],
+        uploadBasePath,
+        additionalAllowedReadDirs: [tempUploadRoot],
+        additionalAllowedWriteDirs: [tempUploadRoot],
       },
-      uploadBasePath: '/tmp/happier/uploads/session-2/messages',
+      uploadBasePath,
     });
   });
 
@@ -139,6 +142,8 @@ describe('resolveAttachmentTransferTarget', () => {
   });
 
   it('rejects os_temp storage for durable generated media categories', () => {
+    const tempUploadRoot = join('/tmp/happier/uploads', 'session-5');
+    const uploadBasePath = join(tempUploadRoot, 'generated');
     expect(resolveConfiguredSessionMediaTransferTarget({
       category: 'generated',
       config: {
@@ -147,14 +152,14 @@ describe('resolveAttachmentTransferTarget', () => {
         vcsIgnoreStrategy: 'none',
         vcsIgnoreWritesEnabled: false,
       },
-      tempUploadRoot: '/tmp/happier/uploads/session-5',
+      tempUploadRoot,
       workingDirectory: '/repo',
     })).toEqual({
       success: false,
       target: {
-        uploadBasePath: '/tmp/happier/uploads/session-5/generated',
-        additionalAllowedReadDirs: ['/tmp/happier/uploads/session-5'],
-        additionalAllowedWriteDirs: ['/tmp/happier/uploads/session-5'],
+        uploadBasePath,
+        additionalAllowedReadDirs: [tempUploadRoot],
+        additionalAllowedWriteDirs: [tempUploadRoot],
       },
       error: 'Session media category generated must use workspace storage',
     });

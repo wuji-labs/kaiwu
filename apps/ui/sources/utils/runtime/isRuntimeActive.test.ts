@@ -4,6 +4,7 @@ const runtimeState = vi.hoisted(() => ({
     appState: 'active',
     platformOs: 'web',
     isTauriDesktop: false,
+    appStateListeners: new Set<(state: string) => void>(),
 }));
 
 vi.mock('react-native', async () => {
@@ -17,6 +18,10 @@ vi.mock('react-native', async () => {
         AppState: {
             get currentState() {
                 return runtimeState.appState;
+            },
+            addEventListener: (_event: string, listener: (state: string) => void) => {
+                runtimeState.appStateListeners.add(listener);
+                return { remove: () => runtimeState.appStateListeners.delete(listener) };
             },
         },
     });
@@ -37,6 +42,7 @@ describe('isRuntimeActive', () => {
         runtimeState.appState = 'active';
         runtimeState.platformOs = 'web';
         runtimeState.isTauriDesktop = false;
+        runtimeState.appStateListeners.clear();
         globalWithDocument.document = { visibilityState: 'visible' };
     });
 
@@ -61,6 +67,26 @@ describe('isRuntimeActive', () => {
         const { isRuntimeActive } = await import('./isRuntimeActive');
 
         expect(isRuntimeActive()).toBe(true);
+    });
+
+    it('waits for a backgrounded native runtime to become active again', async () => {
+        runtimeState.platformOs = 'ios';
+        runtimeState.appState = 'background';
+
+        const { waitForRuntimeActive } = await import('./isRuntimeActive');
+        let settled = false;
+        const wait = waitForRuntimeActive().then(() => {
+            settled = true;
+        });
+
+        await Promise.resolve();
+        expect(settled).toBe(false);
+
+        runtimeState.appState = 'active';
+        for (const listener of runtimeState.appStateListeners) listener('active');
+        await wait;
+
+        expect(settled).toBe(true);
     });
 
     it('skips interval ticks while hidden and runs immediately when visible after overdue', async () => {

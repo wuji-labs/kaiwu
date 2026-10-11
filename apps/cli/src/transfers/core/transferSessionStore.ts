@@ -24,6 +24,17 @@ type UploadSession = {
   file: Awaited<ReturnType<typeof open>>;
 };
 
+export type FinalizedUploadRecord = Readonly<{
+  finalized: Readonly<{
+    path: string;
+    sizeBytes: number;
+    result?: unknown;
+  }>;
+  sha256: string;
+}>;
+
+type StoredFinalizedUpload = FinalizedUploadRecord & Readonly<{ expiresAt: number }>;
+
 type DownloadSession = {
   downloadId: string;
   filePath: string;
@@ -43,6 +54,7 @@ export type TransferSessionStoreDeps = Readonly<{
 
 export class TransferSessionStore {
   private readonly uploads = new Map<string, UploadSession>();
+  private readonly finalizedUploads = new Map<string, StoredFinalizedUpload>();
   private readonly downloads = new Map<string, DownloadSession>();
   private readonly tempRoot: string;
   private readonly ttlMs: number;
@@ -73,6 +85,12 @@ export class TransferSessionStore {
       this.uploads.delete(uploadId);
       session.file.close().catch(() => undefined);
       rm(session.tempPath, { force: true }).catch(() => undefined);
+    }
+
+    for (const [uploadId, finalized] of this.finalizedUploads) {
+      if (finalized.expiresAt <= now) {
+        this.finalizedUploads.delete(uploadId);
+      }
     }
 
     for (const [downloadId, session] of this.downloads) {
@@ -154,8 +172,28 @@ export class TransferSessionStore {
     await this.closeUploadSession(uploadId, { deleteTempFile: true });
   }
 
-  async finalizeUploadSession(uploadId: string): Promise<UploadSession | null> {
-    return await this.closeUploadSession(uploadId);
+  async finalizeUploadSession(uploadId: string, finalized?: FinalizedUploadRecord): Promise<UploadSession | null> {
+    const session = await this.closeUploadSession(uploadId);
+    if (session && finalized) {
+      this.finalizedUploads.set(uploadId, {
+        ...finalized,
+        expiresAt: Date.now() + this.ttlMs,
+      });
+    }
+    return session;
+  }
+
+  getFinalizedUpload(uploadId: string, now = Date.now()): FinalizedUploadRecord | null {
+    const finalized = this.finalizedUploads.get(uploadId);
+    if (!finalized) return null;
+    if (finalized.expiresAt <= now) {
+      this.finalizedUploads.delete(uploadId);
+      return null;
+    }
+    return {
+      finalized: finalized.finalized,
+      sha256: finalized.sha256,
+    };
   }
 
   async createDownloadSession(input: Readonly<{
@@ -214,6 +252,7 @@ export class TransferSessionStore {
     const uploads = [...this.uploads.values()];
     const downloads = [...this.downloads.values()];
     this.uploads.clear();
+    this.finalizedUploads.clear();
     this.downloads.clear();
 
     this.disposePromise = (async () => {
