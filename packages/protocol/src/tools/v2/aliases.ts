@@ -18,9 +18,15 @@ export const CHANGE_TITLE_TOOL_NAME_ALIASES = [
   'change-title',
   'session-title-set',
   // Preferred MCP naming
+  'mcp__kaiwu__change_title',
+  'mcp__kaiwu__session_title_set',
+  'kaiwu__change_title',
+  'kaiwu__session_title_set',
+  'kaiwu_change_title',
+  'kaiwu_session_title_set',
+  // Legacy MCP naming during migration
   'mcp__happier__change_title',
   'mcp__happier__session_title_set',
-  // Legacy MCP naming during migration
   'mcp__happy__change_title',
   'mcp__happy__session_title_set',
   // Non-MCP-prefixed variants seen in some transports/providers
@@ -63,9 +69,15 @@ export const SEND_FILE_TO_USER_TOOL_NAME_ALIASES = [
   'send-file-to-user',
   'deliver-file',
   // Preferred MCP naming
+  'mcp__kaiwu__send_file_to_user',
+  'mcp__kaiwu__deliver_file',
+  'kaiwu__send_file_to_user',
+  'kaiwu__deliver_file',
+  'kaiwu_send_file_to_user',
+  'kaiwu_deliver_file',
+  // Legacy MCP naming during migration
   'mcp__happier__send_file_to_user',
   'mcp__happier__deliver_file',
-  // Legacy MCP naming during migration
   'mcp__happy__send_file_to_user',
   'mcp__happy__deliver_file',
   // Non-MCP-prefixed variants seen in some transports/providers

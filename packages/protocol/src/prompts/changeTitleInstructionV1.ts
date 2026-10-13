@@ -5,7 +5,7 @@ export interface ChangeTitleInstructionV1Options {
   /**
    * Preferred tool name to mention first.
    *
-   * Defaults to the preferred MCP tool name (`mcp__happier__change_title`).
+   * Defaults to the preferred MCP tool name (`mcp__kaiwu__change_title`).
    */
   preferredToolName?: string;
 }
@@ -28,7 +28,7 @@ export function shouldAppendChangeTitleInstructionV1(userText: string): boolean 
 }
 
 export function buildChangeTitleInstructionV1(opts: ChangeTitleInstructionV1Options = {}): string {
-  const preferred = (opts.preferredToolName ?? 'mcp__happier__change_title').trim();
+  const preferred = (opts.preferredToolName ?? 'mcp__kaiwu__change_title').trim();
   const fallbacks = CHANGE_TITLE_TOOL_NAME_ALIASES.filter((n) => n !== preferred);
   const fallbackPreview = fallbacks.slice(0, 3).join(', ');
 

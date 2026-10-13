@@ -795,7 +795,7 @@ export async function runClaude(credentials: Credentials, options: StartOptions 
     logger.debug(`[START] Hook server started on port ${hookServer.port}`);
 
     // Generate hook artifacts for Claude:
-    //  - settings file carries non-hook config (permissions.allow for mcp__happier__change_title*)
+    //  - settings file carries non-hook config (permissions.allow for mcp__kaiwu__change_title*)
     //  - plugin dir carries SessionStart + PermissionRequest hooks via --plugin-dir
     // Split because Claude Code's --settings is non-composable for hooks (first --settings wins
     // when multiple wrappers inject their own), whereas --plugin-dir is additive.

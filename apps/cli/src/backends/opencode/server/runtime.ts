@@ -1,3 +1,4 @@
+import { KAIWU_MCP_SERVER_NAME } from '@/agent/runtime/kaiwuMcpServerName';
 import { randomUUID } from 'node:crypto';
 import type { McpServerConfig } from '@/agent';
 import type { ProviderEnforcedPermissionHandler } from '@/agent/permissions/ProviderEnforcedPermissionHandler';
@@ -341,7 +342,7 @@ export function createOpenCodeServerRuntime(params: {
   let mcpServerRegistrationRerunRequested = false;
   const ensuredMcpServerNames = new Set<string>();
   const requiredMcpServerName = params.happierMcpAdmission.kind === 'required'
-    ? 'happier'
+    ? KAIWU_MCP_SERVER_NAME
     : null;
   let requiredMcpServerReadiness = {
     deferred: createDeferred<RequiredMcpServerReadinessOutcome>(),

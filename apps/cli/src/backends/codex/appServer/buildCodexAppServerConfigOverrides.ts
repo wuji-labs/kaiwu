@@ -1,3 +1,4 @@
+import { isKaiwuMcpServerName } from '@/agent/runtime/kaiwuMcpServerName';
 import type { McpServerConfig } from '@/agent';
 import { normalizeCurrentHappierSessionId } from '@/agent/runtime/session/currentSessionIdEnv';
 
@@ -31,9 +32,9 @@ function assignInjectedServerKeys(serverNames: readonly string[]): Map<string, s
     for (const serverName of [...serverNames].sort((left, right) => left.localeCompare(right))) {
         // Prefer stable, prompt-friendly keys for our own built-in Happier MCP servers.
         // This keeps Codex tool names aligned with the canonical system-prompt guidance
-        // (e.g. `mcp__happier__change_title`) and avoids awkward double-prefix names like
-        // `happier__happier` for the internal Happier server.
-        if ((serverName === 'happier' || serverName === 'happy') && !usedKeys.has(serverName)) {
+        // (e.g. `mcp__kaiwu__change_title`) and avoids awkward double-prefix names like
+        // `happier__kaiwu` for the internal Kaiwu server.
+        if ((isKaiwuMcpServerName(serverName) || serverName === 'happy') && !usedKeys.has(serverName)) {
             usedKeys.add(serverName);
             assigned.set(serverName, serverName);
             continue;

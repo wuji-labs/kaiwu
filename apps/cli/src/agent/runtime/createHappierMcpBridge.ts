@@ -1,4 +1,5 @@
 import { startHappyServer, type HappyMcpSessionClient } from '@/mcp/startHappyServer'
+import { KAIWU_MCP_SERVER_NAME } from './kaiwuMcpServerName'
 import { resolveNodeBackedMcpServerCommand } from '@/mcp/runtime/resolveNodeBackedMcpServerCommand'
 import type { McpServerConfig } from '@/agent'
 import type { Credentials } from '@/persistence'
@@ -86,7 +87,7 @@ export async function createHappierMcpBridgeWithOptions(
   })
   const commandMode = opts.commandMode ?? 'direct-script'
   const mcpServers: Record<string, McpServerConfig> = {
-    happier: await resolveHappierMcpServerConfig(happierMcpServer.url, commandMode, opts.accountSettings ?? null),
+    [KAIWU_MCP_SERVER_NAME]: await resolveHappierMcpServerConfig(happierMcpServer.url, commandMode, opts.accountSettings ?? null),
   }
 
   return {

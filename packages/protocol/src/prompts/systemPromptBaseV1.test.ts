@@ -12,7 +12,7 @@ describe('HAPPIER_BASE_SYSTEM_PROMPT_V1', () => {
     expect(HAPPIER_BASE_SYSTEM_PROMPT_V1).toContain('change_title');
     expect(HAPPIER_BASE_SYSTEM_PROMPT_V1).toContain('first user message');
     expect(HAPPIER_BASE_SYSTEM_PROMPT_V1).toContain('MUST');
-    expect(HAPPIER_BASE_SYSTEM_PROMPT_V1).toContain('Prefer "mcp__happier__change_title"');
+    expect(HAPPIER_BASE_SYSTEM_PROMPT_V1).toContain('Prefer "mcp__kaiwu__change_title"');
   });
 
   it('documents attachment blocks so referenced files are read before answering', () => {

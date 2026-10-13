@@ -17,6 +17,17 @@ describe('tools/v2 aliases', () => {
     expect(isChangeTitleToolNameAlias('mcp__happier__session_title_set')).toBe(true);
   });
 
+  it('recognizes the kaiwu MCP server names alongside the legacy happier ones', () => {
+    for (const name of ['mcp__kaiwu__change_title', 'mcp__kaiwu__session_title_set', 'kaiwu__change_title', 'kaiwu_change_title']) {
+      expect(isChangeTitleToolNameAlias(name)).toBe(true);
+    }
+    for (const name of ['mcp__kaiwu__send_file_to_user', 'mcp__kaiwu__deliver_file', 'kaiwu__send_file_to_user', 'kaiwu_send_file_to_user']) {
+      expect(isSendFileToUserToolNameAlias(name)).toBe(true);
+    }
+    expect(isChangeTitleToolNameAlias('mcp__happier__change_title')).toBe(true);
+    expect(isSendFileToUserToolNameAlias('mcp__happier__send_file_to_user')).toBe(true);
+  });
+
   it('treats provider display names for title changes as change_title-like names', () => {
     expect(isChangeTitleToolLikeName('Change Title')).toBe(true);
     expect(isChangeTitleToolLikeName('Set session title')).toBe(true);

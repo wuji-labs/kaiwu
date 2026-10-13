@@ -3,6 +3,12 @@ import { isChangeTitleToolLikeName, isSendFileToUserToolLikeName } from '@happie
 const TRUSTED_SAFE_TOOL_NAMES = new Set([
   'think',
   'save_memory',
+  'mcp__kaiwu__think',
+  'mcp__kaiwu__save_memory',
+  'kaiwu__think',
+  'kaiwu__save_memory',
+  'kaiwu_think',
+  'kaiwu_save_memory',
   'mcp__happier__think',
   'mcp__happier__save_memory',
   'mcp__happy__think',

@@ -1,3 +1,4 @@
+import { KAIWU_MCP_SERVER_NAME } from '@/agent/runtime/kaiwuMcpServerName';
 import type {
   BuiltInMcpPreviewEntryV1,
   DaemonMcpServersDetectWarningV1,
@@ -15,7 +16,7 @@ import { resolveDetectedMcpPreviewEntries } from './resolveDetectedMcpPreviewEnt
 function createBuiltInMcpPreviewEntry(): BuiltInMcpPreviewEntryV1 {
   return {
     key: 'built-in:happier',
-    name: 'happier',
+    name: KAIWU_MCP_SERVER_NAME,
     title: 'Kaiwu',
     transport: 'stdio',
     authMode: 'none',

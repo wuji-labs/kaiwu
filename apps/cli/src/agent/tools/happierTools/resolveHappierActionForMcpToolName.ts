@@ -21,6 +21,9 @@ function normalizeToolName(raw: unknown): string {
 function normalizeFirstPartyHappierToolName(toolName: string): string | null {
   const normalized = normalizeToolName(toolName);
   if (!normalized) return null;
+  if (normalized.startsWith('mcp__kaiwu__')) return normalized.slice('mcp__kaiwu__'.length);
+  if (normalized.startsWith('kaiwu__')) return normalized.slice('kaiwu__'.length);
+  if (normalized.startsWith('kaiwu_')) return normalized.slice('kaiwu_'.length);
   if (normalized.startsWith('mcp__happier__')) return normalized.slice('mcp__happier__'.length);
   if (normalized.startsWith('happier__')) return normalized.slice('happier__'.length);
   if (normalized.startsWith('happier_')) return normalized.slice('happier_'.length);

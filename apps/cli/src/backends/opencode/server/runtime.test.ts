@@ -121,7 +121,7 @@ type OpenCodeRuntimePromptHarness = Readonly<{
 
 function createReadyMcpServers() {
   return {
-    happier: {
+    kaiwu: {
       command: process.execPath,
       args: ['--version'],
     },
@@ -529,7 +529,7 @@ async function beginOpenCodePromptForTest(opts?: {
 }
 
 describe('createOpenCodeServerRuntime', () => {
-  const OPENCODE_CHANGE_TITLE_INSTRUCTION = buildChangeTitleInstruction({ preferredToolName: 'happier_change_title' });
+  const OPENCODE_CHANGE_TITLE_INSTRUCTION = buildChangeTitleInstruction({ preferredToolName: 'kaiwu_change_title' });
 
   afterEach(() => {
     // The shared daemon-report path dedupes on stable identity; tests reuse session ids and
@@ -591,7 +591,7 @@ describe('createOpenCodeServerRuntime', () => {
       session,
       messageBuffer: new MessageBuffer(),
       mcpServers: {
-        happier: {
+        kaiwu: {
           command: process.execPath,
           args: ['--version'],
           env: { HAPPIER_TEST_MCP: '1' },
@@ -606,7 +606,7 @@ describe('createOpenCodeServerRuntime', () => {
     await runtime.startOrLoad({});
 
     expect(client.mcpAdd).toHaveBeenCalledWith({
-      name: 'happier',
+      name: 'kaiwu',
       config: {
         type: 'local',
         enabled: true,
@@ -638,7 +638,7 @@ describe('createOpenCodeServerRuntime', () => {
           command: process.execPath,
           args: ['--version'],
         },
-        happier: {
+        kaiwu: {
           command: process.execPath,
           args: ['--help'],
         },
@@ -674,7 +674,7 @@ describe('createOpenCodeServerRuntime', () => {
 
       await expect.poll(() => client.mcpAdd.mock.calls.length).toBe(2);
       expect(client.mcpAdd).toHaveBeenNthCalledWith(2, {
-        name: 'happier',
+        name: 'kaiwu',
         config: {
           type: 'local',
           enabled: true,
@@ -701,7 +701,7 @@ describe('createOpenCodeServerRuntime', () => {
       session,
       messageBuffer: new MessageBuffer(),
       mcpServers: {
-        happier: {
+        kaiwu: {
           command: process.execPath,
           args: ['--version'],
         },
@@ -747,7 +747,7 @@ describe('createOpenCodeServerRuntime', () => {
       session,
       messageBuffer: new MessageBuffer(),
       mcpServers: {
-        happier: {
+        kaiwu: {
           command: process.execPath,
           args: ['--version'],
         },
@@ -873,7 +873,7 @@ describe('createOpenCodeServerRuntime', () => {
       session,
       messageBuffer: new MessageBuffer(),
       mcpServers: {
-        happier: {
+        kaiwu: {
           command: process.execPath,
           args: ['--version'],
         },
@@ -1164,7 +1164,7 @@ describe('createOpenCodeServerRuntime', () => {
       session,
       messageBuffer: new MessageBuffer(),
       mcpServers: {
-        happier: {
+        kaiwu: {
           command: process.execPath,
           args: ['--version'],
         },
@@ -1183,7 +1183,7 @@ describe('createOpenCodeServerRuntime', () => {
 
     await expect.poll(() => client.mcpAdd.mock.calls.length).toBe(2);
     expect(client.mcpAdd).toHaveBeenNthCalledWith(2, {
-      name: 'happier',
+      name: 'kaiwu',
       config: {
         type: 'local',
         enabled: true,
@@ -2814,7 +2814,7 @@ describe('createOpenCodeServerRuntime', () => {
       session,
       messageBuffer: new MessageBuffer(),
       mcpServers: {
-        happier: { command: 'node', args: ['-e', 'process.exit(0)'] },
+        kaiwu: { command: 'node', args: ['-e', 'process.exit(0)'] },
       },
       permissionHandler: createFakePermissionHandler() as unknown as ProviderEnforcedPermissionHandler,
       onThinkingChange: vi.fn(),
@@ -2919,7 +2919,7 @@ describe('createOpenCodeServerRuntime', () => {
       session,
       messageBuffer: new MessageBuffer(),
       mcpServers: {
-        happier: { command: 'node', args: ['-e', 'process.exit(0)'] },
+        kaiwu: { command: 'node', args: ['-e', 'process.exit(0)'] },
       },
       permissionHandler: { handleToolCall: vi.fn(async () => ({ decision: 'approved' })) } as any,
       onThinkingChange: vi.fn(),

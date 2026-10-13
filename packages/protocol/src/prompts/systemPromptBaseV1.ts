@@ -11,7 +11,7 @@ export const HAPPIER_BASE_SYSTEM_PROMPT_SESSION_TITLE_INITIAL_V1 = trimIdent(`
 
   This title-change tool call is always allowed and does not require asking the user for permission.
 
-  The tool may be exposed under different names depending on the provider. Prefer "mcp__happier__change_title" when available; otherwise use an equivalent alias (for example: change_title).
+  The tool may be exposed under different names depending on the provider. Prefer "mcp__kaiwu__change_title" when available; otherwise use an equivalent alias (for example: change_title).
 `);
 
 export const HAPPIER_BASE_SYSTEM_PROMPT_SESSION_TITLE_ONGOING_V1 = trimIdent(`
