@@ -6,7 +6,7 @@ import type { SessionHookData } from "./utils/startHookServer";
 import type { ClaudeStatuslineRuntimeReconcileInput } from "./statusline/applyClaudeStatuslineUpdate";
 import type { PermissionMode } from "@/api/types";
 import { randomUUID } from "node:crypto";
-import { closeSync, openSync, readFileSync, readSync, statSync } from 'node:fs';
+import { closeSync, openSync, readSync, statSync } from 'node:fs';
 import { isAbsolute, join, relative } from 'node:path';
 import { normalizePermissionModeToIntent } from '@/agent/runtime/permission/permissionModeCanonical';
 import { configuration } from '@/configuration';
@@ -18,7 +18,6 @@ import type { PushNotificationClient } from '@/api/pushNotifications';
 import { createHappierMcpBridge } from '@/agent/runtime/createHappierMcpBridge';
 import { applyRunnerMcpSessionContext } from '@/mcp/runtime/applyRunnerMcpSessionContext';
 import type { McpServerConfig } from '@/agent';
-import { KAIWU_MCP_SERVER_NAME, LEGACY_KAIWU_MCP_SERVER_NAME } from '@/agent/runtime/kaiwuMcpServerName';
 import {
     type AccountSettings,
     SessionConnectedServiceAuthCurrentGroupTruthV1Schema,
@@ -254,31 +253,6 @@ function resolveNativeClaudeTranscriptPathCandidate(params: Readonly<{
     workingDirectory: string;
 }>): string {
     return join(getProjectPath(params.workingDirectory), `${params.sessionId}.jsonl`);
-}
-
-/**
- * Resumed sessions whose transcript still references `mcp__happier__*` tools also get the Kaiwu MCP
- * bridge under its legacy name. Otherwise Claude CLI inlines those departed ToolSearch references as
- * `tool_definition` blocks and the API rejects every turn with 422.
- */
-export function applyLegacyKaiwuMcpAliasForResumedSession(
-    mcpServers: Record<string, McpServerConfig>,
-    params: Readonly<{ sessionId: string | null; workingDirectory: string }>,
-): Record<string, McpServerConfig> {
-    const primary = mcpServers[KAIWU_MCP_SERVER_NAME];
-    if (!params.sessionId || !primary || mcpServers[LEGACY_KAIWU_MCP_SERVER_NAME]) return mcpServers;
-    const transcriptPath = resolveNativeClaudeTranscriptPathCandidate({
-        sessionId: params.sessionId,
-        workingDirectory: params.workingDirectory,
-    });
-    let transcript: string;
-    try {
-        transcript = readFileSync(transcriptPath, 'utf8');
-    } catch {
-        return mcpServers;
-    }
-    if (!transcript.includes(`mcp__${LEGACY_KAIWU_MCP_SERVER_NAME}__`)) return mcpServers;
-    return { ...mcpServers, [LEGACY_KAIWU_MCP_SERVER_NAME]: primary };
 }
 
 function resolveProvenNativeClaudeTranscriptPath(params: Readonly<{
@@ -748,10 +722,7 @@ export class Session {
                 const bridge = await createHappierMcpBridge(mcpSession, {
                     accountSettings: this.accountSettings,
                 });
-                const mcpServers = applyLegacyKaiwuMcpAliasForResumedSession(bridge.mcpServers, {
-                    sessionId: this.sessionId,
-                    workingDirectory: this.path,
-                });
+                const mcpServers = bridge.mcpServers;
                 const mcpConfigJson = JSON.stringify({ mcpServers });
                 const stored = {
                     mcpServers,
