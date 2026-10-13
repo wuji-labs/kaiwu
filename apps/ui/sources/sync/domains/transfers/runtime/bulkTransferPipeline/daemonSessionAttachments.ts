@@ -1,6 +1,7 @@
 import { RPC_METHODS } from '@happier-dev/protocol/rpc';
 import { rebaseWorkspaceRootRequestToMachineTarget } from '@/sync/runtime/sessionMachineRpcFallback';
 
+import type { UploadInitOptions } from './chunkTransferClient';
 import { createSessionFileTransferRpcCaller } from './sessionFileTransferRpcCaller';
 
 import type { BulkTransferFailureResponse, BulkTransferFileReader } from './uploadBulkPayloadFromFile';
@@ -56,13 +57,15 @@ export async function uploadDaemonSessionAttachmentFromReader(params: Readonly<{
 
     return await uploadBulkPayloadFromFile<SessionAttachmentsUploadFinalizeResponse>({
         fileReader: params.fileReader,
-        init: async () =>
+        allowObjectStoreRelay: true,
+        init: async (options) =>
             await transferClient.call<
                 SessionAttachmentsUploadInitResponse,
-                SessionAttachmentsUploadInitRequest & { t: 'session_attachment_upload_v1' }
+                SessionAttachmentsUploadInitRequest & { t: 'session_attachment_upload_v1' } & UploadInitOptions
             >({
                 request: {
                     ...params.request,
+                    ...options,
                     t: 'session_attachment_upload_v1',
                 },
                 machineMethod: RPC_METHODS.DAEMON_BULK_TRANSFER_UPLOAD_INIT,
