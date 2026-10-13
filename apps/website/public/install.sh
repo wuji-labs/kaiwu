@@ -5,9 +5,9 @@ set -euo pipefail
 # 默认配置
 KAIWU_SERVER_URL="${KAIWU_SERVER_URL:-https://kaiwu.chengqiyun.com}"
 LATEST_METADATA_URL="https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/latest.json"
-DEFAULT_VERSION="0.2.23"
+DEFAULT_VERSION="0.2.25"
 FALLBACK_TGZ_URL="https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/${DEFAULT_VERSION}/kaiwu-cli-${DEFAULT_VERSION}.tgz"
-FALLBACK_TGZ_SHA256="d16be528c16a4af0c62d4d403c7acca532398285606c8aba32a62ddb2eef21e9"
+FALLBACK_TGZ_SHA256="8946d2913a1e9eed1a5b937b31459dd8afed167206ac49e77991799d0a3bb1cc"
 
 # 颜色输出
 if [[ -t 1 ]] && [[ "${TERM:-}" != "dumb" ]]; then
