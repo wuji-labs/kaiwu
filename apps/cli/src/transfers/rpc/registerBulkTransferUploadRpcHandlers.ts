@@ -4,11 +4,12 @@ import { join } from 'path';
 
 import type { RpcHandlerRegistrar } from '@/api/rpc/types';
 import { configuration } from '@/configuration';
+import { readCredentials } from '@/persistence';
 import type { FilesystemAccessPolicy } from '@/rpc/handlers/fileSystem/accessPolicy/filesystemAccessPolicy';
 import { RPC_METHODS } from '@happier-dev/protocol/rpc';
 
 import { TransferSessionStore } from '../core/transferSessionStore';
-import { createTransferObjectStore, loadTransferObjectStoreConfig } from '../objectStore/transferObjectStore';
+import { loadTransferObjectStore } from '../objectStore/transferObjectStore';
 import {
   normalizeSessionMediaPathSegment,
   sanitizeSessionMediaFileName,
@@ -128,7 +129,15 @@ export function registerBulkTransferUploadRpcHandlers(
   }>,
 ): void {
   const tempUploadRoot = join(tmpdir(), 'happier', 'uploads', randomUUID());
-  const objectStoreConfig = loadTransferObjectStoreConfig(process.env, configuration.happyHomeDir);
+  const objectStore = loadTransferObjectStore({
+    env: process.env,
+    happyHomeDir: configuration.happyHomeDir,
+    serverUrl: configuration.serverUrl,
+    getAuthorization: async () => {
+      const token = (await readCredentials())?.token;
+      return token ? `Bearer ${token}` : null;
+    },
+  });
 
   registerUploadTransferLifecycleHandlers<BulkTransferUploadInitResponse, BulkTransferUploadFinalizeResponse>({
     rpcHandlerManager,
@@ -282,6 +291,6 @@ export function registerBulkTransferUploadRpcHandlers(
       sha256,
     }),
     enableChunkEncryption: true,
-    objectStore: objectStoreConfig ? createTransferObjectStore(objectStoreConfig) : null,
+    objectStore,
   });
 }

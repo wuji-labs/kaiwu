@@ -12,6 +12,7 @@ import { TransferSessionStore } from '../core/transferSessionStore';
 import {
   createTransferObjectStore,
   TRANSFER_OBJECT_STORE_RELAY_KIND,
+  type TransferObjectStore,
   type TransferObjectStoreConfig,
 } from '../objectStore/transferObjectStore';
 import { registerUploadTransferLifecycleHandlers } from './registerUploadTransferLifecycleHandlers';
@@ -56,7 +57,11 @@ const CONFIG: TransferObjectStoreConfig = {
   urlTtlSeconds: 60,
 };
 
-async function setup(params: Readonly<{ expectedSizeBytes: number; objectStoreConfig?: TransferObjectStoreConfig | null }>) {
+async function setup(params: Readonly<{
+  expectedSizeBytes: number;
+  objectStoreConfig?: TransferObjectStoreConfig | null;
+  objectStore?: TransferObjectStore | null;
+}>) {
   const handlers = new Map<string, Handler>();
   const rpcHandlerManager: RpcHandlerRegistrar = {
     registerHandler(method, handler) {
@@ -101,7 +106,9 @@ async function setup(params: Readonly<{ expectedSizeBytes: number; objectStoreCo
     buildFinalizeFailureResponse: (error) => ({ success: false, error }),
     buildFinalizeSuccessResponse: ({ finalized, sha256 }) => ({ success: true, path: finalized.path, sha256 }),
     enableChunkEncryption: true,
-    objectStore: objectStoreConfig ? createTransferObjectStore(objectStoreConfig, { fetch: bucket.fakeFetch }) : null,
+    objectStore: params.objectStore !== undefined
+      ? params.objectStore
+      : objectStoreConfig ? createTransferObjectStore(objectStoreConfig, { fetch: bucket.fakeFetch }) : null,
   });
 
   return {
@@ -207,6 +214,23 @@ describe('registerUploadTransferLifecycleHandlers (object store relay)', () => {
       await ctx.handlers.get('abort')!({ uploadId: init.uploadId });
       await new Promise((resolve) => setTimeout(resolve, 0));
       expect(ctx.bucket.deleted).toHaveLength(3);
+    } finally {
+      await ctx.cleanup();
+    }
+  });
+  it('keeps the RPC path (with RPC-safe chunks) when presigning fails', async () => {
+    const failing: TransferObjectStore = {
+      config: { minBytes: 1, chunkBytes: CONFIG.chunkBytes },
+      presignPuts: async () => { throw new Error('signer down'); },
+      fetchObject: async () => { throw new Error('unused'); },
+      deleteObject: async () => undefined,
+    };
+    const ctx = await setup({ expectedSizeBytes: 600 * 1024, objectStore: failing });
+    try {
+      const init = await ctx.handlers.get('init')!({ objectStoreRelay: TRANSFER_OBJECT_STORE_RELAY_KIND });
+      expect(init.success).toBe(true);
+      expect(init.objectStore).toBeUndefined();
+      expect(init.chunkSizeBytes).not.toBe(CONFIG.chunkBytes);
     } finally {
       await ctx.cleanup();
     }

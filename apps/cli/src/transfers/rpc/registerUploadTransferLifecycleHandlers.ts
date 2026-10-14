@@ -1,4 +1,4 @@
-import { createHash } from 'crypto';
+import { createHash, randomUUID } from 'crypto';
 
 import type { RpcHandlerRegistrar } from '@/api/rpc/types';
 import { configuration } from '@/configuration';
@@ -125,12 +125,28 @@ export function registerUploadTransferLifecycleHandlers<TInitResponse, TFinalize
     }
 
     const objectStoreRelayRequested = (data as { objectStoreRelay?: unknown } | null)?.objectStoreRelay === TRANSFER_OBJECT_STORE_RELAY_KIND;
-    const useObjectStoreRelay = objectStore !== null
+    let relay: Readonly<{ keys: string[]; putUrls: string[] }> | null = null;
+    if (
+      objectStore !== null
       && objectStoreRelayRequested
       && params.enableChunkEncryption === true
       && resolved.target.expectedSizeBytes > 0
-      && resolved.target.expectedSizeBytes >= objectStore.config.minBytes;
-    const chunkSizeBytes = useObjectStoreRelay && objectStore
+      && resolved.target.expectedSizeBytes >= objectStore.config.minBytes
+    ) {
+      // Presign before creating the session: if the store/signer is unavailable the upload keeps the
+      // RPC path (and its smaller RPC-safe chunk size).
+      const relayId = randomUUID();
+      const chunkCount = Math.ceil(resolved.target.expectedSizeBytes / objectStore.config.chunkBytes);
+      const keys = Array.from({ length: chunkCount }, (_, index) => buildTransferObjectKey(relayId, index));
+      try {
+        relay = { keys, putUrls: await objectStore.presignPuts(keys) };
+      } catch (error) {
+        logger.debug('Transfer upload object store relay unavailable; using RPC path', {
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+    const chunkSizeBytes = relay && objectStore
       ? objectStore.config.chunkBytes
       : configuration.filesTransferChunkBytes;
     const recipientKeyPair = params.enableChunkEncryption === true ? createTransferRecipientKeyPair() : null;
@@ -152,24 +168,22 @@ export function registerUploadTransferLifecycleHandlers<TInitResponse, TFinalize
         uploadId: session.uploadId,
         sizeBytes: resolved.target.expectedSizeBytes,
         chunkSizeBytes,
-        objectStoreRelay: useObjectStoreRelay,
+        objectStoreRelay: relay !== null,
         ...resolved.logContext,
       });
     }
 
     const response = params.buildInitSuccessResponse({ session });
-    if (!useObjectStoreRelay || !objectStore) {
+    if (!relay) {
       return response;
     }
 
-    const chunkCount = Math.ceil(resolved.target.expectedSizeBytes / chunkSizeBytes);
-    const keys = Array.from({ length: chunkCount }, (_, index) => buildTransferObjectKey(session.uploadId, index));
-    objectStoreRelays.set(session.uploadId, keys);
+    objectStoreRelays.set(session.uploadId, [...relay.keys]);
     return {
       ...(response as object),
       objectStore: {
         kind: TRANSFER_OBJECT_STORE_RELAY_KIND,
-        putUrls: keys.map((key) => objectStore.presignPut(key)),
+        putUrls: relay.putUrls,
       },
     } as TInitResponse;
   });

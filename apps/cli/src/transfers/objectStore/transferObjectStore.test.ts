@@ -5,7 +5,9 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import {
+  createRemoteSignedTransferObjectStore,
   decodeTransferObjectChunkFrame,
+  loadTransferObjectStore,
   loadTransferObjectStoreConfig,
   resolveTransferObjectStoreConfig,
   TRANSFER_OBJECT_STORE_CONFIG_FILE_NAME,
@@ -58,5 +60,49 @@ describe('decodeTransferObjectChunkFrame', () => {
     expect(() => decodeTransferObjectChunkFrame(new Uint8Array([0, 0]))).toThrow();
     expect(() => decodeTransferObjectChunkFrame(new Uint8Array([0, 0, 0, 0, 1]))).toThrow();
     expect(() => decodeTransferObjectChunkFrame(new Uint8Array([0, 0, 0, 9, 1]))).toThrow();
+  });
+});
+
+describe('remote signed transfer object store', () => {
+  it('posts keys with the account token and returns signed urls', async () => {
+    const calls: Array<{ url: string; init: RequestInit }> = [];
+    const fakeFetch = (async (url: string, init: RequestInit) => {
+      calls.push({ url, init });
+      const body = JSON.parse(String(init.body));
+      return new Response(JSON.stringify({ urls: body.keys.map((k: string) => `https://b/transfers/acct/${k}?sig`) }), { status: 200 });
+    }) as unknown as typeof fetch;
+    const store = createRemoteSignedTransferObjectStore({
+      signerUrl: 'https://relay/v1/transfer-relay/presign',
+      getAuthorization: async () => 'Bearer t',
+      limits: { minBytes: 1, chunkBytes: 1024 },
+      fetch: fakeFetch,
+    });
+    await expect(store.presignPuts(['r1/0', 'r1/1'])).resolves.toEqual(['https://b/transfers/acct/r1/0?sig', 'https://b/transfers/acct/r1/1?sig']);
+    expect(calls[0]?.url).toBe('https://relay/v1/transfer-relay/presign');
+    expect((calls[0]?.init.headers as Record<string, string>).authorization).toBe('Bearer t');
+    expect(JSON.parse(String(calls[0]?.init.body))).toEqual({ method: 'PUT', keys: ['r1/0', 'r1/1'] });
+  });
+
+  it('fails when the signer is missing or unauthenticated', async () => {
+    const store = createRemoteSignedTransferObjectStore({
+      signerUrl: 'https://relay/v1/transfer-relay/presign',
+      getAuthorization: async () => 'Bearer t',
+      limits: { minBytes: 1, chunkBytes: 1024 },
+      fetch: (async () => new Response('nope', { status: 404 })) as unknown as typeof fetch,
+    });
+    await expect(store.presignPuts(['r1/0'])).rejects.toThrow('404');
+    const anonymous = createRemoteSignedTransferObjectStore({
+      signerUrl: 'https://relay/x',
+      getAuthorization: async () => null,
+      limits: { minBytes: 1, chunkBytes: 1024 },
+    });
+    await expect(anonymous.presignPuts(['r1/0'])).rejects.toThrow('no account credentials');
+  });
+
+  it('defaults to the relay server signer and honours the off switch', () => {
+    const base = { happyHomeDir: '/nonexistent', serverUrl: 'https://kaiwu.example.com/', getAuthorization: async () => null };
+    expect(loadTransferObjectStore({ ...base, env: {} })).not.toBeNull();
+    expect(loadTransferObjectStore({ ...base, env: { HAPPIER_TRANSFER_OBJECT_STORE: 'off' } })).toBeNull();
+    expect(loadTransferObjectStore({ ...base, serverUrl: 'http://insecure.example.com', env: {} })).toBeNull();
   });
 });
