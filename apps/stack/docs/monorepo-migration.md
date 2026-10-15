@@ -1,6 +1,6 @@
 # Monorepo migration (legacy)
 
-hstack is **monorepo-only** today, but it still ships a helper (`hstack monorepo port`) that can be used to port commits from legacy split repos into the Happier monorepo.
+hstack is **monorepo-only** today, but it still ships a helper (`hstack monorepo port`) that can be used to port commits from legacy split repos into the Kaiwu monorepo.
 
 Current monorepo service layout:
 

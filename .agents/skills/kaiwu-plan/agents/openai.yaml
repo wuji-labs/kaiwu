@@ -1,0 +1,4 @@
+interface:
+  display_name: "Kaiwu Plan"
+  short_description: "Author user-requested, executable Kaiwu plans"
+  default_prompt: "Use $kaiwu-plan to create or materially refine the Kaiwu repository plan I explicitly requested."

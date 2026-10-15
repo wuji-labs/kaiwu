@@ -1,6 +1,6 @@
 # happierdev/relay-server
 
-Self-host the Happier Server with Docker.
+Self-host the Kaiwu Server with Docker.
 
 Quick start (preview):
 
@@ -12,10 +12,10 @@ docker run --rm -p 3005:3005 \
 
 What you get:
 
-- Happier Server (self-host-friendly defaults: light flavor + SQLite)
+- Kaiwu Server (self-host-friendly defaults: light flavor + SQLite)
 - Embedded web UI served at `/` by default
 - Persistent state under `/data` (mount a volume)
-- Non-root runtime user (`happier`)
+- Non-root runtime user (`kaiwu`)
 - Signed server-runtime + UI-web release artifacts baked into the image
 
 Common options:
@@ -27,4 +27,4 @@ Common options:
 
 Docs:
 
-- Docker deployment: https://docs.happier.dev/deployment/docker
+- Docker deployment: https://kaiwu.wujilabs.cn/docs/deployment/docker

@@ -63,7 +63,7 @@ gh run watch <id> --exit-status; gh run download <id> -D dist/ios/<版本>
 - **App 侧**（`apps/ui/app.config.js`）：
   - 默认从 `https://kaiwu.wujilabs.cn/ota/api/manifest` 取更新；
   - 用 `certs/kaiwu-ota-certificate.pem`（keyid `main`，rsa-v1_5-sha256）验签，签名不对的更新一律拒收；
-  - **永远不连 u.expo.dev**。2026-09-29 事故：默认 EAS 项目是上游 Happier 的，装好的开物 App 被换成了上游的界面代码；
+  - **永远不连 u.expo.dev**。2026-09-29 事故：默认 EAS 项目是上游 无极开物 的，装好的开物 App 被换成了上游的界面代码；
   - `KAIWU_EXPO_UPDATES_ENABLED=0` 可以关闭热更新。
 - **原生版本号**：`apps/ui/package.json` 里的 `happierExpoRuntimeVersion`（当前是 `kaiwu-1-native`）。热更新只会下发给原生版本号相同的 App。**改了原生层**（新增原生依赖、升级 Expo SDK、改原生配置）就必须同时升这个版本号（例如 `kaiwu-2-native`）并重新打原生包；只改 JS 或界面，就发热更新。
 - **发布**（PowerShell，先设置 `KAIWU_DEPLOY_SSH_BIN` 和 `KAIWU_DEPLOY_SCP_BIN` 指向 Git 的 ssh/scp）：

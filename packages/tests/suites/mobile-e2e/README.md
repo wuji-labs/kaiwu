@@ -6,7 +6,7 @@ This suite contains **native** (iOS/Android) E2E flows executed via **Maestro**.
 
 - **Playwright remains the canonical web UI E2E** (`suites/ui-e2e`).
 - Maestro focuses on **native-only regressions**: touch/keyboard/back/gesture/popup rendering.
-- Selectors are **`testID`-only** inside Happier. Do not rely on translated visible copy.
+- Selectors are **`testID`-only** inside Kaiwu. Do not rely on translated visible copy.
   - Exception: the **Expo Dev Client** boot screen is not our UI; bootstrap flows may use visible copy to connect to Metro.
 
 ## Current scope
@@ -19,7 +19,7 @@ The default `smoke.yaml` lane intentionally exercises the **real, reachable surf
 - settings terminal-connect entrypoints
 - the real **Start New Session** getting-started guidance when no machine is connected
 
-It does **not** currently include composer-dependent flows (`new-session-composer`, mode chip, agent chip, markdown transcript smoke, keyboard-on-composer smoke), because the ephemeral `server-light` harness does not yet provision a connected Happier machine/daemon for the mobile account created inside the app.
+It does **not** currently include composer-dependent flows (`new-session-composer`, mode chip, agent chip, markdown transcript smoke, keyboard-on-composer smoke), because the ephemeral `server-light` harness does not yet provision a connected Kaiwu machine/daemon for the mobile account created inside the app.
 
 Those flows remain in this folder as the next phase, but they require a connected-machine harness (for example: CLI terminal-connect + daemon bootstrap, and for transcript flows a real provider/session path).
 

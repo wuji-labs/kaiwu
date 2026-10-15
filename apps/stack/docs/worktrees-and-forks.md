@@ -1,11 +1,11 @@
 # Worktrees + forks (hstack)
 
-This repo is designed to run the **Happier** stack locally, while still making it easy to:
+This repo is designed to run the **Kaiwu** stack locally, while still making it easy to:
 
 - keep using **your fork** day-to-day
 - create **clean upstream PR branches** quickly (without carrying fork-only patches)
 
-hstack is **monorepo-only**: UI/CLI/server all live in the same Happier git repo.
+hstack is **monorepo-only**: UI/CLI/server all live in the same Kaiwu git repo.
 
 ---
 
@@ -97,7 +97,7 @@ Use `--category=tmp` for truly throwaway worktrees.
 Create a worktree at the PR head ref:
 
 ```bash
-hstack wt pr https://github.com/happier-dev/happier/pull/123 --use
+hstack wt pr https://github.com/wuji-labs/kaiwu/pull/123 --use
 
 # or just the PR number (remote defaults to upstream)
 hstack wt pr 123 --use

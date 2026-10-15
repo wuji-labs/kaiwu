@@ -1,4 +1,4 @@
-# Stacks (multiple local Happier instances)
+# Stacks (multiple local Kaiwu instances)
 
 `hstack` supports running **multiple stacks** in parallel on the same machine.
 
@@ -43,7 +43,7 @@ Example (most common):
 
 ```bash
 hstack stack pr pr123 \
-  --repo=https://github.com/happier-dev/happier/pull/123 \
+  --repo=https://github.com/wuji-labs/kaiwu/pull/123 \
   --seed-auth --copy-auth-from=dev-auth --link-auth \
   --dev
 ```
@@ -72,7 +72,7 @@ hstack stack new --interactive
 The wizard lets you:
 
 - pick the server type (`happier-server-light` or `happier-server`)
-- pick or create a repo worktree for the Happier monorepo
+- pick or create a repo worktree for the Kaiwu monorepo
 - choose which Git remote to base newly-created worktrees on (defaults to `upstream`)
 
 When creating `--server=happier-server` stacks, hstack will also reserve additional ports and persist
@@ -141,19 +141,19 @@ hstack stack wt exp1 -- use default
 
 This updates the stack env file (`~/.happier/stacks/<name>/env`), not repo `env.local` (legacy path still supported).
 
-## Run the Happier CLI against a specific stack (`stack happier`)
+## Run the Kaiwu CLI against a specific stack (`stack kaiwu`)
 
-If you want to run a `happier` CLI command against a specific stack (instead of whatever your current shell env points at), use:
+If you want to run a `kaiwu` CLI command against a specific stack (instead of whatever your current shell env points at), use:
 
 ```bash
-hstack stack happier exp1 -- status
-hstack stack happier exp1 -- daemon status
+hstack stack kaiwu exp1 -- status
+hstack stack kaiwu exp1 -- daemon status
 ```
 
 Stack shorthand also works:
 
 ```bash
-hstack exp1 happier status
+hstack exp1 kaiwu status
 ```
 
 ## Stack wrappers you can use
@@ -166,7 +166,7 @@ These commands run with the stack env file applied:
 - `hstack stack doctor <name>`
 - `hstack stack mobile <name>`
 - `hstack stack eas <name> [subcommand...]`
-- `hstack stack happier <name> [-- ...]`
+- `hstack stack kaiwu <name> [-- ...]`
 - `hstack stack srv <name> -- status|use ...`
 - `hstack stack wt <name> -- <wt args...>`
 - `hstack stack tailscale:status|enable|disable|url <name>`

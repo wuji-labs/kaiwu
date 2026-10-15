@@ -1,7 +1,7 @@
 # Mobile app development (iOS)
 
 This is optional. Most people can use the served web UI on mobile via Tailscale:
-see the “Using Happier from your phone” section in the main README.
+see the “Using Kaiwu from your phone” section in the main README.
 
 ## Prereqs (one-time)
 
@@ -66,8 +66,8 @@ Notes:
 Install an isolated app for a specific stack (unique bundle id + scheme, Release config, no Metro):
 
 ```bash
-hstack stack mobile:install <stack> --name="Happier (<stack>)"
-hstack stack mobile:install <stack> --name="Happier PR 272" --device="Your iPhone"
+hstack stack mobile:install <stack> --name="Kaiwu (<stack>)"
+hstack stack mobile:install <stack> --name="Kaiwu PR 272" --device="Your iPhone"
 ```
 
 The chosen app name is persisted in the stack env so you can re-run installs without re-typing it.
@@ -156,8 +156,8 @@ Important:
 
 hstack uses these identities:
 
-- **Dev-client**: defaults to `Happier Dev` + bundle id `dev.happier.stack.dev.<user>`
-- **Per-stack release**: defaults to `Happier (<stack>)` + bundle id `dev.happier.stack.stack.<user>.<stack>`
+- **Dev-client**: defaults to `Kaiwu Dev` + bundle id `dev.happier.stack.dev.<user>`
+- **Per-stack release**: defaults to `Kaiwu (<stack>)` + bundle id `dev.happier.stack.stack.<user>.<stack>`
 
 If you want to build/install *manually* (instead of `mobile-dev-client` / `stack mobile:install`), you can override:
 
@@ -192,19 +192,19 @@ HAPPIER_STACK_DEV_CLIENT_SCHEME="hstack-dev"
 HAPPIER_STACK_SERVER_URL="https://<your-machine>.<tailnet>.ts.net"
 
 # Optional: home screen name:
-HAPPIER_STACK_IOS_APP_NAME="Happier"
+HAPPIER_STACK_IOS_APP_NAME="Kaiwu"
 ```
 
 ## EAS builds per stack (production / App Store-like)
 
 This section documents the end-to-end workflow for producing a **fully working** EAS Build (cloud) for a stack,
-with a **custom bundle id + app name** (example: `dev.happier.app` / `Happier`), while keeping upstream defaults unchanged when env vars are unset.
+with a **custom bundle id + app name** (example: `dev.happier.app` / `Kaiwu`), while keeping upstream defaults unchanged when env vars are unset.
 
 ### Overview
 
 To get a reliable EAS build for a stack-specific app identity, you generally need:
 
-- a **Happier monorepo worktree** that contains the app config hooks (dynamic `app.config.js`)
+- a **Kaiwu monorepo worktree** that contains the app config hooks (dynamic `app.config.js`)
 - a stack pinned to that worktree (`hstack stack wt <stack> -- use ...`)
 - stack env vars describing the **app identity** (bundle id, name, scheme, etc.)
 - EAS **environment variables** configured on Expo (so the cloud builder sees the same values)
@@ -213,18 +213,18 @@ To get a reliable EAS build for a stack-specific app identity, you generally nee
 
 ### 1) Create (or select) a stack + pin a worktree
 
-Example stack name: `happier`.
+Example stack name: `kaiwu`.
 
 Create a `happy` monorepo worktree from your fork branch (example):
 
 ```bash
-hstack wt new happy happier --from=origin --base=origin/happier
+hstack wt new happy kaiwu --from=origin --base=origin/happier
 ```
 
-Pin the `happier` stack to that worktree:
+Pin the `kaiwu` stack to that worktree:
 
 ```bash
-hstack stack wt happier -- use happier-dev/happier
+hstack stack wt kaiwu -- use wuji-labs/kaiwu
 ```
 
 ### 2) Set the app identity in the stack env (local + build-time config)
@@ -232,12 +232,12 @@ hstack stack wt happier -- use happier-dev/happier
 These are evaluated by `apps/ui/app.config.js` when building:
 
 ```bash
-hstack stack env happier set \
+hstack stack env kaiwu set \
   APP_ENV=production \
-  EXPO_APP_NAME="Happier" \
+  EXPO_APP_NAME="Kaiwu" \
   EXPO_APP_BUNDLE_ID="dev.happier.app" \
-  EXPO_APP_SCHEME="happier" \
-  EXPO_APP_SLUG="happier" \
+  EXPO_APP_SCHEME="kaiwu" \
+  EXPO_APP_SLUG="kaiwu" \
   EXPO_APP_OWNER="happier-dev"
 ```
 
@@ -251,9 +251,9 @@ Notes:
 When changing bundle IDs / schemes / config plugins, you should run a clean prebuild so native projects match the config:
 
 ```bash
-hstack stack mobile happier --prebuild --platform=ios --clean --no-metro
+hstack stack mobile kaiwu --prebuild --platform=ios --clean --no-metro
 # or:
-hstack stack mobile happier --prebuild --platform=all --clean --no-metro
+hstack stack mobile kaiwu --prebuild --platform=all --clean --no-metro
 ```
 
 ### 4) Make sure the cloud builder sees your env vars (EAS Environment Variables)
@@ -270,14 +270,14 @@ With hstack helpers (stack-scoped):
 
 ```bash
 # Inspect:
-hstack stack eas happier env:list --environment production
+hstack stack eas kaiwu env:list --environment production
 
 # Create (use env:update if it already exists):
-hstack stack eas happier env:create --name EXPO_APP_NAME --value "Happier" --environment production --visibility plainText
-hstack stack eas happier env:create --name EXPO_APP_BUNDLE_ID --value "dev.happier.app" --environment production --visibility plainText
-hstack stack eas happier env:create --name EXPO_APP_SCHEME --value "happier" --environment production --visibility plainText
-hstack stack eas happier env:create --name EXPO_APP_OWNER --value "happier-dev" --environment production --visibility plainText
-hstack stack eas happier env:create --name EXPO_APP_SLUG --value "happier" --environment production --visibility plainText
+hstack stack eas kaiwu env:create --name EXPO_APP_NAME --value "Kaiwu" --environment production --visibility plainText
+hstack stack eas kaiwu env:create --name EXPO_APP_BUNDLE_ID --value "dev.happier.app" --environment production --visibility plainText
+hstack stack eas kaiwu env:create --name EXPO_APP_SCHEME --value "kaiwu" --environment production --visibility plainText
+hstack stack eas kaiwu env:create --name EXPO_APP_OWNER --value "happier-dev" --environment production --visibility plainText
+hstack stack eas kaiwu env:create --name EXPO_APP_SLUG --value "kaiwu" --environment production --visibility plainText
 ```
 
 Tip:
@@ -289,14 +289,14 @@ Tip:
 If you see permission errors, verify the Expo account:
 
 ```bash
-hstack stack eas happier whoami
-hstack stack eas happier login
+hstack stack eas kaiwu whoami
+hstack stack eas kaiwu login
 ```
 
 If the project is not initialized/linked under your account yet:
 
 ```bash
-hstack stack eas happier project:init
+hstack stack eas kaiwu project:init
 ```
 
 ### 6) Build (iOS / Android)
@@ -304,14 +304,14 @@ hstack stack eas happier project:init
 First-time iOS credential setup usually requires interactive mode:
 
 ```bash
-hstack stack eas happier ios --profile production --interactive
+hstack stack eas kaiwu ios --profile production --interactive
 ```
 
 After credentials are set up, you can run non-interactive builds:
 
 ```bash
-hstack stack eas happier ios --profile production --no-wait --non-interactive
-hstack stack eas happier android --profile production --no-wait --non-interactive
+hstack stack eas kaiwu ios --profile production --no-wait --non-interactive
+hstack stack eas kaiwu android --profile production --no-wait --non-interactive
 ```
 
 ### Common pitfalls

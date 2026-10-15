@@ -14,9 +14,9 @@ Use the current provider's native subagent facility for ordinary subagent, deleg
 
 Use a Kaiwu-managed execution/delegation run only when:
 
-- the user explicitly asks for a Kaiwu-managed run, delegation, or subagent—including natural wording such as “Kaiwu subagent,” “Kaiwu delegation run,” “Kaiwu execution run,” or legacy “Happier subagent”;
+- the user explicitly asks for a Kaiwu-managed run, delegation, or subagent—including natural wording such as “Kaiwu subagent,” “Kaiwu delegation run,” “Kaiwu execution run,” or legacy “Kaiwu subagent”;
 - the user explicitly requests another backend, provider, model, account, or service that the current provider's native facility cannot satisfy; or
-- an enabled custom rule explicitly requires Kaiwu or Happier.
+- an enabled custom rule explicitly requires Kaiwu or Kaiwu.
 
 Do not silently change backend, provider, model, account, or execution topology. A generic request remains native even if a Kaiwu action is discoverable. If a native or Kaiwu run fails, do not substitute another backend unless the user request or an enabled custom rule authorizes it.
 
@@ -78,11 +78,11 @@ Monitor runs through the discovered action contract: use start-and-wait or `exec
 
 ## Validation doctrine
 
-Use the active root `AGENTS.md` rules ("Risk-weighted execution" and "Testing: contract value, not test volume") plus `.agents/skills/happier-testing`; do not maintain a Claude-only copy or reread the root file when it is already in context.
+Use the active root `AGENTS.md` rules ("Risk-weighted execution" and "Testing: contract value, not test volume") plus `.agents/skills/kaiwu-testing`; do not maintain a Claude-only copy or reread the root file when it is already in context.
 
 ## Plan execution and recovery
 
-Use `.agents/skills/happier-implement-plan` for generic approved-plan execution, parallelism, dirty-worktree
+Use `.agents/skills/kaiwu-implement-plan` for generic approved-plan execution, parallelism, dirty-worktree
 coordination, uncertainty resolution, status/evidence, QA/review boundaries, amendments, and
 completion. This file owns only the Claude/Kaiwu execution-run mechanics above and the
 program-specific facts below; do not maintain a second copy of the cross-tool workflow here.

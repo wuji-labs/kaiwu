@@ -1,6 +1,6 @@
 # Backend Architecture
 
-This document describes the Happier backend structure as implemented in `apps/server`. It focuses on how the server is wired, how data flows through the system, and which subsystems handle which responsibilities.
+This document describes the Kaiwu backend structure as implemented in `apps/server`. It focuses on how the server is wired, how data flows through the system, and which subsystems handle which responsibilities.
 
 ## System overview
 
@@ -12,7 +12,7 @@ graph TB
         Daemon[Machine Daemon]
     end
 
-    subgraph "Happier Server"
+    subgraph "Kaiwu Server"
         API[Fastify API]
         Socket[Socket.IO]
         Events[Event Router]

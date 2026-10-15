@@ -1,4 +1,0 @@
-interface:
-  display_name: "Happier Implement"
-  short_description: "Implement Happier changes coherently"
-  default_prompt: "Use $happier-implement to implement this Happier change completely and validate the real outcome."

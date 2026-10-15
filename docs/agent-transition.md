@@ -1,6 +1,6 @@
 # Agent transition (same-Session cross-Agent continuation)
 
-How one Happier Session changes the coding Agent that runs it, in place, without
+How one Kaiwu Session changes the coding Agent that runs it, in place, without
 forking and without changing the Session id.
 
 Published, user-facing documentation for this feature lives at
@@ -99,7 +99,7 @@ A Session is transitionable when all of these hold:
 - `resolveAgentIdFromSessionMetadata` can name its current Agent;
 - `hasCanonicalHostedTranscript(metadata)` is true — i.e. neither an established
   `directSessionV1` (`{ v: 1, ... }`) nor a recorded `transcriptStorage:
-  'direct'` spawn intent. A direct/external-transcript Session has no Happier
+  'direct'` spawn intent. A direct/external-transcript Session has no Kaiwu
   conversation for another Agent to continue.
 
 A target is supported when `resolveSessionContinuationTargetAgent` resolves it:
@@ -241,7 +241,7 @@ predecessor. It can contain:
 - the last user instruction, pinned when it falls outside the replayed window;
 - the transcript tail;
 - a replay-completeness notice when some rows could not be read;
-- retrieval pointers — the Happier transcript-retrieval invocation for the
+- retrieval pointers — the Kaiwu transcript-retrieval invocation for the
   target Agent, and the source Agent's own session-log path when one exists and
   the file is still present (resolved from the catalog-declared log-path slot
   first, then the provider-owned `resolveAgentNativeSessionLogPath` hook). That
@@ -288,7 +288,7 @@ There is deliberately **no** continuity proof, `stat()`, or liveness probe on
 the recorded id. A stale or dead vendor session fails loudly at the first turn —
 Claude raises `ClaudeAgentSdkResumeIdentityMismatchError`, Codex's
 `thread/resume` throws with no fresh-start fallback — which is the same contract
-every other Happier resume already has. The reader recovers through the
+every other Kaiwu resume already has. The reader recovers through the
 in-session picker.
 
 Anything refused degrades to a fresh target with the **full** bounded brief,

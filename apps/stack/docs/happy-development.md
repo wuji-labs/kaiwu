@@ -1,6 +1,6 @@
-# Happier development (hstack)
+# Kaiwu development (hstack)
 
-hstack is the recommended workflow for developing **Happier** locally.
+hstack is the recommended workflow for developing **Kaiwu** locally.
 
 Key principles:
 

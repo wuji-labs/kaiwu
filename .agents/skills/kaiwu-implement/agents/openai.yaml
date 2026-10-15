@@ -1,0 +1,4 @@
+interface:
+  display_name: "Kaiwu Implement"
+  short_description: "Implement Kaiwu changes coherently"
+  default_prompt: "Use $kaiwu-implement to implement this Kaiwu change completely and validate the real outcome."

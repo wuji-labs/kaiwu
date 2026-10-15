@@ -18,7 +18,7 @@ Turn a hard task into pieces that can each pass or fail on their own, ordered so
 7. **Prefer consumed verticals over horizontal spines.** The first implementation slice should connect a real entry point through its canonical owner to an observable outcome. Do not split protocol/schema/producer/consumer into weeks of dormant layers whose correctness can only be known after activation. When compatibility forces phases, each phase names its active reader/consumer and removal condition.
 8. **Firewall live-path corrections.** If gated or dormant work exposes a live dispatch, lifecycle, persistence, migration, or startup defect, handle that correction as its own complete vertical at the live owner. Do not partially activate the dormant design to fix the production path.
 
-For compatibility-sensitive work, use `.agents/skills/happier-compatibility` and decompose the transition into independently falsifiable prepare/read, activate/write, migrate/backfill, mixed-version or rollback, and contract/removal claims only where those phases are reachable. Every such claim names its exact released/predecessor baseline and old/new producer-consumer direction; do not create empty phases for an additive or internal-only change.
+For compatibility-sensitive work, use `.agents/skills/kaiwu-compatibility` and decompose the transition into independently falsifiable prepare/read, activate/write, migrate/backfill, mixed-version or rollback, and contract/removal claims only where those phases are reachable. Every such claim names its exact released/predecessor baseline and old/new producer-consumer direction; do not create empty phases for an additive or internal-only change.
 
 ## When pieces become lane briefs
 

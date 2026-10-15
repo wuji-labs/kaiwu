@@ -1,25 +1,25 @@
-# hstack (Happier Stack)
+# hstack (Kaiwu Stack)
 
-Run [**Happier**](https://app.happier.dev) locally and access it remotely and securely (using Tailscale).
+Run [**Kaiwu**](https://kaiwu.wujilabs.cn) locally and access it remotely and securely (using Tailscale).
 
-## What is Happier?
+## What is Kaiwu?
 
-Happier is an UI/CLI stack (server + web UI + CLI + daemon) who let you monitor and interact with Claude Code, Codex and Gemini sessions from your mobile, from a web UI and/or from a desktop app.
+Kaiwu is an UI/CLI stack (server + web UI + CLI + daemon) who let you monitor and interact with Claude Code, Codex and Gemini sessions from your mobile, from a web UI and/or from a desktop app.
 
 ## What is hstack?
 
-hstack is a guided installer + local orchestration CLI for Happier.
+hstack is a guided installer + local orchestration CLI for Kaiwu.
 
-If you only want to **use Happier** and self-host it on your computer, start with the **Self-host** section below.
-If you want to **develop Happier** (worktrees, multiple stacks, upstream PR workflows), see the **Development** section further down.
+If you only want to **use Kaiwu** and self-host it on your computer, start with the **Self-host** section below.
+If you want to **develop Kaiwu** (worktrees, multiple stacks, upstream PR workflows), see the **Development** section further down.
 
-## Self-host Happier (install + run)
+## Self-host Kaiwu (install + run)
 
 ### Quickstart
 
 ```bash
-curl -fsSL https://happier.dev/install | bash
-happier relay host install
+curl -fsSL https://kaiwu.wujilabs.cn/install | bash
+kaiwu relay host install
 ```
 
 Legacy hstack wrapper (optional):
@@ -28,7 +28,7 @@ Legacy hstack wrapper (optional):
 hstack self-host install
 ```
 
-Follow the guided instructions to install Happier and launch it.
+Follow the guided instructions to install Kaiwu and launch it.
 
 ### Daily use
 
@@ -46,7 +46,7 @@ Then restart so the daemon picks up the new environment:
 hstack start --restart
 ```
 
-### Start Happier
+### Start Kaiwu
 
 Starts the local server, CLI daemon, and serves the pre-built UI.
 
@@ -63,7 +63,7 @@ hstack auth login
 ```
 
 By default (in a TTY), `hstack auth login` is **local-first**: it guides you through authenticating against your **local stack UI**
-instead of the hosted Happier web app. Advanced targeting:
+instead of the hosted Kaiwu web app. Advanced targeting:
 
 ```bash
 hstack auth login --webapp=auto|stack|expo|public|hosted
@@ -90,15 +90,15 @@ Make sure Tailscale is [installed and running](https://tailscale.com/kb/1347/ins
 phone, then either:
 
 - Open the URL from `hstack tailscale url` on your phone and “Add to Home Screen”, or
-- [Download the Happier mobile app]
-([https://app.happier.dev](https://app.happier.dev)) and [configure it to use 
+- [Download the Kaiwu mobile app]
+([https://kaiwu.wujilabs.cn](https://kaiwu.wujilabs.cn)) and [configure it to use 
 your local server](docs/remote-access.md).
 
 Details (secure context, phone instructions, automation knobs): `[docs/remote-access.md](docs/remote-access.md)`.
 
 ## Development (worktrees, stacks, contributor workflows)
 
-If you want to **develop Happier** (worktrees, multiple stacks, upstream PR workflows), you can install hstack for development with:
+If you want to **develop Kaiwu** (worktrees, multiple stacks, upstream PR workflows), you can install hstack for development with:
 
 ### Setup (guided)
 
@@ -109,7 +109,7 @@ npx --yes -p @happier-dev/stack hstack setup-from-source --profile=dev
 During setup, you’ll be guided through:
 
 - where to store your **workspace** (the folder that will contain `main/`, `dev/`, `pr/`, `local/`, `tmp/`)
-- bootstrapping/cloning the Happier monorepo
+- bootstrapping/cloning the Kaiwu monorepo
 - **recommended**: setting up a dedicated `dev-auth` seed stack (authenticate once, then new stacks can reuse it)
 - **recommended**: creating a dedicated dev stack (keep `main` stable)
 - optional: installing the iOS dev-client app (for phone testing)
@@ -136,7 +136,7 @@ npx --yes -p @happier-dev/stack hstack setup-from-source --profile=dev --workspa
 - **Automated setup (from source)**: `hstack setup-from-source` + `hstack start` gets the whole stack up and running.
 - **No hosted dependency**: run the full stack on your own computer.
 - **Lower latency**: localhost/LAN is typically much faster than remote hosted servers.
-- **Custom forks**: easily use forks while still contributing upstream to `happier-dev/happier`.
+- **Custom forks**: easily use forks while still contributing upstream to `wuji-labs/kaiwu`.
 - **Worktrees**: clean upstream PR branches without mixing fork-only patches.
 - **Stacks**: run multiple isolated instances in parallel (ports + dirs + repo pinning).
 - **Remote access**: `hstack tailscale ...` helps you get an HTTPS URL for mobile/remote devices.
@@ -211,7 +211,7 @@ hstack wt push active --remote=origin
 Test an upstream PR locally:
 
 ```bash
-hstack wt pr https://github.com/happier-dev/happier/pull/123 --use
+hstack wt pr https://github.com/wuji-labs/kaiwu/pull/123 --use
 hstack wt pr 123 --update --stash
 ```
 
@@ -222,7 +222,7 @@ Re-run with `--reuse` to update the existing worktrees when the PR changes.
 
 ```bash
   hstack stack pr pr123 \
-  --repo=https://github.com/happier-dev/happier/pull/123 \
+  --repo=https://github.com/wuji-labs/kaiwu/pull/123 \
   --seed-auth --copy-auth-from=dev-auth --link-auth \
   --dev
 ```
@@ -257,7 +257,7 @@ This is the maintainer-friendly entrypoint. It is safe to re-run and will keep t
 
 ```bash
 npx --yes -p @happier-dev/stack hstack tools setup-pr \
-  --repo=https://github.com/happier-dev/happier/pull/123 \
+  --repo=https://github.com/wuji-labs/kaiwu/pull/123 \
   --dev
 ```
 
@@ -364,7 +364,7 @@ Details: `[docs/menubar.md](docs/menubar.md)`.
 hstack mobile-dev-client --install
 
 # Install an isolated per-stack app (Release config, unique bundle id + scheme):
-hstack stack mobile:install <stack> --name="Happier (<stack>)"
+hstack stack mobile:install <stack> --name="Kaiwu (<stack>)"
 ```
 
 Details: `[docs/mobile-ios.md](docs/mobile-ios.md)`.
@@ -405,7 +405,7 @@ Details: `[docs/tauri.md](docs/tauri.md)`.
   - `hstack stack dev <name>` / `hstack stack start <name>`
   - `hstack stack edit <name> --interactive`
   - `hstack stack wt <name> -- use --interactive`
-  - `hstack stack happier <name> -- <happier-cli args...>`
+  - `hstack stack kaiwu <name> -- <happier-cli args...>`
 - **Tools (maintainer / automation)**:
   - `hstack tools setup-pr --repo=<pr-url|number> [--dev|--start]`
   - `hstack tools review-pr --repo=<pr-url|number> [--dev|--start]`
@@ -483,7 +483,7 @@ For contributor/LLM workflow expectations: `[AGENTS.md](AGENTS.md)`.
 ### Developing hstack itself
 
 ```bash
-git clone https://github.com/happier-dev/happier.git
+git clone https://github.com/wuji-labs/kaiwu.git
 cd happier-dev
 
 node ./apps/stack/bin/hstack.mjs setup --profile=dev

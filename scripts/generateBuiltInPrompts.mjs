@@ -7,12 +7,12 @@ const repoRoot = path.resolve(path.dirname(scriptPath), '..');
 
 export function resolveBuiltInPromptsPaths(root = repoRoot) {
   return Object.freeze({
-    diagnoseSkillPath: path.join(root, '.agents', 'skills', 'happier-diagnose', 'SKILL.md'),
+    diagnoseSkillPath: path.join(root, '.agents', 'skills', 'kaiwu-diagnose', 'SKILL.md'),
     diagnoseRuntimeEvidencePath: path.join(
       root,
       '.agents',
       'skills',
-      'happier-diagnose',
+      'kaiwu-diagnose',
       'references',
       'runtime-evidence.md',
     ),
@@ -20,7 +20,7 @@ export function resolveBuiltInPromptsPaths(root = repoRoot) {
       root,
       '.agents',
       'skills',
-      'happier-diagnose',
+      'kaiwu-diagnose',
       'references',
       'reporting.md',
     ),
@@ -76,7 +76,7 @@ export function renderBuiltInPromptsSource({
     }),
   );
 
-  return `// AUTO-GENERATED from .agents/skills/happier-diagnose/SKILL.md and its bundled references.
+  return `// AUTO-GENERATED from .agents/skills/kaiwu-diagnose/SKILL.md and its bundled references.
 // Regenerate with: node scripts/generateBuiltInPrompts.mjs
 // Validate freshness with: node scripts/generateBuiltInPrompts.mjs --check
 //

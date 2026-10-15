@@ -1,6 +1,6 @@
 # START_hstack_NEW_SESSION
 
-You are starting a new session in the **Happier** monorepo. This repo uses **hstack** for isolation.
+You are starting a new session in the **Kaiwu** monorepo. This repo uses **hstack** for isolation.
 
 ## Critical: how isolation works here
 

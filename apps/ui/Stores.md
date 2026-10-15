@@ -1,7 +1,7 @@
 # App Store & Google Play Store Information
 
 ## App Name
-Happier
+Kaiwu
 
 ## Subtitle / Short Description
 Claude Code on the go
@@ -16,9 +16,9 @@ claude, code, ai, programming, developer, tools, encrypted, secure, coding, assi
 
 ## App Description / Full Description
 
-Happier is the secure mobile companion for Claude Code that lets you continue your AI coding sessions anywhere (not affiliated with Anthropic). Built by developers who needed to check on Claude's progress during coffee breaks, this app brings the full Claude Code experience to your phone with military-grade encryption.
+Kaiwu is the secure mobile companion for Claude Code that lets you continue your AI coding sessions anywhere (not affiliated with Anthropic). Built by developers who needed to check on Claude's progress during coffee breaks, this app brings the full Claude Code experience to your phone with military-grade encryption.
 
-**Important**: This app requires Claude Code to be installed on your computer. Happier is a companion app that connects to your existing Claude Code setup.
+**Important**: This app requires Claude Code to be installed on your computer. Kaiwu is a companion app that connects to your existing Claude Code setup.
 
 **Key Features:**
 
@@ -32,7 +32,7 @@ Happier is the secure mobile companion for Claude Code that lets you continue yo
 **How It Works:**
 1. Install the @happier-dev/cli CLI on your computer
 2. Scan a QR code to securely pair your devices
-3. Use 'happier' instead of 'claude' to start encrypted sessions
+3. Use 'kaiwu' instead of 'claude' to start encrypted sessions
 4. Switch between desktop and mobile instantly
 
 Perfect for developers who:
@@ -41,7 +41,7 @@ Perfect for developers who:
 - Value privacy and open-source transparency
 - Work from coffee shops, trains, or anywhere
 
-Happier uses the same encryption as Signal (TweetNaCl) and is completely open source. Your encryption keys never leave your device, and all data is encrypted before transmission.
+Kaiwu uses the same encryption as Signal (TweetNaCl) and is completely open source. Your encryption keys never leave your device, and all data is encrypted before transmission.
 
 Built by Bay Area engineers who believe the best tools come from scratching your own itch. We needed a way to securely check on our AI coding assistant while away from our desks - so we built it and shared it with the community.
 
@@ -62,13 +62,13 @@ Your code. Your privacy. Your Claude Code companion.
 ## URLs
 
 ### Privacy Policy
-https://github.com/happier-dev/happier/blob/main/apps/ui/PRIVACY.md
+https://github.com/wuji-labs/kaiwu/blob/main/apps/ui/PRIVACY.md
 
 ### Support / Contact
-https://github.com/happier-dev/happier/issues
+https://github.com/wuji-labs/kaiwu/issues
 
 ### Website / Marketing
-https://app.happier.dev
+https://kaiwu.wujilabs.cn
 
 ## Additional Google Play Requirements
 

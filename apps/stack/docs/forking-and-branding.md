@@ -12,7 +12,7 @@ The goal is to keep day-to-day development clean and to make syncing changes rel
 ## Core idea
 
 - **Do product/feature work on an upstream-compatible branch** (example: `happier-dev/dev`).
-- **Keep branding + fork-only config on a separate branch** (example: `happier-dev/happier`).
+- **Keep branding + fork-only config on a separate branch** (example: `wuji-labs/kaiwu`).
 - Periodically **merge** upstream-compatible changes into the branded fork branch.
 
 The branded branch should ideally contain only:
@@ -38,7 +38,7 @@ Everything else should stay identical to the upstream-compatible branch so merge
 
 ## Recommended branch/worktree layout
 
-Example (Happier monorepo):
+Example (Kaiwu monorepo):
 
 - Upstream-compatible dev checkout:
   - `<workspace>/dev`
@@ -50,10 +50,10 @@ Example (Happier monorepo):
 Pin your branded stack to the branded worktree (recommended):
 
 ```bash
-hstack stack wt happier -- use local/happier
+hstack stack wt kaiwu -- use local/happier
 ```
 
-Keep your stable/main stack on defaults, and use `happier` (or another stack) for branded testing/building.
+Keep your stable/main stack on defaults, and use `kaiwu` (or another stack) for branded testing/building.
 
 ---
 
@@ -112,7 +112,7 @@ Keep it upstream-friendly:
 In the branded worktree:
 
 ```bash
-hstack wt git happier-dev/happier -- merge happier-dev/dev
+hstack wt git wuji-labs/kaiwu -- merge happier-dev/dev
 ```
 
 Resolve conflicts (if any), then continue.
@@ -124,7 +124,7 @@ Conflicts usually mean a file is changing in both branches.
 Best practice:
 
 - **Move shared “configurability logic” into `dev`**, so it only has to merge one way.
-- Keep branded values/assets in `happier`.
+- Keep branded values/assets in `kaiwu`.
 
 If a file must remain fork-only and conflicts often, consider:
 
@@ -140,7 +140,7 @@ If a file must remain fork-only and conflicts often, consider:
 Local:
 
 ```bash
-hstack stack mobile happier --prebuild --platform=ios --clean --no-metro
+hstack stack mobile kaiwu --prebuild --platform=ios --clean --no-metro
 ```
 
 This regenerates `apps/ui/ios` and installs pods. Treat this as build output.
@@ -150,8 +150,8 @@ This regenerates `apps/ui/ios` and installs pods. Treat this as build output.
 Use the EAS wrapper (stack-scoped):
 
 ```bash
-hstack stack eas happier whoami
-hstack stack eas happier build --platform ios --profile production --no-wait
+hstack stack eas kaiwu whoami
+hstack stack eas kaiwu build --platform ios --profile production --no-wait
 ```
 
 For cloud builds, ensure your EAS project has the correct environment variables configured on expo.dev (or in `eas.json` profile `env`).
@@ -182,7 +182,7 @@ As a rule:
   - runs with upstream defaults
   - minimal / no fork-only config
 
-- **Branded fork branch (`happier`)**:
+- **Branded fork branch (`kaiwu`)**:
   - pinned to its own stack
   - overrides identity via env
   - contains only necessary fork-only files

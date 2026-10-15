@@ -1,0 +1,4 @@
+interface:
+  display_name: "Kaiwu Issue Triage"
+  short_description: "Cluster and route GitHub issues"
+  default_prompt: "Use $kaiwu-issue-triage to form decision-coherent bundles and route these GitHub issues for deep diagnosis."

@@ -1,6 +1,6 @@
 # Desktop updates & signing (Tauri)
 
-This folder contains the Tauri (desktop) app for Happier.
+This folder contains the Tauri (desktop) app for Kaiwu.
 
 ## Current status
 

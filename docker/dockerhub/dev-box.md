@@ -1,8 +1,8 @@
 # happierdev/dev-box
 
-Run Happier CLI + daemon inside a container, and pair it to your account without opening a browser.
+Run Kaiwu CLI + daemon inside a container, and pair it to your account without opening a browser.
 
-The image contains the published `happier` CLI binary and runs as the non-root `happier` user. It does not include a Happier source checkout or `hstack`.
+The image contains the published `kaiwu` CLI binary and runs as the non-root `kaiwu` user. It does not include a Kaiwu source checkout or `hstack`.
 
 Quick start (preview):
 
@@ -18,7 +18,7 @@ docker run --rm -it \
   happierdev/dev-box:preview
 ```
 
-Optional: install provider CLIs on first boot via `happier install provider`:
+Optional: install provider CLIs on first boot via `kaiwu install provider`:
 
 ```bash
 docker run --rm -it \
@@ -28,4 +28,4 @@ docker run --rm -it \
 
 Docs:
 
-- Dev Containers: https://docs.happier.dev/development/devcontainers
+- Dev Containers: https://kaiwu.wujilabs.cn/docs/development/devcontainers

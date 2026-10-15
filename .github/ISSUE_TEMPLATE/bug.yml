@@ -81,7 +81,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: Happier version
+      label: Kaiwu version
       description: App/CLI version (if known).
       placeholder: e.g. 0.12.3 or "main @ <commit sha>"
     validations:

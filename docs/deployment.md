@@ -1,6 +1,6 @@
 # Deployment
 
-This document describes how to deploy the Happier backend (`apps/server`) and the infrastructure it expects.
+This document describes how to deploy the Kaiwu backend (`apps/server`) and the infrastructure it expects.
 
 ## Runtime overview
 - **App server:** Node.js running `tsx ./sources/main.ts` (Fastify + Socket.IO).

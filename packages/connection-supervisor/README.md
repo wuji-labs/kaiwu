@@ -1,3 +1,3 @@
 # `@happier-dev/connection-supervisor`
 
-Shared connection supervision primitives for Happier realtime clients.
+Shared connection supervision primitives for Kaiwu realtime clients.

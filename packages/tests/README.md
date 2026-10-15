@@ -1,6 +1,6 @@
 # `@happier-dev/tests`
 
-Real end-to-end tests for Happier (server-light + real sockets + real DB).
+Real end-to-end tests for Kaiwu (server-light + real sockets + real DB).
 
 This workspace is intentionally **not** under `apps/*` so it can act as a shared test harness for the whole repo.
 
@@ -192,7 +192,7 @@ Recommended knobs:
 ### What the provider suite is testing
 
 Provider tests are **contract drift** detectors:
-- they run a real provider CLI through the Happier CLI
+- they run a real provider CLI through the Kaiwu CLI
 - they drive the agent by sending real session messages
 - they capture a **tool-trace JSONL** file from the running agent (`HAPPIER_STACK_TOOL_TRACE_FILE`)
 - they extract small “fixture” samples from that tool trace using the same code path used for curated allowlists
@@ -275,7 +275,7 @@ Implementation: `src/testkit/providers/harness/index.ts`
 1) Start server-light (selected DB provider + migrations + readiness)
 2) Create a real auth token via `/v1/auth`
 3) Create a session via `/v1/sessions` using **legacy encryption** (for now) and write a session attach file
-4) Spawn a real agent via the Happier CLI:
+4) Spawn a real agent via the Kaiwu CLI:
    - `yarn workspace @happier-dev/cli dev <provider> --existing-session <id> [--yolo]`
 5) Send the prompt via POST `/v2/sessions/:id/messages` (encrypted)
 6) If YOLO is off, auto-respond to permission requests via `${sessionId}:permission` RPC

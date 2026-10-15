@@ -1,6 +1,6 @@
 # Tool Normalization & Rendering (End-to-End)
 
-This document describes the **final, current** tool pipeline in Happier:
+This document describes the **final, current** tool pipeline in Kaiwu:
 
 - how tool calls/results are captured from providers
 - how the CLI normalizes tool payloads into canonical shapes (V2)
@@ -50,7 +50,7 @@ Backends run providers via one of the supported protocols:
 
 ### Messages: user/assistant/system/developer
 
-Happier stores and transports message roles broadly (user/assistant/system/developer), but the UI does **not** generally render
+Kaiwu stores and transports message roles broadly (user/assistant/system/developer), but the UI does **not** generally render
 system/developer messages in the main chat timeline (they are treated as internal instructions / provenance).
 
 Tool normalization focuses on **tool-call/tool-result** and “tool-ish” structured events, not message role rendering.
@@ -332,7 +332,7 @@ These reconstructed tools then flow into the same UI pipeline and render via the
 
 ## Tools vs Tasks (why they differ)
 
-In Happier, **tools** and **tasks** are related but not identical concepts:
+In Kaiwu, **tools** and **tasks** are related but not identical concepts:
 
 - **Tool**: “A concrete action the agent asked the runtime to perform.”
   - Examples: run a shell command, read a file, apply a patch, search the repo.

@@ -90,7 +90,7 @@ test('release-contract profiles distinguish bounded normal release validation fr
       normalRelease: false,
       checksProfile: null,
       automaticSuiteIds: [],
-      manualEntrypoint: '.agents/skills/happier-release-validation/SKILL.md',
+      manualEntrypoint: '.agents/skills/kaiwu-release-validation/SKILL.md',
     },
   ]);
   assert.deepEqual(releaseValidationRegistry.RELEASE_VALIDATION_PROFILES, contract.validationProfiles);

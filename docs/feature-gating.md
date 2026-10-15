@@ -1,13 +1,13 @@
 # Feature Gating
 
-Happier uses one canonical feature gating system. New code must use it instead of ad-hoc env checks, direct payload poking, or feature-specific inference logic.
+Kaiwu uses one canonical feature gating system. New code must use it instead of ad-hoc env checks, direct payload poking, or feature-specific inference logic.
 
 ## Decide whether a gate is appropriate
 
 Fail-closed behavior answers what happens after a gate exists; it does not justify creating the gate.
 
 - Refactors and replacements of existing behavior are performed in place at the canonical owner. Do not add an off-by-default flag, inverted default, hard-coded admission constant, or parallel implementation merely to de-risk a requested refactor. Manage that risk with RED → GREEN, a composed live gate, and recoverable Git history.
-- Gates are appropriate for genuinely new or experimental user-facing capabilities. Use the canonical Happier feature system and name the live consumer, activation/validation condition, intended default, and graduation or removal condition.
+- Gates are appropriate for genuinely new or experimental user-facing capabilities. Use the canonical Kaiwu feature system and name the live consumer, activation/validation condition, intended default, and graduation or removal condition.
 - A time-bounded prepare/expand → activate/migrate → contract sequence is appropriate only when supported released components, persisted data, independent rollout, coexistence, or rollback makes it necessary. Name the exact compatibility direction and old-path removal condition; do not preserve undeployed internal architecture.
 - An emergency kill switch may select between two coherent, complete behaviors when operational risk justifies it. It must have an owner, observable state, tested fail-closed behavior, and a removal/review condition.
 - A gated program must not weave dormant consumer branches into live runtime paths before every enabled producer and the activation lifecycle are proven. Live-path corrections needed during gated work land as independent consumed verticals, not as partial activation of the dormant replacement.

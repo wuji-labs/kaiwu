@@ -1,10 +1,10 @@
-# Happier Server
+# Kaiwu Server
 
 Minimal backend for open-source end-to-end encrypted Claude Code clients.
 
-## What is Happier?
+## What is Kaiwu?
 
-Happier Server is the synchronization backbone for secure Claude Code clients. It enables multiple devices to share encrypted conversations while maintaining complete privacy - the server never sees your messages, only encrypted blobs it cannot read.
+Kaiwu Server is the synchronization backbone for secure Claude Code clients. It enables multiple devices to share encrypted conversations while maintaining complete privacy - the server never sees your messages, only encrypted blobs it cannot read.
 
 ## Features
 
@@ -21,11 +21,11 @@ Happier Server is the synchronization backbone for secure Claude Code clients. I
 
 ## How It Works
 
-Your Claude Code clients generate encryption keys locally and use Happier Server as a secure relay. Messages are end-to-end encrypted before leaving your device. The server's job is simple: store encrypted blobs and sync them between your devices in real-time.
+Your Claude Code clients generate encryption keys locally and use Kaiwu Server as a secure relay. Messages are end-to-end encrypted before leaving your device. The server's job is simple: store encrypted blobs and sync them between your devices in real-time.
 
 ### Session Sharing
 
-Happier Server supports secure collaboration through two sharing methods:
+Kaiwu Server supports secure collaboration through two sharing methods:
 
 **Direct Sharing**: Share sessions with specific users by username, with three access levels:
 - **View**: Read-only access to messages
@@ -41,13 +41,13 @@ All sharing maintains end-to-end encryption - encrypted data keys are distribute
 
 ## Hosting
 
-**You don't need to self-host!** Our hosted Happier Server at `api.happier.dev` is just as secure as running your own. Since all data is end-to-end encrypted before it reaches our servers, we literally cannot read your messages even if we wanted to. The encryption happens on your device, and only you have the keys.
+**You don't need to self-host!** Our hosted Kaiwu Server at `kaiwu.wujilabs.cn` is just as secure as running your own. Since all data is end-to-end encrypted before it reaches our servers, we literally cannot read your messages even if we wanted to. The encryption happens on your device, and only you have the keys.
 
-That said, Happier Server is open source and self-hostable if you prefer running your own infrastructure. The security model is identical whether you use our servers or your own.
+That said, Kaiwu Server is open source and self-hostable if you prefer running your own infrastructure. The security model is identical whether you use our servers or your own.
 
 ## Server flavors
 
-Happier Server supports two flavors that share the same API + internal logic. Flavors are **presets** (defaults); you can override individual backends via env vars.
+Kaiwu Server supports two flavors that share the same API + internal logic. Flavors are **presets** (defaults); you can override individual backends via env vars.
 
 - **full** (default, recommended for production): defaults to Postgres, Redis-capable realtime, and S3/Minio-compatible public file storage.
 - **light** (recommended for self-hosting/testing): defaults to SQLite, in-memory realtime, and local public file storage served under `GET /files/*`.
@@ -89,10 +89,10 @@ Optional (recommended for multi-core / multi-replica):
 
 ### Bug report feature controls
 
-Happier clients read bug-report settings from `GET /v1/features`. Configure these env vars to control behavior:
+Kaiwu clients read bug-report settings from `GET /v1/features`. Configure these env vars to control behavior:
 
 - `HAPPIER_FEATURE_BUG_REPORTS__ENABLED` (default `1`)
-- `HAPPIER_FEATURE_BUG_REPORTS__PROVIDER_URL` (default `https://reports.happier.dev`)
+- `HAPPIER_FEATURE_BUG_REPORTS__PROVIDER_URL` (default `https://kaiwu.wujilabs.cn`)
   - If set to an invalid URL, provider submission is disabled (`providerUrl=null`) instead of failing open.
 - `HAPPIER_FEATURE_BUG_REPORTS__DEFAULT_INCLUDE_DIAGNOSTICS` (default `1`)
 - `HAPPIER_FEATURE_BUG_REPORTS__MAX_ARTIFACT_BYTES` (default `10485760`)
@@ -122,7 +122,7 @@ For shared multi-user servers, keep diagnostics enabled with owner-only access (
 
 If `HAPPIER_BUG_REPORTS_SERVER_DIAGNOSTICS_ACCESS_MODE=owner` and `HAPPIER_SERVER_OWNER_USER_IDS` is not set, the diagnostics endpoint returns `403` by design.
 
-`HAPPIER_SERVER_OWNER_USER_IDS` uses Happier account ids (owners can copy theirs from Settings → Account in the app).
+`HAPPIER_SERVER_OWNER_USER_IDS` uses Kaiwu account ids (owners can copy theirs from Settings → Account in the app).
 
 ### Example `.env` (full flavor, production)
 

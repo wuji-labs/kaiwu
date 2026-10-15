@@ -1,0 +1,4 @@
+interface:
+  display_name: "Kaiwu Implement Plan"
+  short_description: "Execute approved Kaiwu plans efficiently"
+  default_prompt: "Use $kaiwu-implement-plan to execute or resume the approved Kaiwu repository plan I named."

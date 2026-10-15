@@ -5,13 +5,13 @@
 <!-- happier-release-note-projections:v1
 {
   "expo": {
-    "message": "Happier 0.2.11 adds Connected Services and account pools, cross-Agent continuation, synchronized encrypted drafts, durable Actions, Mobile Cockpit and Swipe Teleport, expanded Agents and models, session organization, code review, and stronger handoff and delivery."
+    "message": "Kaiwu 0.2.11 adds Connected Services and account pools, cross-Agent continuation, synchronized encrypted drafts, durable Actions, Mobile Cockpit and Swipe Teleport, expanded Agents and models, session organization, code review, and stronger handoff and delivery."
   },
   "appStore": {
-    "whatsNew": "Happier 0.2.11 adds Connected Services and account pools, cross-Agent continuation, synchronized encrypted drafts, durable Actions, Mobile Cockpit and Swipe Teleport, expanded Agents and models, session organization, code review, and stronger handoff and delivery."
+    "whatsNew": "Kaiwu 0.2.11 adds Connected Services and account pools, cross-Agent continuation, synchronized encrypted drafts, durable Actions, Mobile Cockpit and Swipe Teleport, expanded Agents and models, session organization, code review, and stronger handoff and delivery."
   },
   "playStore": {
-    "whatsNew": "Happier 0.2.11 adds Connected Services and account pools, cross-Agent continuation, synchronized encrypted drafts, durable Actions, Mobile Cockpit and Swipe Teleport, expanded Agents and models, session organization, code review, and stronger handoff and delivery."
+    "whatsNew": "Kaiwu 0.2.11 adds Connected Services and account pools, cross-Agent continuation, synchronized encrypted drafts, durable Actions, Mobile Cockpit and Swipe Teleport, expanded Agents and models, session organization, code review, and stronger handoff and delivery."
   },
   "storyDeck": {
     "summary": "Connected Services and account pools, encrypted synchronized drafts, durable Actions, cross-Agent continuation, Mobile Cockpit, expanded Agents, handoff, code review, and durable messaging."
@@ -19,11 +19,11 @@
 }
 -->
 
-Happier 0.2.11 brings together the public 0.2.x work completed since 0.2.1. It substantially expands how you choose Agents and models, manage accounts and quotas, work from your phone, follow goals and delegated work, organize sessions, review code, and continue work across Agents and machines.
+Kaiwu 0.2.11 brings together the public 0.2.x work completed since 0.2.1. It substantially expands how you choose Agents and models, manage accounts and quotas, work from your phone, follow goals and delegated work, organize sessions, review code, and continue work across Agents and machines.
 
 ### Connected Services and account pools
 
-Connected Services let you link supported provider subscriptions, API keys and GitHub credentials to Happier once, then choose the appropriate account when starting compatible sessions across your machines.
+Connected Services let you link supported provider subscriptions, API keys and GitHub credentials to Kaiwu once, then choose the appropriate account when starting compatible sessions across your machines.
 
 - Connect multiple Codex, Claude and other supported service profiles, give them recognizable labels and choose a default or session-specific account.
 - Reuse compatible credentials across machines without replacing the provider's global home on each machine.
@@ -40,27 +40,27 @@ Connected Services let you link supported provider subscriptions, API keys and G
 - Bound how frequently a pool can switch accounts during a turn or within an hour.
 - See the pool's combined available capacity and the state of each member.
 
-Supported Codex and Claude sessions can adopt an account change without losing the Happier session. When one session discovers that the active pool account is exhausted or unavailable, the pool can select a replacement and make that choice available to the other sessions using it. Recovery can continue with the standard continuation prompt, a custom prompt, no additional prompt, or wait for the original account's reset when no replacement is available.
+Supported Codex and Claude sessions can adopt an account change without losing the Kaiwu session. When one session discovers that the active pool account is exhausted or unavailable, the pool can select a replacement and make that choice available to the other sessions using it. Recovery can continue with the standard continuation prompt, a custom prompt, no additional prompt, or wait for the original account's reset when no replacement is available.
 
-Codex usage-reset credits can be inspected and applied from Happier where the service reports them. Account changes and meaningful recovery events remain visible in the session rather than happening as an unexplained background change.
+Codex usage-reset credits can be inspected and applied from Kaiwu where the service reports them. Account changes and meaningful recovery events remain visible in the session rather than happening as an unexplained background change.
 
 Core Connected Services is stable. Quota visibility and recovery remain capability-driven and depend on the selected service, backend and runtime.
 
 ### Continue the same session with another Agent
 
-A hosted session can now **continue with another Agent without becoming a new Happier session**.
+A hosted session can now **continue with another Agent without becoming a new Kaiwu session**.
 
-Choose another Agent from the running session's picker, configure its model and options, then send your next message. That send stops the current Agent and commits the transition. The Happier session keeps the same id, transcript and settings, and a visible divider records where responsibility moved from one Agent to the next.
+Choose another Agent from the running session's picker, configure its model and options, then send your next message. That send stops the current Agent and commits the transition. The Kaiwu session keeps the same id, transcript and settings, and a visible divider records where responsibility moved from one Agent to the next.
 
 The arriving Agent receives a bounded, text-only brief containing the recent conversation and useful pointers to earlier context. The handoff can also include the previous Agent's tracked plan as past context. Images and files from earlier turns are not copied into that generated brief, although attachments on the message that commits the switch are handled normally.
 
-If you later return to an Agent that previously ran the same session on the same machine, Happier resumes that Agent's provider session where supported and replays only the work that happened while it was away. If provider resume is unavailable, the Agent starts fresh with the full bounded handoff context instead.
+If you later return to an Agent that previously ran the same session on the same machine, Kaiwu resumes that Agent's provider session where supported and replays only the work that happened while it was away. If provider resume is unavailable, the Agent starts fresh with the full bounded handoff context instead.
 
 Switching is available only for hosted, writable sessions while the current Agent is idle and the hosting machine is reachable. It does not move the session to another machine and does not currently target Custom ACP backends. Direct and read-only sessions are excluded. The feature is server-advertised and enabled by default; older or incompatible servers and CLIs fail closed instead of presenting targets they cannot execute.
 
 ### Goals, workflows, Agent Teams and work state
 
-Happier now presents the purpose of a session, its current foreground turn and its delegated work as related but distinct information.
+Kaiwu now presents the purpose of a session, its current foreground turn and its delegated work as related but distinct information.
 
 - Claude and Codex goals can show their active objective, time and token usage, optional budget progress, and controls to edit or cancel the goal.
 - Claude TodoWrite and Task activity, OpenCode todo snapshots, workflows and subagents feed shared work-state surfaces instead of separate provider-specific panels.
@@ -70,9 +70,9 @@ Happier now presents the purpose of a session, its current foreground turn and i
 - Foreground completion is distinguished from detached work that may continue afterward, so you can begin another turn without treating every background task as part of the same wait.
 - Ready notifications follow actual foreground completion rather than an individual subagent event.
 
-Claude Agent Teams can be created and managed from Happier. You can monitor teammates and active subagents, send a message directly to an individual teammate, add teammates to an existing team and follow their activity through the shared Agent surfaces.
+Claude Agent Teams can be created and managed from Kaiwu. You can monitor teammates and active subagents, send a message directly to an individual teammate, add teammates to an existing team and follow their activity through the shared Agent surfaces.
 
-Agents can also use Happier's action system to create additional sessions, assign work, message permitted sessions, inspect status and history, and coordinate work in the same workspace. Sensitive actions can pause for an approval in the composer, while provider prompts are suppressed when Happier already owns the approval decision.
+Agents can also use Kaiwu's action system to create additional sessions, assign work, message permitted sessions, inspect status and history, and coordinate work in the same workspace. Sensitive actions can pause for an approval in the composer, while provider prompts are suppressed when Kaiwu already owns the approval decision.
 
 Long-running session Actions now run under daemon-owned operation custody. Progress and encrypted revisions survive reconnects, appear in Activity, and reopen with the draft and workflow context that started the operation.
 
@@ -99,17 +99,17 @@ A thumb-reachable new-session action also makes it faster to start related work 
 
 ### Agents, models and engine selection
 
-- **Cursor is now integrated as a first-class Agent choice**, with model discovery, runtime configuration, session resume, questions, todos, tasks and generated images mapped through Happier's shared surfaces.
-- **Grok Build is available as an experimental Agent integration.** It uses models advertised by the active Grok session, exposes reasoning controls only where supported, handles structured and freeform questions, and publishes generated images through Happier's session media.
+- **Cursor is now integrated as a first-class Agent choice**, with model discovery, runtime configuration, session resume, questions, todos, tasks and generated images mapped through Kaiwu's shared surfaces.
+- **Grok Build is available as an experimental Agent integration.** It uses models advertised by the active Grok session, exposes reasoning controls only where supported, handles structured and freeform questions, and publishes generated images through Kaiwu's session media.
 - **GitHub Copilot and Kiro join the Agent picker**, alongside continued support for Claude, Codex, OpenCode, Gemini, Qwen, Kimi, Auggie, Kilo and Pi.
-- **Pi's experimental integration now includes a bundled Happier tools bridge**, native session-Agent tools, blocking dialogs through normal permission surfaces, live context-usage reporting, Direct-session browsing and takeover, configurable prompt behavior, and recovery for rate limits reported by the active model provider.
+- **Pi's experimental integration now includes a bundled Kaiwu tools bridge**, native session-Agent tools, blocking dialogs through normal permission surfaces, live context-usage reporting, Direct-session browsing and takeover, configurable prompt behavior, and recovery for rate limits reported by the active model provider.
 - **MiniMax profiles are built in** for its global and China endpoints, with compatible Claude and Codex configuration.
 - **Claude Opus 5 is available from the Claude model catalog.**
-- Happier can use live model lists where a backend exposes them and use its provider catalog where necessary.
+- Kaiwu can use live model lists where a backend exposes them and use its provider catalog where necessary.
 - Model-specific controls such as reasoning, effort, thinking or provider modes appear only when the selected model and runtime expose them.
 - Supported backends can accept a custom model id when you know an exact model that is not listed.
 - Favorite engine/model combinations appear in a dedicated Favorites section for quicker session creation. Availability is still checked against the selected machine, profile, authentication and current model list.
-- **Use CLI settings** remains available when you want the provider runtime to choose its configured model without a Happier override.
+- **Use CLI settings** remains available when you want the provider runtime to choose its configured model without a Kaiwu override.
 
 New-session pickers now use a shared selection system for Agents, models, paths and worktrees. Project and session shortcuts can prefill the normal new-session flow without sending anything automatically:
 
@@ -135,7 +135,7 @@ Kept sessions are identified separately from sessions that are waiting for you, 
 
 ### Code review, files and Git
 
-Happier's workspace surfaces now support a more complete review-to-action workflow.
+Kaiwu's workspace surfaces now support a more complete review-to-action workflow.
 
 - Browse, search, create, upload, download, rename, delete, preview and edit workspace files.
 - Keep multiple file, editor, review and historical-diff tabs open without losing local state or position.
@@ -144,7 +144,7 @@ Happier's workspace surfaces now support a more complete review-to-action workfl
 - Initialize a Git repository from a folder that does not already have one.
 - Use experimental Git operations for staging, committing, fast-forward pulls, pushing, branch publication and switching, and managed stashes.
 - Publish a local repository to GitHub and open or reuse pull requests through a connected GitHub credential or authenticated local `gh` fallback.
-- Codex native review uses the provider's review API where the requested target can be represented safely, with normalized findings shown inside Happier.
+- Codex native review uses the provider's review API where the requested target can be represented safely, with normalized findings shown inside Kaiwu.
 
 **Review comments** turn a visual diff review into structured instructions for an Agent.
 
@@ -158,17 +158,17 @@ Review comments and Git write operations remain experimental and are enabled sep
 
 - Pending messages can wait while an Agent is busy, reconnecting or inactive and survive app or CLI restarts after the server accepts them.
 - Reorder, edit, remove or deliver a specific pending message immediately.
-- Happier chooses steering, interruption or normal delivery according to the runtime's available capabilities and explains blocked delivery states.
+- Kaiwu chooses steering, interruption or normal delivery according to the runtime's available capabilities and explains blocked delivery states.
 - Sending to an inactive session can wake and resume it before delivery.
-- Browse existing Claude, Codex and OpenCode sessions on a connected machine, open them as provider-backed Direct sessions, or take over and sync them into Happier.
-- Fork a conversation from a chosen message. Happier uses native provider forks where available and bounded replay context elsewhere.
+- Browse existing Claude, Codex and OpenCode sessions on a connected machine, open them as provider-backed Direct sessions, or take over and sync them into Kaiwu.
+- Fork a conversation from a chosen message. Kaiwu uses native provider forks where available and bounded replay context elsewhere.
 - Fork a session directly from its session row. Forked sessions receive recognizable titles while preserving proven lineage and provider state.
-- Hand off supported sessions between machines while retaining the Happier session id. Claude and OpenCode handoff are supported; Codex handoff remains experimental. Workspace transfer is optional.
+- Hand off supported sessions between machines while retaining the Kaiwu session id. Claude and OpenCode handoff are supported; Codex handoff remains experimental. Workspace transfer is optional.
 - Choose a destination path during session handoff using the shared path picker and recent paths. Long transfers stream live progress through tracked operations and use transfer-appropriate RPC and polling budgets.
 - Per-session drafts survive navigation and restarts, while arrow-key message history can recall earlier prompts without destroying the draft you were writing.
 - Session and new-session drafts can synchronize between devices as encrypted account data when the server supports the typed draft contract. Existing local drafts migrate only after durable acknowledgement, newer edits are protected from stale asynchronous clears, and resumable drafts appear in session lists. Older servers retain local-only draft behavior.
 
-Direct sessions remain experimental and require the owning machine to be reachable until they are imported or synced into Happier.
+Direct sessions remain experimental and require the owning machine to be reachable until they are imported or synced into Kaiwu.
 
 File and workspace transfers use a shared encrypted, chunked transfer pipeline. When both machines have a viable direct route, transfers can move peer to peer without relaying file contents through the server. Web clients can use a machine's Tailscale Serve route where configured. When direct transfer is unavailable, the server relay provides a bounded fallback with explicit size limits rather than silently truncating data.
 
@@ -190,7 +190,7 @@ Mermaid diagrams render on iOS and Android using a bundled, sanitized runtime. S
 
 Device setup and recovery now share a clearer linking flow.
 
-- **Add your phone** creates a QR flow from web or desktop settings so a mobile device can join the same Happier account and server.
+- **Add your phone** creates a QR flow from web or desktop settings so a mobile device can join the same Kaiwu account and server.
 - QR restore flows preserve the intended server and pending account context while reconnecting or moving between devices.
 - Mobile can scan supported pairing and connection codes in app.
 - Codes and links avoid embedding loopback-only server addresses that another device cannot reach.
@@ -226,7 +226,7 @@ Connectivity supervision keeps authentication and endpoints current through cred
 Desktop, web and native surfaces now share a more consistent interaction language.
 
 - Custom theme profiles can be cloned, edited, imported and exported, with colors carried into editors, syntax highlighting, diffs and native system chrome.
-- Keyboard shortcut settings and the command palette bring built-in commands, custom prompts and Happier actions into one searchable surface.
+- Keyboard shortcut settings and the command palette bring built-in commands, custom prompts and Kaiwu actions into one searchable surface.
 - Layered navigation transitions preserve route depth across web, iOS and Android.
 - Desktop editors follow the active theme, OTA status is available from the sidebar, notched Macs receive appropriate safe-area spacing, and startup and window restoration are more dependable.
 - App surfaces use a more consistent icon family, compact status treatments and refined picker, header and composer controls.
@@ -254,8 +254,8 @@ Voice sessions use the current ElevenLabs realtime integration, with cleaner sto
 
 Claude Unified Terminal remains opt-in and runs the real Claude TUI through a shared terminal host.
 
-- Model, reasoning effort, permission mode and plan mode can be applied from Happier.
-- Permission requests, questions and plan-exit dialogs appear in Happier's normal approval surfaces.
+- Model, reasoning effort, permission mode and plan mode can be applied from Kaiwu.
+- Permission requests, questions and plan-exit dialogs appear in Kaiwu's normal approval surfaces.
 - Queued input can be injected without switching to a second Agent runtime.
 - Large-session resume can ask each time, resume from summary or resume the full provider session.
 - A blocked composer can be cleared only after explicit confirmation, without automatically erasing a real user draft.
@@ -272,11 +272,11 @@ Tracked sessions move to the current session runner after a CLI update or restar
 
 ### CLI, daemon, development Stack and releases
 
-- `happier status` provides a read-only setup report covering authentication, relay health, service state, CLI installation and Connected Services.
-- `happier service start|stop|status|repair` gives explicit background-service control.
-- `happier doctor repair` can inspect and converge common installation and channel problems.
-- Fresh CLI installs can continue into guided machine setup and reachable-host provisioning. Managed provider CLI installs can be promoted through the active Happier release.
-- `happier resume`, `happier attach`, `happier session`, profiles and JSON control output expand terminal-driven workflows.
+- `kaiwu status` provides a read-only setup report covering authentication, relay health, service state, CLI installation and Connected Services.
+- `kaiwu service start|stop|status|repair` gives explicit background-service control.
+- `kaiwu doctor repair` can inspect and converge common installation and channel problems.
+- Fresh CLI installs can continue into guided machine setup and reachable-host provisioning. Managed provider CLI installs can be promoted through the active Kaiwu release.
+- `kaiwu resume`, `kaiwu attach`, `kaiwu session`, profiles and JSON control output expand terminal-driven workflows.
 - `/happier-diagnose`, System Status and richer bug-report diagnostics make it easier to capture actionable runtime evidence.
 - Terminal, tmux and zellij recovery, focus, pane cleanup and server switching have been strengthened.
 - Windows runtime discovery, home paths, command shims, service handling and terminal quoting received dedicated work.
@@ -302,21 +302,21 @@ Some features require matching 0.2.11 server or CLI support. When that support c
 
 Thank you to everyone who tested development releases, reported problems, suggested improvements and contributed code.
 
-- [@jaylfc](https://github.com/jaylfc) for Grok Build as a first-class coding Agent in [#195](https://github.com/happier-dev/happier/pull/195).
-- [@octo-patch](https://github.com/octo-patch) for the built-in MiniMax global and China profiles in [#212](https://github.com/happier-dev/happier/pull/212), and for refreshing the MiniMax model identity.
-- [@danljungstrom](https://github.com/danljungstrom) for Claude command preservation, transcript filtering, server compatibility and presence fixes, custom-model input, and runtime Claude model discovery in [#202](https://github.com/happier-dev/happier/pull/202), [#206](https://github.com/happier-dev/happier/pull/206), [#222](https://github.com/happier-dev/happier/pull/222), [#223](https://github.com/happier-dev/happier/pull/223), [#236](https://github.com/happier-dev/happier/pull/236), and [#237](https://github.com/happier-dev/happier/pull/237).
-- [@richwomanbtc](https://github.com/richwomanbtc) for Claude setup-token authentication and Agent-style TeX rendering in [#242](https://github.com/happier-dev/happier/pull/242) and [#261](https://github.com/happier-dev/happier/pull/261).
-- [@hubikj](https://github.com/hubikj) for restoring web QR readability, improving disabled-signup recovery, and making web transcript text-size and content-width settings apply consistently in [#241](https://github.com/happier-dev/happier/pull/241) and [#260](https://github.com/happier-dev/happier/pull/260).
-- [@Miista](https://github.com/Miista) for reducing the relay-server Docker image in [#219](https://github.com/happier-dev/happier/pull/219).
-- [@DurdeuVlad](https://github.com/DurdeuVlad) for localizing unsupported transcript placeholders in [#209](https://github.com/happier-dev/happier/pull/209).
-- [@RobLoach](https://github.com/RobLoach) for CLI development tooling, Android keyboard sizing and native speech build fixes in [#162](https://github.com/happier-dev/happier/pull/162), [#163](https://github.com/happier-dev/happier/pull/163), [#164](https://github.com/happier-dev/happier/pull/164), and [#204](https://github.com/happier-dev/happier/pull/204).
-- [@Kunde21](https://github.com/Kunde21) for making malformed Claude assistant records fail softly in [#196](https://github.com/happier-dev/happier/pull/196), and for Pi's tools bridge, Direct sessions, context reporting and prompt controls.
-- [@HiddevH](https://github.com/HiddevH) for preventing SQLite WAL checkpoint starvation in [#190](https://github.com/happier-dev/happier/pull/190).
-- [@saketsawrav](https://github.com/saketsawrav) for serializing web terminal input in [#183](https://github.com/happier-dev/happier/pull/183).
-- [@jiuchuanll](https://github.com/jiuchuanll) for Codex title synchronization and native passthrough in [#168](https://github.com/happier-dev/happier/pull/168).
-- [@jr200](https://github.com/jr200) for preserving bridged MCP input schemas in [#167](https://github.com/happier-dev/happier/pull/167).
-- [@eusip](https://github.com/eusip) for resilient metadata writes and compressed mobile UI delivery in [#159](https://github.com/happier-dev/happier/pull/159) and [#158](https://github.com/happier-dev/happier/pull/158).
-- [@LightYear512](https://github.com/LightYear512) for resolving global Claude installations through the active runtime in [#153](https://github.com/happier-dev/happier/pull/153).
+- [@jaylfc](https://github.com/jaylfc) for Grok Build as a first-class coding Agent in [#195](https://github.com/wuji-labs/kaiwu/pull/195).
+- [@octo-patch](https://github.com/octo-patch) for the built-in MiniMax global and China profiles in [#212](https://github.com/wuji-labs/kaiwu/pull/212), and for refreshing the MiniMax model identity.
+- [@danljungstrom](https://github.com/danljungstrom) for Claude command preservation, transcript filtering, server compatibility and presence fixes, custom-model input, and runtime Claude model discovery in [#202](https://github.com/wuji-labs/kaiwu/pull/202), [#206](https://github.com/wuji-labs/kaiwu/pull/206), [#222](https://github.com/wuji-labs/kaiwu/pull/222), [#223](https://github.com/wuji-labs/kaiwu/pull/223), [#236](https://github.com/wuji-labs/kaiwu/pull/236), and [#237](https://github.com/wuji-labs/kaiwu/pull/237).
+- [@richwomanbtc](https://github.com/richwomanbtc) for Claude setup-token authentication and Agent-style TeX rendering in [#242](https://github.com/wuji-labs/kaiwu/pull/242) and [#261](https://github.com/wuji-labs/kaiwu/pull/261).
+- [@hubikj](https://github.com/hubikj) for restoring web QR readability, improving disabled-signup recovery, and making web transcript text-size and content-width settings apply consistently in [#241](https://github.com/wuji-labs/kaiwu/pull/241) and [#260](https://github.com/wuji-labs/kaiwu/pull/260).
+- [@Miista](https://github.com/Miista) for reducing the relay-server Docker image in [#219](https://github.com/wuji-labs/kaiwu/pull/219).
+- [@DurdeuVlad](https://github.com/DurdeuVlad) for localizing unsupported transcript placeholders in [#209](https://github.com/wuji-labs/kaiwu/pull/209).
+- [@RobLoach](https://github.com/RobLoach) for CLI development tooling, Android keyboard sizing and native speech build fixes in [#162](https://github.com/wuji-labs/kaiwu/pull/162), [#163](https://github.com/wuji-labs/kaiwu/pull/163), [#164](https://github.com/wuji-labs/kaiwu/pull/164), and [#204](https://github.com/wuji-labs/kaiwu/pull/204).
+- [@Kunde21](https://github.com/Kunde21) for making malformed Claude assistant records fail softly in [#196](https://github.com/wuji-labs/kaiwu/pull/196), and for Pi's tools bridge, Direct sessions, context reporting and prompt controls.
+- [@HiddevH](https://github.com/HiddevH) for preventing SQLite WAL checkpoint starvation in [#190](https://github.com/wuji-labs/kaiwu/pull/190).
+- [@saketsawrav](https://github.com/saketsawrav) for serializing web terminal input in [#183](https://github.com/wuji-labs/kaiwu/pull/183).
+- [@jiuchuanll](https://github.com/jiuchuanll) for Codex title synchronization and native passthrough in [#168](https://github.com/wuji-labs/kaiwu/pull/168).
+- [@jr200](https://github.com/jr200) for preserving bridged MCP input schemas in [#167](https://github.com/wuji-labs/kaiwu/pull/167).
+- [@eusip](https://github.com/eusip) for resilient metadata writes and compressed mobile UI delivery in [#159](https://github.com/wuji-labs/kaiwu/pull/159) and [#158](https://github.com/wuji-labs/kaiwu/pull/158).
+- [@LightYear512](https://github.com/LightYear512) for resolving global Claude installations through the active runtime in [#153](https://github.com/wuji-labs/kaiwu/pull/153).
 - [@lucharo](https://github.com/lucharo) for the original cached-session-list idea.
 - [@karolzlot](https://github.com/karolzlot) for Codex shared-state recovery, Connected Services timestamp continuity and Claude structured dialogs.
 - [@jacobcoro](https://github.com/jacobcoro) for deferred web transcript history, fork-title preservation, worktree defaults and nested permission authority.
@@ -329,21 +329,21 @@ Thank you as well to [@Zeninexu](https://github.com/Zeninexu), [@KolorYan](https
 <!-- happier-release-note-projections:v1
 {
   "expo": {
-    "message": "This development release delivers the latest fixes and improvements for Happier's public dev channel."
+    "message": "This development release delivers the latest fixes and improvements for Kaiwu's public dev channel."
   },
   "appStore": {
-    "whatsNew": "This development release delivers the latest fixes and improvements for Happier's public dev channel."
+    "whatsNew": "This development release delivers the latest fixes and improvements for Kaiwu's public dev channel."
   },
   "playStore": {
-    "whatsNew": "This development release delivers the latest fixes and improvements for Happier's public dev channel."
+    "whatsNew": "This development release delivers the latest fixes and improvements for Kaiwu's public dev channel."
   },
   "storyDeck": {
-    "summary": "This development release delivers the latest fixes and improvements for Happier's public dev channel."
+    "summary": "This development release delivers the latest fixes and improvements for Kaiwu's public dev channel."
   }
 }
 -->
 
-This development release delivers the latest fixes and improvements for Happier's public dev channel.
+This development release delivers the latest fixes and improvements for Kaiwu's public dev channel.
 
 ## Version 0.2.6 - 2026-05-14
 
@@ -384,20 +384,20 @@ A large number of reported bugs have been fixed in this release:
 - **Cold-start machine list blank-state flicker / list pops in and shifts on app resume** — the machines list no longer drops to empty while machine encryption is still initializing, and cached machines are returned immediately even when the bootstrap isDataReady flag hasn't settled yet, eliminating the layout jump when returning to the app from the background
 - **Claude compaction hang: long threads triggered compaction but queued messages stalled until stop** — the turn is now correctly finalized on system/init compaction events for both the remote Agent SDK and the SDK backend, keeping the prompt pump moving and draining pending sends without requiring a manual stop
 - **Pending queue messages sent out of order** — when multiple messages were queued quickly, larger or later messages could appear to send first; fixed at three layers: the server now reserves positions with an atomic per-session counter so legacy sessions can't append into the middle of the queue, the UI preserves optimistic insertion order without re-sorting by createdAt, and enqueue call order is now serialized per session so earlier encryption resolving late can't swap two queued messages
-- **`happier session send` only worked for active sessions** — happier session send <id> <message> now correctly queues messages for inactive sessions via socket-commit, consistent with how the mobile app behaves
+- **`kaiwu session send` only worked for active sessions** — kaiwu session send <id> <message> now correctly queues messages for inactive sessions via socket-commit, consistent with how the mobile app behaves
 - **`bun install -g @happier-dev/cli@next` fails with 404 errors** — Bun doesn't honor `bundledDependencies` and was fetching unpublished internal `@happier-dev/*` packages from the registry; the packed tarball now strips those entries from `package.json` while keeping the bundled files intact
 - **`ERR_MODULE_NOT_FOUND` for `@happier-dev/release-runtime` after npm install** — bundled workspace packages were missing from the published CLI tarball; bundled workspace sync is now part of the release packaging step
 - **CLI binary crashes with `Illegal instruction` on older x86-64 CPUs** — Linux x64 release binaries now use `bun-linux-x64-baseline` (pre-AVX2 compatible) instead of the default modern build
 - **`hstack stack auth` hangs forever when the daemon is crash-looping** — guided stack auth now times out on an unhealthy web UI path and falls back to mobile auth instead of waiting indefinitely
-- **`hstack happier` overrides the CLI server URL and breaks cloud auth** — the stack wrapper no longer shadows an already-configured CLI server setting, so multi-terminal workflows on the same machine work correctly
+- **`hstack kaiwu` overrides the CLI server URL and breaks cloud auth** — the stack wrapper no longer shadows an already-configured CLI server setting, so multi-terminal workflows on the same machine work correctly
 - **Daemon loses machine registration on transient DNS failures at startup** — the daemon now retries registration in a background loop with a configurable policy; `EAI_AGAIN`, timeouts, and connection errors recover automatically without a manual restart
-- **`happier --resume <happier-session-id>` passes the ID straight to the provider CLI, which rejects it** — Happier session IDs are now detected and resolved to their vendor resume ID before dispatching to the provider
-- **Session working directory missing from `happier daemon list` output** — the `/list` endpoint now includes an optional `directory` field per session
+- **`kaiwu --resume <happier-session-id>` passes the ID straight to the provider CLI, which rejects it** — Kaiwu session IDs are now detected and resolved to their vendor resume ID before dispatching to the provider
+- **Session working directory missing from `kaiwu daemon list` output** — the `/list` endpoint now includes an optional `directory` field per session
 - **`session.continueWithReplay` not accessible from the daemon HTTP API** — `POST /continue-with-replay` is now exposed on the daemon control server, backed by the same shared implementation used by the machine RPC handler
 - **Mobile UI locks up and can't change server URL when the server is unreachable** — the reachability probe now uses the endpoint supervision path, which is timeout-safe and cancellable, instead of a raw fetch that could hang indefinitely
 - **Enhanced Session Wizard crashes on new session creation** (`undefined is not an object: 'acpSessionModeOptions'`) — null-guarded in the wizard preflight
 - **OpenCode sessions showed no model choices in the picker** — the model picker now shows probed/available models instead of an empty list
-- **Can't log in from another terminal after the first login** — `hstack happier` no longer overwrites an explicitly configured server URL from CLI settings when a stack environment is present
+- **Can't log in from another terminal after the first login** — `hstack kaiwu` no longer overwrites an explicitly configured server URL from CLI settings when a stack environment is present
 - **Sessions frequently lock up and appear stuck `in_progress`** — ACP tools in a permission-pending state were incorrectly arming execution timeouts; timeouts are now only started after the permission gate clears. OpenCode/Kilo backends were also stalling on `allow_once` replies; they now prefer `allow_always` when approving to avoid a vendor-side hang
 - **Web markdown tables clipped with no visible scroll** — the table `ScrollView` was hiding the horizontal scroll indicator and forcing `overflow: hidden` on web; both are now corrected
 - **Stale permission approval cards remained visible in inactive sessions** — when a session goes inactive, pending tool calls now always render as canceled/failed instead of leaving un-actionable approval buttons. Voice context surfaces were hardened to match
@@ -415,13 +415,13 @@ A large number of reported bugs have been fixed in this release:
 - **Reasoning effort** — reasoning effort can be selected and is now passed through to Claude queries where supported
 - **MCP variadic prompt parsing fix** — variadic MCP tool prompts are now parsed correctly
 - **Permission handler improvements** — `resetAndFlush` support added; session title changes are now auto-approved
-- **Browse existing Claude sessions** — browse and display the transcript/history of any Claude session, even those not started by Happier
+- **Browse existing Claude sessions** — browse and display the transcript/history of any Claude session, even those not started by Kaiwu
 - **Follow live sessions** — follow in real time a session currently running in the Claude CLI or Claude Code
-- **Take over a session** — import an existing live Claude session into Happier control, including its full transcript
+- **Take over a session** — import an existing live Claude session into Kaiwu control, including its full transcript
 
 ### Claude Agent Teams
 
-- Create and manage Claude Teams directly from Happier
+- Create and manage Claude Teams directly from Kaiwu
 - Send messages directly to individual teammates
 - Add new teammates to an existing team
 - Monitor your team and all active subagents from the agents sidebar
@@ -435,36 +435,36 @@ A large number of reported bugs have been fixed in this release:
 - **Turn-end diff summary** — compact diff shown at turn end when files were modified
 - **Model display name normalization** — Codex model names are now cleaned up and consistent across the UI
 - **Per-model session options in metadata** — model-specific options (like speed, reasoning) are stored and surfaced correctly
-- **Browse, follow, and take over existing Codex sessions** — same capabilities as Claude: browse history, follow live sessions, and import sessions started in the Codex CLI or the Codex app into Happier
+- **Browse, follow, and take over existing Codex sessions** — same capabilities as Claude: browse history, follow live sessions, and import sessions started in the Codex CLI or the Codex app into Kaiwu
 
 ### OpenCode
 
 - **OpenCode Server as the default backend** — managed server orchestration handles startup, health checks, and shutdown
-- **Local/remote switching** — start a session with `happier opencode` in the terminal, use the OpenCode TUI experience directly in your terminal, and open the session in Happier's UI to follow or control it
+- **Local/remote switching** — start a session with `kaiwu opencode` in the terminal, use the OpenCode TUI experience directly in your terminal, and open the session in Kaiwu's UI to follow or control it
 - **Per-message session forking** — fork the conversation at any message directly from the UI
 - **Turn-end diff summary** — compact diff shown at turn end when files were modified
 - **Thinking option** — OpenCode thinking/reasoning is now surfaced in the preflight options
 - **Browse, follow, and take over existing OpenCode sessions** — same capabilities as Claude and Codex
-- **`happier attach`** — attach an OpenCode session to multiple terminals simultaneously
+- **`kaiwu attach`** — attach an OpenCode session to multiple terminals simultaneously
 
 ### Browse and Import Existing Sessions
 
 These capabilities are now available for Claude, Codex, and OpenCode:
 
-- Browse any existing session on your connected machine, even sessions Happier didn't start
-- Follow a session currently running outside Happier (e.g. started with `claude`, `codex`, or `opencode` in the terminal) — messages stream into Happier in real time
-- Take over / import a session — Happier links to it, stores the transcript, and you can continue from the app
+- Browse any existing session on your connected machine, even sessions Kaiwu didn't start
+- Follow a session currently running outside Kaiwu (e.g. started with `claude`, `codex`, or `opencode` in the terminal) — messages stream into Kaiwu in real time
+- Take over / import a session — Kaiwu links to it, stores the transcript, and you can continue from the app
 
 ### Direct Sessions
 
-- New "direct" session mode where Happier does not persist the session transcript server-side — messages are forwarded directly between machine and connected devices
+- New "direct" session mode where Kaiwu does not persist the session transcript server-side — messages are forwarded directly between machine and connected devices
 - Direct session linking and takeover with full transcript import
 
 ### Session Forking and Replay
 
-- Fork any Happier session
+- Fork any Kaiwu session
 - **"Fork from message"** — forks happen at the correct point in the conversation, not at the latest message
-- **Happier Fork** — for backends that don't support native forking, Happier Replay extracts session messages and replays them into a new session up to the chosen fork point
+- **Kaiwu Fork** — for backends that don't support native forking, Kaiwu Replay extracts session messages and replays them into a new session up to the chosen fork point
 - **Replay seed sizing limits** — prevents oversized prompts from causing failures
 - **Synopsis pointers + bounded fallback scanning** — faster synopsis retrieval for long sessions
 - **Summary runner config** — choose the backend and model used for replay summarization; fork/continue flows carry these settings forward
@@ -564,7 +564,7 @@ These capabilities are now available for Claude, Codex, and OpenCode:
 - **Plaintext session storage** — sessions can be stored plaintext-at-rest when configured (for environments where server-side encryption is managed separately)
 - **Keyless external authentication** — support for auth providers that don't require a Happier-managed key challenge
 - **mTLS login** — certificate-based authentication for environments that require mutual TLS
-- **Canonical server URL** — define a canonical public URL for your self-hosted server; Happier adopts it safely with insecure URL guards
+- **Canonical server URL** — define a canonical public URL for your self-hosted server; Kaiwu adopts it safely with insecure URL guards
 - **Canonical URL inference** — automatically derived from Tailscale Serve/Funnel status when available
 - **API rate limiting** — server-side rate limit policies to protect shared instances
 - **OIDC `iss` passthrough** — RFC 9207 compatibility for more identity providers
@@ -574,7 +574,7 @@ These capabilities are now available for Claude, Codex, and OpenCode:
 
 ### Add Your Phone / Pairing
 
-- **"Add your phone"** — if you set up Happier on web or desktop, you can now easily add your phone from Settings using a QR code
+- **"Add your phone"** — if you set up Kaiwu on web or desktop, you can now easily add your phone from Settings using a QR code
 - **QR restore flows** — reconnect a device smoothly when migrating or recovering access
 - **In-app QR scanner** — mobile-web gated scanner for pairing and connect flows
 - QR codes and share links never embed localhost/loopback addresses
@@ -590,7 +590,7 @@ These capabilities are now available for Claude, Codex, and OpenCode:
 - Assign accounts to profiles
 - Connect once, use on multiple devices
 - Unified OAuth routing across embedded/device/paste flows
-- **Quota monitoring** — view your Codex and Claude quota/usage directly in Happier
+- **Quota monitoring** — view your Codex and Claude quota/usage directly in Kaiwu
 
 ### Permissions and Approvals
 
@@ -614,12 +614,12 @@ These capabilities are now available for Claude, Codex, and OpenCode:
 
 ### MCP Servers
 
-- **`happier mcp` command** — manage MCP servers from the CLI; `--mcp-server` alias available
-- Manage and add MCP servers from the Happier settings UI
-- MCP servers defined in Happier work with all backends and all machines
+- **`kaiwu mcp` command** — manage MCP servers from the CLI; `--mcp-server` alias available
+- Manage and add MCP servers from the Kaiwu settings UI
+- MCP servers defined in Kaiwu work with all backends and all machines
 - Machine-specific overrides for paths and arguments
 - Default MCP servers per workspace or machine
-- MCP bridge: non-MCP-compatible backends (like Pi) can call Happier MCP servers via a CLI shim
+- MCP bridge: non-MCP-compatible backends (like Pi) can call Kaiwu MCP servers via a CLI shim
 
 ### Automations
 
@@ -640,7 +640,7 @@ These capabilities are now available for Claude, Codex, and OpenCode:
 
 ### Diagnostics and Bug Reports
 
-- **`happier doctor --json`** — outputs a structured JSON snapshot for support workflows
+- **`kaiwu doctor --json`** — outputs a structured JSON snapshot for support workflows
 - **Bug reports** — now ingest doctor snapshots (daemon + pasted CLI), enrich diagnostics context, and handle missing server diagnostics gracefully
 - **Crash recovery UI** — safe fallback screen with restart and copy-details actions when the app hits a render-time crash
 - **Restart-intent bug report flow** — a queued report reopens automatically after relaunch, preserving pre-restart diagnostics
@@ -650,8 +650,8 @@ These capabilities are now available for Claude, Codex, and OpenCode:
 
 ### CLI Improvements
 
-- **`happier mcp`** — MCP server management and bridge
-- **`happier doctor --json`** — structured JSON diagnostics snapshot
+- **`kaiwu mcp`** — MCP server management and bridge
+- **`kaiwu doctor --json`** — structured JSON diagnostics snapshot
 - **JSON envelope output** for control commands — machine-readable responses
 - **Deterministic JSON exit codes** for session commands
 - PTY configuration and PID cleanup for terminal sessions
@@ -659,8 +659,8 @@ These capabilities are now available for Claude, Codex, and OpenCode:
 - `--mcp-server` alias added
 - Daemon wait flag for reliable daemon startup before RPC
 - Default session path derived from invoked `cwd` instead of requiring explicit `--path`
-- `happier resume` & `happier attach` — interactive list of available Happier sessions to resume
-- `happier session` — full session management CLI
+- `kaiwu resume` & `kaiwu attach` — interactive list of available Kaiwu sessions to resume
+- `kaiwu session` — full session management CLI
 - Improved systemd/launchd service PATH capture (user PATH preserved in unit files)
 - Windows command/shim execution improvements
 - Nested `CLAUDE_*` env stripping to prevent environment leaks in subprocesses
@@ -675,7 +675,7 @@ These capabilities are now available for Claude, Codex, and OpenCode:
 
 ### Profiles
 
-- List profiles from the CLI (`happier profiles`)
+- List profiles from the CLI (`kaiwu profiles`)
 - Start a session from the CLI using a specific profile (`--profile`)
 
 ### Session Tags
@@ -683,13 +683,13 @@ These capabilities are now available for Claude, Codex, and OpenCode:
 - Add custom tags to sessions for organization and filtering
 - Tags are rendered in the session list and session header
 
-### Happier Memory
+### Kaiwu Memory
 
 - Optional local database of sessions
 - Supports optional vector embeddings (local generation and/or OpenAI-compatible embedding API)
 - Agents can search previous sessions for relevant context
 
-### Happier Actions
+### Kaiwu Actions
 
 - Unified action catalog controlling where each action is surfaced: voice agent tools, coding agent MCP, slash commands, agent input chips
 - Per-action approval gating — route sensitive actions through the inbox before execution
@@ -697,7 +697,7 @@ These capabilities are now available for Claude, Codex, and OpenCode:
 
 ### GitHub Copilot Integration
 
-- Full GitHub Copilot CLI agent support — use your GitHub Copilot subscription directly as a backend in Happier
+- Full GitHub Copilot CLI agent support — use your GitHub Copilot subscription directly as a backend in Kaiwu
 - Windows support with correct shim resolution
 - Streaming debounce, model ID fallback, and permission argument handling
 - Install guidance and provider setup flow in the UI
@@ -714,11 +714,11 @@ Due to popular demand, a new release lane builds nightly from the `dev` branch a
 
 Dev should **not** be treated as stable — it can break at any time and may contain partial commits or breaking changes.
 
-The recommended way to run Happier is using the preview releases, which will now have a much more frequent release cycle.
+The recommended way to run Kaiwu is using the preview releases, which will now have a much more frequent release cycle.
 
 ## Version 1 - 2026-02-15
 
-Welcome to Happier - your secure, encrypted mobile companion for Claude Code. This inaugural release establishes the foundation for private, powerful AI interactions on the go.
+Welcome to Kaiwu - your secure, encrypted mobile companion for Claude Code. This inaugural release establishes the foundation for private, powerful AI interactions on the go.
 
 - Implemented end-to-end encrypted session management ensuring complete privacy
 - Integrated intelligent voice assistant with natural conversation capabilities

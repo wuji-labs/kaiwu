@@ -1,4 +1,4 @@
-# Happier i18n (Object-Based Implementation)
+# Kaiwu i18n (Object-Based Implementation)
 
 A type-safe internationalization system using an object-based approach with functions and constants, accessed via the familiar `t('key', params)` API format.
 

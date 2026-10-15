@@ -1,6 +1,6 @@
 # Binary-Safe Runtime and Bundled Workspaces
 
-Happier ships binary installers. First-party runtime paths must work on machines that do not have system `node`, `npm`, `npx`, `pnpm`, `yarn`, or `bunx`.
+Kaiwu ships binary installers. First-party runtime paths must work on machines that do not have system `node`, `npm`, `npx`, `pnpm`, `yarn`, or `bunx`.
 
 ## Runtime contract
 

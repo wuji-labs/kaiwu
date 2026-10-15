@@ -16,7 +16,7 @@ Take a report — a subagent's, a lane's, a plan's, or your own from earlier —
 5. **Treat plausibility as zero evidence.** Narrative fit is what generated the claim, so "sounds right" is correlated with exactly the error being hunted. Check the best-fitting claims first, not last.
 6. **Downgrade what you cannot verify.** If re-derivation is too expensive, do not skip and do not trust: relabel the claim as an assumption and carry it labeled.
 
-For claims of backward, forward, mixed-version, upgrade, or rollback compatibility, use `.agents/skills/happier-compatibility`. Re-derive the claim against the exact released tag/artifact or applicable predecessor worktree basis, the real old/new component roles, and every claimed direction. A current-code fixture or mock that merely agrees with the current implementation is not independent compatibility evidence.
+For claims of backward, forward, mixed-version, upgrade, or rollback compatibility, use `.agents/skills/kaiwu-compatibility`. Re-derive the claim against the exact released tag/artifact or applicable predecessor worktree basis, the real old/new component roles, and every claimed direction. A current-code fixture or mock that merely agrees with the current implementation is not independent compatibility evidence.
 
 ## Output
 

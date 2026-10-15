@@ -30,8 +30,8 @@ If you've dug deeper and have a specific idea for how to fix something, a code p
 **In short:** if you're deciding between spending an hour writing a PR and spending 15 minutes writing a thorough issue, the issue is often the better use of your time, and ours.
 
 Some example of great issues reports:
-- https://github.com/happier-dev/happier/issues/91
-- https://github.com/happier-dev/happier/issues/93
+- https://github.com/wuji-labs/kaiwu/issues/91
+- https://github.com/wuji-labs/kaiwu/issues/93
 
 ## TL;DR
 
@@ -73,8 +73,8 @@ If you're not sure which category you're in: ask first.
 
 Pick whichever is easiest:
 - **Discord**: https://discord.gg/W6Pb8KuHfg (great for quick “is this wanted / what's the best approach?” alignment)
-- **GitHub Issues**: https://github.com/happier-dev/happier/issues (best for concrete bugs with repro steps)
-- **GitHub Discussions**: https://github.com/happier-dev/happier/discussions (best for feature ideas / design / “should we do this?” questions)
+- **GitHub Issues**: https://github.com/wuji-labs/kaiwu/issues (best for concrete bugs with repro steps)
+- **GitHub Discussions**: https://github.com/wuji-labs/kaiwu/discussions (best for feature ideas / design / “should we do this?” questions)
 
 If you want the best chance your PR merges quickly: link the issue/discussion thread from the PR.
 
@@ -91,7 +91,7 @@ Please open pull requests against `dev` (not `main`).
 If you’re running from source and want a more stable base than `dev`, check out `preview`:
 
 ```bash
-git clone --branch preview https://github.com/happier-dev/happier.git
+git clone --branch preview https://github.com/wuji-labs/kaiwu.git
 ```
 
 ### What helps your PR get merged

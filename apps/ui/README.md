@@ -1,4 +1,4 @@
-<div align="center"><img src="/logo.png" width="200" title="Happier" alt="Happier"/></div>
+<div align="center"><img src="/logo.png" width="200" title="Kaiwu" alt="Kaiwu"/></div>
 
 <h1 align="center">
   Mobile and Web Client for Claude Code & Codex
@@ -10,7 +10,7 @@ Use Claude Code or Codex from anywhere with end-to-end encryption.
 
 <div align="center">
   
-[📱 **iOS App**](https://apps.apple.com/us/app/happier-claude-codex-opencode/id6758537388) • [🤖 **Android App**](https://play.google.com/store/apps/details?id=dev.happier.app) • [🌐 **Web App**](https://app.happier.dev) • [🎥 **See a Demo**](https://youtu.be/GCS0OG9QMSE) • [💬 **Discord**](https://discord.gg/W6Pb8KuHfg)
+[📱 **iOS App**](https://apps.apple.com/us/app/happier-claude-codex-opencode/id6758537388) • [🤖 **Android App**](https://play.google.com/store/apps/details?id=dev.happier.app) • [🌐 **Web App**](https://kaiwu.wujilabs.cn) • [🎥 **See a Demo**](https://youtu.be/GCS0OG9QMSE) • [💬 **Discord**](https://discord.gg/W6Pb8KuHfg)
 
 </div>
 
@@ -34,28 +34,28 @@ npm install -g @happier-dev/cli
 ```
 
 <h3 align="center">
-Step 3: Start using `happier` instead of `claude` or `codex`
+Step 3: Start using `kaiwu` instead of `claude` or `codex`
 </h3>
 
 ```bash
 
 # Instead of: claude
-# Use: happier
+# Use: kaiwu
 
-happier
+kaiwu
 
 # Instead of: codex
-# Use: happier codex
+# Use: kaiwu codex
 
-happier codex
+kaiwu codex
 
 ```
 
 ## How does it work?
 
-On your computer, run `happier` instead of `claude` or `happier codex` instead of `codex` to start your AI through our wrapper. When you want to control your coding agent from your phone, it restarts the session in remote mode. To switch back to your computer, just press any key on your keyboard.
+On your computer, run `kaiwu` instead of `claude` or `kaiwu codex` instead of `codex` to start your AI through our wrapper. When you want to control your coding agent from your phone, it restarts the session in remote mode. To switch back to your computer, just press any key on your keyboard.
 
-## 🔥 Why Happier?
+## 🔥 Why Kaiwu?
 
 - 📱 **Mobile access to Claude Code and Codex** - Check what your AI is building while away from your desk
 - 🔔 **Push notifications** - Get alerted when Claude Code and Codex needs permission or encounters errors  
@@ -71,11 +71,11 @@ On your computer, run `happier` instead of `claude` or `happier codex` instead o
 
 ## 🏠 Who We Are
 
-We're engineers scattered across Bay Area coffee shops and hacker houses, constantly checking how our AI coding agents are progressing on our pet projects during lunch breaks. Happier was born from the frustration of not being able to peek at our AI coding tools building our side hustles while we're away from our keyboards. We believe the best tools come from scratching your own itch and sharing with the community.
+We're engineers scattered across Bay Area coffee shops and hacker houses, constantly checking how our AI coding agents are progressing on our pet projects during lunch breaks. Kaiwu was born from the frustration of not being able to peek at our AI coding tools building our side hustles while we're away from our keyboards. We believe the best tools come from scratching your own itch and sharing with the community.
 
 ## 📚 Documentation & Contributing
 
-- **[GitHub](https://github.com/happier-dev/happier)** - Source, docs, and issue tracker
+- **[GitHub](https://github.com/wuji-labs/kaiwu)** - Source, docs, and issue tracker
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** - Development setup including iOS, Android, and macOS desktop variant builds
 
 ## License

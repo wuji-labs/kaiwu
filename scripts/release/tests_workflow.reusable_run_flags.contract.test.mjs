@@ -204,7 +204,7 @@ test('the source-CI classifier fail-closes shared tooling and reaches direct roo
   assert.ok(filters.ui.includes('apps/bootstrap/**'));
   assert.ok(filters.ui.includes('scripts/generateBuiltInPrompts.mjs'));
   assert.ok(filters.ui.includes('scripts/generateBuiltInPrompts.test.mjs'));
-  assert.ok(filters.ui.includes('skills/happier-diagnose/**'));
+  assert.ok(filters.ui.includes('skills/kaiwu-diagnose/**'));
   assert.ok(filters.cli.includes('scripts/ensureCliCommonDistModule.mjs'));
   assert.ok(filters.cli.includes('scripts/ensureCliCommonDistModule.test.mjs'));
   for (const lane of ['ui', 'server', 'cli', 'stack']) {

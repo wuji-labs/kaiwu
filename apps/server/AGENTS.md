@@ -1,4 +1,4 @@
-# Happier Server Instructions
+# Kaiwu Server Instructions
 
 Package-specific instructions for `apps/server`. These supplement the root constitution and override broader guidance where more specific.
 
@@ -98,4 +98,4 @@ Prefer existing domain folders and module owners before creating new top-level f
 
 ## Debugging
 
-Use `.agents/skills/happier-diagnose` for Happier issue diagnosis and evidence collection. Server logs are under `.logs/` when enabled, and consolidated client/server debugging can use `DANGEROUSLY_LOG_TO_SERVER_FOR_AI_AUTO_DEBUGGING=true` only when intentionally diagnosing.
+Use `.agents/skills/kaiwu-diagnose` for Kaiwu issue diagnosis and evidence collection. Server logs are under `.logs/` when enabled, and consolidated client/server debugging can use `DANGEROUSLY_LOG_TO_SERVER_FOR_AI_AUTO_DEBUGGING=true` only when intentionally diagnosing.

@@ -45,8 +45,8 @@ over every file in this folder.
 2. **Leading and trailing whitespace is load-bearing.** `" and "` must come back with both spaces.
    A trimmed fragment glues two words onto the interpolated value.
 3. **Code stays byte-identical**: CLI invocations, paths, globs, flags, config keys, env vars,
-   identifiers and URLs. A localised `happier attach <session-id>` is a command that does not run.
-4. **Product names never translate**: Happier, Claude, Codex, Gemini, Cursor, Copilot, OpenCode,
+   identifiers and URLs. A localised `kaiwu attach <session-id>` is a command that does not run.
+4. **Product names never translate**: Kaiwu, Claude, Codex, Gemini, Cursor, Copilot, OpenCode,
    Qwen, Kimi, Pi, GitHub, MCP, tmux, zellij.
 5. **Match the shape of the source**: no trailing period if the English has none; ALL CAPS stays
    ALL CAPS; a `\n` count must be preserved.
@@ -57,8 +57,8 @@ over every file in this folder.
 
 ## French (`fr`)
 
-**Register: tutoiement.** Happier addresses the user as **tu**, never *vous*. This is a ratified
-product decision — Happier is a warm companion for developers, and modern French developer tooling
+**Register: tutoiement.** Kaiwu addresses the user as **tu**, never *vous*. This is a ratified
+product decision — Kaiwu is a warm companion for developers, and modern French developer tooling
 tutoies. Imperatives take the *tu* form: "Choose a model" → « Choisis un modèle ».
 
 **Technical vocabulary stays in English** — these are the words French developers actually say. Do

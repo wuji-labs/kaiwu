@@ -1,3 +1,3 @@
 # @happier-dev/transfers
 
-Internal shared transfer-routing and transfer-runtime helpers for Happier.
+Internal shared transfer-routing and transfer-runtime helpers for Kaiwu.

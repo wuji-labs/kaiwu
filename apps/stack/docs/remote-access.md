@@ -1,6 +1,6 @@
 # Remote access (Tailscale + phone)
 
-Happier relies on “secure context” browser features (WebCrypto). Browsers treat `http://localhost` as a secure context, but **not** `http://<lan-ip>:<port>` or `http://<tailscale-ip>:<port>`.
+Kaiwu relies on “secure context” browser features (WebCrypto). Browsers treat `http://localhost` as a secure context, but **not** `http://<lan-ip>:<port>` or `http://<tailscale-ip>:<port>`.
 
 For remote access (phone, another laptop, etc) you should use **HTTPS**.
 
@@ -38,9 +38,9 @@ Useful knobs:
 - `HAPPIER_TAILSCALE_BIN` (preferred unified override)
 - `HAPPIER_STACK_TAILSCALE_BIN` (legacy stack-specific alias)
 
-## Using the native Happier mobile app (optional)
+## Using the native Kaiwu mobile app (optional)
 
-The native Happier mobile app has an “API Endpoint” setting (developer mode).
+The native Kaiwu mobile app has an “API Endpoint” setting (developer mode).
 Point it at the same HTTPS `*.ts.net` URL to use your local server.
 
 However, the simplest option is usually the **served web UI** (no app updates needed).

@@ -1,12 +1,12 @@
 # CLI Architecture
 
-This document describes the Happier CLI (`apps/cli`) and its daemon. The CLI is both an interactive tool and a background session manager that keeps machine state in sync with the server.
+This document describes the Kaiwu CLI (`apps/cli`) and its daemon. The CLI is both an interactive tool and a background session manager that keeps machine state in sync with the server.
 
 ## System overview
 
 ```mermaid
 graph TB
-    subgraph "Happier CLI"
+    subgraph "Kaiwu CLI"
         Entry[src/index.ts]
         API[API Client]
         Daemon[Daemon Process]
@@ -49,7 +49,7 @@ graph TB
 
 ```mermaid
 flowchart TD
-    Start([happier ...]) --> Parse[Parse subcommand]
+    Start([kaiwu ...]) --> Parse[Parse subcommand]
 
     Parse --> Doctor{doctor?}
     Parse --> Auth{auth?}

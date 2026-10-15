@@ -1,4 +1,4 @@
-# Happier
+# Kaiwu
 
 Code on the go — control AI coding agents from your mobile device.
 
@@ -33,19 +33,19 @@ yarn --cwd apps/cli test:slow
 ### First-time authentication (recommended)
 
 ```bash
-happier auth login
+kaiwu auth login
 ```
 
 Recommended first run:
 1. Choose the mobile option (recommended).
-2. Scan the QR/deep link in the Happier mobile app.
-3. If you already use Happier on another device, sign in with that same account.
+2. Scan the QR/deep link in the Kaiwu mobile app.
+3. If you already use Kaiwu on another device, sign in with that same account.
 4. If you are logged out, complete sign in/create account, then continue terminal approval (the app returns you automatically).
 
 ### Claude (default)
 
 ```bash
-happier
+kaiwu
 ```
 
 This will:
@@ -56,14 +56,14 @@ This will:
 ### Multi-server quickstart
 
 ```bash
-happier server add --name company --server-url https://api.company.example --webapp-url https://app.company.example --use
-happier --server company auth login
+kaiwu server add --name company --server-url https://api.company.example --webapp-url https://app.company.example --use
+kaiwu --server company auth login
 ```
 
 ### Gemini
 
 ```bash
-happier gemini
+kaiwu gemini
 ```
 
 Start a Gemini CLI session with remote control capabilities.
@@ -71,42 +71,42 @@ Start a Gemini CLI session with remote control capabilities.
 **First time setup:**
 ```bash
 # Authenticate with Google
-happier connect gemini
+kaiwu connect gemini
 ```
 
 ## Commands
 
 ### Main Commands
 
-- `happier` – Start Claude Code session (default)
-- `happier gemini` – Start Gemini CLI session
-- `happier codex` – Start Codex mode
+- `kaiwu` – Start Claude Code session (default)
+- `kaiwu gemini` – Start Gemini CLI session
+- `kaiwu codex` – Start Codex mode
 
 ### Utility Commands
 
-- `happier auth` – Manage authentication
-- `happier connect` – Store AI vendor API keys in Happier cloud
-- `happier notify` – Send a push notification to your devices
-- `happier daemon` – Manage background service
-- `happier doctor` – System diagnostics & troubleshooting
+- `kaiwu auth` – Manage authentication
+- `kaiwu connect` – Store AI vendor API keys in Kaiwu cloud
+- `kaiwu notify` – Send a push notification to your devices
+- `kaiwu daemon` – Manage background service
+- `kaiwu doctor` – System diagnostics & troubleshooting
 
 ### Connect Subcommands
 
 ```bash
-happier connect gemini     # Authenticate with Google for Gemini
-happier connect claude     # Authenticate with Anthropic
-happier connect codex      # Authenticate with OpenAI
-happier connect status     # Show connection status for all vendors
+kaiwu connect gemini     # Authenticate with Google for Gemini
+kaiwu connect claude     # Authenticate with Anthropic
+kaiwu connect codex      # Authenticate with OpenAI
+kaiwu connect status     # Show connection status for all vendors
 ```
 
 ### Gemini Subcommands
 
 ```bash
-happier gemini                      # Start Gemini session
-happier gemini model set <model>    # Set default model
-happier gemini model get            # Show current model
-happier gemini project set <id>     # Set Google Cloud Project ID (for Workspace accounts)
-happier gemini project get          # Show current Google Cloud Project ID
+kaiwu gemini                      # Start Gemini session
+kaiwu gemini model set <model>    # Set default model
+kaiwu gemini model get            # Show current model
+kaiwu gemini project set <id>     # Set Google Cloud Project ID (for Workspace accounts)
+kaiwu gemini project get          # Show current Google Cloud Project ID
 ```
 
 **Suggested models:** `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.5-flash-lite`, `gemini-3-flash-preview`, `gemini-3-pro-preview`, `gemini-3.1-pro-preview` (freeform model ids are also supported)
@@ -138,7 +138,7 @@ These flags are accepted by agent commands like `codex`, `gemini`, `opencode`, `
 
 ## Permissions
 
-Happier uses **one permission vocabulary** across providers.
+Kaiwu uses **one permission vocabulary** across providers.
 
 You can set permissions either:
 - from the CLI when starting a session (`--permission-mode ...`), or
@@ -150,65 +150,65 @@ The selected permission mode is stored canonically in **session metadata** so it
 
 ```bash
 # Claude (default) in safe-yolo
-happier --permission-mode safe-yolo
+kaiwu --permission-mode safe-yolo
 
 # Codex in read-only (deny write-like tools)
-happier codex --permission-mode read-only
+kaiwu codex --permission-mode read-only
 
 # Gemini in yolo (aliases accepted)
-happier gemini --permission-mode full-access
+kaiwu gemini --permission-mode full-access
 
 # OpenCode in plan mode (ACP session mode)
-happier opencode --agent-mode plan
+kaiwu opencode --agent-mode plan
 
 # Kilo in plan mode (ACP session mode)
-happier kilo --agent-mode plan
+kaiwu kilo --agent-mode plan
 
 # Select a model when supported
-happier gemini --model gemini-2.5-pro
+kaiwu gemini --model gemini-2.5-pro
 
 # Provider-native legacy tokens are accepted as aliases
-happier --permission-mode accept-edits        # => safe-yolo (canonical)
-happier --permission-mode bypass-permissions  # => yolo (canonical)
+kaiwu --permission-mode accept-edits        # => safe-yolo (canonical)
+kaiwu --permission-mode bypass-permissions  # => yolo (canonical)
 
-# Legacy: some ACP agents used to accept plan as a permission. Happier still accepts it,
+# Legacy: some ACP agents used to accept plan as a permission. Kaiwu still accepts it,
 # but will map it to `--agent-mode plan` (and warn) when the provider exposes ACP modes.
-happier opencode --permission-mode plan        # => --agent-mode plan (deprecated)
-happier kilo --permission-mode plan            # => --agent-mode plan (deprecated)
+kaiwu opencode --permission-mode plan        # => --agent-mode plan (deprecated)
+kaiwu kilo --permission-mode plan            # => --agent-mode plan (deprecated)
 ```
 
 ### What’s enforced where
 
 Depending on the provider, a permission mode can map to:
 - a provider-native “session mode” (when available), and/or
-- Happier’s tool approval gating (read-only/safe-yolo/yolo behavior).
+- Kaiwu’s tool approval gating (read-only/safe-yolo/yolo behavior).
 
 Important provider constraints:
-- **Codex (ACP)**: provider session modes are policy presets (approval + sandbox), not generic “plan/build” agent modes. Happier keeps permissions as the primary user control and maps to the closest preset.
+- **Codex (ACP)**: provider session modes are policy presets (approval + sandbox), not generic “plan/build” agent modes. Kaiwu keeps permissions as the primary user control and maps to the closest preset.
 - **Codex (MCP)**: approval behavior can change mid-session, but many sandbox/environment constraints are decided at session start.
-- **Claude**: `read-only` is best-effort (Claude does not have a strict read-only mode); Happier will map to the closest supported behavior.
+- **Claude**: `read-only` is best-effort (Claude does not have a strict read-only mode); Kaiwu will map to the closest supported behavior.
 - **ACP “Mode”** (`--agent-mode`): this is separate from permissions and is provider-defined (for example OpenCode “plan” vs “build”).
 
 Model selection behavior:
 - **Claude**: applies on the next prompt.
 - **Codex (MCP)**: model is start-session scoped.
-- **ACP agents**: Happier prefers live `session/set_model`, with config-option fallback when available.
-- **Gemini (ACP)**: model changes may recreate the underlying ACP process; Happier preserves context via replay/history.
+- **ACP agents**: Kaiwu prefers live `session/set_model`, with config-option fallback when available.
+- **Gemini (ACP)**: model changes may recreate the underlying ACP process; Kaiwu preserves context via replay/history.
 
 For the full user guide (UI behavior, defaults, apply timing), see the app docs:
-- [Permissions](https://github.com/happier-dev/happier/blob/main/apps/docs/content/docs/features/permissions.mdx)
+- [Permissions](https://github.com/wuji-labs/kaiwu/blob/main/apps/docs/content/docs/features/permissions.mdx)
 
 ## Environment Variables
 
-### Happier Configuration
+### Kaiwu Configuration
 
 - `HAPPIER_PUBLIC_SERVER_URL` - Canonical/share server URL (used in QR/deep links; should work from your phone)
 - `HAPPIER_LOCAL_SERVER_URL` - Optional local API URL optimization (only used for API calls, never embedded in links)
 - `HAPPIER_SERVER_URL` - Legacy/compat server URL
   - If `HAPPIER_PUBLIC_SERVER_URL` is unset: treated as the canonical/share URL
   - If `HAPPIER_PUBLIC_SERVER_URL` is set: treated as a local API URL override
-- `HAPPIER_WEBAPP_URL` - Custom web app URL (default: https://app.happier.dev)
-- `HAPPIER_HOME_DIR` - Custom home directory for Happier data (default: ~/.happier)
+- `HAPPIER_WEBAPP_URL` - Custom web app URL (default: https://kaiwu.wujilabs.cn)
+- `HAPPIER_HOME_DIR` - Custom home directory for Kaiwu data (default: ~/.happier)
 - `HAPPIER_DISABLE_CAFFEINATE` - Disable macOS sleep prevention (set to `true`, `1`, or `yes`)
 - `HAPPIER_EXPERIMENTAL` - Enable experimental features (set to `true`, `1`, or `yes`)
 - `HAPPIER_ENCRYPTION_REQUIREMENT` - Set to `require_e2ee` to make the CLI/daemon refuse plaintext Account settings and sessions regardless of the server-advertised mode. The default is `follow_account`; invalid non-empty values stop startup.
@@ -225,8 +225,8 @@ For the full user guide (UI behavior, defaults, apply timing), see the app docs:
 Personal Gmail accounts work out of the box:
 
 ```bash
-happier connect gemini
-happier gemini
+kaiwu connect gemini
+kaiwu gemini
 ```
 
 ### Google Workspace Account
@@ -238,12 +238,12 @@ Google Workspace (organization) accounts require a Google Cloud Project:
 3. Set the project ID:
 
 ```bash
-happier gemini project set your-project-id
+kaiwu gemini project set your-project-id
 ```
 
 Or use environment variable:
 ```bash
-GOOGLE_CLOUD_PROJECT=your-project-id happier gemini
+GOOGLE_CLOUD_PROJECT=your-project-id kaiwu gemini
 ```
 
 **Guide:** https://goo.gle/gemini-cli-auth-docs#workspace-gca
@@ -262,8 +262,8 @@ Interested in contributing? See [CONTRIBUTING.md](CONTRIBUTING.md) for developme
 
 ### For Gemini
 
-- Gemini CLI installed (`gemini` command available in PATH or installed via Happier provider settings)
-- Google account authenticated via `happier connect gemini`
+- Gemini CLI installed (`gemini` command available in PATH or installed via Kaiwu provider settings)
+- Google account authenticated via `kaiwu connect gemini`
 
 ## License
 

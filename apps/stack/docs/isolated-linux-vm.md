@@ -81,7 +81,7 @@ memory: "8GiB"
 
 ### 2c) Host access (ports + browser URLs)
 
-When you want to open Happier/Expo URLs in your macOS browser, **use localhost port forwarding**.
+When you want to open Kaiwu/Expo URLs in your macOS browser, **use localhost port forwarding**.
 
 Why this matters: the Expo web app uses WebCrypto (`crypto.subtle`) via `expo-crypto` for things like key derivation.
 Browsers only expose WebCrypto in **secure contexts**:
@@ -139,9 +139,9 @@ limactl shell happy-pr
 Inside the VM:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/happier-dev/happier/main/apps/stack/scripts/provision/linux-ubuntu-provision.sh -o /tmp/linux-ubuntu-provision.sh \
+curl -fsSL https://raw.githubusercontent.com/wuji-labs/kaiwu/main/apps/stack/scripts/provision/linux-ubuntu-provision.sh -o /tmp/linux-ubuntu-provision.sh \
   && chmod +x /tmp/linux-ubuntu-provision.sh \
-  && /tmp/linux-ubuntu-provision.sh --profile=happier
+  && /tmp/linux-ubuntu-provision.sh --profile=kaiwu
 ```
 
 ### 3b) (Optional) Run the hstack dev setup wizard
@@ -162,7 +162,7 @@ Inside the VM:
 
 ```bash
 npx --yes -p @happier-dev/stack@latest hstack review-pr \
-  --repo=https://github.com/happier-dev/happier/pull/<PR_NUMBER> \
+  --repo=https://github.com/wuji-labs/kaiwu/pull/<PR_NUMBER> \
   --vm-ports \
   --no-mobile \
   --keep-sandbox \

@@ -1,10 +1,10 @@
-# Privacy Policy for Happier
+# Privacy Policy for Kaiwu
 
 **Last Updated: January 2025**
 
 ## Overview
 
-Happier is committed to protecting your privacy. This policy explains how we handle your data with our zero-knowledge encryption architecture.
+Kaiwu is committed to protecting your privacy. This policy explains how we handle your data with our zero-knowledge encryption architecture.
 
 ## What We Collect
 
@@ -89,11 +89,11 @@ We will notify users of any material changes to this privacy policy through the 
 ## Contact
 
 For privacy concerns or questions:
-- GitHub Issues: https://github.com/happier-dev/happier/issues
+- GitHub Issues: https://github.com/wuji-labs/kaiwu/issues
 
 ## Compliance
 
-Happier is designed with privacy by default and complies with:
+Kaiwu is designed with privacy by default and complies with:
 - GDPR (General Data Protection Regulation)
 - CCPA (California Consumer Privacy Act)
 - Privacy by Design principles

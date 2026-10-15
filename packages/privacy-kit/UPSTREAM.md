@@ -4,6 +4,6 @@ This private workspace package is derived from [`ex3ndr/privacy-kit`](https://gi
 
 The upstream `package.json` and README declare the package to be MIT licensed. The upstream repository did not contain a standalone license file at the recorded commit, so this vendored package includes the standard MIT text with the upstream author's copyright notice.
 
-Happier modifications include standards-compliant Base64URL encoding for Ed25519 JWK fields, deterministic read-only lookup of the historical Bun 1.3.5 fallback signing key, and runtime regression coverage for Node and Bun.
+Kaiwu modifications include standards-compliant Base64URL encoding for Ed25519 JWK fields, deterministic read-only lookup of the historical Bun 1.3.5 fallback signing key, and runtime regression coverage for Node and Bun.
 
-Only the upstream modules consumed by Happier are retained in this private workspace. This keeps the relay runtime dependency closure small and avoids taking ownership of unrelated experimental cryptography and enclave modules; the upstream commit above remains the source for comparing future updates.
+Only the upstream modules consumed by Kaiwu are retained in this private workspace. This keeps the relay runtime dependency closure small and avoids taking ownership of unrelated experimental cryptography and enclave modules; the upstream commit above remains the source for comparing future updates.

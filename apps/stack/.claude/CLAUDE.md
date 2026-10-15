@@ -1,4 +1,4 @@
-# Claude Code for Happier Stack
+# Claude Code for Kaiwu Stack
 
 Follow `apps/stack/AGENTS.md` and the repository root `AGENTS.md` for stack-specific and cross-repo instructions. Read either file only when its instructions are not already present in active context or may have changed.
 

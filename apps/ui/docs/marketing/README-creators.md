@@ -1,8 +1,8 @@
-# Happier Content Creator Brief
+# Kaiwu Content Creator Brief
 
 ## Key Features
 
-Happier is an open-source mobile app that lets developers control AI coding agents (Claude Code, Codex, Gemini-CLI) from their phone.
+Kaiwu is an open-source mobile app that lets developers control AI coding agents (Claude Code, Codex, Gemini-CLI) from their phone.
 
 - Control Claude Code from iOS, Android, or web browser
 - Runs on YOUR hardware (laptop, desktop, server, Raspberry Pi)
@@ -15,18 +15,18 @@ Happier is an open-source mobile app that lets developers control AI coding agen
 
 ## Key Value Props
 
-- On Happier, I can manage Claude Code from my phone without paying $600/year
-- On Happier, I never miss when Claude gets stuck on a permission prompt
-- Happier runs on my own computer, not expensive cloud servers
-- On Happier, I can check on long-running tasks without returning to my desk
-- Happier is open source - I can audit, modify, or self-host everything
-- On Happier, I can run multiple agents in parallel and switch between them instantly
-- Happier keeps my code on my machines with end-to-end encryption
-- On Happier, I can keep coding while commuting, eating, or away from my desk
+- On Kaiwu, I can manage Claude Code from my phone without paying $600/year
+- On Kaiwu, I never miss when Claude gets stuck on a permission prompt
+- Kaiwu runs on my own computer, not expensive cloud servers
+- On Kaiwu, I can check on long-running tasks without returning to my desk
+- Kaiwu is open source - I can audit, modify, or self-host everything
+- On Kaiwu, I can run multiple agents in parallel and switch between them instantly
+- Kaiwu keeps my code on my machines with end-to-end encryption
+- On Kaiwu, I can keep coding while commuting, eating, or away from my desk
 
 ## Example Hooks
 
-- "I saved $600/year by switching from [competitor] to the open-source Happier"
+- "I saved $600/year by switching from [competitor] to the open-source Kaiwu"
 - "Claude asked for sudo permission... and I was at the gym"
 - "That moment when your 2-hour refactor gets stuck 5 minutes after you leave"
 - "Running 3 Claude Code agents in parallel from my phone while getting coffee"
@@ -39,7 +39,7 @@ Happier is an open-source mobile app that lets developers control AI coding agen
 
 ## Requirements for Content
 
-- Clearly say "Happier" in the video or caption
+- Clearly say "Kaiwu" in the video or caption
 - Mention it's free and open source
 - Include link to github.com/slopus/happy
 - Show actual usage (QR code connection, mobile control, push notifications)
@@ -66,8 +66,8 @@ Happier is an open-source mobile app that lets developers control AI coding agen
 
 ## Resources
 
-- GitHub: https://github.com/happier-dev/happier
-- Website: https://app.happier.dev
+- GitHub: https://github.com/wuji-labs/kaiwu
+- Website: https://kaiwu.wujilabs.cn
 - iOS App: https://apps.apple.com/us/app/happier-claude-codex-opencode/id6758537388
 - Android App: https://play.google.com/store/apps/details?id=dev.happier.app
-- Web App: https://app.happier.dev/
+- Web App: https://kaiwu.wujilabs.cn/

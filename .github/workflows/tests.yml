@@ -262,7 +262,7 @@ jobs:
               - 'scripts/testing/featureTestGating*'
               - 'scripts/generateBuiltInPrompts.mjs'
               - 'scripts/generateBuiltInPrompts.test.mjs'
-              - 'skills/happier-diagnose/**'
+              - 'skills/kaiwu-diagnose/**'
             server:
               - 'apps/server/**'
               - 'package.json'

@@ -1,11 +1,11 @@
-# Contributing to Happier
+# Contributing to Kaiwu
 
 ## Development Workflow: Build Variants
 
-The Happier UI app supports multiple build variants across **iOS, Android, and desktop (Tauri)**.
+The Kaiwu UI app supports multiple build variants across **iOS, Android, and desktop (Tauri)**.
 Each variant has a distinct native identity so they can be installed side-by-side.
 
-Public users should only care about `stable` / `preview` / `dev` (see `https://docs.happier.dev/docs/advanced/updates`).
+Public users should only care about `stable` / `preview` / `dev` (see `https://kaiwu.wujilabs.cn/docs/advanced/updates`).
 In the repo and in CI we also use internal variants for local development.
 
 | Variant | `APP_ENV` | iOS Bundle ID | Android Package | URL scheme | Use case |
@@ -13,7 +13,7 @@ In the repo and in CI we also use internal variants for local development.
 | **Internal dev** | `development` (alias `internaldev`) | `dev.happier.app.dev.internal` | `dev.happier.app.internaldev` | `happier-internaldev` | Local development with hot reload |
 | **Public dev** | `publicdev` | `dev.happier.app.publicdev` | `dev.happier.app.publicdev` | `happier-dev` | Nightly public dev builds + OTA updates |
 | **Preview** | `preview` | `dev.happier.app.preview` | `dev.happier.app.preview` | `happier-preview` | Pre-release testing + OTA updates |
-| **Production** | `production` | `dev.happier.app` | `dev.happier.app` | `happier` | App Store / Play Store builds |
+| **Production** | `production` | `dev.happier.app` | `dev.happier.app` | `kaiwu` | App Store / Play Store builds |
 
 ## Quick Start
 
@@ -115,9 +115,9 @@ yarn start:production
 ## Visual Differences
 
 Each variant displays a different app name on your device:
-- **Development**: "Happier (dev)" - Yellow/orange theme
-- **Preview**: "Happier (preview)" - Preview theme
-- **Production**: "Happier" - Standard theme
+- **Development**: "Kaiwu (dev)" - Yellow/orange theme
+- **Preview**: "Kaiwu (preview)" - Preview theme
+- **Production**: "Kaiwu" - Standard theme
 
 This makes it easy to distinguish which version you're testing!
 
@@ -241,7 +241,7 @@ Advanced:
 
 Only **production** variant has deep linking configured:
 
-- **Production**: `https://app.happier.dev/*`
+- **Production**: `https://kaiwu.wujilabs.cn/*`
 - **Development**: No deep linking
 - **Preview**: No deep linking
 
@@ -249,7 +249,7 @@ This prevents dev/preview builds from interfering with production deep links.
 
 ## Testing Connected to Different Servers
 
-You can connect different variants to different Happier CLI instances:
+You can connect different variants to different Kaiwu CLI instances:
 
 ```bash
 # Development app → Dev CLI daemon
@@ -265,7 +265,7 @@ Each app maintains separate authentication and sessions!
 
 ## Local Server Development
 
-To test with a local Happier server:
+To test with a local Kaiwu server:
 
 ```bash
 yarn start:local-server
@@ -314,9 +314,9 @@ This shouldn't happen - each variant has a unique bundle ID. If it does:
 ### All three apps look the same
 
 Check the app name on the home screen:
-- "Happier (dev)"
-- "Happier (preview)"
-- "Happier"
+- "Kaiwu (dev)"
+- "Kaiwu (preview)"
+- "Kaiwu"
 
 If they're all the same name, the variant might not be set correctly. Verify:
 
@@ -325,7 +325,7 @@ If they're all the same name, the variant might not be set correctly. Verify:
 echo $APP_ENV
 
 # Or look at the build output
-yarn ios:dev  # Should show "Happier (dev)" as the name
+yarn ios:dev  # Should show "Kaiwu (dev)" as the name
 ```
 
 ### Connected device not found
@@ -346,7 +346,7 @@ yarn ios:connected-device
 2. **Use preview/public dev for production-like validation**: runs the preview feature policy and uses OTA.
 3. **Use production for final validation**: exact configuration that ships to users.
 4. **Install variants side-by-side**: compare behavior without uninstalling.
-5. **Match CLI lanes when needed**: `happier` (stable), `hprev` (preview), `hdev` (dev).
+5. **Match CLI lanes when needed**: `kaiwu` (stable), `hprev` (preview), `hdev` (dev).
 6. **Check app name**: always visible which variant you are testing.
 
 ## How It Works

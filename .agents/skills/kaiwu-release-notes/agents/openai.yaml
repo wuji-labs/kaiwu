@@ -1,0 +1,4 @@
+interface:
+  display_name: "Kaiwu Release Notes"
+  short_description: "Author curated Kaiwu release-note story decks and assets."
+  default_prompt: "Validate or project an approved Kaiwu release-note source and StoryDeck assets."

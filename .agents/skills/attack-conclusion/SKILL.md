@@ -14,7 +14,7 @@ The test of whether you actually switched roles: did you go looking for evidence
 1. **Alternative cause or falsifier.** Ask what else could explain the same evidence. When the evidence supports a materially different candidate, name it and run the cheapest discriminating observation; when the mechanism is directly established, do not manufacture a second hypothesis—identify and run the cheapest observation that could falsify the conclusion instead.
 2. **Neighboring cases.** The fix works for the reproduced case. Run the case next door: the empty list, the second invocation, the other platform, the resumed session, the concurrent caller.
 3. **Blast radius.** What consumes what you changed? Search callers, readers, subscribers, tests, serialized forms. "Nothing else uses this" is a claim — re-derive it, don't assert it.
-4. **Environment gap.** Does the conclusion survive where the code actually runs, or only in the harness? Host tests encode the same assumptions the author had. For user-visible behavior, use the risk-appropriate browser/device gate in `.agents/skills/happier-testing`.
+4. **Environment gap.** Does the conclusion survive where the code actually runs, or only in the harness? Host tests encode the same assumptions the author had. For user-visible behavior, use the risk-appropriate browser/device gate in `.agents/skills/kaiwu-testing`.
 5. **Hypothesis lock.** Are you explaining the evidence, or explaining your first hypothesis? Re-read the raw evidence pretending you just arrived and have no favorite.
 
 Run the cheap attacks; an attack that is just worry is not an attack. If you cannot state what would falsify the conclusion, it is not a conclusion yet — it is a preference.
@@ -36,7 +36,7 @@ Run a **subtraction attack** on every material new mechanism, dependency, mode, 
 
 For a changed domain concept, run a **split-brain attack**: search the touched corridor for another active owner, decision, registry, parser/normalizer, reader/writer, bypass, or similar-but-different implementation. Search by the defect's mechanism, not only its name — the fix you just wrote is the search key, and every sibling caller, instance, and platform build of that concept is either fixed or explicitly exempt in writing. A pre-existing same-concept split-brain is a finding, not grandfathered debt. Verify that any remaining compatibility adapter only translates a historical shape and delegates decisions to the canonical owner.
 
-For compatibility-sensitive changes, run a **provenance attack** using `.agents/skills/happier-compatibility`: re-derive each retained path from an exact released artifact/tag or applicable predecessor worktree basis, check every claimed reachable old/new direction, and identify shims or tests that preserve only an undeployed intermediary. Reject speculative matrices and fallbacks that are not tied to a reachable seam.
+For compatibility-sensitive changes, run a **provenance attack** using `.agents/skills/kaiwu-compatibility`: re-derive each retained path from an exact released artifact/tag or applicable predecessor worktree basis, check every claimed reachable old/new direction, and identify shims or tests that preserve only an undeployed intermediary. Reject speculative matrices and fallbacks that are not tied to a reachable seam.
 
 ## Fake-competence scan
 
@@ -50,7 +50,7 @@ Check the deliverable against the patterns that read as skill and aren't (`docs/
 
 ## Self-check and independent review boundary
 
-Schedule adversarial review with the work at the boundary defined by root `AGENTS.md` and `.agents/skills/happier-review`:
+Schedule adversarial review with the work at the boundary defined by root `AGENTS.md` and `.agents/skills/kaiwu-review`:
 
 - The author runs this compact self-attack in place before every non-trivial handoff and when a hypothesis changes. It creates no separate reviewer, workspace, report, approval gate, or durable status update; mention only changes it caused and unresolved risk in the normal handoff.
 - Formal independent review is normally batched at the fewest substantial integrated boundaries needed by the approved plan, plus explicit user-requested reviews and high-risk schema/data/security/user-visible/release triggers—not every lane, commit, gate, or microchange.

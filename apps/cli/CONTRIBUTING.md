@@ -1,4 +1,4 @@
-# Contributing to Happier CLI
+# Contributing to Kaiwu CLI
 
 ## Prerequisites
 
@@ -10,7 +10,7 @@
 ## Getting Started
 
 ```bash
-git clone https://github.com/happier-dev/happier.git
+git clone https://github.com/wuji-labs/kaiwu.git
 cd apps/cli
 yarn install
 yarn build
@@ -27,11 +27,11 @@ yarn link:dev      # Create happier-dev symlink
 yarn unlink:dev    # Remove happier-dev symlink
 ```
 
-This creates a `happier-dev` command in your PATH pointing to your local build, while leaving any npm-installed `happier` command untouched.
+This creates a `happier-dev` command in your PATH pointing to your local build, while leaving any npm-installed `kaiwu` command untouched.
 
 | Command | Runs |
 |---------|------|
-| `happier` | Stable npm version (from `npm install -g @happier-dev/cli`) |
+| `kaiwu` | Stable npm version (from `npm install -g @happier-dev/cli`) |
 | `happy` | Stable npm version (legacy alias) |
 | `happier-dev` | Local development version (from this repo) |
 | `happy-dev` | Local development version (legacy alias) |
@@ -210,7 +210,7 @@ sudo yarn link:dev
 1. **Use stable for production work** - Your tested, reliable version
 2. **Use dev for testing changes** - Test new features without breaking your workflow
 3. **Run both simultaneously** - Compare behavior side-by-side
-4. **Different accounts** - Use different Happier accounts for dev/stable if needed
+4. **Different accounts** - Use different Kaiwu accounts for dev/stable if needed
 5. **Check logs** - Logs are separated: `~/.happy/logs/` vs `~/.happy-dev/logs/`
 
 ## Example Workflow
@@ -254,7 +254,7 @@ Cross-platform via Node.js - works identically on Windows, macOS, and Linux!
 
 ## Testing Profile Sync Between GUI and CLI
 
-Profile synchronization ensures AI backend configurations created in the Happier mobile/web GUI work seamlessly with the CLI daemon.
+Profile synchronization ensures AI backend configurations created in the Kaiwu mobile/web GUI work seamlessly with the CLI daemon.
 
 ### Profile Schema Validation (Single Source of Truth)
 
@@ -271,7 +271,7 @@ The UI and CLI import these helpers (the UI may re-export them for convenience).
 
 1. **Create profile in GUI:**
    ```
-   - Open Happier mobile/web app
+   - Open Kaiwu mobile/web app
    - Settings → AI Backend Profiles
    - Create new profile with custom environment variables
    - Note the profile ID
@@ -280,19 +280,19 @@ The UI and CLI import these helpers (the UI may re-export them for convenience).
 2. **Verify CLI receives profile:**
    ```bash
    # List profiles (built-ins always present; custom requires auth)
-   happier profiles list
-   happier profiles list --json
+   kaiwu profiles list
+   kaiwu profiles list --json
 
    # Force-refresh settings before listing (useful during iterative development)
-   happier profiles list --refresh-settings
+   kaiwu profiles list --refresh-settings
    ```
 
 3. **Test profile-based session spawning:**
    ```bash
    # Start sessions explicitly with a profile:
-   happier --profile <id-or-name>
-   happier claude --profile <id-or-name>
-   happier codex --profile <id-or-name>
+   kaiwu --profile <id-or-name>
+   kaiwu claude --profile <id-or-name>
+   kaiwu codex --profile <id-or-name>
    ```
 
 4. **Verify environment variable expansion:**

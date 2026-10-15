@@ -1,4 +1,4 @@
-# Happier CLI Instructions
+# Kaiwu CLI Instructions
 
 Package-specific instructions for `apps/cli` (`@happier-dev/cli`). These supplement the root constitution and override broader guidance where more specific.
 
