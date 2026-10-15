@@ -39,10 +39,10 @@ import { preloadTagsFor } from './components/Picture';
  * Graph set and JSON-LD. scripts/assert-crawlable.mjs fails the build if two
  * routes share a title, or share a page-scoped JSON-LD `@id`, which was a live
  * bug the moment a second page existed: `@id` was hardcoded to
- * `https://kaiwu.chengqiyun.com/#webpage`.
+ * `https://kaiwu.wujilabs.cn/#webpage`.
  */
 
-export const SITE = 'https://kaiwu.chengqiyun.com';
+export const SITE = 'https://kaiwu.wujilabs.cn';
 
 export type Route = {
     /** Origin-relative path. Always starts with `/`; only `/` ends with one. */
@@ -312,8 +312,8 @@ const VS_CODEX_REMOTE: Route = {
  *   - a feature page answers "can KAIWU do X, for which agents, what is the
  *     catch". It links to its docs page exactly once, labelled "configuration
  *     reference", and never repeats the step list.
- *   - kaiwu.chengqiyun.com/docs owns PROCEDURE.
- *   - guides.kaiwu.chengqiyun.com owns the JOB ("I ran out of quota at 4pm, now what").
+ *   - kaiwu.wujilabs.cn/docs owns PROCEDURE.
+ *   - guides.kaiwu.wujilabs.cn owns the JOB ("I ran out of quota at 4pm, now what").
  *
  * Two of them, not three. /features/permissions was considered and dropped: the
  * permission model is answered in one FAQ paragraph and a docs page, and a
@@ -445,7 +445,7 @@ const ENTERPRISE: Route = {
  * /security is the individual reader's page; /enterprise is the buyer's.
  *
  * They are a PAIR, and the pairing is the reason this entry exists at all: the
- * footer used to send "Security & encryption" straight to kaiwu.chengqiyun.com/docs,
+ * footer used to send "Security & encryption" straight to kaiwu.wujilabs.cn/docs,
  * which took the single most evaluative visitor off the site before they had
  * read a sentence we wrote. Encryption is the load-bearing claim of this
  * product; a redirect is not a position.

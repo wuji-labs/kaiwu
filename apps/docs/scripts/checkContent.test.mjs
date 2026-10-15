@@ -49,7 +49,7 @@ test('rejects every non-canonical link form and resolves the canonical one', () 
       '[parent](../server/auth)',
       '[legacy](/docs/features/git)',
       '[canonical](/features/git)',
-      '[external](https://kaiwu.chengqiyun.com)',
+      '[external](https://kaiwu.wujilabs.cn)',
     ].join('\n'),
     'features/git.mdx': '# Git\n',
     'server/auth.mdx': '# Auth\n',

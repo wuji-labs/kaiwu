@@ -94,7 +94,7 @@
   "pageProse.PAGE_PROSE.verifyInstaller.p0": "署名されたリリース — 実行する前に検証する",
   "pageProse.PAGE_PROSE.verifyInstaller.p1": "インストーラーは自分がダウンロードしたものを信用しません。リリースのアーカイブと、公開されている <1>checksums.txt</1> を取得し、アーカイブの SHA-256 をそれと照合してから、そのチェックサムのファイルを、スクリプトの中に同梱されている鍵に対して <2>minisign</2> で検証します。どちらかのチェックが失敗すれば、ディスクに何かが書き込まれる前にインストールを中止します。",
   "pageProse.PAGE_PROSE.verifyInstaller.p2": "署名鍵 {RELEASE_PUBKEY_ID}:",
-  "pageProse.PAGE_PROSE.verifyInstaller.p3": "これは <1>kaiwu.chengqiyun.com/KAIWU-release.pub</1> でも配信されています。両者は一致するはずです — 一致しなければ、インストールしないでください。",
+  "pageProse.PAGE_PROSE.verifyInstaller.p3": "これは <1>kaiwu.wujilabs.cn/KAIWU-release.pub</1> でも配信されています。両者は一致するはずです — 一致しなければ、インストールしないでください。",
   "pageProse.PAGE_PROSE.verifyInstaller.p4": "シェルに何かをパイプするのは避けたいですか？ その必要はありません:",
   "pageProse.PAGE_PROSE.verifyInstaller.p5": "<1>スクリプトを読む</1> · <2>セキュリティモデル</2>",
   "pageProse.PAGE_PROSE.vsRemoteControlPage.p8": "Claude Code Remote Control",

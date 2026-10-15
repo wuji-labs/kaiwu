@@ -322,7 +322,7 @@ export const FAQ_ITEMS: ReadonlyArray<FaqItem> = [
         id: 'platforms',
         q: 'Does it work on Windows and Linux?',
         a: [
-            'Yes. The CLI installs on macOS, Linux and Windows — `curl -fsSL https://kaiwu.chengqiyun.com/install | bash`, or `iwr https://kaiwu.chengqiyun.com/install.ps1 -useb | iex` on Windows. There are native iOS and Android apps, a desktop app, and a web app at kaiwu.chengqiyun.com.',
+            'Yes. The CLI installs on macOS, Linux and Windows — `curl -fsSL https://kaiwu.wujilabs.cn/install | bash`, or `iwr https://kaiwu.wujilabs.cn/install.ps1 -useb | iex` on Windows. There are native iOS and Android apps, a desktop app, and a web app at kaiwu.wujilabs.cn.',
             'Windows gets its own session-hosting model: a session started from the app can run hidden, in Windows Terminal, or in a console host, and `Kaiwu attach` brings that host back to the foreground. Some agent CLIs are better supported on Unix than on Windows — that is the CLI vendor’s coverage, not Kaiwu’s, and the app tells you which ones are available on the computer you selected.',
         ],
     },
@@ -330,7 +330,7 @@ export const FAQ_ITEMS: ReadonlyArray<FaqItem> = [
         id: 'mobileApp',
         q: 'Do I need the mobile app?',
         a: [
-            'No. kaiwu.chengqiyun.com is the full app in a browser tab, and there is a desktop build for macOS, Windows and Linux if you would rather it was a window than a tab. Plenty of people run Kaiwu entirely on the same computer their sessions run on, for the diff review and the session list rather than for the mobility.',
+            'No. kaiwu.wujilabs.cn is the full app in a browser tab, and there is a desktop build for macOS, Windows and Linux if you would rather it was a window than a tab. Plenty of people run Kaiwu entirely on the same computer their sessions run on, for the diff review and the session list rather than for the mobility.',
             'If you do want it on a phone: iOS is on the App Store. Android is a direct APK download from the GitHub releases — there is no public Play listing yet, only a closed testing track you have to be opted into.',
         ],
     },

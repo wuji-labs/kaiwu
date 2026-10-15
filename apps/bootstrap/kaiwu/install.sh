@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # 默认配置
-KAIWU_SERVER_URL="${KAIWU_SERVER_URL:-https://kaiwu.chengqiyun.com}"
+KAIWU_SERVER_URL="${KAIWU_SERVER_URL:-https://kaiwu.wujilabs.cn}"
 LATEST_METADATA_URL="https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/latest.json"
 DEFAULT_VERSION="0.2.16"
 FALLBACK_TGZ_URL="https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/${DEFAULT_VERSION}/kaiwu-cli-${DEFAULT_VERSION}.tgz"

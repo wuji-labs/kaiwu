@@ -80,7 +80,7 @@ export const GITHUB_REPO_URL = downloads.githubRepoUrl;
 /** The repo spells it LICENCE. `…/blob/main/LICENSE` is a 404. */
 export const LICENSE_URL = downloads.licenseUrl;
 
-/** `kaiwu.chengqiyun.com/docs/changelog` is a 404; the route is /releases. */
+/** `kaiwu.wujilabs.cn/docs/changelog` is a 404; the route is /releases. */
 export const CHANGELOG_URL = downloads.changelogUrl;
 
 export const INSTALL_SCRIPT_URL = downloads.installScriptUrl;
@@ -103,7 +103,7 @@ export const INSTALL_COMMAND_WINDOWS = downloads.installCommandWindows;
 
 /** The two-step, nothing-piped-to-a-shell version, for readers who want it. */
 export const INSTALL_COMMAND_UNIX_INSPECTABLE = [
-    'curl -fsSL https://kaiwu.chengqiyun.com/install.sh -o kaiwu-install.sh',
+    'curl -fsSL https://kaiwu.wujilabs.cn/install.sh -o kaiwu-install.sh',
     'less kaiwu-install.sh   # read it first',
     'bash kaiwu-install.sh',
 ].join('\n');

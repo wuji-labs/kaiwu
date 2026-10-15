@@ -542,8 +542,8 @@
   },
   "faq.FAQ_ITEMS.platforms.a.0": {
     "dnt": [
-      "`curl -fsSL https://kaiwu.chengqiyun.com/install | bash`",
-      "`iwr https://kaiwu.chengqiyun.com/install.ps1 -useb | iex`"
+      "`curl -fsSL https://kaiwu.wujilabs.cn/install | bash`",
+      "`iwr https://kaiwu.wujilabs.cn/install.ps1 -useb | iex`"
     ]
   },
   "faq.FAQ_ITEMS.platforms.a.1": {

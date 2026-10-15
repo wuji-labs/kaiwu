@@ -38,7 +38,7 @@ node scripts/release-web.mjs
 gh workflow run build-ios-unsigned.yml --ref wuji/main
 gh run watch <id> --exit-status; gh run download <id> -D dist/ios/<版本>
 ```
-- **不能用 COS 默认域名分发 IPA/APK**（COS 会返回 `DownloadForbidden`）。IPA 放到服务器 `/opt/wuji-kaiwu/docs/html/releases/mobile/kaiwu.ipa`，经 `https://kaiwu.chengqiyun.com/download/ios` 下载（Caddy `chengqiyun-caddy-1` 里配置的 302 跳转）。APK 同理：`/download/android`。
+- **不能用 COS 默认域名分发 IPA/APK**（COS 会返回 `DownloadForbidden`）。IPA 放到服务器 `/opt/wuji-kaiwu/docs/html/releases/mobile/kaiwu.ipa`，经 `https://kaiwu.wujilabs.cn/download/ios` 下载（Caddy `chengqiyun-caddy-1` 里配置的 302 跳转）。APK 同理：`/download/android`。
 - 修改 Caddyfile 前先备份，然后在 `chengqiyun-caddy-1` 里依次执行 `caddy validate` 和 `caddy reload`。**注意**：`huaxu-baoguang-web-1` 也用 Caddy 镜像，按镜像名匹配容器会选错。
 
 ## 4. COS 旧包清理
@@ -46,7 +46,7 @@ gh run watch <id> --exit-status; gh run download <id> -D dist/ios/<版本>
 - 手动执行：`python scripts/cos-prune-releases.py`（默认只列出将删除的内容），加 `--apply` 才真正删除。
 - 定期执行：Windows 计划任务 `WUJI-Kaiwu-COS-Prune`，每周日 03:30，运行 `scripts/cos-prune-releases.ps1`；日志在 `~\.kaiwu-ops\cos-prune.log`。
 
-## 5. 文档站（kaiwu.chengqiyun.com/docs）
+## 5. 文档站（kaiwu.wujilabs.cn/docs）
 1. 构建：`yarn --cwd apps/docs build`，输出目录 `apps/docs/out`。
    - 已知问题：本地化（中文）页面与自动生成的英文参考页（`agents/capabilities`、`extras/feature-flags`）会被判为“生成页已过期”，导致构建失败。**不要执行 `generate:reference`**，它会用英文覆盖已翻译的页面。临时办法：调用 `runDocsBuild` 时只忽略 `generated` 这一类问题，链接和标签检查照常执行。根治办法是让生成器输出中文，或把中文译稿纳入生成源。
 2. 部署到服务器 `/opt/wuji-kaiwu/docs/html`（`kaiwu-docs` nginx 以只读方式绑定挂载）：
@@ -57,11 +57,11 @@ gh run watch <id> --exit-status; gh run download <id> -D dist/ios/<版本>
 ## 6. 热更新（OTA，自建）
 开物 App 的界面代码通过**自建、带签名**的热更新服务推送，改界面不必重新打包原生 App。
 
-- **服务**：`apps/ota-server`（实现 expo-updates 协议 v1），生产环境是容器 `kaiwu-ota`（Lighthouse，`chengqiyun_default` 网络，256MB 内存）。Caddy 用 `handle /ota/*` 转发给它，对外地址 `https://kaiwu.chengqiyun.com/ota`。
+- **服务**：`apps/ota-server`（实现 expo-updates 协议 v1），生产环境是容器 `kaiwu-ota`（Lighthouse，`chengqiyun_default` 网络，256MB 内存）。Caddy 用 `handle /ota/*` 转发给它，对外地址 `https://kaiwu.wujilabs.cn/ota`。
   - 数据目录：`/opt/wuji-kaiwu/ota/data`，只读挂载；
   - 私钥：`/opt/wuji-kaiwu/ota/keys/private-key.pem`（600，只读挂载）。本机备份在 `D:\Projects\qianyuan-wuji\secrets\kaiwu-ota\private-key.pem`，**绝不进 git**。
 - **App 侧**（`apps/ui/app.config.js`）：
-  - 默认从 `https://kaiwu.chengqiyun.com/ota/api/manifest` 取更新；
+  - 默认从 `https://kaiwu.wujilabs.cn/ota/api/manifest` 取更新；
   - 用 `certs/kaiwu-ota-certificate.pem`（keyid `main`，rsa-v1_5-sha256）验签，签名不对的更新一律拒收；
   - **永远不连 u.expo.dev**。2026-09-29 事故：默认 EAS 项目是上游 Happier 的，装好的开物 App 被换成了上游的界面代码；
   - `KAIWU_EXPO_UPDATES_ENABLED=0` 可以关闭热更新。

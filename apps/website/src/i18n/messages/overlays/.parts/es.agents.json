@@ -55,7 +55,7 @@
   "agents.AGENTS.opencode.faq.3.q": "¿Se sube mi código a algún sitio?",
   "agents.AGENTS.opencode.faq.3.a": "No. OpenCode se ejecuta en tu ordenador y lee ahí tu directorio de trabajo. Lo que cruza la red es la transcripción de la sesión, cifrada en tu dispositivo antes de salir — el relay guarda texto cifrado que no puede leer.",
   "agents.AGENTS.opencode.faq.4.q": "¿Qué dispositivos pueden abrir una sesión?",
-  "agents.AGENTS.opencode.faq.4.a": "iOS, Android, la app de escritorio en macOS, Windows y Linux, y kaiwu.chengqiyun.com en un navegador. Todos inician sesión en la misma cuenta y ven la misma lista de sesiones.",
+  "agents.AGENTS.opencode.faq.4.a": "iOS, Android, la app de escritorio en macOS, Windows y Linux, y kaiwu.wujilabs.cn en un navegador. Todos inician sesión en la misma cuenta y ven la misma lista de sesiones.",
 
   "agents.AGENTS.cursor.h1": "Ejecuta Cursor Agent CLI desde tu teléfono",
   "agents.AGENTS.cursor.standfirst": "Cursor distribuye un agente headless que no necesita la ventana del editor. KAIWU lo ejecuta en tu ordenador y pone la conversación en tu teléfono.",
@@ -107,7 +107,7 @@
   "agents.AGENTS.copilot.faq.2.q": "¿Puedo ejecutarlo en un servidor y usarlo desde mi portátil?",
   "agents.AGENTS.copilot.faq.2.a": "Sí. Instala la CLI de KAIWU en el ordenador que contiene el repositorio, arranca ahí la sesión y ábrela desde cualquier dispositivo con la sesión iniciada. En el extremo remoto no hace falta ninguna interfaz gráfica.",
   "agents.AGENTS.copilot.faq.3.q": "¿Necesito la app móvil?",
-  "agents.AGENTS.copilot.faq.3.a": "No. kaiwu.chengqiyun.com es un cliente completo en el navegador, y la app de escritorio cubre macOS, Windows y Linux. Las apps móviles son para cuando lo que tienes en la mano no es el navegador.",
+  "agents.AGENTS.copilot.faq.3.a": "No. kaiwu.wujilabs.cn es un cliente completo en el navegador, y la app de escritorio cubre macOS, Windows y Linux. Las apps móviles son para cuando lo que tienes en la mano no es el navegador.",
   "agents.AGENTS.copilot.faq.4.q": "¿Es KAIWU un producto de GitHub?",
   "agents.AGENTS.copilot.faq.4.a": "No. KAIWU es un proyecto de código abierto independiente con licencia MIT que ejecuta la CLI de GitHub como subproceso en tu ordenador. No está afiliado a GitHub y no revende Copilot.",
 
@@ -159,7 +159,7 @@
   "agents.AGENTS.kilo.faq.1.q": "¿KAIWU sustituye los ajustes propios de Kilo?",
   "agents.AGENTS.kilo.faq.1.a": "No. Kilo guarda su configuración donde Kilo la guarda. Lo que le pertenece a KAIWU es la capa de sesión que la rodea — permisos por defecto, servidores MCP, selección de motor — y eso está documentado en la página de Kilo de la documentación de KAIWU.",
   "agents.AGENTS.kilo.faq.2.q": "¿Puedo usar Kilo desde un navegador?",
-  "agents.AGENTS.kilo.faq.2.a": "Sí. kaiwu.chengqiyun.com es un cliente completo, incluidos el explorador de archivos y la vista de diffs, así que un portátil bloqueado y sin nada instalado puede igualmente leer y dirigir una sesión que se ejecuta en otro sitio.",
+  "agents.AGENTS.kilo.faq.2.a": "Sí. kaiwu.wujilabs.cn es un cliente completo, incluidos el explorador de archivos y la vista de diffs, así que un portátil bloqueado y sin nada instalado puede igualmente leer y dirigir una sesión que se ejecuta en otro sitio.",
   "agents.AGENTS.kilo.faq.3.q": "¿En qué se diferencia esto de entrar por SSH a una sesión de tmux?",
   "agents.AGENTS.kilo.faq.3.a": "No pretende sustituirlo. tmux sobre SSH está bien cuando tienes SSH y un teclado. Esto es para las veces en que tienes un teléfono y un hueco de 5 minutos: una interfaz táctil para aprobaciones, diffs e instrucciones de seguimiento en lugar de una terminal a la que tienes que hacer pinza para ampliar.",
   "agents.AGENTS.kilo.faq.4.q": "¿Quién puede ver mis sesiones?",
@@ -219,7 +219,7 @@
   "agents.AGENTS.pi.faq.3.q": "¿Puedo cambiar de modelo a mitad de sesión?",
   "agents.AGENTS.pi.faq.3.a": "KAIWU expone los modelos que informa el agente y le pide que cambie, en lugar de traer una lista propia. Que un cambio caiga en el turno actual o en el siguiente es comportamiento del agente, y la app te dice cuál de los dos es antes de que te comprometas.",
   "agents.AGENTS.pi.faq.4.q": "¿Funciona en un iPad?",
-  "agents.AGENTS.pi.faq.4.a": "Sí — la app de iOS funciona en iPad, y kaiwu.chengqiyun.com funciona en Safari si prefieres no instalar nada. Las dos son clientes sobre la sesión que se ejecuta en tu ordenador.",
+  "agents.AGENTS.pi.faq.4.a": "Sí — la app de iOS funciona en iPad, y kaiwu.wujilabs.cn funciona en Safari si prefieres no instalar nada. Las dos son clientes sobre la sesión que se ejecuta en tu ordenador.",
 
   "agents.AGENTS.grok.h1": "Grok Build CLI desde tu teléfono o tu escritorio",
   "agents.AGENTS.grok.standfirst": "La CLI de programación de xAI, ejecutándose en tu propio ordenador con tu propia cuenta de xAI. La integración de KAIWU es experimental, y esta página lo dice antes de que instales nada.",

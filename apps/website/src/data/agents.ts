@@ -1,5 +1,5 @@
 /**
- * The per-agent public record: one entry per coding agent kaiwu.chengqiyun.com markets.
+ * The per-agent public record: one entry per coding agent kaiwu.wujilabs.cn markets.
  *
  * WHAT THESE PAGES ARE NOW, AND WHAT THEY DELIBERATELY STOPPED BEING
  * ------------------------------------------------------------------
@@ -260,7 +260,7 @@ export type AgentRecord = {
     vendorDocs: string | null;
     /** `install.guideUrl` from the definition — the real setup page when it exists. */
     vendorSetupGuide: string | null;
-    /** Path under kaiwu.chengqiyun.com/docs, or null where no page exists yet. */
+    /** Path under kaiwu.wujilabs.cn/docs, or null where no page exists yet. */
     KaiwuDocsPath: string | null;
     /** Asserted against `install.managed` / `install.manual.kind`. */
     installKind: InstallKind;
@@ -590,7 +590,7 @@ export const AGENTS: ReadonlyArray<AgentRecord> = [
             },
             {
                 q: 'Which devices can open a session?',
-                a: 'iOS, Android, the desktop app on macOS, Windows and Linux, and kaiwu.chengqiyun.com in a browser. They all sign in to the same account and see the same session list.',
+                a: 'iOS, Android, the desktop app on macOS, Windows and Linux, and kaiwu.wujilabs.cn in a browser. They all sign in to the same account and see the same session list.',
             },
         ],
     },
@@ -745,7 +745,7 @@ export const AGENTS: ReadonlyArray<AgentRecord> = [
             },
             {
                 q: 'Do I need the mobile app?',
-                a: 'No. kaiwu.chengqiyun.com is a full client in a browser, and the desktop app covers macOS, Windows and Linux. The mobile apps are for when the browser is not the thing in your hand.',
+                a: 'No. kaiwu.wujilabs.cn is a full client in a browser, and the desktop app covers macOS, Windows and Linux. The mobile apps are for when the browser is not the thing in your hand.',
             },
             {
                 q: 'Is Kaiwu a GitHub product?',
@@ -907,7 +907,7 @@ export const AGENTS: ReadonlyArray<AgentRecord> = [
             },
             {
                 q: 'Can I use Kilo from a browser?',
-                a: 'Yes. kaiwu.chengqiyun.com is a full client, including the file browser and the diff view, so a locked-down laptop with nothing installed on it can still read and steer a session running elsewhere.',
+                a: 'Yes. kaiwu.wujilabs.cn is a full client, including the file browser and the diff view, so a locked-down laptop with nothing installed on it can still read and steer a session running elsewhere.',
             },
             {
                 q: 'How is this different from SSH into a tmux session?',
@@ -1098,7 +1098,7 @@ export const AGENTS: ReadonlyArray<AgentRecord> = [
             },
             {
                 q: 'Does it work on an iPad?',
-                a: 'Yes — the iOS app runs on iPad, and kaiwu.chengqiyun.com works in Safari if you would rather not install anything. Both are clients onto the session running on your computer.',
+                a: 'Yes — the iOS app runs on iPad, and kaiwu.wujilabs.cn works in Safari if you would rather not install anything. Both are clients onto the session running on your computer.',
             },
         ],
     },

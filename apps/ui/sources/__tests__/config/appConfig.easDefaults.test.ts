@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const DEFAULT_EAS_PROJECT_ID = '2a550bd7-e4d2-4f59-ab47-dcb778775cee';
-const DEFAULT_UPDATES_URL = 'https://kaiwu.chengqiyun.com/ota/api/manifest';
+const DEFAULT_UPDATES_URL = 'https://kaiwu.wujilabs.cn/ota/api/manifest';
 
 function getUiDir(): string {
     return join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
@@ -263,10 +263,10 @@ describe('app.config.js', () => {
 
         expect(exp.extra?.app?.variant).toBe('preview');
         // Production identity still enables universal links / app links.
-        expect(exp.ios?.associatedDomains).toEqual(['applinks:app.chengqiyun.com']);
+        expect(exp.ios?.associatedDomains).toEqual(['applinks:kaiwu.wujilabs.cn']);
         const data = exp.android?.intentFilters?.[0]?.data;
         const dataItems = Array.isArray(data) ? data : data ? [data] : [];
-        expect(dataItems[0]?.host).toBe('app.chengqiyun.com');
+        expect(dataItems[0]?.host).toBe('kaiwu.wujilabs.cn');
     });
 
     it('uses the ui package.json version for expo.version by default', () => {

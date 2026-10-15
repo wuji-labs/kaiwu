@@ -102,7 +102,7 @@ ${chalk.bold('示例:')}
 ${chalk.bold('说明:')} 
   • 请先完成开物认证（运行 'kaiwu auth login'）
   • 凭据会加密并安全存储在开物云端
-  • 可在 kaiwu.chengqiyun.com 管理已保存的密钥
+  • 可在 kaiwu.wujilabs.cn 管理已保存的密钥
   ${opts.includeExperimental ? '' : '• 部分提供方属于实验功能；使用 --all 查看'}
 `);
 }

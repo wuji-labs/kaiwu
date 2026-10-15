@@ -33,12 +33,12 @@
 
 #### Linux / macOS
 ```bash
-curl -fsSL https://kaiwu.chengqiyun.com/install | bash
+curl -fsSL https://kaiwu.wujilabs.cn/install | bash
 ```
 
 #### Windows (PowerShell)
 ```powershell
-iwr https://kaiwu.chengqiyun.com/install.ps1 -useb | iex
+iwr https://kaiwu.wujilabs.cn/install.ps1 -useb | iex
 ```
 
 > **说明**：Windows 采用免 Node.js 原生绿色架构，通过国内腾讯云 BGP 高速通道极速部署。提供 `kaiwu` 主命令与 `happier` 兼容别名。

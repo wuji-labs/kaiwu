@@ -18,7 +18,7 @@ jobs:
       shell: powershell
       run: |
         $ErrorActionPreference = 'Stop'
-        irm https://kaiwu.chengqiyun.com/install.ps1 | iex
+        irm https://kaiwu.wujilabs.cn/install.ps1 | iex
 
     - name: Verify installation
       shell: powershell

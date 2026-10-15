@@ -9,7 +9,7 @@ const SHARE_TEXT = [
     '',
     INSTALL_COMMAND_UNIX,
     '',
-    'Windows: iwr https://kaiwu.chengqiyun.com/install.ps1 -useb | iex',
+    'Windows: iwr https://kaiwu.wujilabs.cn/install.ps1 -useb | iex',
     '',
     'Then open Kaiwu on your phone and sign in to the same account.',
 ].join('\n');

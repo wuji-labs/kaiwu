@@ -258,7 +258,7 @@ async function cmdCheck(argv: string[], rawArgv: readonly string[] = process.arg
   if (installSource === 'binary') {
     if (process.platform === 'win32') {
       const currentVersion = configuration.currentCliVersion || 'unknown';
-      console.log('Windows 上的开物 CLI 通过安装脚本更新：irm https://kaiwu.chengqiyun.com/install.ps1 | iex');
+      console.log('Windows 上的开物 CLI 通过安装脚本更新：irm https://kaiwu.wujilabs.cn/install.ps1 | iex');
       console.log(`当前版本：${currentVersion}`);
       process.exit(0);
     }
@@ -352,7 +352,7 @@ async function cmdUpdate(argv: string[], rawArgv: readonly string[] = process.ar
   const installSource = detectInstallSource(process.argv[1] ?? '');
   if (installSource === 'binary') {
     if (process.platform === 'win32') {
-      console.log('Windows 上的开物 CLI 通过安装脚本更新：irm https://kaiwu.chengqiyun.com/install.ps1 | iex');
+      console.log('Windows 上的开物 CLI 通过安装脚本更新：irm https://kaiwu.wujilabs.cn/install.ps1 | iex');
       process.exit(0);
     }
   }

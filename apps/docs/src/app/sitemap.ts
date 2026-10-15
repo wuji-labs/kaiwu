@@ -13,7 +13,7 @@ import { source } from '@/lib/source';
 export const dynamic = 'force-static';
 
 /**
- * `kaiwu.chengqiyun.com/docs/sitemap.xml` was a hard 404 before this file existed. 146
+ * `kaiwu.wujilabs.cn/docs/sitemap.xml` was a hard 404 before this file existed. 146
  * pages of reference material, no machine-readable index of any of it.
  *
  * ON `priority`
@@ -72,7 +72,7 @@ const MIN_PRIORITY = 0.3;
  *
  * It is deliberately empty. Every one of the 146 pages is public reference
  * material a reader is allowed to find, including `/legal/*` (the canonical
- * Terms and Privacy Policy — kaiwu.chengqiyun.com does not serve its own copies) and
+ * Terms and Privacy Policy — kaiwu.wujilabs.cn does not serve its own copies) and
  * `/hstack/*` (contributor docs, uninteresting to most searchers but not
  * secret). The hook exists so that the day a staging or duplicate route is
  * added, excluding it is a one-line change in a place someone will look —

@@ -8,7 +8,7 @@ ENV NODE_ENV=production \
     PORT=3010 \
     OTA_DATA_DIR=/data \
     OTA_PRIVATE_KEY_PATH=/secrets/private-key.pem \
-    OTA_PUBLIC_BASE_URL=https://kaiwu.chengqiyun.com/ota
+    OTA_PUBLIC_BASE_URL=https://kaiwu.wujilabs.cn/ota
 
 COPY --chown=node:node package.json ./
 COPY --chown=node:node dist/ ./dist/

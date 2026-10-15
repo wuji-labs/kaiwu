@@ -2,7 +2,7 @@
 /**
  * Bake every route into its own real HTML file under dist/.
  *
- * kaiwu.chengqiyun.com has no router: each route in src/routes.tsx is rendered once at
+ * kaiwu.wujilabs.cn has no router: each route in src/routes.tsx is rendered once at
  * build time and written to dist/<route>/index.html, so Cloudflare Pages serves
  * it as a genuine 200 asset. public/_redirects deliberately has no
  * `/* /index.html 200` catch-all — see the argument in that file — and this

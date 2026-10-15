@@ -28,32 +28,32 @@ data, not exclusive access.
 
 ## Product
 
-- [Kaiwu home](https://kaiwu.chengqiyun.com/): what it is, who it is for, and the install command.
-- [Web app](https://kaiwu.chengqiyun.com/): the browser client; pairs with a machine running the CLI.
-- [Install script (macOS/Linux)](https://kaiwu.chengqiyun.com/install.sh): `curl -fsSL https://kaiwu.chengqiyun.com/install.sh | sh`. Verifies every artifact with minisign before installing.
-- [Install script (Windows)](https://kaiwu.chengqiyun.com/install.ps1): PowerShell equivalent.
+- [Kaiwu home](https://kaiwu.wujilabs.cn/): what it is, who it is for, and the install command.
+- [Web app](https://kaiwu.wujilabs.cn/): the browser client; pairs with a machine running the CLI.
+- [Install script (macOS/Linux)](https://kaiwu.wujilabs.cn/install.sh): `curl -fsSL https://kaiwu.wujilabs.cn/install.sh | sh`. Verifies every artifact with minisign before installing.
+- [Install script (Windows)](https://kaiwu.wujilabs.cn/install.ps1): PowerShell equivalent.
 - [iOS app](https://apps.apple.com/us/app/Kaiwu-claude-codex-opencode/id6758554297): free, iOS 15.1+.
 - [Desktop builds](https://github.com/Kaiwu-dev/Kaiwu/releases/tag/ui-desktop-stable): macOS (Apple Silicon / Intel), Windows, Linux AppImage.
 - [Android APK](https://github.com/Kaiwu-dev/Kaiwu/releases/download/ui-mobile-stable/Kaiwu-android.apk): current stable direct download. There is no public Google Play listing.
 
 ## Documentation
 
-- [Docs](https://kaiwu.chengqiyun.com/docs/): full reference for the CLI, daemon, providers and clients.
-- [Guides](https://guides.kaiwu.chengqiyun.com/): task-shaped walkthroughs.
-- [Self-hosting the runtime](https://kaiwu.chengqiyun.com/docs/deployment/self-host-runtime): run the whole stack on your own infrastructure.
-- [Encryption design](https://kaiwu.chengqiyun.com/docs/security/encryption): what is encrypted, with which keys, and what the relay can and cannot see.
+- [Docs](https://kaiwu.wujilabs.cn/docs/): full reference for the CLI, daemon, providers and clients.
+- [Guides](https://guides.kaiwu.wujilabs.cn/): task-shaped walkthroughs.
+- [Self-hosting the runtime](https://kaiwu.wujilabs.cn/docs/deployment/self-host-runtime): run the whole stack on your own infrastructure.
+- [Encryption design](https://kaiwu.wujilabs.cn/docs/security/encryption): what is encrypted, with which keys, and what the relay can and cannot see.
 
 ## Source and community
 
 - [GitHub repository](https://github.com/Kaiwu-dev/Kaiwu): MIT-licensed source for the CLI, daemon, relay, mobile, desktop and web clients.
 - [MIT licence](https://github.com/Kaiwu-dev/Kaiwu/blob/main/LICENCE): note the British spelling of the filename.
 - [Discord](https://discord.gg/W6Pb8KuHfg): support, questions and release news.
-- [Security reporting](https://github.com/Kaiwu-dev/Kaiwu/security/advisories/new): private vulnerability disclosure. See also https://kaiwu.chengqiyun.com/.well-known/security.txt
-- [Release signing key](https://kaiwu.chengqiyun.com/Kaiwu-release.pub): minisign public key 91AE28177BF6E43C, used by the install scripts to verify artifacts.
+- [Security reporting](https://github.com/Kaiwu-dev/Kaiwu/security/advisories/new): private vulnerability disclosure. See also https://kaiwu.wujilabs.cn/.well-known/security.txt
+- [Release signing key](https://kaiwu.wujilabs.cn/Kaiwu-release.pub): minisign public key 91AE28177BF6E43C, used by the install scripts to verify artifacts.
 
 ## Optional
 
-- [Plugin manifest schema](https://kaiwu.chengqiyun.com/schemas/plugin-manifest-v2.json): JSON Schema for Kaiwu plugin manifests.
+- [Plugin manifest schema](https://kaiwu.wujilabs.cn/schemas/plugin-manifest-v2.json): JSON Schema for Kaiwu plugin manifests.
 
 ---
 
@@ -68,7 +68,7 @@ crawler. Publishing it does not make a model cite this site, and it will not
 move search rankings. Anyone selling it as an SEO technique is wrong.
 
 **What it does do.** It is a curated, stable, plain-text index a human or an
-agent can be pointed at directly — `fetch https://kaiwu.chengqiyun.com/llms.txt` — to get
+agent can be pointed at directly — `fetch https://kaiwu.wujilabs.cn/llms.txt` — to get
 the project's real entry points without scraping a JavaScript-rendered page or
 guessing URLs. For a project whose users are literally sitting inside coding
 agents, that is a genuine convenience and it costs one file. It also serves as
@@ -76,5 +76,5 @@ the single place where the project states its own positioning precisely enough
 that a summariser has little room to invent, which is the main reason the
 accuracy note above exists.
 
-Crawler permissions are stated in https://kaiwu.chengqiyun.com/robots.txt (all assistant
+Crawler permissions are stated in https://kaiwu.wujilabs.cn/robots.txt (all assistant
 crawlers are allowed, deliberately).

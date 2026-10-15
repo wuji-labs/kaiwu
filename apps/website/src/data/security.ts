@@ -293,4 +293,4 @@ export const SECURITY_SOURCE: ReadonlyArray<string> = [
 ];
 
 /** The one link this page makes into the docs, labelled as the reference. */
-export const SECURITY_DOCS_URL = 'https://kaiwu.chengqiyun.com/docs/security/encryption';
+export const SECURITY_DOCS_URL = 'https://kaiwu.wujilabs.cn/docs/security/encryption';

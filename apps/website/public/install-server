@@ -5,4 +5,4 @@ set -euo pipefail
 # Uses the shared installer with KAIWU_PRODUCT=server.
 export KAIWU_PRODUCT="${KAIWU_PRODUCT:-server}"
 
-curl -fsSL "https://kaiwu.chengqiyun.com/install.sh" | bash
+curl -fsSL "https://kaiwu.wujilabs.cn/install.sh" | bash

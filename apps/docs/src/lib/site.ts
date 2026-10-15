@@ -12,7 +12,7 @@
  * fallback and bakes that into every prerendered page. Every share to Slack,
  * Discord, X or iMessage then renders a broken card.
  */
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://kaiwu.chengqiyun.com/docs').replace(
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://kaiwu.wujilabs.cn/docs').replace(
   /\/+$/,
   '',
 );

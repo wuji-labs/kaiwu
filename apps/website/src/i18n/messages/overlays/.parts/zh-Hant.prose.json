@@ -94,7 +94,7 @@
   "pageProse.PAGE_PROSE.verifyInstaller.p0": "已簽署的發行版 — 執行前先驗證",
   "pageProse.PAGE_PROSE.verifyInstaller.p1": "安裝程式不信任自己下載的東西。它會取得發行封存檔和已發布的 <1>checksums.txt</1>，用它核對封存檔的 SHA-256，然後用 <2>minisign</2>，拿一把隨指令碼一起出貨的金鑰驗證那個 checksums 檔。任一項檢查失敗，安裝都會在任何東西被寫入磁碟之前中止。",
   "pageProse.PAGE_PROSE.verifyInstaller.p2": "簽署金鑰 {RELEASE_PUBKEY_ID}：",
-  "pageProse.PAGE_PROSE.verifyInstaller.p3": "它也放在 <1>kaiwu.chengqiyun.com/KAIWU-release.pub</1> 供取用。兩者應該完全相同 — 如果不同，就不要安裝。",
+  "pageProse.PAGE_PROSE.verifyInstaller.p3": "它也放在 <1>kaiwu.wujilabs.cn/KAIWU-release.pub</1> 供取用。兩者應該完全相同 — 如果不同，就不要安裝。",
   "pageProse.PAGE_PROSE.verifyInstaller.p4": "不想把任何東西導進 shell 嗎？那就別導：",
   "pageProse.PAGE_PROSE.verifyInstaller.p5": "<1>閱讀指令碼</1> · <2>安全模型</2>",
   "pageProse.PAGE_PROSE.vsRemoteControlPage.p8": "Claude Code Remote Control",

@@ -2,7 +2,7 @@
  * Copy for /features/terminal.
  *
  * SCOPE. This page owns EVALUATION intent: can Kaiwu do this, for which
- * agents, and what is the catch. It does not own procedure — kaiwu.chengqiyun.com/docs
+ * agents, and what is the catch. It does not own procedure — kaiwu.wujilabs.cn/docs
  * has the step list and this page links to it exactly once. If you find
  * yourself writing "1. Open Settings", you are on the wrong page.
  *
@@ -162,4 +162,4 @@ export const TERMINAL_CATCH: ReadonlyArray<string> = [
 ];
 
 /** The one link this page makes into the docs, labelled as a configuration reference. */
-export const TERMINAL_DOCS_URL = 'https://kaiwu.chengqiyun.com/docs/features/attach-to-session';
+export const TERMINAL_DOCS_URL = 'https://kaiwu.wujilabs.cn/docs/features/attach-to-session';

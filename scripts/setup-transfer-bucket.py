@@ -17,7 +17,7 @@ from qcloud_cos import CosConfig, CosS3Client
 from qcloud_cos.cos_exception import CosServiceError
 
 DEFAULT_BUCKET = 'kaiwu-transfer-1444025891'
-DEFAULT_ORIGINS = ['https://kaiwu.chengqiyun.com', 'http://localhost:8081', 'http://localhost:19006']
+DEFAULT_ORIGINS = ['https://kaiwu.wujilabs.cn', 'http://localhost:8081', 'http://localhost:19006']
 TRANSFER_PREFIX = 'transfers/'
 
 

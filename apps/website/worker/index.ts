@@ -1,5 +1,5 @@
 /**
- * Worker entry for kaiwu.chengqiyun.com.
+ * Worker entry for kaiwu.wujilabs.cn.
  *
  * The site itself is fully prerendered: every route is a real file under dist/,
  * served by the Workers static-asset layer without ever invoking this script.
@@ -17,7 +17,7 @@
  *     blocks `*.i.posthog.com`, so a direct integration measures the slice of
  *     our market least representative of our market. That is not a rounding
  *     error on a developer tool.
- *   - The page can then truthfully say it contacts no host but kaiwu.chengqiyun.com.
+ *   - The page can then truthfully say it contacts no host but kaiwu.wujilabs.cn.
  *
  * The circumvention question, answered rather than dodged: an ad blocker blocks
  * trackers because trackers track people. This one does not — no cookie, no

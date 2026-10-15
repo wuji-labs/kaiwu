@@ -94,7 +94,7 @@
   "pageProse.PAGE_PROSE.verifyInstaller.p0": "Versions signades — verifica-ho abans d'executar-ho",
   "pageProse.PAGE_PROSE.verifyInstaller.p1": "L'instal·lador no es refia de la seva pròpia descàrrega. Descarrega l'arxiu de la versió i el fitxer <1>checksums.txt</1> publicat, en comprova l'SHA-256 contra aquest fitxer, i després verifica aquell fitxer de sumes de verificació amb <2>minisign</2> contra una clau que va inclosa dins de l'script. Si qualsevol de les dues comprovacions falla, la instal·lació s'avorta abans que s'escrigui res al disc.",
   "pageProse.PAGE_PROSE.verifyInstaller.p2": "Clau de signatura {RELEASE_PUBKEY_ID}:",
-  "pageProse.PAGE_PROSE.verifyInstaller.p3": "També se serveix a <1>kaiwu.chengqiyun.com/KAIWU-release.pub</1>. Les dues haurien de ser idèntiques — si no ho són, no ho instal·lis.",
+  "pageProse.PAGE_PROSE.verifyInstaller.p3": "També se serveix a <1>kaiwu.wujilabs.cn/KAIWU-release.pub</1>. Les dues haurien de ser idèntiques — si no ho són, no ho instal·lis.",
   "pageProse.PAGE_PROSE.verifyInstaller.p4": "Prefereixes no canalitzar res cap a un intèrpret d'ordres? Doncs no ho facis:",
   "pageProse.PAGE_PROSE.verifyInstaller.p5": "<1>Llegeix l'script</1> · <2>Model de seguretat</2>",
   "pageProse.PAGE_PROSE.vsRemoteControlPage.p8": "Claude Code Remote Control",

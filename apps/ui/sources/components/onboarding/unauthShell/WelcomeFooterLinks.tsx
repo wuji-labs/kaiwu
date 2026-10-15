@@ -12,8 +12,8 @@ import { Icon } from '@/components/ui/icons/Icon';
 import { Modal } from '@/modal';
 import { WechatQrModal } from './WechatQrModal';
 
-const DOCS_URL = 'https://kaiwu.chengqiyun.com/docs';
-const WEBSITE_URL = 'https://chengqiyun.com';
+const DOCS_URL = 'https://kaiwu.wujilabs.cn/docs';
+const WEBSITE_URL = 'https://wujilabs.cn';
 
 const HAPPIER_CLOUD_COMPARABLE_KEY = createServerUrlComparableKey(HAPPIER_CLOUD_SERVER_URL);
 

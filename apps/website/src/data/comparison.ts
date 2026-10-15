@@ -29,7 +29,7 @@
  *   • Every Kaiwu statement is traceable to shipped source in remote-dev: the
  *     action specs in packages/protocol/src/actions/actionSpecs.ts, the connected
  *     services schemas in packages/protocol/src/connect, and the feature docs at
- *     kaiwu.chengqiyun.com/docs. Anchors are named inline where a claim is specific.
+ *     kaiwu.wujilabs.cn/docs. Anchors are named inline where a claim is specific.
  */
 
 export const RC_SECTION = {
@@ -160,7 +160,7 @@ export const RC_SECTION = {
         },
         {
             id: 'terminal',
-            // kaiwu.chengqiyun.com/docs/features/attach-to-session: "switching the same
+            // kaiwu.wujilabs.cn/docs/features/attach-to-session: "switching the same
             // session between remote control and local control"; "`Kaiwu
             // attach` reconnects to the existing session. It does not start a
             // new one."

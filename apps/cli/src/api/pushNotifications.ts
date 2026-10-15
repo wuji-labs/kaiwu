@@ -93,7 +93,7 @@ export class PushNotificationClient {
     private pushTokenFetchFailureCooldownUntilMs = 0
     private didLogPushTokenFetchCooldown = false
 
-    constructor(token: string, baseUrl: string = 'https://kaiwu.chengqiyun.com') {
+    constructor(token: string, baseUrl: string = 'https://kaiwu.wujilabs.cn') {
         this.token = token
         this.baseUrl = baseUrl
         this.expo = new Expo()

@@ -1,4 +1,4 @@
-# Cloudflare Workers deployment for kaiwu.chengqiyun.com/docs.
+# Cloudflare Workers deployment for kaiwu.wujilabs.cn/docs.
 #
 # The site is a fully static Next export — `output: 'export'` in next.config.mjs
 # writes every page to out/<route>/index.html, and the OG images and Markdown
@@ -37,7 +37,7 @@ preview_urls = true
 # and maintain the DNS record and certificate for the Worker instead of relying
 # on a dashboard-only mapping that a deployment cannot reproduce.
 [[routes]]
-pattern = "kaiwu.chengqiyun.com/docs"
+pattern = "kaiwu.wujilabs.cn/docs"
 custom_domain = true
 
 [assets]

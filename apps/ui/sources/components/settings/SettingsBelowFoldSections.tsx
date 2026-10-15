@@ -404,7 +404,7 @@ const SettingsAboutSection = React.memo(function SettingsAboutSection({
             <Item
                 title="官方网站"
                 icon={<Icon name="globe" size={29} color={theme.colors.text.primary} />}
-                subtitle="chengqiyun.com"
+                subtitle="wujilabs.cn"
                 onPress={handleGitHub}
             />
             <Item
@@ -422,7 +422,7 @@ const SettingsAboutSection = React.memo(function SettingsAboutSection({
                 title={t('settings.privacyPolicy')}
                 icon={<Icon name="shield-check" size={29} color={theme.colors.accent.blue} />}
                 onPress={async () => {
-                    const url = 'https://kaiwu.chengqiyun.com/docs/legal/privacy';
+                    const url = 'https://kaiwu.wujilabs.cn/docs/legal/privacy';
                     const supported = await Linking.canOpenURL(url);
                     if (supported) {
                         await Linking.openURL(url);
@@ -433,7 +433,7 @@ const SettingsAboutSection = React.memo(function SettingsAboutSection({
                 title={t('settings.termsOfService')}
                 icon={<Icon name="file-text" size={29} color={theme.colors.accent.blue} />}
                 onPress={async () => {
-                    const url = 'https://kaiwu.chengqiyun.com/docs/legal/terms';
+                    const url = 'https://kaiwu.wujilabs.cn/docs/legal/terms';
                     const supported = await Linking.canOpenURL(url);
                     if (supported) {
                         await Linking.openURL(url);

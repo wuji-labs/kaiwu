@@ -18,10 +18,10 @@ describe('website public surface links', () => {
 
     // The nav slot Guides used to hold now belongs to Enterprise
     // (src/sections/Nav.tsx), which makes this footer entry the only link to
-    // guides.kaiwu.chengqiyun.com anywhere on the site. Those 53 guides were orphaned
+    // guides.kaiwu.wujilabs.cn anywhere on the site. Those 53 guides were orphaned
     // once already — crawlable by sitemap and by nothing else — and this is the
     // check that stops the next tidy-up doing it again.
-    it('keeps guides.kaiwu.chengqiyun.com linked from the footer, its last inbound link', () => {
+    it('keeps guides.kaiwu.wujilabs.cn linked from the footer, its last inbound link', () => {
         const resourceLinks = FOOTER_COLUMNS.find((column) => column.id === 'resources')?.links ?? [];
 
         expect(resourceLinks).toContainEqual(expect.objectContaining({
@@ -35,7 +35,7 @@ describe('website public surface links', () => {
 
         expect(openSourceLinks).toContainEqual(expect.objectContaining({
             label: 'Self-host',
-            href: 'https://kaiwu.chengqiyun.com/docs/self-hosting/self-host-runtime',
+            href: 'https://kaiwu.wujilabs.cn/docs/self-hosting/self-host-runtime',
         }));
     });
 

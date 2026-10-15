@@ -1,5 +1,5 @@
 /**
- * Product analytics for kaiwu.chengqiyun.com/docs.
+ * Product analytics for kaiwu.wujilabs.cn/docs.
  *
  * This is the marketing site's analytics module (apps/website/src/analytics)
  * reduced to what a documentation site needs, and it keeps every one of that
@@ -30,10 +30,10 @@ export const INGEST_PATH = '/ingest';
 export const UI_ORIGIN = 'https://eu.posthog.com';
 
 /**
- * Stamped on every event so kaiwu.chengqiyun.com, docs.*, guides.* and app.* can share
+ * Stamped on every event so kaiwu.wujilabs.cn, docs.*, guides.* and app.* can share
  * one project and still be told apart, without sharing an identity.
  */
-export const SITE = 'kaiwu.chengqiyun.com/docs' as const;
+export const SITE = 'kaiwu.wujilabs.cn/docs' as const;
 
 /** The visitor's refusal. The only key this site ever writes. */
 export const OPT_OUT_STORAGE_KEY = 'kaiwu:analytics';

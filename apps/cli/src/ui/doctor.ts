@@ -527,7 +527,7 @@ export async function runDoctorCommand(filter?: 'all' | 'daemon'): Promise<void>
         // Support and bug reports
         console.log(chalk.bold('\n🐛 支持与问题反馈'));
         console.log(`反馈问题: ${chalk.blue('https://github.com/wuji-labs/kaiwu/issues')}`);
-        console.log(`文档地址: ${chalk.blue('https://kaiwu.chengqiyun.com/docs')}`);
+        console.log(`文档地址: ${chalk.blue('https://kaiwu.wujilabs.cn/docs')}`);
     }
 
     console.log(chalk.green('\n✅ Doctor 诊断完成！\n'));

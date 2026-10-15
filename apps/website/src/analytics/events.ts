@@ -1,5 +1,5 @@
 /**
- * The complete event taxonomy for kaiwu.chengqiyun.com.
+ * The complete event taxonomy for kaiwu.wujilabs.cn.
  *
  * Rules this file exists to enforce:
  *   1. Every event name on the wire is in `EVENT_NAMES`. Nothing else ships.

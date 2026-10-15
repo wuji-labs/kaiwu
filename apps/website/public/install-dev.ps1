@@ -106,7 +106,7 @@ untrusted comment: minisign public key 91AE28177BF6E43C
 RWQ85PZ7FyiukYbL3qv/bKnwgbT68wLVzotapeMFIb8n+c7pBQ7U8W2t
 "@
 $MinisignPubKey = if ($env:KAIWU_MINISIGN_PUBKEY) { $env:KAIWU_MINISIGN_PUBKEY } else { $DefaultMinisignPubKey.Trim() }
-$MinisignPubKeyUrl = if ($env:KAIWU_MINISIGN_PUBKEY_URL) { $env:KAIWU_MINISIGN_PUBKEY_URL } else { "https://kaiwu.chengqiyun.com/KAIWU-release.pub" }
+$MinisignPubKeyUrl = if ($env:KAIWU_MINISIGN_PUBKEY_URL) { $env:KAIWU_MINISIGN_PUBKEY_URL } else { "https://kaiwu.wujilabs.cn/KAIWU-release.pub" }
 
 function Resolve-CliShimName {
   if ($Channel -eq "preview") { return "hprev" }

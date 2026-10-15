@@ -8,7 +8,7 @@ import type { ReactNode } from 'react';
  * /features/usage-limits
  *
  * A feature page owns EVALUATION intent and nothing else: can KAIWU do this,
- * for which agents, and what is the catch. kaiwu.chengqiyun.com/docs owns the procedure
+ * for which agents, and what is the catch. kaiwu.wujilabs.cn/docs owns the procedure
  * and is linked once, as a configuration reference. The guides own the job
  * ("I ran out of Claude quota at 4pm, now what") and are not linked from here
  * because that is a different reader.

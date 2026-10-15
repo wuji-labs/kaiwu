@@ -12,7 +12,7 @@
         "HAPPIER_ANDROID_GRADLE_JVMARGS": "-Xmx4096m -XX:MaxMetaspaceSize=1024m -Dfile.encoding=UTF-8",
         "YARN_PRODUCTION": "false",
         "npm_config_production": "false",
-        "EXPO_PUBLIC_HAPPY_SERVER_URL": "https://api.chengqiyun.com",
+        "EXPO_PUBLIC_HAPPY_SERVER_URL": "https://kaiwu.wujilabs.cn",
         "HAPPIER_UI_VENDOR_WEB_ASSETS": "0",
         "EXPO_UNSTABLE_WEB_MODAL": "1"
       },

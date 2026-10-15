@@ -10,7 +10,7 @@
           tags src/routes.tsx generates. The homepage's own tags are what sits
           here in source, so `vite dev` and `vite preview` still serve a page
           with a title, a canonical and a card — and so a diff of this file shows
-          what a visitor to kaiwu.chengqiyun.com/ actually gets.
+          what a visitor to kaiwu.wujilabs.cn/ actually gets.
 
           Anything that is the same on every page — icons, manifest, viewport,
           theme-color, the fonts, and the site-scoped JSON-LD graph below —
@@ -75,10 +75,10 @@
             name="description"
             content="Run Claude Code, Codex and 11 more agents from your phone, browser or desktop. Open-source, end-to-end encrypted, self-hostable. Your own subscriptions."
         />
-        <link rel="canonical" href="https://kaiwu.chengqiyun.com/" />
+        <link rel="canonical" href="https://kaiwu.wujilabs.cn/" />
         <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
 
-        <meta property="og:url" content="https://kaiwu.chengqiyun.com/" />
+        <meta property="og:url" content="https://kaiwu.wujilabs.cn/" />
         <!-- og:title is the social headline, not the SERP title: shared links are read
              by humans, so it matches the words rendered in og.png rather than the
              keyword-bearing <title>. -->
@@ -87,7 +87,7 @@
             property="og:description"
             content="Claude Code, Codex, OpenCode, Cursor and 9 more — in one end-to-end encrypted app, on every device, on your own subscriptions. Open-source and self-hostable."
         />
-        <meta property="og:image" content="https://kaiwu.chengqiyun.com/images/og.png" />
+        <meta property="og:image" content="https://kaiwu.wujilabs.cn/images/og.png" />
         <meta property="og:image:type" content="image/png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
@@ -103,7 +103,7 @@
             name="twitter:description"
             content="Claude Code, Codex, OpenCode, Cursor and 9 more — in one end-to-end encrypted app, on every device, on your own subscriptions. Open-source and self-hostable."
         />
-        <meta name="twitter:image" content="https://kaiwu.chengqiyun.com/images/og.png" />
+        <meta name="twitter:image" content="https://kaiwu.wujilabs.cn/images/og.png" />
         <meta
             name="twitter:image:alt"
             content="The KAIWU wordmark over the words: One client for every AI coding agent."
@@ -126,7 +126,7 @@
           be `opacity: 0`, which meant the prerendered page — the whole point of
           the prerender — rendered INVISIBLE to anything that reads pixels rather
           than raw HTML, and stayed invisible for as long as the JS bundle took
-          to arrive. Anyone screenshotting kaiwu.chengqiyun.com on a slow connection got a
+          to arrive. Anyone screenshotting kaiwu.wujilabs.cn on a slow connection got a
           blank page with a planet on it.
 
           So `.reveal-word-idle` now defaults to `opacity: 1` and the animation
@@ -170,7 +170,7 @@
 
           * aggregateRating. The iOS listing has 10 ratings at 4.4. Google's
             structured-data policy requires review markup to describe ratings that
-            are VISIBLE ON THE PAGE CARRYING THE MARKUP. kaiwu.chengqiyun.com shows no
+            are VISIBLE ON THE PAGE CARRYING THE MARKUP. kaiwu.wujilabs.cn shows no
             ratings, so this would be self-serving markup for content that isn't
             there — the textbook trigger for a "Structured data issue" manual
             action, and it would cost the star snippet everywhere, not just here.
@@ -202,12 +202,12 @@
                 "@graph": [
                     {
                         "@type": "Organization",
-                        "@id": "https://kaiwu.chengqiyun.com/#org",
+                        "@id": "https://kaiwu.wujilabs.cn/#org",
                         "name": "KAIWU",
-                        "url": "https://kaiwu.chengqiyun.com/",
+                        "url": "https://kaiwu.wujilabs.cn/",
                         "logo": {
                             "@type": "ImageObject",
-                            "url": "https://kaiwu.chengqiyun.com/icons/icon-512.png",
+                            "url": "https://kaiwu.wujilabs.cn/icons/icon-512.png",
                             "width": 512,
                             "height": 512
                         },
@@ -222,23 +222,23 @@
                     },
                     {
                         "@type": "WebSite",
-                        "@id": "https://kaiwu.chengqiyun.com/#site",
-                        "url": "https://kaiwu.chengqiyun.com/",
+                        "@id": "https://kaiwu.wujilabs.cn/#site",
+                        "url": "https://kaiwu.wujilabs.cn/",
                         "name": "KAIWU",
                         "inLanguage": "en",
-                        "publisher": { "@id": "https://kaiwu.chengqiyun.com/#org" }
+                        "publisher": { "@id": "https://kaiwu.wujilabs.cn/#org" }
                     },
                     {
                         "@type": "SoftwareApplication",
-                        "@id": "https://kaiwu.chengqiyun.com/#app",
+                        "@id": "https://kaiwu.wujilabs.cn/#app",
                         "name": "KAIWU",
                         "alternateName": "KAIWU: Claude Codex OpenCode",
                         "applicationCategory": "DeveloperApplication",
                         "applicationSubCategory": "AI coding agent client",
                         "operatingSystem": "iOS 15.1+, macOS, Windows, Linux, Web",
-                        "url": "https://kaiwu.chengqiyun.com/",
-                        "downloadUrl": "https://kaiwu.chengqiyun.com/#get-started",
-                        "installUrl": "https://kaiwu.chengqiyun.com/#get-started",
+                        "url": "https://kaiwu.wujilabs.cn/",
+                        "downloadUrl": "https://kaiwu.wujilabs.cn/#get-started",
+                        "installUrl": "https://kaiwu.wujilabs.cn/#get-started",
                         "softwareVersion": "0.2",
                         "license": "https://github.com/KAIWU-dev/KAIWU/blob/main/LICENCE",
                         "isAccessibleForFree": true,
@@ -250,12 +250,12 @@
                             "Self-hostable runtime",
                             "Phone, web, desktop and terminal clients"
                         ],
-                        "publisher": { "@id": "https://kaiwu.chengqiyun.com/#org" },
-                        "isRelatedTo": { "@id": "https://kaiwu.chengqiyun.com/#source" }
+                        "publisher": { "@id": "https://kaiwu.wujilabs.cn/#org" },
+                        "isRelatedTo": { "@id": "https://kaiwu.wujilabs.cn/#source" }
                     },
                     {
                         "@type": "MobileApplication",
-                        "@id": "https://kaiwu.chengqiyun.com/#app-ios",
+                        "@id": "https://kaiwu.wujilabs.cn/#app-ios",
                         "name": "KAIWU: Claude Codex OpenCode",
                         "applicationCategory": "DeveloperApplication",
                         "operatingSystem": "iOS 15.1+",
@@ -263,11 +263,11 @@
                         "downloadUrl": "https://apps.apple.com/us/app/KAIWU-claude-codex-opencode/id6758554297",
                         "isAccessibleForFree": true,
                         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-                        "publisher": { "@id": "https://kaiwu.chengqiyun.com/#org" }
+                        "publisher": { "@id": "https://kaiwu.wujilabs.cn/#org" }
                     },
                     {
                         "@type": "MobileApplication",
-                        "@id": "https://kaiwu.chengqiyun.com/#app-android",
+                        "@id": "https://kaiwu.wujilabs.cn/#app-android",
                         "name": "KAIWU for Android",
                         "applicationCategory": "DeveloperApplication",
                         "operatingSystem": "Android",
@@ -275,11 +275,11 @@
                         "downloadUrl": "https://github.com/KAIWU-dev/KAIWU/releases/download/ui-mobile-stable/KAIWU-android.apk",
                         "isAccessibleForFree": true,
                         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-                        "publisher": { "@id": "https://kaiwu.chengqiyun.com/#org" }
+                        "publisher": { "@id": "https://kaiwu.wujilabs.cn/#org" }
                     },
                     {
                         "@type": "SoftwareSourceCode",
-                        "@id": "https://kaiwu.chengqiyun.com/#source",
+                        "@id": "https://kaiwu.wujilabs.cn/#source",
                         "name": "KAIWU",
                         "description": "Source for KAIWU — an open-source client for AI coding agents.",
                         "codeRepository": "https://github.com/KAIWU-dev/KAIWU",
@@ -287,7 +287,7 @@
                         "programmingLanguage": ["TypeScript", "Rust"],
                         "runtimePlatform": "Node.js",
                         "license": "https://spdx.org/licenses/MIT.html",
-                        "author": { "@id": "https://kaiwu.chengqiyun.com/#org" }
+                        "author": { "@id": "https://kaiwu.wujilabs.cn/#org" }
                     }
                 ]
             }

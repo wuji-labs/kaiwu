@@ -94,7 +94,7 @@
   "pageProse.PAGE_PROSE.verifyInstaller.p0": "已签名的发布 —— 在运行之前先验证",
   "pageProse.PAGE_PROSE.verifyInstaller.p1": "安装脚本不信任自己下载的东西。它会取回发布归档和公布的 <1>checksums.txt</1>，用它核对归档的 SHA-256，再用 <2>minisign</2> 对着脚本内自带的一把密钥验证那个校验和文件。任何一项检查不通过，安装都会在任何东西写入磁盘之前中止。",
   "pageProse.PAGE_PROSE.verifyInstaller.p2": "签名密钥 {RELEASE_PUBKEY_ID}：",
-  "pageProse.PAGE_PROSE.verifyInstaller.p3": "它同样发布在 <1>kaiwu.chengqiyun.com/KAIWU-release.pub</1>。两者应当完全一致 —— 如果不一致，就不要安装。",
+  "pageProse.PAGE_PROSE.verifyInstaller.p3": "它同样发布在 <1>kaiwu.wujilabs.cn/KAIWU-release.pub</1>。两者应当完全一致 —— 如果不一致，就不要安装。",
   "pageProse.PAGE_PROSE.verifyInstaller.p4": "不想把任何东西用管道送进 shell？那就别送：",
   "pageProse.PAGE_PROSE.verifyInstaller.p5": "<1>阅读脚本</1> · <2>安全模型</2>",
   "pageProse.PAGE_PROSE.vsRemoteControlPage.p8": "Claude Code Remote Control",

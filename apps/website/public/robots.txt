@@ -1,4 +1,4 @@
-# https://kaiwu.chengqiyun.com/robots.txt
+# https://kaiwu.wujilabs.cn/robots.txt
 #
 # Kaiwu is an open-source client for AI coding agents. Source: MIT, public.
 # There is nothing on this site worth withholding from a crawler.
@@ -130,11 +130,11 @@ User-agent: cohere-ai
 Allow: /
 
 # Content Signals (Cloudflare's proposal, mirrored from the policy served on
-# kaiwu.chengqiyun.com/docs). Stated affirmatively so the permission is ours and
+# kaiwu.wujilabs.cn/docs). Stated affirmatively so the permission is ours and
 # explicit, rather than inherited from a zone-level default we did not choose.
 # NOTE: Cloudflare's managed robots.txt can PREPEND its own signals block to an
-# origin robots.txt. Confirm after deploy that `curl https://kaiwu.chengqiyun.com/robots.txt`
+# origin robots.txt. Confirm after deploy that `curl https://kaiwu.wujilabs.cn/robots.txt`
 # returns THIS file and that no injected `ai-train=no` contradicts the line below.
 Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
-Sitemap: https://kaiwu.chengqiyun.com/sitemap.xml
+Sitemap: https://kaiwu.wujilabs.cn/sitemap.xml

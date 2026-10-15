@@ -94,7 +94,7 @@
   "pageProse.PAGE_PROSE.verifyInstaller.p0": "Podpisane wydania — zweryfikuj, zanim uruchomisz",
   "pageProse.PAGE_PROSE.verifyInstaller.p1": "Instalator nie ufa własnemu pobraniu. Pobiera archiwum wydania i opublikowany plik <1>checksums.txt</1>, sprawdza względem niego SHA-256 archiwum, a potem weryfikuje ten plik sum kontrolnych narzędziem <2>minisign</2> względem klucza wbudowanego w skrypt. Niepowodzenie którejkolwiek z tych kontroli przerywa instalację, zanim cokolwiek trafi na dysk.",
   "pageProse.PAGE_PROSE.verifyInstaller.p2": "Klucz podpisujący {RELEASE_PUBKEY_ID}:",
-  "pageProse.PAGE_PROSE.verifyInstaller.p3": "Jest też serwowany pod <1>kaiwu.chengqiyun.com/KAIWU-release.pub</1>. Oba powinny być identyczne — jeśli nie są, nie instaluj.",
+  "pageProse.PAGE_PROSE.verifyInstaller.p3": "Jest też serwowany pod <1>kaiwu.wujilabs.cn/KAIWU-release.pub</1>. Oba powinny być identyczne — jeśli nie są, nie instaluj.",
   "pageProse.PAGE_PROSE.verifyInstaller.p4": "Wolisz nie przepuszczać niczego potokiem do powłoki? Nie rób tego:",
   "pageProse.PAGE_PROSE.verifyInstaller.p5": "<1>Przeczytaj skrypt</1> · <2>Model bezpieczeństwa</2>",
   "pageProse.PAGE_PROSE.vsRemoteControlPage.p8": "Claude Code Remote Control",

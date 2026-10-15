@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// One-command web release for kaiwu.chengqiyun.com. Every step is fail-closed; the live
+// One-command web release for kaiwu.wujilabs.cn. Every step is fail-closed; the live
 // index.html is only swapped after the gate, the build and the COS verification all pass.
 //
 //   1. preconditions: commit gate installed (core.hooksPath=.githooks); apps/ui and packages
@@ -28,7 +28,7 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const uiRoot = join(repoRoot, 'apps', 'ui');
 const outDir = join(uiRoot, 'dist-release');
-const SITE = 'https://kaiwu.chengqiyun.com';
+const SITE = 'https://kaiwu.wujilabs.cn';
 const SERVER = 'ubuntu@150.158.55.6';
 const REMOTE_DIST = '/opt/wuji-kaiwu/ui-dist';
 const isWindows = process.platform === 'win32';

@@ -521,7 +521,7 @@ export function DownloadBadges({ webApp = false }: { webApp?: boolean } = {}) {
                 the four buttons fit two-per-row). */}
             {webApp && (
                 <a
-                    href="https://kaiwu.chengqiyun.com/"
+                    href="https://kaiwu.wujilabs.cn/"
                     target="_blank"
                     rel="noreferrer"
                     className="group inline-flex items-center gap-2 self-stretch rounded-2xl px-5 text-[14px] font-semibold transition-transform hover:-translate-y-[1px]"

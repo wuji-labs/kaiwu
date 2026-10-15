@@ -43,7 +43,7 @@ export type LocaleMeta = {
     /**
      * URL path prefix, without a trailing slash. The default locale is served
      * from the bare root (`''`) so the canonical English URL stays
-     * `https://kaiwu.chengqiyun.com/` — no redirect, no lost link equity.
+     * `https://kaiwu.wujilabs.cn/` — no redirect, no lost link equity.
      */
     pathPrefix: string;
     /** Endonym, used in the locale switcher. Never translate this. */
@@ -253,7 +253,7 @@ export const LOCALE_META: Record<Locale, LocaleMeta> = {
     },
 };
 
-export const SITE_ORIGIN = 'https://kaiwu.chengqiyun.com';
+export const SITE_ORIGIN = 'https://kaiwu.wujilabs.cn';
 
 /** Absolute URL for a locale's copy of a route. `route` is always the
  *  locale-independent path, e.g. `/` or `/pricing`. */

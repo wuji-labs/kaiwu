@@ -301,4 +301,4 @@ export const USAGE_LIMITS_SETUP: ReadonlyArray<string> = [
 ];
 
 /** The one link this page makes into the docs, labelled as a configuration reference. */
-export const USAGE_LIMITS_DOCS_URL = 'https://kaiwu.chengqiyun.com/docs/features/connected-services';
+export const USAGE_LIMITS_DOCS_URL = 'https://kaiwu.wujilabs.cn/docs/features/connected-services';

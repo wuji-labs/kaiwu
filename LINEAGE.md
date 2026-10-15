@@ -19,7 +19,7 @@ https://github.com/happier-dev/happier
 本仓是 active product fork，不是 parked vendor clone。
 2026-06-27 的项目清理曾以「没有 active product task」为由删除前身
 D:\Projects\happy-app 与 D:\Projects\qianyuan-happier，
-本仓有在运行的生产服务（https://kaiwu.chengqiyun.com）与在建交付物，不得按 vendor parking 政策清理。
+本仓有在运行的生产服务（https://kaiwu.wujilabs.cn）与在建交付物，不得按 vendor parking 政策清理。
 
 ## 母体复用
 
@@ -40,7 +40,7 @@ D:\Projects\happy-app 与 D:\Projects\qianyuan-happier，
 本仓的运行时环境包括：
 
 - **自建服务容器**：wuji-kaiwu-server
-- **公开入口**：https://kaiwu.chengqiyun.com
+- **公开入口**：https://kaiwu.wujilabs.cn
 - **主机**：腾讯云 Lighthouse (150.158.55.6)
 - **入口配置**：Caddy 反代至宿主机服务
 
@@ -53,8 +53,8 @@ D:\Projects\happy-app 与 D:\Projects\qianyuan-happier，
 - **代码标识符**一律去连字符：Android `applicationId` 与 iOS Bundle ID 均为 `com.wujilabs.kaiwu`
   （Android 包名走 Java 包名规则，连字符是非法字符，会直接编译失败，故双端统一取无连字符形式）。
 - **Expo slug**：`kaiwu`；**仓目录**：`wuji-labs-app`（保留不改）。
-- **深链域名**：`kaiwu.chengqiyun.com`
-- **后端 API 域名**：`kaiwu.chengqiyun.com`
+- **深链域名**：`kaiwu.wujilabs.cn`
+- **后端 API 域名**：`kaiwu.wujilabs.cn`
 
 ## 与上游的关系
 

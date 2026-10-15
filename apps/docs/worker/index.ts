@@ -1,5 +1,5 @@
 /**
- * Worker entry for kaiwu.chengqiyun.com/docs.
+ * Worker entry for kaiwu.wujilabs.cn/docs.
  *
  * The site is a fully static Next export: every page is a real file under out/,
  * served by the Workers static-asset layer without ever invoking this script.

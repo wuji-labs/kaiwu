@@ -216,7 +216,7 @@ const proseOf = (message) => message.replace(/<\/?\d+>/g, '').replace(/\{[a-zA-Z
  * Is this string worth a translator's time, and safe to give one?
  *
  * `$` (a shell prompt), `·` (a separator) and `.` (the full stop after an
- * interpolated verb) are text nodes with no language in them. `kaiwu.chengqiyun.com` is a
+ * interpolated verb) are text nodes with no language in them. `kaiwu.wujilabs.cn` is a
  * domain: one token, no spaces, punctuated like an address — translating it
  * breaks a link, and there is nothing in it to translate.
  */

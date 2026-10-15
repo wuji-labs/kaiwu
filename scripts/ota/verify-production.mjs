@@ -17,7 +17,7 @@ const arg = (name, fallback) => {
 };
 const platforms = arg('--platform', 'all') === 'all' ? ['ios', 'android'] : [arg('--platform', 'ios')];
 const sample = Number(arg('--sample', '5'));
-const manifestUrl = arg('--url', 'https://kaiwu.chengqiyun.com/ota/api/manifest');
+const manifestUrl = arg('--url', 'https://kaiwu.wujilabs.cn/ota/api/manifest');
 const channel = arg('--channel', 'production');
 const runtimeVersion = arg(
   '--runtime-version',

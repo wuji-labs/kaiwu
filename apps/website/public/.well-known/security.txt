@@ -1,5 +1,5 @@
 # KAIWU — security contact information (RFC 9116).
-# Canonical location: https://kaiwu.chengqiyun.com/.well-known/security.txt
+# Canonical location: https://kaiwu.wujilabs.cn/.well-known/security.txt
 #
 # NOTE ON RENEWAL: `Expires` below is a hard requirement of RFC 9116 and must be
 # under one year out. Scanners treat an expired file as no file at all. Put a
@@ -12,7 +12,7 @@ Expires: 2027-08-08T00:00:00.000Z
 
 Preferred-Languages: en
 
-Canonical: https://kaiwu.chengqiyun.com/.well-known/security.txt
+Canonical: https://kaiwu.wujilabs.cn/.well-known/security.txt
 
 Policy: https://github.com/KAIWU-dev/KAIWU/security/policy
 
@@ -24,7 +24,7 @@ Acknowledgments: https://github.com/KAIWU-dev/KAIWU/security/advisories
 #
 # `Encryption:` is absent, and the release key must NOT be put there.
 #
-#   https://kaiwu.chengqiyun.com/KAIWU-release.pub is a MINISIGN key
+#   https://kaiwu.wujilabs.cn/KAIWU-release.pub is a MINISIGN key
 #   (untrusted comment: minisign public key 91AE28177BF6E43C). RFC 9116's
 #   Encryption field is for a key a researcher can ENCRYPT A REPORT TO.
 #   minisign only signs and verifies — it has no encryption operation at all.
@@ -34,7 +34,7 @@ Acknowledgments: https://github.com/KAIWU-dev/KAIWU/security/advisories
 #
 #   The minisign key's actual job is release-artifact verification: install.sh
 #   fetches it from KAIWU_MINISIGN_PUBKEY_URL (default
-#   https://kaiwu.chengqiyun.com/KAIWU-release.pub) and verifies every downloaded
+#   https://kaiwu.wujilabs.cn/KAIWU-release.pub) and verifies every downloaded
 #   artifact with it — see apps/website/public/install.sh:26-32 and the
 #   ensure_minisign() bootstrap at :2118. RFC 9116 has no field for a release
 #   signing key, so it is documented here in prose rather than mislabelled.
@@ -46,18 +46,18 @@ Acknowledgments: https://github.com/KAIWU-dev/KAIWU/security/advisories
 # it is authenticated, private, gives the reporter a receipt, and is already
 # enabled on the repository (verified: /security/policy returns 200).
 #
-# RECOMMENDED FOLLOW-UP: create security@kaiwu.chengqiyun.com, then add it as the FIRST
+# RECOMMENDED FOLLOW-UP: create security@kaiwu.wujilabs.cn, then add it as the FIRST
 # Contact line (RFC 9116 orders by preference) and drop this paragraph:
 #
-#   Contact: mailto:security@kaiwu.chengqiyun.com
+#   Contact: mailto:security@kaiwu.wujilabs.cn
 #
 # ---------------------------------------------------------------------------
 # SCOPE NOTES FOR RESEARCHERS
 # ---------------------------------------------------------------------------
 #
 # Source (MIT):        https://github.com/KAIWU-dev/KAIWU
-# Encryption design:   https://kaiwu.chengqiyun.com/docs/security/encryption
-# Self-hosting:        https://kaiwu.chengqiyun.com/docs/deployment/self-host-runtime
+# Encryption design:   https://kaiwu.wujilabs.cn/docs/security/encryption
+# Self-hosting:        https://kaiwu.wujilabs.cn/docs/deployment/self-host-runtime
 #
 # KAIWU is end-to-end encrypted and self-hostable. Reports about the relay
 # being able to read session content, about key handling, or about the installer

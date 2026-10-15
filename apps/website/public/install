@@ -28,7 +28,7 @@ RWQ85PZ7FyiukYbL3qv/bKnwgbT68wLVzotapeMFIb8n+c7pBQ7U8W2t
 EOF
 )"
 MINISIGN_PUBKEY="${KAIWU_MINISIGN_PUBKEY:-${DEFAULT_MINISIGN_PUBKEY}}"
-MINISIGN_PUBKEY_URL="${KAIWU_MINISIGN_PUBKEY_URL:-https://kaiwu.chengqiyun.com/KAIWU-release.pub}"
+MINISIGN_PUBKEY_URL="${KAIWU_MINISIGN_PUBKEY_URL:-https://kaiwu.wujilabs.cn/KAIWU-release.pub}"
 MINISIGN_BIN="minisign"
 
 INSTALLER_COLOR_MODE="${KAIWU_INSTALLER_COLOR:-auto}" # auto|always|never
@@ -1567,25 +1567,25 @@ action_version() {
 usage() {
   cat <<'EOF'
 Usage:
-  curl -fsSL https://kaiwu.chengqiyun.com/install | bash
+  curl -fsSL https://kaiwu.wujilabs.cn/install | bash
 
 Preview channel:
-  curl -fsSL https://kaiwu.chengqiyun.com/install | bash -s -- --channel preview
-  curl -fsSL https://kaiwu.chengqiyun.com/install | KAIWU_CHANNEL=preview bash
-  curl -fsSL https://kaiwu.chengqiyun.com/install-preview | bash
+  curl -fsSL https://kaiwu.wujilabs.cn/install | bash -s -- --channel preview
+  curl -fsSL https://kaiwu.wujilabs.cn/install | KAIWU_CHANNEL=preview bash
+  curl -fsSL https://kaiwu.wujilabs.cn/install-preview | bash
 
 Dev channel:
-  curl -fsSL https://kaiwu.chengqiyun.com/install | bash -s -- --channel dev
-  curl -fsSL https://kaiwu.chengqiyun.com/install | KAIWU_CHANNEL=dev bash
-  curl -fsSL https://kaiwu.chengqiyun.com/install-dev | bash
+  curl -fsSL https://kaiwu.wujilabs.cn/install | bash -s -- --channel dev
+  curl -fsSL https://kaiwu.wujilabs.cn/install | KAIWU_CHANNEL=dev bash
+  curl -fsSL https://kaiwu.wujilabs.cn/install-dev | bash
 
 Relay setup (install CLI if needed, then host a relay locally):
-  curl -fsSL https://kaiwu.chengqiyun.com/install | bash -s -- --setup-relay
-  curl -fsSL https://kaiwu.chengqiyun.com/install | bash -s -- --channel dev --setup-relay
+  curl -fsSL https://kaiwu.wujilabs.cn/install | bash -s -- --setup-relay
+  curl -fsSL https://kaiwu.wujilabs.cn/install | bash -s -- --channel dev --setup-relay
 
 Unattended install (CI or scripted; never prompts, declines optional automatic startup):
-  curl -fsSL https://kaiwu.chengqiyun.com/install | bash -s -- --yes
-  curl -fsSL https://kaiwu.chengqiyun.com/install | KAIWU_NONINTERACTIVE=1 bash
+  curl -fsSL https://kaiwu.wujilabs.cn/install | bash -s -- --yes
+  curl -fsSL https://kaiwu.wujilabs.cn/install | KAIWU_NONINTERACTIVE=1 bash
 
 Options:
   --channel <stable|preview|dev>

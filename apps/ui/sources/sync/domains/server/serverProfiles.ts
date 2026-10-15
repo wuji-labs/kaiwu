@@ -13,7 +13,7 @@ export type ServerProfileSource = 'manual' | 'url' | 'stack-env' | 'notification
  * compare an active server URL against it (via createServerUrlComparableKey)
  * without scattering the string literal across the codebase.
  */
-export const HAPPIER_CLOUD_SERVER_URL = 'https://kaiwu.chengqiyun.com' as const;
+export const HAPPIER_CLOUD_SERVER_URL = 'https://kaiwu.wujilabs.cn' as const;
 
 export type ServerProfile = Readonly<{
     id: string;
@@ -676,10 +676,10 @@ function getWebSameOriginServerUrl(): string | null {
     try {
         const parsed = new URL(origin);
         if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null;
-        // Official hosted web app (kaiwu.chengqiyun.com) is a static SPA; the API lives on kaiwu.chengqiyun.com.
+        // Official hosted web app (kaiwu.wujilabs.cn) is a static SPA; the API lives on kaiwu.wujilabs.cn.
         // When builds are missing EXPO_PUBLIC_HAPPIER_SERVER_URL (and legacy aliases), this prevents the default server
         // from incorrectly pointing at the web host.
-        if (parsed.hostname.toLowerCase() === 'kaiwu.chengqiyun.com') {
+        if (parsed.hostname.toLowerCase() === 'kaiwu.wujilabs.cn') {
             return HAPPIER_CLOUD_SERVER_URL;
         }
         return origin;

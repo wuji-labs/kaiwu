@@ -143,7 +143,7 @@ export function buildSessionGettingStartedViewModel(input: SessionGettingStarted
         machines,
     });
 
-    const showServerSetup = Boolean(activeProfile.serverUrl) && activeProfile.serverUrl !== 'https://kaiwu.chengqiyun.com';
+    const showServerSetup = Boolean(activeProfile.serverUrl) && !['https://kaiwu.wujilabs.cn', 'https://kaiwu.chengqiyun.com'].includes(activeProfile.serverUrl);
 
     return {
         kind,

@@ -224,7 +224,7 @@ function classifyRelayReachability(
 /**
  * Internal serverUrl for cloud relay, used for deduplication.
  */
-const CLOUD_SERVER_URL = 'https://kaiwu.chengqiyun.com';
+const CLOUD_SERVER_URL = 'https://kaiwu.wujilabs.cn';
 
 function normalizeUrl(value: string): string {
   let normalized = value.trim();

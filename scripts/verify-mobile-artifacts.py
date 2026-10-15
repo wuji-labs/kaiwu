@@ -16,7 +16,7 @@ print("=====================================================")
 needle = "无极开物由 WUJI Labs 出品，通信默认端到端加密，账号可在你的其他设备上恢复。"
 
 # 1. Download and verify iOS IPA
-ios_url = "https://kaiwu.chengqiyun.com/download/ios"
+ios_url = "https://kaiwu.wujilabs.cn/download/ios"
 ios_dest = "/tmp/live-downloaded.ipa"
 print(f"\n[1/2] Downloading and Verifying iOS IPA: {ios_url}")
 subprocess.run(
@@ -27,7 +27,7 @@ subprocess.run(
         "-S",
         "-L",
         "--resolve",
-        "kaiwu.chengqiyun.com:443:127.0.0.1",
+        "kaiwu.wujilabs.cn:443:127.0.0.1",
         ios_url,
         "-o",
         ios_dest,
@@ -62,7 +62,7 @@ with zipfile.ZipFile(ios_dest, "r") as zf:
     print(f"  Footer Copy Present in main.jsbundle: {ios_has_text}")
 
 # 2. Download and verify Android APK
-android_url = "https://kaiwu.chengqiyun.com/download/android"
+android_url = "https://kaiwu.wujilabs.cn/download/android"
 android_dest = "/tmp/live-downloaded.apk"
 print(f"\n[2/2] Downloading and Verifying Android APK: {android_url}")
 subprocess.run(
@@ -73,7 +73,7 @@ subprocess.run(
         "-S",
         "-L",
         "--resolve",
-        "kaiwu.chengqiyun.com:443:127.0.0.1",
+        "kaiwu.wujilabs.cn:443:127.0.0.1",
         android_url,
         "-o",
         android_dest,

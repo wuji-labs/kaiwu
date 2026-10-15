@@ -215,7 +215,7 @@ describe('buildSetupPlan — choosing Happier Cloud', () => {
     // User provides cloud URL with trailing slash: should select cloud, not create duplicate
     const plan = buildSetupPlan({
       ...base,
-      relaySelection: { kind: 'existing', url: 'https://kaiwu.chengqiyun.com/' },
+      relaySelection: { kind: 'existing', url: 'https://kaiwu.wujilabs.cn/' },
     });
 
     expect(plan.steps.map((step) => step.kind)).toEqual(['authLogin']);
@@ -225,7 +225,7 @@ describe('buildSetupPlan — choosing Happier Cloud', () => {
     // User provides cloud URL in uppercase: should select cloud, not create duplicate
     const plan = buildSetupPlan({
       ...base,
-      relaySelection: { kind: 'existing', url: 'https://KAIWU.CHENGQIYUN.COM' },
+      relaySelection: { kind: 'existing', url: 'https://KAIWU.WUJILABS.CN' },
     });
 
     expect(plan.steps.map((step) => step.kind)).toEqual(['authLogin']);
@@ -236,7 +236,7 @@ describe('buildSetupPlan — choosing Happier Cloud', () => {
     const plan = buildSetupPlan({
       ...base,
       activeRelayUrl: 'https://relay.example.com',
-      relaySelection: { kind: 'existing', url: 'https://kaiwu.chengqiyun.com/' },
+      relaySelection: { kind: 'existing', url: 'https://kaiwu.wujilabs.cn/' },
     });
 
     expect(plan.steps.map((step) => step.kind)).toEqual(['selectCloudRelay', 'authLogin']);

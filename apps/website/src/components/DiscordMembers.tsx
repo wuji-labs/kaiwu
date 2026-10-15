@@ -29,7 +29,7 @@ type DiscordMembersProps = {
  *
  * The count comes from a published JSON document rather than a direct call to
  * discord.com, so visiting the marketing page does not hand a visitor's IP to
- * Discord — the same reason downloads are published to stats.kaiwu.chengqiyun.com.
+ * Discord — the same reason downloads are published to stats.kaiwu.wujilabs.cn.
  */
 export function DiscordMembers({
     className = '',

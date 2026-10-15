@@ -2,8 +2,8 @@ import { Platform } from 'react-native';
 
 import type { AppVariant } from '@/sync/runtime/appVariant';
 
-const INSTALL_BASE_URL = 'https://kaiwu.chengqiyun.com/install';
-const INSTALL_PS1_URL = 'https://kaiwu.chengqiyun.com/install.ps1';
+const INSTALL_BASE_URL = 'https://kaiwu.wujilabs.cn/install';
+const INSTALL_PS1_URL = 'https://kaiwu.wujilabs.cn/install.ps1';
 
 function toOptionalNonEmptyString(value: unknown): string | null {
     if (typeof value !== 'string') return null;

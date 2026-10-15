@@ -22,7 +22,7 @@ import { CHANGELOG_URL, DOCS_URL, GUIDES_URL, GITHUB_REPO_URL, LICENSE_URL, WEB_
  *
  * Two fixes here are link-equity problems rather than taste, and both predate
  * the move:
- *   - guides.kaiwu.chengqiyun.com had NO inbound link from any Kaiwu surface. 53
+ *   - guides.kaiwu.wujilabs.cn had NO inbound link from any Kaiwu surface. 53
  *     guides were orphaned — uncrawlable except by sitemap, and invisible to a
  *     visitor. It is the first Resources entry — and since the nav slot Guides
  *     briefly held went to Enterprise (src/sections/Nav.tsx), this link is the
@@ -33,7 +33,7 @@ import { CHANGELOG_URL, DOCS_URL, GUIDES_URL, GITHUB_REPO_URL, LICENSE_URL, WEB_
  *     path. Pinned to the real filename and to `MIT license` as the label, since
  *     the licence NAME is the thing a visitor is checking for.
  *
- * Third fix, same class: "Changelog" pointed at kaiwu.chengqiyun.com/docs/changelog,
+ * Third fix, same class: "Changelog" pointed at kaiwu.wujilabs.cn/docs/changelog,
  * which answers 404. ./downloads.ts already exported the URL that works
  * (`/releases`) and nothing was using it. Every external URL here comes from
  * ./downloads.ts, so the link and the analytics classification in useLinkClicks
@@ -80,11 +80,11 @@ export const FOOTER_COLUMNS = [
             {
                 id: 'self-host-docs',
                 label: 'Self-host',
-                href: 'https://kaiwu.chengqiyun.com/docs/self-hosting/self-host-runtime',
+                href: 'https://kaiwu.wujilabs.cn/docs/self-hosting/self-host-runtime',
                 external: true,
             },
             { id: 'licence', label: 'MIT license', href: LICENSE_URL, external: true },
-            // Was https://kaiwu.chengqiyun.com/docs/security — the same class of defect
+            // Was https://kaiwu.wujilabs.cn/docs/security — the same class of defect
             // as the licence and changelog links above, and the most expensive
             // of the three. It took the single most evaluative visitor on the
             // site off it before they had read one sentence we wrote about the

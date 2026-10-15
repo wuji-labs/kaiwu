@@ -82,8 +82,8 @@ describe('server profile persistence', () => {
             cloud: {
               id: 'cloud',
               name: 'cloud',
-              serverUrl: 'https://kaiwu.chengqiyun.com',
-              webappUrl: 'https://kaiwu.chengqiyun.com',
+              serverUrl: 'https://kaiwu.wujilabs.cn',
+              webappUrl: 'https://kaiwu.wujilabs.cn',
               createdAt: 1,
               updatedAt: 1,
               lastUsedAt: 1,

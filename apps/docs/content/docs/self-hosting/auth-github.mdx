@@ -44,7 +44,7 @@ GITHUB_CLIENT_ID=...
 GITHUB_CLIENT_SECRET=...
 GITHUB_REDIRECT_URL=https://YOUR_SERVER/v1/oauth/github/callback
 
-# OAuth return redirect back to the client (required unless you are using https://kaiwu.chengqiyun.com)
+# OAuth return redirect back to the client (required unless you are using https://kaiwu.wujilabs.cn)
 # - Web: set this to the URL you open in the browser for the Kaiwu web app (self-hosted or local dev).
 # - Mobile: use KAIWU_WEBAPP_OAUTH_RETURN_URL_BASE + KAIWU_OAUTH_RETURN_ALLOWED_SCHEMES instead.
 KAIWU_WEBAPP_URL=https://YOUR_WEBAPP
@@ -123,8 +123,8 @@ AUTH_ANONYMOUS_SIGNUP_ENABLED=0
 - `GITHUB_REDIRECT_URL`（推荐）或旧版配置 `GITHUB_REDIRECT_URI`
   - 必须设置为：`https://YOUR_SERVER/v1/oauth/github/callback`
 
-必选（**除非**直接使用托管于 `https://kaiwu.chengqiyun.com` 的官方客户端）：
-- `KAIWU_WEBAPP_URL`（默认值 `https://kaiwu.chengqiyun.com`）
+必选（**除非**直接使用托管于 `https://kaiwu.wujilabs.cn` 的官方客户端）：
+- `KAIWU_WEBAPP_URL`（默认值 `https://kaiwu.wujilabs.cn`）
 
 可选（通常仅在支持移动端 Deep Link 或自定义 URL Scheme 时需要）：
 - `KAIWU_WEBAPP_OAUTH_RETURN_URL_BASE`
@@ -136,14 +136,14 @@ AUTH_ANONYMOUS_SIGNUP_ENABLED=0
 注意事项：
 - `GITHUB_REDIRECT_URL` 必须能够被 GitHub 访问（用户完成 OAuth 授权后，GitHub 会将浏览器重定向至该地址）。
 - 若服务器部署在反向代理之后，`GITHUB_REDIRECT_URL` 应填写**公网可访问**的 URL（而非容器内部主机名）。
-- 只有在使用托管于 `https://kaiwu.chengqiyun.com` 的官方客户端时，`KAIWU_WEBAPP_URL` / `KAIWU_WEBAPP_OAUTH_RETURN_URL_BASE` 才是“可选”的。
+- 只有在使用托管于 `https://kaiwu.wujilabs.cn` 的官方客户端时，`KAIWU_WEBAPP_URL` / `KAIWU_WEBAPP_OAUTH_RETURN_URL_BASE` 才是“可选”的。
   - 若自托管 Web 应用或在本地开发 Web 界面，则必须配置其中之一，以便服务器在 OAuth 流程完成后能重定向回客户端。
 
 ## OAuth 客户端返回 URL（高级）
 
 服务器处理完 GitHub 的回调后，会将浏览器重定向回客户端以完成整个流程。
 
-- 默认返回基础路径：`KAIWU_WEBAPP_URL`（`https://kaiwu.chengqiyun.com`）
+- 默认返回基础路径：`KAIWU_WEBAPP_URL`（`https://kaiwu.wujilabs.cn`）
   - 除非主动覆盖，否则服务器默认重定向至 `${KAIWU_WEBAPP_URL}/oauth/github?...`。
 - 覆盖返回基础路径（不包含提供商后缀）：`KAIWU_WEBAPP_OAUTH_RETURN_URL_BASE`
   - 示例：`https://app.example.com/custom-oauth` → 重定向至 `https://app.example.com/custom-oauth/github?...`
@@ -152,7 +152,7 @@ AUTH_ANONYMOUS_SIGNUP_ENABLED=0
   - `http://` 仅允许用于 `localhost`、`127.0.0.1` 及 `*.localhost` 等本地环回主机，非环回主机禁止使用。
 
 排错指南：
-- 若配置了 `KAIWU_WEBAPP_URL` 后仍被重定向至 `https://kaiwu.chengqiyun.com`，多半是因为服务器判定所配置的返回 URL 存在安全隐患并进行了拦截。本地 Web 开发请使用 `http://localhost:PORT` 或 `http://*.localhost:PORT`（亦可使用 `https://`）。
+- 若配置了 `KAIWU_WEBAPP_URL` 后仍被重定向至 `https://kaiwu.wujilabs.cn`，多半是因为服务器判定所配置的返回 URL 存在安全隐患并进行了拦截。本地 Web 开发请使用 `http://localhost:PORT` 或 `http://*.localhost:PORT`（亦可使用 `https://`）。
 
 ## OAuth 权限范围（Scopes）
 

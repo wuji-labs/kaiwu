@@ -60,7 +60,7 @@ if (appLocalConfigModule && typeof appLocalConfigModule === 'object') {
 
 const DEFAULTS = {
     ...EXPO_PROJECT_CONFIG,
-    linkHost: "app.chengqiyun.com",
+    linkHost: "kaiwu.wujilabs.cn",
 };
 
 // Allow opt-in overrides for local dev tooling without changing upstream defaults.
@@ -235,10 +235,10 @@ const updatesNativeDebugEnabled =
     null;
 
 // Kaiwu fork: OTA updates come only from our self-hosted, code-signed server (apps/ota-server,
-// deployed at kaiwu.chengqiyun.com/ota). Never fall back to u.expo.dev: the default EAS project id
+// deployed at kaiwu.wujilabs.cn/ota). Never fall back to u.expo.dev: the default EAS project id
 // belongs to upstream Happier, and fetching from it replaced installed Kaiwu apps with upstream's JS.
 // Every manifest must carry a signature that verifies against certs/kaiwu-ota-certificate.pem.
-const KAIWU_OTA_MANIFEST_URL = 'https://kaiwu.chengqiyun.com/ota/api/manifest';
+const KAIWU_OTA_MANIFEST_URL = 'https://kaiwu.wujilabs.cn/ota/api/manifest';
 const updatesUrl = (process.env.EXPO_UPDATES_URL || '').trim() || KAIWU_OTA_MANIFEST_URL;
 const updatesChannel = (process.env.EXPO_UPDATES_CHANNEL || '').trim() || appEnvironmentConfig.updatesChannel;
 const updatesEnabled = parseOptionalBoolean(process.env.KAIWU_EXPO_UPDATES_ENABLED) !== false;

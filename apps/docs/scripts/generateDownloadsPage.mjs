@@ -44,9 +44,9 @@ export function parseDownloadManifest(source) {
     appStore: manifest.appStoreUrl,
     androidApk: manifest.androidApkUrl,
     androidOptIn: manifest.androidPlayTestingOptInUrl,
-    webApp: "https://kaiwu.chengqiyun.com",
-    installUnix: (manifest.installCommandUnix || "").replaceAll("https://kaiwu.chengqiyun.com", "https://kaiwu.chengqiyun.com"),
-    installWindows: (manifest.installCommandWindows || "").replaceAll("https://kaiwu.chengqiyun.com", "https://kaiwu.chengqiyun.com"),
+    webApp: "https://kaiwu.wujilabs.cn",
+    installUnix: (manifest.installCommandUnix || "").replaceAll("https://kaiwu.wujilabs.cn", "https://kaiwu.wujilabs.cn"),
+    installWindows: (manifest.installCommandWindows || "").replaceAll("https://kaiwu.wujilabs.cn", "https://kaiwu.wujilabs.cn"),
   };
 }
 
@@ -66,15 +66,15 @@ terminal prints a code for a browser or phone you are already signed in on.
 ## On your phone
 
 <Cards>
-  <Card title="iOS" href="https://kaiwu.chengqiyun.com/download/ios" description="未签名安装包（需自签或 TestFlight），亦可通过 Safari 打开 https://kaiwu.chengqiyun.com 点击分享添加到主屏幕。" />
-  <Card title="Android (APK)" href="https://kaiwu.chengqiyun.com/download/android" description="Android 官方直链下载。" />
+  <Card title="iOS" href="https://kaiwu.wujilabs.cn/download/ios" description="未签名安装包（需自签或 TestFlight），亦可通过 Safari 打开 https://kaiwu.wujilabs.cn 点击分享添加到主屏幕。" />
+  <Card title="Android (APK)" href="https://kaiwu.wujilabs.cn/download/android" description="Android 官方直链下载。" />
 </Cards>
 
-iOS 客户端提供未签名安装包（需自签或 TestFlight）；同时推荐使用 Web 应用方式：在 iPhone / iPad 上使用 Safari 打开 [kaiwu.chengqiyun.com](https://kaiwu.chengqiyun.com)，点击底部「分享」按钮选择「添加到主屏幕」，即可获得如同原生应用的完整体验。
+iOS 客户端提供未签名安装包（需自签或 TestFlight）；同时推荐使用 Web 应用方式：在 iPhone / iPad 上使用 Safari 打开 [kaiwu.wujilabs.cn](https://kaiwu.wujilabs.cn)，点击底部「分享」按钮选择「添加到主屏幕」，即可获得如同原生应用的完整体验。
 
 ## In a browser
 
-[kaiwu.chengqiyun.com](https://kaiwu.chengqiyun.com) is the
+[kaiwu.wujilabs.cn](https://kaiwu.wujilabs.cn) is the
 full client — no install, and the fastest way to see whether Kaiwu suits you.
 It is also the easiest place to complete the CLI login, because you are probably
 already signed in to a browser on the machine you are setting up.
@@ -86,13 +86,13 @@ already signed in to a browser on the machine you are setting up.
 在 macOS / Linux 上安装 CLI：
 
 \`\`\`bash
-curl -fsSL https://kaiwu.chengqiyun.com/install | bash
+curl -fsSL https://kaiwu.wujilabs.cn/install | bash
 \`\`\`
 
 在 Windows 上使用 PowerShell 安装 CLI：
 
 \`\`\`powershell
-irm https://kaiwu.chengqiyun.com/install.ps1 | iex
+irm https://kaiwu.wujilabs.cn/install.ps1 | iex
 \`\`\`
 
 更多版本及发布信息可在 [Releases](https://github.com/wuji-labs/kaiwu/releases) 页面查看。
@@ -102,13 +102,13 @@ irm https://kaiwu.chengqiyun.com/install.ps1 | iex
 This is the part that does the work, and it is a CLI rather than an app:
 
 \`\`\`bash
-curl -fsSL https://kaiwu.chengqiyun.com/install | bash
+curl -fsSL https://kaiwu.wujilabs.cn/install | bash
 \`\`\`
 
 On Windows, in PowerShell:
 
 \`\`\`powershell
-irm https://kaiwu.chengqiyun.com/install.ps1 | iex
+irm https://kaiwu.wujilabs.cn/install.ps1 | iex
 \`\`\`
 
 The installer verifies every release signature before unpacking. See

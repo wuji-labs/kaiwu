@@ -103,7 +103,7 @@ export function Nav({ variant = 'overlay', isHome = true }: NavProps) {
                     >{rich(PAGE_PROSE.nav.p2)}</a>
                     {/* Enterprise takes the slot Guides used to hold. The link
                         equity that put Guides here in the first place — 53 guides
-                        at guides.kaiwu.chengqiyun.com with no inbound link from any Kaiwu
+                        at guides.kaiwu.wujilabs.cn with no inbound link from any Kaiwu
                         surface — is preserved by the Resources column in
                         src/sections/Footer.tsx, which is on every page and is
                         crawled from every one of them. What the nav slot is for is
@@ -120,7 +120,7 @@ export function Nav({ variant = 'overlay', isHome = true }: NavProps) {
                         style={{ color: 'var(--fg)', opacity: 0.85 }}
                     >{rich(PAGE_PROSE.nav.p3)}</a>
                     <a
-                        href="https://kaiwu.chengqiyun.com/docs"
+                        href="https://kaiwu.wujilabs.cn/docs"
                         target="_blank"
                         rel="noreferrer"
                         className="text-[14px] font-medium transition-opacity hover:opacity-100"

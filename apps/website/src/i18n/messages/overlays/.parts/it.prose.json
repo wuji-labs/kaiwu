@@ -94,7 +94,7 @@
   "pageProse.PAGE_PROSE.verifyInstaller.p0": "Release firmate — verifica prima di eseguirlo",
   "pageProse.PAGE_PROSE.verifyInstaller.p1": "L’installer non si fida del proprio download. Scarica l’archivio della release e il file <1>checksums.txt</1> pubblicato, confronta con esso lo SHA-256 dell’archivio, poi verifica quel file di checksum con <2>minisign</2> rispetto a una chiave inclusa nello script. Se uno dei due controlli fallisce, l’installazione si interrompe prima che qualcosa venga scritto su disco.",
   "pageProse.PAGE_PROSE.verifyInstaller.p2": "Chiave di firma {RELEASE_PUBKEY_ID}:",
-  "pageProse.PAGE_PROSE.verifyInstaller.p3": "È servita anche su <1>kaiwu.chengqiyun.com/KAIWU-release.pub</1>. Le due dovrebbero essere identiche — se non lo sono, non installare.",
+  "pageProse.PAGE_PROSE.verifyInstaller.p3": "È servita anche su <1>kaiwu.wujilabs.cn/KAIWU-release.pub</1>. Le due dovrebbero essere identiche — se non lo sono, non installare.",
   "pageProse.PAGE_PROSE.verifyInstaller.p4": "Preferisci non mandare niente in pipe a una shell? Non farlo:",
   "pageProse.PAGE_PROSE.verifyInstaller.p5": "<1>Leggi lo script</1> · <2>Modello di sicurezza</2>",
   "pageProse.PAGE_PROSE.vsRemoteControlPage.p8": "Claude Code Remote Control",

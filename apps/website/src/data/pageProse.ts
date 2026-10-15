@@ -22,7 +22,7 @@ export const PAGE_PROSE = {
     agentDetail: {
         p0: "Kaiwu looks for <1>{binary}</1> on your PATH and runs the copy you installed. {vendor} distributes it with an install script rather than a package; Kaiwu can show you that command, and it will not execute a vendor install script on its own — vendor recipes are refused unless you explicitly allow them.",
         p1: "Kaiwu looks for <1>{binary}</1> on your PATH and runs the copy you installed. There is no install path for it inside Kaiwu at all: install it the way {vendor} documents, and Kaiwu picks it up from there.",
-        p2: "The iOS and Android apps, the desktop app for macOS, Windows and Linux, and <1>kaiwu.chengqiyun.com</1> are all clients onto the {name} process running on your computer — not read-only mirrors. Answer a permission request, send the next instruction, browse the repository, read the diff. The transcript is end-to-end encrypted before it leaves your computer, so the server carrying it holds ciphertext.",
+        p2: "The iOS and Android apps, the desktop app for macOS, Windows and Linux, and <1>kaiwu.wujilabs.cn</1> are all clients onto the {name} process running on your computer — not read-only mirrors. Answer a permission request, send the next instruction, browse the repository, read the diff. The transcript is end-to-end encrypted before it leaves your computer, so the server carrying it holds ciphertext.",
         p3: "Kaiwu installs on the computer that already holds your repository, and <1>Kaiwu {id}</1> starts {name} there as an ordinary subprocess, in the directory you point it at, signed in the way you signed it in. There is no gateway between the agent and {vendor}, and no copy of your source anywhere else.",
         p4: "Configuration reference for the Kaiwu side — <1>{name} in the Kaiwu docs</1>.",
         p5: "{name} is one of {length} command-line coding agents Kaiwu runs, and they share one session list, one permission inbox, one set of keyboard shortcuts and one MCP configuration.",
@@ -263,7 +263,7 @@ export const PAGE_PROSE = {
         p0: "Signed releases — verify before you run it",
         p1: "The installer does not trust its own download. It fetches the release archive and the published <1>checksums.txt</1>, checks the archive’s SHA-256 against it, then verifies that checksums file with <2>minisign</2> against a key that ships inside the script. Either check failing aborts the install before anything is written to disk.",
         p2: "Signing key {RELEASE_PUBKEY_ID}:",
-        p3: "It is also served at <1>kaiwu.chengqiyun.com/Kaiwu-release.pub</1>. The two should be identical — if they are not, do not install.",
+        p3: "It is also served at <1>kaiwu.wujilabs.cn/Kaiwu-release.pub</1>. The two should be identical — if they are not, do not install.",
         p4: "Prefer not to pipe anything into a shell? Don’t:",
         p5: "<1>Read the script</1> · <2>Security model</2>",
     },

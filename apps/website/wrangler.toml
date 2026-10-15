@@ -1,4 +1,4 @@
-# Cloudflare Workers deployment for kaiwu.chengqiyun.com.
+# Cloudflare Workers deployment for kaiwu.wujilabs.cn.
 #
 # The site is fully prerendered — every route in src/routes.tsx is baked into
 # its own dist/<route>/index.html by scripts/prerender.mjs. Those requests are
@@ -33,7 +33,7 @@ preview_urls = true
 # and maintain the DNS record and certificate for the Worker instead of relying
 # on a dashboard-only mapping that a deployment cannot reproduce.
 [[routes]]
-pattern = "kaiwu.chengqiyun.com"
+pattern = "kaiwu.wujilabs.cn"
 custom_domain = true
 
 [assets]

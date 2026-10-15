@@ -46,7 +46,7 @@ import path from 'node:path';
  * ignores lastmod it does not trust.
  */
 
-const SITE = 'https://kaiwu.chengqiyun.com';
+const SITE = 'https://kaiwu.wujilabs.cn';
 
 function buildXml(routes, lastmod) {
     const urls = routes

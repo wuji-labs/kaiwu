@@ -197,8 +197,8 @@ const defaultSettings: Settings = {
     cloud: {
       id: 'cloud',
       name: '无极开物 · 官方中继',
-      serverUrl: 'https://kaiwu.chengqiyun.com',
-      webappUrl: 'https://kaiwu.chengqiyun.com',
+      serverUrl: 'https://kaiwu.wujilabs.cn',
+      webappUrl: 'https://kaiwu.wujilabs.cn',
       createdAt: 0,
       updatedAt: 0,
       lastUsedAt: 0,
@@ -236,8 +236,8 @@ function migrateSettings(raw: any, fromVersion: number): any {
 
   // Migration from v4 to v5 (server profiles + per-server state)
   if (fromVersion < 5) {
-    const DEFAULT_SERVER_URL = 'https://kaiwu.chengqiyun.com';
-    const DEFAULT_WEBAPP_URL = 'https://kaiwu.chengqiyun.com';
+    const DEFAULT_SERVER_URL = 'https://kaiwu.wujilabs.cn';
+    const DEFAULT_WEBAPP_URL = 'https://kaiwu.wujilabs.cn';
     const now = Date.now();
 
     const cloudId = 'cloud';

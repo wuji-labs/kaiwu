@@ -4,7 +4,7 @@
  * THE HIGHEST-STAKES PAGE ON THE SITE. Everything here is a claim about a
  * security control, made to a reader whose job is to check it. One capability
  * that is "in the schema but not in production" costs more credibility than
- * every other page on kaiwu.chengqiyun.com earns.
+ * every other page on kaiwu.wujilabs.cn earns.
  *
  * The rule applied while writing it: a capability appears below only if it is
  * (a) documented in the shipped tree AND (b) traceable to server source. Two
@@ -124,5 +124,5 @@ export const ENTERPRISE_ZDR: ReadonlyArray<string> = [
 ];
 
 /** Where the operator goes next. Not a step list — this page does not own procedure. */
-export const ENTERPRISE_DOCS_URL = 'https://kaiwu.chengqiyun.com/docs/server/auth';
-export const ENTERPRISE_DEPLOY_URL = 'https://kaiwu.chengqiyun.com/docs/deployment/docker';
+export const ENTERPRISE_DOCS_URL = 'https://kaiwu.wujilabs.cn/docs/server/auth';
+export const ENTERPRISE_DEPLOY_URL = 'https://kaiwu.wujilabs.cn/docs/deployment/docker';

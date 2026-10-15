@@ -23,7 +23,7 @@ describe('settings migration v6 -> v7', () => {
     process.env.HAPPIER_HOME_DIR = homeDir;
 
     // Construct v6 sample with:
-    // - cloud: default kaiwu.chengqiyun.com
+    // - cloud: default kaiwu.wujilabs.cn
     // - kaiwu: same address as cloud (with trailing slash), activeServerId points to it, has machineId
     // - wuji: points to flfz.org (should be deleted)
     const v6Settings = {
@@ -34,8 +34,8 @@ describe('settings migration v6 -> v7', () => {
         cloud: {
           id: 'cloud',
           name: '无极开物 · 官方中继',
-          serverUrl: 'https://kaiwu.chengqiyun.com',
-          webappUrl: 'https://kaiwu.chengqiyun.com',
+          serverUrl: 'https://kaiwu.wujilabs.cn',
+          webappUrl: 'https://kaiwu.wujilabs.cn',
           createdAt: 1000,
           updatedAt: 1000,
           lastUsedAt: 1000,
@@ -43,8 +43,8 @@ describe('settings migration v6 -> v7', () => {
         kaiwu: {
           id: 'kaiwu',
           name: 'kaiwu self-hosted',
-          serverUrl: 'https://kaiwu.chengqiyun.com/',  // Trailing slash, same address
-          webappUrl: 'https://kaiwu.chengqiyun.com',
+          serverUrl: 'https://kaiwu.wujilabs.cn/',  // Trailing slash, same address
+          webappUrl: 'https://kaiwu.wujilabs.cn',
           createdAt: 2000,
           updatedAt: 2000,
           lastUsedAt: 2000,
@@ -104,7 +104,7 @@ describe('settings migration v6 -> v7', () => {
 
     // Only cloud server should remain
     expect(Object.keys(migrated.servers || {})).toEqual(['cloud']);
-    expect(migrated.servers?.cloud?.serverUrl).toBe('https://kaiwu.chengqiyun.com');
+    expect(migrated.servers?.cloud?.serverUrl).toBe('https://kaiwu.wujilabs.cn');
 
     // activeServerId should be changed to 'cloud'
     expect(migrated.activeServerId).toBe('cloud');
@@ -160,8 +160,8 @@ describe('settings migration v6 -> v7', () => {
         cloud: {
           id: 'cloud',
           name: '无极开物 · 官方中继',
-          serverUrl: 'https://kaiwu.chengqiyun.com',
-          webappUrl: 'https://kaiwu.chengqiyun.com',
+          serverUrl: 'https://kaiwu.wujilabs.cn',
+          webappUrl: 'https://kaiwu.wujilabs.cn',
           createdAt: 1000,
           updatedAt: 1000,
           lastUsedAt: 1000,

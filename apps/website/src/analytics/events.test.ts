@@ -33,7 +33,7 @@ describe('analytics taxonomy', () => {
     it('never points ingest at a US or unspecified PostHog host', () => {
         expect(POSTHOG_EU_ORIGIN).toBe('https://eu.i.posthog.com');
         expect(UI_ORIGIN).toBe('https://eu.posthog.com');
-        expect(INGEST_ORIGIN.startsWith('https://kaiwu.chengqiyun.com/')).toBe(true);
+        expect(INGEST_ORIGIN.startsWith('https://kaiwu.wujilabs.cn/')).toBe(true);
 
         for (const { file, code } of SOURCES) {
             expect(code, `${file} references a non-EU PostHog host`).not.toMatch(

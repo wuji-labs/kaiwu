@@ -31,7 +31,7 @@ $KAIWU_SERVER_URL = if ($ServerUrl) {
 } elseif ($env:KAIWU_SERVER_URL) {
     $env:KAIWU_SERVER_URL
 } else {
-    "https://kaiwu.chengqiyun.com"
+    "https://kaiwu.wujilabs.cn"
 }
 
 $LATEST_METADATA_URL = "https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/latest.json"

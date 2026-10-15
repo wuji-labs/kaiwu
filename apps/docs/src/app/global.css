@@ -13,7 +13,7 @@
    The dark palette below is the APP's, transcribed from
    apps/ui/sources/theme/index.ts and theme/tokens/surfaceAndTextColors.ts. That
    is a deliberate choice over the marketing site's, and the two are genuinely
-   different blacks: kaiwu.chengqiyun.com grounds on #050507, which is cool — a trace of
+   different blacks: kaiwu.wujilabs.cn grounds on #050507, which is cool — a trace of
    blue. The app grounds on #131111, which is warm — a trace of red. Reading
    documentation is much closer to using the product than to browsing the
    marketing page, so the docs sit in the app's room, not the poster's.
@@ -35,7 +35,7 @@
    LIGHT MODE stays on the marketing site's paper (#F5F5F7 / #0A0A0B). The app's
    light theme grounds on #F5F5F5 with pure-white surfaces, which is close
    enough that mixing them would be a difference nobody could name; where they
-   disagree, the site's is the one a reader arriving from kaiwu.chengqiyun.com just saw.
+   disagree, the site's is the one a reader arriving from kaiwu.wujilabs.cn just saw.
 
    The accent is not used identically in both themes, and cannot be. On the site
    --accent is only ever a background fill — never text. fumadocs spends
@@ -196,7 +196,7 @@ samp {
    fonts (Inter among them), 40-unit section padding, rotated cards and
    screen-filling nav overlays. Those rules exist to stop generic template
    output; here they would fight two things that matter more. Inter and Inter
-   Tight ARE the brand — kaiwu.chengqiyun.com is built on them, and a docs site in a
+   Tight ARE the brand — kaiwu.wujilabs.cn is built on them, and a docs site in a
    different typeface is a worse outcome than a docs site in a common one. And
    marketing whitespace on a reference document costs the reader scrolling for
    nothing. The craft is applied; the theatrics are not.
@@ -274,7 +274,7 @@ kbd {
 }
 
 /*
- * ONE TYPE SCALE, SHARED WITH kaiwu.chengqiyun.com.
+ * ONE TYPE SCALE, SHARED WITH kaiwu.wujilabs.cn.
  *
  * These are the website's numbers rather than new ones — it is the validated
  * design, and a reader moving from a marketing page to a doc should not feel

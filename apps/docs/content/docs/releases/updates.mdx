@@ -41,7 +41,7 @@ Kaiwu（无极开物）包含多个应用与工具，**具体的更新机制取�
 | **中继服务器 npm 包**（`@KAIWU-dev/relay-server`） | `npx … @KAIWU-dev/relay-server KAIWU-server …` | 运行器启动时，会拉取所选滚动标签对应的最新服务端运行时与 UI 静态包 | 是（重启后生效） | 重启运行器即可拉取最新的滚动标签；可通过 `--tag server-vX.Y.Z` 与 `--ui-tag ui-web-vX.Y.Z` 锁定版本；通过 `--without-ui` 或 `KAIWU_SERVER_UI_DIR=` 禁用 UI |
 | **中继服务器 npm 运行器“内置” UI** | 由运行器动态下载并缓存（未直接打包在 npm tarball 中） | 运行器在需要时自动下载 UI 静态包 | 是（重启后生效） | 控制方式与运行器相同：使用 `--ui-tag …`、`--without-ui`，或将 `KAIWU_SERVER_UI_DIR` 指向固定目录 |
 | **托管中继运行时**（`kaiwu relay host …`） | 安装 Kaiwu CLI 后运行 `kaiwu relay host install …` | 重新运行 `kaiwu relay host install` 时更新 | 否 | 运行 `kaiwu relay host install`（在本地执行或配合 `--ssh user@host` 执行） |
-| **CLI 安装程序**（`https://kaiwu.chengqiyun.com/install`） | `curl …install \| bash` / `irm …install.ps1` | 重新运行安装程序（或通过 CLI 的自我更新功能进行更新） | 否 | 重新运行安装程序，或使用 `self update` 配合运行对应通道的专用命令（`kaiwu`、`hprev` 或 `hdev`） |
+| **CLI 安装程序**（`https://kaiwu.wujilabs.cn/install`） | `curl …install \| bash` / `irm …install.ps1` | 重新运行安装程序（或通过 CLI 的自我更新功能进行更新） | 否 | 重新运行安装程序，或使用 `self update` 配合运行对应通道的专用命令（`kaiwu`、`hprev` 或 `hdev`） |
 | **CLI 安装程序产物** | 安装于 `~/.kaiwu/cli{,-preview,-dev}/{versions,current,previous}` 下（兼容读取 `~/.KAIWU`），并在 `~/.kaiwu/bin` 和 `~/.local/bin`（或 Windows 对应路径）中提供通道专属 shim 脚本 | 运行 `kaiwu self update`、`hprev self update`、`hdev self update` 或重新运行安装程序时更新 | 否（但会显示更新提示） | 安装程序对应的通道包括 `stable`（`kaiwu`）、`preview`（`hprev`）和 `dev`（`hdev`）。你仍可显式指定 `--channel preview|dev` 或 `--to versionOrTag` 进行更新。 |
 | **CLI npm 包**（`@KAIWU-dev/cli`） | `npm install -g @KAIWU-dev/cli` | 升级该 npm 包时更新 | 否（但会显示更新提示） | 运行 `npm install -g @KAIWU-dev/cli@latest`（预览版运行 `@next`） |
 | **栈 npm 包**（`@KAIWU-dev/stack`） | `npm install -g @KAIWU-dev/stack` | 升级该 npm 包（或使用 `hstack self update` 运行时安装）时更新 | 否（但会显示更新提示） | 运行 `hstack self update`（在栈内部推荐使用）或 `npm install -g @KAIWU-dev/stack@latest` |
@@ -133,7 +133,7 @@ kaiwu self update --to 0.1.2
 重新运行安装程序同样是有效的更新途径：
 
 ```bash
-curl -fsSL https://kaiwu.chengqiyun.com/install | bash
+curl -fsSL https://kaiwu.wujilabs.cn/install | bash
 ```
 
 ### 如果是通过 npm 安装 CLI
@@ -170,13 +170,13 @@ npm install -g @KAIWU-dev/cli@next
 
 ```bash
 # Check the installed binary + PATH shim
-curl -fsSL https://kaiwu.chengqiyun.com/install | bash -s -- --check
+curl -fsSL https://kaiwu.wujilabs.cn/install | bash -s -- --check
 
 # Print the latest version available on the selected channel
-curl -fsSL https://kaiwu.chengqiyun.com/install | bash -s -- --version
+curl -fsSL https://kaiwu.wujilabs.cn/install | bash -s -- --version
 
 # Update/reinstall to latest on the selected channel
-curl -fsSL https://kaiwu.chengqiyun.com/install | bash
+curl -fsSL https://kaiwu.wujilabs.cn/install | bash
 ```
 
 Windows（PowerShell）下的更新方式与此相同（重新运行安装程序）。

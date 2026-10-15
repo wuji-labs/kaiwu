@@ -6,7 +6,7 @@ const config: OtaServerConfig = {
   port: parseInt(process.env.PORT || '3010', 10),
   dataDir: process.env.OTA_DATA_DIR || path.resolve(process.cwd(), 'data'),
   privateKeyPath: process.env.OTA_PRIVATE_KEY_PATH || '',
-  publicBaseUrl: process.env.OTA_PUBLIC_BASE_URL || 'https://kaiwu.chengqiyun.com/ota',
+  publicBaseUrl: process.env.OTA_PUBLIC_BASE_URL || 'https://kaiwu.wujilabs.cn/ota',
 };
 
 const server = createOtaServer(config);

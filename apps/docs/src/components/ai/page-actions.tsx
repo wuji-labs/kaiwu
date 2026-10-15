@@ -78,8 +78,8 @@ export function ViewOptions({
 
     return [
       {
-        title: '官网 (chengqiyun.com)',
-        href: 'https://chengqiyun.com',
+        title: '官网 (wujilabs.cn)',
+        href: 'https://wujilabs.cn',
         icon: (
           <ExternalLinkIcon className="size-4" />
         ),

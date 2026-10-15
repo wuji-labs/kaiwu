@@ -33,7 +33,7 @@ const TARGETS = [
     downloads.androidApkUrl,
 
     // Installer + trust surface
-    'https://kaiwu.chengqiyun.com/install',
+    'https://kaiwu.wujilabs.cn/install',
     downloads.installScriptUrl,
     downloads.installScriptPs1Url,
     downloads.releasePubkeyUrl,
@@ -41,11 +41,11 @@ const TARGETS = [
     // Product surfaces
     downloads.webAppUrl,
     downloads.docsUrl,
-    'https://kaiwu.chengqiyun.com/docs/security',
-    'https://kaiwu.chengqiyun.com/docs/providers',
-    'https://kaiwu.chengqiyun.com/docs/releases',
-    'https://kaiwu.chengqiyun.com/docs/getting-started/onboarding',
-    'https://kaiwu.chengqiyun.com/docs/deployment/self-host-runtime',
+    'https://kaiwu.wujilabs.cn/docs/security',
+    'https://kaiwu.wujilabs.cn/docs/providers',
+    'https://kaiwu.wujilabs.cn/docs/releases',
+    'https://kaiwu.wujilabs.cn/docs/getting-started/onboarding',
+    'https://kaiwu.wujilabs.cn/docs/deployment/self-host-runtime',
     downloads.guidesUrl,
 
     // Repo — note the British spelling; /LICENSE is a 404.
@@ -54,8 +54,8 @@ const TARGETS = [
     'https://github.com/Kaiwu-dev/Kaiwu/graphs/contributors',
 
     // Published stats the counters read.
-    'https://stats.kaiwu.chengqiyun.com/downloads.json',
-    'https://stats.kaiwu.chengqiyun.com/discord.json',
+    'https://stats.kaiwu.wujilabs.cn/downloads.json',
+    'https://stats.kaiwu.wujilabs.cn/discord.json',
 
     // Community
     'https://discord.gg/W6Pb8KuHfg',

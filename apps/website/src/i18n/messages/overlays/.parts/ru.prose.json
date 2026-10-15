@@ -94,7 +94,7 @@
   "pageProse.PAGE_PROSE.verifyInstaller.p0": "Подписанные релизы — проверьте перед запуском",
   "pageProse.PAGE_PROSE.verifyInstaller.p1": "Установщик не доверяет собственной загрузке. Он скачивает архив релиза и опубликованный <1>checksums.txt</1>, сверяет с ним SHA-256 архива, а затем проверяет сам файл контрольных сумм через <2>minisign</2> ключом, который лежит внутри скрипта. Провал любой из двух проверок прерывает установку до того, как на диск что-либо запишется.",
   "pageProse.PAGE_PROSE.verifyInstaller.p2": "Ключ подписи {RELEASE_PUBKEY_ID}:",
-  "pageProse.PAGE_PROSE.verifyInstaller.p3": "Он же отдаётся по адресу <1>kaiwu.chengqiyun.com/KAIWU-release.pub</1>. Эти два значения должны совпадать — если нет, не устанавливайте.",
+  "pageProse.PAGE_PROSE.verifyInstaller.p3": "Он же отдаётся по адресу <1>kaiwu.wujilabs.cn/KAIWU-release.pub</1>. Эти два значения должны совпадать — если нет, не устанавливайте.",
   "pageProse.PAGE_PROSE.verifyInstaller.p4": "Предпочитаете ничего не направлять по конвейеру в оболочку? И не надо:",
   "pageProse.PAGE_PROSE.verifyInstaller.p5": "<1>Прочитать скрипт</1> · <2>Модель безопасности</2>",
   "pageProse.PAGE_PROSE.vsRemoteControlPage.p8": "Claude Code Remote Control",

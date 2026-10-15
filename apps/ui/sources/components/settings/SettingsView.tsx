@@ -160,7 +160,7 @@ export const SettingsView = React.memo(function SettingsView() {
     }, []);
 
     const handleGitHub = async () => {
-        const url = 'https://chengqiyun.com';
+        const url = 'https://wujilabs.cn';
         const supported = await Linking.canOpenURL(url);
         if (supported) {
             await Linking.openURL(url);

@@ -184,7 +184,7 @@ function findingDetailLine(finding: RepairFinding): string | null {
     case 'machine_not_registered_for_profile':
       return `${finding.serverName} · ${finding.serverUrl}`;
     case 'dev_on_hosted_cloud_informational':
-      return 'dev CLI · kaiwu.chengqiyun.com';
+      return 'dev CLI · kaiwu.wujilabs.cn';
     case 'multi_stack_detected_informational':
       return finding.stacks.map((s) => s.releaseChannel).join(' · ');
     case 'cli_self_update_available':

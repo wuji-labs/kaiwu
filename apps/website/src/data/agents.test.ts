@@ -28,7 +28,7 @@ import {
 /**
  * THE ROT GATE FOR /agents AND EVERY /agents/<slug> PAGE.
  *
- * kaiwu.chengqiyun.com's rule for minting a URL is that a build-time test must be able to
+ * kaiwu.wujilabs.cn's rule for minting a URL is that a build-time test must be able to
  * FAIL when the page drifts. This is that test.
  *
  * THE BUG IN THE PREVIOUS VERSION OF THIS FILE

@@ -104,8 +104,8 @@ export function VerifyInstaller({ windowsShell = false }: { windowsShell?: boole
                 >
                     <code>
                         {windowsShell
-                            ? 'iwr https://kaiwu.chengqiyun.com/install.ps1 -useb -OutFile install.ps1\nnotepad install.ps1   # read it first\n.\\install.ps1'
-                            : 'curl -fsSL https://kaiwu.chengqiyun.com/install.sh -o Kaiwu-install.sh\nless Kaiwu-install.sh   # read it first\nbash Kaiwu-install.sh'}
+                            ? 'iwr https://kaiwu.wujilabs.cn/install.ps1 -useb -OutFile install.ps1\nnotepad install.ps1   # read it first\n.\\install.ps1'
+                            : 'curl -fsSL https://kaiwu.wujilabs.cn/install.sh -o Kaiwu-install.sh\nless Kaiwu-install.sh   # read it first\nbash Kaiwu-install.sh'}
                     </code>
                 </pre>
 
@@ -116,7 +116,7 @@ export function VerifyInstaller({ windowsShell = false }: { windowsShell?: boole
                         className="underline underline-offset-2"
                         style={{ color: 'var(--fg)' }}
                     >{c}</a>, 2: (c: ReactNode) => <a
-                        href="https://kaiwu.chengqiyun.com/docs/security"
+                        href="https://kaiwu.wujilabs.cn/docs/security"
                         target="_blank"
                         rel="noreferrer"
                         className="underline underline-offset-2"

@@ -144,7 +144,7 @@ AUTH_ANONYMOUS_SIGNUP_ENABLED=0
    - 设置为持续访问的必需项：`AUTH_REQUIRED_LOGIN_PROVIDERS=<providerId>`
    - 若有需要，可禁用匿名注册：`AUTH_ANONYMOUS_SIGNUP_ENABLED=false`
 5. 确保客户端应用能够从 OAuth 正常返回：
-   - Web 端（除非使用 `https://kaiwu.chengqiyun.com`，否则为必填）：设置 `KAIWU_WEBAPP_URL`（或 `KAIWU_WEBAPP_OAUTH_RETURN_URL_BASE`）
+   - Web 端（除非使用 `https://kaiwu.wujilabs.cn`，否则为必填）：设置 `KAIWU_WEBAPP_URL`（或 `KAIWU_WEBAPP_OAUTH_RETURN_URL_BASE`）
    - 移动端 Deep Link：设置 `KAIWU_WEBAPP_OAUTH_RETURN_URL_BASE`，并通过 `KAIWU_OAUTH_RETURN_ALLOWED_SCHEMES` 允许对应 scheme（例如 `myapp`）
 6. 验证：
    - 重启服务器（以加载环境变量和配置变更）。
@@ -152,11 +152,11 @@ AUTH_ANONYMOUS_SIGNUP_ENABLED=0
    - 如果没有显示，请仔细核对重定向 URL、签发者 URL，并确认 `AUTH_SIGNUP_PROVIDERS` / `AUTH_REQUIRED_LOGIN_PROVIDERS` 引用了相同的提供商 ID。（排查问题时，你也可以检查 `GET /v1/features`。）
 
 关于“可选”Web 应用 URL 环境变量的说明：
-- 只有在使用托管于 `https://kaiwu.chengqiyun.com` 的客户端时，`KAIWU_WEBAPP_URL` / `KAIWU_WEBAPP_OAUTH_RETURN_URL_BASE` 才是“可选”的。
+- 只有在使用托管于 `https://kaiwu.wujilabs.cn` 的客户端时，`KAIWU_WEBAPP_URL` / `KAIWU_WEBAPP_OAUTH_RETURN_URL_BASE` 才是“可选”的。
   - 如果你是自托管 Web 应用，或使用本地开发环境的 Web UI，则必须配置其中之一，以便服务器在 OAuth 流程结束后能够重定向回你的客户端。
 
 故障排查：
-- 如果在设置了 `KAIWU_WEBAPP_URL` 后仍被重定向至 `https://kaiwu.chengqiyun.com`，通常是因为服务器判定你配置的返回 URL 不安全并予以拒绝。本地 Web 开发时，请使用 `http://localhost:PORT` 或 `http://*.localhost:PORT`（或使用 `https://`）。
+- 如果在设置了 `KAIWU_WEBAPP_URL` 后仍被重定向至 `https://kaiwu.wujilabs.cn`，通常是因为服务器判定你配置的返回 URL 不安全并予以拒绝。本地 Web 开发时，请使用 `http://localhost:PORT` 或 `http://*.localhost:PORT`（或使用 `https://`）。
 
 ## OIDC 之外的“自定义提供商”
 
