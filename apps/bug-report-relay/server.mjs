@@ -199,11 +199,18 @@ export function createBugReportRelay(deps = {}) {
   async function notify(markdown) {
     if (!config.wecomWebhookUrl) return;
     try {
-      await fetchImpl(config.wecomWebhookUrl, {
+      const response = await fetchImpl(config.wecomWebhookUrl, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ msgtype: 'markdown', markdown: { content: markdown } }),
       });
+      // WeCom answers HTTP 200 even on failure; the outcome is in errcode.
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || (result.errcode !== undefined && result.errcode !== 0)) {
+        console.error(`[bug-report-relay] notify rejected: http ${response.status} errcode ${result.errcode} ${result.errmsg ?? ''}`);
+      } else {
+        console.log('[bug-report-relay] operators notified');
+      }
     } catch (error) {
       console.error('[bug-report-relay] notify failed:', error?.message ?? error);
     }
