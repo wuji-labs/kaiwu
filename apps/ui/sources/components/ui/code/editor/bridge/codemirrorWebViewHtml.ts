@@ -37,16 +37,16 @@ export function buildCodeMirrorWebViewHtml(params: Readonly<{
     const cdnModuleImports = hasEmbeddedBundle
         ? ''
         : `[
-            import('https://cdn.jsdelivr.net/npm/@codemirror/state@6.5.4/+esm'),
-            import('https://cdn.jsdelivr.net/npm/@codemirror/view@6.39.15/+esm'),
-            import('https://cdn.jsdelivr.net/npm/@codemirror/commands@6.10.2/+esm'),
-            import('https://cdn.jsdelivr.net/npm/@codemirror/language@6.12.1/+esm'),
-            import('https://cdn.jsdelivr.net/npm/@codemirror/autocomplete@6.20.0/+esm'),
-            import('https://cdn.jsdelivr.net/npm/@codemirror/lang-javascript@6.2.4/+esm'),
-            import('https://cdn.jsdelivr.net/npm/@codemirror/lang-python@6.2.1/+esm'),
-            import('https://cdn.jsdelivr.net/npm/@codemirror/lang-markdown@6.5.0/+esm'),
-            import('https://cdn.jsdelivr.net/npm/@codemirror/lang-json@6.0.2/+esm'),
-            import('https://cdn.jsdelivr.net/npm/@lezer/highlight@1.2.3/+esm'),
+            import('https://kaiwu.wujilabs.cn/vendor/cdn/esm/@codemirror/state@6.5.4.js'),
+            import('https://kaiwu.wujilabs.cn/vendor/cdn/esm/@codemirror/view@6.39.15.js'),
+            import('https://kaiwu.wujilabs.cn/vendor/cdn/esm/@codemirror/commands@6.10.2.js'),
+            import('https://kaiwu.wujilabs.cn/vendor/cdn/esm/@codemirror/language@6.12.1.js'),
+            import('https://kaiwu.wujilabs.cn/vendor/cdn/esm/@codemirror/autocomplete@6.20.0.js'),
+            import('https://kaiwu.wujilabs.cn/vendor/cdn/esm/@codemirror/lang-javascript@6.2.4.js'),
+            import('https://kaiwu.wujilabs.cn/vendor/cdn/esm/@codemirror/lang-python@6.2.1.js'),
+            import('https://kaiwu.wujilabs.cn/vendor/cdn/esm/@codemirror/lang-markdown@6.5.0.js'),
+            import('https://kaiwu.wujilabs.cn/vendor/cdn/esm/@codemirror/lang-json@6.0.2.js'),
+            import('https://kaiwu.wujilabs.cn/vendor/cdn/esm/@lezer/highlight@1.2.3.js'),
           ]`;
 
     // Notes:

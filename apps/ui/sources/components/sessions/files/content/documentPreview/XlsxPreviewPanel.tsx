@@ -104,7 +104,7 @@ export function XlsxPreviewPanel(props: XlsxPreviewPanelProps) {
       z-index: 1;
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://kaiwu.wujilabs.cn/vendor/cdn/xlsx@0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
   <div id="loading">Loading spreadsheet...</div>

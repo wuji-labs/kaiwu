@@ -79,8 +79,8 @@ export function DocxPreviewPanel(props: DocxPreviewPanelProps) {
       padding: 6px 10px;
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docx-preview@0.3.3/dist/docx-preview.min.js"></script>
+  <script src="https://kaiwu.wujilabs.cn/vendor/cdn/jszip@3.10.1/jszip.min.js"></script>
+  <script src="https://kaiwu.wujilabs.cn/vendor/cdn/docx-preview@0.3.3/docx-preview.min.js"></script>
 </head>
 <body>
   <div id="loading">Loading document...</div>

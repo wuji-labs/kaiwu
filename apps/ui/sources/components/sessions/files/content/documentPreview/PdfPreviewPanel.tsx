@@ -83,7 +83,7 @@ export function PdfPreviewPanel(props: PdfPreviewPanelProps) {
       padding: 0 16px;
     }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://kaiwu.wujilabs.cn/vendor/cdn/pdfjs-dist@3.11.174/pdf.min.js"></script>
 </head>
 <body>
   <div id="loading">Loading PDF...</div>
@@ -107,7 +107,7 @@ export function PdfPreviewPanel(props: PdfPreviewPanelProps) {
         if (!window.pdfjsLib) {
           throw new Error('PDF.js library could not be loaded');
         }
-        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://kaiwu.wujilabs.cn/vendor/cdn/pdfjs-dist@3.11.174/pdf.worker.min.js';
 
         const loadingTask = window.pdfjsLib.getDocument(url);
         const pdf = await loadingTask.promise;

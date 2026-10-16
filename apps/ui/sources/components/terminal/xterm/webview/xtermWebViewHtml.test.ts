@@ -52,7 +52,8 @@ describe('buildXtermWebViewHtml', () => {
             allowCdnFallback: true,
         });
 
-        expect(html).toContain('cdn.jsdelivr.net');
+        expect(html).toContain('https://kaiwu.wujilabs.cn/vendor/cdn/esm/');
+        expect(html).not.toContain('cdn.jsdelivr.net');
     });
 
     it('includes the message protocol surface', async () => {

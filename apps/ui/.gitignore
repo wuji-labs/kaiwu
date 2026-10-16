@@ -29,6 +29,8 @@ public/monaco/
 
 # Vendored by postinstall for optional web-only runtimes (do not commit).
 public/vendor/*
+# Pinned third-party libraries self-hosted instead of jsDelivr/cdnjs (committed on purpose).
+!public/vendor/cdn/
 !public/vendor/kokoro/
 public/vendor/kokoro/*
 !public/vendor/kokoro/kokoroTtsWorker.js

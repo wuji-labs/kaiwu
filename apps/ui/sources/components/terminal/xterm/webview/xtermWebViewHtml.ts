@@ -37,9 +37,9 @@ export function buildXtermWebViewHtml(params: Readonly<{
         hasEmbeddedBundle || !params.allowCdnFallback
             ? ''
             : `[
-                import('https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/+esm'),
-                import('https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/+esm'),
-                import('https://cdn.jsdelivr.net/npm/@xterm/addon-web-links@0.11.0/+esm'),
+                import('https://kaiwu.wujilabs.cn/vendor/cdn/esm/@xterm/xterm@5.5.0.js'),
+                import('https://kaiwu.wujilabs.cn/vendor/cdn/esm/@xterm/addon-fit@0.10.0.js'),
+                import('https://kaiwu.wujilabs.cn/vendor/cdn/esm/@xterm/addon-web-links@0.11.0.js'),
               ]`;
 
     return `<!DOCTYPE html>

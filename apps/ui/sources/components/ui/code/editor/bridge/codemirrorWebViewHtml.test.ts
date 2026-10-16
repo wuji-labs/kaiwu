@@ -90,7 +90,8 @@ describe('buildCodeMirrorWebViewHtml', () => {
             osFontScale: 1,
         });
 
-        expect(html).toContain('cdn.jsdelivr.net');
+        expect(html).toContain('https://kaiwu.wujilabs.cn/vendor/cdn/esm/');
+        expect(html).not.toContain('cdn.jsdelivr.net');
     });
 
     it('uses CodeMirror 6 history from commands instead of legacy @codemirror/history', async () => {

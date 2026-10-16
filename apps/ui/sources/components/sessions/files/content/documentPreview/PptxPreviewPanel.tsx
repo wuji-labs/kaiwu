@@ -101,7 +101,7 @@ export function PptxPreviewPanel(props: PptxPreviewPanelProps) {
       margin-top: 8px;
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://kaiwu.wujilabs.cn/vendor/cdn/jszip@3.10.1/jszip.min.js"></script>
 </head>
 <body>
   <div id="notice">ℹ️ PPTX 为结构化文本预览 (Structured Text Preview)</div>
