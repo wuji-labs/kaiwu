@@ -317,13 +317,14 @@ const syncTuningJson = (
 //
 // Override points:
 // - EXPO_PUBLIC_HAPPIER_MODEL_PACK_MANIFESTS (full JSON mapping)
-// - EXPO_PUBLIC_HAPPIER_MODEL_PACKS_REPO + EXPO_PUBLIC_HAPPIER_MODEL_PACKS_TAG (convenience)
-const defaultModelPacksRepo = (process.env.EXPO_PUBLIC_HAPPIER_MODEL_PACKS_REPO || 'happier-dev/happier-assets').trim();
+// - EXPO_PUBLIC_HAPPIER_MODEL_PACKS_TAG (convenience)
+// Packs are served from Kaiwu's own asset host (see sources/utils/kaiwuAssets.ts), never GitHub.
+const kaiwuAssetsBaseUrl = 'https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/assets';
 const defaultModelPacksTag = (process.env.EXPO_PUBLIC_HAPPIER_MODEL_PACKS_TAG || 'model-packs').trim();
 if (!process.env.EXPO_PUBLIC_HAPPIER_MODEL_PACK_MANIFESTS) {
     process.env.EXPO_PUBLIC_HAPPIER_MODEL_PACK_MANIFESTS = JSON.stringify({
-        "kokoro-82m-v1.0-onnx-q8-wasm": `https://github.com/${defaultModelPacksRepo}/releases/download/${defaultModelPacksTag}/kokoro-82m-v1.0-onnx-q8-wasm__manifest.json`,
-        "sherpa-onnx-streaming-zipformer-en-20M-2023-02-17": `https://github.com/${defaultModelPacksRepo}/releases/download/${defaultModelPacksTag}/sherpa-onnx-streaming-zipformer-en-20M-2023-02-17__manifest.json`
+        "kokoro-82m-v1.0-onnx-q8-wasm": `${kaiwuAssetsBaseUrl}/${defaultModelPacksTag}/kokoro-82m-v1.0-onnx-q8-wasm__manifest.json`,
+        "sherpa-onnx-streaming-zipformer-en-20M-2023-02-17": `${kaiwuAssetsBaseUrl}/${defaultModelPacksTag}/sherpa-onnx-streaming-zipformer-en-20M-2023-02-17__manifest.json`
     });
 }
 

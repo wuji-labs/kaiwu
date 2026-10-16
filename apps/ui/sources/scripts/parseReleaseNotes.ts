@@ -407,7 +407,7 @@ function buildManifest(releases: AuthoredRelease[]): {
         latestReleaseId: sorted.length > 0 ? sorted[0].releaseId : null,
         generatedAt: new Date().toISOString(),
         assetBaseUrl: process.env.HAPPIER_RELEASE_NOTES_ASSET_BASE_URL
-            || 'https://github.com/happier-dev/happier-assets/releases/download/release-notes/',
+            || 'https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/assets/release-notes/',
         releases: sorted,
     };
 }
@@ -451,7 +451,7 @@ function main() {
     const releases = listAuthoredReleases();
     const generatedAt = new Date().toISOString();
     const assetBaseUrl = process.env.HAPPIER_RELEASE_NOTES_ASSET_BASE_URL
-        || 'https://github.com/happier-dev/happier-assets/releases/download/release-notes/';
+        || 'https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/assets/release-notes/';
 
     if (releases.length === 0) {
         console.warn('No authored releases found. Writing empty manifest.');

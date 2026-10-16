@@ -12,9 +12,9 @@ describe('modelPacks manifests', () => {
     expect(source).toContain('process.env.EXPO_PUBLIC_KOKORO_NATIVE_MANIFEST_URL');
   });
 
-  it('falls back to the default Happier assets release when no manifest is configured', () => {
+  it('falls back to the Kaiwu asset host when no manifest is configured', () => {
     expect(resolveModelPackManifestUrl({ packId: 'kokoro-tts-en-v1', env: {} })).toBe(
-      'https://github.com/happier-dev/happier-assets/releases/download/model-packs/kokoro-tts-en-v1__manifest.json',
+      'https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/assets/model-packs/kokoro-tts-en-v1__manifest.json',
     );
   });
 

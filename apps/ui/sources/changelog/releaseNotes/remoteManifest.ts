@@ -1,3 +1,5 @@
+import { kaiwuAssetUrl } from '@/utils/kaiwuAssets';
+
 import { commitRemoteAssetIndex } from './assetIndex';
 import { doesAssetIndexCoverReleaseNotesManifest } from './manifestAssetCoverage';
 import { commitRemoteManifest } from './manifestRuntime';
@@ -6,7 +8,6 @@ import {
     parseReleaseNotesManifest,
 } from './schema';
 
-const DEFAULT_REPO = 'happier-dev/happier-assets';
 const DEFAULT_TAG = 'release-notes';
 const DEFAULT_MANIFEST_FILE = 'release-notes__manifest.json';
 const DEFAULT_ASSET_INDEX_FILE = 'release-notes__assets-index.json';
@@ -28,13 +29,10 @@ function resolveRemoteAssetFileUrl(fileName: string): string {
     if (fileName === DEFAULT_MANIFEST_FILE && explicit) {
         return explicit;
     }
-    const repo =
-        (process.env.EXPO_PUBLIC_HAPPIER_RELEASE_NOTES_ASSETS_REPO ?? DEFAULT_REPO).trim()
-        || DEFAULT_REPO;
     const tag =
         (process.env.EXPO_PUBLIC_HAPPIER_RELEASE_NOTES_ASSETS_TAG ?? DEFAULT_TAG).trim()
         || DEFAULT_TAG;
-    return `https://github.com/${repo}/releases/download/${tag}/${fileName}`;
+    return kaiwuAssetUrl(tag, fileName);
 }
 
 function appendCacheBust(url: string): string {

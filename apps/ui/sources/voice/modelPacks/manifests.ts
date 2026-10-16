@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { kaiwuAssetUrl } from '@/utils/kaiwuAssets';
+
 const EXPO_PUBLIC_HAPPIER_MODEL_PACK_MANIFESTS = 'EXPO_PUBLIC_HAPPIER_MODEL_PACK_MANIFESTS';
 
 // Legacy Kokoro-only env keys (supported temporarily for backward compatibility).
@@ -12,8 +14,7 @@ const STATIC_HAPPIER_MODEL_PACK_MANIFESTS = process.env.EXPO_PUBLIC_HAPPIER_MODE
 const STATIC_KOKORO_NATIVE_MANIFESTS = process.env.EXPO_PUBLIC_KOKORO_NATIVE_MANIFESTS;
 const STATIC_KOKORO_NATIVE_MANIFEST_URL = process.env.EXPO_PUBLIC_KOKORO_NATIVE_MANIFEST_URL;
 
-const DEFAULT_HAPPIER_ASSETS_OWNER_REPO = 'happier-dev/happier-assets';
-const DEFAULT_HAPPIER_ASSETS_RELEASE_TAG = 'model-packs';
+const DEFAULT_MODEL_PACKS_TAG = 'model-packs';
 
 const ManifestMapSchema = z.record(z.string().min(1), z.string().url());
 
@@ -46,8 +47,6 @@ export function resolveModelPackManifestUrl(opts: {
   const fromLegacyDefault = env ? env[EXPO_PUBLIC_KOKORO_NATIVE_MANIFEST_URL] : STATIC_KOKORO_NATIVE_MANIFEST_URL;
   if (typeof fromLegacyDefault === 'string' && fromLegacyDefault.trim().length > 0) return fromLegacyDefault.trim();
 
-  // Default to our published assets repository so model packs work out-of-the-box.
-  return `https://github.com/${DEFAULT_HAPPIER_ASSETS_OWNER_REPO}/releases/download/${DEFAULT_HAPPIER_ASSETS_RELEASE_TAG}/${encodeURIComponent(
-    id,
-  )}__manifest.json`;
+  // Default to Kaiwu's own asset host so model packs work out-of-the-box.
+  return kaiwuAssetUrl(DEFAULT_MODEL_PACKS_TAG, `${encodeURIComponent(id)}__manifest.json`);
 }
