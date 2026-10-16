@@ -77,3 +77,14 @@ gh run watch <id> --exit-status; gh run download <id> -D dist/ios/<版本>
 - **重打原生包后必须重发一次热更新**：客户端只会采用发布时间晚于安装包内置版本的更新，比内置版本旧的一律静默忽略（2026-09-30：00:49 发的更新比之后重打的 `204b24b` 原生包早，手机拿到清单却不应用）。
 - **注意**：iOS 的 JS 包约 67MB，源站带宽只有 6 Mbps。热更新只会下载变化过的资源，但 JS 包每次都要整个重新下载。
 
+
+## 7. 服务端（自建镜像，2026-10-16 起）
+生产中继 `wuji-kaiwu-server` 跑的是本仓构建的 `wuji-labs/kaiwu-relay:<版本>`，**不再使用上游 `happierdev/relay-server`**。上游镜像读 `HAPPIER_*` 变量、默认开中心错误上报；本仓代码读 `KAIWU_*`。
+1. 构建运行时（PowerShell，主工作区）：`node scripts/pipeline/release/build-server-binaries.mjs --channel production --version <X>-kw.<N> --targets linux-x64`，产物在 `dist/release-assets/server/`。
+   - Windows 上交叉编译需要两样 Linux 原生件：`@img/sharp-linux-x64` 与 `@img/sharp-libvips-linux-x64`（版本见 `sharp` 的 optionalDependencies），用 `npm pack` 下载后解压到 `node_modules/@img/`；
+   - Bun 交叉编译所需的 `bun-linux-x64-baseline-v<bun版本>` 若从 npmmirror 下载失败（报 `Failed to extract executable`），用 `npm pack @oven/bun-linux-x64-baseline@<bun版本>` 取 `package/bin/bun`，复制到 `bun pm cache` 打印的目录下、文件名即 `bun-linux-x64-baseline-v<bun版本>`。
+2. 上传产物与 checksums 到 COS `releases/server/<版本>/`，生产机从 COS 下载并 `sha256sum -c`（不走 6 Mbps 源站）。
+3. 生产机 `/opt/wuji-kaiwu/server-image/`：解压到 `server/`、放 `docker/kaiwu-relay/Dockerfile` 与 `apps/server/scripts/run-server.sh`，`docker build -t wuji-labs/kaiwu-relay:<版本> .`。Dockerfile 负责补可执行位（Windows 打包不带 POSIX 权限）。
+4. **先演练再切换**：`sqlite3 ... "VACUUM INTO '/stage/...'"` 取一致副本（不要用 `.backup`，生产库持续写入时它会反复重来），新镜像挂副本在 `127.0.0.1:3098` 起一份，核对 `/v1/features`、`/`、需登录接口 401、`Account`/`Session` 计数与 `_prisma_migrations` 无失败项。
+5. 切换：compose 里 `image:` 改为新标签，`docker compose up -d --no-deps wuji-kaiwu-server`；起来后核对首页是 HTML（不是纯文本）、`/favicon.ico` 200、`/v1/features` 的 `canonicalServerUrl` 与 `bugReports.providerUrl`，并看一台成员机守护日志重新 `Connected`。
+6. 回滚：compose 改回上一个镜像标签再 `up -d --no-deps wuji-kaiwu-server`；改 compose 前一律留 `docker-compose.yml.bak-<时间戳>`。
