@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://raw.githubusercontent.com/wuji-labs/kaiwu/wuji/main/.github/hero.png"><img src="https://raw.githubusercontent.com/wuji-labs/kaiwu/wuji/main/.github/hero.png" title="Kaiwu" alt="Kaiwu (无极开物) - Mobile, Web and Desktop client for Claude Code, Codex, OpenCode, Pi, Cursor" width="850" /></a>
+  <a href="https://raw.githubusercontent.com/wuji-labs/kaiwu/HEAD/.github/hero.png"><img src="https://raw.githubusercontent.com/wuji-labs/kaiwu/HEAD/.github/hero.png" title="Kaiwu" alt="Kaiwu (无极开物) - Mobile, Web and Desktop client for Claude Code, Codex, OpenCode, Pi, Cursor" width="850" /></a>
 
   # 无极开物 (Kaiwu)
 
@@ -13,7 +13,7 @@
 </div>
 
 <p align="center">
-  <a href="https://raw.githubusercontent.com/wuji-labs/kaiwu/wuji/main/assets/wechat-personal.jpg"><img src="https://raw.githubusercontent.com/wuji-labs/kaiwu/wuji/main/assets/wechat-personal.jpg" alt="Add WUJI on WeChat" width="200"></a>
+  <a href="https://raw.githubusercontent.com/wuji-labs/kaiwu/HEAD/assets/wechat-personal.jpg"><img src="https://raw.githubusercontent.com/wuji-labs/kaiwu/HEAD/assets/wechat-personal.jpg" alt="Add WUJI on WeChat" width="200"></a>
 </p>
 <p align="center">扫码添加作者微信 · Scan to add the author on WeChat</p>
 
