@@ -1,9 +1,9 @@
 import chalk from 'chalk';
+import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import packageJson from '../../../package.json';
-import { normalizeBrandEnv } from '@happier-dev/cli-common';
 import { configuration } from '@/configuration';
 import type { CommandContext } from '@/cli/commandRegistry';
 import {
@@ -18,25 +18,18 @@ import type { FirstPartyComponentId } from '@happier-dev/cli-common/firstPartyRu
 import { createStepPrinter } from '@happier-dev/cli-common/output';
 import {
   compareVersions,
-  readNpmDistTagVersion,
   readUpdateCache,
-  resolveNpmPackageNameOverride,
   writeUpdateCache,
 } from '@happier-dev/cli-common/update';
-import { fetchGitHubReleaseByTag } from '@happier-dev/release-runtime/github';
 import {
   getReleaseRingCatalogEntry,
   getReleaseRingPublicLabel,
   normalizePublicReleaseRingId,
   type PublicReleaseRingId,
 } from '@happier-dev/release-runtime/releaseRings';
-import {
-  resolveCliBinaryAssetBundleFromReleaseAssets,
-  updateInstalledCliPayloadFromReleaseAssets,
-} from '@/cli/runtime/update/binarySelfUpdate';
 import { handleSelfMigrateCommand } from './self/handleSelfMigrateCommand';
+import { fetchKaiwuLatestCliVersion, resolveKaiwuInstallCommand } from './self/kaiwuReleaseSource';
 import { maybeRunVersionGatedRuntimeMigration } from './self/maybeRunVersionGatedRuntimeMigration';
-import { maybeRunDoctorRepair } from './self/maybeRunDoctorRepair';
 import { quiesceInstalledCliWindowsPayloadOwners } from '@/cli/runtime/update/quiesceInstalledCliWindowsPayloadOwners';
 
 type SelfChannel = PublicReleaseRingId;
@@ -51,10 +44,8 @@ function usage(): string {
     `  kaiwu self migrate [--yes] [--json]`,
     `  kaiwu self-update [--check] [--preview|--dev|--channel=<preview|dev>] [--to <versionOrTag>]`,
     '',
-    `${chalk.bold('通道:')}`,
-    `  stable  → npm dist-tag ${chalk.cyan('latest')}`,
-    `  preview → npm dist-tag ${chalk.cyan('next')}`,
-    `  dev     → npm dist-tag ${chalk.cyan('next')}（${chalk.gray('dev 滚动二进制版本')}）`,
+    `${chalk.bold('发布源:')}`,
+    `  开物发布清单（kaiwu.wujilabs.cn），只提供正式通道；更新即运行官方安装脚本`,
     '',
     `${chalk.bold('环境变量:')}`,
     `  HAPPIER_CLI_UPDATE_CHECK=0                 禁用更新提示和后台检查`,
@@ -92,18 +83,6 @@ export function packageJsonPathForNodeModules({ rootDir, packageName }: { rootDi
   }
 
   return join(rootDir, 'node_modules', ...parts, 'package.json');
-}
-
-function readPackageJsonVersion(path: string): string | null {
-  try {
-    if (!existsSync(path)) return null;
-    const raw = readFileSync(path, 'utf-8');
-    const parsed = JSON.parse(raw);
-    const v = String(parsed?.version ?? '').trim();
-    return v || null;
-  } catch {
-    return null;
-  }
 }
 
 function resolveSelfNpmDistTag(channel: SelfChannel): 'latest' | 'next' {
@@ -173,42 +152,6 @@ export function detectInstallSource(path: string): 'npm' | 'binary' {
   return 'binary';
 }
 
-function resolveBinaryUpdateRepo(env: NodeJS.ProcessEnv): string {
-  const raw = String(normalizeBrandEnv('KAIWU_GITHUB_REPO') ?? '').trim();
-  return raw || 'wuji-labs/kaiwu';
-}
-
-function resolveBinaryUpdateToken(env: NodeJS.ProcessEnv): string {
-  return String(env.HAPPIER_GITHUB_TOKEN ?? env.GITHUB_TOKEN ?? '').trim();
-}
-
-function resolveBinaryUpdatePlatform(env: NodeJS.ProcessEnv): Readonly<{ os: string; arch: string }> {
-  const forcedOs = String(env.HAPPIER_SELF_UPDATE_OS ?? '').trim();
-  const forcedArch = String(env.HAPPIER_SELF_UPDATE_ARCH ?? '').trim();
-  if (forcedOs && forcedArch) return { os: forcedOs, arch: forcedArch };
-
-  const os = process.platform === 'linux' ? 'linux' : process.platform === 'darwin' ? 'darwin' : process.platform === 'win32' ? 'win32' : 'unsupported';
-  const arch = process.arch === 'x64' ? 'x64' : process.arch === 'arm64' ? 'arm64' : 'unsupported';
-  if (os === 'unsupported' || arch === 'unsupported') {
-    throw new Error(`当前平台不支持二进制更新：${process.platform}/${process.arch}`);
-  }
-  return { os, arch };
-}
-
-function resolveBinaryUpdateTag(channel: SelfChannel): string {
-  return resolveFirstPartyComponentPublicReleaseVariant({
-    componentId: 'happier-cli',
-    channel,
-  }).releaseTag;
-}
-
-function npmUpgradeCommand(params: Readonly<{ packageName: string; channel: SelfChannel; to: string }>): string {
-  const pkg = String(params.packageName ?? '').trim();
-  const to = String(params.to ?? '').trim();
-  if (to) return `npm install -g ${pkg}@${to}`;
-  return `npm install -g ${pkg}@${resolveSelfNpmDistTag(params.channel)}`;
-}
-
 function resolvePublicReleaseRingSuffix(ring: SelfChannel): 'stable' | 'preview' | 'dev' {
   return getReleaseRingPublicLabel(ring);
 }
@@ -219,106 +162,24 @@ function updateCachePath(channel: SelfChannel): string {
   return join(configuration.happyHomeDir, 'cache', fileName);
 }
 
-function runtimeDir(channel: SelfChannel): string {
-  const suffix = resolvePublicReleaseRingSuffix(channel);
-  return suffix === 'stable'
-    ? join(configuration.happyHomeDir, 'runtime')
-    : join(configuration.happyHomeDir, `runtime.${suffix}`);
-}
-
-function resolveUpdatePackageName(): string {
-  return resolveNpmPackageNameOverride({
-    envValue: process.env.HAPPIER_CLI_UPDATE_PACKAGE_NAME,
-    fallback: String(packageJson.name ?? '').trim(),
-  });
-}
-
-async function runSelfUpdateStep<T>(
-  steps: ReturnType<typeof createStepPrinter>,
-  label: string,
-  fn: () => Promise<T>,
-): Promise<T> {
-  steps.start(label);
-  try {
-    const result = await fn();
-    steps.stop('✓', label);
-    return result;
-  } catch (error) {
-    steps.stop('x', label);
-    throw error;
-  }
-}
-
 async function cmdCheck(argv: string[], rawArgv: readonly string[] = process.argv): Promise<void> {
   const channelResolution = resolveSelfReleaseChannel({ args: argv, rawArgv });
   const channel = channelResolution.ringId;
   const quiet = argv.includes('--quiet');
-  const installSource = detectInstallSource(process.argv[1] ?? '');
 
-  if (installSource === 'binary') {
-    if (process.platform === 'win32') {
-      const currentVersion = configuration.currentCliVersion || 'unknown';
-      console.log('Windows 上的开物 CLI 通过安装脚本更新：irm https://kaiwu.wujilabs.cn/install.ps1 | iex');
-      console.log(`当前版本：${currentVersion}`);
-      process.exit(0);
-    }
-
-    const { os, arch } = resolveBinaryUpdatePlatform(process.env);
-    const githubRepo = resolveBinaryUpdateRepo(process.env);
-    const githubToken = resolveBinaryUpdateToken(process.env);
-    const tag = resolveBinaryUpdateTag(channel);
-
-    const release = await fetchGitHubReleaseByTag({ githubRepo, tag, githubToken, userAgent: 'happier-cli' });
-    const assets = typeof release === 'object' && release != null && 'assets' in release ? (release as any).assets : null;
-    const bundle = resolveCliBinaryAssetBundleFromReleaseAssets({ assets, os, arch, preferVersion: null });
-
-    const latest = bundle.version;
-    const invokerVersion = configuration.currentCliVersion;
-    const current = invokerVersion || null;
-    const updateAvailable = Boolean(current && latest && compareVersions(latest, current) > 0);
-
-    const existing = readUpdateCache(updateCachePath(channel));
-    const checkedAt = Date.now();
-    writeUpdateCache(updateCachePath(channel), {
-      checkedAt,
-      latest,
-      current,
-      runtimeVersion: null,
-      invokerVersion,
-      updateAvailable,
-      notifiedAt: existing?.notifiedAt ?? null,
-    });
-
-    if (quiet) return;
-
-    if (updateAvailable) {
-      console.log(chalk.yellow(`发现新版本：${current ?? '当前版本'} → ${latest}`));
-      console.log(chalk.gray('运行：'), chalk.cyan(`${resolveManagedCliToolNameForRing(channel)} self update`));
-      return;
-    }
-    console.log(chalk.green('已是最新版本。'));
-    return;
-  }
-  const distTag = resolveSelfNpmDistTag(channel);
-  const pkgName = resolveUpdatePackageName();
-
-  const runtimePkgJson = packageJsonPathForNodeModules({ rootDir: runtimeDir(channel), packageName: pkgName });
-  const runtimeVersion = runtimePkgJson ? readPackageJsonVersion(runtimePkgJson) : null;
+  // Kaiwu releases are published only to our own release manifest; never consult npm or GitHub,
+  // where the same package names belong to the upstream project.
+  const latest = await fetchKaiwuLatestCliVersion();
   const invokerVersion = configuration.currentCliVersion;
-  const current = runtimeVersion || invokerVersion || null;
-
-  const rawLatest = readNpmDistTagVersion({ packageName: pkgName, distTag, cwd: process.cwd(), env: process.env });
-  // Reject cross-channel results (preview/dev share the `next` dist-tag).
-  const latest = doesVersionMatchChannel(rawLatest, channel) ? rawLatest : null;
+  const current = invokerVersion || null;
   const updateAvailable = Boolean(current && latest && compareVersions(latest, current) > 0);
 
   const existing = readUpdateCache(updateCachePath(channel));
-  const checkedAt = Date.now();
   writeUpdateCache(updateCachePath(channel), {
-    checkedAt,
+    checkedAt: Date.now(),
     latest,
     current,
-    runtimeVersion,
+    runtimeVersion: null,
     invokerVersion,
     updateAvailable,
     notifiedAt: existing?.notifiedAt ?? null,
@@ -327,7 +188,7 @@ async function cmdCheck(argv: string[], rawArgv: readonly string[] = process.arg
   if (quiet) return;
 
   if (!latest) {
-    console.log(chalk.gray('无法确定最新版本（npm view 失败）。'));
+    console.log(chalk.gray('无法确定最新版本（开物发布清单暂不可达）。'));
     return;
   }
   if (updateAvailable) {
@@ -339,105 +200,26 @@ async function cmdCheck(argv: string[], rawArgv: readonly string[] = process.arg
 }
 
 async function cmdUpdate(argv: string[], rawArgv: readonly string[] = process.argv): Promise<void> {
-  const channelResolution = resolveSelfReleaseChannel({ args: argv, rawArgv });
-  const channel = channelResolution.ringId;
-  const steps = createStepPrinter({ enabled: true });
-  const toArg = (() => {
-    const i = argv.indexOf('--to');
-    if (i >= 0) return argv[i + 1] ?? '';
-    const eq = argv.find((a) => a.startsWith('--to='));
-    return eq ? eq.slice('--to='.length) : '';
-  })();
-
-  const installSource = detectInstallSource(process.argv[1] ?? '');
-  if (installSource === 'binary') {
-    if (process.platform === 'win32') {
-      console.log('Windows 上的开物 CLI 通过安装脚本更新：irm https://kaiwu.wujilabs.cn/install.ps1 | iex');
-      process.exit(0);
-    }
+  resolveSelfReleaseChannel({ args: argv, rawArgv });
+  if (argv.some((a) => a === '--to' || a.startsWith('--to='))) {
+    console.log(chalk.yellow('开物只提供正式通道最新版，已忽略 --to。'));
   }
 
-  if (installSource === 'npm') {
-    const pkgName = resolveUpdatePackageName();
-    const upgrade = npmUpgradeCommand({ packageName: pkgName, channel, to: toArg });
-    console.log(chalk.yellow('检测到通过 npm 安装；已禁用原地运行时更新。'));
-    console.log(chalk.gray('请改为运行：'), chalk.cyan(upgrade));
+  const command = resolveKaiwuInstallCommand(process.platform);
+  if (process.platform === 'win32') {
+    // The running kaiwu.exe is locked on Windows; the installer must run outside this process.
+    console.log(`Windows 上的开物 CLI 通过安装脚本更新：${command}`);
     return;
   }
 
-  const effective = (() => {
-    const raw = String(toArg ?? '').trim();
-    if (raw === 'latest') return { channel: 'stable' as const, preferVersion: null };
-    if (raw === 'next') return { channel: 'preview' as const, preferVersion: null };
-    const v = raw.startsWith('v') ? raw.slice(1) : raw;
-    return { channel, preferVersion: v || null };
-  })();
-
-  const { os, arch } = resolveBinaryUpdatePlatform(process.env);
-  const githubRepo = resolveBinaryUpdateRepo(process.env);
-  const githubToken = resolveBinaryUpdateToken(process.env);
-  const tag = resolveBinaryUpdateTag(effective.channel);
-  const minisignPubkeyFile = String(process.env.HAPPIER_MINISIGN_PUBKEY ?? '').trim() || undefined;
-  const release = await runSelfUpdateStep(steps, '正在解析发布元数据', async () => {
-    return await fetchGitHubReleaseByTag({
-      githubRepo,
-      tag,
-      githubToken,
-      userAgent: 'happier-cli',
-    });
-  });
-  const assets = typeof release === 'object' && release != null && 'assets' in release ? (release as any).assets : null;
-  resolveCliBinaryAssetBundleFromReleaseAssets({
-    assets,
-    os,
-    arch,
-    preferVersion: effective.preferVersion,
-  });
-
-  await quiesceInstalledCliWindowsPayloadOwners({
-    channel: effective.channel,
-    processEnv: {
-      ...process.env,
-      HAPPIER_HOME_DIR: configuration.happyHomeDir,
-    },
-  });
-
-  const result = await runSelfUpdateStep(steps, '正在下载并安装运行包', async () => {
-    return await updateInstalledCliPayloadFromReleaseAssets({
-      assets,
-      os,
-      arch,
-      happyHomeDir: configuration.happyHomeDir,
-      preferVersion: effective.preferVersion,
-      minisignPubkeyFile,
-      channel: effective.channel,
-    });
-  });
-
-  // Refresh cache best-effort.
-  await runSelfUpdateStep(steps, '正在刷新更新缓存', async () => {
-    await cmdCheck([
-      'check',
-      '--quiet',
-      ...(effective.channel === 'preview'
-        ? ['--preview']
-        : effective.channel === 'publicdev'
-          ? ['--dev']
-          : []),
-    ]);
-  });
-  const updatedToolName = resolveManagedCliToolNameForRing(effective.channel);
-  console.log(chalk.green(`✓ 已将 ${updatedToolName} 更新到 ${result.updatedTo}`));
-  const migrationRan = await maybeRunVersionGatedRuntimeMigration({
-    fromVersion: result.previousVersionId,
-    toVersion: result.updatedTo,
-    hadLegacyCurrentInstallWithoutVersionMarkers: result.hadLegacyCurrentInstallWithoutVersionMarkers,
-    argv: ['repair'],
-    commandPath: `${updatedToolName} doctor`,
-  });
-  await maybeRunDoctorRepair({
-    migrationRan,
-  });
+  console.log(chalk.gray('正在运行开物安装脚本：'), chalk.cyan(command));
+  const result = spawnSync('bash', ['-c', command], { stdio: 'inherit', env: process.env });
+  if (result.error || result.status !== 0) {
+    console.error(chalk.red(`更新失败（退出码 ${result.status ?? 'unknown'}）。可手动运行：${command}`));
+    process.exit(result.status || 1);
+  }
+  await cmdCheck(['check', '--quiet']);
+  console.log(chalk.green('✓ 开物 CLI 已更新到最新版本'));
 }
 
 function resolveInternalInstallPayloadArgValue(argv: string[], flagName: string): string {
