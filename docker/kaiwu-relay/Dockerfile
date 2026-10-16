@@ -21,7 +21,12 @@ RUN useradd -m -u 1000 -s /bin/bash happier \
     && chown -R happier:happier /data /opt/happier
 COPY --chown=happier:happier server/ /opt/happier/server/
 COPY run-server.sh /usr/local/bin/run-server
+# Artifacts packed on Windows carry no POSIX mode bits; restore exactly the executables the upstream
+# image marks executable.
 RUN chmod +x /usr/local/bin/run-server \
+    && cd /opt/happier/server \
+    && chmod +x happier-server happier-server-migrate runtime/prisma-migrate runtime/schema-engine \
+    && find generated node_modules/.prisma -name '*.node' -exec chmod +x {} + \
     && rm -rf /opt/happier/server/generated/mysql-client /opt/happier/server/prisma/mysql \
     && find /opt/happier/server/generated/sqlite-client -name '*.node' ! -name 'libquery_engine-debian-openssl-3.0.x.so.node' -delete \
     && rm -rf /opt/happier/server/node_modules/@img/sharp-libvips-linuxmusl-x64 /opt/happier/server/node_modules/@img/sharp-linuxmusl-x64
@@ -44,6 +49,16 @@ ENV HAPPIER_SERVER_UI_REQUIRED=1
 ENV HAPPIER_SQLITE_AUTO_MIGRATE=1
 ENV HAPPIER_SQLITE_MIGRATIONS_DIR=/opt/happier/server/prisma/sqlite/migrations
 ENV HAPPY_SQLITE_MIGRATIONS_DIR=/opt/happier/server/prisma/sqlite/migrations
+# This server reads KAIWU_* names (the upstream image read HAPPIER_*); set both.
+ENV KAIWU_SERVER_FLAVOR=light
+ENV KAIWU_DB_PROVIDER=sqlite
+ENV KAIWU_SERVER_LIGHT_DATA_DIR=/data
+ENV KAIWU_SERVER_UI_DIR=/opt/happier/server/ui-web/current
+ENV KAIWU_SERVER_UI_PREFIX=/
+ENV KAIWU_SERVER_UI_REQUIRED=1
+ENV KAIWU_SQLITE_AUTO_MIGRATE=1
+ENV KAIWU_SQLITE_MIGRATIONS_DIR=/opt/happier/server/prisma/sqlite/migrations
+ENV KAIWU_SENTRY_USE_CENTRAL_DSN=0
 USER happier
 EXPOSE 3005
 VOLUME ["/data"]
