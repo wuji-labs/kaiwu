@@ -103,7 +103,7 @@ describe('buildFallbackIssueUrl', () => {
       repo: '../repo',
     });
 
-    expect(url).toContain('https://github.com/happier-dev/happier/issues/new?');
+    expect(url).toContain('https://github.com/wuji-labs/kaiwu/issues/new?');
     expect(url).not.toContain('foo?bar');
     expect(url).not.toContain('../repo');
   });

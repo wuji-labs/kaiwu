@@ -47,8 +47,8 @@ export type BugReportServiceSubmitInput = {
   existingIssueNumber?: number;
 };
 
-export const BUG_REPORT_DEFAULT_ISSUE_OWNER = 'happier-dev';
-export const BUG_REPORT_DEFAULT_ISSUE_REPO = 'happier';
+export const BUG_REPORT_DEFAULT_ISSUE_OWNER = 'wuji-labs';
+export const BUG_REPORT_DEFAULT_ISSUE_REPO = 'kaiwu';
 export const BUG_REPORT_DEFAULT_ISSUE_LABELS: readonly string[] = ['bug'];
 export const BUG_REPORT_FALLBACK_MAX_LABELS = 10;
 export const BUG_REPORT_FALLBACK_MAX_LABEL_LENGTH = 40;
