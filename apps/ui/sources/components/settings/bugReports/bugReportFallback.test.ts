@@ -76,7 +76,7 @@ describe('buildFallbackIssueUrl', () => {
             repo: 'happier',
         });
 
-	        expect(url).toContain('https://github.com/happier-dev/happier/issues/new?');
+	        expect(url).toContain('https://kaiwu.wujilabs.cn/bug-reports/new?');
 	        expect(url).toContain('title=Session%20disconnects');
 	        expect(url).toContain('body=Body%20text');
 	        expect(url).not.toContain('labels=');
@@ -103,7 +103,7 @@ describe('buildFallbackIssueUrl', () => {
       repo: '../repo',
     });
 
-    expect(url).toContain('https://github.com/wuji-labs/kaiwu/issues/new?');
+    expect(url).toContain('https://kaiwu.wujilabs.cn/bug-reports/new?');
     expect(url).not.toContain('foo?bar');
     expect(url).not.toContain('../repo');
   });

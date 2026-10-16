@@ -6,7 +6,7 @@ import { test } from 'node:test';
 
 import { searchBugReportSimilarIssues } from '../../packages/protocol/dist/bugReports/similarIssues.js';
 import { submitBugReportToService } from '../../packages/protocol/dist/bugReports/submit.js';
-import { createBugReportRelay, renderPublicIssueBody, signUpload } from './server.mjs';
+import { createBugReportRelay, reportFormPage, signUpload } from './server.mjs';
 
 const FORM = {
   title: 'Daemon exits on start',
@@ -25,12 +25,6 @@ async function withRelay(overrides, fn) {
   const calls = [];
   const fakeFetch = async (url, init = {}) => {
     calls.push({ url: String(url), init });
-    if (String(url).startsWith('https://api.github.com/search/issues')) {
-      return new Response(JSON.stringify({ items: [{ number: 7, html_url: 'https://github.com/wuji-labs/kaiwu/issues/7', title: 'Daemon exits', state: 'open', updated_at: '2026-10-16T00:00:00Z' }] }));
-    }
-    if (String(url).startsWith('https://api.github.com/repos/wuji-labs/kaiwu/issues')) {
-      return new Response(JSON.stringify({ number: 42, html_url: 'https://github.com/wuji-labs/kaiwu/issues/42' }));
-    }
     return new Response('{}');
   };
   let base = '';
@@ -40,7 +34,6 @@ async function withRelay(overrides, fn) {
       dataDir,
       uploadSecret: 'test-secret',
       wecomWebhookUrl: 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=test',
-      githubToken: '',
       ...overrides,
     },
   });
@@ -77,33 +70,12 @@ test('the real client submits a report end to end and diagnostics stay on our se
     assert.ok(notice, 'operators are notified');
     assert.match(JSON.parse(notice.init.body).markdown.content, /开物问题报告 #1/);
     assert.ok(!calls.some((c) => /happier\.dev/.test(c.url)), 'nothing is sent upstream');
-    assert.ok(!calls.some((c) => c.url.startsWith('https://api.github.com')), 'no GitHub call without a token');
 
     const ack = await fetch(result.issueUrl);
     assert.equal(ack.status, 200);
     const page = await ack.text();
     assert.match(page, /#1 已收到/);
     assert.ok(!page.includes('line 1'), 'acknowledgement page never shows report content');
-  });
-});
-
-test('with a token, a public issue is created from form text only, in the fixed repository', async () => {
-  await withRelay({ githubToken: 'ghp_test', issueOwner: 'wuji-labs', issueRepo: 'kaiwu' }, async ({ base, calls }) => {
-    const result = await submitBugReportToService({
-      providerUrl: base,
-      timeoutMs: 10_000,
-      form: FORM,
-      artifacts: [{ filename: 'session.log', sourceKind: 'session-log', contentType: 'text/plain', content: 'PRIVATE-TRANSCRIPT' }],
-      issueOwner: 'someone-else',
-      issueRepo: 'elsewhere',
-    });
-    assert.equal(result.issueNumber, 42);
-    assert.equal(result.issueUrl, 'https://github.com/wuji-labs/kaiwu/issues/42');
-    const create = calls.find((c) => c.url === 'https://api.github.com/repos/wuji-labs/kaiwu/issues');
-    assert.ok(create, 'issue goes to the server-configured repository, not the client-supplied one');
-    const body = JSON.parse(create.init.body).body;
-    assert.ok(!body.includes('PRIVATE-TRANSCRIPT'));
-    assert.ok(!body.includes('kaiwu.wujilabs.cn'), 'server URLs are not published');
   });
 });
 
@@ -151,19 +123,56 @@ test('sessions are rate limited per client address', async () => {
   });
 });
 
-test('similar issues come from the configured public repository through the real client', async () => {
+async function submitReal(base, form, existingIssueNumber) {
+  return await submitBugReportToService({
+    providerUrl: base,
+    timeoutMs: 10_000,
+    form,
+    artifacts: [],
+    issueOwner: 'wuji-labs',
+    issueRepo: 'kaiwu',
+    existingIssueNumber,
+  });
+}
+
+test('similar issues and follow-ups are served from our own reports, never a third party', async () => {
   await withRelay({}, async ({ base, calls }) => {
-    const result = await searchBugReportSimilarIssues({ providerUrl: base, owner: 'wuji-labs', repo: 'kaiwu', query: 'daemon exits' });
-    assert.equal(result.issues.length, 1);
-    assert.equal(result.issues[0].url, 'https://github.com/wuji-labs/kaiwu/issues/7');
-    const search = calls.find((c) => c.url.startsWith('https://api.github.com/search/issues'));
-    assert.match(decodeURIComponent(search.url), /repo:wuji-labs\/kaiwu/);
+    const first = await submitReal(base, FORM);
+    await submitReal(base, { ...FORM, title: 'Voice input crashes on Android' });
+
+    const similar = await searchBugReportSimilarIssues({ providerUrl: base, owner: 'wuji-labs', repo: 'kaiwu', query: 'daemon exits immediately' });
+    assert.deepEqual(similar.issues.map((i) => i.number), [first.issueNumber]);
+    assert.equal(similar.issues[0].url, first.issueUrl);
+
+    const followUp = await submitReal(base, { ...FORM, title: 'Same here' }, first.issueNumber);
+    assert.equal(followUp.issueNumber, first.issueNumber, 'a follow-up attaches to the chosen ticket');
+    assert.equal(followUp.issueUrl, first.issueUrl);
+
+    const notices = calls.filter((c) => c.url.startsWith('https://qyapi.weixin.qq.com'));
+    assert.match(JSON.parse(notices.at(-1).init.body).markdown.content, /追加反馈/);
+    assert.ok(calls.every((c) => c.url.startsWith('https://qyapi.weixin.qq.com')), 'only our own notification channel is contacted');
   });
 });
 
-test('public issue body never carries artifacts or server urls', () => {
-  const body = renderPublicIssueBody(FORM, 'KW-20261016-deadbeef');
-  assert.match(body, /### 概述/);
-  assert.match(body, /1\. Run kaiwu daemon start/);
-  assert.ok(!body.includes('https://'));
+test('the hosted form accepts a report without the client API and escapes prefilled input', async () => {
+  await withRelay({}, async ({ base, dataDir }) => {
+    const html = reportFormPage(new URLSearchParams({ title: '<script>x</script>', body: 'line' }));
+    assert.ok(!html.includes('<script>x</script>'));
+    assert.match(html, /&lt;script&gt;/);
+
+    const form = await fetch(`${base}/new?title=Broken%20login`);
+    assert.equal(form.status, 200);
+    assert.match(await form.text(), /value="Broken login"/);
+
+    const noConsent = await fetch(`${base}/v1/reports/quick`, { method: 'POST', body: new URLSearchParams({ title: 'x' }) });
+    assert.equal(noConsent.status, 400);
+
+    const ok = await fetch(`${base}/v1/reports/quick`, { method: 'POST', body: new URLSearchParams({ title: 'Broken login', body: 'steps', consent: 'on' }) });
+    assert.equal(ok.status, 200);
+    assert.match(await ok.text(), /#1 已收到/);
+    const ids = await readdir(join(dataDir, 'reports'));
+    const meta = JSON.parse(await readFile(join(dataDir, 'reports', ids[0], 'meta.json'), 'utf8'));
+    assert.equal(meta.form.title, 'Broken login');
+    assert.equal(meta.status, 'submitted');
+  });
 });

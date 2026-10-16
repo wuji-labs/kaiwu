@@ -505,7 +505,7 @@ describe('runBugReportCommand', () => {
     if (result.mode !== 'fallback') {
       throw new Error('expected fallback mode');
     }
-    expect(result.issueUrl).toContain('github.com/happier-dev/happier/issues/new');
+    expect(result.issueUrl).toContain('kaiwu.wujilabs.cn/bug-reports/new');
     expect(submitSpy).not.toHaveBeenCalled();
     expect(collectDiagnosticsSpy).not.toHaveBeenCalled();
   });

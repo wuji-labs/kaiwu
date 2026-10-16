@@ -1,13 +1,11 @@
 import {
-  BUG_REPORT_DEFAULT_ISSUE_OWNER,
-  BUG_REPORT_DEFAULT_ISSUE_REPO,
   BUG_REPORT_FALLBACK_BODY_TRUNCATION_SUFFIX,
+  BUG_REPORT_FALLBACK_FORM_URL,
   BUG_REPORT_FALLBACK_ISSUE_URL_MAX_LENGTH,
   type BugReportEnvironmentPayload,
   type BugReportFrequency,
   type BugReportSeverity,
 } from './types.js';
-import { resolveBugReportIssueTargetWithDefaults } from './issueTarget.js';
 
 export function normalizeBugReportReproductionSteps(raw: string | string[]): string[] {
   const inputLines = Array.isArray(raw)
@@ -94,13 +92,9 @@ export function buildBugReportFallbackIssueUrl(input: {
   owner: string;
   repo: string;
 }): string {
-  const issueTarget = resolveBugReportIssueTargetWithDefaults({
-    owner: input.owner,
-    repo: input.repo,
-    defaultOwner: BUG_REPORT_DEFAULT_ISSUE_OWNER,
-    defaultRepo: BUG_REPORT_DEFAULT_ISSUE_REPO,
-  });
-  const issuePath = `https://github.com/${issueTarget.owner}/${issueTarget.repo}/issues/new`;
+  // Kaiwu keeps reports on its own server: the fallback opens our hosted report form rather than a
+  // public issue tracker. owner/repo are accepted for call-site compatibility and intentionally unused.
+  const issuePath = BUG_REPORT_FALLBACK_FORM_URL;
   const encode = (value: string) => encodeURIComponent(value).replace(/%20/g, '%20');
   const normalizedTitle = (input.title.trim() || 'Bug report').slice(0, 200);
 

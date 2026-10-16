@@ -49,6 +49,7 @@ export type BugReportServiceSubmitInput = {
 
 export const BUG_REPORT_DEFAULT_ISSUE_OWNER = 'wuji-labs';
 export const BUG_REPORT_DEFAULT_ISSUE_REPO = 'kaiwu';
+export const BUG_REPORT_FALLBACK_FORM_URL = 'https://kaiwu.wujilabs.cn/bug-reports/new';
 export const BUG_REPORT_DEFAULT_ISSUE_LABELS: readonly string[] = ['bug'];
 export const BUG_REPORT_FALLBACK_MAX_LABELS = 10;
 export const BUG_REPORT_FALLBACK_MAX_LABEL_LENGTH = 40;

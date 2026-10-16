@@ -9,12 +9,13 @@
 //   POST /v1/reports/submit     { reportId, uploadedArtifacts, issue: { number? } }
 //                               -> { reportId, issueNumber, issueUrl }
 //   GET  /v1/reports/:id        plain acknowledgement page (never shows report content)
-//   GET  /v1/issues/similar?q=  public issues of the configured GitHub repo
+//   GET  /v1/issues/similar?q=  titles of earlier reports received here (duplicate detection)
+//   GET  /new?title=&body=      hosted report form, used by clients when the relay API is unreachable
+//   POST /v1/reports/quick      form submission from /new (urlencoded)
 //   GET  /healthz
 //
-// Report text and diagnostics are written to DATA_DIR and announced to the operators' WeCom group.
-// A public GitHub issue (form text only, never artifacts) is created only when GITHUB_TOKEN is set;
-// the issue repository is fixed server-side, so clients cannot post into arbitrary repositories.
+// Everything stays on our server: report text and diagnostics are written to DATA_DIR and announced
+// to the operators' WeCom group. No third-party issue tracker is involved.
 // Zero dependencies: node:http + node:crypto + node:fs only.
 
 import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
@@ -26,7 +27,6 @@ import { join } from 'node:path';
 const MAX_JSON_BYTES = 256 * 1024;
 const MAX_ARTIFACTS = 24;
 const SESSION_TTL_MS = 2 * 60 * 60 * 1000;
-const SIMILAR_CACHE_TTL_MS = 60_000;
 const REPORT_ID_PATTERN = /^KW-\d{8}-[a-f0-9]{8}$/;
 const ARTIFACT_ID_PATTERN = /^a\d{1,2}$/;
 
@@ -40,9 +40,6 @@ export function readConfig(env = process.env) {
     retentionDays: Math.max(1, Number(env.RETENTION_DAYS ?? 90)),
     sessionsPerHourPerIp: Math.max(1, Number(env.SESSIONS_PER_HOUR_PER_IP ?? 12)),
     wecomWebhookUrl: String(env.WECOM_WEBHOOK_URL ?? '').trim(),
-    githubToken: String(env.GITHUB_TOKEN ?? '').trim(),
-    issueOwner: String(env.ISSUE_OWNER ?? 'wuji-labs').trim(),
-    issueRepo: String(env.ISSUE_REPO ?? 'kaiwu').trim(),
   };
 }
 
@@ -95,36 +92,10 @@ function verifyUpload(secret, reportId, artifactId, sig) {
   return given.length === expected.length && timingSafeEqual(given, expected);
 }
 
-/** Public issue body: what the reporter wrote, plus coarse environment. Never artifacts or server URLs. */
-export function renderPublicIssueBody(form, reportId) {
-  const lines = [];
-  const add = (heading, value) => {
-    const v = text(value, 4000);
-    if (v) lines.push(`### ${heading}`, '', v, '');
-  };
-  add('概述', form.summary);
-  add('当前表现', form.currentBehavior);
-  add('期望表现', form.expectedBehavior);
-  const steps = Array.isArray(form.reproductionSteps) ? form.reproductionSteps.map((s) => text(s, 500)).filter(Boolean) : [];
-  if (steps.length) lines.push('### 复现步骤', '', ...steps.map((s, i) => `${i + 1}. ${s}`), '');
-  add('近期变化', form.whatChangedRecently);
-  const env = form.environment ?? {};
-  const envBits = [
-    env.appVersion && `版本 ${text(env.appVersion, 40)}`,
-    env.platform && `平台 ${text(env.platform, 40)}`,
-    env.osVersion && `系统 ${text(env.osVersion, 60)}`,
-    form.frequency && `频率 ${text(form.frequency, 20)}`,
-    form.severity && `严重度 ${text(form.severity, 20)}`,
-  ].filter(Boolean);
-  if (envBits.length) lines.push('### 环境', '', envBits.join(' · '), '');
-  lines.push('---', `报告编号 \`${reportId}\`（诊断附件仅存于开物运维服务器，不公开）`);
-  return lines.join('\n');
-}
-
-function renderOperatorNotice({ ticket, reportId, form, artifactCount, issueUrl }) {
+function renderOperatorNotice({ ticket, reportId, form, artifactCount, issueUrl, followUp = false }) {
   const env = form.environment ?? {};
   return [
-    `## 开物问题报告 #${ticket}`,
+    followUp ? `## 开物问题报告 #${ticket} · 追加反馈` : `## 开物问题报告 #${ticket}`,
     `**${text(form.title, 120) || '（无标题）'}**`,
     `> ${text(form.summary, 300) || '（无概述）'}`,
     `> 严重度：${text(form.severity, 20) || '未填'} · 频率：${text(form.frequency, 20) || '未填'}`,
@@ -135,10 +106,35 @@ function renderOperatorNotice({ ticket, reportId, form, artifactCount, issueUrl 
   ].filter(Boolean).join('\n');
 }
 
+const PAGE_STYLE =
+  'body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#07070c;color:#e8e6f0;font-family:"PingFang SC","Microsoft YaHei",sans-serif}' +
+  'main{width:min(560px,92vw);padding:40px 0}h1{font-size:22px;font-weight:600;margin:0 0 12px}p{color:#a8a3b8;line-height:1.7;margin:0 0 16px}' +
+  'label{display:block;font-size:14px;color:#c9c4d8;margin:18px 0 6px}input[type=text],textarea{box-sizing:border-box;width:100%;background:#12121a;border:1px solid #2a2a36;border-radius:10px;color:#e8e6f0;font:inherit;padding:12px}' +
+  'textarea{min-height:220px;resize:vertical}.row{display:flex;gap:8px;align-items:flex-start;margin:18px 0}.row label{margin:0;color:#a8a3b8}' +
+  'button{margin-top:8px;background:#e8e6f0;color:#07070c;border:0;border-radius:10px;font:inherit;font-weight:600;padding:12px 22px;cursor:pointer}';
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+}
+
+function page(heading, message, inner = '') {
+  return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>无极开物 · ${escapeHtml(heading)}</title><style>${PAGE_STYLE}</style></head><body><main><h1>${escapeHtml(heading)}</h1><p>${escapeHtml(message)}</p>${inner}</main></body></html>`;
+}
+
 function ackPage(ticket) {
-  return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>无极开物 · 问题报告已收到</title>
-<style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#07070c;color:#e8e6f0;font-family:"PingFang SC","Microsoft YaHei",sans-serif}main{max-width:420px;padding:40px;text-align:center}h1{font-size:22px;font-weight:600;margin:0 0 12px}p{color:#a8a3b8;line-height:1.7;margin:0}</style></head>
-<body><main><h1>问题报告 #${ticket} 已收到</h1><p>感谢反馈。开物团队会尽快排查；诊断信息仅保存在开物运维服务器上，不会公开。</p></main></body></html>`;
+  return page(`问题报告 #${ticket} 已收到`, '感谢反馈。开物团队会尽快排查；报告只保存在开物运维服务器上，不会公开。');
+}
+
+export function reportFormPage(searchParams) {
+  const title = escapeHtml(text(searchParams.get('title'), 200));
+  const body = escapeHtml(text(searchParams.get('body'), 20000));
+  return page(
+    '提交问题报告',
+    '报告只保存在开物运维服务器上，由开物团队排查，不会发往任何第三方。',
+    `<form method="post" action="v1/reports/quick"><label for="t">标题</label><input id="t" type="text" name="title" maxlength="200" required value="${title}">` +
+      `<label for="b">问题描述</label><textarea id="b" name="body" maxlength="20000">${body}</textarea>` +
+      `<div class="row"><input id="c" type="checkbox" name="consent" required><label for="c">我同意开物按隐私政策处理本报告</label></div><button type="submit">提交</button></form>`,
+  );
 }
 
 export function createBugReportRelay(deps = {}) {
@@ -149,7 +145,6 @@ export function createBugReportRelay(deps = {}) {
 
   const reportsDir = join(config.dataDir, 'reports');
   const rateBuckets = new Map();
-  const similarCache = new Map();
   let ticketChain = Promise.resolve();
 
   const reportDir = (id) => join(reportsDir, id);
@@ -180,20 +175,6 @@ export function createBugReportRelay(deps = {}) {
     });
     ticketChain = run.catch(() => {});
     return run;
-  }
-
-  async function github(path, init = {}) {
-    const response = await fetchImpl(`https://api.github.com${path}`, {
-      ...init,
-      headers: {
-        accept: 'application/vnd.github+json',
-        'user-agent': 'kaiwu-bug-report-relay',
-        ...(config.githubToken ? { authorization: `Bearer ${config.githubToken}` } : {}),
-        ...(init.body ? { 'content-type': 'application/json' } : {}),
-      },
-    });
-    if (!response.ok) throw new Error(`GitHub ${response.status}`);
-    return await response.json();
   }
 
   async function notify(markdown) {
@@ -308,69 +289,106 @@ export function createBugReportRelay(deps = {}) {
     const missing = meta.artifacts.filter((a) => !stored.has(`${a.artifactId}-${a.filename}`));
     if (missing.length) return send(res, 400, { error: `Missing artifacts: ${missing.map((a) => a.artifactId).join(',')}` });
 
-    const ticket = await nextTicket();
-    let issueNumber = ticket;
-    let issueUrl = `${config.publicBaseUrl}/v1/reports/${reportId}`;
-    if (config.githubToken) {
-      const repoPath = `/repos/${encodeURIComponent(config.issueOwner)}/${encodeURIComponent(config.issueRepo)}`;
-      const existing = Number(body?.issue?.number);
-      try {
-        if (Number.isInteger(existing) && existing > 0) {
-          await github(`${repoPath}/issues/${existing}/comments`, {
-            method: 'POST',
-            body: JSON.stringify({ body: renderPublicIssueBody(meta.form, reportId) }),
-          });
-          const issue = await github(`${repoPath}/issues/${existing}`);
-          issueNumber = issue.number;
-          issueUrl = issue.html_url;
-        } else {
-          const issue = await github(`${repoPath}/issues`, {
-            method: 'POST',
-            body: JSON.stringify({ title: text(meta.form.title, 200), body: renderPublicIssueBody(meta.form, reportId), labels: ['bug-report'] }),
-          });
-          issueNumber = issue.number;
-          issueUrl = issue.html_url;
-        }
-      } catch (error) {
-        // The report is safely stored either way; a GitHub outage must not lose it.
-        console.error('[bug-report-relay] GitHub sync failed:', error?.message ?? error);
-      }
-    }
+    const followUp = await findSubmittedByTicket(Number(body?.issue?.number));
+    const ticket = followUp ? followUp.ticket : await nextTicket();
+    const issueNumber = ticket;
+    const issueUrl = `${config.publicBaseUrl}/v1/reports/${followUp ? followUp.reportId : reportId}`;
 
-    await writeMeta(reportId, { ...meta, status: 'submitted', submittedAt: now().toISOString(), ticket, issueNumber, issueUrl });
-    await notify(renderOperatorNotice({ ticket, reportId, form: meta.form, artifactCount: meta.artifacts.length, issueUrl }));
+    await writeMeta(reportId, { ...meta, status: 'submitted', submittedAt: now().toISOString(), ticket, issueNumber, issueUrl, followUpOf: followUp?.reportId ?? null });
+    if (!followUp) rememberSubmitted({ reportId, ticket, title: text(meta.form.title, 200), submittedAt: now().toISOString() });
+    await notify(renderOperatorNotice({ ticket, reportId, form: meta.form, artifactCount: meta.artifacts.length, issueUrl, followUp: Boolean(followUp) }));
     return send(res, 200, { reportId, issueNumber, issueUrl });
   }
 
-  async function similarIssues(res, searchParams) {
-    const query = text(searchParams.get('q'), 200).replace(/[^\p{L}\p{N}\s._-]+/gu, ' ').trim();
-    if (query.length < 3) return send(res, 200, { issues: [] });
-    const limit = Math.max(1, Math.min(Number(searchParams.get('limit')) || 10, 25));
-    const state = ['open', 'closed'].includes(searchParams.get('state')) ? searchParams.get('state') : null;
-    const key = `${query}|${limit}|${state}`;
-    const cached = similarCache.get(key);
-    if (cached && now().getTime() - cached.at < SIMILAR_CACHE_TTL_MS) return send(res, 200, cached.value);
-
-    let value = { issues: [] };
-    try {
-      const q = [`repo:${config.issueOwner}/${config.issueRepo}`, 'is:issue', state ? `state:${state}` : '', query].filter(Boolean).join(' ');
-      const result = await github(`/search/issues?q=${encodeURIComponent(q)}&per_page=${limit}`);
-      value = {
-        issues: (result.items ?? []).map((item) => ({
-          owner: config.issueOwner,
-          repo: config.issueRepo,
-          number: item.number,
-          url: item.html_url,
-          title: item.title,
-          state: item.state === 'closed' ? 'closed' : 'open',
-          updatedAt: item.updated_at,
-        })),
-      };
-    } catch (error) {
-      console.error('[bug-report-relay] similar issues failed:', error?.message ?? error);
+  // Index of submitted reports for duplicate detection and follow-ups; titles only, never content.
+  let submittedIndex = null;
+  async function loadSubmittedIndex() {
+    if (submittedIndex) return submittedIndex;
+    const entries = [];
+    for (const id of await readdir(reportsDir).catch(() => [])) {
+      if (!REPORT_ID_PATTERN.test(id)) continue;
+      const meta = await readMeta(id).catch(() => null);
+      if (meta?.status === 'submitted' && !meta.followUpOf) {
+        entries.push({ reportId: id, ticket: meta.ticket, title: text(meta.form?.title, 200), submittedAt: meta.submittedAt });
+      }
     }
-    similarCache.set(key, { at: now().getTime(), value });
-    return send(res, 200, value);
+    submittedIndex = entries;
+    return entries;
+  }
+  function rememberSubmitted(entry) {
+    if (submittedIndex && !submittedIndex.some((e) => e.ticket === entry.ticket)) submittedIndex.push(entry);
+  }
+  async function findSubmittedByTicket(ticket) {
+    if (!Number.isInteger(ticket) || ticket <= 0) return null;
+    return (await loadSubmittedIndex()).find((e) => e.ticket === ticket) ?? null;
+  }
+
+  async function similarIssues(res, searchParams) {
+    const tokens = text(searchParams.get('q'), 200).toLowerCase().split(/[^\p{L}\p{N}]+/u).filter((t) => t.length >= 2);
+    if (!tokens.length) return send(res, 200, { issues: [] });
+    const limit = Math.max(1, Math.min(Number(searchParams.get('limit')) || 10, 25));
+    const scored = (await loadSubmittedIndex())
+      .map((entry) => {
+        const title = entry.title.toLowerCase();
+        return { entry, score: tokens.filter((t) => title.includes(t)).length };
+      })
+      .filter((x) => x.score > 0)
+      .sort((a, b) => b.score - a.score || b.entry.ticket - a.entry.ticket)
+      .slice(0, limit);
+    return send(res, 200, {
+      issues: scored.map(({ entry }) => ({
+        owner: 'wuji-labs',
+        repo: 'kaiwu',
+        number: entry.ticket,
+        url: `${config.publicBaseUrl}/v1/reports/${entry.reportId}`,
+        title: entry.title,
+        state: 'open',
+        updatedAt: entry.submittedAt,
+      })),
+    });
+  }
+
+  async function quickSubmit(req, res) {
+    if (!allowSession(clientIp(req))) return send(res, 429, page('提交过于频繁', '请稍后再试。'));
+    const chunks = [];
+    let size = 0;
+    for await (const chunk of req) {
+      size += chunk.length;
+      if (size > MAX_JSON_BYTES) return send(res, 413, page('内容过长', '请精简描述后再提交。'));
+      chunks.push(chunk);
+    }
+    const fields = new URLSearchParams(Buffer.concat(chunks).toString('utf8'));
+    const title = text(fields.get('title'), 200);
+    const summary = text(fields.get('body'), 20000);
+    if (!title || fields.get('consent') !== 'on') return send(res, 400, page('信息不完整', '请填写标题并勾选同意隐私说明。'));
+
+    const stamp = now().toISOString().slice(0, 10).replace(/-/g, '');
+    const reportId = `KW-${stamp}-${randomBytes(4).toString('hex')}`;
+    const form = {
+      title,
+      summary,
+      environment: { appVersion: text(fields.get('appVersion'), 40) || 'unknown', platform: 'web-form', deploymentType: 'cloud' },
+      consent: { includeDiagnostics: false, acceptedPrivacyNotice: true },
+    };
+    const ticket = await nextTicket();
+    const issueUrl = `${config.publicBaseUrl}/v1/reports/${reportId}`;
+    await mkdir(join(reportDir(reportId), 'artifacts'), { recursive: true });
+    await writeMeta(reportId, {
+      reportId,
+      status: 'submitted',
+      createdAt: now().toISOString(),
+      submittedAt: now().toISOString(),
+      clientReportId: 'web-form',
+      form,
+      artifacts: [],
+      ticket,
+      issueNumber: ticket,
+      issueUrl,
+      followUpOf: null,
+    });
+    rememberSubmitted({ reportId, ticket, title, submittedAt: now().toISOString() });
+    await notify(renderOperatorNotice({ ticket, reportId, form, artifactCount: 0, issueUrl, followUp: false }));
+    return send(res, 200, ackPage(ticket));
   }
 
   async function sweepExpired() {
@@ -390,6 +408,8 @@ export function createBugReportRelay(deps = {}) {
       if (req.method === 'POST' && path === '/v1/reports/session') return await createSession(req, res);
       if (req.method === 'POST' && path === '/v1/reports/submit') return await submit(req, res);
       if (req.method === 'GET' && path === '/v1/issues/similar') return await similarIssues(res, url.searchParams);
+      if (req.method === 'GET' && path === '/new') return send(res, 200, reportFormPage(url.searchParams));
+      if (req.method === 'POST' && path === '/v1/reports/quick') return await quickSubmit(req, res);
 
       const upload = /^\/v1\/reports\/([^/]+)\/artifacts\/([^/]+)$/.exec(path);
       if (req.method === 'PUT' && upload && REPORT_ID_PATTERN.test(upload[1]) && ARTIFACT_ID_PATTERN.test(upload[2])) {
@@ -423,7 +443,7 @@ if (isEntrypoint) {
   setInterval(() => server.sweepExpired().catch((error) => console.error('[bug-report-relay] sweep failed:', error)), 6 * 3_600_000).unref();
   server.listen(config.port, '0.0.0.0', () => {
     console.log(
-      `[bug-report-relay] listening on :${config.port} (wecom: ${Boolean(config.wecomWebhookUrl)}, github sync: ${Boolean(config.githubToken)}, repo: ${config.issueOwner}/${config.issueRepo})`,
+      `[bug-report-relay] listening on :${config.port} (wecom: ${Boolean(config.wecomWebhookUrl)})`,
     );
   });
 }

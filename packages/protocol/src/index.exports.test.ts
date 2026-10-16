@@ -78,8 +78,8 @@ describe('protocol package root exports', () => {
     });
 
     it('exports bug report routing defaults', () => {
-        expect(protocol.BUG_REPORT_DEFAULT_ISSUE_OWNER).toBe('happier-dev');
-        expect(protocol.BUG_REPORT_DEFAULT_ISSUE_REPO).toBe('happier');
+        expect(protocol.BUG_REPORT_DEFAULT_ISSUE_OWNER).toBe('wuji-labs');
+        expect(protocol.BUG_REPORT_DEFAULT_ISSUE_REPO).toBe('kaiwu');
         expect(protocol.BUG_REPORT_DEFAULT_ISSUE_LABELS).toEqual(['bug']);
         expect(typeof protocol.normalizeBugReportProviderUrl).toBe('function');
         expect(typeof protocol.normalizeBugReportIssueSlug).toBe('function');
@@ -92,7 +92,7 @@ describe('protocol package root exports', () => {
             owner: '',
             repo: '',
         });
-        expect(url).toContain('https://github.com/happier-dev/happier/issues/new?');
+        expect(url).toContain('https://kaiwu.wujilabs.cn/bug-reports/new?');
     });
 
     it('exports daemon execution run schemas for machine-wide run listing', () => {
