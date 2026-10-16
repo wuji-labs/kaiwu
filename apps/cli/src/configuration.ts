@@ -10,6 +10,7 @@ import { chmodSync, existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { join, isAbsolute, resolve as resolvePath } from 'node:path'
 import { deriveServerIdFromUrl, isServerIdFilesystemSafe, sanitizeServerIdForFilesystem } from '@/server/serverId'
 import { isLocalishServerUrl } from '@/server/serverUrlClassification'
+import { rewriteLegacyHostedServerUrl } from '@/server/legacyHostedServerUrl'
 import { normalizeCliArgv } from '@/cli/parseArgs'
 import { expandHomeDirPath } from '@/utils/path/expandHomeDirPath'
 import {
@@ -377,10 +378,10 @@ class Configuration {
     this.settingsFile = join(this.happyHomeDir, 'settings.json')
     this.serversDir = join(this.happyHomeDir, 'servers')
 
-    const envServerUrl = (process.env.HAPPIER_SERVER_URL ?? '').toString().trim();
+    const envServerUrl = rewriteLegacyHostedServerUrl((process.env.HAPPIER_SERVER_URL ?? '').toString().trim());
     const envLocalServerUrl = (process.env.HAPPIER_LOCAL_SERVER_URL ?? '').toString().trim();
-    const envWebappUrl = (process.env.HAPPIER_WEBAPP_URL ?? '').toString().trim();
-    const envPublicServerUrl = (process.env.HAPPIER_PUBLIC_SERVER_URL ?? '').toString().trim();
+    const envWebappUrl = rewriteLegacyHostedServerUrl((process.env.HAPPIER_WEBAPP_URL ?? '').toString().trim());
+    const envPublicServerUrl = rewriteLegacyHostedServerUrl((process.env.HAPPIER_PUBLIC_SERVER_URL ?? '').toString().trim());
     const envActiveServerIdRaw = (process.env.HAPPIER_ACTIVE_SERVER_ID ?? '').toString().trim();
     const envActiveServerId = isServerIdFilesystemSafe(envActiveServerIdRaw)
       ? envActiveServerIdRaw
@@ -1067,7 +1068,8 @@ function readActiveServerFromSettingsFile(path: string): PersistedServerSettings
     const serversRaw = (raw as any).servers;
     if (!activeServerId || !serversRaw || typeof serversRaw !== 'object') return null;
         const servers: Record<string, PersistedServerProfile> = {};
-        const normalizeUrl = (value: unknown): string => String(value ?? '').trim().replace(/\/+$/, '');
+        const normalizeUrl = (value: unknown): string =>
+          rewriteLegacyHostedServerUrl(String(value ?? '').trim().replace(/\/+$/, ''));
         for (const [id, v] of Object.entries(serversRaw as Record<string, any>)) {
           const sid = sanitizeServerIdForFilesystem((v as any)?.id ?? id, '');
           const serverUrlRaw = normalizeUrl((v as any)?.serverUrl);
@@ -1143,8 +1145,8 @@ function resolveServerSelection(params: Readonly<{
   persisted: PersistedServerSettings | null;
   serversDir: string;
 }>): Readonly<{ activeServerId: string; serverUrl: string; apiServerUrl: string; webappUrl: string }> {
-  const DEFAULT_SERVER_URL = 'https://api.happier.dev';
-  const DEFAULT_WEBAPP_URL = 'https://app.happier.dev';
+  const DEFAULT_SERVER_URL = 'https://kaiwu.wujilabs.cn';
+  const DEFAULT_WEBAPP_URL = 'https://kaiwu.wujilabs.cn';
   const resolveActiveServerId = (fallbackId: string): string =>
     sanitizeServerIdForFilesystem(params.envActiveServerId ?? fallbackId, 'cloud');
 

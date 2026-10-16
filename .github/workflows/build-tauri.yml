@@ -250,9 +250,9 @@ jobs:
       EXPO_UNSTABLE_WEB_MODAL: "1"
       # Ensure desktop release bundles always bootstrap against Happier Cloud unless explicitly overridden
       # by runtime server profile switching inside the app.
-      EXPO_PUBLIC_KAIWU_SERVER_URL: https://api.happier.dev
-      EXPO_PUBLIC_HAPPY_SERVER_URL: https://api.happier.dev
-      EXPO_PUBLIC_SERVER_URL: https://api.happier.dev
+      EXPO_PUBLIC_KAIWU_SERVER_URL: https://kaiwu.wujilabs.cn
+      EXPO_PUBLIC_HAPPY_SERVER_URL: https://kaiwu.wujilabs.cn
+      EXPO_PUBLIC_SERVER_URL: https://kaiwu.wujilabs.cn
     strategy:
       fail-fast: false
       matrix:

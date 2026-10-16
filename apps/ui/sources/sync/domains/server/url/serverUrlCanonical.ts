@@ -1,6 +1,7 @@
 import { createServerUrlComparableKey as createProtocolServerUrlComparableKey } from '@happier-dev/protocol';
 
 import { isLocalishHostname } from './serverUrlClassification';
+import { HOSTED_SERVER_HOSTNAME, isLegacyHostedHostname } from './legacyHostedServerUrl';
 
 const SERVER_URL_CANONICAL_CACHE_LIMIT = 256;
 
@@ -35,6 +36,11 @@ function canonicalizeServerUrlUncached(raw: string): string {
             parsed.protocol = isLocalishHostname(parsed.hostname) ? 'http:' : 'https:';
         }
         if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return '';
+        if (isLegacyHostedHostname(parsed.hostname)) {
+            parsed.protocol = 'https:';
+            parsed.hostname = HOSTED_SERVER_HOSTNAME;
+            parsed.port = '';
+        }
         parsed.search = '';
         parsed.hash = '';
         return parsed.toString().replace(/\/+$/, '');

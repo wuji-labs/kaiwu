@@ -2,7 +2,8 @@ import { BUG_REPORT_DEFAULT_ACCEPTED_ARTIFACT_KINDS, normalizeBugReportProviderU
 import type { FeaturesPayloadDelta } from "./types";
 import { readBugReportsFeatureEnv } from "./catalog/readFeatureEnv";
 
-const DEFAULT_PROVIDER_URL = "https://reports.happier.dev";
+// No default provider: bug reports stay off until an operator configures one explicitly.
+const DEFAULT_PROVIDER_URL = "";
 const DEFAULT_ACCEPTED_KINDS = [...BUG_REPORT_DEFAULT_ACCEPTED_ARTIFACT_KINDS];
 const DEFAULT_CONTEXT_WINDOW_MS = 30 * 60 * 1000;
 

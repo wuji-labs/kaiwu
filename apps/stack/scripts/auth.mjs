@@ -1553,7 +1553,7 @@ async function cmdLogin({ argv, json }) {
   const webappModeRaw =
     (argvKvValue(argv, '--webapp') || (kv.get('--webapp') ?? '')).toString().trim().toLowerCase();
   const requestedWebappMode = webappModeRaw || 'auto'; // auto|stack|public|expo|hosted
-  const HOSTED_WEBAPP_URL = 'https://app.happier.dev';
+  const HOSTED_WEBAPP_URL = 'https://kaiwu.wujilabs.cn';
   const explicitWebappUrl =
     (argvKvValue(argv, '--webapp-url') || (kv.get('--webapp-url') ?? '')).toString().trim();
   const methodRaw = (argvKvValue(argv, '--method') || (kv.get('--method') ?? '')).toString().trim().toLowerCase();

@@ -18,6 +18,7 @@ import {
 } from '@/daemon/ownership/daemonOwnershipMetadata';
 import { isServerIdFilesystemSafe, sanitizeServerIdForFilesystem } from '@/server/serverId';
 import { isLocalishServerUrl } from '@/server/serverUrlClassification';
+import { rewriteLegacyHostedServerUrl } from '@/server/legacyHostedServerUrl';
 import * as z from 'zod';
 import { decodeBase64, encodeBase64 } from '@/api/encryption';
 import { logger } from '@/ui/logger';
@@ -415,6 +416,21 @@ function migrateSettings(raw: any, fromVersion: number): any {
 }
 
 /**
+ * Rewrites server profiles that still point at a legacy hosted origin (see legacyHostedServerUrl).
+ * Idempotent and schema-neutral, so older CLIs can still read the file.
+ */
+function rewriteLegacyHostedServerProfiles(settings: Settings): void {
+  const servers = (settings as any).servers;
+  if (!servers || typeof servers !== 'object') return;
+  for (const value of Object.values(servers as Record<string, any>)) {
+    if (!value || typeof value !== 'object') continue;
+    for (const key of ['serverUrl', 'webappUrl', 'publicServerUrl']) {
+      if (typeof value[key] === 'string') value[key] = rewriteLegacyHostedServerUrl(value[key]);
+    }
+  }
+}
+
+/**
  * Daemon state persisted locally (different from API DaemonState)
  * This is written to disk by the daemon to track its local process state
  */
@@ -532,6 +548,7 @@ export async function readSettings(): Promise<Settings> {
 
     // Merge with defaults to ensure all required fields exist
     const merged: Settings = { ...defaultSettings, ...migrated };
+    rewriteLegacyHostedServerProfiles(merged);
 
     // Derive backwards-compat fields for the *effective* active server (schema v5+).
     // The configuration layer resolves env overrides (HAPPIER_SERVER_URL/HAPPIER_WEBAPP_URL) into

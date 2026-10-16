@@ -13,6 +13,7 @@ import {
     removeNativeSecureStoreString,
     writeNativeSecureStoreString,
 } from './nativeSecureStoreWithDevFallback';
+import { legacyHostedServerUrlFor } from '@/sync/domains/server/url/legacyHostedServerUrl';
 
 const AUTH_KEY = 'auth_credentials';
 const PENDING_EXTERNAL_AUTH_KEY = 'pending_external_auth';
@@ -160,6 +161,8 @@ async function getServerScopedKeys(
     const legacyCandidates = new Set<string>();
     const legacyNormalizedUrl = normalizeUrlLegacy(rawUrl);
     if (legacyNormalizedUrl) legacyCandidates.add(legacyNormalizedUrl);
+    const legacyHostedUrl = legacyHostedServerUrlFor(normalizedUrl);
+    if (legacyHostedUrl) legacyCandidates.add(legacyHostedUrl);
 
     // Backwards-compat: older versions treated 127.0.0.1 and localhost as distinct scopes.
     // If we currently normalized to localhost, also consider the loopback IP scope as a legacy key.
