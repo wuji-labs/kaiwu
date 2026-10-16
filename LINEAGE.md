@@ -60,3 +60,4 @@ D:\Projects\happy-app 与 D:\Projects\qianyuan-happier，
 
 本仓是 happier-dev/happier 的下游独立演进分支，定位同 happier 之于 happy —— 是二次开发与持续迭代，不是换皮。
 上游 LICENSE 与版权声明一律保留；产品面不展示上游血缘；许可合规见 LICENSE 与 docs 法律区。
+GitHub 远端只留开物自己的分支（默认 `wuji/main`），不放上游原样分支：建仓时推上去的上游 `main` 已于 2026-10-16 删除，快照留标签 `happier-upstream-snapshot-20260914`（07615de002）。跟踪上游只用本机 `upstream` / `happy-root` 远端，不推到 origin。
