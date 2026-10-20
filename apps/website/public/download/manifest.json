@@ -1,0 +1,79 @@
+{
+  "updatedAt": "2026-10-20T14:00:00Z",
+  "platforms": {
+    "windows": {
+      "version": "0.2.28",
+      "filename": "kaiwu-v0.2.28-windows-x64.zip",
+      "size": 397528373,
+      "sha256": "14ba16529ccc30283b39db0135caada03005b020748c53faebd4bfbff85828b3",
+      "url": "https://kaiwu.wujilabs.cn/download/windows",
+      "versionedUrl": "https://kaiwu.wujilabs.cn/download/windows/0.2.28",
+      "directUrl": "https://kaiwu.wujilabs.cn/docs/releases/windows/0.2.28/kaiwu-v0.2.28-windows-x64.zip",
+      "installCommand": "irm https://kaiwu.wujilabs.cn/install.ps1 | iex"
+    },
+    "macos": {
+      "version": "0.2.28",
+      "filename": "kaiwu-cli-0.2.28.tgz",
+      "size": 174192777,
+      "sha256": "a0e5fdffc03787474c4d23e7337f1cc55762350d6632eedad77cfcfc448c9723",
+      "url": "https://kaiwu.wujilabs.cn/download/macos",
+      "versionedUrl": "https://kaiwu.wujilabs.cn/download/macos/0.2.28",
+      "directUrl": "https://kaiwu.wujilabs.cn/docs/releases/macos/0.2.28/kaiwu-cli-0.2.28.tgz",
+      "installCommand": "curl -fsSL https://kaiwu.wujilabs.cn/install | bash"
+    },
+    "linux": {
+      "version": "0.2.28",
+      "filename": "kaiwu-cli-0.2.28.tgz",
+      "size": 174192777,
+      "sha256": "a0e5fdffc03787474c4d23e7337f1cc55762350d6632eedad77cfcfc448c9723",
+      "url": "https://kaiwu.wujilabs.cn/download/linux",
+      "versionedUrl": "https://kaiwu.wujilabs.cn/download/linux/0.2.28",
+      "directUrl": "https://kaiwu.wujilabs.cn/docs/releases/linux/0.2.28/kaiwu-cli-0.2.28.tgz",
+      "installCommand": "curl -fsSL https://kaiwu.wujilabs.cn/install | bash"
+    },
+    "android": {
+      "version": "0.2.24",
+      "filename": "kaiwu.apk",
+      "size": 444761123,
+      "sha256": "55aa6d7693519b19314468135a0827cd690d333d92161b379f52b2b48db837d6",
+      "url": "https://kaiwu.wujilabs.cn/download/android",
+      "versionedUrl": "https://kaiwu.wujilabs.cn/download/android/0.2.24",
+      "directUrl": "https://kaiwu.wujilabs.cn/docs/releases/android/0.2.24/kaiwu-0.2.24.apk"
+    },
+    "ios": {
+      "version": "0.2.24",
+      "filename": "kaiwu.ipa",
+      "size": 67432577,
+      "sha256": "46cde98e993ca3a0cc32f408619e879e61c5d09e88ce1535c4ecaa64602fb521",
+      "url": "https://kaiwu.wujilabs.cn/download/ios",
+      "versionedUrl": "https://kaiwu.wujilabs.cn/download/ios/0.2.24",
+      "directUrl": "https://kaiwu.wujilabs.cn/docs/releases/ios/0.2.24/kaiwu-0.2.24-unsigned.ipa",
+      "installMethod": "未签名安装包（需自签或通过 AltStore / Sideloadly 侧载安装；亦可使用 Safari 添加到主屏幕）"
+    },
+    "harmony": {
+      "status": "coming_soon",
+      "label": "即将提供",
+      "description": "鸿蒙原生版正在开发中，敬请期待"
+    },
+    "server": {
+      "version": "0.2.11-kw.1",
+      "filename": "happier-server-v0.2.11-kw.1-linux-x64.tar.gz",
+      "size": 395539458,
+      "sha256": "d8cd6ed50e5aac13ea31504de03a8bf474df413f161144bda0a80fc58ca58024",
+      "url": "https://kaiwu.wujilabs.cn/download/server",
+      "versionedUrl": "https://kaiwu.wujilabs.cn/download/server/0.2.11-kw.1",
+      "directUrl": "https://kaiwu.wujilabs.cn/docs/releases/server/0.2.11-kw.1/happier-server-v0.2.11-kw.1-linux-x64.tar.gz",
+      "installCommand": "curl -fsSL https://kaiwu.wujilabs.cn/install-server.sh | bash"
+    },
+    "npm": {
+      "version": "0.2.28",
+      "filename": "kaiwu-cli-0.2.28.tgz",
+      "size": 174192777,
+      "sha256": "a0e5fdffc03787474c4d23e7337f1cc55762350d6632eedad77cfcfc448c9723",
+      "url": "https://kaiwu.wujilabs.cn/download/npm",
+      "versionedUrl": "https://kaiwu.wujilabs.cn/download/npm/0.2.28",
+      "directUrl": "https://kaiwu.wujilabs.cn/docs/releases/npm/0.2.28/kaiwu-cli-0.2.28.tgz",
+      "installCommand": "npm install -g https://kaiwu.wujilabs.cn/download/npm"
+    }
+  }
+}

@@ -50,6 +50,7 @@ export const FOOTER_COLUMNS = [
         id: 'product',
         title: 'Product',
         links: [
+            { id: 'downloads', label: 'Downloads (下载中心)', href: '/download' },
             { id: 'agents', label: 'Agents we run', href: '/agents' },
             { id: 'vs-remote-control', label: 'vs Remote Control', href: '/vs/claude-code-remote-control' },
             // The Codex comparison is the same class of page and needs the same

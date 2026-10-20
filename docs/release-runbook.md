@@ -88,3 +88,34 @@ gh run watch <id> --exit-status; gh run download <id> -D dist/ios/<版本>
 4. **先演练再切换**：`sqlite3 ... "VACUUM INTO '/stage/...'"` 取一致副本（不要用 `.backup`，生产库持续写入时它会反复重来），新镜像挂副本在 `127.0.0.1:3098` 起一份，核对 `/v1/features`、`/`、需登录接口 401、`Account`/`Session` 计数与 `_prisma_migrations` 无失败项。
 5. 切换：compose 里 `image:` 改为新标签，`docker compose up -d --no-deps wuji-kaiwu-server`；起来后核对首页是 HTML（不是纯文本）、`/favicon.ico` 200、`/v1/features` 的 `canonicalServerUrl` 与 `bugReports.providerUrl`，并看一台成员机守护日志重新 `Connected`。
 6. 回滚：compose 改回上一个镜像标签再 `up -d --no-deps wuji-kaiwu-server`；改 compose 前一律留 `docker-compose.yml.bak-<时间戳>`。
+
+## 8. 发版后自动上架官网下载中心（kaiwu.wujilabs.cn/download）
+每次各平台构建新版本并完成测试验证后，必须将最新安装包上架至官方全平台下载中心，并更新机器可读清单 `manifest.json` 与 Caddy 跳转。
+
+### 8.1 自动化上架脚本
+统一通过以下脚本完成上架，无需手工登录服务器搬迁文件或拼凑命令：
+```powershell
+node scripts/release/publish-downloads.mjs --platform <平台> --version <版本> --file <本地产物路径>
+```
+
+**支持的平台标识**：
+- `windows`: Windows x64 便携包（按集团安全规范压制为 `.zip`）
+- `macos`: macOS 核心包（`.tgz`）
+- `linux`: Linux 核心包（`.tgz`）
+- `android`: Android APK 安装包（`.apk`）
+- `ios`: iOS 未签名侧载包（`.ipa`）
+- `server`: 自托管服务端核心包（`.tar.gz`）
+- `npm`: npm 模块离线包（`.tgz`）
+
+### 8.2 脚本核心执行逻辑
+1. **本地校验**：校验文件存在性，计算本地文件大小与 SHA256 哈希。
+2. **带宽保护传输**：对于大于 50MB 的安装包，自动使用腾讯云 COS（`kaiwu-static-1444025891`）作为内网高速中转通道，再由生产服务器直接拉取落地，避免 6 Mbps 源站出口带宽被打满导致线上请求阻塞；小于 50MB 的小文件采用 SCP 直传。
+3. **版本化组织**：服务端产物组织于 `/opt/wuji-kaiwu/docs/html/releases/<平台>/<版本>/<文件名>`，并原子更新 `/opt/wuji-kaiwu/docs/html/releases/<平台>/latest/<别名>`。
+4. **哈希严格比对**：在服务器磁盘执行 `sha256sum` 比对，确保传输完全一致。
+5. **更新清单**：更新 `/opt/wuji-kaiwu/docs/html/download/manifest.json`，记录最新版本号、文件名、体积、SHA256、下载直链与部署命令。
+6. **线上可用性复验**：通过 `curl -sSLI https://kaiwu.wujilabs.cn/download/<平台>` 自动验证 302 重定向到 200 OK 且 Content-Length 与本地一致。
+
+### 8.3 注意事项与规范
+- **Windows 防拦截规范**：exe 安装包必须打成 `.zip` 格式分发（参见 `D:\Projects\qianyuan-wuji` 记忆「Windows客户端发布防拦截规范」），发版后提报微软 Defender Security Intelligence 白名单。
+- **并行合同协同**：若 K500 合同或其他功能分支发布了新版本（如突破上传上限后的新版 CLI），在该版本构建完成后，直接调用 `publish-downloads.mjs` 传入新版本产物即可无缝刷新下载中心，无需重复调整服务器 Caddy 路由基础架构。
+

@@ -56,6 +56,12 @@ export function Hero() {
                         <Island name="download-badges" component={DownloadBadges} props={{ webApp: true }} />
                     </div>
 
+                    <div className="mt-2 flex items-center gap-2 text-[13px]" style={{ color: 'var(--muted)' }}>
+                        <a href="/download" className="underline underline-offset-4 hover:opacity-100 transition-opacity" style={{ color: 'var(--fg)' }}>
+                            前往官方下载中心查看所有平台安装包及校验值 →
+                        </a>
+                    </div>
+
                     <div className="mt-4">
                         <Island name="download-stats" component={DownloadStats} />
                     </div>

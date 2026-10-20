@@ -120,6 +120,11 @@ export function Nav({ variant = 'overlay', isHome = true }: NavProps) {
                         style={{ color: 'var(--fg)', opacity: 0.85 }}
                     >{rich(PAGE_PROSE.nav.p3)}</a>
                     <a
+                        href="/download"
+                        className="text-[14px] font-medium transition-opacity hover:opacity-100"
+                        style={{ color: 'var(--fg)', opacity: 0.85 }}
+                    >下载</a>
+                    <a
                         href="https://kaiwu.wujilabs.cn/docs"
                         target="_blank"
                         rel="noreferrer"
