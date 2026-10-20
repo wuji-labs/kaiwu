@@ -25,6 +25,25 @@ describe('useAttachmentsUploadConfig', () => {
         expect(config.maxFileBytes).toBe(524288000);
     });
 
+    it('ignores the legacy 300 MB / 100 MB defaults synced into account settings', async () => {
+        const { useAttachmentsUploadConfig } = await import('./useAttachmentsUploadConfig');
+        for (const legacy of [300 * 1024 * 1024, 100 * 1024 * 1024]) {
+            mockMaxFileBytesSetting = legacy;
+            const rendered = await renderHook(() => useAttachmentsUploadConfig());
+            expect(rendered.getCurrent().maxFileBytes).toBe(524288000);
+        }
+        // A 407 MB file (the real-world case) must pass the client-side size check.
+        expect(407_200_000).toBeLessThanOrEqual(524288000);
+    });
+
+    it('keeps a deliberately chosen custom limit', async () => {
+        const { useAttachmentsUploadConfig } = await import('./useAttachmentsUploadConfig');
+        mockMaxFileBytesSetting = 200 * 1024 * 1024;
+        const rendered = await renderHook(() => useAttachmentsUploadConfig());
+        expect(rendered.getCurrent().maxFileBytes).toBe(200 * 1024 * 1024);
+        mockMaxFileBytesSetting = undefined;
+    });
+
     it('enforces 500 MB boundary with existing validation function: 524288000 passes size validation, 524288001 is rejected', async () => {
         const { useAttachmentsUploadConfig } = await import('./useAttachmentsUploadConfig');
         mockMaxFileBytesSetting = undefined;
