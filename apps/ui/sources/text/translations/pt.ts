@@ -3340,7 +3340,7 @@ export const pt: TranslationStructure = {
       maxAttachmentSize: {
         title: "Tamanho máximo do anexo (bytes)",
         promptTitle: "Tamanho máximo do anexo (bytes)",
-        promptMessage: "Exemplo: 314572800 para 300MB.",
+        promptMessage: "Exemplo: 524288000 para 500MB.",
         invalidValueMessage: "Insira um número entre 1024 e 1073741824.",
       },
     },

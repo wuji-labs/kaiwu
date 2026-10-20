@@ -3057,7 +3057,7 @@ export const zhHans: TranslationStructure = {
     alerts: {
       fileTooLargeTitle: "文件过大",
       fileTooLargeBody: ({ count }: { count: number }) =>
-        `已跳过 ${count} 个超过最大附件大小的文件。`,
+        `文件超过 500 MB，无法发送`,
       noClipboardImageTitle: "剪贴板中没有图片",
       noClipboardImageBody: "请先复制图片，然后将其粘贴为附件。",
     },
@@ -3130,7 +3130,7 @@ export const zhHans: TranslationStructure = {
       maxAttachmentSize: {
         title: "附件最大大小（字节）",
         promptTitle: "附件最大大小（字节）",
-        promptMessage: "示例：300MB 为 314572800。",
+        promptMessage: "示例：500MB 为 524288000。",
         invalidValueMessage: "请输入 1024 到 1073741824 之间的数字。",
       },
     },

@@ -2981,7 +2981,7 @@ export const fr: TranslationStructure = {
             maxAttachmentSize: {
                 title: 'Taille max des pièces jointes (octets)',
                 promptTitle: 'Taille max des pièces jointes (octets)',
-                promptMessage: 'Exemple : 314572800 pour 300 Mo.',
+                promptMessage: 'Exemple : 524288000 pour 500 Mo.',
                 invalidValueMessage: 'Saisis un nombre entre 1024 et 1073741824.',
             },
         },

@@ -2979,7 +2979,7 @@ export const en = {
             maxAttachmentSize: {
                 title: 'Max attachment size (bytes)',
                 promptTitle: 'Max attachment size (bytes)',
-                promptMessage: 'Example: 314572800 for 300MB.',
+                promptMessage: 'Example: 524288000 for 500MB.',
                 invalidValueMessage: 'Enter a number between 1024 and 1073741824.',
             },
         },
