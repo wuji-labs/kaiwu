@@ -23,7 +23,7 @@ export function DownloadPage() {
                                 <span className="text-xs px-2.5 py-1 rounded-full border" style={{ borderColor: 'var(--card-border)', color: 'var(--muted)' }}>v0.2.28 · x64</span>
                             </div>
                             <p className="text-sm mb-4" style={{ color: 'var(--muted)' }}>
-                                Windows 10 / 11 64 位。按集团安全规范压制为 .zip 包，避免 SmartScreen 拦截，发布后将提交 Microsoft Defender 安全检测。
+                                Windows 10 / 11（64 位）。下载 zip 后解压即可使用。
                             </p>
                             <div className="rounded p-2 text-xs font-mono mb-4 overflow-hidden text-ellipsis" style={{ background: 'var(--code-bg, rgba(0,0,0,0.05))', color: 'var(--muted)' }}>
                                 SHA256: 14ba16529ccc3028...
@@ -95,7 +95,7 @@ export function DownloadPage() {
                                 <span className="text-xs px-2.5 py-1 rounded-full border" style={{ borderColor: 'var(--card-border)', color: 'var(--muted)' }}>v0.2.24 · 官方 APK</span>
                             </div>
                             <p className="text-sm mb-4" style={{ color: 'var(--muted)' }}>
-                                原生 Android 客户端。手机掌上监控代理进度、授权审查、代码浏览与全功能终端输入。
+                                Android 客户端：在手机上查看任务进度、审批操作、浏览代码。
                             </p>
                             <div className="rounded p-2 text-xs font-mono mb-4 overflow-hidden text-ellipsis" style={{ background: 'var(--code-bg, rgba(0,0,0,0.05))', color: 'var(--muted)' }}>
                                 SHA256: 55aa6d7693519b19...
