@@ -94,6 +94,7 @@
             font-weight: 600;
             font-size: 17px;
             letter-spacing: -0.01em;
+            white-space: nowrap;
         }
 
         .brand-logo {
@@ -107,12 +108,14 @@
             color: white;
             font-weight: 700;
             font-size: 15px;
+            flex-shrink: 0;
         }
 
         .nav-links {
             display: flex;
             align-items: center;
             gap: 20px;
+            flex-wrap: wrap;
         }
 
         .nav-links a {
@@ -121,6 +124,7 @@
             font-size: 14px;
             font-weight: 500;
             transition: color 0.15s ease;
+            white-space: nowrap;
         }
 
         .nav-links a:hover {
@@ -172,8 +176,29 @@
         }
 
         @media (max-width: 768px) {
+            .header-content {
+                gap: 12px;
+            }
+            .brand-link {
+                font-size: 15px;
+                gap: 8px;
+            }
+            .nav-links {
+                gap: 12px;
+            }
+            .nav-links a {
+                font-size: 13px;
+            }
+            .theme-toggle-btn {
+                padding: 4px 8px;
+                font-size: 12px;
+                white-space: nowrap;
+            }
             .hero h1 {
                 font-size: 32px;
+            }
+            .grid {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -318,10 +343,11 @@
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 8px 12px;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 8px;
             font-family: var(--font-mono);
             font-size: 12px;
         }
@@ -331,7 +357,8 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            max-width: 200px;
+            flex: 1;
+            min-width: 0;
         }
 
         .copy-btn {
@@ -344,10 +371,19 @@
             padding: 2px 6px;
             border-radius: 4px;
             transition: opacity 0.15s;
+            white-space: nowrap;
+            flex-shrink: 0;
+            width: 58px;
+            text-align: right;
+            box-sizing: border-box;
         }
 
         .copy-btn:hover {
             opacity: 0.8;
+        }
+
+        .manifest-code .copy-btn {
+            width: 76px;
         }
 
         .install-box {
@@ -355,7 +391,7 @@
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 10px 12px;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             font-family: var(--font-mono);
             font-size: 12px;
             position: relative;
@@ -374,8 +410,16 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 8px;
             color: var(--text-primary);
-            word-break: break-all;
+        }
+
+        .install-cmd-content code {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+            min-width: 0;
         }
 
         .btn-group {
@@ -432,8 +476,9 @@
         .subtext-note {
             font-size: 12px;
             color: var(--text-muted);
-            margin-top: 10px;
+            margin-bottom: 16px;
             line-height: 1.5;
+            min-height: 36px;
         }
 
         /* Manifest Box */
@@ -553,7 +598,7 @@
                     <span class="badge" id="badge-win">x64 便携包</span>
                 </div>
                 <h2 class="card-title">Windows</h2>
-                <p class="card-desc">Windows 10 / 11 64 位。按集团安全规范压制为 .zip 包，避免 SmartScreen 拦截并已提报 Defender 白名单。</p>
+                <p class="card-desc">Windows 10 / 11 64 位。按集团安全规范压制为 .zip 包，避免 SmartScreen 拦截，发布后将提交 Microsoft Defender 安全检测。</p>
                 <ul class="meta-list">
                     <li class="meta-item"><span class="meta-label">最新版本</span><span class="meta-val">v0.2.28</span></li>
                     <li class="meta-item"><span class="meta-label">文件体积</span><span class="meta-val">379.1 MB</span></li>
@@ -570,11 +615,11 @@
                     <span class="sha-text" title="14ba16529ccc30283b39db0135caada03005b020748c53faebd4bfbff85828b3">SHA256: 14ba16529ccc3028...</span>
                     <button class="copy-btn" onclick="copyText('14ba16529ccc30283b39db0135caada03005b020748c53faebd4bfbff85828b3', this)">复制</button>
                 </div>
+                <p class="subtext-note">提示：解压后直接执行 <code>kaiwu.exe</code> 或在终端运行 <code>kaiwu</code>。</p>
                 <div class="btn-group">
                     <a href="https://kaiwu.wujilabs.cn/download/windows" class="btn btn-primary">立即下载 (.zip)</a>
                     <a href="https://kaiwu.wujilabs.cn/docs/releases/windows/0.2.28/kaiwu-v0.2.28-windows-x64.zip" class="btn btn-secondary">直链备用 (0.2.28)</a>
                 </div>
-                <p class="subtext-note">提示：解压后直接执行 <code>kaiwu.exe</code> 或在终端运行 <code>kaiwu</code>。</p>
             </div>
 
             <!-- macOS Card -->
@@ -603,11 +648,11 @@
                     <span class="sha-text" title="a0e5fdffc03787474c4d23e7337f1cc55762350d6632eedad77cfcfc448c9723">SHA256: a0e5fdffc0378747...</span>
                     <button class="copy-btn" onclick="copyText('a0e5fdffc03787474c4d23e7337f1cc55762350d6632eedad77cfcfc448c9723', this)">复制</button>
                 </div>
+                <p class="subtext-note">提示：亦可使用 <code>npm install -g https://kaiwu.wujilabs.cn/download/npm</code> 进行全局安装。</p>
                 <div class="btn-group">
                     <a href="https://kaiwu.wujilabs.cn/download/macos" class="btn btn-primary">立即下载 (.tgz)</a>
                     <a href="https://kaiwu.wujilabs.cn/docs/releases/macos/0.2.28/kaiwu-cli-0.2.28.tgz" class="btn btn-secondary">直链备用 (0.2.28)</a>
                 </div>
-                <p class="subtext-note">提示：亦可使用 <code>npm install -g https://kaiwu.wujilabs.cn/download/npm</code> 进行全局安装。</p>
             </div>
 
             <!-- Linux Card -->
@@ -636,11 +681,11 @@
                     <span class="sha-text" title="a0e5fdffc03787474c4d23e7337f1cc55762350d6632eedad77cfcfc448c9723">SHA256: a0e5fdffc0378747...</span>
                     <button class="copy-btn" onclick="copyText('a0e5fdffc03787474c4d23e7337f1cc55762350d6632eedad77cfcfc448c9723', this)">复制</button>
                 </div>
+                <p class="subtext-note">提示：安装脚本内置 minisign 签名验签机制，安全自动校验。</p>
                 <div class="btn-group">
                     <a href="https://kaiwu.wujilabs.cn/download/linux" class="btn btn-primary">立即下载 (.tgz)</a>
                     <a href="https://kaiwu.wujilabs.cn/docs/releases/linux/0.2.28/kaiwu-cli-0.2.28.tgz" class="btn btn-secondary">直链备用 (0.2.28)</a>
                 </div>
-                <p class="subtext-note">提示：安装脚本内置 minisign 签名验签机制，安全自动校验。</p>
             </div>
 
             <!-- Android Card -->
@@ -662,11 +707,11 @@
                     <span class="sha-text" title="55aa6d7693519b19314468135a0827cd690d333d92161b379f52b2b48db837d6">SHA256: 55aa6d7693519b19...</span>
                     <button class="copy-btn" onclick="copyText('55aa6d7693519b19314468135a0827cd690d333d92161b379f52b2b48db837d6', this)">复制</button>
                 </div>
+                <p class="subtext-note">提示：首次安装需在系统设置中开启「允许安装未知来源」。支持自建签名 OTA 热更新。</p>
                 <div class="btn-group">
                     <a href="https://kaiwu.wujilabs.cn/download/android" class="btn btn-primary">立即下载 APK</a>
                     <a href="https://kaiwu.wujilabs.cn/docs/releases/android/0.2.24/kaiwu-0.2.24.apk" class="btn btn-secondary">直链备用 (0.2.24)</a>
                 </div>
-                <p class="subtext-note">提示：首次安装需在 Android 系统设置中开启「允许安装未知来源应用」。支持内置自建签名 OTA 热更新。</p>
             </div>
 
             <!-- iOS Card -->
@@ -688,11 +733,11 @@
                     <span class="sha-text" title="46cde98e993ca3a0cc32f408619e879e61c5d09e88ce1535c4ecaa64602fb521">SHA256: 46cde98e993ca3a0...</span>
                     <button class="copy-btn" onclick="copyText('46cde98e993ca3a0cc32f408619e879e61c5d09e88ce1535c4ecaa64602fb521', this)">复制</button>
                 </div>
+                <p class="subtext-note">提示：在 iPhone Safari 打开官网，点击「分享」选择「添加到主屏幕」，无需签名即可畅享接近原生体验。</p>
                 <div class="btn-group">
                     <a href="https://kaiwu.wujilabs.cn/download/ios" class="btn btn-primary">下载未签名 IPA</a>
                     <a href="https://kaiwu.wujilabs.cn/" target="_blank" class="btn btn-secondary">打开 Web App (推荐)</a>
                 </div>
-                <p class="subtext-note">提示：在 iPhone Safari 打开官网，点击「分享」按钮选择「添加到主屏幕」，无需签名即可获得接近原生体验且支持热更新。</p>
             </div>
 
             <!-- HarmonyOS Card -->
@@ -714,10 +759,11 @@
                     <span class="sha-text">校验值待发布生成</span>
                     <span style="color: var(--text-muted); font-size: 11px;">敬请期待</span>
                 </div>
+                <p class="subtext-note">说明：<code>apps/harmony</code> 原生工程已就绪，当前环境未配置 DevEco Studio / OpenHarmony SDK 及签名证书；可先使用华为手机浏览器访问 Web 版。</p>
                 <div class="btn-group">
                     <button class="btn btn-disabled" disabled>即将提供 · 暂未开放</button>
+                    <a href="https://kaiwu.wujilabs.cn/" target="_blank" class="btn btn-secondary">优先体验 Web 版</a>
                 </div>
-                <p class="subtext-note">说明：本仓暂未创建 <code>apps/harmony</code> 原生分发产物，目前请先使用华为手机浏览器访问 Web 版体验。</p>
             </div>
 
             <!-- Server Self-host Card -->
@@ -746,11 +792,11 @@
                     <span class="sha-text" title="d8cd6ed50e5aac13ea31504de03a8bf474df413f161144bda0a80fc58ca58024">SHA256: d8cd6ed50e5aac13...</span>
                     <button class="copy-btn" onclick="copyText('d8cd6ed50e5aac13ea31504de03a8bf474df413f161144bda0a80fc58ca58024', this)">复制</button>
                 </div>
+                <p class="subtext-note">Docker 镜像：<code>wuji-labs/kaiwu-relay:0.2.11-kw.1</code>，支持 Linux x86_64。</p>
                 <div class="btn-group">
                     <a href="https://kaiwu.wujilabs.cn/download/server" class="btn btn-primary">下载服务端核心 (.tar.gz)</a>
                     <a href="https://kaiwu.wujilabs.cn/docs/self-hosting" target="_blank" class="btn btn-secondary">查看自托管文档</a>
                 </div>
-                <p class="subtext-note">Docker 镜像：<code>wuji-labs/kaiwu-relay:0.2.11-kw.1</code>，支持 Linux x86_64。</p>
             </div>
 
             <!-- npm Package Card -->
@@ -779,10 +825,11 @@
                     <span class="sha-text" title="a0e5fdffc03787474c4d23e7337f1cc55762350d6632eedad77cfcfc448c9723">SHA256: a0e5fdffc0378747...</span>
                     <button class="copy-btn" onclick="copyText('a0e5fdffc03787474c4d23e7337f1cc55762350d6632eedad77cfcfc448c9723', this)">复制</button>
                 </div>
+                <p class="subtext-note">要求：Node.js &gt;= 18 或 Bun &gt;= 1.0，跨主流操作系统即装即用。</p>
                 <div class="btn-group">
                     <a href="https://kaiwu.wujilabs.cn/download/npm" class="btn btn-primary">下载 tarball (.tgz)</a>
+                    <a href="https://kaiwu.wujilabs.cn/docs/releases/npm/0.2.28/kaiwu-cli-0.2.28.tgz" class="btn btn-secondary">直链备用 (0.2.28)</a>
                 </div>
-                <p class="subtext-note">要求：Node.js >= 18 或 Bun >= 1.0。</p>
             </div>
         </section>
 
