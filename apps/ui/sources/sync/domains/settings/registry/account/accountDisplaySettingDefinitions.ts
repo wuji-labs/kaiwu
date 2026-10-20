@@ -150,7 +150,7 @@ export const ACCOUNT_DISPLAY_SETTING_DEFINITIONS = defineSettingDefinitions({
     },
     attachmentsUploadsMaxFileBytes: {
         schema: z.number(),
-        default: 300 * 1024 * 1024,
+        default: 524288000,
         description: 'Maximum allowed attachment size (bytes)',
         storageScope: 'account',
         analytics: {

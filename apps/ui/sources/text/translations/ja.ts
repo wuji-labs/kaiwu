@@ -3513,7 +3513,7 @@ localTailscale: {
       maxAttachmentSize: {
         title: "添付の最大サイズ（バイト）",
         promptTitle: "添付の最大サイズ（バイト）",
-        promptMessage: "例: 300MB の場合は 314572800。",
+        promptMessage: "例: 500MB の場合は 524288000。",
         invalidValueMessage: "1024 から 1073741824 の間の数値を入力してください。",
       },
     },

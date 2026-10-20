@@ -492,19 +492,19 @@ class Configuration {
       min: 1024, max: 5_000_000, default: 256_000,
     });
 
-    // Default: 10 minutes. Defensive min: 1s; max: 60 minutes.
+    // Default: 60 minutes. Defensive min: 1s; max: 60 minutes.
     this.filesTransferSessionTtlMs = resolveIntEnvWithBounds('HAPPIER_FILES_TRANSFER_SESSION_TTL_MS', {
-      min: 1000, max: 60 * 60_000, default: 10 * 60_000,
+      min: 1000, max: 60 * 60_000, default: 60 * 60_000,
     });
 
-    // Default: 300MB. Defensive minimum: 1 byte.
+    // Default: 500MB. Defensive minimum: 1 byte.
     this.filesUploadMaxFileBytes = resolveIntEnvWithBounds('HAPPIER_FILES_UPLOAD_MAX_FILE_BYTES', {
-      min: 1, default: 300 * 1024 * 1024,
+      min: 1, default: 500 * 1024 * 1024,
     });
 
-    // Default: 100MB. Defensive minimum: 1 byte.
+    // Default: 500MB. Defensive minimum: 1 byte.
     this.filesDownloadMaxFileBytes = resolveIntEnvWithBounds('HAPPIER_FILES_DOWNLOAD_MAX_FILE_BYTES', {
-      min: 1, default: 100 * 1024 * 1024,
+      min: 1, default: 500 * 1024 * 1024,
     });
 
     // Default: 100MB. Defensive minimum: 1 byte.

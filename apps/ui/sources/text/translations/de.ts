@@ -2981,7 +2981,7 @@ export const de: TranslationStructure = {
             maxAttachmentSize: {
                 title: 'Max. Anhanggröße (Bytes)',
                 promptTitle: 'Max. Anhanggröße (Bytes)',
-                promptMessage: 'Beispiel: 314572800 für 300 MB.',
+                promptMessage: 'Beispiel: 524288000 für 500 MB.',
                 invalidValueMessage: 'Gib eine Zahl zwischen 1024 und 1073741824 ein.',
             },
         },
