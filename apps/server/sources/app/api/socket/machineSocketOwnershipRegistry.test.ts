@@ -648,4 +648,156 @@ describe("createMachineSocketOwnershipRegistry", () => {
         ).resolves.toBeUndefined();
     });
 
+
+    describe("same verified installation restarting under a service manager", () => {
+        function serviceOwner(runtimeId: string, verifiedInstallationId?: string) {
+            return {
+                runtimeId,
+                cliVersion: "0.2.30",
+                publicReleaseChannel: "preview",
+                startupSource: "background-service",
+                serviceManaged: true,
+                serviceLabel: "com.happier.cli.daemon.default",
+                ...(verifiedInstallationId ? { verifiedInstallationId } : null),
+            };
+        }
+
+        it("lets a restarted service daemon of the same verified installation take over its own stale live socket", async () => {
+            const io = createIoStub();
+            const oldSocket = setSocket(io, "socket-old", true);
+            setSocket(io, "socket-new", true);
+            const registry = createMachineSocketOwnershipRegistry({ io, config: { enabled: false } });
+
+            await registry.claimOwner({
+                accountId: "acct-1",
+                machineId: "machine-1",
+                socketId: "socket-old",
+                owner: serviceOwner("runtime-old", "inst-1"),
+            });
+            const result = await registry.claimOwner({
+                accountId: "acct-1",
+                machineId: "machine-1",
+                socketId: "socket-new",
+                owner: { ...serviceOwner("runtime-new", "inst-1"), takeoverRequested: true },
+            });
+
+            expect(result).toEqual({ result: "takeover-granted" });
+            expect(oldSocket.disconnect).toHaveBeenCalledWith(true);
+        });
+
+        it("still rejects a service-managed owner takeover from a different verified installation", async () => {
+            const io = createIoStub();
+            const oldSocket = setSocket(io, "socket-old", true);
+            setSocket(io, "socket-new", true);
+            const registry = createMachineSocketOwnershipRegistry({ io, config: { enabled: false } });
+
+            await registry.claimOwner({
+                accountId: "acct-1",
+                machineId: "machine-1",
+                socketId: "socket-old",
+                owner: serviceOwner("runtime-old", "inst-1"),
+            });
+            const result = await registry.claimOwner({
+                accountId: "acct-1",
+                machineId: "machine-1",
+                socketId: "socket-new",
+                owner: { ...serviceOwner("runtime-new", "inst-2"), takeoverRequested: true },
+            });
+
+            expect(result).toEqual({ result: "conflict", owner: expect.objectContaining({ socketId: "socket-old" }) });
+            expect(oldSocket.disconnect).not.toHaveBeenCalled();
+        });
+
+        it("rejects the takeover when the claimant's installation was not verified", async () => {
+            const io = createIoStub();
+            const oldSocket = setSocket(io, "socket-old", true);
+            setSocket(io, "socket-new", true);
+            const registry = createMachineSocketOwnershipRegistry({ io, config: { enabled: false } });
+
+            await registry.claimOwner({
+                accountId: "acct-1",
+                machineId: "machine-1",
+                socketId: "socket-old",
+                owner: serviceOwner("runtime-old", "inst-1"),
+            });
+            const result = await registry.claimOwner({
+                accountId: "acct-1",
+                machineId: "machine-1",
+                socketId: "socket-new",
+                owner: { ...serviceOwner("runtime-new"), takeoverRequested: true },
+            });
+
+            expect(result.result).toBe("conflict");
+            expect(oldSocket.disconnect).not.toHaveBeenCalled();
+        });
+
+        it("passes the verified installation to the Redis claim and disconnects the stale owner on takeover", async () => {
+            const io = createIoStub();
+            const oldSocket = setSocket(io, "socket-old", true);
+            setSocket(io, "socket-new", true);
+
+            redisHmgetMock.mockResolvedValueOnce([
+                "socket-old",
+                "runtime-old",
+                "0.2.30",
+                "preview",
+                "background-service",
+                "true",
+                "com.happier.cli.daemon.default",
+                "inst-1",
+            ]);
+            redisEvalMock.mockResolvedValueOnce("takeover");
+
+            const registry = createMachineSocketOwnershipRegistry({
+                io,
+                config: { enabled: true, instanceId: "instance-1" },
+            });
+            const result = await registry.claimOwner({
+                accountId: "acct-1",
+                machineId: "machine-1",
+                socketId: "socket-new",
+                owner: { ...serviceOwner("runtime-new", "inst-1"), takeoverRequested: true },
+            });
+
+            expect(result).toEqual({ result: "takeover-granted" });
+            expect(oldSocket.disconnect).toHaveBeenCalledWith(true);
+            const evalArgs = redisEvalMock.mock.calls[0];
+            const script = String(evalArgs[0]);
+            expect(script).toContain("verifiedInstallationId");
+            expect(script).toContain("ARGV[12]");
+            expect(evalArgs[evalArgs.length - 1]).toBe("inst-1");
+        });
+
+        it("reports the stored verified installation when Redis rejects the claim", async () => {
+            const io = createIoStub();
+            setSocket(io, "socket-new", true);
+            redisHmgetMock.mockResolvedValue([
+                "socket-old",
+                "runtime-old",
+                "0.2.30",
+                "preview",
+                "background-service",
+                "true",
+                "com.happier.cli.daemon.default",
+                "inst-1",
+            ]);
+            redisEvalMock.mockResolvedValueOnce("conflict");
+
+            const registry = createMachineSocketOwnershipRegistry({
+                io,
+                config: { enabled: true, instanceId: "instance-1" },
+            });
+            const result = await registry.claimOwner({
+                accountId: "acct-1",
+                machineId: "machine-1",
+                socketId: "socket-new",
+                owner: { ...serviceOwner("runtime-new", "inst-2"), takeoverRequested: true },
+            });
+
+            expect(result).toEqual({
+                result: "conflict",
+                owner: expect.objectContaining({ socketId: "socket-old", verifiedInstallationId: "inst-1" }),
+            });
+        });
+    });
 });

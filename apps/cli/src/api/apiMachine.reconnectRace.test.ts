@@ -576,6 +576,74 @@ describe('ApiMachineClient reconnect race handling', () => {
         expect(machineReplaced).toHaveBeenCalledTimes(1);
     });
 
+    it('restarts the stopped supervisor after an ownership conflict and keeps requesting takeover', async () => {
+        const { ApiMachineClient } = await import('./apiMachine');
+
+        const machine: Machine = {
+            id: 'machine-1',
+            encryptionKey: new Uint8Array(32).fill(7),
+            encryptionVariant: 'legacy',
+            metadata: null,
+            metadataVersion: 0,
+            daemonState: null,
+            daemonStateVersion: 0,
+        };
+
+        const client = new ApiMachineClient('token', machine, {
+            runtimeId: 'runtime-new',
+            cliVersion: '0.2.30',
+            publicReleaseChannel: 'preview',
+            startupSource: 'background-service',
+            serviceManaged: true,
+        });
+        const ownershipConflict = vi.fn();
+        client.connect({ takeover: true, onOwnershipConflict: ownershipConflict });
+
+        harness.getSocket(0).trigger('connect_error', {
+            message: 'machine-owner-conflict',
+            data: {
+                error: 'machine-owner-conflict',
+                statusCode: 409,
+                owner: { startupSource: 'background-service', serviceManaged: true },
+            },
+        });
+
+        const supervisor = createManagedConnectionSupervisorMock.mock.results[0]?.value;
+        expect(supervisor?.stop).toHaveBeenCalledTimes(1);
+        expect(ownershipConflict).toHaveBeenCalledTimes(1);
+        const startsBeforeRestart = supervisor?.start.mock.calls.length ?? 0;
+
+        client.restartConnection();
+
+        expect(supervisor?.start).toHaveBeenCalledTimes(startsBeforeRestart + 1);
+        harness.establishReconnectTransport();
+        expect(createMachineSocketTransportMock).toHaveBeenLastCalledWith(expect.objectContaining({ takeover: true }));
+    });
+
+    it('does not restart the connection once the client has shut down', async () => {
+        const { ApiMachineClient } = await import('./apiMachine');
+
+        const machine: Machine = {
+            id: 'machine-1',
+            encryptionKey: new Uint8Array(32).fill(7),
+            encryptionVariant: 'legacy',
+            metadata: null,
+            metadataVersion: 0,
+            daemonState: null,
+            daemonStateVersion: 0,
+        };
+
+        const client = new ApiMachineClient('token', machine);
+        client.connect({});
+        const supervisor = createManagedConnectionSupervisorMock.mock.results[0]?.value;
+        await client.shutdown();
+        const startsAfterShutdown = supervisor?.start.mock.calls.length ?? 0;
+
+        client.restartConnection();
+
+        expect(supervisor?.start).toHaveBeenCalledTimes(startsAfterShutdown);
+    });
+
     it('ignores a stale connect_error ownership conflict from an older transport socket', async () => {
         const { ApiMachineClient } = await import('./apiMachine');
 
