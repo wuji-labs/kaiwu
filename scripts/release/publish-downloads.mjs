@@ -24,7 +24,8 @@
 import { execSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, statSync, writeFileSync } from 'node:fs';
-import { basename, resolve } from 'node:path';
+import { basename, dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
 const SUPPORTED_PLATFORMS = [
@@ -178,22 +179,20 @@ async function main() {
 
     // 2. 文件传输 (根据体积选择 COS 中转或直传)
     console.log(`\n[步骤 2/6] 文件传输至远程服务器...`);
-    const shouldUseCos = !config.skipCos && size > 50 * 1024 * 1024;
+    // Caddy 把 /docs/releases/ 下的二进制 302 到 dl.wujilabs.cn（COS 前的 CDN），所以 COS 必须与源站同键：
+    // 版本文件 + latest 别名都要上传，否则下载链接 404。大文件再由服务器从 COS 内网拉取，保护 6 Mbps 源站带宽。
+    const cosVersionKey = `docs/releases/${config.platform}/${config.version}/${targetFilename}`;
+    const cosLatestKey = `docs/releases/${config.platform}/latest/${latestAlias}`;
+    if (!config.skipCos) {
+        console.log(`[INFO] 上传到 COS: ${cosVersionKey} + ${cosLatestKey}`);
+        const cosPut = resolve(dirname(fileURLToPath(import.meta.url)), 'cos_put.py');
+        runCommand(`uv run -q --no-project --with cos-python-sdk-v5 python -I "${cosPut}" "${config.localFile}" "${cosVersionKey}" "${cosLatestKey}"`);
+    }
+    const shouldPullFromCos = !config.skipCos && size > 50 * 1024 * 1024;
 
-    if (shouldUseCos) {
-        const cosKey = `releases/${config.platform}/${config.version}/${targetFilename}`;
-        const cosUrl = `https://${config.cosBucket}.cos.ap-shanghai.myqcloud.com/${cosKey}`;
-        console.log(`[INFO] 文件较大 (${sizeMb} MB)，启用腾讯云 COS 高速中转以保护 6 Mbps 源站带宽...`);
-        console.log(`[INFO] 上传到 COS: ${cosKey}`);
-
-        // 调用 Python 脚本或 COS CLI 进行分块并发直传
-        const uploadScript = resolve(process.cwd(), 'scripts/upload-release-to-cos.py');
-        if (existsSync(uploadScript)) {
-            // 可在此调用通用 COS 上传逻辑
-            console.log(`[INFO] 调用 COS 上传脚本进行中转...`);
-        }
-
-        // 从 COS 拉取到服务器
+    if (shouldPullFromCos) {
+        const cosUrl = `https://${config.cosBucket}.cos.ap-shanghai.myqcloud.com/${cosVersionKey}`;
+        console.log(`[INFO] 文件较大 (${sizeMb} MB)，服务器从 COS 拉取...`);
         runCommand(`ssh ${config.remoteHost} "curl -fsSL '${cosUrl}' -o '${remoteTargetFile}'"`);
     } else {
         console.log(`[INFO] 使用直接 SCP 传输文件...`);
