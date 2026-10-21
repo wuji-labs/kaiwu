@@ -27,8 +27,8 @@ jobs:
       - name: Xcode version and Duo simulator availability
         run: |
           set -euo pipefail
+          echo "Current Xcode:"
           xcode-select -p
-          xcode-select --switch /Applications/Xcode_27.1_Release_Candidate.app/Contents/Developer
           xcodebuild -version
           echo "=== Checking for iPhone Duo device types ==="
           xcrun simctl list devicetypes | grep -i duo || echo "No Duo simulator found; will show all available"

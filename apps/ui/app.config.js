@@ -410,6 +410,7 @@ const baseExpoConfig = {
             expoBuildPropertiesPlugin,
             require("./plugins/withEinkCompatibility.js"),
             require("./plugins/withAndroidReactNativeArchitectures.js"),
+            require("./plugins/withUIScene.js"),
             require("./modules/happier-hardware-keyboard-shortcuts/app.plugin.js"),
             ...(androidReleaseShrinkerPlugin ? [androidReleaseShrinkerPlugin] : []),
             [
