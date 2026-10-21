@@ -272,45 +272,89 @@ jobs:
           echo "processes: $PROC"
           HUBPROC=$(echo "$PROC" | tr ',' '\n' | sed 's/^ *//' | grep -i -E "device ?hub" | sed -n 1p)
           echo "hub process: $HUBPROC"
-          # Dump every menu and item so the next iteration knows exact names.
+          HUBPROC="${HUBPROC:-Device Hub}"
+          # Dismiss crash/report dialogs ("InputUI quit unexpectedly") from any process.
+          osascript > screenshots/devicehub-dismiss.txt 2>&1 <<OSA || true
+          tell application "System Events"
+            set hits to ""
+            repeat with p in (every process whose background only is false)
+              try
+                repeat with w in windows of p
+                  try
+                    if exists button "Ignore" of w then
+                      click button "Ignore" of w
+                      set hits to hits & (name of p) & "; "
+                    end if
+                  end try
+                end repeat
+              end try
+            end repeat
+            return "dismissed: " & hits
+          end tell
+          OSA
+          cat screenshots/devicehub-dismiss.txt
+          # Dump menus (names) and window buttons (descriptions) so later runs can target exact labels.
           osascript > screenshots/devicehub-menus.txt 2>&1 <<OSA || true
           tell application "System Events" to tell process "$HUBPROC"
             set out to ""
-            repeat with m in menus of menu bar 1
-              set out to out & "## " & (name of m) & linefeed
-              repeat with it in menu items of m
+            repeat with mm in menus of menu bar 1
+              set out to out & "## " & (name of mm) & linefeed
+              repeat with mi in menu items of mm
                 try
-                  set out to out & "  - " & (name of it) & linefeed
+                  set out to out & "  - " & (name of mi) & linefeed
                 end try
               end repeat
             end repeat
+            set out to out & "## window buttons" & linefeed
+            try
+              repeat with b in (entire contents of window 1)
+                try
+                  if role of b is "AXButton" or role of b is "AXRadioButton" then
+                    set out to out & "  - " & (role of b) & " | " & (description of b) & " | " & (help of b) & linefeed
+                  end if
+                end try
+              end repeat
+            end try
             return out
           end tell
           OSA
           cat screenshots/devicehub-menus.txt
-          # Click the first menu item named exactly "Open" (pose), wherever it lives.
+          # Press the "Open" pose: menu item first, then a toolbar button whose description says open.
           osascript > screenshots/devicehub-click.txt 2>&1 <<OSA || true
           tell application "System Events" to tell process "$HUBPROC"
             set frontmost to true
-            repeat with m in menus of menu bar 1
-              repeat with it in menu items of m
+            repeat with mm in menus of menu bar 1
+              repeat with mi in menu items of mm
                 try
-                  if (name of it) is "Open" or (name of it) is "Fully Open" then
-                    click it
-                    return "clicked " & (name of m) & " > " & (name of it)
+                  set n to name of mi
+                  if n is "Open" or n is "Fully Open" or n is "Open Device" then
+                    click mi
+                    return "clicked menu " & (name of mm) & " > " & n
                   end if
                 end try
                 try
-                  repeat with sub in menu items of menu 1 of it
-                    if (name of sub) is "Open" or (name of sub) is "Fully Open" then
-                      click sub
-                      return "clicked " & (name of m) & " > " & (name of it) & " > " & (name of sub)
+                  repeat with sb in menu items of menu 1 of mi
+                    set n to name of sb
+                    if n is "Open" or n is "Fully Open" then
+                      click sb
+                      return "clicked menu " & (name of mm) & " > " & (name of mi) & " > " & n
                     end if
                   end repeat
                 end try
               end repeat
             end repeat
-            return "no Open item found"
+            try
+              repeat with b in (entire contents of window 1)
+                try
+                  set d to description of b
+                  if (d is "Open" or d is "Fully Open" or d contains "Fully Open") then
+                    click b
+                    return "clicked button " & d
+                  end if
+                end try
+              end repeat
+            end try
+            return "no Open control found"
           end tell
           OSA
           cat screenshots/devicehub-click.txt
