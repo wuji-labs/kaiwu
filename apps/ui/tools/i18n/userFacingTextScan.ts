@@ -340,164 +340,183 @@ function collectUserFacingStringLiteralsFromExpression(args: Readonly<{
     visit(expression);
 }
 
-export function scanUserFacingStrings(args: Readonly<{ sourcesRootDir: string }>): ReadonlyArray<UserFacingStringHit> {
-    const resolvedSourcesRootDir = path.resolve(args.sourcesRootDir);
-    const files = listSourceFiles(resolvedSourcesRootDir);
-    const hits: UserFacingStringHit[] = [];
+function scanSourceFile(filePath: string, hits: UserFacingStringHit[]): void {
+    const content = fs.readFileSync(filePath, 'utf8');
+    // Fast path: most non-UI `.ts` files won't contain JSX or user-facing call sites.
+    // Avoid parsing them with TypeScript unless they contain obvious candidates.
+    if (!content.includes('<') && !content.includes('Modal.') && !content.includes('Toast.')) {
+        return;
+    }
+    const ext = path.extname(filePath);
+    const scriptKind = ext === '.tsx' ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
+    const sourceFile = ts.createSourceFile(filePath, content, ts.ScriptTarget.ESNext, true, scriptKind);
 
-    for (const filePath of files) {
-        const content = fs.readFileSync(filePath, 'utf8');
-        // Fast path: most non-UI `.ts` files won't contain JSX or user-facing call sites.
-        // Avoid parsing them with TypeScript unless they contain obvious candidates.
-        if (!content.includes('<') && !content.includes('Modal.') && !content.includes('Toast.')) {
-            continue;
+    // Track identifiers that are used in clearly user-facing JSX slots so we can
+    // flag string/template literals assigned to those variables (e.g. `const title = '...'`).
+    const userFacingIdentifierUses = new Set<string>();
+    const collectUserFacingIdentifierUses = (node: ts.Node): void => {
+        if (ts.isJsxAttribute(node)) {
+            const name = node.name.getText(sourceFile);
+            if (JSX_ATTRIBUTE_USER_FACING_NAMES.has(name)) {
+                const init = node.initializer;
+                if (init && ts.isJsxExpression(init) && init.expression && ts.isIdentifier(init.expression)) {
+                    userFacingIdentifierUses.add(init.expression.text);
+                }
+            }
         }
-        const ext = path.extname(filePath);
-        const scriptKind = ext === '.tsx' ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
-        const sourceFile = ts.createSourceFile(filePath, content, ts.ScriptTarget.ESNext, true, scriptKind);
 
-        // Track identifiers that are used in clearly user-facing JSX slots so we can
-        // flag string/template literals assigned to those variables (e.g. `const title = '...'`).
-        const userFacingIdentifierUses = new Set<string>();
-        const collectUserFacingIdentifierUses = (node: ts.Node): void => {
-            if (ts.isJsxAttribute(node)) {
-                const name = node.name.getText(sourceFile);
-                if (JSX_ATTRIBUTE_USER_FACING_NAMES.has(name)) {
-                    const init = node.initializer;
-                    if (init && ts.isJsxExpression(init) && init.expression && ts.isIdentifier(init.expression)) {
-                        userFacingIdentifierUses.add(init.expression.text);
-                    }
+        if (ts.isJsxExpression(node) && !ts.isJsxAttribute(node.parent)) {
+            const expr = node.expression;
+            if (expr && ts.isIdentifier(expr)) {
+                const parent = node.parent;
+                if (ts.isJsxElement(parent) && parent.openingElement.tagName.getText(sourceFile) === 'Text') {
+                    userFacingIdentifierUses.add(expr.text);
                 }
             }
+        }
 
-            if (ts.isJsxExpression(node) && !ts.isJsxAttribute(node.parent)) {
-                const expr = node.expression;
-                if (expr && ts.isIdentifier(expr)) {
-                    const parent = node.parent;
-                    if (ts.isJsxElement(parent) && parent.openingElement.tagName.getText(sourceFile) === 'Text') {
-                        userFacingIdentifierUses.add(expr.text);
-                    }
-                }
+        ts.forEachChild(node, collectUserFacingIdentifierUses);
+    };
+    collectUserFacingIdentifierUses(sourceFile);
+
+    const visit = (node: ts.Node): void => {
+        if (ts.isVariableDeclaration(node)) {
+            if (ts.isIdentifier(node.name) && node.initializer && userFacingIdentifierUses.has(node.name.text)) {
+                collectUserFacingStringsFromExpression({
+                    filePath,
+                    sourceFile,
+                    expression: node.initializer,
+                    hits,
+                    kind: 'variable',
+                });
             }
+        }
 
-            ts.forEachChild(node, collectUserFacingIdentifierUses);
-        };
-        collectUserFacingIdentifierUses(sourceFile);
+        if (ts.isCallExpression(node)) {
+            const isModalCall =
+                ts.isPropertyAccessExpression(node.expression) &&
+                ts.isIdentifier(node.expression.expression) &&
+                node.expression.expression.text === 'Modal' &&
+                (node.expression.name.text === 'alert' ||
+                    node.expression.name.text === 'confirm' ||
+                    node.expression.name.text === 'prompt');
 
-        const visit = (node: ts.Node): void => {
-            if (ts.isVariableDeclaration(node)) {
-                if (ts.isIdentifier(node.name) && node.initializer && userFacingIdentifierUses.has(node.name.text)) {
+            const isToastCall =
+                ts.isPropertyAccessExpression(node.expression) &&
+                ts.isIdentifier(node.expression.expression) &&
+                node.expression.expression.text === 'Toast';
+
+            if (isModalCall || isToastCall) {
+                for (const arg of node.arguments) {
                     collectUserFacingStringsFromExpression({
                         filePath,
                         sourceFile,
-                        expression: node.initializer,
+                        expression: arg,
                         hits,
-                        kind: 'variable',
+                        kind: 'callArg',
                     });
                 }
             }
+        }
 
-            if (ts.isCallExpression(node)) {
-                const isModalCall =
-                    ts.isPropertyAccessExpression(node.expression) &&
-                    ts.isIdentifier(node.expression.expression) &&
-                    node.expression.expression.text === 'Modal' &&
-                    (node.expression.name.text === 'alert' ||
-                        node.expression.name.text === 'confirm' ||
-                        node.expression.name.text === 'prompt');
+        if (ts.isJsxText(node)) {
+            const text = node.getText(sourceFile);
+            if (!isTriviallyIgnorableText(text) && isLikelyUserFacingText(text)) {
+                const { line, column } = getLineAndColumn(sourceFile, node.getStart(sourceFile));
+                hits.push({ filePath, line, column, text: text.trim(), kind: 'jsxText' });
+            }
+        }
 
-                const isToastCall =
-                    ts.isPropertyAccessExpression(node.expression) &&
-                    ts.isIdentifier(node.expression.expression) &&
-                    node.expression.expression.text === 'Toast';
-
-                if (isModalCall || isToastCall) {
-                    for (const arg of node.arguments) {
-                        collectUserFacingStringsFromExpression({
-                            filePath,
-                            sourceFile,
-                            expression: arg,
-                            hits,
-                            kind: 'callArg',
-                        });
-                    }
-                }
+        if (ts.isJsxExpression(node)) {
+            // Ignore attribute initializers like `color={'black'}` (usually non-user-facing).
+            if (ts.isJsxAttribute(node.parent)) {
+                ts.forEachChild(node, visit);
+                return;
             }
 
-            if (ts.isJsxText(node)) {
-                const text = node.getText(sourceFile);
-                if (!isTriviallyIgnorableText(text) && isLikelyUserFacingText(text)) {
-                    const { line, column } = getLineAndColumn(sourceFile, node.getStart(sourceFile));
-                    hits.push({ filePath, line, column, text: text.trim(), kind: 'jsxText' });
+            const expr = node.expression;
+            if (expr && (ts.isStringLiteral(expr) || ts.isNoSubstitutionTemplateLiteral(expr))) {
+                const value = expr.text;
+                if (!isTriviallyIgnorableText(value) && isLikelyUserFacingText(value)) {
+                    const { line, column } = getLineAndColumn(sourceFile, expr.getStart(sourceFile));
+                    hits.push({ filePath, line, column, text: value, kind: 'jsxExpressionString' });
+                }
+            } else if (expr && ts.isTemplateExpression(expr)) {
+                const value = normalizeTemplateExpressionText(expr);
+                if (!isTriviallyIgnorableText(value) && isLikelyUserFacingText(value)) {
+                    const { line, column } = getLineAndColumn(sourceFile, expr.getStart(sourceFile));
+                    hits.push({ filePath, line, column, text: value, kind: 'jsxExpressionString' });
                 }
             }
+        }
 
-            if (ts.isJsxExpression(node)) {
-                // Ignore attribute initializers like `color={'black'}` (usually non-user-facing).
-                if (ts.isJsxAttribute(node.parent)) {
-                    ts.forEachChild(node, visit);
-                    return;
-                }
-
-                const expr = node.expression;
-                if (expr && (ts.isStringLiteral(expr) || ts.isNoSubstitutionTemplateLiteral(expr))) {
-                    const value = expr.text;
+        if (ts.isJsxAttribute(node)) {
+            const name = node.name.getText(sourceFile);
+            if (JSX_ATTRIBUTE_NON_USER_FACING_NAMES.has(name)) {
+                // ignore
+            } else if (JSX_ATTRIBUTE_USER_FACING_NAMES.has(name)) {
+                const init = node.initializer;
+                if (init && ts.isStringLiteral(init)) {
+                    const value = init.text;
                     if (!isTriviallyIgnorableText(value) && isLikelyUserFacingText(value)) {
-                        const { line, column } = getLineAndColumn(sourceFile, expr.getStart(sourceFile));
-                        hits.push({ filePath, line, column, text: value, kind: 'jsxExpressionString' });
+                        const { line, column } = getLineAndColumn(sourceFile, init.getStart(sourceFile));
+                        hits.push({ filePath, line, column, text: value, kind: 'jsxAttribute' });
                     }
-                } else if (expr && ts.isTemplateExpression(expr)) {
-                    const value = normalizeTemplateExpressionText(expr);
-                    if (!isTriviallyIgnorableText(value) && isLikelyUserFacingText(value)) {
-                        const { line, column } = getLineAndColumn(sourceFile, expr.getStart(sourceFile));
-                        hits.push({ filePath, line, column, text: value, kind: 'jsxExpressionString' });
+                }
+                if (init && ts.isJsxExpression(init) && init.expression) {
+                    const expr = init.expression;
+                    collectUserFacingStringsFromExpression({
+                        filePath,
+                        sourceFile,
+                        expression: expr,
+                        hits,
+                        kind: 'jsxAttribute',
+                    });
+
+                    if (ts.isObjectLiteralExpression(expr) || ts.isArrayLiteralExpression(expr)) {
+                        collectUserFacingStringLiteralsFromExpression({ filePath, sourceFile, expression: expr, hits });
+                    }
+                }
+            } else {
+                const init = node.initializer;
+                if (init && ts.isJsxExpression(init) && init.expression) {
+                    const expr = init.expression;
+                    if (ts.isObjectLiteralExpression(expr) || ts.isArrayLiteralExpression(expr)) {
+                        collectUserFacingStringLiteralsFromExpression({ filePath, sourceFile, expression: expr, hits });
                     }
                 }
             }
+        }
 
-            if (ts.isJsxAttribute(node)) {
-                const name = node.name.getText(sourceFile);
-                if (JSX_ATTRIBUTE_NON_USER_FACING_NAMES.has(name)) {
-                    // ignore
-                } else if (JSX_ATTRIBUTE_USER_FACING_NAMES.has(name)) {
-                    const init = node.initializer;
-                    if (init && ts.isStringLiteral(init)) {
-                        const value = init.text;
-                        if (!isTriviallyIgnorableText(value) && isLikelyUserFacingText(value)) {
-                            const { line, column } = getLineAndColumn(sourceFile, init.getStart(sourceFile));
-                            hits.push({ filePath, line, column, text: value, kind: 'jsxAttribute' });
-                        }
-                    }
-                    if (init && ts.isJsxExpression(init) && init.expression) {
-                        const expr = init.expression;
-                        collectUserFacingStringsFromExpression({
-                            filePath,
-                            sourceFile,
-                            expression: expr,
-                            hits,
-                            kind: 'jsxAttribute',
-                        });
+        ts.forEachChild(node, visit);
+    };
 
-                        if (ts.isObjectLiteralExpression(expr) || ts.isArrayLiteralExpression(expr)) {
-                            collectUserFacingStringLiteralsFromExpression({ filePath, sourceFile, expression: expr, hits });
-                        }
-                    }
-                } else {
-                    const init = node.initializer;
-                    if (init && ts.isJsxExpression(init) && init.expression) {
-                        const expr = init.expression;
-                        if (ts.isObjectLiteralExpression(expr) || ts.isArrayLiteralExpression(expr)) {
-                            collectUserFacingStringLiteralsFromExpression({ filePath, sourceFile, expression: expr, hits });
-                        }
-                    }
-                }
-            }
+    visit(sourceFile);
+}
 
-            ts.forEachChild(node, visit);
-        };
+export function scanUserFacingStrings(args: Readonly<{ sourcesRootDir: string }>): ReadonlyArray<UserFacingStringHit> {
+    const files = listSourceFiles(path.resolve(args.sourcesRootDir));
+    const hits: UserFacingStringHit[] = [];
+    for (const filePath of files) scanSourceFile(filePath, hits);
+    return hits;
+}
 
-        visit(sourceFile);
+/** Files scanned between yields; small enough to keep the event loop responsive, large enough to stay cheap. */
+const SCAN_FILES_PER_YIELD = 50;
+
+/**
+ * Same scan, yielding to the event loop between batches. A synchronous pass over every source file
+ * runs for minutes under disk load and starves whatever shares the thread — under Vitest the worker
+ * misses its RPC heartbeat (`Timeout calling onTaskUpdate`) and the run fails although the scan passed.
+ */
+export async function scanUserFacingStringsAsync(args: Readonly<{ sourcesRootDir: string }>): Promise<ReadonlyArray<UserFacingStringHit>> {
+    const files = listSourceFiles(path.resolve(args.sourcesRootDir));
+    const hits: UserFacingStringHit[] = [];
+    for (let index = 0; index < files.length; index += 1) {
+        scanSourceFile(files[index], hits);
+        if ((index + 1) % SCAN_FILES_PER_YIELD === 0) {
+            await new Promise<void>((resolve) => setImmediate(resolve));
+        }
     }
-
     return hits;
 }

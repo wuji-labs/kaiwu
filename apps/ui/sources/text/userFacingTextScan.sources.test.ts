@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import path from 'node:path';
 
-import { scanUserFacingStrings } from '../../tools/i18n/userFacingTextScan';
+import { scanUserFacingStringsAsync } from '../../tools/i18n/userFacingTextScan';
 
 const IGNORED_SCAN_TEXTS = new Set([
     'SKILL.md',
@@ -30,9 +30,14 @@ function isIgnoredHit(text: string): boolean {
     return /^[a-z][a-zA-Z0-9]*(?:\.[a-zA-Z0-9_-]+)+$/.test(text);
 }
 
+// The scan parses every file under sources/ synchronously, so its duration tracks disk throughput,
+// not the code under test: on an idle workstation it fits in two minutes, under concurrent disk load
+// it measured 220 s. The budget covers the work itself rather than an idle machine.
+const FULL_SOURCES_SCAN_TIMEOUT_MS = 600_000;
+
 describe('tools/i18n/userFacingTextScan (app sources)', () => {
-    it('has no user-facing hardcoded strings in sources/', () => {
-        const hits = scanUserFacingStrings({ sourcesRootDir: path.resolve('sources') })
+    it('has no user-facing hardcoded strings in sources/', async () => {
+        const hits = (await scanUserFacingStringsAsync({ sourcesRootDir: path.resolve('sources') }))
             .filter((hit) => !isIgnoredHit(hit.text));
 
         if (hits.length > 0) {
@@ -52,5 +57,5 @@ describe('tools/i18n/userFacingTextScan (app sources)', () => {
         }
 
         expect(hits).toEqual([]);
-    }, 120_000);
+    }, FULL_SOURCES_SCAN_TIMEOUT_MS);
 });
