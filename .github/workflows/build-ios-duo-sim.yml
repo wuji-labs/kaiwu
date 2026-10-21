@@ -214,19 +214,30 @@ jobs:
           echo "$LAUNCH_OUT"
           PID=$(echo "$LAUNCH_OUT" | awk -F': ' '{print $2}')
           sleep 20
-          # iPhone Duo exposes two displays (outer 1398x2034, inner 2007x2853); simctl lists them
-          # when asked for a screenshot without --display. Capture each one; at least one must succeed.
-          xcrun simctl io "$SIM_UDID" screenshot screenshots/probe.png > screenshots/displays.txt 2>&1 || true
-          cat screenshots/displays.txt
-          IDS=$(grep -Eo -- '--display=[0-9]+' screenshots/displays.txt | cut -d= -f2 | sort -u)
-          if [ -z "$IDS" ]; then
-            [ -f screenshots/probe.png ] && mv screenshots/probe.png screenshots/duo-display-1.png
-          else
-            for d in $IDS; do
-              xcrun simctl io "$SIM_UDID" screenshot --display="$d" "screenshots/duo-display-$d.png"
-            done
-          fi
-          ls screenshots/duo-display-*.png
+          # iPhone Duo: outer display (1398x2034) always; inner (2007x2853) when unfolded.
+          # The simulator may boot folded or open, so capture what is lit, then try to light the inner one.
+          shoot_all() {  # $1 = tag
+            xcrun simctl io "$SIM_UDID" screenshot "screenshots/probe-$1.png" > "screenshots/displays-$1.txt" 2>&1 || true
+            cat "screenshots/displays-$1.txt"
+            IDS=$(grep -Eo -- '--display=[0-9]+' "screenshots/displays-$1.txt" | cut -d= -f2 | sort -u || true)
+            if [ -z "$IDS" ]; then
+              if [ -f "screenshots/probe-$1.png" ]; then mv "screenshots/probe-$1.png" "screenshots/duo-$1-display-1.png"; fi
+            else
+              for d in $IDS; do
+                xcrun simctl io "$SIM_UDID" screenshot --display="$d" "screenshots/duo-$1-display-$d.png" || true
+              done
+            fi
+          }
+          xcrun simctl io "$SIM_UDID" enumerate > screenshots/enumerate.txt 2>&1 || true
+          cat screenshots/enumerate.txt
+          shoot_all boot
+          # Try to bring up the inner display (unfold): power the inner panel on, outer off.
+          { xcrun simctl io "$SIM_UDID" screenConfig --display=3 power on; xcrun simctl io "$SIM_UDID" screenConfig --display=1 power off; } > screenshots/unfold.txt 2>&1 || true
+          cat screenshots/unfold.txt
+          sleep 6
+          shoot_all unfolded
+          ls -la screenshots/
+          ls screenshots/duo-*-display-*.png
           xcrun simctl spawn "$SIM_UDID" log show --last 3m --style compact             --predicate "process == \"$EXEC_NAME\"" > screenshots/app-log.txt 2>&1 || true
           tail -60 screenshots/app-log.txt
 
@@ -268,7 +279,7 @@ jobs:
           echo "=== iPhone Duo Simulator Test Summary ==="
           echo "Xcode: $(xcodebuild -version | sed -n 1p)"
           echo "iOS SDK: $(xcodebuild -version | grep 'Build version')"
-          if ls screenshots/duo-display-*.png >/dev/null 2>&1; then
+          if ls screenshots/duo-*-display-*.png >/dev/null 2>&1; then
             echo "✓ Duo screenshot captured"
           else
             echo "✗ Duo screenshot not available"
