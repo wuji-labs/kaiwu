@@ -16,6 +16,11 @@ import { createNewSessionPromptStore } from '@/components/sessions/new/hooks/scr
 
 (globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
 
+// The storage module mock instance survives `vi.resetModules()`, so a stub that closes over one
+// harness's state would keep serving the first test's state to every later test. Route reads
+// through this holder so the hook always sees the state of the harness that is currently active.
+const activeHarnessStorage = vi.hoisted(() => ({ state: null as unknown }));
+
 async function setupHarness() {
   const modalAlertSpy = vi.fn((..._args: unknown[]) => {});
   type SpawnAttemptCustodyTestResult = Readonly<{
@@ -109,6 +114,7 @@ async function setupHarness() {
     markSessionOptimisticThinking: vi.fn(),
     upsertPendingMessage: vi.fn(),
   };
+  activeHarnessStorage.state = storageState;
 
   installNewSessionScreenModelCommonModuleMocks({
     text: () =>
@@ -123,7 +129,7 @@ async function setupHarness() {
     storage: async () =>
       createStorageModuleStub({
         storage: {
-          getState: () => storageState,
+          getState: () => activeHarnessStorage.state,
         },
       }),
   });

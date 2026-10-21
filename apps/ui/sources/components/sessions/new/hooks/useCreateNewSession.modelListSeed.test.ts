@@ -79,7 +79,15 @@ async function setupUseCreateNewSessionHarness(params: Readonly<{
             decryptSecretValue: vi.fn(),
             refreshAutomations: refreshAutomationsSpy,
             refreshSessions: refreshSessionsSpy,
-            ensureSessionVisibleForMessageRoute: vi.fn(async () => {}),
+            // Post-spawn routing waits until the created session is locally visible; hydrate it the
+            // way the real sync owner would so the launch flow can open the session.
+            ensureSessionVisibleForMessageRoute: vi.fn(async (sessionId: string) => {
+                const [{ storage }, { createSessionFixture }] = await Promise.all([
+                    import('@/sync/domains/state/storage'),
+                    import('@/dev/testkit/fixtures/sessionFixtures'),
+                ]);
+                storage.getState().applySessions([createSessionFixture({ id: sessionId })]);
+            }),
             refreshMachines: vi.fn(async () => {}),
             sendMessage: syncSendMessageSpy,
             acquireUserRequestLease: () => () => {},
@@ -159,9 +167,15 @@ async function setupUseCreateNewSessionHarness(params: Readonly<{
     vi.doMock('@/sync/ops/workspaces', () => ({
         deleteWorkspaceCheckout: vi.fn(async () => ({ success: true, workspace: { id: 'ws_generated', locationIds: ['loc_generated'], checkoutIds: [], defaultLocationId: 'loc_generated', defaultCheckoutId: null, displayName: 'workspace' } })),
     }));
-    vi.doMock('@/sync/runtime/orchestration/serverScopedRpc/followUpSpawnedSession', () => ({
-        followUpSpawnedSessionWithServerScope: followUpSpawnedSessionWithServerScopeSpy,
-    }));
+    vi.doMock('@/sync/runtime/orchestration/serverScopedRpc/followUpSpawnedSession', async () => {
+        const actual = await vi.importActual<typeof import('@/sync/runtime/orchestration/serverScopedRpc/followUpSpawnedSession')>(
+            '@/sync/runtime/orchestration/serverScopedRpc/followUpSpawnedSession',
+        );
+        return {
+            ...actual,
+            followUpSpawnedSessionWithServerScope: followUpSpawnedSessionWithServerScopeSpy,
+        };
+    });
     vi.doMock('@/sync/ops/sessionGoals', () => ({
         sessionGoalSet: vi.fn(async () => ({ ok: true as const })),
         sessionGoalClear: vi.fn(async () => ({ ok: true as const })),

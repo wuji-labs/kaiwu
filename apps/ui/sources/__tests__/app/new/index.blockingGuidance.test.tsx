@@ -1,5 +1,5 @@
 import React from 'react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { pressTestInstanceAsync, renderScreen } from '@/dev/testkit';
 
 
@@ -241,6 +241,13 @@ afterEach(() => {
 });
 
 describe('/new (blocking guidance)', () => {
+    // Loading the /new screen evaluates its whole module graph once (it stays cached: no test
+    // resets modules). Pay that one-time cost here under its own budget instead of inside the
+    // first test's timeout, where it consumed ~50s of 60s and timed out on a loaded machine.
+    beforeAll(async () => {
+        await import('@/app/(app)/new');
+    }, 300_000);
+
     it('resolves a direct ordinary /new route through the continuity owner', async () => {
         mockState.localSearchParams = {};
         mockState.shouldBlockNewSession = true;
