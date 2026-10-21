@@ -46,7 +46,7 @@ jobs:
         run: |
           set -euo pipefail
           echo "=== Xcode Version (must be 27.1) ==="
-          XCODE_VERSION=$(xcodebuild -version | head -1)
+          XCODE_VERSION=$(xcodebuild -version | sed -n 1p)
           echo "$XCODE_VERSION"
           if ! echo "$XCODE_VERSION" | grep -q "27\.1"; then
             echo "ERROR: Xcode must be 27.1, got: $XCODE_VERSION" >&2
@@ -59,7 +59,7 @@ jobs:
 
           echo "=== Checking for iPhone Duo device types ==="
           xcrun simctl list devicetypes | grep -i duo || echo "No Duo simulator found; will show all available"
-          xcrun simctl list devicetypes | head -20
+          xcrun simctl list devicetypes | sed -n '1,20p'
 
       - name: Setup Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
@@ -120,7 +120,7 @@ jobs:
           cd apps/ui/ios
           xcodebuild -list -json > xcode_list.json
           cat xcode_list.json
-          WORKSPACE=$(find . -maxdepth 1 -name "*.xcworkspace" | head -n 1)
+          WORKSPACE=$(find . -maxdepth 1 -name "*.xcworkspace" | sed -n 1p)
           if [ -z "$WORKSPACE" ]; then
             echo "No .xcworkspace found!" >&2
             exit 1
@@ -161,10 +161,10 @@ jobs:
         run: |
           set -euo pipefail
           echo "=== Listing all iPhone Duo device types ==="
-          DUO_DEVICE=$(xcrun simctl list devicetypes | grep -i "iphone.*duo" | head -1 | sed 's/.*(\(.*\))/\1/')
+          DUO_DEVICE=$(xcrun simctl list devicetypes | grep -i "iphone.*duo" | sed -n 1p | sed 's/.*(\(.*\))/\1/')
           if [ -z "$DUO_DEVICE" ]; then
             echo "No iPhone Duo device type found; attempting fallback..." >&2
-            DUO_DEVICE=$(xcrun simctl list devicetypes | grep -i duo | head -1 | sed 's/.*(\(.*\))/\1/')
+            DUO_DEVICE=$(xcrun simctl list devicetypes | grep -i duo | sed -n 1p | sed 's/.*(\(.*\))/\1/')
           fi
           if [ -z "$DUO_DEVICE" ]; then
             echo "ERROR: No Duo device type available" >&2
@@ -195,7 +195,7 @@ jobs:
         run: |
           set -euo pipefail
           SIM_UDID="${{ steps.create_sim.outputs.sim_udid }}"
-          APP_PATH=$(find apps/ui/ios/build/Build/Products/Release-iphonesimulator -maxdepth 1 -name "*.app" -type d | head -1)
+          APP_PATH=$(find apps/ui/ios/build/Build/Products/Release-iphonesimulator -maxdepth 1 -name "*.app" -type d | sed -n 1p)
           [ -n "$APP_PATH" ] || { echo "ERROR: built .app not found" >&2; exit 1; }
           BUNDLE_ID=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP_PATH/Info.plist")
           EXEC_NAME=$(/usr/libexec/PlistBuddy -c "Print :CFBundleExecutable" "$APP_PATH/Info.plist")
@@ -252,7 +252,7 @@ jobs:
         run: |
           set -euo pipefail
           echo "=== iPhone Duo Simulator Test Summary ==="
-          echo "Xcode: $(xcodebuild -version | head -1)"
+          echo "Xcode: $(xcodebuild -version | sed -n 1p)"
           echo "iOS SDK: $(xcodebuild -version | grep 'Build version')"
           if [ -f "screenshots/duo-default.png" ]; then
             echo "✓ Duo screenshot captured"
