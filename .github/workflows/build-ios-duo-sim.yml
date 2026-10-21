@@ -256,6 +256,29 @@ jobs:
           fi
           echo "App alive 20s after launch, no crash reports."
 
+      # Duo pose (closed / partially open / open) is only exposed as Device Hub buttons
+      # (Apple: "Interacting with your app in Device Hub"). Probe what can drive it headlessly.
+      - name: Probe iPhone Duo pose controls (diagnostic)
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          DEV="$DEVELOPER_DIR"
+          ls -la "$DEV/Applications" || true
+          ls "$DEV/../Applications" 2>/dev/null || true
+          for app in "$DEV/Applications/Simulator.app" "$DEV/Applications/Device Hub.app"; do
+            if [ -d "$app" ]; then
+              echo "== $app"; /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$app/Contents/Info.plist" || true
+              ls "$app/Contents/Resources" | grep -i -E "sdef|script" || true
+            fi
+          done
+          xcrun simctl help 2>&1 | grep -i -E "pose|fold|hinge|posture" || echo "no pose verb in simctl"
+          osascript -e 'tell application "System Events" to get name of every process whose background only is false' 2>&1 || true
+          open -a Simulator 2>&1 || true
+          sleep 8
+          osascript -e 'tell application "System Events" to tell process "Simulator" to get name of every menu of menu bar 1' 2>&1 || true
+          osascript -e 'tell application "System Events" to tell process "Simulator" to get name of every menu item of menu "Device" of menu bar 1' 2>&1 || true
+          mkdir -p screenshots; screencapture -x screenshots/runner-desktop.png 2>&1 || true
+
       - name: Shutdown simulator
         if: always()
         run: |
