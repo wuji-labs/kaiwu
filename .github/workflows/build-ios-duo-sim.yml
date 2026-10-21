@@ -256,28 +256,72 @@ jobs:
           fi
           echo "App alive 20s after launch, no crash reports."
 
-      # Duo pose (closed / partially open / open) is only exposed as Device Hub buttons
-      # (Apple: "Interacting with your app in Device Hub"). Probe what can drive it headlessly.
-      - name: Probe iPhone Duo pose controls (diagnostic)
+      # Duo pose (closed / partially open / open) is only exposed in DeviceHub
+      # (Apple: "Interacting with your app in Device Hub"). Xcode 27 ships DeviceHub.app
+      # instead of Simulator.app; drive its "Open" pose through System Events, then shoot the inner display.
+      - name: Unfold iPhone Duo through DeviceHub and capture the inner display
         continue-on-error: true
         run: |
           set -uo pipefail
-          DEV="$DEVELOPER_DIR"
-          ls -la "$DEV/Applications" || true
-          ls "$DEV/../Applications" 2>/dev/null || true
-          for app in "$DEV/Applications/Simulator.app" "$DEV/Applications/Device Hub.app"; do
-            if [ -d "$app" ]; then
-              echo "== $app"; /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$app/Contents/Info.plist" || true
-              ls "$app/Contents/Resources" | grep -i -E "sdef|script" || true
-            fi
-          done
-          xcrun simctl help 2>&1 | grep -i -E "pose|fold|hinge|posture" || echo "no pose verb in simctl"
-          osascript -e 'tell application "System Events" to get name of every process whose background only is false' 2>&1 || true
-          open -a Simulator 2>&1 || true
+          SIM_UDID="${{ steps.create_sim.outputs.sim_udid }}"
+          HUB="${DEVELOPER_DIR%/Contents/Developer}/Contents/Applications/DeviceHub.app"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$HUB/Contents/Info.plist" || true
+          open "$HUB" --args -CurrentDeviceUDID "$SIM_UDID" || open "$HUB"
+          sleep 15
+          PROC=$(osascript -e 'tell application "System Events" to get name of every process whose background only is false' 2>&1)
+          echo "processes: $PROC"
+          HUBPROC=$(echo "$PROC" | tr ',' '\n' | sed 's/^ *//' | grep -i -E "device ?hub" | sed -n 1p)
+          echo "hub process: $HUBPROC"
+          # Dump every menu and item so the next iteration knows exact names.
+          osascript > screenshots/devicehub-menus.txt 2>&1 <<OSA || true
+          tell application "System Events" to tell process "$HUBPROC"
+            set out to ""
+            repeat with m in menus of menu bar 1
+              set out to out & "## " & (name of m) & linefeed
+              repeat with it in menu items of m
+                try
+                  set out to out & "  - " & (name of it) & linefeed
+                end try
+              end repeat
+            end repeat
+            return out
+          end tell
+          OSA
+          cat screenshots/devicehub-menus.txt
+          # Click the first menu item named exactly "Open" (pose), wherever it lives.
+          osascript > screenshots/devicehub-click.txt 2>&1 <<OSA || true
+          tell application "System Events" to tell process "$HUBPROC"
+            set frontmost to true
+            repeat with m in menus of menu bar 1
+              repeat with it in menu items of m
+                try
+                  if (name of it) is "Open" or (name of it) is "Fully Open" then
+                    click it
+                    return "clicked " & (name of m) & " > " & (name of it)
+                  end if
+                end try
+                try
+                  repeat with sub in menu items of menu 1 of it
+                    if (name of sub) is "Open" or (name of sub) is "Fully Open" then
+                      click sub
+                      return "clicked " & (name of m) & " > " & (name of it) & " > " & (name of sub)
+                    end if
+                  end repeat
+                end try
+              end repeat
+            end repeat
+            return "no Open item found"
+          end tell
+          OSA
+          cat screenshots/devicehub-click.txt
           sleep 8
-          osascript -e 'tell application "System Events" to tell process "Simulator" to get name of every menu of menu bar 1' 2>&1 || true
-          osascript -e 'tell application "System Events" to tell process "Simulator" to get name of every menu item of menu "Device" of menu bar 1' 2>&1 || true
-          mkdir -p screenshots; screencapture -x screenshots/runner-desktop.png 2>&1 || true
+          screencapture -x screenshots/runner-desktop.png || true
+          xcrun simctl io "$SIM_UDID" screenshot screenshots/probe-hub.png > screenshots/displays-hub.txt 2>&1 || true
+          cat screenshots/displays-hub.txt
+          for d in $(grep -Eo -- '--display=[0-9]+' screenshots/displays-hub.txt | cut -d= -f2 | sort -u || true); do
+            xcrun simctl io "$SIM_UDID" screenshot --display="$d" "screenshots/duo-hub-display-$d.png" || true
+          done
+          ls -la screenshots
 
       - name: Shutdown simulator
         if: always()
