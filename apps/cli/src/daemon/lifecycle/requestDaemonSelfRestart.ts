@@ -2,6 +2,7 @@ import type { DaemonLocallyPersistedState } from '@/persistence';
 import { readDaemonState } from '@/persistence';
 import { logger } from '@/ui/logger';
 import { spawnDetachedDaemonStartSync } from '@/daemon/runtime/spawnDetachedDaemonStartSync';
+import { isPidAliveBySignal } from '@/daemon/processRunState';
 
 export type RequestDaemonSelfRestartResult =
   | { status: 'exited' }
@@ -21,15 +22,7 @@ async function delay(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function isPidAlive(pid: number | null | undefined): boolean {
-  if (typeof pid !== 'number' || !Number.isFinite(pid) || pid <= 0) return false;
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch {
-    return false;
-  }
-}
+const isPidAlive = isPidAliveBySignal;
 
 function hasAuthenticatedPingDetails(state: DaemonLocallyPersistedState): boolean {
   const httpPort = typeof state.httpPort === 'number' && Number.isFinite(state.httpPort)

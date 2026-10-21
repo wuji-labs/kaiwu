@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -113,6 +113,61 @@ describe('Windows scheduled task lifecycle PowerShell helpers', () => {
         expect(result.error).toBeUndefined();
         expect(result.status).toBe(expectedExitCode);
       }
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('still runs the child when a leftover process keeps the service log locked', () => {
+    if (process.platform !== 'win32') return;
+
+    // A wrapper stopped by Task Scheduler can leave its daemon child running, still holding the
+    // redirected log handle. The next wrapper must not die opening that log.
+    const root = mkdtempSync(join(tmpdir(), 'happier-windows-wrapper-locked-log-'));
+    const childPath = join(root, 'child.ps1');
+    const wrapperPath = join(root, 'wrapper.ps1');
+    const markerPath = join(root, 'ran.txt');
+    const stdoutPath = join(root, 'daemon.out.log');
+    const stderrPath = join(root, 'daemon.err.log');
+
+    try {
+      writeFileSync(childPath, `Set-Content -LiteralPath '${markerPath}' -Value ran\nWrite-Output hello\nexit 3\n`, 'utf8');
+      writeFileSync(stdoutPath, '', 'utf8');
+      writeFileSync(
+        wrapperPath,
+        renderWindowsScheduledTaskWrapperPs1({
+          programArgs: ['powershell.exe', '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', childPath],
+          stdoutPath,
+          stderrPath,
+          restartPolicy: 'no',
+        }),
+        'utf8',
+      );
+
+      const holder = spawnSync(
+        'powershell.exe',
+        [
+          '-NoProfile',
+          '-NonInteractive',
+          '-Command',
+          [
+            `$lock = [System.IO.File]::Open('${stdoutPath}', 'Open', 'ReadWrite', 'None')`,
+            `& powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File '${wrapperPath}'`,
+            '$code = $LASTEXITCODE',
+            '$lock.Dispose()',
+            'exit $code',
+          ].join('; '),
+        ],
+        { encoding: 'utf8' },
+      );
+
+      expect(holder.error).toBeUndefined();
+      expect(holder.status).toBe(3);
+      expect(existsSync(markerPath)).toBe(true);
+      const fallbackLogs = readdirSync(root).filter((name) => /^daemon\.out\.\d+\.log$/.test(name));
+      expect(fallbackLogs).toHaveLength(1);
+      // Windows PowerShell 5 redirection writes UTF-16LE.
+      expect(readFileSync(join(root, fallbackLogs[0]!), 'utf16le')).toContain('hello');
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

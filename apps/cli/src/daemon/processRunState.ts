@@ -17,12 +17,18 @@ const execFileAsync = promisify(execFile);
  */
 export type ProcessRunState = 'dead' | 'servable' | 'stopped' | 'zombie';
 
-export function isPidAliveBySignal(pid: number): boolean {
+/**
+ * Signal-0 liveness probe. EPERM means the process exists but this process may not signal it
+ * (e.g. a Windows service daemon under an S4U token probed from an interactive session); treating
+ * that as dead makes callers misreport or replace a live daemon. Any other error means gone.
+ */
+export function isPidAliveBySignal(pid: number | null | undefined): boolean {
+  if (typeof pid !== 'number' || !Number.isFinite(pid) || pid <= 0) return false;
   try {
     process.kill(pid, 0);
     return true;
-  } catch {
-    return false;
+  } catch (error) {
+    return (error as NodeJS.ErrnoException | null)?.code === 'EPERM';
   }
 }
 

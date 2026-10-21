@@ -12,6 +12,7 @@ import { resolveDaemonServiceInstallationSnapshotFromEnv } from '@/daemon/servic
 import { resolveDaemonStateCandidatePaths } from '@/daemon/ownership/daemonOwnershipPaths';
 import { resolveMachineIdForServerFromSettings } from '@/daemon/resolveMachineIdForServerFromSettings';
 import type { DaemonStartupSource } from '@/daemon/ownership/daemonOwnershipMetadata';
+import { isPidAliveBySignal } from '@/daemon/processRunState';
 type NormalizedDaemonState = Readonly<{
   pid: number;
   httpPort: number;
@@ -63,14 +64,7 @@ function parseDaemonStateFromJson(value: unknown): NormalizedDaemonState | null 
   };
 }
 
-function isPidAlive(pid: number): boolean {
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch {
-    return false;
-  }
-}
+const isPidAlive = isPidAliveBySignal;
 
 async function readDaemonStateFromPath(path: string): Promise<NormalizedDaemonState | null> {
   if (!existsSync(path)) return null;

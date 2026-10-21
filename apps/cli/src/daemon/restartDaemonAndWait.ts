@@ -14,6 +14,7 @@ import {
 } from '@/daemon/startupWaitDefaults';
 import { waitForDaemonRunningWithinBudget } from '@/daemon/waitForDaemonRunningWithinBudget';
 import { readPositiveIntEnv } from '@/utils/readPositiveIntEnv';
+import { isPidAliveBySignal } from '@/daemon/processRunState';
 
 const DEFAULT_DAEMON_RESTART_STABILITY_TIMEOUT_MS = 2_000;
 
@@ -81,15 +82,7 @@ function restartFailed(): RestartDaemonAndWaitResult {
   return { ok: false };
 }
 
-function isPidAlive(pid: number | null | undefined): boolean {
-  if (!pid || !Number.isFinite(pid) || pid <= 0) return false;
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch {
-    return false;
-  }
-}
+const isPidAlive = isPidAliveBySignal;
 
 function isStartingInspectionForNewDaemon(
   inspection: DaemonRunningInspection,

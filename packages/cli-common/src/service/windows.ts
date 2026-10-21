@@ -180,11 +180,34 @@ export function renderWindowsScheduledTaskWrapperPs1(params: Readonly<{
     .join('\n');
 
   const cmd = args.length ? `& ${args.map(psQuoted).join(' ')}` : '';
-  const redirect = out || err ? ` 1>> ${psQuoted(out)} 2>> ${psQuoted(err)}` : '';
+  const hasRedirect = Boolean(out || err);
+  // A wrapper stopped by Task Scheduler can leave its child running with the log handles still
+  // open; appending to them would then fail and, under ErrorActionPreference=Stop, kill this
+  // wrapper before the daemon is started. Fall back to a per-wrapper log file instead.
+  const logResolverLines = hasRedirect
+    ? [
+      'function Resolve-ServiceLogPath([string]$Path) {',
+      '  try {',
+      "    [System.IO.File]::Open($Path, 'Append', 'Write', 'ReadWrite').Dispose()",
+      '    return $Path',
+      '  } catch {',
+      '    return [System.IO.Path]::ChangeExtension($Path, "$PID.log")',
+      '  }',
+      '}',
+    ]
+    : [];
+  const resolveLogLines = hasRedirect
+    ? [
+      `$serviceOutLog = Resolve-ServiceLogPath ${psQuoted(out)}`,
+      `$serviceErrLog = Resolve-ServiceLogPath ${psQuoted(err)}`,
+    ]
+    : [];
+  const redirect = hasRedirect ? ' 1>> $serviceOutLog 2>> $serviceErrLog' : '';
 
   const commandLines = shouldRetryOnFailure
     ? [
       'while ($true) {',
+      ...resolveLogLines.map((line) => `  ${line}`),
       `  ${cmd}${redirect}`,
       '  $exitCode = [int]$LASTEXITCODE',
       '  if ($exitCode -eq 0) { exit 0 }',
@@ -192,6 +215,7 @@ export function renderWindowsScheduledTaskWrapperPs1(params: Readonly<{
       '}',
     ]
     : [
+      ...resolveLogLines,
       `${cmd}${redirect}`,
       '$exitCode = [int]$LASTEXITCODE',
       'exit $exitCode',
@@ -201,6 +225,7 @@ export function renderWindowsScheduledTaskWrapperPs1(params: Readonly<{
     '$ErrorActionPreference = "Stop"',
     wd ? `Set-Location -LiteralPath ${psQuoted(wd)}` : '',
     envLines,
+    ...(cmd ? logResolverLines : []),
     cmd ? commandLines.join('\n') : '',
     '',
   ]
