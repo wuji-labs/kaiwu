@@ -210,7 +210,7 @@ jobs:
           xcrun simctl help > screenshots/simctl-help.txt 2>&1 || true
           xcrun simctl io "$SIM_UDID" help > screenshots/simctl-io-help.txt 2>&1 || true
 
-          LAUNCH_OUT=$(xcrun simctl launch "$SIM_UDID" "$BUNDLE_ID")
+          LAUNCH_OUT=$(xcrun simctl launch "$SIM_UDID" "$BUNDLE_ID" -AppleLanguages "(zh-Hans)" -AppleLocale zh_CN)
           echo "$LAUNCH_OUT"
           PID=$(echo "$LAUNCH_OUT" | awk -F': ' '{print $2}')
           sleep 20
