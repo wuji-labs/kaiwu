@@ -38,9 +38,11 @@ function loadNativeLegendDist(): Promise<Record<string, unknown>> {
     const distPath = resolve(process.cwd(), 'node_modules/@legendapp/list/react-native.mjs');
     const reactPath = resolve(process.cwd(), 'node_modules/react/index.js');
     const shimPath = resolve(process.cwd(), 'node_modules/use-sync-external-store/shim/index.js');
+    // JSON.stringify yields a valid string literal for any path: a raw Windows path pasted between
+    // quotes turns segments like `\ui` into invalid escape sequences and the transform fails.
     const source = readFileSync(distPath, 'utf8')
-        .replaceAll(" from 'react';", ` from '${reactPath}';`)
-        .replaceAll(" from 'use-sync-external-store/shim';", ` from '${shimPath}';`);
+        .replaceAll(" from 'react';", ` from ${JSON.stringify(reactPath)};`)
+        .replaceAll(" from 'use-sync-external-store/shim';", ` from ${JSON.stringify(shimPath)};`);
     const directory = join(tmpdir(), 'happier-legend-native-dist');
     mkdirSync(directory, { recursive: true });
     const digest = createHash('sha1').update(source).digest('hex').slice(0, 16);
