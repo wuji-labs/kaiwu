@@ -114,7 +114,7 @@ describe('AddPhoneSettingsView', () => {
         const qrContainer = screen.findByTestId('add-phone-qr');
         if (!qrContainer) throw new Error('Expected QR container');
         const qr = qrContainer.findByType('QRCode');
-        expect(String(qr.props.data)).toContain('happier:///pair?v=1');
+        expect(String(qr.props.data)).toContain('kaiwu:///pair?v=1');
         expect(String(qr.props.data)).toContain('pairId=pair_123');
     });
 
@@ -134,7 +134,7 @@ describe('AddPhoneSettingsView', () => {
         const screen = await renderScreen(<AddPhoneSettingsView />);
         await screen.pressByTestIdAsync('add-phone-pairing-link');
 
-        expect(clipboardMocks.setStringAsync).toHaveBeenCalledWith(expect.stringContaining('happier:///pair?v=1'));
+        expect(clipboardMocks.setStringAsync).toHaveBeenCalledWith(expect.stringContaining('kaiwu:///pair?v=1'));
         expect(modalMocks.alertAsync).not.toHaveBeenCalledWith('common.success', 'common.copied');
         expect(screen.findByTestId('add-phone-pairing-link-copied')).toBeTruthy();
     });

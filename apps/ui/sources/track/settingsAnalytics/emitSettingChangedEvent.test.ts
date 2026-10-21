@@ -245,7 +245,10 @@ describe('emitAccountSettingChangedEvents', () => {
 
     it('captures bucketed numeric account settings through canonical analytics serializers', () => {
         emitAccountSettingChangedEvents({
-            previousSettings: settingsDefaults,
+            previousSettings: {
+                ...settingsDefaults,
+                attachmentsUploadsMaxFileBytes: 25 * 1024 * 1024,
+            },
             nextSettings: {
                 ...settingsDefaults,
                 attachmentsUploadsMaxFileBytes: 100 * 1024 * 1024,
