@@ -163,127 +163,60 @@ jobs:
         run: |
           set -euo pipefail
           DUO_DEVICE="${{ steps.duo_device.outputs.duo_device }}"
-          SIM_UDID=$(xcrun simctl create "kaiwu-duo-test" "$DUO_DEVICE" "iOS27.1")
+          # The image ships only the iOS 27.0 simulator runtime; iPhone Duo needs the runtime
+          # that matches the 27.1 SDK. Download it when missing.
+          if ! xcrun simctl list runtimes | grep -q "iOS 27\.1"; then
+            xcodebuild -downloadPlatform iOS
+          fi
+          xcrun simctl list runtimes
+          RUNTIME=$(xcrun simctl list runtimes -j | python3 -c 'import json,sys; rs=[r for r in json.load(sys.stdin)["runtimes"] if r["platform"]=="iOS" and r["isAvailable"] and r["version"].startswith("27.1")]; print(rs[-1]["identifier"] if rs else "")')
+          if [ -z "$RUNTIME" ]; then
+            echo "ERROR: no available iOS 27.1 simulator runtime" >&2
+            exit 1
+          fi
+          SIM_UDID=$(xcrun simctl create "kaiwu-duo-test" "$DUO_DEVICE" "$RUNTIME")
           echo "Created simulator: $SIM_UDID"
           echo "sim_udid=$SIM_UDID" >> "$GITHUB_OUTPUT"
 
-      - name: Boot simulator
+      - name: Boot, install, launch and verify on iPhone Duo
         run: |
           set -euo pipefail
           SIM_UDID="${{ steps.create_sim.outputs.sim_udid }}"
+          APP_PATH=$(find apps/ui/ios/build/Build/Products/Release-iphonesimulator -maxdepth 1 -name "*.app" -type d | head -1)
+          [ -n "$APP_PATH" ] || { echo "ERROR: built .app not found" >&2; exit 1; }
+          BUNDLE_ID=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP_PATH/Info.plist")
+          EXEC_NAME=$(/usr/libexec/PlistBuddy -c "Print :CFBundleExecutable" "$APP_PATH/Info.plist")
+          echo "App: $APP_PATH  bundle: $BUNDLE_ID  exec: $EXEC_NAME"
+          /usr/libexec/PlistBuddy -c "Print :UIApplicationSceneManifest" "$APP_PATH/Info.plist"
+
           xcrun simctl boot "$SIM_UDID"
-          sleep 5
-          xcrun simctl bootstatus "$SIM_UDID"
-
-      - name: Install app on simulator
-        run: |
-          set -euo pipefail
-          cd apps/ui/ios
-          WORKSPACE="${{ steps.xcode_meta.outputs.workspace }}"
-          SCHEME="${{ steps.xcode_meta.outputs.scheme }}"
-          SIM_UDID="${{ steps.create_sim.outputs.sim_udid }}"
-          APP_PATH="./build/Build/Products/Release-iphonesimulator/${SCHEME}.app"
-          if [ ! -d "$APP_PATH" ]; then
-            echo "ERROR: App not found at $APP_PATH" >&2
-            find ./build -name "*.app" -type d
-            exit 1
-          fi
+          xcrun simctl bootstatus "$SIM_UDID" -b
           xcrun simctl install "$SIM_UDID" "$APP_PATH"
+          mkdir -p screenshots
+          # Fold controls: record what this simctl actually offers, for the next iteration.
+          xcrun simctl help > screenshots/simctl-help.txt 2>&1 || true
+          xcrun simctl io "$SIM_UDID" help > screenshots/simctl-io-help.txt 2>&1 || true
 
-      - name: Get bundle ID and launch app
-        id: app_launch
-        run: |
-          set -euo pipefail
-          cd apps/ui/ios
-          WORKSPACE="${{ steps.xcode_meta.outputs.workspace }}"
-          SIM_UDID="${{ steps.create_sim.outputs.sim_udid }}"
-          APP_PATH="./build/Build/Products/Release-iphonesimulator/${WORKSPACE%.xcworkspace}.app"
+          LAUNCH_OUT=$(xcrun simctl launch "$SIM_UDID" "$BUNDLE_ID")
+          echo "$LAUNCH_OUT"
+          PID=$(echo "$LAUNCH_OUT" | awk -F': ' '{print $2}')
+          sleep 20
+          xcrun simctl io "$SIM_UDID" screenshot screenshots/duo-default.png
+          xcrun simctl spawn "$SIM_UDID" log show --last 3m --style compact             --predicate "process == \"$EXEC_NAME\"" > screenshots/app-log.txt 2>&1 || true
+          tail -60 screenshots/app-log.txt
 
-          # Extract bundle ID from Info.plist
-          if [ ! -f "$APP_PATH/Info.plist" ]; then
-            echo "ERROR: Info.plist not found" >&2
+          # Fail closed: the app process must still be alive and no crash report may exist.
+          if ! xcrun simctl spawn "$SIM_UDID" launchctl list | grep -q "$BUNDLE_ID"; then
+            echo "ERROR: $BUNDLE_ID is not running 20s after launch (pid $PID)" >&2
             exit 1
           fi
-
-          BUNDLE_ID=$(plutil -p "$APP_PATH/Info.plist" | grep CFBundleIdentifier | cut -d' ' -f3 | tr -d '"')
-          echo "Bundle ID: $BUNDLE_ID"
-          echo "bundle_id=$BUNDLE_ID" >> "$GITHUB_OUTPUT"
-
-          echo "=== App Info.plist Summary ==="
-          plutil -p "$APP_PATH/Info.plist" | grep -E "CFBundleIdentifier|CFBundleDisplayName|CFBundleShortVersionString|CFBundleVersion" || true
-
-          # Launch app
-          xcrun simctl launch "$SIM_UDID" "$BUNDLE_ID"
-          sleep 3
-
-      - name: Check app status and logs (outer screen)
-        run: |
-          set -euo pipefail
-          SIM_UDID="${{ steps.create_sim.outputs.sim_udid }}"
-          BUNDLE_ID="${{ steps.app_launch.outputs.bundle_id }}"
-
-          echo "=== App Process Status ==="
-          xcrun simctl spawn "$SIM_UDID" ps aux | grep -i "$BUNDLE_ID" || true
-
-          echo "=== System Log (last 50 lines) ==="
-          xcrun simctl spawn "$SIM_UDID" log show --level debug --predicate 'process == "'"$BUNDLE_ID"'"' --last 2m 2>/dev/null | tail -50 || true
-
-      - name: Take screenshot (outer screen)
-        id: screenshot_outer
-        run: |
-          set -euo pipefail
-          SIM_UDID="${{ steps.create_sim.outputs.sim_udid }}"
-          mkdir -p screenshots
-          OUTER_SCREEN="screenshots/outer-screen.png"
-          xcrun simctl io "$SIM_UDID" screenshot "$OUTER_SCREEN" || {
-            echo "Note: simctl io screenshot may not be available in preview; attempting simctl status..." >&2
-            xcrun simctl status "$SIM_UDID"
-          }
-          if [ -f "$OUTER_SCREEN" ]; then
-            ls -lh "$OUTER_SCREEN"
-            echo "outer_screen=$OUTER_SCREEN" >> "$GITHUB_OUTPUT"
+          CRASHES=$(ls ~/Library/Logs/DiagnosticReports 2>/dev/null | grep -i "$EXEC_NAME" || true)
+          if [ -n "$CRASHES" ]; then
+            echo "ERROR: crash reports found:" >&2; echo "$CRASHES" >&2
+            cp ~/Library/Logs/DiagnosticReports/*"$EXEC_NAME"* screenshots/ || true
+            exit 1
           fi
-
-      - name: Toggle and screenshot inner display
-        id: screenshot_inner
-        run: |
-          set -euo pipefail
-          SIM_UDID="${{ steps.create_sim.outputs.sim_udid }}"
-          mkdir -p screenshots
-
-          # Attempt to open the device (show inner display)
-          echo "Attempting to open device (inner display)..."
-          xcrun simctl help | grep -i "open\|fold\|pose" || echo "No fold/pose commands in simctl"
-
-          # Workaround: if simctl has fold support, use it
-          if xcrun simctl help 2>&1 | grep -qi "fold\|pose"; then
-            xcrun simctl io "$SIM_UDID" open || true
-            sleep 2
-          fi
-
-          INNER_SCREEN="screenshots/inner-screen.png"
-          xcrun simctl io "$SIM_UDID" screenshot "$INNER_SCREEN" || {
-            echo "Note: attempting alternative screenshot method..." >&2
-          }
-          if [ -f "$INNER_SCREEN" ]; then
-            ls -lh "$INNER_SCREEN"
-            echo "inner_screen=$INNER_SCREEN" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Verify app is running (no crashes)
-        run: |
-          set -euo pipefail
-          SIM_UDID="${{ steps.create_sim.outputs.sim_udid }}"
-          BUNDLE_ID="${{ steps.app_launch.outputs.bundle_id }}"
-
-          echo "=== Checking for crash logs ==="
-          CRASH_LOGS=$(xcrun simctl spawn "$SIM_UDID" find "/Library/Logs/DiagnosticMessages" -name "*$BUNDLE_ID*" -mmin -5 2>/dev/null | wc -l)
-          if [ "$CRASH_LOGS" -gt 0 ]; then
-            echo "WARNING: Found recent crash logs" >&2
-            xcrun simctl spawn "$SIM_UDID" find "/Library/Logs/DiagnosticMessages" -name "*$BUNDLE_ID*" -mmin -5 | head -5
-          else
-            echo "No recent crash logs found"
-          fi
+          echo "App alive 20s after launch, no crash reports."
 
       - name: Shutdown simulator
         if: always()
@@ -308,10 +241,10 @@ jobs:
           echo "=== iPhone Duo Simulator Test Summary ==="
           echo "Xcode: $(xcodebuild -version | head -1)"
           echo "iOS SDK: $(xcodebuild -version | grep 'Build version')"
-          if [ -f "screenshots/outer-screen.png" ]; then
-            echo "✓ Outer screen screenshot captured"
+          if [ -f "screenshots/duo-default.png" ]; then
+            echo "✓ Duo screenshot captured"
           else
-            echo "✗ Outer screen screenshot not available"
+            echo "✗ Duo screenshot not available"
           fi
           if [ -f "screenshots/inner-screen.png" ]; then
             echo "✓ Inner screen screenshot captured"
