@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MMKV } from 'react-native-mmkv';
 
 import { scopedStorageId } from '@/utils/system/storageScope';
@@ -37,6 +37,17 @@ describe('serverProfiles', () => {
     const previousServerUrl = process.env.EXPO_PUBLIC_HAPPY_SERVER_URL;
     const previousLegacyGenericServerUrl = process.env.EXPO_PUBLIC_SERVER_URL;
     const previousPreconfigured = process.env.EXPO_PUBLIC_HAPPY_PRECONFIGURED_SERVERS;
+
+    beforeEach(() => {
+        // Server selection reads these from the process environment; start every
+        // case from a clean slate so a developer shell's values cannot leak in.
+        delete process.env.EXPO_PUBLIC_HAPPY_STORAGE_SCOPE;
+        delete process.env.EXPO_PUBLIC_HAPPY_SERVER_CONTEXT;
+        delete process.env.EXPO_PUBLIC_HAPPIER_SERVER_URL;
+        delete process.env.EXPO_PUBLIC_HAPPY_SERVER_URL;
+        delete process.env.EXPO_PUBLIC_SERVER_URL;
+        delete process.env.EXPO_PUBLIC_HAPPY_PRECONFIGURED_SERVERS;
+    });
 
     afterEach(() => {
         vi.unstubAllGlobals();
@@ -207,13 +218,13 @@ describe('serverProfiles', () => {
         expect(profiles.getTabActiveServerId()).toBe(tab.id);
     });
 
-    it('seeds Happier Cloud on native when no preconfigured env exists', async () => {
+    it('seeds the hosted Kaiwu server on native when no preconfigured env exists', async () => {
         const scope = randomScope();
         process.env.EXPO_PUBLIC_HAPPY_STORAGE_SCOPE = scope;
 
         const profiles = await importFresh();
-        expect(profiles.listServerProfiles().some((p) => p.serverUrl === 'https://api.happier.dev')).toBe(true);
-        expect(profiles.getActiveServerUrl()).toBe('https://api.happier.dev');
+        expect(profiles.listServerProfiles().some((p) => p.serverUrl === 'https://kaiwu.wujilabs.cn')).toBe(true);
+        expect(profiles.getActiveServerUrl()).toBe('https://kaiwu.wujilabs.cn');
     });
 
     it('seeds a same-origin server profile on web when no preconfigured env exists', async () => {
@@ -310,18 +321,18 @@ describe('serverProfiles', () => {
         expect(profiles.getActiveServerId()).toBe('manual-id');
     });
 
-    it('seeds api.happier.dev on app.happier.dev web origin when no preconfigured env exists', async () => {
+    it('seeds the hosted Kaiwu server on the kaiwu.wujilabs.cn web origin when no preconfigured env exists', async () => {
         const scope = randomScope();
         process.env.EXPO_PUBLIC_HAPPY_STORAGE_SCOPE = scope;
         delete process.env.EXPO_PUBLIC_HAPPY_SERVER_URL;
         delete process.env.EXPO_PUBLIC_HAPPY_PRECONFIGURED_SERVERS;
-        stubWebRuntime('https://app.happier.dev');
+        stubWebRuntime('https://kaiwu.wujilabs.cn');
 
         const profiles = await importFresh();
         const all = profiles.listServerProfiles();
-        expect(all.some((p) => p.serverUrl === 'https://api.happier.dev')).toBe(true);
-        expect(all.some((p) => p.serverUrl === 'https://app.happier.dev')).toBe(false);
-        expect(profiles.getActiveServerUrl()).toBe('https://api.happier.dev');
+        expect(all).toHaveLength(1);
+        expect(all[0]?.serverUrl).toBe('https://kaiwu.wujilabs.cn');
+        expect(profiles.getActiveServerUrl()).toBe('https://kaiwu.wujilabs.cn');
     });
 
     it('does not seed a same-origin server profile when EXPO_PUBLIC_HAPPY_SERVER_URL is set', async () => {
@@ -616,7 +627,7 @@ describe('serverProfiles', () => {
 
         const profiles = await importFresh();
         const all = profiles.listServerProfiles();
-        expect(all.some((p) => p.serverUrl === 'https://api.happier.dev')).toBe(false);
+        expect(all.some((p) => p.serverUrl === 'https://kaiwu.wujilabs.cn')).toBe(false);
     });
 
     it('treats a happier-*.localhost web origin as stack context even if EXPO_PUBLIC_HAPPY_SERVER_CONTEXT is an unknown value', async () => {
@@ -629,7 +640,7 @@ describe('serverProfiles', () => {
 
         const profiles = await importFresh();
         const all = profiles.listServerProfiles();
-        expect(all.some((p) => p.serverUrl === 'https://api.happier.dev')).toBe(false);
+        expect(all.some((p) => p.serverUrl === 'https://kaiwu.wujilabs.cn')).toBe(false);
     });
 
     it('does not let an unknown EXPO_PUBLIC_HAPPY_SERVER_CONTEXT disable localhost stack inference', async () => {
@@ -720,7 +731,7 @@ describe('serverProfiles', () => {
         delete process.env.EXPO_PUBLIC_HAPPY_SERVER_CONTEXT;
 
         const profiles = await importFresh();
-        const cloud = profiles.listServerProfiles().find((p) => p.serverUrl === 'https://api.happier.dev');
+        const cloud = profiles.listServerProfiles().find((p) => p.serverUrl === 'https://kaiwu.wujilabs.cn');
         expect(cloud).toBeTruthy();
 
         const one = profiles.upsertServerProfile({ serverUrl: 'https://one.example.test', name: 'one' });

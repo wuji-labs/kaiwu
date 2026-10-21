@@ -438,11 +438,11 @@ describe('ElevenLabs BYO autoprov', () => {
     expect(patchCall?.[1]?.method).toBe('PATCH');
   });
 
-  it('can discover existing Happier agents on the ElevenLabs account', async () => {
+  it('can discover existing Kaiwu agents on the ElevenLabs account', async () => {
     fetchMock().mockResolvedValueOnce(
       okJson({
         agents: [
-          { agent_id: 'agent_a', name: 'Happier Voice' },
+          { agent_id: 'agent_a', name: 'Kaiwu Voice' },
           { agent_id: 'agent_b', name: 'Other' },
         ],
       }),
@@ -453,6 +453,6 @@ describe('ElevenLabs BYO autoprov', () => {
 
     expect(fetchMock()).toHaveBeenCalledTimes(1);
     expect(String(fetchMock().mock.calls[0]?.[0])).toContain('/v1/convai/agents');
-    expect(found).toEqual([{ agentId: 'agent_a', name: 'Happier Voice' }]);
+    expect(found).toEqual([{ agentId: 'agent_a', name: 'Kaiwu Voice' }]);
   });
 });
