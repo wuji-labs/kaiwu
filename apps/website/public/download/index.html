@@ -203,14 +203,12 @@
 
   <section>
     <div class="sec-head"><h2>命令行与自托管</h2><p>命令行工具、npm 包与私有部署</p></div>
-    <div class="row" data-p="windows">
+    <div class="row" data-p="windows" data-nosize>
       <div class="glyph"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5 10.5 4.4v7.1H3zm8.5-1.2L21 3v8.5h-9.5zM3 12.5h7.5v7.1L3 18.5zm8.5 0H21V21l-9.5-1.3z"/></svg></div>
-      <div><div class="name">Windows 命令行工具</div><div class="desc">Windows 10 / 11（64 位），适用于命令行与开发工具链。</div></div>
+      <div><div class="name">Windows 命令行工具</div><div class="desc">Windows 10 / 11（64 位）。在 PowerShell 中运行下面一行命令即可安装，之后可直接使用 kaiwu 命令。</div></div>
       <div class="meta num" data-meta>—</div>
-      <div class="acts"><a class="act" data-dl>下载</a></div>
-      <div class="detail"><details><summary>一行命令安装 · 校验值</summary>
-        <div class="code"><code>irm https://kaiwu.wujilabs.cn/install.ps1 | iex</code><button class="copy">复制</button></div>
-        <div class="code"><code data-sha>—</code><button class="copy">复制</button></div></details></div>
+      <div class="acts"><button class="act copy-cmd" data-cmd="irm https://kaiwu.wujilabs.cn/install.ps1 | iex">复制安装命令</button></div>
+      <div class="detail"><div class="code"><code>irm https://kaiwu.wujilabs.cn/install.ps1 | iex</code><button class="copy">复制</button></div></div>
     </div>
     <div class="row" data-p="macos">
       <div class="glyph"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9s-1.8-.9-3-.8C7 7.4 5.6 8.3 4.8 9.7c-1.6 2.8-.4 6.9 1.2 9.2.8 1.1 1.7 2.3 2.8 2.3 1.1 0 1.6-.7 2.9-.7 1.4 0 1.7.7 2.9.7 1.2 0 2-1.1 2.7-2.2.9-1.3 1.2-2.5 1.2-2.6 0 0-2.3-.9-2.3-3.8zM14.2 5.6c.6-.8 1-1.8.9-2.9-.9 0-2 .6-2.6 1.4-.6.7-1.1 1.7-1 2.7 1 .1 2-.5 2.7-1.2z"/></svg></div>
@@ -266,6 +264,7 @@
     return null;
   }
   document.addEventListener('click',function(e){
+    var c=e.target.closest('.copy-cmd'); if(c){var l=c.textContent;(navigator.clipboard?navigator.clipboard.writeText(c.dataset.cmd):Promise.reject()).then(function(){c.textContent='已复制';setTimeout(function(){c.textContent=l},1600)},function(){});return}
     var b=e.target.closest('.copy'); if(!b)return;
     var t=b.parentNode.querySelector('code').textContent;
     (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){b.textContent='已复制';setTimeout(function(){b.textContent='复制'},1600)},function(){});
@@ -281,7 +280,7 @@
         return;
       }
       if(row.dataset.p.indexOf('desktop-')===0){row.style.display='';desktopVisible=true;}
-      var meta=row.querySelector('[data-meta]'); if(meta)meta.textContent='v'+d.version+(d.size?' · '+mb(d.size):'');
+      var meta=row.querySelector('[data-meta]'); if(meta)meta.textContent='v'+d.version+(d.size&&!row.hasAttribute('data-nosize')?' · '+mb(d.size):'');
       row.querySelectorAll('[data-dl]').forEach(function(a){var x=a.dataset.dl?P[a.dataset.dl]:d; if(!x||!x.version){a.style.display='none';return}
         a.href=x.url||x.directUrl;a.removeAttribute('aria-disabled');a.removeAttribute('tabindex');a.textContent=a.dataset.label||'下载'});
       row.querySelectorAll('[data-sha]').forEach(function(s){var x=s.dataset.sha?P[s.dataset.sha]:d;
