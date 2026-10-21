@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitest/config'
+import { searchForWorkspaceRoot } from 'vite'
 import { resolve } from 'node:path'
-import { existsSync } from 'node:fs'
+import { existsSync, realpathSync } from 'node:fs'
 
 import { resolveVitestFeatureTestExcludeGlobs } from '../../scripts/testing/featureTestGating'
 
@@ -95,7 +96,23 @@ const expoNodeModuleStubsPlugin = {
     },
 };
 
+/**
+ * Files the test server may serve. Vite's default is the workspace root, but a git worktree links its
+ * `node_modules` to the main checkout, so their real paths sit outside that root and tests that import
+ * package sources by path (the patched enriched-markdown web runtime) are refused there.
+ */
+function resolveServerFsAllow(): string[] {
+    const allow = [searchForWorkspaceRoot(process.cwd())];
+    for (const dir of [resolve('./node_modules'), resolve('../../node_modules')]) {
+        if (existsSync(dir)) allow.push(realpathSync(dir));
+    }
+    return allow;
+}
+
 export default defineConfig({
+    server: {
+        fs: { allow: resolveServerFsAllow() },
+    },
     define: {
         __DEV__: true,
     },
