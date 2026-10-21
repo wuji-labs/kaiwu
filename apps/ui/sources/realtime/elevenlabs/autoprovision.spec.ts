@@ -444,6 +444,7 @@ describe('ElevenLabs BYO autoprov', () => {
         agents: [
           { agent_id: 'agent_a', name: 'Kaiwu Voice' },
           { agent_id: 'agent_b', name: 'Other' },
+          { agent_id: 'agent_legacy', name: 'Happier Voice' },
         ],
       }),
     );
@@ -453,6 +454,10 @@ describe('ElevenLabs BYO autoprov', () => {
 
     expect(fetchMock()).toHaveBeenCalledTimes(1);
     expect(String(fetchMock().mock.calls[0]?.[0])).toContain('/v1/convai/agents');
-    expect(found).toEqual([{ agentId: 'agent_a', name: 'Kaiwu Voice' }]);
+    // An agent provisioned before the rename is still found, so it is reused rather than duplicated.
+    expect(found).toEqual([
+      { agentId: 'agent_a', name: 'Kaiwu Voice' },
+      { agentId: 'agent_legacy', name: 'Happier Voice' },
+    ]);
   });
 });

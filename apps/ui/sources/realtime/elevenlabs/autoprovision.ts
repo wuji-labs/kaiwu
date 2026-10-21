@@ -9,6 +9,14 @@ import { selectPreferredElevenLabsVoiceId } from './selectPreferredElevenLabsVoi
 import { resolveUiVoicePromptStackBlocks } from '@/voice/agent/resolveUiVoicePromptStackBlocks';
 
 const HAPPIER_ELEVENLABS_AGENT_NAME = 'Kaiwu Voice';
+/**
+ * Agents provisioned before the Kaiwu rename carry the old name. They are still this app's agent,
+ * so lookup must keep finding them, or every existing user gets a duplicate agent provisioned.
+ */
+const LEGACY_ELEVENLABS_AGENT_NAMES: readonly string[] = ['Happier Voice'];
+const ELEVENLABS_AGENT_NAMES: ReadonlySet<string> = new Set([HAPPIER_ELEVENLABS_AGENT_NAME, ...LEGACY_ELEVENLABS_AGENT_NAMES]);
+// One search covering every name above (ElevenLabs matches the search term as a substring).
+const ELEVENLABS_AGENT_SEARCH_TERM = 'Voice';
 const DEFAULT_CLIENT_TOOL_RESPONSE_TIMEOUT_SECS = 60;
 const MAX_CLIENT_TOOL_RESPONSE_TIMEOUT_SECS = 120;
 const USER_INTERACTIVE_CLIENT_TOOL_RESPONSE_TIMEOUT_SECS = 120;
@@ -129,7 +137,7 @@ type ElevenLabsAgentSummary = Readonly<{
   Record<string, unknown>;
 
 async function listAgents(apiKey: string): Promise<ElevenLabsAgentSummary[]> {
-  const query = encodeURIComponent(HAPPIER_ELEVENLABS_AGENT_NAME);
+  const query = encodeURIComponent(ELEVENLABS_AGENT_SEARCH_TERM);
   const json = await elevenLabsFetchJson({
     apiKey,
     path: `/convai/agents?search=${query}&page_size=50`,
@@ -146,7 +154,7 @@ export async function findExistingHappierElevenLabsAgents(params: { apiKey: stri
     const agentId = typeof agent?.agent_id === 'string' ? agent.agent_id.trim() : '';
     const name = typeof agent?.name === 'string' ? agent.name.trim() : '';
     if (!agentId || !name) continue;
-    if (name !== HAPPIER_ELEVENLABS_AGENT_NAME) continue;
+    if (!ELEVENLABS_AGENT_NAMES.has(name)) continue;
     out.push({ agentId, name });
   }
   return out;
