@@ -30,6 +30,8 @@ export type ActionOperationLedgerProps = Readonly<{
     contextForOperation?: (operation: ActionOperationSnapshotV1) => string | null;
     onOpenOperation: (operationId: string) => void;
     showEmptyState?: boolean;
+    /** Settled operations are history; surfaces that only list what needs the user omit them. */
+    includeRecent?: boolean;
     nowMs?: number;
     preferredSessionId?: string | null;
     onCancelOperation?: (operationId: string) => Promise<void> | void;
@@ -201,6 +203,8 @@ export const ActionOperationLedger = React.memo(function ActionOperationLedger(p
         [props.observationForOperation, props.operations, props.preferredSessionId, reentryRevision],
     );
 
+    const recent = props.includeRecent === false ? [] : sections.recent;
+
     const renderRows = React.useCallback((operations: readonly ActionOperationSnapshotV1[]) => (
         operations.map((operation) => (
             <ActionOperationRow
@@ -220,7 +224,7 @@ export const ActionOperationLedger = React.memo(function ActionOperationLedger(p
     if (
         sections.inProgress.length === 0
         && sections.needsAttention.length === 0
-        && sections.recent.length === 0
+        && recent.length === 0
     ) {
         if (props.showEmptyState === false) return null;
         return (
@@ -243,7 +247,7 @@ export const ActionOperationLedger = React.memo(function ActionOperationLedger(p
                     {renderRows(sections.needsAttention)}
                 </ItemGroup>
             ) : null}
-            {sections.recent.length > 0 ? (
+            {recent.length > 0 ? (
                 <ItemGroup title={(
                     <View style={styles.recentHeader}>
                         <Text style={styles.recentHeaderTitle}>{t('inbox.actionOperations.sections.recent')}</Text>
@@ -263,7 +267,7 @@ export const ActionOperationLedger = React.memo(function ActionOperationLedger(p
                         ) : null}
                     </View>
                 )}>
-                    {renderRows(sections.recent)}
+                    {renderRows(recent)}
                 </ItemGroup>
             ) : null}
         </View>
