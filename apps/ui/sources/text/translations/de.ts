@@ -9289,7 +9289,7 @@ settingsSession: {
         welcomeFooterRelayEditAccessibility: 'Relay wechseln',
         welcomeFooterDocs: 'Brauchst du Hilfe?',
         welcomeFooterDocsAction: 'Doku',
-        welcomeFooterGithubLabel: 'Offizielle Website',
+        welcomeFooterGithubLabel: 'GitHub',
         welcomeFooterDiscordLabel: 'WeChat-Gemeinschaft',
 
         welcomeFooterDownload: 'Apps?',

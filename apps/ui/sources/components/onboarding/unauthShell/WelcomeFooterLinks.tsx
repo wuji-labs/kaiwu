@@ -13,7 +13,7 @@ import { Modal } from '@/modal';
 import { WechatQrModal } from './WechatQrModal';
 
 const DOCS_URL = 'https://kaiwu.wujilabs.cn/docs';
-const WEBSITE_URL = 'https://wujilabs.cn';
+const GITHUB_URL = 'https://github.com/wuji-labs/kaiwu';
 const DOWNLOAD_URL = 'https://kaiwu.wujilabs.cn/download';
 
 const HAPPIER_CLOUD_COMPARABLE_KEY = createServerUrlComparableKey(HAPPIER_CLOUD_SERVER_URL);
@@ -60,7 +60,7 @@ export const WelcomeFooterLinks = React.memo(function WelcomeFooterLinks(props: 
     const styles = stylesheet;
 
     const openDocs = React.useCallback(() => { void Linking.openURL(DOCS_URL); }, []);
-    const openWebsite = React.useCallback(() => { void Linking.openURL(WEBSITE_URL); }, []);
+    const openGithub = React.useCallback(() => { void Linking.openURL(GITHUB_URL); }, []);
     const openDownload = React.useCallback(() => { void Linking.openURL(DOWNLOAD_URL); }, []);
     // Store builds must not advertise side-loaded installers; only the web build links to the download center.
     const showDownload = Platform.OS === 'web';
@@ -175,14 +175,14 @@ export const WelcomeFooterLinks = React.memo(function WelcomeFooterLinks(props: 
                     </Text>
                     <View style={isMobile ? styles.actionsRowCenter : styles.actionsRowStart}>
                         <Pressable
-                            onPress={openWebsite}
+                            onPress={openGithub}
                             accessibilityRole="link"
                             accessibilityLabel={t('welcome.welcomeFooterGithubLabel')}
-                            testID="welcome-footer-website-action"
+                            testID="welcome-footer-github-action"
                             hitSlop={6}
                             style={({ pressed }) => [styles.iconButton, pressed ? actionPressedStyle : null]}
                         >
-                            <Icon name="link" size={16} color={iconColor} />
+                            <Icon name="github-logo" size={16} color={iconColor} />
                         </Pressable>
                         <Pressable
                             onPress={openWechatQr}

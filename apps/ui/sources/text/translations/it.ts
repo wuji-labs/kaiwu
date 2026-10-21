@@ -10182,7 +10182,7 @@ settingsSession: {
     welcomeFooterRelayEditAccessibility: "Cambia relay",
     welcomeFooterDocs: "Hai bisogno di aiuto?",
     welcomeFooterDocsAction: "Documentazione",
-    welcomeFooterGithubLabel: "Sito ufficiale",
+    welcomeFooterGithubLabel: "GitHub",
     welcomeFooterDiscordLabel: "Community WeChat",
 
     welcomeFooterDownload: "App?",

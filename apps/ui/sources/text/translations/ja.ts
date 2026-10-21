@@ -10085,7 +10085,7 @@ settingsSession: {
     welcomeFooterRelayEditAccessibility: "Relay を変更",
     welcomeFooterDocs: "ヘルプが必要ですか?",
     welcomeFooterDocsAction: "ドキュメント",
-    welcomeFooterGithubLabel: "公式ウェブサイト",
+    welcomeFooterGithubLabel: "GitHub",
     welcomeFooterDiscordLabel: "WeChat コミュニティ",
 
     welcomeFooterDownload: "アプリ?",

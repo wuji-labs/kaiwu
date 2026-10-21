@@ -9490,7 +9490,7 @@ settingsSession: {
     welcomeFooterRelayEditAccessibility: "更改 Relay",
     welcomeFooterDocs: "需要帮助?",
     welcomeFooterDocsAction: "文档",
-    welcomeFooterGithubLabel: "官方网站",
+    welcomeFooterGithubLabel: "GitHub",
     welcomeFooterDiscordLabel: "微信社群",
 
     welcomeFooterDownload: "客户端?",

@@ -9863,7 +9863,7 @@ settingsSession: {
     welcomeFooterRelayEditAccessibility: "Zmień relay",
     welcomeFooterDocs: "Potrzebujesz pomocy?",
     welcomeFooterDocsAction: "Dokumentacja",
-    welcomeFooterGithubLabel: "Oficjalna strona",
+    welcomeFooterGithubLabel: "GitHub",
     welcomeFooterDiscordLabel: "Społeczność WeChat",
 
     welcomeFooterDownload: "Aplikacje?",

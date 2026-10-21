@@ -9293,7 +9293,7 @@ settingsSession: {
         welcomeFooterRelayEditAccessibility: 'Change relay',
         welcomeFooterDocs: 'Need help?',
         welcomeFooterDocsAction: 'Docs',
-        welcomeFooterGithubLabel: 'Official website',
+        welcomeFooterGithubLabel: 'GitHub',
         welcomeFooterDiscordLabel: 'WeChat community',
 
         welcomeFooterDownload: 'Get the apps?',

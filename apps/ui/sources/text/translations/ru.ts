@@ -9822,7 +9822,7 @@ settingsSession: {
     welcomeFooterRelayEditAccessibility: "Изменить relay",
     welcomeFooterDocs: "Нужна помощь?",
     welcomeFooterDocsAction: "Документация",
-    welcomeFooterGithubLabel: "Официальный веб-сайт",
+    welcomeFooterGithubLabel: "GitHub",
     welcomeFooterDiscordLabel: "Сообщество WeChat",
 
     welcomeFooterDownload: "Приложения?",

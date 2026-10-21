@@ -7949,7 +7949,7 @@ settingsSession: {
         welcomeFooterRelayEditAccessibility: '變更 Relay',
         welcomeFooterDocs: '需要協助?',
         welcomeFooterDocsAction: '文件',
-        welcomeFooterGithubLabel: '官方網站',
+        welcomeFooterGithubLabel: 'GitHub',
         welcomeFooterDiscordLabel: '微信社群',
 
         welcomeFooterDownload: '客戶端?',

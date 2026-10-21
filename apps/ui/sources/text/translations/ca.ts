@@ -9225,7 +9225,7 @@ settingsSession: {
         welcomeFooterRelayEditAccessibility: 'Canvia el relay',
         welcomeFooterDocs: 'Necessites ajuda?',
         welcomeFooterDocsAction: 'Documentació',
-        welcomeFooterGithubLabel: 'Lloc web oficial',
+        welcomeFooterGithubLabel: 'GitHub',
         welcomeFooterDiscordLabel: 'Comunitat de WeChat',
 
         welcomeFooterDownload: 'Aplicacions?',

@@ -9871,7 +9871,7 @@ settingsSession: {
     welcomeFooterRelayEditAccessibility: "Cambiar relay",
     welcomeFooterDocs: "¿Necesitas ayuda?",
     welcomeFooterDocsAction: "Documentación",
-    welcomeFooterGithubLabel: "Sitio web oficial",
+    welcomeFooterGithubLabel: "GitHub",
     welcomeFooterDiscordLabel: "Comunidad de WeChat",
 
     welcomeFooterDownload: "¿Aplicaciones?",
