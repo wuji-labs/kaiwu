@@ -210,5 +210,19 @@ describe('durable transcript cache open latency', () => {
         const worst = steady[steady.length - 1];
         console.log(`[open-latency] ${MESSAGES} messages, first paint ms: ${samples.map((value) => value.toFixed(1)).join(', ')} (messages at first paint: ${firstPaintCounts.join(', ')})`);
         expect(worst).toBeLessThan(OPEN_BUDGET_MS);
+
+        // A write that lands between the first paint and the older part keeps the record's depth.
+        syncForTest.evictSessionTranscript(SESSION_ID);
+        await settle();
+        const internals = sync as unknown as {
+            hydrateSessionFromTranscriptCache: (sessionId: string) => Promise<boolean>;
+            readTranscriptCachePersistDecision: (sessionId: string) => { kind: string; floorSeq?: number; maxSeq?: number };
+        };
+        expect(await internals.hydrateSessionFromTranscriptCache(SESSION_ID)).toBe(true);
+        expect(storage.getState().sessionMessages[SESSION_ID]?.messageIdsOldestFirst.length).toBeLessThan(MESSAGES);
+        expect(internals.readTranscriptCachePersistDecision(SESSION_ID)).toMatchObject({ kind: 'persist', floorSeq: 1, maxSeq: MESSAGES });
+        await settle();
+        expect(storage.getState().sessionMessages[SESSION_ID]?.messageIdsOldestFirst.length).toBe(MESSAGES);
+        expect(internals.readTranscriptCachePersistDecision(SESSION_ID)).toMatchObject({ kind: 'persist', floorSeq: 1, maxSeq: MESSAGES });
     });
 });

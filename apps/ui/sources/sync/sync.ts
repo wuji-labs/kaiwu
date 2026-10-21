@@ -999,6 +999,8 @@ class Sync {
         private sessionTranscriptRetention!: SessionTranscriptRetentionController;
         private sessionTranscriptCache!: SessionTranscriptCacheController;
         private sessionTranscriptCacheHydrationInFlight = new Map<string, Promise<boolean>>();
+        /** Hydrated records whose older part is still queued behind the first paint. */
+        private transcriptCachePendingOlderBySessionId = new Map<string, Readonly<{ minSeq: number; hasMoreOlder: boolean }>>();
         private foregroundKeepCurrentQueue = new Set<string>();
         private foregroundKeepCurrentTimer: ReturnType<typeof setTimeout> | null = null;
         private foregroundKeepCurrentRunning = false;
@@ -2063,6 +2065,7 @@ class Sync {
         // window state is cleared below; nothing of it may be read under the next scope.
         this.sessionTranscriptCache.flushAllAndRelease();
         this.sessionTranscriptCacheHydrationInFlight.clear();
+        this.transcriptCachePendingOlderBySessionId.clear();
         this.resetForegroundKeepCurrent();
         clearSessionRecordRows();
         this.changesCatchUpQueuedAfterResume = false;
@@ -7350,6 +7353,13 @@ class Sync {
           const beforeSeq = this.sessionMessagesBeforeSeqByKey.get(pagingKey);
           if (typeof beforeSeq !== 'number') return { kind: 'skip' };
           const discontinuity = this.sessionMessagesTailDiscontinuityBySessionId.get(sessionId) ?? null;
+          // The older part of a hydrated record is still queued behind the first paint: memory's
+          // window starts later than the record's, but the buffer holds the whole record, so a
+          // write in between must keep the record's depth rather than shrink it to the first paint.
+          const pendingOlder = this.transcriptCachePendingOlderBySessionId.get(sessionId);
+          if (pendingOlder && !discontinuity) {
+              return { kind: 'persist', maxSeq, floorSeq: pendingOlder.minSeq, hasMoreOlder: pendingOlder.hasMoreOlder };
+          }
           const floorSeq = Math.max(beforeSeq, discontinuity?.walkCursor ?? 0);
           const hasMoreOlder = this.sessionMessagesHasMoreOlderByKey.has(pagingKey)
               ? this.sessionMessagesHasMoreOlderByKey.get(pagingKey) === true
@@ -7446,7 +7456,11 @@ class Sync {
               this.sessionMessagesHasMoreOlderByKey.set(pagingKey, true);
               const generation = this.serverScopeGeneration;
               const epoch = this.sessionTranscriptCache.readDiscardEpoch(sessionId);
+              const pending = { minSeq: record.minSeq, hasMoreOlder: record.hasMoreOlder };
+              this.transcriptCachePendingOlderBySessionId.set(sessionId, pending);
               setTimeout(() => {
+                  if (this.transcriptCachePendingOlderBySessionId.get(sessionId) !== pending) return;
+                  this.transcriptCachePendingOlderBySessionId.delete(sessionId);
                   if (
                       this.serverScopeGeneration !== generation
                       || this.sessionTranscriptCache.readDiscardEpoch(sessionId) !== epoch
@@ -7562,6 +7576,7 @@ class Sync {
 
       private resetSessionTranscriptState(sessionId: string): void {
           storage.getState().resetSessionMessages(sessionId);
+          this.transcriptCachePendingOlderBySessionId.delete(sessionId);
 
           this.sessionReceivedMessages.delete(sessionId);
           this.deleteSessionMessagesPaginationStateForSession(sessionId);
