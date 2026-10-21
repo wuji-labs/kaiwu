@@ -347,8 +347,8 @@ function main() {
 
   runNotarytoolSubmit(
     opts,
-    ['notarytool', 'submit', zipPath, '--key', keyPath, '--key-id', appleKeyId || 'DRY_RUN', '--issuer', appleIssuerId || 'DRY_RUN', '--wait', '--timeout', '15m'],
-    { cwd: absUiDir, timeoutMs: 30 * 60_000 },
+    ['notarytool', 'submit', zipPath, '--key', keyPath, '--key-id', appleKeyId || 'DRY_RUN', '--issuer', appleIssuerId || 'DRY_RUN', '--wait', '--timeout', '120m'],
+    { cwd: absUiDir, timeoutMs: 125 * 60_000 },
   );
   run(opts, 'xcrun', ['stapler', 'staple', appPath], { cwd: absUiDir, timeoutMs: 10 * 60_000 });
 
@@ -394,8 +394,8 @@ function main() {
   if (dmgCandidates.length > 0 || opts.dryRun) {
     runNotarytoolSubmit(
       opts,
-      ['notarytool', 'submit', dmgPath, '--key', keyPath, '--key-id', appleKeyId || 'DRY_RUN', '--issuer', appleIssuerId || 'DRY_RUN', '--wait', '--timeout', '15m'],
-      { cwd: absUiDir, timeoutMs: 30 * 60_000 },
+      ['notarytool', 'submit', dmgPath, '--key', keyPath, '--key-id', appleKeyId || 'DRY_RUN', '--issuer', appleIssuerId || 'DRY_RUN', '--wait', '--timeout', '120m'],
+      { cwd: absUiDir, timeoutMs: 125 * 60_000 },
     );
     run(opts, 'xcrun', ['stapler', 'staple', dmgPath], { cwd: absUiDir, timeoutMs: 10 * 60_000 });
   }
