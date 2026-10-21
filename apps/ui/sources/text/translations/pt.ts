@@ -6340,6 +6340,9 @@ export const pt: TranslationStructure = {
     workingSectionTitle: 'Trabalhando',
     hideInactiveSessions: 'Ocultar sessões inativas',
     showInactiveSessions: 'Mostrar sessões inativas',
+    activeSectionTitle: 'Ativas',
+    inactiveSectionTitle: 'Inativas',
+    pinnedSectionTitle: 'Fixadas',
   },
 
   directSessions: {

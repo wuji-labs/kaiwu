@@ -5292,6 +5292,9 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         workingSectionTitle: '正在工作',
         hideInactiveSessions: '隱藏非使用中工作階段',
         showInactiveSessions: '顯示非使用中工作階段',
+        activeSectionTitle: '執行中',
+        inactiveSectionTitle: '已停止',
+        pinnedSectionTitle: '置頂',
     },
 
     directSessions: {

@@ -5862,6 +5862,9 @@ deps: {
         workingSectionTitle: 'Treballant',
         hideInactiveSessions: 'Amaga sessions inactives',
         showInactiveSessions: 'Mostra sessions inactives',
+        activeSectionTitle: 'Actives',
+        inactiveSectionTitle: 'Inactives',
+        pinnedSectionTitle: 'Fixades',
     },
 
     directSessions: {

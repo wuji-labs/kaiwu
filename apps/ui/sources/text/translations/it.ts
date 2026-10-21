@@ -6561,6 +6561,9 @@ export const it: TranslationStructure = {
     workingSectionTitle: 'In lavorazione',
     hideInactiveSessions: 'Nascondi sessioni inattive',
     showInactiveSessions: 'Mostra sessioni inattive',
+    activeSectionTitle: 'Attive',
+    inactiveSectionTitle: 'Inattive',
+    pinnedSectionTitle: 'Fissate',
   },
 
   directSessions: {

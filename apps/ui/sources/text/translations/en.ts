@@ -5865,6 +5865,9 @@ export const en = {
         workingSectionTitle: 'Working',
         hideInactiveSessions: 'Hide inactive sessions',
         showInactiveSessions: 'Show inactive sessions',
+        activeSectionTitle: 'Active',
+        inactiveSectionTitle: 'Inactive',
+        pinnedSectionTitle: 'Pinned',
     },
 
     directSessions: {

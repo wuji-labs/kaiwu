@@ -6481,6 +6481,9 @@ localTailscale: {
     workingSectionTitle: '処理中',
     hideInactiveSessions: '非アクティブなセッションを非表示',
     showInactiveSessions: '非アクティブなセッションを表示',
+    activeSectionTitle: '実行中',
+    inactiveSectionTitle: '停止中',
+    pinnedSectionTitle: 'ピン留め',
   },
 
   directSessions: {

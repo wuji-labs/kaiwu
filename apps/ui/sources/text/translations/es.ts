@@ -6222,6 +6222,9 @@ export const es: TranslationStructure = {
     workingSectionTitle: 'Trabajando',
     hideInactiveSessions: 'Ocultar sesiones inactivas',
     showInactiveSessions: 'Mostrar sesiones inactivas',
+    activeSectionTitle: 'Activas',
+    inactiveSectionTitle: 'Inactivas',
+    pinnedSectionTitle: 'Fijadas',
   },
 
   directSessions: {

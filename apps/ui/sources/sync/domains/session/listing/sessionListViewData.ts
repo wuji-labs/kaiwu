@@ -723,7 +723,7 @@ export function buildSessionListViewData(
 
     if (activeSessions.length > 0 || activeSharedSessions.length > 0) {
         const grouping = resolveGroupingForSection('active', options);
-        listData.push({ type: 'header', title: 'Active', headerKind: 'active', ...serverScopeMeta });
+        listData.push({ type: 'header', title: t('sessionsList.activeSectionTitle'), headerKind: 'active', ...serverScopeMeta });
         pushSharedSessionsToList({
             listData,
             sessions: activeSharedSessions,
@@ -747,7 +747,7 @@ export function buildSessionListViewData(
 
     if (inactiveSessions.length > 0 || inactiveSharedSessions.length > 0) {
         const grouping = resolveGroupingForSection('inactive', options);
-        listData.push({ type: 'header', title: 'Inactive', headerKind: 'inactive', ...serverScopeMeta });
+        listData.push({ type: 'header', title: t('sessionsList.inactiveSectionTitle'), headerKind: 'inactive', ...serverScopeMeta });
         pushSharedSessionsToList({
             listData,
             sessions: inactiveSharedSessions,

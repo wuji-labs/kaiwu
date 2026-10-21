@@ -1,3 +1,4 @@
+import { t } from '@/text';
 import type { ServerSelectionPresentation } from '@/sync/domains/server/selection/serverSelectionTypes';
 import { syncPerformanceTelemetry } from '@/sync/runtime/syncPerformanceTelemetry';
 
@@ -488,7 +489,7 @@ function computeVisibleSessionListIndexUnmeasured(
 
     const pinnedHeader: Extract<SessionListIndexItem, { type: 'header' }> | null =
         pinnedSessions.length > 0
-            ? { type: 'header', title: 'Pinned', headerKind: 'pinned', groupKey: PINNED_GROUP_KEY_V1 }
+            ? { type: 'header', title: t('sessionsList.pinnedSectionTitle'), headerKind: 'pinned', groupKey: PINNED_GROUP_KEY_V1 }
             : null;
 
     const pinnedOrdered = orderPinnedSessionListIndexItems({

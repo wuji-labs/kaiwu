@@ -15,6 +15,13 @@ import { resetReactNativeMmkvStub } from './reactNativeMmkvStub';
 // Clear it by default so feature tests can opt-in explicitly per case.
 process.env.HAPPIER_FEATURE_POLICY_ENV = '';
 
+// UI tests assert English copy; pin the device locale so a zh/ja developer machine does not flip
+// `t()` output (deviceLocales.ts reads navigator.languages before the ICU default).
+if (typeof navigator !== 'undefined') {
+    Object.defineProperty(navigator, 'languages', { value: ['en-US'], configurable: true });
+    Object.defineProperty(navigator, 'language', { value: 'en-US', configurable: true });
+}
+
 // Some browser-oriented libraries (e.g. xterm add-ons) ship UMD bundles that expect a `self` global.
 // Define it up-front so Vitest can import those modules in Node without crashing during module eval.
 const g = globalThis as any;

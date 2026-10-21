@@ -5210,6 +5210,9 @@ export const ru: TranslationStructure = {
     workingSectionTitle: 'В работе',
     hideInactiveSessions: 'Скрыть неактивные сессии',
     showInactiveSessions: 'Показать неактивные сессии',
+    activeSectionTitle: 'Активные',
+    inactiveSectionTitle: 'Неактивные',
+    pinnedSectionTitle: 'Закреплённые',
   },
 
   directSessions: {

@@ -6239,6 +6239,9 @@ export const pl: TranslationStructure = {
     workingSectionTitle: 'Pracuje',
     hideInactiveSessions: 'Ukryj nieaktywne sesje',
     showInactiveSessions: 'Pokaż nieaktywne sesje',
+    activeSectionTitle: 'Aktywne',
+    inactiveSectionTitle: 'Nieaktywne',
+    pinnedSectionTitle: 'Przypięte',
   },
 
   directSessions: {
