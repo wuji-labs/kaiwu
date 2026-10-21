@@ -214,13 +214,19 @@ jobs:
           echo "$LAUNCH_OUT"
           PID=$(echo "$LAUNCH_OUT" | awk -F': ' '{print $2}')
           sleep 20
-          xcrun simctl io "$SIM_UDID" screenshot screenshots/duo-default.png
-          # Every display the Duo simulator exposes (outer and inner).
-          xcrun simctl io "$SIM_UDID" enumerate > screenshots/displays.txt 2>&1 || true
+          # iPhone Duo exposes two displays (outer 1398x2034, inner 2007x2853); simctl lists them
+          # when asked for a screenshot without --display. Capture each one; at least one must succeed.
+          xcrun simctl io "$SIM_UDID" screenshot screenshots/probe.png > screenshots/displays.txt 2>&1 || true
           cat screenshots/displays.txt
-          for d in $(grep -Eo 'Screen ID: *[0-9]+|^ *ID: *[0-9]+' screenshots/displays.txt | grep -Eo '[0-9]+' | sort -u); do
-            xcrun simctl io "$SIM_UDID" screenshot --display="$d" "screenshots/duo-display-$d.png" || true
-          done
+          IDS=$(grep -Eo -- '--display=[0-9]+' screenshots/displays.txt | cut -d= -f2 | sort -u)
+          if [ -z "$IDS" ]; then
+            [ -f screenshots/probe.png ] && mv screenshots/probe.png screenshots/duo-display-1.png
+          else
+            for d in $IDS; do
+              xcrun simctl io "$SIM_UDID" screenshot --display="$d" "screenshots/duo-display-$d.png"
+            done
+          fi
+          ls screenshots/duo-display-*.png
           xcrun simctl spawn "$SIM_UDID" log show --last 3m --style compact             --predicate "process == \"$EXEC_NAME\"" > screenshots/app-log.txt 2>&1 || true
           tail -60 screenshots/app-log.txt
 
@@ -262,7 +268,7 @@ jobs:
           echo "=== iPhone Duo Simulator Test Summary ==="
           echo "Xcode: $(xcodebuild -version | sed -n 1p)"
           echo "iOS SDK: $(xcodebuild -version | grep 'Build version')"
-          if [ -f "screenshots/duo-default.png" ]; then
+          if ls screenshots/duo-display-*.png >/dev/null 2>&1; then
             echo "✓ Duo screenshot captured"
           else
             echo "✗ Duo screenshot not available"
