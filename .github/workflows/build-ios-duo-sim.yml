@@ -215,6 +215,12 @@ jobs:
           PID=$(echo "$LAUNCH_OUT" | awk -F': ' '{print $2}')
           sleep 20
           xcrun simctl io "$SIM_UDID" screenshot screenshots/duo-default.png
+          # Every display the Duo simulator exposes (outer and inner).
+          xcrun simctl io "$SIM_UDID" enumerate > screenshots/displays.txt 2>&1 || true
+          cat screenshots/displays.txt
+          for d in $(grep -Eo 'Screen ID: *[0-9]+|^ *ID: *[0-9]+' screenshots/displays.txt | grep -Eo '[0-9]+' | sort -u); do
+            xcrun simctl io "$SIM_UDID" screenshot --display="$d" "screenshots/duo-display-$d.png" || true
+          done
           xcrun simctl spawn "$SIM_UDID" log show --last 3m --style compact             --predicate "process == \"$EXEC_NAME\"" > screenshots/app-log.txt 2>&1 || true
           tail -60 screenshots/app-log.txt
 
@@ -223,10 +229,12 @@ jobs:
             echo "ERROR: $BUNDLE_ID is not running 20s after launch (pid $PID)" >&2
             exit 1
           fi
-          CRASHES=$(ls ~/Library/Logs/DiagnosticReports 2>/dev/null | grep -i "$EXEC_NAME" || true)
+          # Only this app's own reports (exec "app" must not match e.g. AppIntentsLiveEntityService).
+          CRASHES=$(ls ~/Library/Logs/DiagnosticReports 2>/dev/null | grep -E "^${EXEC_NAME}[-_.]" || true)
+          ls ~/Library/Logs/DiagnosticReports 2>/dev/null > screenshots/diagnostic-reports.txt || true
           if [ -n "$CRASHES" ]; then
             echo "ERROR: crash reports found:" >&2; echo "$CRASHES" >&2
-            cp ~/Library/Logs/DiagnosticReports/*"$EXEC_NAME"* screenshots/ || true
+            for f in $CRASHES; do cp ~/Library/Logs/DiagnosticReports/"$f" screenshots/; done
             exit 1
           fi
           echo "App alive 20s after launch, no crash reports."
