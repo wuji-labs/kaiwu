@@ -1,946 +1,253 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>开物全平台安装包下载中心 · Kaiwu Download Center</title>
-    <meta name="description" content="开物 (无极开物) 官方全平台安装包下载中心。提供 Windows、macOS、Linux、Android、iOS 以及自托管服务端最新稳定版本、SHA256 校验值与一键部署命令。">
-    <link rel="canonical" href="https://kaiwu.wujilabs.cn/download/">
-    <link rel="icon" type="image/png" href="/icons/favicon-96.png">
-    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-    <style>
-        :root {
-            --bg: #0f0e0d;
-            --surface: #171615;
-            --surface-elevated: #201e1c;
-            --border: rgba(255, 255, 255, 0.08);
-            --border-hover: rgba(255, 255, 255, 0.18);
-            --text-primary: #f5f4f0;
-            --text-secondary: #a09a8e;
-            --text-muted: #6e695f;
-            --accent: #f07b3f;
-            --accent-glow: rgba(240, 123, 63, 0.18);
-            --accent-border: rgba(240, 123, 63, 0.45);
-            --code-bg: #11100f;
-            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-            --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-            --radius-card: 16px;
-            --radius-btn: 10px;
-        }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>下载无极开物</title>
+<meta name="description" content="下载无极开物：Windows、macOS、Linux、iPhone、Android，以及命令行与自托管服务端。">
+<meta name="theme-color" content="#0A0909">
+<link rel="icon" href="/icons/favicon.png">
+<link rel="preload" as="image" href="/download/assets/planet-2400.webp" media="(min-width: 760px)">
+<link rel="preload" as="image" href="/download/assets/planet-1200.webp" media="(max-width: 759px)">
+<style>
+  :root{
+    --bg:#0A0909; --ink:#F4F1EC; --ink-2:rgba(244,241,236,.64); --ink-3:rgba(244,241,236,.42);
+    --hair:rgba(244,241,236,.09); --hair-2:rgba(244,241,236,.16); --warm:#FF8A3D;
+    --sans:"Inter","PingFang SC","HarmonyOS Sans SC","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --wrap:1120px; --pad:clamp(20px,5vw,48px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;text-size-adjust:100%}
+  body{font-family:var(--sans);font-size:15px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--wrap);margin:0 auto;padding:0 var(--pad)}
+  .num{font-variant-numeric:tabular-nums}
 
-        [data-theme="light"] {
-            --bg: #faf9f6;
-            --surface: #ffffff;
-            --surface-elevated: #f4f2ec;
-            --border: rgba(0, 0, 0, 0.08);
-            --border-hover: rgba(0, 0, 0, 0.16);
-            --text-primary: #1a1816;
-            --text-secondary: #5e5950;
-            --text-muted: #8c857b;
-            --accent: #d85d20;
-            --accent-glow: rgba(216, 93, 32, 0.12);
-            --accent-border: rgba(216, 93, 32, 0.35);
-            --code-bg: #f0ede6;
-        }
+  /* —— 首屏：与欢迎页同一片星球 —— */
+  .hero{position:relative;isolation:isolate;min-height:min(640px,82vh);display:flex;flex-direction:column}
+  .planet{position:absolute;z-index:-1;inset:0;overflow:hidden;pointer-events:none}
+  .planet::before{content:"";position:absolute;right:-18%;top:-22%;width:min(1500px,118vw);aspect-ratio:3/2;
+    background:url(/download/assets/planet-2400.webp) center/cover no-repeat;opacity:.95}
+  .planet::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(90deg,var(--bg) 0%,rgba(10,9,9,.86) 32%,rgba(10,9,9,0) 62%),
+               linear-gradient(0deg,var(--bg) 0%,rgba(10,9,9,0) 36%)}
+  header{display:flex;align-items:center;justify-content:space-between;padding-top:28px}
+  header img{height:22px;width:auto;display:block}
+  header nav{display:flex;gap:28px;font-size:14px;color:var(--ink-2)}
+  header nav a:hover{color:var(--ink)}
+  .hero-body{flex:1;display:flex;flex-direction:column;justify-content:center;padding:64px 0 56px;max-width:560px}
+  .eyebrow{display:flex;align-items:center;gap:10px;font-size:13px;letter-spacing:.14em;color:var(--ink-2);margin-bottom:22px}
+  .eyebrow i{width:6px;height:6px;border-radius:50%;background:var(--warm);box-shadow:0 0 14px var(--warm)}
+  h1{font-size:clamp(42px,6.4vw,72px);line-height:1.08;font-weight:700;letter-spacing:-.02em}
+  h1 span{color:var(--ink-3)}
+  .lede{margin-top:22px;font-size:17px;color:var(--ink-2);max-width:440px}
+  .cta{margin-top:40px;display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px}
+  .btn{display:inline-flex;align-items:center;gap:10px;height:52px;padding:0 26px;border-radius:14px;
+    background:var(--ink);color:#141212;font-weight:600;font-size:16px;transition:transform .18s cubic-bezier(.2,.8,.2,1),background .18s}
+  .btn:hover{background:#fff;transform:translateY(-1px)}
+  .btn:active{transform:translateY(0) scale(.985)}
+  .btn svg{width:18px;height:18px}
+  .cta-meta{font-size:13px;color:var(--ink-3)}
+  .cta-alt{font-size:14px;color:var(--ink-2);border-bottom:1px solid var(--hair-2);padding-bottom:1px}
+  .cta-alt:hover{color:var(--ink);border-color:var(--ink-2)}
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+  /* —— 平台清单：分组 + 发丝线，不堆卡片 —— */
+  main{padding:24px 0 96px}
+  section{margin-top:72px}
+  section:first-child{margin-top:8px}
+  .sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding-bottom:16px;border-bottom:1px solid var(--hair-2)}
+  .sec-head h2{font-size:22px;font-weight:650;letter-spacing:-.01em}
+  .sec-head p{font-size:13px;color:var(--ink-3)}
+  .row{display:grid;grid-template-columns:44px minmax(0,1fr) 170px auto;align-items:center;gap:18px;padding:22px 0;border-bottom:1px solid var(--hair)}
+  .row.is-current{position:relative}
+  .row.is-current .act[data-dl]:first-child{background:var(--ink);color:#141212;border-color:var(--ink)}
+  .meta:empty{display:none}
+  .row.is-current::before{content:"";position:absolute;left:-18px;top:28px;width:3px;height:22px;border-radius:2px;background:var(--warm)}
+  .glyph{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:rgba(244,241,236,.05);color:var(--ink)}
+  .glyph svg{width:22px;height:22px}
+  .name{font-size:16px;font-weight:600}
+  .name small{font-size:12px;font-weight:500;color:var(--warm);margin-left:8px;letter-spacing:.04em}
+  .desc{font-size:13.5px;color:var(--ink-2);margin-top:2px}
+  .meta{font-size:13px;color:var(--ink-3);text-align:right}
+  .acts{display:flex;gap:10px;justify-content:flex-end}
+  .act{height:38px;padding:0 16px;border-radius:10px;border:1px solid var(--hair-2);display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--ink);background:transparent;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background .15s,border-color .15s}
+  .act:hover{background:rgba(244,241,236,.06);border-color:rgba(244,241,236,.28)}
+  .act.solid{background:var(--ink);color:#141212;border-color:var(--ink)}
+  .act.solid:hover{background:#fff}
+  .act[aria-disabled="true"]{color:var(--ink-3);pointer-events:none}
+  .detail{grid-column:2 / -1;margin-top:-6px}
+  details summary{list-style:none;cursor:pointer;font-size:12px;color:var(--ink-3);display:inline-flex;gap:6px;align-items:center}
+  details summary::-webkit-details-marker{display:none}
+  details summary:hover{color:var(--ink-2)}
+  details[open] summary{color:var(--ink-2)}
+  .code{margin-top:10px;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;background:rgba(244,241,236,.04);border:1px solid var(--hair)}
+  .code code{flex:1;min-width:0;font-family:var(--mono);font-size:12.5px;color:var(--ink-2);overflow-x:auto;white-space:nowrap}
+  .copy{flex:none;font-size:12px;color:var(--ink-2);background:none;border:0;cursor:pointer;font-family:inherit}
+  .copy:hover{color:var(--ink)}
+  .note{font-size:12.5px;color:var(--ink-3);margin-top:8px}
 
-        body {
-            background-color: var(--bg);
-            color: var(--text-primary);
-            font-family: var(--font-sans);
-            line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            transition: background-color 0.25s ease, color 0.25s ease;
-            -webkit-font-smoothing: antialiased;
-        }
+  footer{border-top:1px solid var(--hair);padding:32px 0 48px;font-size:13px;color:var(--ink-3)}
+  footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
+  footer a:hover{color:var(--ink-2)}
 
-        .container {
-            width: 100%;
-            max-width: 1360px;
-            margin: 0 auto;
-            padding: 0 24px;
-        }
-
-        /* Nav */
-        header.site-header {
-            border-bottom: 1px solid var(--border);
-            padding: 18px 0;
-            background: var(--bg);
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            backdrop-filter: blur(12px);
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .brand-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            color: var(--text-primary);
-            font-weight: 600;
-            font-size: 17px;
-            letter-spacing: -0.01em;
-            white-space: nowrap;
-        }
-
-        .brand-logo {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            background: linear-gradient(135deg, #f07b3f 0%, #e05322 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 15px;
-            flex-shrink: 0;
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .nav-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            transition: color 0.15s ease;
-            white-space: nowrap;
-        }
-
-        .nav-links a:hover {
-            color: var(--text-primary);
-        }
-
-        .theme-toggle-btn {
-            background: var(--surface-elevated);
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.15s ease;
-        }
-
-        .theme-toggle-btn:hover {
-            color: var(--text-primary);
-            border-color: var(--border-hover);
-        }
-
-        /* Hero */
-        .hero {
-            padding: 64px 0 40px;
-            text-align: center;
-        }
-
-        .eyebrow {
-            display: inline-block;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: var(--accent);
-            margin-bottom: 16px;
-        }
-
-        .hero h1 {
-            font-size: 44px;
-            font-weight: 700;
-            line-height: 1.15;
-            letter-spacing: -0.03em;
-            margin-bottom: 16px;
-            color: var(--text-primary);
-        }
-
-        @media (max-width: 768px) {
-            .header-content {
-                gap: 12px;
-            }
-            .brand-link {
-                font-size: 15px;
-                gap: 8px;
-            }
-            .nav-links {
-                gap: 12px;
-            }
-            .nav-links a {
-                font-size: 13px;
-            }
-            .theme-toggle-btn {
-                padding: 4px 8px;
-                font-size: 12px;
-                white-space: nowrap;
-            }
-            .hero h1 {
-                font-size: 32px;
-            }
-            .grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .hero p.lead {
-            font-size: 18px;
-            color: var(--text-secondary);
-            max-width: 680px;
-            margin: 0 auto 32px;
-        }
-
-        /* System detection banner */
-        .system-detected-banner {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 18px;
-            border-radius: 24px;
-            background: var(--accent-glow);
-            border: 1px solid var(--accent-border);
-            color: var(--accent);
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 36px;
-        }
-
-        .pulse-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--accent);
-            box-shadow: 0 0 10px var(--accent);
-        }
-
-        /* Cards Grid */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-            gap: 24px;
-            margin-bottom: 56px;
-        }
-
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-card);
-            padding: 28px;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .card:hover {
-            border-color: var(--border-hover);
-            transform: translateY(-2px);
-        }
-
-        .card.highlighted {
-            border-color: var(--accent);
-            box-shadow: 0 0 24px var(--accent-glow);
-        }
-
-        .card-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 20px;
-        }
-
-        .platform-icon-wrap {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            background: var(--surface-elevated);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-primary);
-        }
-
-        .platform-icon-wrap svg {
-            width: 24px;
-            height: 24px;
-            fill: currentColor;
-        }
-
-        .badge {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 12px;
-            background: var(--surface-elevated);
-            color: var(--text-secondary);
-            border: 1px solid var(--border);
-        }
-
-        .badge.recommend {
-            background: var(--accent);
-            color: #ffffff;
-            border: none;
-        }
-
-        .card-title {
-            font-size: 21px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 6px;
-        }
-
-        .card-desc {
-            font-size: 13.5px;
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-            min-height: 40px;
-        }
-
-        .meta-list {
-            list-style: none;
-            border-top: 1px solid var(--border);
-            padding-top: 14px;
-            margin-bottom: 20px;
-            font-size: 13px;
-        }
-
-        .meta-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-
-        .meta-label {
-            color: var(--text-muted);
-        }
-
-        .meta-val {
-            color: var(--text-primary);
-            font-weight: 500;
-        }
-
-        .sha-row {
-            background: var(--code-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 8px 12px;
-            margin-bottom: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-            font-family: var(--font-mono);
-            font-size: 12px;
-        }
-
-        .sha-text {
-            color: var(--text-secondary);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .copy-btn {
-            background: none;
-            border: none;
-            color: var(--accent);
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            padding: 2px 6px;
-            border-radius: 4px;
-            transition: opacity 0.15s;
-            white-space: nowrap;
-            flex-shrink: 0;
-            width: 58px;
-            text-align: right;
-            box-sizing: border-box;
-        }
-
-        .copy-btn:hover {
-            opacity: 0.8;
-        }
-
-        .manifest-code .copy-btn {
-            width: 76px;
-        }
-
-        .install-box {
-            background: var(--code-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 10px 12px;
-            margin-bottom: 16px;
-            font-family: var(--font-mono);
-            font-size: 12px;
-            position: relative;
-        }
-
-        .install-cmd-label {
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            font-family: var(--font-sans);
-            font-weight: 600;
-        }
-
-        .install-cmd-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-            color: var(--text-primary);
-        }
-
-        .install-cmd-content code {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .btn-group {
-            margin-top: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 12px 18px;
-            border-radius: var(--radius-btn);
-            font-size: 14.5px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.15s ease;
-            cursor: pointer;
-            text-align: center;
-        }
-
-        .btn-primary {
-            background: var(--text-primary);
-            color: var(--bg);
-            border: 1px solid var(--text-primary);
-        }
-
-        .btn-primary:hover {
-            opacity: 0.92;
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background: var(--surface-elevated);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--border-hover);
-        }
-
-        .btn-disabled {
-            background: var(--surface-elevated);
-            color: var(--text-muted);
-            border: 1px solid var(--border);
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
-
-        .subtext-note {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-bottom: 16px;
-            line-height: 1.5;
-            min-height: 36px;
-        }
-
-        /* Manifest Box */
-        .manifest-section {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-card);
-            padding: 32px;
-            margin-bottom: 64px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .manifest-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .manifest-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .manifest-code {
-            background: var(--code-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px 16px;
-            font-family: var(--font-mono);
-            font-size: 13px;
-            color: var(--text-secondary);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            word-break: break-all;
-        }
-
-        /* Footer */
-        footer.site-footer {
-            border-top: 1px solid var(--border);
-            padding: 40px 0;
-            margin-top: auto;
-            color: var(--text-muted);
-            font-size: 13.5px;
-        }
-
-        .footer-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-
-        .footer-links {
-            display: flex;
-            gap: 20px;
-        }
-
-        .footer-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: color 0.15s;
-        }
-
-        .footer-links a:hover {
-            color: var(--text-primary);
-        }
-    </style>
+  @media (max-width:759px){
+    .planet::before{background-image:url(/download/assets/planet-1200.webp);right:-62%;top:-4%;width:190vw}
+    .planet::after{background:linear-gradient(0deg,var(--bg) 4%,rgba(10,9,9,.62) 38%,rgba(10,9,9,0) 70%)}
+    header nav a:not(:last-child){display:none}
+    .hero{min-height:auto}
+    .hero-body{padding:200px 0 48px}
+    .row{grid-template-columns:40px minmax(0,1fr);gap:4px 14px;padding:20px 0}
+    .glyph{width:40px;height:40px}
+    .meta{grid-column:2;text-align:left}
+    .acts{grid-column:2;justify-content:flex-start;margin-top:10px}
+    .row.is-current::before{left:-12px}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
 </head>
 <body>
-    <header class="site-header">
-        <div class="container header-content">
-            <a href="https://kaiwu.wujilabs.cn/" class="brand-link">
-                <div class="brand-logo">開</div>
-                <span>无极开物 · KAIWU</span>
-            </a>
-            <div class="nav-links">
-                <a href="https://kaiwu.wujilabs.cn/">首页</a>
-                <a href="https://kaiwu.wujilabs.cn/docs">文档</a>
-                <a href="https://kaiwu.wujilabs.cn/download/manifest.json" target="_blank">Manifest</a>
-                <a href="https://github.com/wuji-labs/kaiwu" target="_blank" rel="noreferrer">GitHub</a>
-                <button class="theme-toggle-btn" id="theme-toggle" aria-label="切换主题">
-                    <span id="theme-icon">☀️</span>
-                    <span id="theme-text">明暗</span>
-                </button>
-            </div>
-        </div>
+
+<div class="hero">
+  <div class="planet" aria-hidden="true"></div>
+  <div class="wrap" style="width:100%">
+    <header>
+      <a href="/" aria-label="无极开物"><img src="/download/assets/logotype.png" alt="无极开物" width="231" height="43"></a>
+      <nav><a href="/docs">文档</a><a href="/">打开网页版</a></nav>
     </header>
+    <div class="hero-body">
+      <div class="eyebrow"><i></i>下载</div>
+      <h1>把开物带到<br><span>每一台设备。</span></h1>
+      <p class="lede">在电脑上运行，在手机上随时查看进度、审批操作、接管会话。</p>
+      <div class="cta">
+        <a class="btn" id="primary" href="#all">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0 4.5-4.5M12 15l-4.5-4.5M5 19h14"/></svg>
+          <span id="primary-label">选择你的平台</span>
+        </a>
+        <span class="cta-meta num" id="primary-meta"></span>
+        <a class="cta-alt" href="#all">其他平台</a>
+      </div>
+    </div>
+  </div>
+</div>
 
-    <main class="container">
-        <section class="hero">
-            <span class="eyebrow">Official Releases · 官方全平台分发中心</span>
-            <h1>开物全平台安装包下载中心</h1>
-            <p class="lead">
-                一站式获取 Windows、macOS、Linux、Android、iOS 以及自托管服务端最新稳定版本、SHA256 校验值与一键部署命令。
-            </p>
+<main class="wrap" id="all">
+  <section>
+    <div class="sec-head"><h2>电脑</h2><p>运行开物，连接你的手机与网页</p></div>
+    <div class="row" data-p="windows">
+      <div class="glyph"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5 10.5 4.4v7.1H3zm8.5-1.2L21 3v8.5h-9.5zM3 12.5h7.5v7.1L3 18.5zm8.5 0H21V21l-9.5-1.3z"/></svg></div>
+      <div><div class="name">Windows</div><div class="desc">Windows 10 / 11（64 位）。下载后解压即可使用。</div></div>
+      <div class="meta num" data-meta>—</div>
+      <div class="acts"><a class="act" data-dl>下载</a></div>
+      <div class="detail"><details><summary>一行命令安装 · 校验值</summary>
+        <div class="code"><code>irm https://kaiwu.wujilabs.cn/install.ps1 | iex</code><button class="copy">复制</button></div>
+        <div class="code"><code data-sha>—</code><button class="copy">复制</button></div></details></div>
+    </div>
+    <div class="row" data-p="macos">
+      <div class="glyph"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9s-1.8-.9-3-.8C7 7.4 5.6 8.3 4.8 9.7c-1.6 2.8-.4 6.9 1.2 9.2.8 1.1 1.7 2.3 2.8 2.3 1.1 0 1.6-.7 2.9-.7 1.4 0 1.7.7 2.9.7 1.2 0 2-1.1 2.7-2.2.9-1.3 1.2-2.5 1.2-2.6 0 0-2.3-.9-2.3-3.8zM14.2 5.6c.6-.8 1-1.8.9-2.9-.9 0-2 .6-2.6 1.4-.6.7-1.1 1.7-1 2.7 1 .1 2-.5 2.7-1.2z"/></svg></div>
+      <div><div class="name">macOS</div><div class="desc">macOS 12 及以上，支持 Apple 芯片与 Intel 芯片。</div></div>
+      <div class="meta num" data-meta>—</div>
+      <div class="acts"><a class="act" data-dl>下载</a></div>
+      <div class="detail"><details><summary>一行命令安装 · 校验值</summary>
+        <div class="code"><code>curl -fsSL https://kaiwu.wujilabs.cn/install | bash</code><button class="copy">复制</button></div>
+        <div class="code"><code data-sha>—</code><button class="copy">复制</button></div></details></div>
+    </div>
+    <div class="row" data-p="linux">
+      <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2.5"/><path d="m7 9 3 2.5L7 14m5 0h5"/></svg></div>
+      <div><div class="name">Linux</div><div class="desc">Ubuntu、Debian、CentOS、Arch 等主流发行版。</div></div>
+      <div class="meta num" data-meta>—</div>
+      <div class="acts"><a class="act" data-dl>下载</a></div>
+      <div class="detail"><details><summary>一行命令安装 · 校验值</summary>
+        <div class="code"><code>curl -fsSL https://kaiwu.wujilabs.cn/install | bash</code><button class="copy">复制</button></div>
+        <div class="code"><code data-sha>—</code><button class="copy">复制</button></div></details></div>
+    </div>
+  </section>
 
-            <div class="system-detected-banner" id="detected-banner" style="display: none;">
-                <span class="pulse-dot"></span>
-                <span id="detected-text">检测中...</span>
-            </div>
-        </section>
+  <section>
+    <div class="sec-head"><h2>手机</h2><p>随时查看、审批、接管</p></div>
+    <div class="row" data-p="ios">
+      <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.6"/><path d="M10.5 18.5h3"/></svg></div>
+      <div><div class="name">iPhone 与 iPad</div><div class="desc">用 Safari 打开网页版，点「分享」→「添加到主屏幕」。</div></div>
+      <div class="meta num" data-meta>—</div>
+      <div class="acts"><a class="act solid" href="/">打开网页版</a><a class="act" data-dl>IPA</a></div>
+    </div>
+    <div class="row" data-p="android">
+      <div class="glyph"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 9.4 19.3 6.3a.4.4 0 0 0-.7-.4l-1.8 3.1A10.9 10.9 0 0 0 12 8a10.9 10.9 0 0 0-4.8 1L5.4 5.9a.4.4 0 1 0-.7.4l1.8 3.1A9.8 9.8 0 0 0 1.5 17h21a9.8 9.8 0 0 0-5-7.6zM7 14.3a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm10 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/></svg></div>
+      <div><div class="name">Android</div><div class="desc">首次安装需在设置中允许「安装未知来源应用」，之后在应用内自动更新。</div></div>
+      <div class="meta num" data-meta>—</div>
+      <div class="acts"><a class="act" data-dl>下载 APK</a></div>
+      <div class="detail"><details><summary>校验值</summary>
+        <div class="code"><code data-sha>—</code><button class="copy">复制</button></div></details></div>
+    </div>
+    <div class="row" data-p="harmony">
+      <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17M3.5 12h17" opacity=".5"/></svg></div>
+      <div><div class="name">HarmonyOS<small>即将上线</small></div><div class="desc">华为手机可先用浏览器打开网页版。</div></div>
+      <div class="meta"></div>
+      <div class="acts"><a class="act" href="/">打开网页版</a></div>
+    </div>
+  </section>
 
-        <section class="grid">
-            <!-- Windows Card -->
-            <div class="card" id="card-win">
-                <div class="card-top">
-                    <div class="platform-icon-wrap">
-                        <svg viewBox="0 0 24 24"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.901-1.799"/></svg>
-                    </div>
-                    <span class="badge" id="badge-win">x64 便携包</span>
-                </div>
-                <h2 class="card-title">Windows</h2>
-                <p class="card-desc">Windows 10 / 11（64 位）。下载 zip 后解压即可使用。</p>
-                <ul class="meta-list">
-                    <li class="meta-item"><span class="meta-label">最新版本</span><span class="meta-val">v0.2.28</span></li>
-                    <li class="meta-item"><span class="meta-label">文件体积</span><span class="meta-val">379.1 MB</span></li>
-                    <li class="meta-item"><span class="meta-label">发布日期</span><span class="meta-val">2026-10-20</span></li>
-                </ul>
-                <div class="install-box">
-                    <div class="install-cmd-label">PowerShell 一键安装</div>
-                    <div class="install-cmd-content">
-                        <code>irm https://kaiwu.wujilabs.cn/install.ps1 | iex</code>
-                        <button class="copy-btn" onclick="copyText('irm https://kaiwu.wujilabs.cn/install.ps1 | iex', this)">复制</button>
-                    </div>
-                </div>
-                <div class="sha-row">
-                    <span class="sha-text" title="14ba16529ccc30283b39db0135caada03005b020748c53faebd4bfbff85828b3">SHA256: 14ba16529ccc3028...</span>
-                    <button class="copy-btn" onclick="copyText('14ba16529ccc30283b39db0135caada03005b020748c53faebd4bfbff85828b3', this)">复制</button>
-                </div>
-                <p class="subtext-note">提示：解压后直接执行 <code>kaiwu.exe</code> 或在终端运行 <code>kaiwu</code>。</p>
-                <div class="btn-group">
-                    <a href="https://kaiwu.wujilabs.cn/download/windows" class="btn btn-primary">立即下载 (.zip)</a>
-                    <a href="https://kaiwu.wujilabs.cn/docs/releases/windows/0.2.28/kaiwu-v0.2.28-windows-x64.zip" class="btn btn-secondary">直链备用 (0.2.28)</a>
-                </div>
-            </div>
+  <section>
+    <div class="sec-head"><h2>开发者与团队</h2><p>命令行与私有部署</p></div>
+    <div class="row" data-p="npm">
+      <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7 3 12l5 5m8-10 5 5-5 5M14 4l-4 16"/></svg></div>
+      <div><div class="name">npm 包</div><div class="desc">已安装 Node.js 18+ 或 Bun 的电脑，用一行命令安装。</div></div>
+      <div class="meta num" data-meta>—</div>
+      <div class="acts"><a class="act" data-dl>下载</a></div>
+      <div class="detail"><details><summary>安装命令 · 校验值</summary>
+        <div class="code"><code>npm i -g https://kaiwu.wujilabs.cn/download/npm</code><button class="copy">复制</button></div>
+        <div class="code"><code data-sha>—</code><button class="copy">复制</button></div></details></div>
+    </div>
+    <div class="row" data-p="server">
+      <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.5" y="4" width="17" height="6.5" rx="2"/><rect x="3.5" y="13.5" width="17" height="6.5" rx="2"/><path d="M7.5 7.2h.01M7.5 16.7h.01"/></svg></div>
+      <div><div class="name">自托管服务端</div><div class="desc">部署在你自己的 Linux 服务器上，数据由你掌控。</div></div>
+      <div class="meta num" data-meta>—</div>
+      <div class="acts"><a class="act" data-dl>下载</a></div>
+      <div class="detail"><details><summary>一行命令部署 · 校验值</summary>
+        <div class="code"><code>curl -fsSL https://kaiwu.wujilabs.cn/install-server.sh | bash</code><button class="copy">复制</button></div>
+        <div class="code"><code data-sha>—</code><button class="copy">复制</button></div></details></div>
+    </div>
+  </section>
+</main>
 
-            <!-- macOS Card -->
-            <div class="card" id="card-mac">
-                <div class="card-top">
-                    <div class="platform-icon-wrap">
-                        <svg viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 1.01-2.87-.96.04-2.07.65-2.73 1.43-.56.65-1.06 1.71-1 2.76 1.07.08 2.11-.57 2.72-1.32z"/></svg>
-                    </div>
-                    <span class="badge" id="badge-mac">Apple Silicon / Intel</span>
-                </div>
-                <h2 class="card-title">macOS</h2>
-                <p class="card-desc">macOS 12 及以上，支持 Apple 芯片与 Intel 芯片的命令行客户端。</p>
-                <ul class="meta-list">
-                    <li class="meta-item"><span class="meta-label">最新版本</span><span class="meta-val">v0.2.28</span></li>
-                    <li class="meta-item"><span class="meta-label">文件体积</span><span class="meta-val">166.1 MB</span></li>
-                    <li class="meta-item"><span class="meta-label">发布日期</span><span class="meta-val">2026-10-20</span></li>
-                </ul>
-                <div class="install-box">
-                    <div class="install-cmd-label">终端一行命令安装</div>
-                    <div class="install-cmd-content">
-                        <code>curl -fsSL https://kaiwu.wujilabs.cn/install | bash</code>
-                        <button class="copy-btn" onclick="copyText('curl -fsSL https://kaiwu.wujilabs.cn/install | bash', this)">复制</button>
-                    </div>
-                </div>
-                <div class="sha-row">
-                    <span class="sha-text" title="a0e5fdffc03787474c4d23e7337f1cc55762350d6632eedad77cfcfc448c9723">SHA256: a0e5fdffc0378747...</span>
-                    <button class="copy-btn" onclick="copyText('a0e5fdffc03787474c4d23e7337f1cc55762350d6632eedad77cfcfc448c9723', this)">复制</button>
-                </div>
-                <p class="subtext-note">提示：亦可使用 <code>npm install -g https://kaiwu.wujilabs.cn/download/npm</code> 进行全局安装。</p>
-                <div class="btn-group">
-                    <a href="https://kaiwu.wujilabs.cn/download/macos" class="btn btn-primary">立即下载 (.tgz)</a>
-                    <a href="https://kaiwu.wujilabs.cn/docs/releases/macos/0.2.28/kaiwu-cli-0.2.28.tgz" class="btn btn-secondary">直链备用 (0.2.28)</a>
-                </div>
-            </div>
+<footer><div class="wrap">
+  <span>© 2026 乾元执中（南京）科技有限公司 · 无极开物</span>
+  <span><a href="/docs">文档</a> · <a href="/download/manifest.json">版本清单</a></span>
+</div></footer>
 
-            <!-- Linux Card -->
-            <div class="card" id="card-linux">
-                <div class="card-top">
-                    <div class="platform-icon-wrap">
-                        <svg viewBox="0 0 24 24"><path d="M12.003 0c-4.418 0-8 3.582-8 8 0 1.942.695 3.722 1.854 5.111C4.897 14.156 4 15.717 4 17.5c0 3.59 3.582 6.5 8 6.5s8-2.91 8-6.5c0-1.783-.897-3.344-1.854-4.389C19.308 11.722 20.003 9.942 20.003 8c0-4.418-3.582-8-8-8zm-2.5 6a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm5 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm-2.5 5.5c2.209 0 4 .895 4 2h-8c0-1.105 1.791-2 4-2z"/></svg>
-                    </div>
-                    <span class="badge" id="badge-linux">x86_64 / arm64</span>
-                </div>
-                <h2 class="card-title">Linux</h2>
-                <p class="card-desc">支持 Ubuntu、Debian、CentOS、Arch 等主流发行版的命令行客户端。</p>
-                <ul class="meta-list">
-                    <li class="meta-item"><span class="meta-label">最新版本</span><span class="meta-val">v0.2.28</span></li>
-                    <li class="meta-item"><span class="meta-label">文件体积</span><span class="meta-val">166.1 MB</span></li>
-                    <li class="meta-item"><span class="meta-label">发布日期</span><span class="meta-val">2026-10-20</span></li>
-                </ul>
-                <div class="install-box">
-                    <div class="install-cmd-label">终端一行命令安装</div>
-                    <div class="install-cmd-content">
-                        <code>curl -fsSL https://kaiwu.wujilabs.cn/install | bash</code>
-                        <button class="copy-btn" onclick="copyText('curl -fsSL https://kaiwu.wujilabs.cn/install | bash', this)">复制</button>
-                    </div>
-                </div>
-                <div class="sha-row">
-                    <span class="sha-text" title="a0e5fdffc03787474c4d23e7337f1cc55762350d6632eedad77cfcfc448c9723">SHA256: a0e5fdffc0378747...</span>
-                    <button class="copy-btn" onclick="copyText('a0e5fdffc03787474c4d23e7337f1cc55762350d6632eedad77cfcfc448c9723', this)">复制</button>
-                </div>
-                <p class="subtext-note">提示：安装脚本会自动校验安装包签名。</p>
-                <div class="btn-group">
-                    <a href="https://kaiwu.wujilabs.cn/download/linux" class="btn btn-primary">立即下载 (.tgz)</a>
-                    <a href="https://kaiwu.wujilabs.cn/docs/releases/linux/0.2.28/kaiwu-cli-0.2.28.tgz" class="btn btn-secondary">直链备用 (0.2.28)</a>
-                </div>
-            </div>
-
-            <!-- Android Card -->
-            <div class="card" id="card-android">
-                <div class="card-top">
-                    <div class="platform-icon-wrap">
-                        <svg viewBox="0 0 24 24"><path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.551 0 .9993.4482.9993.9993.0001.5511-.4482.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.551 0 .9993.4482.9993.9993 0 .5511-.4483.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 00-.1521-.5676.416.416 0 00-.5676.1521l-2.0223 3.503C15.5902 8.4116 13.8533 8.1 12 8.1s-3.5902.3116-5.1367.8497L4.841 5.4467a.4161.4161 0 00-.5677-.1521.4157.4157 0 00-.1521.5676l1.9973 3.4592C2.6889 11.1867.3432 14.6589 0 18.761h24c-.3432-4.1021-2.6889-7.5743-6.1185-9.4396"/></svg>
-                    </div>
-                    <span class="badge" id="badge-android">官方 APK</span>
-                </div>
-                <h2 class="card-title">Android</h2>
-                <p class="card-desc">Android 客户端：在手机上查看任务进度、审批操作、浏览代码。</p>
-                <ul class="meta-list">
-                    <li class="meta-item"><span class="meta-label">最新版本</span><span class="meta-val">v0.2.24 (204b24b)</span></li>
-                    <li class="meta-item"><span class="meta-label">文件体积</span><span class="meta-val">424.2 MB</span></li>
-                    <li class="meta-item"><span class="meta-label">发布日期</span><span class="meta-val">2026-09-30</span></li>
-                </ul>
-                <div class="sha-row">
-                    <span class="sha-text" title="55aa6d7693519b19314468135a0827cd690d333d92161b379f52b2b48db837d6">SHA256: 55aa6d7693519b19...</span>
-                    <button class="copy-btn" onclick="copyText('55aa6d7693519b19314468135a0827cd690d333d92161b379f52b2b48db837d6', this)">复制</button>
-                </div>
-                <p class="subtext-note">提示：首次安装需在系统设置中开启「允许安装未知来源」。安装后可在应用内自动更新。</p>
-                <div class="btn-group">
-                    <a href="https://kaiwu.wujilabs.cn/download/android" class="btn btn-primary">立即下载 APK</a>
-                    <a href="https://kaiwu.wujilabs.cn/docs/releases/android/0.2.24/kaiwu-0.2.24.apk" class="btn btn-secondary">直链备用 (0.2.24)</a>
-                </div>
-            </div>
-
-            <!-- iOS Card -->
-            <div class="card" id="card-ios">
-                <div class="card-top">
-                    <div class="platform-icon-wrap">
-                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
-                    </div>
-                    <span class="badge" id="badge-ios">未签名 IPA / Web</span>
-                </div>
-                <h2 class="card-title">iOS (iPhone / iPad)</h2>
-                <p class="card-desc">iPhone 与 iPad 推荐用 Safari 打开网页版并添加到主屏幕；IPA 安装包供开发者自行侧载。</p>
-                <ul class="meta-list">
-                    <li class="meta-item"><span class="meta-label">最新版本</span><span class="meta-val">v0.2.24 (204b24b)</span></li>
-                    <li class="meta-item"><span class="meta-label">文件体积</span><span class="meta-val">64.3 MB</span></li>
-                    <li class="meta-item"><span class="meta-label">发布日期</span><span class="meta-val">2026-09-30</span></li>
-                </ul>
-                <div class="sha-row">
-                    <span class="sha-text" title="46cde98e993ca3a0cc32f408619e879e61c5d09e88ce1535c4ecaa64602fb521">SHA256: 46cde98e993ca3a0...</span>
-                    <button class="copy-btn" onclick="copyText('46cde98e993ca3a0cc32f408619e879e61c5d09e88ce1535c4ecaa64602fb521', this)">复制</button>
-                </div>
-                <p class="subtext-note">提示：在 Safari 打开 kaiwu.wujilabs.cn，点「分享」→「添加到主屏幕」即可。</p>
-                <div class="btn-group">
-                    <a href="https://kaiwu.wujilabs.cn/download/ios" class="btn btn-primary">下载未签名 IPA</a>
-                    <a href="https://kaiwu.wujilabs.cn/" target="_blank" class="btn btn-secondary">打开 Web App (推荐)</a>
-                </div>
-            </div>
-
-            <!-- HarmonyOS Card -->
-            <div class="card" id="card-harmony">
-                <div class="card-top">
-                    <div class="platform-icon-wrap">
-                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>
-                    </div>
-                    <span class="badge">即将提供</span>
-                </div>
-                <h2 class="card-title">HarmonyOS 鸿蒙</h2>
-                <p class="card-desc">HarmonyOS NEXT 原生版即将上线。</p>
-                <ul class="meta-list">
-                    <li class="meta-item"><span class="meta-label">适配状态</span><span class="meta-val">全力研发中</span></li>
-                    <li class="meta-item"><span class="meta-label">计划支持</span><span class="meta-val">HarmonyOS NEXT</span></li>
-                    <li class="meta-item"><span class="meta-label">提供方式</span><span class="meta-val">应用市场 / HAP</span></li>
-                </ul>
-                <div class="sha-row">
-                    <span class="sha-text">校验值待发布生成</span>
-                    <span style="color: var(--text-muted); font-size: 11px;">敬请期待</span>
-                </div>
-                <p class="subtext-note">说明：<code>即将上线</code> 华为手机可先用浏览器打开网页版。</p>
-                <div class="btn-group">
-                    <button class="btn btn-disabled" disabled>即将提供 · 暂未开放</button>
-                    <a href="https://kaiwu.wujilabs.cn/" target="_blank" class="btn btn-secondary">优先体验 Web 版</a>
-                </div>
-            </div>
-
-            <!-- Server Self-host Card -->
-            <div class="card" id="card-server">
-                <div class="card-top">
-                    <div class="platform-icon-wrap">
-                        <svg viewBox="0 0 24 24"><path d="M4 1h16a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zm0 8h16a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1zm0 8h16a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1zM6 4h2V3H6v1zm0 8h2v-1H6v1zm0 8h2v-1H6v1z"/></svg>
-                    </div>
-                    <span class="badge">服务端中继</span>
-                </div>
-                <h2 class="card-title">自托管服务端 (Server)</h2>
-                <p class="card-desc">开物服务端，可部署在你自己的服务器上，数据由你掌控。</p>
-                <ul class="meta-list">
-                    <li class="meta-item"><span class="meta-label">最新版本</span><span class="meta-val">v0.2.11-kw.1</span></li>
-                    <li class="meta-item"><span class="meta-label">文件体积</span><span class="meta-val">377.2 MB</span></li>
-                    <li class="meta-item"><span class="meta-label">发布日期</span><span class="meta-val">2026-10-16</span></li>
-                </ul>
-                <div class="install-box">
-                    <div class="install-cmd-label">Linux 一键自托管部署</div>
-                    <div class="install-cmd-content">
-                        <code>curl -fsSL https://kaiwu.wujilabs.cn/install-server.sh | bash</code>
-                        <button class="copy-btn" onclick="copyText('curl -fsSL https://kaiwu.wujilabs.cn/install-server.sh | bash', this)">复制</button>
-                    </div>
-                </div>
-                <div class="sha-row">
-                    <span class="sha-text" title="d8cd6ed50e5aac13ea31504de03a8bf474df413f161144bda0a80fc58ca58024">SHA256: d8cd6ed50e5aac13...</span>
-                    <button class="copy-btn" onclick="copyText('d8cd6ed50e5aac13ea31504de03a8bf474df413f161144bda0a80fc58ca58024', this)">复制</button>
-                </div>
-                <p class="subtext-note">Docker 镜像：<code>wuji-labs/kaiwu-relay:0.2.11-kw.1</code>，支持 Linux x86_64。</p>
-                <div class="btn-group">
-                    <a href="https://kaiwu.wujilabs.cn/download/server" class="btn btn-primary">下载服务端核心 (.tar.gz)</a>
-                    <a href="https://kaiwu.wujilabs.cn/docs/self-hosting" target="_blank" class="btn btn-secondary">查看自托管文档</a>
-                </div>
-            </div>
-
-            <!-- npm Package Card -->
-            <div class="card" id="card-npm">
-                <div class="card-top">
-                    <div class="platform-icon-wrap">
-                        <svg viewBox="0 0 24 24"><path d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H4v-4h2.666v4zm4 0H9.333v-4h1.333v4zm6.667 0h-2.666v-4h2.666v4zm4 0h-1.333v-4H21.333v4z"/></svg>
-                    </div>
-                    <span class="badge">npm 全局包</span>
-                </div>
-                <h2 class="card-title">npm 包</h2>
-                <p class="card-desc">已安装 Node.js 或 Bun 的电脑，可用一行 npm 命令安装。</p>
-                <ul class="meta-list">
-                    <li class="meta-item"><span class="meta-label">最新版本</span><span class="meta-val">v0.2.28</span></li>
-                    <li class="meta-item"><span class="meta-label">文件体积</span><span class="meta-val">166.1 MB</span></li>
-                    <li class="meta-item"><span class="meta-label">发布日期</span><span class="meta-val">2026-10-20</span></li>
-                </ul>
-                <div class="install-box">
-                    <div class="install-cmd-label">npm 全局安装命令</div>
-                    <div class="install-cmd-content">
-                        <code>npm i -g https://kaiwu.wujilabs.cn/download/npm</code>
-                        <button class="copy-btn" onclick="copyText('npm i -g https://kaiwu.wujilabs.cn/download/npm', this)">复制</button>
-                    </div>
-                </div>
-                <div class="sha-row">
-                    <span class="sha-text" title="a0e5fdffc03787474c4d23e7337f1cc55762350d6632eedad77cfcfc448c9723">SHA256: a0e5fdffc0378747...</span>
-                    <button class="copy-btn" onclick="copyText('a0e5fdffc03787474c4d23e7337f1cc55762350d6632eedad77cfcfc448c9723', this)">复制</button>
-                </div>
-                <p class="subtext-note">要求：Node.js &gt;= 18 或 Bun &gt;= 1.0，跨主流操作系统即装即用。</p>
-                <div class="btn-group">
-                    <a href="https://kaiwu.wujilabs.cn/download/npm" class="btn btn-primary">下载 tarball (.tgz)</a>
-                    <a href="https://kaiwu.wujilabs.cn/docs/releases/npm/0.2.28/kaiwu-cli-0.2.28.tgz" class="btn btn-secondary">直链备用 (0.2.28)</a>
-                </div>
-            </div>
-        </section>
-
-        <!-- Manifest & API Box -->
-        <section class="manifest-section">
-            <div class="manifest-header">
-                <div>
-                    <h3 class="manifest-title">机器可读更新清单 · manifest.json</h3>
-                    <p style="font-size: 13.5px; color: var(--text-secondary); margin-top: 4px;">
-                        为自动化脚本、CI/CD 流水线以及客户端内置更新检查提供稳定规范的 JSON 元数据接口。
-                    </p>
-                </div>
-                <a href="https://kaiwu.wujilabs.cn/download/manifest.json" target="_blank" class="btn btn-secondary" style="padding: 8px 16px; font-size: 13.5px;">
-                    查看完整 JSON 清单 ↗
-                </a>
-            </div>
-            <div class="manifest-code">
-                <code>https://kaiwu.wujilabs.cn/download/manifest.json</code>
-                <button class="copy-btn" onclick="copyText('https://kaiwu.wujilabs.cn/download/manifest.json', this)">复制链接</button>
-            </div>
-        </section>
-    </main>
-
-    <footer class="site-footer">
-        <div class="container footer-content">
-            <div>
-                © 2026 无极开物 · 乾元执中科技 (WUJI Labs). MIT Licensed.
-            </div>
-            <div class="footer-links">
-                <a href="https://kaiwu.wujilabs.cn/">官方首页</a>
-                <a href="https://kaiwu.wujilabs.cn/docs">文档中心</a>
-                <a href="https://kaiwu.wujilabs.cn/docs/legal/privacy">隐私政策</a>
-                <a href="https://github.com/wuji-labs/kaiwu" target="_blank" rel="noreferrer">GitHub</a>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        // Theme toggle
-        const toggleBtn = document.getElementById("theme-toggle");
-        const themeIcon = document.getElementById("theme-icon");
-        const savedTheme = localStorage.getItem("kaiwu_theme") || (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
-        document.documentElement.setAttribute("data-theme", savedTheme);
-        themeIcon.textContent = savedTheme === "light" ? "🌙" : "☀️";
-
-        toggleBtn.addEventListener("click", () => {
-            const current = document.documentElement.getAttribute("data-theme") || "dark";
-            const next = current === "dark" ? "light" : "dark";
-            document.documentElement.setAttribute("data-theme", next);
-            localStorage.setItem("kaiwu_theme", next);
-            themeIcon.textContent = next === "light" ? "🌙" : "☀️";
-        });
-
-        // Copy text helper
-        function copyText(text, btn) {
-            navigator.clipboard.writeText(text).then(() => {
-                const orig = btn.textContent;
-                btn.textContent = "已复制 ✓";
-                setTimeout(() => btn.textContent = orig, 1800);
-            });
-        }
-
-        // Platform detection and smart badge highlighting
-        (function detectPlatform() {
-            const ua = (navigator.userAgent || "").toLowerCase();
-            const platform = (navigator.platform || "").toLowerCase();
-            let targetCardId = null;
-            let targetBadgeId = null;
-            let targetLabel = "";
-
-            if (ua.includes("android")) {
-                targetCardId = "card-android";
-                targetBadgeId = "badge-android";
-                targetLabel = "Android 系统";
-            } else if (ua.includes("iphone") || ua.includes("ipad") || ua.includes("ipod")) {
-                targetCardId = "card-ios";
-                targetBadgeId = "badge-ios";
-                targetLabel = "iOS / iPadOS 设备";
-            } else if (ua.includes("win") || platform.includes("win")) {
-                targetCardId = "card-win";
-                targetBadgeId = "badge-win";
-                targetLabel = "Windows 系统";
-            } else if (ua.includes("mac") || platform.includes("mac")) {
-                targetCardId = "card-mac";
-                targetBadgeId = "badge-mac";
-                targetLabel = "macOS 系统";
-            } else if (ua.includes("linux") || platform.includes("linux")) {
-                targetCardId = "card-linux";
-                targetBadgeId = "badge-linux";
-                targetLabel = "Linux 系统";
-            }
-
-            if (targetCardId) {
-                const card = document.getElementById(targetCardId);
-                const badge = document.getElementById(targetBadgeId);
-                const banner = document.getElementById("detected-banner");
-                const text = document.getElementById("detected-text");
-
-                if (card) {
-                    card.classList.add("highlighted");
-                }
-                if (badge) {
-                    badge.classList.add("recommend");
-                    badge.textContent = "当前系统推荐";
-                }
-                if (banner && text) {
-                    text.textContent = "检测到您正在使用 " + targetLabel + "，已自动为您高亮推荐版本";
-                    banner.style.display = "inline-flex";
-                }
-            }
-        })();
-    </script>
+<script>
+(function(){
+  var L={windows:'Windows',macos:'macOS',linux:'Linux',android:'Android',ios:'iPhone'};
+  function mb(b){return b>=1e9?(b/1e9).toFixed(2)+' GB':Math.round(b/1e6)+' MB'}
+  function os(){
+    var u=navigator.userAgent||'',p=(navigator.userAgentData&&navigator.userAgentData.platform)||navigator.platform||'';
+    if(/iPhone|iPad|iPod/.test(u)||(/Mac/.test(p)&&navigator.maxTouchPoints>1))return'ios';
+    if(/Android/.test(u))return'android'; if(/HarmonyOS|OpenHarmony/.test(u))return'harmony';
+    if(/Win/.test(p)||/Windows/.test(u))return'windows'; if(/Mac/.test(p))return'macos'; if(/Linux|X11/.test(p+u))return'linux';
+    return null;
+  }
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('.copy'); if(!b)return;
+    var t=b.parentNode.querySelector('code').textContent;
+    (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){b.textContent='已复制';setTimeout(function(){b.textContent='复制'},1600)},function(){});
+  });
+  var cur=os(); if(cur){var r=document.querySelector('.row[data-p="'+cur+'"]'); if(r)r.classList.add('is-current');}
+  fetch('/download/manifest.json',{cache:'no-store'}).then(function(r){return r.json()}).then(function(m){
+    var P=m.platforms||{};
+    document.querySelectorAll('.row[data-p]').forEach(function(row){
+      var d=P[row.dataset.p]; if(!d||!d.version)return;
+      var meta=row.querySelector('[data-meta]'); if(meta)meta.textContent='v'+d.version+(d.size?' · '+mb(d.size):'');
+      row.querySelectorAll('[data-dl]').forEach(function(a){a.href=d.url||d.directUrl});
+      var s=row.querySelector('[data-sha]'); if(s&&d.sha256)s.textContent='SHA256  '+d.sha256;
+    });
+    var pr=document.getElementById('primary'),lab=document.getElementById('primary-label'),pm=document.getElementById('primary-meta');
+    if(cur==='ios'||cur==='harmony'){pr.querySelector('svg').style.display='none'}
+    if(cur==='ios'){lab.textContent='打开网页版';pr.href='/';pm.textContent='在 Safari 中添加到主屏幕即可';return}
+    if(cur==='harmony'){lab.textContent='打开网页版';pr.href='/';pm.textContent='鸿蒙版即将上线';return}
+    var d=cur&&P[cur];
+    if(d&&d.version){lab.textContent='下载 '+L[cur]+' 版';pr.href=d.url||d.directUrl;pm.textContent='v'+d.version+' · '+mb(d.size)}
+  }).catch(function(){});
+})();
+</script>
 </body>
 </html>
