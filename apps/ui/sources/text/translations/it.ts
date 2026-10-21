@@ -10185,6 +10185,8 @@ settingsSession: {
     welcomeFooterGithubLabel: "Sito ufficiale",
     welcomeFooterDiscordLabel: "Community WeChat",
 
+    welcomeFooterDownload: "App?",
+    welcomeFooterDownloadAction: "Scarica",
     // Mobile brand hero CTA
     brandHeroGetStarted: "Inizia",
   },

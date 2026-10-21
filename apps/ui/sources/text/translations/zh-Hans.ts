@@ -9493,6 +9493,8 @@ settingsSession: {
     welcomeFooterGithubLabel: "官方网站",
     welcomeFooterDiscordLabel: "微信社群",
 
+    welcomeFooterDownload: "客户端?",
+    welcomeFooterDownloadAction: "下载 App",
     // Mobile brand hero CTA
     brandHeroGetStarted: "开始",
   },

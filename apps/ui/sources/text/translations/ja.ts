@@ -10088,6 +10088,8 @@ settingsSession: {
     welcomeFooterGithubLabel: "公式ウェブサイト",
     welcomeFooterDiscordLabel: "WeChat コミュニティ",
 
+    welcomeFooterDownload: "アプリ?",
+    welcomeFooterDownloadAction: "ダウンロード",
     // Mobile brand hero CTA
     brandHeroGetStarted: "はじめる",
   },

@@ -401,6 +401,19 @@ const SettingsAboutSection = React.memo(function SettingsAboutSection({
                     }}
                 />
             ) : null}
+            {Platform.OS === 'web' ? (
+                <Item
+                    title={t('welcome.welcomeFooterDownloadAction')}
+                    icon={<Icon name="download" size={29} color={theme.colors.accent.blue} />}
+                    onPress={async () => {
+                        const url = 'https://kaiwu.wujilabs.cn/download';
+                        const supported = await Linking.canOpenURL(url);
+                        if (supported) {
+                            await Linking.openURL(url);
+                        }
+                    }}
+                />
+            ) : null}
             <Item
                 title="官方网站"
                 icon={<Icon name="globe" size={29} color={theme.colors.text.primary} />}

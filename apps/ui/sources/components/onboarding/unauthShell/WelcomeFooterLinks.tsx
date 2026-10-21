@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Linking, Pressable, View } from 'react-native';
+import { Linking, Platform, Pressable, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { Text } from '@/components/ui/text/Text';
@@ -14,6 +14,7 @@ import { WechatQrModal } from './WechatQrModal';
 
 const DOCS_URL = 'https://kaiwu.wujilabs.cn/docs';
 const WEBSITE_URL = 'https://wujilabs.cn';
+const DOWNLOAD_URL = 'https://kaiwu.wujilabs.cn/download';
 
 const HAPPIER_CLOUD_COMPARABLE_KEY = createServerUrlComparableKey(HAPPIER_CLOUD_SERVER_URL);
 
@@ -60,6 +61,9 @@ export const WelcomeFooterLinks = React.memo(function WelcomeFooterLinks(props: 
 
     const openDocs = React.useCallback(() => { void Linking.openURL(DOCS_URL); }, []);
     const openWebsite = React.useCallback(() => { void Linking.openURL(WEBSITE_URL); }, []);
+    const openDownload = React.useCallback(() => { void Linking.openURL(DOWNLOAD_URL); }, []);
+    // Store builds must not advertise side-loaded installers; only the web build links to the download center.
+    const showDownload = Platform.OS === 'web';
     const openWechatQr = React.useCallback(() => {
         Modal.show({
             component: WechatQrModal,
@@ -145,6 +149,25 @@ export const WelcomeFooterLinks = React.memo(function WelcomeFooterLinks(props: 
                         )}
                     </Pressable>
                 </View>
+
+                {showDownload ? (
+                    <View style={relayGroupStyle} testID="welcome-footer-download">
+                        <Text style={[styles.label, labelColor]}>
+                            {t('welcome.welcomeFooterDownload')}
+                        </Text>
+                        <Pressable
+                            onPress={openDownload}
+                            accessibilityRole="link"
+                            testID="welcome-footer-download-action"
+                        >
+                            {({ pressed }) => (
+                                <Text style={[styles.actionBold, actionColor, pressed ? actionPressedStyle : null]}>
+                                    {t('welcome.welcomeFooterDownloadAction')}
+                                </Text>
+                            )}
+                        </Pressable>
+                    </View>
+                ) : null}
 
                 <View style={relayGroupStyle} testID="welcome-footer-docs">
                     <Text style={[styles.label, labelColor]}>

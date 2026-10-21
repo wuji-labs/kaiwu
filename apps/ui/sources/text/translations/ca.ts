@@ -9228,6 +9228,8 @@ settingsSession: {
         welcomeFooterGithubLabel: 'Lloc web oficial',
         welcomeFooterDiscordLabel: 'Comunitat de WeChat',
 
+        welcomeFooterDownload: 'Aplicacions?',
+        welcomeFooterDownloadAction: 'Descarrega',
         // Mobile brand hero CTA
         brandHeroGetStarted: 'Comença',
     },

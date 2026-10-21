@@ -99,13 +99,17 @@ node scripts/release/publish-downloads.mjs --platform <平台> --version <版本
 ```
 
 **支持的平台标识**：
-- `windows`: Windows x64 便携包（按集团安全规范压制为 `.zip`）
-- `macos`: macOS 核心包（`.tgz`）
-- `linux`: Linux 核心包（`.tgz`）
+- `desktop-windows`: Tauri Windows x64 桌面客户端（按集团安全规范以 `.zip` 分发）
+- `desktop-macos`: Tauri macOS 通用桌面客户端（`.dmg`）
+- `desktop-linux`: Tauri Linux x64 桌面客户端（`.AppImage`）
+- `windows`: Windows x64 命令行/便携包（按集团安全规范压制为 `.zip`）
+- `macos`: macOS 核心命令行包（`.tgz`）
+- `linux`: Linux 核心命令行包（`.tgz`）
 - `android`: Android APK 安装包（`.apk`）
 - `ios`: iOS 未签名侧载包（`.ipa`）
 - `server`: 自托管服务端核心包（`.tar.gz`）
 - `npm`: npm 模块离线包（`.tgz`）
+- `harmony`: HarmonyOS 原生包（`.hap`，工具链/签名就绪前保持「即将提供」）
 
 ### 8.2 脚本核心执行逻辑
 1. **本地校验**：校验文件存在性，计算本地文件大小与 SHA256 哈希。

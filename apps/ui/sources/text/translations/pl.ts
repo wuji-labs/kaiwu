@@ -9866,6 +9866,8 @@ settingsSession: {
     welcomeFooterGithubLabel: "Oficjalna strona",
     welcomeFooterDiscordLabel: "Społeczność WeChat",
 
+    welcomeFooterDownload: "Aplikacje?",
+    welcomeFooterDownloadAction: "Pobierz",
     // Mobile brand hero CTA
     brandHeroGetStarted: "Zacznij",
   },

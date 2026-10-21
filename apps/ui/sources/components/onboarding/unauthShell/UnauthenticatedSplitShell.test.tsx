@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Text } from 'react-native';
+import { Platform, Text } from 'react-native';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { renderScreen } from '@/dev/testkit';
@@ -267,6 +267,25 @@ describe('UnauthenticatedSplitShell', () => {
             </UnauthenticatedSplitShell>,
         );
         expect(screenNoBack.findAllByTestId('unauth-shell-back-chevron')).toEqual([]);
+    });
+
+    it('renders a web-only download client link in the welcome footer', async () => {
+        const originalPlatformOS = Platform.OS;
+        Platform.OS = 'web';
+        mockLayout('split');
+        const screen = await renderScreen(
+            <UnauthenticatedSplitShell
+                stepId="welcome"
+                isWelcomeStep
+                onOpenRelayCustomFlow={() => {}}
+                onBrandHeroGetStarted={() => {}}
+            >
+                <FakeBody label="welcome" />
+            </UnauthenticatedSplitShell>,
+        );
+
+        expect(screen.findByTestId('welcome-footer-download-action')).toBeTruthy();
+        Platform.OS = originalPlatformOS;
     });
 
     it('invokes onOpenRelayCustomFlow when the welcome footer Relay link is pressed', async () => {

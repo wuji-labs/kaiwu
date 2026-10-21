@@ -7952,6 +7952,8 @@ settingsSession: {
         welcomeFooterGithubLabel: '官方網站',
         welcomeFooterDiscordLabel: '微信社群',
 
+        welcomeFooterDownload: '客戶端?',
+        welcomeFooterDownloadAction: '下載 App',
         // Mobile brand hero CTA
         brandHeroGetStarted: '開始',
     },

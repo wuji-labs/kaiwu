@@ -10,7 +10,7 @@
     "tsc": "node ../../scripts/workspaces/runTypeScriptCli.mjs",
     "build:shared": "node scripts/buildSharedDeps.mjs",
     "build": "node ../../scripts/workspaces/buildTypeScriptPackageDist.mjs -p tsconfig.json && node scripts/writeDistBinWrappers.mjs",
-    "build:binary": "yarn -s build:shared && yarn -s build && node scripts/buildBinary.mjs",
+    "build:binary": "node scripts/buildBinaryWithDeps.mjs",
     "typecheck": "node ../../scripts/workspaces/runTypeScriptCli.mjs --noEmit -p tsconfig.json",
     "test": "yarn -s build:shared && node ../../node_modules/vitest/vitest.mjs run --config vitest.config.ts"
   },

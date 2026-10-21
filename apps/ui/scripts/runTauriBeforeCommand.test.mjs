@@ -19,7 +19,7 @@ test('runTauriBeforeCommand runs yarn prepare:build via cmd on Windows', () => {
 
   assert.equal(call.cmd, 'cmd');
   assert.deepEqual(call.args.slice(0, 3), ['/D', '/S', '/C']);
-  assert.equal(call.args[3], 'yarn -s tauri:prepare:build');
+  assert.equal(call.args[3], 'yarn.cmd -s tauri:prepare:build');
   assert.equal(call.opts.cwd, 'C:\\repo\\apps\\ui');
   assert.equal(call.opts.env.EXPO_UNSTABLE_WEB_MODAL, '1');
 });

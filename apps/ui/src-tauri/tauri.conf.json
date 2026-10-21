@@ -51,7 +51,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEFCRTk2MjE4RjNCMEYxRUYKUldUdjhiRHpHR0xwcTFIUjMvb1FBbW5HOUFYSkd5aGlHa204MWZuRk50ekF5WVZQdU1mVkRWWnkK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDM5NDQxNUM4Q0Y5NUQ1NDkKUldSSjFaWFB5QlZFT2NjSGNDRHhMY1NjTVN0ZzNrdCtWN0dDdWtPeFhFVHVCRm9mcXJ1eW5iUUsK",
       "endpoints": [
         "https://github.com/happier-dev/happier/releases/download/ui-desktop-stable/latest.json"
       ]

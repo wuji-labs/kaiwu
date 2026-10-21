@@ -131,13 +131,12 @@ export async function prepareTauriSidecar({
   };
 
   const result = spawnSyncImpl(
-    'yarn',
-    ['-s', 'workspace', '@happier-dev/bootstrap', 'build:binary'],
+    process.execPath,
+    [join(bootstrapDir, 'scripts', 'buildBinaryWithDeps.mjs')],
     {
       stdio: 'inherit',
       env: nextEnv,
-      cwd: repoRoot,
-      ...(platform === 'win32' ? { shell: true } : {}),
+      cwd: bootstrapDir,
     },
   );
 

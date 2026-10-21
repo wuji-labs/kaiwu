@@ -28,7 +28,8 @@ export function runTauriBeforeCommand(opts) {
     throw new Error(`mode must be 'dev' or 'build' (got: ${String(mode)})`);
   }
 
-  const yarnCmd = `yarn -s tauri:prepare:${mode}`;
+  const yarnCommand = platform === 'win32' ? 'yarn.cmd' : 'yarn';
+  const yarnCmd = `${yarnCommand} -s tauri:prepare:${mode}`;
 
   if (platform === 'win32') {
     execImpl('cmd', ['/D', '/S', '/C', yarnCmd], { cwd, env, stdio: 'inherit' });

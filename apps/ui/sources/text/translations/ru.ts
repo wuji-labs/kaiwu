@@ -9825,6 +9825,8 @@ settingsSession: {
     welcomeFooterGithubLabel: "Официальный веб-сайт",
     welcomeFooterDiscordLabel: "Сообщество WeChat",
 
+    welcomeFooterDownload: "Приложения?",
+    welcomeFooterDownloadAction: "Скачать",
     // Mobile brand hero CTA
     brandHeroGetStarted: "Начать",
   },

@@ -16,6 +16,7 @@
  *
  * 用法：
  *   node scripts/release/publish-downloads.mjs --platform windows --version 0.2.28 --file dist/release-assets/cli/kaiwu-v0.2.28-windows-x64.zip
+ *   node scripts/release/publish-downloads.mjs --platform desktop-windows --version 0.2.28 --file dist/tauri/kaiwu-desktop-v0.2.28-windows-x64.zip
  *   node scripts/release/publish-downloads.mjs --platform android --version 0.2.24 --file dist/android/kaiwu.apk
  *   node scripts/release/publish-downloads.mjs --platform server --version 0.2.11-kw.1 --file dist/server/happier-server.tar.gz
  */
@@ -26,9 +27,24 @@ import { existsSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 
-const SUPPORTED_PLATFORMS = ['windows', 'macos', 'linux', 'android', 'ios', 'server', 'npm'];
+const SUPPORTED_PLATFORMS = [
+    'desktop-windows',
+    'desktop-macos',
+    'desktop-linux',
+    'windows',
+    'macos',
+    'linux',
+    'android',
+    'ios',
+    'server',
+    'npm',
+    'harmony',
+];
 
 const CANONICAL_FILENAMES = {
+    'desktop-windows': (ver) => `kaiwu-desktop-v${ver}-windows-x64.zip`,
+    'desktop-macos': (ver) => `kaiwu-desktop-v${ver}-macos-universal.dmg`,
+    'desktop-linux': (ver) => `kaiwu-desktop-v${ver}-linux-x64.AppImage`,
     windows: (ver) => `kaiwu-v${ver}-windows-x64.zip`,
     macos: (ver) => `kaiwu-cli-${ver}.tgz`,
     linux: (ver) => `kaiwu-cli-${ver}.tgz`,
@@ -36,9 +52,13 @@ const CANONICAL_FILENAMES = {
     ios: (ver) => `kaiwu-${ver}-unsigned.ipa`,
     server: (ver) => `happier-server-v${ver}-linux-x64.tar.gz`,
     npm: (ver) => `kaiwu-cli-${ver}.tgz`,
+    harmony: (ver) => `kaiwu-v${ver}-harmony.hap`,
 };
 
 const LATEST_ALIASES = {
+    'desktop-windows': 'kaiwu-desktop-windows-x64.zip',
+    'desktop-macos': 'kaiwu-desktop-macos-universal.dmg',
+    'desktop-linux': 'kaiwu-desktop-linux-x64.AppImage',
     windows: 'kaiwu-windows-x64.zip',
     macos: 'kaiwu-cli.tgz',
     linux: 'kaiwu-cli.tgz',
@@ -46,6 +66,7 @@ const LATEST_ALIASES = {
     ios: 'kaiwu.ipa',
     server: 'happier-server-linux-x64.tar.gz',
     npm: 'kaiwu-cli.tgz',
+    harmony: 'kaiwu.hap',
 };
 
 function sha256File(filePath) {

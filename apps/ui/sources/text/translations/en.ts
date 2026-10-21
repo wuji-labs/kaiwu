@@ -9296,6 +9296,8 @@ settingsSession: {
         welcomeFooterGithubLabel: 'Official website',
         welcomeFooterDiscordLabel: 'WeChat community',
 
+        welcomeFooterDownload: 'Get the apps?',
+        welcomeFooterDownloadAction: 'Download',
         // Mobile brand hero CTA
         brandHeroGetStarted: 'Get started',
     },

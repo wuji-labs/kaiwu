@@ -1,11 +1,13 @@
 import * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
+
+const platformState = vi.hoisted(() => ({ OS: 'android' }));
 import renderer, { act } from 'react-test-renderer';
 import { Linking } from 'react-native';
 import { SettingsBelowFoldSections } from './SettingsBelowFoldSections';
 
 vi.mock('react-native', () => ({
-    Platform: { OS: 'android' },
+    Platform: platformState,
     Linking: {
         canOpenURL: vi.fn().mockResolvedValue(true),
         openURL: vi.fn().mockResolvedValue(undefined),
@@ -114,5 +116,59 @@ describe('SettingsBelowFoldSections ICP filing', () => {
 
         expect(Linking.canOpenURL).toHaveBeenCalledWith('https://beian.miit.gov.cn/');
         expect(Linking.openURL).toHaveBeenCalledWith('https://beian.miit.gov.cn/');
+    });
+
+    it('renders the client download entry in the web About section', async () => {
+        platformState.OS = 'web';
+        const dummyRouter = { push: vi.fn() } as any;
+        const dummyTheme = {
+            colors: {
+                surface: { base: '#fff' },
+                text: { primary: '#000', secondary: '#666' },
+                accent: { orange: '#f90', purple: '#90f', blue: '#09f', indigo: '#4b0082' },
+                state: { danger: { foreground: '#f00' }, success: { foreground: '#0f0' } },
+            },
+        } as any;
+
+        let component!: renderer.ReactTestRenderer;
+        await act(async () => {
+            component = renderer.create(
+                <SettingsBelowFoldSections
+                    appVersion="0.2.24"
+                    attachmentsUploadsEnabled={false}
+                    automationsNeedLocalEnablement={false}
+                    connectedServicesEnabled={false}
+                    devModeEnabled={false}
+                    executionRunsEnabled={false}
+                    handleGitHub={() => {}}
+                    handleReportIssue={() => {}}
+                    handleVersionClick={() => {}}
+                    mcpServersEnabled={false}
+                    memorySearchEnabled={false}
+                    promptsLibraryEnabled={false}
+                    router={dummyRouter}
+                    showAutomations={false}
+                    showChangelog={false}
+                    showRateUs={false}
+                    sourceControlEnabled={false}
+                    stage={4}
+                    terminalUseTmux={false}
+                    theme={dummyTheme}
+                    useProfiles={false}
+                    voiceEnabled={false}
+                />
+            );
+        });
+
+        const downloadItem = component.root.findAllByType('Item' as any)
+            .find((item: any) => item.props.title === 'welcome.welcomeFooterDownloadAction');
+        expect(downloadItem).toBeDefined();
+        if (!downloadItem) throw new Error('Client download item was not rendered');
+
+        await act(async () => {
+            await downloadItem.props.onPress();
+        });
+        expect(Linking.openURL).toHaveBeenCalledWith('https://kaiwu.wujilabs.cn/download');
+        platformState.OS = 'android';
     });
 });

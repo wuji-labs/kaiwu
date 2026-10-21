@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>下载无极开物</title>
-<meta name="description" content="下载无极开物：Windows、macOS、Linux、iPhone、Android，以及命令行与自托管服务端。">
+<meta name="description" content="下载无极开物桌面客户端：Windows、macOS、Linux，以及 iPhone、Android、命令行与自托管服务端。">
 <meta name="theme-color" content="#0A0909">
 <link rel="icon" href="/icons/favicon.png">
 <link rel="preload" as="image" href="/download/assets/planet-2400.webp" media="(min-width: 760px)">
@@ -132,11 +132,42 @@
 </div>
 
 <main class="wrap" id="all">
+  <section id="desktop" hidden>
+    <div class="sec-head"><h2>桌面客户端</h2><p>在电脑上运行开物，连接你的手机与网页</p></div>
+    <div class="row" data-p="desktop-windows">
+      <div class="glyph"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5 10.5 4.4v7.1H3zm8.5-1.2L21 3v8.5h-9.5zM3 12.5h7.5v7.1L3 18.5zm8.5 0H21V21l-9.5-1.3z"/></svg></div>
+      <div><div class="name">Windows</div><div class="desc">Windows 10 / 11（64 位）。下载 ZIP，解压后即可启动桌面客户端。</div></div>
+      <div class="meta num" data-meta>—</div>
+      <div class="acts"><a class="act" data-dl aria-disabled="true" tabindex="-1">暂未发布</a></div>
+      <div class="detail"><details><summary>安装说明 · 校验值</summary>
+        <div class="note">下载 ZIP 后解压到任意目录，运行其中的应用程序。</div>
+        <div class="code"><code data-sha>—</code><button class="copy">复制</button></div></details></div>
+    </div>
+    <div class="row" data-p="desktop-macos">
+      <div class="glyph"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9s-1.8-.9-3-.8C7 7.4 5.6 8.3 4.8 9.7c-1.6 2.8-.4 6.9 1.2 9.2.8 1.1 1.7 2.3 2.8 2.3 1.1 0 1.6-.7 2.9-.7 1.4 0 1.7.7 2.9.7 1.2 0 2-1.1 2.7-2.2.9-1.3 1.2-2.5 1.2-2.6 0 0-2.3-.9-2.3-3.8zM14.2 5.6c.6-.8 1-1.8.9-2.9-.9 0-2 .6-2.6 1.4-.6.7-1.1 1.7-1 2.7 1 .1 2-.5 2.7-1.2z"/></svg></div>
+      <div><div class="name">macOS</div><div class="desc">macOS 12 及以上，支持 Apple 芯片与 Intel 芯片。</div></div>
+      <div class="meta num" data-meta>—</div>
+      <div class="acts"><a class="act" data-dl aria-disabled="true" tabindex="-1">暂未发布</a></div>
+      <div class="detail"><details><summary>安装说明 · 校验值</summary>
+        <div class="note">打开 DMG 后将应用拖入 Applications。若首次打开提示无法验证开发者，请在 Finder 中右键应用选择「打开」，或前往系统设置 → 隐私与安全性 → 仍要打开。</div>
+        <div class="code"><code data-sha>—</code><button class="copy">复制</button></div></details></div>
+    </div>
+    <div class="row" data-p="desktop-linux">
+      <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2.5"/><path d="m7 9 3 2.5L7 14m5 0h5"/></svg></div>
+      <div><div class="name">Linux</div><div class="desc">x86_64 AppImage，适用于常见 Linux 桌面发行版。</div></div>
+      <div class="meta num" data-meta>—</div>
+      <div class="acts"><a class="act" data-dl aria-disabled="true" tabindex="-1">暂未发布</a></div>
+      <div class="detail"><details><summary>安装说明 · 校验值</summary>
+        <div class="note">下载 AppImage 后为文件添加可执行权限，再双击启动。</div>
+        <div class="code"><code data-sha>—</code><button class="copy">复制</button></div></details></div>
+    </div>
+  </section>
+
   <section>
-    <div class="sec-head"><h2>电脑</h2><p>运行开物，连接你的手机与网页</p></div>
+    <div class="sec-head"><h2>命令行 / 开发者</h2><p>命令行、包管理器与私有部署</p></div>
     <div class="row" data-p="windows">
       <div class="glyph"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5 10.5 4.4v7.1H3zm8.5-1.2L21 3v8.5h-9.5zM3 12.5h7.5v7.1L3 18.5zm8.5 0H21V21l-9.5-1.3z"/></svg></div>
-      <div><div class="name">Windows</div><div class="desc">Windows 10 / 11（64 位）。下载后解压即可使用。</div></div>
+      <div><div class="name">Windows 命令行工具</div><div class="desc">Windows 10 / 11（64 位），适用于命令行与开发工具链。</div></div>
       <div class="meta num" data-meta>—</div>
       <div class="acts"><a class="act" data-dl>下载</a></div>
       <div class="detail"><details><summary>一行命令安装 · 校验值</summary>
@@ -145,7 +176,7 @@
     </div>
     <div class="row" data-p="macos">
       <div class="glyph"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9s-1.8-.9-3-.8C7 7.4 5.6 8.3 4.8 9.7c-1.6 2.8-.4 6.9 1.2 9.2.8 1.1 1.7 2.3 2.8 2.3 1.1 0 1.6-.7 2.9-.7 1.4 0 1.7.7 2.9.7 1.2 0 2-1.1 2.7-2.2.9-1.3 1.2-2.5 1.2-2.6 0 0-2.3-.9-2.3-3.8zM14.2 5.6c.6-.8 1-1.8.9-2.9-.9 0-2 .6-2.6 1.4-.6.7-1.1 1.7-1 2.7 1 .1 2-.5 2.7-1.2z"/></svg></div>
-      <div><div class="name">macOS</div><div class="desc">macOS 12 及以上，支持 Apple 芯片与 Intel 芯片。</div></div>
+      <div><div class="name">macOS 命令行工具</div><div class="desc">通过安装脚本安装，支持 Apple 芯片与 Intel 芯片。</div></div>
       <div class="meta num" data-meta>—</div>
       <div class="acts"><a class="act" data-dl>下载</a></div>
       <div class="detail"><details><summary>一行命令安装 · 校验值</summary>
@@ -154,7 +185,7 @@
     </div>
     <div class="row" data-p="linux">
       <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2.5"/><path d="m7 9 3 2.5L7 14m5 0h5"/></svg></div>
-      <div><div class="name">Linux</div><div class="desc">Ubuntu、Debian、CentOS、Arch 等主流发行版。</div></div>
+      <div><div class="name">Linux 命令行工具</div><div class="desc">通过安装脚本安装，适用于 Ubuntu、Debian、CentOS、Arch 等发行版。</div></div>
       <div class="meta num" data-meta>—</div>
       <div class="acts"><a class="act" data-dl>下载</a></div>
       <div class="detail"><details><summary>一行命令安装 · 校验值</summary>
@@ -185,10 +216,7 @@
       <div class="meta"></div>
       <div class="acts"><a class="act" href="/">打开网页版</a></div>
     </div>
-  </section>
 
-  <section>
-    <div class="sec-head"><h2>开发者与团队</h2><p>命令行与私有部署</p></div>
     <div class="row" data-p="npm">
       <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7 3 12l5 5m8-10 5 5-5 5M14 4l-4 16"/></svg></div>
       <div><div class="name">npm 包</div><div class="desc">已安装 Node.js 18+ 或 Bun 的电脑，用一行命令安装。</div></div>
@@ -218,6 +246,7 @@
 <script>
 (function(){
   var L={windows:'Windows',macos:'macOS',linux:'Linux',android:'Android',ios:'iPhone'};
+  var desktopKey={windows:'desktop-windows',macos:'desktop-macos',linux:'desktop-linux'};
   function mb(b){return b>=1e9?(b/1e9).toFixed(2)+' GB':Math.round(b/1e6)+' MB'}
   function os(){
     var u=navigator.userAgent||'',p=(navigator.userAgentData&&navigator.userAgentData.platform)||navigator.platform||'';
@@ -231,21 +260,29 @@
     var t=b.parentNode.querySelector('code').textContent;
     (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){b.textContent='已复制';setTimeout(function(){b.textContent='复制'},1600)},function(){});
   });
-  var cur=os(); if(cur){var r=document.querySelector('.row[data-p="'+cur+'"]'); if(r)r.classList.add('is-current');}
+  var cur=os(); var selected=cur&&desktopKey[cur]||cur; if(selected){var r=document.querySelector('.row[data-p="'+selected+'"]'); if(r)r.classList.add('is-current');}
   fetch('/download/manifest.json',{cache:'no-store'}).then(function(r){return r.json()}).then(function(m){
     var P=m.platforms||{};
+    var desktopVisible=false;
     document.querySelectorAll('.row[data-p]').forEach(function(row){
-      var d=P[row.dataset.p]; if(!d||!d.version)return;
+      var d=P[row.dataset.p];
+      if(!d||!d.version){
+        if(row.dataset.p.indexOf('desktop-')===0){row.style.display='none';}
+        return;
+      }
+      if(row.dataset.p.indexOf('desktop-')===0){row.style.display='';desktopVisible=true;}
       var meta=row.querySelector('[data-meta]'); if(meta)meta.textContent='v'+d.version+(d.size?' · '+mb(d.size):'');
-      row.querySelectorAll('[data-dl]').forEach(function(a){a.href=d.url||d.directUrl});
+      row.querySelectorAll('[data-dl]').forEach(function(a){a.href=d.url||d.directUrl;a.removeAttribute('aria-disabled');a.removeAttribute('tabindex');a.textContent='下载'});
       var s=row.querySelector('[data-sha]'); if(s&&d.sha256)s.textContent='SHA256  '+d.sha256;
     });
+    document.getElementById('desktop').hidden=!desktopVisible;
     var pr=document.getElementById('primary'),lab=document.getElementById('primary-label'),pm=document.getElementById('primary-meta');
     if(cur==='ios'||cur==='harmony'){pr.querySelector('svg').style.display='none'}
     if(cur==='ios'){lab.textContent='打开网页版';pr.href='/';pm.textContent='在 Safari 中添加到主屏幕即可';return}
     if(cur==='harmony'){lab.textContent='打开网页版';pr.href='/';pm.textContent='鸿蒙版即将上线';return}
-    var d=cur&&P[cur];
-    if(d&&d.version){lab.textContent='下载 '+L[cur]+' 版';pr.href=d.url||d.directUrl;pm.textContent='v'+d.version+' · '+mb(d.size)}
+    var d=cur&&P[desktopKey[cur]||cur];
+    if(d&&d.version){lab.textContent='下载 '+L[cur]+' 桌面版';pr.href=d.url||d.directUrl;pm.textContent='v'+d.version+' · '+mb(d.size)}
+    else if(cur&&desktopKey[cur]){lab.textContent=L[cur]+' 桌面版暂未发布';pr.href='#desktop';pm.textContent='桌面客户端发布后可在此下载'}
   }).catch(function(){});
 })();
 </script>
