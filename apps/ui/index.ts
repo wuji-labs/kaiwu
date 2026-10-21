@@ -35,4 +35,18 @@ if (typeof window !== 'undefined') {
 }
 
 require('./sources/unistyles');
+
+// Background session refresh tasks must be defined before the root renders: the OS may start JS
+// only to run one (periodic refresh, push wake). Web has no OS background execution.
+if (typeof document === 'undefined') {
+    // React Native defines `window` but never `document`: this is a native build.
+    const mod = require('./sources/sync/background/installBackgroundSessionRefresh');
+    if (typeof mod === 'object' && mod !== null && 'installBackgroundSessionRefresh' in mod) {
+        const install = (mod as { installBackgroundSessionRefresh?: unknown }).installBackgroundSessionRefresh;
+        if (typeof install === 'function') {
+            install();
+        }
+    }
+}
+
 require('expo-router/entry');

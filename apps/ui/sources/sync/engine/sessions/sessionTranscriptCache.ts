@@ -3,6 +3,7 @@ import type { V2SessionRecord } from '@happier-dev/protocol';
 import {
     discardTranscriptCacheScopeExcept,
     discardTranscriptCacheSession,
+    listTranscriptCacheSessionIds,
     loadTranscriptCacheRecord,
     saveTranscriptCacheRecord,
     type TranscriptCacheMessage,
@@ -75,6 +76,12 @@ export function createSessionTranscriptCacheController(deps: SessionTranscriptCa
      * session, a deletion) cannot paint the copy that was just declared stale.
      */
     const discardEpochBySessionId = new Map<string, number>();
+    /** Writes not yet settled, so a background task can finish only once its work is on disk. */
+    const pendingWrites = new Set<Promise<void>>();
+    const track = (write: Promise<void>): void => {
+        pendingWrites.add(write);
+        void write.finally(() => pendingWrites.delete(write));
+    };
 
     const readEpoch = (sessionId: string) => discardEpochBySessionId.get(sessionId) ?? 0;
     const bumpEpoch = (sessionId: string) => {
@@ -162,9 +169,9 @@ export function createSessionTranscriptCacheController(deps: SessionTranscriptCa
         }
         const record = buildRecord(sessionId, entry, decision);
         if (!record) return;
-        void saveTranscriptCacheRecord(entry.scope, record).catch((error: unknown) => {
+        track(saveTranscriptCacheRecord(entry.scope, record).catch((error: unknown) => {
             deps.onFailure('save', error);
-        });
+        }));
     };
 
     const schedule = (sessionId: string, entry: BufferEntry) => {
@@ -196,6 +203,21 @@ export function createSessionTranscriptCacheController(deps: SessionTranscriptCa
 
         flushAll(): void {
             for (const sessionId of [...buffers.keys()]) flush(sessionId);
+        },
+
+        /** Write every dirty session and resolve once all writes (including earlier ones) settled. */
+        async flushAllAndWait(): Promise<void> {
+            for (const sessionId of [...buffers.keys()]) flush(sessionId);
+            await Promise.all([...pendingWrites]);
+        },
+
+        async listRecentSessionIds(limit: number): Promise<string[]> {
+            try {
+                return await listTranscriptCacheSessionIds(deps.readScope(), limit);
+            } catch (error) {
+                deps.onFailure('load', error);
+                return [];
+            }
         },
 
         /** Eviction: persist what memory holds, then let it go. */

@@ -303,6 +303,43 @@ describe('sync durable transcript cache', () => {
         expect(messagesRequestPaths()).toEqual([expect.stringContaining('limit=30')]);
     });
 
+    it('brings recently used sessions up to date in the background and persists the delta', async () => {
+        const { sync, syncForTest } = await bootSync();
+        requestMock.mockImplementation(() => Promise.resolve(jsonResponse({
+            messages: Array.from({ length: 20 }, (_unused, index) => apiMessage(20 - index)),
+            hasMore: false,
+            nextBeforeSeq: null,
+        })));
+        await sync.refreshSessionMessages(SESSION_ID);
+        syncForTest.evictSessionTranscript(SESSION_ID);
+        await settle();
+
+        // The app is backgrounded: network and crypto are quiescent, and nothing is on screen.
+        (syncForTest as unknown as { isForeground: boolean }).isForeground = false;
+        const { isServerReachabilityNetworkAllowed, setServerReachabilityNetworkAllowed } = await import(
+            './runtime/connectivity/serverReachabilitySupervisorPool'
+        );
+        setServerReachabilityNetworkAllowed(false);
+        requestMock.mockReset();
+        requestMock.mockImplementation((path: string) => Promise.resolve(String(path).includes('afterSeq=20')
+            ? jsonResponse({ messages: [apiMessage(21), apiMessage(22)], hasMore: false, nextAfterSeq: 22 })
+            : String(path).includes('/messages')
+                ? jsonResponse({ messages: [], hasMore: false, nextAfterSeq: null })
+                : jsonResponse({ sessions: [], hasNext: false })));
+
+        const outcome = await (sync as unknown as {
+            refreshSessionsInBackground: (params: { deadlineAtMs: number }) => Promise<{ sessions: number; newMessages: number }>;
+        }).refreshSessionsInBackground({ deadlineAtMs: Date.now() + 10_000 });
+
+        expect(outcome).toMatchObject({ sessions: 1, newMessages: 2 });
+        // Persisted before the task returns, so the next open paints seq 22 without the network.
+        const record = [...backend.values.entries()].find(([key]) => key.endsWith(`:${SESSION_ID}`))?.[1];
+        expect(JSON.parse(record ?? '{}').maxSeq).toBe(22);
+        // Quiescence is restored for the rest of the background period.
+        expect(isServerReachabilityNetworkAllowed()).toBe(false);
+        setServerReachabilityNetworkAllowed(true);
+    });
+
     it('never paints a persisted copy into a different account scope', async () => {
         const { sync, syncForTest } = await bootSync();
         requestMock.mockImplementation(() => Promise.resolve(jsonResponse({

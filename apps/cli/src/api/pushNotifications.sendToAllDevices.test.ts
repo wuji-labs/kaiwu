@@ -83,6 +83,24 @@ describe('PushNotificationClient.sendToAllDevicesAsync', () => {
     expect(second.data).toMatchObject({ serverUrl: 'http://localhost:3005' });
   });
 
+  it('marks every push as background-capable so the app can wake and persist the new transcript delta', async () => {
+    (axios as any).get.mockResolvedValue({
+      data: {
+        tokens: [{ id: '1', token: 'ExponentPushToken[a]' }],
+      },
+    });
+
+    const client = new PushNotificationClient('t', 'https://api.example.test');
+    await client.sendToAllDevicesAsync('Title', 'Body', { sessionId: 's_1' });
+
+    const [chunk] = sendPushNotificationsAsyncSpy.mock.calls.at(-1) ?? [];
+    const [message] = chunk as any[];
+    // iOS `content-available: 1` alongside the visible alert: one notification, plus a background wake.
+    expect(message).toMatchObject({ _contentAvailable: true, title: 'Title', body: 'Body' });
+    // The wake carries only identifiers; message content is fetched end-to-end encrypted.
+    expect(message.data).toEqual({ sessionId: 's_1', serverUrl: 'https://api.example.test' });
+  });
+
   it('sets categoryId for permission/user_action request pushes based on payload kind', async () => {
     (axios as any).get.mockResolvedValue({
       data: {

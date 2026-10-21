@@ -367,6 +367,11 @@ export class PushNotificationClient {
                     channelId,
                     subtitle,
                     badge: badgeCount ?? undefined,
+                    // iOS `content-available: 1` next to the alert: the same single notification
+                    // also wakes the app so it can fetch the new delta (end-to-end encrypted, by
+                    // the ids in `data`) and persist it before the user opens it. Apps without a
+                    // background handler ignore the flag; Android already receives data messages.
+                    _contentAvailable: true,
                 }
             })
 

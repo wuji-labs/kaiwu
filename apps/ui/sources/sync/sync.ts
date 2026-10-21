@@ -93,6 +93,7 @@ import { MachineActivityAccumulator, type MachineActivityUpdate } from './reduce
 import { randomUUID } from '@/platform/randomUUID';
 import { Platform, AppState, Dimensions } from 'react-native';
 import { resolveInitialSessionMessagesPageSize } from '@/sync/runtime/initialTranscriptPageSize';
+import { withTimeout } from '@/utils/timing/time';
 import { buildOutgoingUserTextRecord } from './domains/messages/outgoingUserMessage';
 import { resolveSentFrom } from './domains/messages/sentFrom';
 import { NormalizedMessage, normalizeRawMessage, RawRecord, RawRecordSchema } from './typesRaw';
@@ -511,6 +512,18 @@ const SESSION_LIST_BACKGROUND_HYDRATION_SCROLL_SETTLE_MS = 180;
  * scope switches flush immediately instead of waiting it out.
  */
 const TRANSCRIPT_CACHE_FLUSH_QUIET_MS = 3_000;
+
+/**
+ * Sessions one background refresh keeps current — the most recently used durable copies. Each costs
+ * at most a few small `afterSeq` pages; five fit the OS background budget on a slow link.
+ */
+const BACKGROUND_REFRESH_MAX_SESSIONS = 5;
+
+export type BackgroundSessionRefreshOutcome = Readonly<{
+    kind: 'refreshed' | 'signed-out';
+    sessions: number;
+    newMessages: number;
+}>;
 
 /**
  * How long a successful `/v1/version` answer stays fresh.
@@ -2176,6 +2189,10 @@ class Sync {
         this.resetServerScopedRuntimeState();
         apiSocket.initialize({ endpoint: getActiveServerSnapshot().serverUrl, token: credentials.token }, encryption);
         await this.restore(credentials, encryption);
+    }
+
+    public hasSignedInCredentials(): boolean {
+        return Boolean(this.credentials);
     }
 
     public disconnectServer(): void {
@@ -7070,6 +7087,119 @@ class Sync {
           return protectedIds;
       }
 
+      /**
+       * Bring the most recently used sessions (or the given ones) up to date while the app is not
+       * in the foreground — an OS background-refresh window or a push wake — and persist the result,
+       * so the next open paints a transcript that is already current.
+       *
+       * Runs inside the OS budget given by `deadlineAtMs`; any session not reached is simply caught up
+       * on open the normal way. Lifts the background network/crypto quiescence only for its own
+       * duration and only when the app really is backgrounded.
+       */
+      public refreshSessionsInBackground = async (params: Readonly<{
+          sessionIds?: readonly string[];
+          deadlineAtMs: number;
+      }>): Promise<BackgroundSessionRefreshOutcome> => {
+          if (!this.credentials) return { kind: 'signed-out', sessions: 0, newMessages: 0 };
+          const generation = this.serverScopeGeneration;
+          const liftedQuiescence = !this.isForeground;
+          if (liftedQuiescence) {
+              setServerReachabilityNetworkAllowed(true);
+              this.resumeNativeCryptoWorkerDispatchAfterForeground('Sync.refreshSessionsInBackground');
+          }
+          try {
+              const explicit = (params.sessionIds ?? []).map((id) => String(id ?? '').trim()).filter(Boolean);
+              const targets = (explicit.length > 0
+                  ? explicit
+                  : await this.sessionTranscriptCache.listRecentSessionIds(BACKGROUND_REFRESH_MAX_SESSIONS)
+              ).slice(0, BACKGROUND_REFRESH_MAX_SESSIONS);
+
+              const listBudgetMs = params.deadlineAtMs - Date.now();
+              if (listBudgetMs > 0) {
+                  try {
+                      await withTimeout(this.fetchSessions(), listBudgetMs, 'background session list refresh');
+                  } catch {
+                      // The list is a bonus; the transcripts below do not depend on it.
+                  }
+              }
+
+              let newMessages = 0;
+              let sessions = 0;
+              for (const sessionId of targets) {
+                  if (Date.now() >= params.deadlineAtMs || this.serverScopeGeneration !== generation) break;
+                  newMessages += await this.refreshSessionTranscriptInBackground(sessionId, params.deadlineAtMs);
+                  sessions += 1;
+              }
+              await this.sessionTranscriptCache.flushAllAndWait();
+              this.flushBackgroundSyncCheckpointsNow();
+              return { kind: 'refreshed', sessions, newMessages };
+          } finally {
+              if (liftedQuiescence && !this.isForeground) {
+                  setServerReachabilityNetworkAllowed(false);
+                  this.markNativeCryptoWorkerBackgroundQuiescent();
+              }
+          }
+      };
+
+      /**
+       * One session's delta through the same pipeline the visible catch-up uses: repaint from the
+       * durable cache if memory has nothing, then page `afterSeq` forward from the materialized head.
+       * Only sessions with a durable copy are refreshed — a session never opened is not prefetched.
+       * Returns how many new messages were applied.
+       */
+      private async refreshSessionTranscriptInBackground(sessionId: string, deadlineAtMs: number): Promise<number> {
+          if (storage.getState().sessionMessages[sessionId]?.isLoaded !== true) {
+              const hydrated = await this.hydrateSessionFromTranscriptCache(sessionId);
+              if (!hydrated) return 0;
+          }
+          if (this.hasUserOlderLoadInFlight(sessionId)) return 0;
+          const session = storage.getState().sessions[sessionId] ?? null;
+          if (readDirectSessionLink(session?.metadata)) return 0;
+          const sessionEncryptionMode = session?.encryptionMode === 'plain' ? 'plain' : 'e2ee';
+          const requestMessages = this.createSessionMessagesRequest(sessionId);
+          let afterSeq = this.sessionMaterializedMaxSeqById[sessionId] ?? 0;
+          if (!(afterSeq > 0)) return 0;
+          let applied = 0;
+          try {
+              for (let page = 0; page < this.syncTuning.messageMaxIncrementalPagesOnResume; page += 1) {
+                  if (Date.now() >= deadlineAtMs) break;
+                  const result = await fetchAndApplyNewerMessages({
+                      sessionId,
+                      sessionEncryptionMode,
+                      afterSeq,
+                      limit: this.getSessionMessagesPageSize(),
+                      getSessionEncryption: (id) => this.encryption.getSessionEncryption(id),
+                      isSessionKnown: (id) => this.isSessionKnownOnResolvedOwnerServer(id),
+                      request: requestMessages,
+                      sessionReceivedMessages: this.sessionReceivedMessages,
+                      // A background refresh is not the user reading: no voice, no ready/activity effects.
+                      applyMessages: (sid, messages) => this.applyMessages(sid, messages, { notifyVoice: false, notifyActivity: false }),
+                      onNormalizedMessages: (messages) => ingestWorkspaceMutationMessages(sessionId, messages),
+                      onMessagesPage: (messagesPage) => {
+                          this.updateSessionMessagesPaginationFromPage(
+                              sessionId,
+                              { scope: 'main' },
+                              messagesPage,
+                              { allowHasMoreInference: true, direction: 'newer' },
+                          );
+                      },
+                      ...this.getMessageDecryptBatchOptions(),
+                      log,
+                  });
+                  applied += result.page.messages.length;
+                  const nextAfterSeq = result.page.nextAfterSeq ?? null;
+                  if (!nextAfterSeq || result.page.messages.length === 0) break;
+                  afterSeq = nextAfterSeq;
+              }
+          } catch (error) {
+              syncReliabilityTelemetry.record('sync.backgroundRefresh.sessionFailed', {
+                  error: error instanceof Error ? error.name : 'unknown',
+              });
+          }
+          this.sessionTranscriptCache.flush(sessionId);
+          return applied;
+      }
+
       /** Persisted transcripts are scoped to the active server; another server's route never reads them. */
       private isActiveServerRouteScope(scopedServerId: string | null | undefined): boolean {
           const routeServerId = String(scopedServerId ?? '').trim();
@@ -8146,22 +8276,57 @@ export const sync = new Sync();
 //
 
 let isInitialized = false;
+/**
+ * The one initialization in flight or done, so a second entry point (the OS waking JS for a
+ * background task while the root layout boots) waits for it instead of returning before
+ * encryption and credentials exist.
+ */
+let initialization: Promise<void> | null = null;
 export async function syncCreate(credentials: AuthCredentials) {
     if (isInitialized) {
         console.warn('Sync already initialized: ignoring');
+        await initialization?.catch(() => undefined);
         return;
     }
     isInitialized = true;
-    await syncInit(credentials, false);
+    initialization = syncInit(credentials, false);
+    await initialization;
 }
 
 export async function syncRestore(credentials: AuthCredentials) {
     if (isInitialized) {
         console.warn('Sync already initialized: ignoring');
+        await initialization?.catch(() => undefined);
         return;
     }
     isInitialized = true;
-    await syncInit(credentials, true);
+    initialization = syncInit(credentials, true);
+    await initialization;
+}
+
+/**
+ * Background tasks run in whatever JS runtime the OS started: an already-running app (sync is up),
+ * or a cold runtime launched only for the task (no root layout, nothing booted). This restores sync
+ * through the same legs the app boot uses, or joins the boot already in flight. `false` when there
+ * is no signed-in account to refresh.
+ */
+export async function ensureSyncRestoredForBackgroundWork(legs: Readonly<{
+    resolveCredentials: () => Promise<AuthCredentials | null>;
+    prepareWarmCache: () => Promise<unknown>;
+    sodiumReady: PromiseLike<unknown>;
+}>): Promise<boolean> {
+    if (!isInitialized) {
+        await Promise.all([
+            Promise.resolve(legs.sodiumReady),
+            legs.prepareWarmCache().catch(() => undefined),
+        ]);
+        const credentials = await legs.resolveCredentials().catch(() => null);
+        if (!credentials) return false;
+        await syncRestore(credentials);
+    } else {
+        await initialization?.catch(() => undefined);
+    }
+    return sync.hasSignedInCredentials();
 }
 
 export async function syncSwitchServer(credentials: AuthCredentials | null): Promise<void> {

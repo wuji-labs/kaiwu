@@ -478,6 +478,28 @@ export function discardTranscriptCacheScopeExcept(
     });
 }
 
+/**
+ * Sessions with a durable copy in one scope, most recently used first — what a background refresh
+ * keeps current, since those are the transcripts the next open will paint from.
+ */
+export function listTranscriptCacheSessionIds(
+    scopeInput: TranscriptCacheScope | null,
+    limit: number,
+): Promise<string[]> {
+    const scope = normalizeScope(scopeInput);
+    const backend = resolveBackend();
+    if (!scope || !backend || limit <= 0) return Promise.resolve([]);
+    const scopePrefix = `${TRANSCRIPT_CACHE_RECORD_PREFIX}:${scope.serverId}:${scope.accountId}:`;
+    return serialize(async () => {
+        const index = await readIndex(backend);
+        return Object.keys(index)
+            .filter((key) => key.startsWith(scopePrefix))
+            .sort((left, right) => index[right].usedAt - index[left].usedAt)
+            .slice(0, limit)
+            .map((key) => index[key].sessionId);
+    });
+}
+
 /** Sign-out: every account's transcripts leave the device. */
 export function clearTranscriptCache(): Promise<void> {
     const backend = resolveBackend();
