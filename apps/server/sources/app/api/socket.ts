@@ -28,6 +28,7 @@ import { isServerFeatureEnabledForRequest } from "@/app/features/catalog/serverF
 import { readMachineTransferFeatureEnv } from "@/app/features/catalog/readFeatureEnv";
 import { readSessionScopedSocketBinding, resolveSessionScopedSocketBinding } from "./socket/sessionScopedBinding";
 import { createMachineSocketOwnershipRegistry } from "./socket/machineSocketOwnershipRegistry";
+import { resolveVerifiedSocketInstallationId } from "./socket/resolveVerifiedSocketInstallationId";
 import { createSessionPublisherPresence } from "@/app/presence/sessionPublisherPresence";
 import { publishMachinePresenceSnapshot } from "@/app/presence/publishMachinePresenceSnapshot";
 import { describeLoggableError } from "@/utils/logging/describeLoggableError";
@@ -180,7 +181,13 @@ export function startSocket(app: Fastify) {
         if (clientType === 'machine-scoped') {
             const machine = await db.machine.findFirst({
                 where: { accountId: verified.userId, id: machineId },
-                select: { id: true, revokedAt: true, replacedByMachineId: true },
+                select: {
+                    id: true,
+                    revokedAt: true,
+                    replacedByMachineId: true,
+                    installationId: true,
+                    installationPublicKey: true,
+                },
             });
             if (!machine) {
                 return next(rejectSocket({ statusCode: 403, error: 'invalid-machine' }));
@@ -198,6 +205,12 @@ export function startSocket(app: Fastify) {
                 socketId: socket.id,
                 owner: {
                     ...readMachineDaemonOwnershipMetadataFromSocketAuth(socket.handshake.auth),
+                    verifiedInstallationId: resolveVerifiedSocketInstallationId({
+                        accountId: verified.userId,
+                        machineId: machineId!,
+                        machine,
+                        auth: socket.handshake.auth,
+                    }),
                     takeoverRequested,
                 },
             });

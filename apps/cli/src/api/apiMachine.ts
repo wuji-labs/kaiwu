@@ -994,6 +994,16 @@ export class ApiMachineClient {
         }
     }
 
+    /** Starts the machine connection again after it was stopped by an ownership conflict. */
+    restartConnection(): void {
+        if (this.projectionSchedulingClosed || !this.connectionSupervisor) return;
+        void this.connectionSupervisor.start().catch((error) => {
+            logger.warn('[API MACHINE] Failed to restart machine connection supervisor', {
+                message: error instanceof Error ? error.message : String(error),
+            });
+        });
+    }
+
     async shutdown() {
         logger.debug('[API MACHINE] Shutting down');
         this.projectionSchedulingClosed = true;

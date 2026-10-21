@@ -14,6 +14,8 @@ export type MachineSocketOwnerSnapshot = Readonly<{
     startupSource?: string;
     serviceManaged?: boolean;
     serviceLabel?: string;
+    /** Installation id proven by a signature over the machine's bound installation key. */
+    verifiedInstallationId?: string;
 }>;
 
 type MachineSocketOwnerInput = Readonly<{
@@ -23,6 +25,7 @@ type MachineSocketOwnerInput = Readonly<{
     startupSource?: string;
     serviceManaged?: boolean;
     serviceLabel?: string;
+    verifiedInstallationId?: string;
     takeoverRequested?: boolean;
 }>;
 
@@ -44,14 +47,16 @@ const CLAIM_IF_AVAILABLE_OR_SELF_OR_TAKEOVER_SCRIPT = [
     "local existingStartupSourceKnown = existingStartupSource == 'manual' or existingStartupSource == 'background-service' or existingStartupSource == 'self-restart' or existingStartupSource == 'installer'",
     "local existingServiceManagedEffective = existingServiceManaged == 'true' or (existingServiceManaged ~= 'false' and (existingStartupSource == 'background-service' or ((not existingStartupSourceKnown or existingStartupSource == 'unknown' or not existingStartupSource or existingStartupSource == '') and existingServiceLabel and existingServiceLabel ~= '')))",
     "local takeoverRequested = ARGV[11] == '1'",
+    "local existingVerifiedInstallationId = redis.call('HGET', KEYS[1], 'verifiedInstallationId')",
+    "local sameVerifiedInstallation = ARGV[12] ~= '' and existingVerifiedInstallationId == ARGV[12]",
     "if (not existingSocketId) or existingSocketId == ARGV[1] or (ARGV[2] ~= '' and existingRuntimeId == ARGV[2]) then",
-    "  redis.call('HSET', KEYS[1], 'socketId', ARGV[1], 'runtimeId', ARGV[2], 'instanceId', ARGV[3], 'updatedAt', ARGV[4], 'cliVersion', ARGV[5], 'publicReleaseChannel', ARGV[6], 'startupSource', ARGV[7], 'serviceManaged', ARGV[8], 'serviceLabel', ARGV[9])",
+    "  redis.call('HSET', KEYS[1], 'socketId', ARGV[1], 'runtimeId', ARGV[2], 'instanceId', ARGV[3], 'updatedAt', ARGV[4], 'cliVersion', ARGV[5], 'publicReleaseChannel', ARGV[6], 'startupSource', ARGV[7], 'serviceManaged', ARGV[8], 'serviceLabel', ARGV[9], 'verifiedInstallationId', ARGV[12])",
     "  redis.call('EXPIRE', KEYS[1], ARGV[10])",
     "  if existingSocketId and (existingSocketId == ARGV[1] or (ARGV[2] ~= '' and existingRuntimeId == ARGV[2])) then return 'self' end",
     "  return 'granted'",
     "end",
-    "if takeoverRequested and not existingServiceManagedEffective then",
-    "  redis.call('HSET', KEYS[1], 'socketId', ARGV[1], 'runtimeId', ARGV[2], 'instanceId', ARGV[3], 'updatedAt', ARGV[4], 'cliVersion', ARGV[5], 'publicReleaseChannel', ARGV[6], 'startupSource', ARGV[7], 'serviceManaged', ARGV[8], 'serviceLabel', ARGV[9])",
+    "if takeoverRequested and ((not existingServiceManagedEffective) or sameVerifiedInstallation) then",
+    "  redis.call('HSET', KEYS[1], 'socketId', ARGV[1], 'runtimeId', ARGV[2], 'instanceId', ARGV[3], 'updatedAt', ARGV[4], 'cliVersion', ARGV[5], 'publicReleaseChannel', ARGV[6], 'startupSource', ARGV[7], 'serviceManaged', ARGV[8], 'serviceLabel', ARGV[9], 'verifiedInstallationId', ARGV[12])",
     "  redis.call('EXPIRE', KEYS[1], ARGV[10])",
     "  return 'takeover'",
     "end",
@@ -87,6 +92,7 @@ function normalizeOwnerSnapshot(
         ...(owner.startupSource ? { startupSource: owner.startupSource } : null),
         ...(typeof resolvedServiceManaged === "boolean" ? { serviceManaged: resolvedServiceManaged } : null),
         ...(owner.serviceLabel ? { serviceLabel: owner.serviceLabel } : null),
+        ...(owner.verifiedInstallationId ? { verifiedInstallationId: owner.verifiedInstallationId } : null),
     };
 }
 
@@ -109,6 +115,23 @@ function resolveOwnerServiceManaged(owner: Readonly<{
 
 function isManualOwner(owner: MachineSocketOwnerSnapshot): boolean {
     return resolveOwnerServiceManaged(owner) !== true;
+}
+
+/**
+ * A daemon restarted by its service manager reconnects while the server may still consider the
+ * previous process's socket live (until ping timeout). When both sockets are proven to come from
+ * the same machine installation, the newcomer is that installation's replacement, not a rival.
+ */
+function isSameVerifiedInstallation(
+    owner: MachineSocketOwnerSnapshot,
+    claimant: MachineSocketOwnerSnapshot,
+): boolean {
+    return Boolean(claimant.verifiedInstallationId)
+        && owner.verifiedInstallationId === claimant.verifiedInstallationId;
+}
+
+function canTakeOver(owner: MachineSocketOwnerSnapshot, claimant: MachineSocketOwnerSnapshot): boolean {
+    return isManualOwner(owner) || isSameVerifiedInstallation(owner, claimant);
 }
 
 function resolveOwnershipKey(params: Readonly<{ accountId: string; machineId: string }>): string {
@@ -199,6 +222,7 @@ export function createMachineSocketOwnershipRegistry(params: Readonly<{
             startupSource,
             serviceManaged,
             serviceLabel,
+            verifiedInstallationId,
         ] = await redis.hmget(
             key,
             "socketId",
@@ -208,6 +232,7 @@ export function createMachineSocketOwnershipRegistry(params: Readonly<{
             "startupSource",
             "serviceManaged",
             "serviceLabel",
+            "verifiedInstallationId",
         );
         if (typeof socketId !== "string" || socketId.trim().length === 0) return null;
         const owner = {
@@ -218,6 +243,9 @@ export function createMachineSocketOwnershipRegistry(params: Readonly<{
             ...(normalizeOptionalString(startupSource) ? { startupSource: normalizeOptionalString(startupSource) } : null),
             ...(serviceManaged === "true" ? { serviceManaged: true } : serviceManaged === "false" ? { serviceManaged: false } : null),
             ...(normalizeOptionalString(serviceLabel) ? { serviceLabel: normalizeOptionalString(serviceLabel) } : null),
+            ...(normalizeOptionalString(verifiedInstallationId)
+                ? { verifiedInstallationId: normalizeOptionalString(verifiedInstallationId) }
+                : null),
         } satisfies MachineSocketOwnerSnapshot;
         const resolvedServiceManaged = resolveOwnerServiceManaged(owner);
         return typeof resolvedServiceManaged === "boolean"
@@ -298,7 +326,7 @@ export function createMachineSocketOwnershipRegistry(params: Readonly<{
                 }
 
                 if (isSocketLive(localOwner.socketId)) {
-                    if (takeoverRequested && isManualOwner(localOwner)) {
+                    if (takeoverRequested && canTakeOver(localOwner, normalizedOwner)) {
                         takeoverSocketId = localOwner.socketId;
                     } else {
                         return { result: "conflict", owner: localOwner };
@@ -325,6 +353,7 @@ export function createMachineSocketOwnershipRegistry(params: Readonly<{
                     normalizedOwner.serviceLabel ?? "",
                     ttlSeconds.toString(),
                     takeoverRequested ? "1" : "0",
+                    normalizedOwner.verifiedInstallationId ?? "",
                 );
                 if (claimResult === "conflict") {
                     const owner = await readRedisOwner(key);

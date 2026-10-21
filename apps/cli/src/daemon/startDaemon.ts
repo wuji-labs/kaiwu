@@ -98,6 +98,10 @@ import {
   resolveDaemonTakeoverDecision,
 } from '@/daemon/ownership/resolveDaemonTakeoverDecision';
 import { resolveDaemonOwnershipConflictExitCode } from '@/daemon/ownership/resolveDaemonOwnershipConflictExitCode';
+import {
+  createMachineOwnershipConflictBackoff,
+  shouldRetryMachineOwnershipConflict,
+} from '@/daemon/ownership/machineOwnershipConflictRetry';
 import { resolveDaemonServiceCliRuntimeFromEnv } from '@/daemon/service/cli';
 
 import { forceStopKnownDaemonPid, isDaemonRunningCurrentlyInstalledHappyVersion, resolveDaemonSpawnSessionByNonce, stopDaemon } from './controlClient';
@@ -8484,10 +8488,12 @@ export async function startDaemon(options: Readonly<{ takeover?: boolean }> = {}
               });
 
               let didRefreshMachineMetadata = false;
+              const ownershipConflictBackoff = createMachineOwnershipConflictBackoff();
               connectedApiMachine.connect({
                 takeover: takeoverRequested,
                 onConnect: async () => {
                   if (shutdownInitiated) return;
+                  ownershipConflictBackoff.reset();
 
                   await reconcileSessionMachineAccessBindings();
 
@@ -8523,8 +8529,19 @@ export async function startDaemon(options: Readonly<{ takeover?: boolean }> = {}
                   });
                 },
                 onOwnershipConflict: () => {
-                  logger.warn('[DAEMON RUN] Machine server ownership conflict detected; shutting down');
-                  requestShutdown('happier-app');
+                  if (shutdownInitiated) return;
+                  if (!shouldRetryMachineOwnershipConflict(startupSource)) {
+                    logger.warn('[DAEMON RUN] Machine server ownership conflict detected; shutting down');
+                    requestShutdown('happier-app');
+                    return;
+                  }
+                  const delayMs = ownershipConflictBackoff.nextDelayMs();
+                  logger.warn(`[DAEMON RUN] Machine ownership conflict; retrying in ${Math.round(delayMs / 1000)}s`);
+                  const retryTimer = setTimeout(() => {
+                    if (shutdownInitiated) return;
+                    connectedApiMachine.restartConnection();
+                  }, delayMs);
+                  retryTimer.unref?.();
                 },
                 onMachineReplaced: () => {
                   logger.warn('[DAEMON RUN] Machine identity was replaced on the server; shutting down');
