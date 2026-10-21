@@ -26,6 +26,22 @@ jobs:
         with:
           fetch-depth: 1
 
+      # Runtime first, while the disk is still empty: the 27.1 simulator needs ~8 GB.
+      - name: Prepare iOS 27.1 simulator runtime
+        run: |
+          set -euo pipefail
+          df -h /
+          KEEP="${DEVELOPER_DIR%/Contents/Developer}"
+          for x in /Applications/Xcode_*.app; do
+            if [ "$x" != "$KEEP" ]; then echo "removing unused $x"; sudo rm -rf "$x"; fi
+          done
+          df -h /
+          if ! xcrun simctl list runtimes | grep -q "iOS 27\.1"; then
+            xcodebuild -downloadPlatform iOS
+          fi
+          xcrun simctl list runtimes
+          df -h /
+
       - name: Xcode version and Duo simulator availability
         run: |
           set -euo pipefail
@@ -165,9 +181,6 @@ jobs:
           DUO_DEVICE="${{ steps.duo_device.outputs.duo_device }}"
           # The image ships only the iOS 27.0 simulator runtime; iPhone Duo needs the runtime
           # that matches the 27.1 SDK. Download it when missing.
-          if ! xcrun simctl list runtimes | grep -q "iOS 27\.1"; then
-            xcodebuild -downloadPlatform iOS
-          fi
           xcrun simctl list runtimes
           RUNTIME=$(xcrun simctl list runtimes -j | python3 -c 'import json,sys; rs=[r for r in json.load(sys.stdin)["runtimes"] if r["platform"]=="iOS" and r["isAvailable"] and r["version"].startswith("27.1")]; print(rs[-1]["identifier"] if rs else "")')
           if [ -z "$RUNTIME" ]; then
