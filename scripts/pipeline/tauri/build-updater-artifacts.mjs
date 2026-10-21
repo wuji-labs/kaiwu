@@ -73,7 +73,9 @@ export function normalizeTauriBuildVersionForWindows(buildVersion) {
  */
 export function resolveLinuxProductNameOverride(opts) {
   const env = String(opts.environment ?? '').trim();
-  if (!env || env === 'production') return null;
+  if (!env) return null;
+  // The production productName is Chinese (无极开物); deb/rpm package names and linuxdeploy need ASCII.
+  if (env === 'production') return 'Kaiwu';
   if (env === 'dev' || env === 'publicdev') return 'HappierDev';
   if (env === 'preview') return 'HappierPreview';
   return null;
@@ -139,7 +141,7 @@ export function resolveLinuxHsetupResourcesOverrideConfig() {
  */
 export function resolveLinuxAppImageDiagnosticsLayout(opts) {
   const environment = String(opts.environment ?? '').trim();
-  const productName = resolveLinuxProductNameOverride({ environment }) ?? 'Happier';
+  const productName = resolveLinuxProductNameOverride({ environment }) ?? 'Kaiwu';
   return {
     productName,
     appRelativePath: path.join('usr', 'bin', 'app'),
@@ -506,7 +508,10 @@ function main() {
     if (opts.dryRun) {
       console.log(`[dry-run] write ${codesignOverride} (macOS signingIdentity=${appleSigningIdentity})`);
     } else {
-      const payload = { bundle: { macOS: { signingIdentity: appleSigningIdentity, hardenedRuntime: true } } };
+      // `-` = ad-hoc signature (no Developer ID certificate yet). Apple Silicon refuses to run unsigned
+      // binaries; hardened runtime would enforce library validation, which ad-hoc signatures cannot satisfy.
+      const adHoc = appleSigningIdentity === '-';
+      const payload = { bundle: { macOS: { signingIdentity: appleSigningIdentity, hardenedRuntime: !adHoc } } };
       fs.writeFileSync(codesignOverride, `${JSON.stringify(payload)}\n`, 'utf8');
     }
     configs.push('--config', codesignOverride);

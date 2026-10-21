@@ -7,5 +7,5 @@ test('resolveLinuxProductNameOverride returns stable product names without space
   assert.equal(resolveLinuxProductNameOverride({ environment: 'dev' }), 'HappierDev');
   assert.equal(resolveLinuxProductNameOverride({ environment: 'publicdev' }), 'HappierDev');
   assert.equal(resolveLinuxProductNameOverride({ environment: 'preview' }), 'HappierPreview');
-  assert.equal(resolveLinuxProductNameOverride({ environment: 'production' }), null);
+  assert.equal(resolveLinuxProductNameOverride({ environment: 'production' }), 'Kaiwu');
 });

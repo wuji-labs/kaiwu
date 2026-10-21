@@ -33,7 +33,7 @@ pub fn register<R: Runtime>(app: &mut App<R>) -> tauri::Result<()> {
 
     let initial_state = DesktopTrayStatePayload {
         status: DesktopTrayStatus::Connecting,
-        label: "Happier".to_string(),
+        label: "无极开物".to_string(),
         detail: "Checking connection".to_string(),
     };
 
@@ -141,8 +141,8 @@ fn build_menu<R: Runtime>(
         .enabled(false)
         .build(app)?;
     let show_main_window_item =
-        MenuItemBuilder::with_id(SHOW_MAIN_WINDOW_MENU_ID, "Open Happier").build(app)?;
-    let quit_app = MenuItemBuilder::with_id(QUIT_APP_MENU_ID, "Quit Happier").build(app)?;
+        MenuItemBuilder::with_id(SHOW_MAIN_WINDOW_MENU_ID, "打开无极开物").build(app)?;
+    let quit_app = MenuItemBuilder::with_id(QUIT_APP_MENU_ID, "退出无极开物").build(app)?;
 
     MenuBuilder::new(app)
         .item(&status_item)

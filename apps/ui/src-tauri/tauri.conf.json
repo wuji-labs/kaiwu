@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "Happier",
+  "productName": "无极开物",
   "version": "0.2.11",
-  "identifier": "dev.happier.app",
+  "identifier": "com.wujilabs.kaiwu",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:8081",
@@ -20,7 +20,7 @@
     },
     "windows": [
       {
-        "title": "Happier",
+        "title": "无极开物",
         "width": 800,
         "height": 600,
         "visible": false,
@@ -47,13 +47,28 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "shortDescription": "无极开物",
+    "publisher": "WUJI-Labs",
+    "copyright": "Copyright (c) 2026 Qianyuan Wuji Group (WUJILabs)",
+    "windows": {
+      "wix": {
+        "language": [
+          "zh-CN"
+        ]
+      },
+      "nsis": {
+        "languages": [
+          "SimpChinese"
+        ]
+      }
+    }
   },
   "plugins": {
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDM5NDQxNUM4Q0Y5NUQ1NDkKUldSSjFaWFB5QlZFT2NjSGNDRHhMY1NjTVN0ZzNrdCtWN0dDdWtPeFhFVHVCRm9mcXJ1eW5iUUsK",
       "endpoints": [
-        "https://github.com/happier-dev/happier/releases/download/ui-desktop-stable/latest.json"
+        "https://kaiwu.wujilabs.cn/download/desktop/latest.json"
       ]
     }
   }

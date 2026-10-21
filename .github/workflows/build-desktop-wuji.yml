@@ -178,7 +178,7 @@ jobs:
     env:
       KAIWU_EMBEDDED_POLICY_ENV: ${{ inputs.environment == 'production' && 'production' || 'preview' }}
       EXPO_UNSTABLE_WEB_MODAL: "1"
-      # Ensure desktop release bundles always bootstrap against Happier Cloud unless explicitly overridden
+      # Ensure desktop release bundles always bootstrap against the Kaiwu server unless explicitly overridden
       # by runtime server profile switching inside the app.
       EXPO_PUBLIC_KAIWU_SERVER_URL: https://kaiwu.wujilabs.cn
       EXPO_PUBLIC_HAPPY_SERVER_URL: https://kaiwu.wujilabs.cn
@@ -502,7 +502,7 @@ jobs:
           APP_ENV: ${{ inputs.environment }}
           BUILD_VERSION: ${{ needs.resolve_source.outputs.build_version }}
           TAURI_TARGET: ${{ matrix.tauri_target }}
-          APPLE_SIGNING_IDENTITY: ${{ steps.apple_id.outputs.identity }}
+          APPLE_SIGNING_IDENTITY: ${{ steps.apple_id.outputs.identity || (runner.os == 'macOS' && '-' || '') }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ env.TAURI_EPHEMERAL_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ env.TAURI_EPHEMERAL_PASSWORD }}
         run: |
