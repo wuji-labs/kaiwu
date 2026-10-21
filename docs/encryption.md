@@ -500,6 +500,30 @@ flowchart TD
 
 For `dataKey`, clients must first decrypt or derive the per-session/per-machine data key from the stored `dataEncryptionKey` bundle.
 
+## Client-side caches of decrypted content
+
+The app keeps two derived, refreshable projections of decrypted content on the device so screens can paint before the network answers. Neither is an authority: the server is, and both are reconciled against it on every use.
+
+| Cache | Owner | Holds | Native (iOS/Android) | Web / Tauri |
+|---|---|---|---|---|
+| Warm cache | `apps/ui/sources/sync/domains/state/warmCachePersistence.ts` | Session-list rows, machine displays, session organization | MMKV instance `warm-cache-v2`, encrypted | `localStorage`-backed MMKV web store, plaintext |
+| Transcript cache | `apps/ui/sources/sync/domains/state/transcriptCachePersistence.ts` | Transcript tail of recently opened sessions + the session's server row | MMKV instance `transcript-cache-v1`, encrypted | IndexedDB database `kaiwu-transcript-cache`, plaintext |
+
+**At-rest key (native).** Both MMKV instances are encrypted with one key generated from the platform CSPRNG and held in the OS keystore (`warmCacheEncryptionKey.ts`, Keychain / Android Keystore). If the keystore cannot produce the key, nothing is written or read — the app cold-starts from the network rather than persisting plaintext. MMKV uses only the first 16 bytes of the key (AES-128-CFB).
+
+**Web is plaintext deliberately.** On web the API token and the E2EE secret already live in `localStorage`, so anyone who can read these caches can already decrypt the whole account; encrypting them would add no exposure class. Revisit together with web credential storage. Transcripts use IndexedDB rather than `localStorage` because `localStorage` is a ~5 MB per-origin budget shared with the credential.
+
+### Transcript cache contract
+
+- **What is stored.** Per session: the newest contiguous window of main-chain messages that carry a server `seq` (as replayable `NormalizedMessage`s plus each row's server `updatedAt`), the window bounds (`maxSeq` = materialized head, `minSeq`, `hasMoreOlder`) and the server's `V2SessionRecord` row for the session — still ciphertext, including the wrapped `dataEncryptionKey`. Optimistic, streaming and synthetic rows are never stored; their owners re-derive them.
+- **Scope.** Records are keyed by `serverId:accountId:sessionId` and only read under the active server and signed-in account. Sessions owned by another server and direct sessions are never written.
+- **Bounds.** Newest `sessionMessagesPageSize` (150) messages per session, at most 512 KiB per record (older messages are dropped from the old end so the window stays contiguous with `maxSeq`), at most 30 sessions and 8 MiB in total, evicted least-recently-used. The total is chosen because an encrypted MMKV instance is decrypted into memory in full on first open.
+- **Read path.** Opening a session whose transcript is not in memory (cold start, or after bounded in-memory retention evicted it) replays the session row through the session-by-id decoder (if the store has no session yet) and the messages through `applyMessages`, restores the older-page cursor and sets the materialized head to the record's `maxSeq`. The normal catch-up then fetches only `afterSeq=maxSeq`; a large gap falls through to the existing tail-reset path. The live `/v2/sessions/:id` fetch still runs and replaces the shell.
+- **Write path.** Every applied message is observed at `Sync.applyMessages`; a session is written after a 3 s quiet period (so streaming never competes with serialization), and immediately on eviction, app backgrounding and server/account switches.
+- **Invalidation.** A record is deleted when: the server reports a durable edit (`updatedMessageSeq` change hint) for a session not held in memory; a realtime edit marks the in-memory transcript stale (it is rewritten after the targeted repair); a changes-feed snapshot fallback runs (every record except sessions held in memory); the session is deleted or its share revoked; the record fails validation. Sign-out clears the whole store after the server scope is torn down.
+- **Versioning.** `TRANSCRIPT_CACHE_SCHEMA_VERSION` must be bumped whenever the record shape or the replayed `NormalizedMessage` shape changes incompatibly; older records then fail validation and are deleted on first read, costing one network fetch.
+- **Failure signals.** Storage failures, invalid records and replay failures are recorded as `sync.transcriptCache.*` sync-reliability events.
+
 ## Server-side encryption (service tokens)
 
 ```mermaid

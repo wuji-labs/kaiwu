@@ -1,9 +1,12 @@
+import React from 'react';
+import { act } from 'react-test-renderer';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { renderScreen } from '@/dev/testkit';
 import { rawRecordSchema, type AgentEvent } from '@/sync/typesRaw/schemas';
 import { t } from '@/text';
+import { storage } from '@/sync/domains/state/storage';
 
 import { TranscriptEventRow } from './TranscriptEventRow';
 
@@ -51,6 +54,26 @@ describe('TranscriptEventRow', () => {
         eventRowMocks.modalAlert.mockReset();
         eventRowMocks.modalConfirm.mockReset();
         eventRowMocks.modalConfirm.mockResolvedValue(true);
+    });
+
+    it('does not re-render when an unrelated account setting changes', async () => {
+        const event = parseProtocolValidAgentEvent({ type: 'message', message: 'Session resumed.' });
+        let commits = 0;
+        const screen = await renderScreen(
+            <React.Profiler id="row" onRender={() => { commits += 1; }}>
+                <TranscriptEventRow event={event} sessionId="session-1" />
+            </React.Profiler>,
+        );
+        const commitsAfterMount = commits;
+
+        await act(async () => {
+            storage.getState().applySettingsLocal({
+                favoriteDirectories: [`~/unrelated-${Date.now()}`],
+            });
+        });
+
+        expect(commits).toBe(commitsAfterMount);
+        await screen.unmount();
     });
 
     it('renders typed terminal composer draft blocked events with the clear-composer action', async () => {

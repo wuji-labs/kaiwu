@@ -82,6 +82,7 @@ import { applyAgentStateUpdateToSessionMessages } from './messages';
 import type { SessionMessages } from './messages';
 import { persistSessionModelData } from './sessionModelPersistence';
 import { persistSessionPermissionData } from './sessionPermissionPersistence';
+import { discardTranscriptCacheSession } from '@/sync/domains/state/transcriptCachePersistence';
 import { resolveMergedSessionPermissionMode } from './resolveMergedSessionPermissionMode';
 import {
     applySessionListRenderableCommitPlan,
@@ -2113,6 +2114,9 @@ export function createSessionsDomain<S extends SessionsDomain & SessionsDomainDe
             const actionDrafts = loadSessionActionDrafts(sessionLocalStateScope);
             delete actionDrafts[sessionId];
             saveSessionActionDrafts(actionDrafts, sessionLocalStateScope);
+
+            // A deleted or revoked session must not repaint from the durable transcript cache.
+            fireAndForget(discardTranscriptCacheSession(sessionId), { tag: 'sessions.sessionDeleted.discardTranscriptCache' });
 
             if (sessionLocalStateScope) {
                 fireAndForget(

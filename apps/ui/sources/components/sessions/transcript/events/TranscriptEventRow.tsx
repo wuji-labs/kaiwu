@@ -9,7 +9,7 @@ import { Text } from '@/components/ui/text/Text';
 import type { AgentEvent } from '@/sync/typesRaw';
 import { t } from '@/text';
 import { resolveConnectedServiceUxDiagnosticPresentation } from '@/components/sessions/connectedServices/diagnostics/connectedServiceUxDiagnostics';
-import { useSettings } from '@/sync/store/hooks';
+import { useSetting } from '@/sync/store/hooks';
 import { buildConnectedServiceAccountSwitchMessage } from './connectedServiceAccountSwitchMessage';
 import {
     isTerminalComposerDraftBlockedEvent,
@@ -290,7 +290,8 @@ export const TranscriptEventRow = React.memo(function TranscriptEventRow(props: 
     emphasis?: TranscriptEventEmphasis;
 }) {
     const { theme } = useUnistyles();
-    const settings = useSettings();
+    // One field, not the whole settings object: every event row in a transcript subscribes here.
+    const connectedServicesProfileLabelByKey = useSetting('connectedServicesProfileLabelByKey');
     const deemphasized = props.emphasis === 'deemphasized';
     const eventColor = deemphasized ? theme.colors.text.tertiary : theme.colors.text.secondary;
     const isTerminalComposerDraftBlocked = isTerminalComposerDraftBlockedEvent(props.event);
@@ -369,7 +370,7 @@ export const TranscriptEventRow = React.memo(function TranscriptEventRow(props: 
         iconName = 'arrows-left-right';
         text = buildConnectedServiceAccountSwitchMessage({
             event: props.event,
-            labelsByKey: settings.connectedServicesProfileLabelByKey,
+            labelsByKey: connectedServicesProfileLabelByKey,
         });
     } else if (props.event.type === 'provider-quota-wait') {
         testID = 'transcript-event-provider-quota-wait';

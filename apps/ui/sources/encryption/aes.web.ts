@@ -4,9 +4,37 @@ import { decodeUTF8, encodeUTF8 } from './text';
 
 const IV_LENGTH_BYTES = 12;
 
-async function importAesGcmKeyFromBase64(keyB64: string): Promise<CryptoKey> {
+/**
+ * Imported keys by their base64 material. Every message of a session decrypts with the same key,
+ * and `importKey` is an async round trip into the WebCrypto backend, so re-importing per call
+ * doubled the async work of every decrypt in a page. The material itself is already resident in
+ * the caller's session-key map; the non-extractable `CryptoKey` adds no new exposure.
+ *
+ * Bounded by the number of distinct session keys one runtime decrypts with; past that the least
+ * recently used import is dropped and simply re-imported on next use. A failed import is evicted
+ * so it cannot poison later calls with the same rejected promise.
+ */
+const AES_KEY_IMPORT_CACHE_MAX_ENTRIES = 256;
+const importedAesKeys = new Map<string, Promise<CryptoKey>>();
+
+function importAesGcmKeyFromBase64(keyB64: string): Promise<CryptoKey> {
+    const cached = importedAesKeys.get(keyB64);
+    if (cached) {
+        importedAesKeys.delete(keyB64);
+        importedAesKeys.set(keyB64, cached);
+        return cached;
+    }
     const keyBytes = new Uint8Array(decodeBase64(keyB64, 'base64'));
-    return await globalThis.crypto.subtle.importKey('raw', keyBytes, { name: 'AES-GCM' }, false, ['encrypt', 'decrypt']);
+    const imported = globalThis.crypto.subtle.importKey('raw', keyBytes, { name: 'AES-GCM' }, false, ['encrypt', 'decrypt']);
+    importedAesKeys.set(keyB64, imported);
+    imported.catch(() => {
+        if (importedAesKeys.get(keyB64) === imported) importedAesKeys.delete(keyB64);
+    });
+    if (importedAesKeys.size > AES_KEY_IMPORT_CACHE_MAX_ENTRIES) {
+        const oldest = importedAesKeys.keys().next().value;
+        if (oldest !== undefined) importedAesKeys.delete(oldest);
+    }
+    return imported;
 }
 
 async function encryptAesGcmBytes(plaintext: Uint8Array, key: CryptoKey): Promise<Uint8Array> {

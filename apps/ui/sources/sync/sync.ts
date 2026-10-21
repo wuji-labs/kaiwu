@@ -352,6 +352,14 @@ import { resolvePreferredServerIdForSessionId } from '@/sync/runtime/orchestrati
 import { resolveServerIdForSessionIdFromLocalCache } from '@/sync/runtime/orchestration/serverScopedRpc/resolveServerIdForSessionIdFromLocalCache';
 import { emitSessionMetadataUpdateWithServerScope } from '@/sync/runtime/orchestration/serverScopedRpc/emitSessionMetadataUpdateWithServerScope';
 import { fetchSessionByIdWithServerScope } from '@/sync/runtime/orchestration/serverScopedRpc/fetchSessionByIdWithServerScope';
+import {
+    createSessionTranscriptCacheController,
+    type SessionTranscriptCacheController,
+    type SessionTranscriptPersistDecision,
+} from '@/sync/engine/sessions/sessionTranscriptCache';
+import { clearSessionRecordRows, readSessionRecordRow } from '@/sync/engine/sessions/sessionRecordRowRegistry';
+import { buildSessionFromDecodedRow, decodeSessionByIdRow } from '@/sync/engine/sessions/sessionById';
+import type { TranscriptCacheRecord, TranscriptCacheScope } from '@/sync/domains/state/transcriptCachePersistence';
 import type {
     EnsureSessionVisibleForRouteResult,
     SessionRouteHydrationMissingCause,
@@ -497,6 +505,13 @@ import { openActionOperationRevisionEphemeral } from './domains/actionOperations
 
 const SESSION_LIST_BACKGROUND_HYDRATION_SCROLL_SETTLE_MS = 180;
 const WEB_INITIAL_SESSION_MESSAGES_PAGE_SIZE = 12;
+
+/**
+ * Quiet period before a changed transcript is written to the durable cache. A streaming turn keeps
+ * resetting it, so serialization never competes with streaming frames; eviction, backgrounding and
+ * scope switches flush immediately instead of waiting it out.
+ */
+const TRANSCRIPT_CACHE_FLUSH_QUIET_MS = 3_000;
 
 /**
  * How long a successful `/v1/version` answer stays fresh.
@@ -956,6 +971,8 @@ class Sync {
         private pauseController = new PauseController();
         private syncTuning: SyncTuning = loadSyncTuning();
         private sessionTranscriptRetention!: SessionTranscriptRetentionController;
+        private sessionTranscriptCache!: SessionTranscriptCacheController;
+        private sessionTranscriptCacheHydrationInFlight = new Map<string, Promise<boolean>>();
       private resumeInFlight: Promise<void> | null = null;
       private changesCatchUpQueuedAfterResume = false;
       private pendingOutboxRearmInFlightByScope = new Map<string, Promise<void>>();
@@ -1165,6 +1182,23 @@ class Sync {
             },
         });
         subscribeSessionTranscriptConsumerReleases(() => this.sessionTranscriptRetention.scheduleSweep());
+        this.sessionTranscriptCache = createSessionTranscriptCacheController({
+            readScope: () => this.readTranscriptCacheScope(),
+            readPersistDecision: (sessionId) => this.readTranscriptCachePersistDecision(sessionId),
+            readReceivedUpdatedAt: (sessionId, messageId) => this.sessionReceivedMessages.get(sessionId)?.get(messageId),
+            readSessionRow: (sessionId) => readSessionRecordRow(sessionId),
+            readMaxMessages: () => this.getSessionMessagesPageSize(),
+            flushDelayMs: TRANSCRIPT_CACHE_FLUSH_QUIET_MS,
+            onFailure: (operation, error) => {
+                syncReliabilityTelemetry.record('sync.transcriptCache.failed', {
+                    operation,
+                    error: error instanceof Error ? error.name : 'unknown',
+                });
+            },
+            onInvalidRecord: () => {
+                syncReliabilityTelemetry.record('sync.transcriptCache.invalidRecordDiscarded');
+            },
+        });
         fireAndForget(Promise.resolve().then(() => {
             const pruned = pruneStaleInstanceChangesCursors({
                 nowMs: Date.now(),
@@ -1987,6 +2021,11 @@ class Sync {
     }
 
     private resetServerScopedRuntimeState = () => {
+        // Write pending transcripts into the scope they were observed in before that scope's
+        // window state is cleared below; nothing of it may be read under the next scope.
+        this.sessionTranscriptCache.flushAllAndRelease();
+        this.sessionTranscriptCacheHydrationInFlight.clear();
+        clearSessionRecordRows();
         this.changesCatchUpQueuedAfterResume = false;
         this.postSubscriptionChangesCatchUpPending = false;
         this.sessionDraftSyncEnabled = false;
@@ -2319,6 +2358,14 @@ class Sync {
                     }
                     return createEnsureSessionVisibleAvailableResult(normalized, scopedServerId);
                 }
+            }
+
+            // Paint from the durable cache while the live row is fetched below; the fetch replaces
+            // the shell, and its messages invalidation resumes from the hydrated head.
+            if (!storage.getState().sessions[normalized] && this.isActiveServerRouteScope(scopedServerId)) {
+                fireAndForget(this.hydrateSessionFromTranscriptCache(normalized), {
+                    tag: 'Sync.ensureSessionVisibleForMessageRoute.transcriptCache',
+                });
             }
 
             // Sync might not be fully initialized yet (e.g. very early during app bootstrap).
@@ -4689,6 +4736,15 @@ class Sync {
 
           const concurrencyLimit = this.syncTuning.resumeConcurrencyLimit;
 
+          // A snapshot refresh means the changes feed could not prove which rows were edited in
+          // the gap. Transcripts held in memory are reconciled by the catch-up below; persisted
+          // copies of every other session can no longer be trusted.
+          await this.sessionTranscriptCache.discardScopeExcept(new Set(
+              Object.entries(storage.getState().sessionMessages)
+                  .filter(([, messages]) => messages?.isLoaded === true)
+                  .map(([sessionId]) => sessionId),
+          ));
+
           // Rebuild core lists first (sessions drives most downstream state).
           await runTasksWithLimit(
               [
@@ -5368,6 +5424,15 @@ class Sync {
     }
 
     private fetchMessages = async (sessionId: string) => {
+        if (
+            storage.getState().sessionMessages[sessionId]?.isLoaded !== true
+            // Direct sessions own their transcript cursor elsewhere and are never persisted here.
+            && !readDirectSessionLink(storage.getState().sessions[sessionId]?.metadata)
+        ) {
+            // Paint the persisted tail first; everything below then treats it as a loaded
+            // transcript and only fetches the delta above its head. A miss changes nothing.
+            await this.hydrateSessionFromTranscriptCache(sessionId);
+        }
         if (this.hasFetchedSessionsSnapshotForActiveServer && !this.isSessionKnownOnResolvedOwnerServer(sessionId)) {
             // Do not fetch messages when we cannot resolve the session to either the active server
             // or a locally known owner server. This avoids cross-server message fetches. The owner
@@ -6995,6 +7060,197 @@ class Sync {
           return protectedIds;
       }
 
+      /** Persisted transcripts are scoped to the active server; another server's route never reads them. */
+      private isActiveServerRouteScope(scopedServerId: string | null | undefined): boolean {
+          const routeServerId = String(scopedServerId ?? '').trim();
+          if (!routeServerId) return true;
+          return areServerProfileIdentifiersEquivalent(routeServerId, String(getActiveServerSnapshot().serverId ?? '').trim());
+      }
+
+      private readTranscriptCacheScope(): TranscriptCacheScope | null {
+          const serverId = String(getActiveServerSnapshot().serverId ?? '').trim();
+          const accountId = String(this.serverID ?? '').trim();
+          return serverId && accountId ? { serverId, accountId } : null;
+      }
+
+      /**
+       * The single answer to "may this session's in-memory transcript be written to disk now, and
+       * which window of it". Only the contiguous main-chain window ending at the materialized head
+       * qualifies, so a hydrated record can always be extended by the `afterSeq` delta alone.
+       */
+      private readTranscriptCachePersistDecision(sessionId: string): SessionTranscriptPersistDecision {
+          const state = storage.getState();
+          if (state.deletedSessionIds[sessionId] === true) return { kind: 'discard' };
+          if (hasStaleTranscriptMarkers(this.deferredTranscriptState, sessionId)) return { kind: 'discard' };
+          const session = state.sessions[sessionId] ?? null;
+          if (session && readDirectSessionLink(session.metadata)) return { kind: 'skip' };
+          const activeServerId = String(getActiveServerSnapshot().serverId ?? '').trim();
+          const sessionServerId = String(session?.serverId ?? '').trim();
+          if (sessionServerId && !areServerProfileIdentifiersEquivalent(sessionServerId, activeServerId)) {
+              return { kind: 'skip' };
+          }
+          const maxSeq = this.sessionMaterializedMaxSeqById[sessionId] ?? 0;
+          if (!(maxSeq > 0)) return { kind: 'skip' };
+          const pagingKey = this.buildSessionMessagesPaginationKey({ sessionId, scope: 'main' });
+          const beforeSeq = this.sessionMessagesBeforeSeqByKey.get(pagingKey);
+          if (typeof beforeSeq !== 'number') return { kind: 'skip' };
+          const discontinuity = this.sessionMessagesTailDiscontinuityBySessionId.get(sessionId) ?? null;
+          const floorSeq = Math.max(beforeSeq, discontinuity?.walkCursor ?? 0);
+          const hasMoreOlder = this.sessionMessagesHasMoreOlderByKey.has(pagingKey)
+              ? this.sessionMessagesHasMoreOlderByKey.get(pagingKey) === true
+              : null;
+          return { kind: 'persist', maxSeq, floorSeq, hasMoreOlder: discontinuity ? true : hasMoreOlder };
+      }
+
+      /**
+       * Paint a released or cold-started transcript (and, if the store has none yet, its session
+       * shell) from the durable cache. One attempt per session at a time; `true` when the
+       * transcript is now loaded from disk.
+       */
+      private hydrateSessionFromTranscriptCache(sessionId: string): Promise<boolean> {
+          const existing = this.sessionTranscriptCacheHydrationInFlight.get(sessionId);
+          if (existing) return existing;
+          const attempt = this.hydrateSessionFromTranscriptCacheOnce(sessionId).finally(() => {
+              if (this.sessionTranscriptCacheHydrationInFlight.get(sessionId) === attempt) {
+                  this.sessionTranscriptCacheHydrationInFlight.delete(sessionId);
+              }
+          });
+          this.sessionTranscriptCacheHydrationInFlight.set(sessionId, attempt);
+          return attempt;
+      }
+
+      private async hydrateSessionFromTranscriptCacheOnce(sessionId: string): Promise<boolean> {
+          const generation = this.serverScopeGeneration;
+          const loaded = await this.sessionTranscriptCache.load(sessionId);
+          if (!loaded) return false;
+          const isCurrent = () => (
+              this.serverScopeGeneration === generation
+              && this.sessionTranscriptCache.isScopeCurrent(loaded.scope)
+              && this.sessionTranscriptCache.readDiscardEpoch(sessionId) === loaded.epoch
+              && storage.getState().deletedSessionIds[sessionId] !== true
+          );
+          if (!isCurrent()) return false;
+
+          if (!storage.getState().sessions[sessionId] && loaded.record.session) {
+              await this.applySessionShellFromTranscriptCache(sessionId, loaded.record.session);
+              if (!isCurrent()) return false;
+          }
+          // The network may have landed the transcript while the record was being read; its copy
+          // is authoritative, and replaying an older one over it would only churn the store.
+          if (storage.getState().sessionMessages[sessionId]?.isLoaded === true) return false;
+          return this.applyTranscriptCacheRecord(sessionId, loaded.scope, loaded.record);
+      }
+
+      private applyTranscriptCacheRecord(
+          sessionId: string,
+          scope: TranscriptCacheScope,
+          record: TranscriptCacheRecord,
+      ): boolean {
+          const startedAtMs = Date.now();
+          try {
+              this.applyMessages(
+                  sessionId,
+                  record.messages.map((entry) => entry.message),
+                  { notifyVoice: false, notifyActivity: false },
+              );
+          } catch (error) {
+              // A record the reducer cannot replay is worthless; drop it and let the network
+              // path load the transcript as if there had been no cache.
+              this.resetSessionTranscriptState(sessionId);
+              void this.sessionTranscriptCache.discardPersisted(sessionId);
+              syncReliabilityTelemetry.record('sync.transcriptCache.replayFailed', {
+                  error: error instanceof Error ? error.name : 'unknown',
+              });
+              return false;
+          }
+          let receivedMessages = this.sessionReceivedMessages.get(sessionId);
+          if (!receivedMessages) {
+              receivedMessages = new Map<string, number>();
+              this.sessionReceivedMessages.set(sessionId, receivedMessages);
+          }
+          for (const entry of record.messages) {
+              if (typeof entry.updatedAt === 'number') receivedMessages.set(entry.message.id, entry.updatedAt);
+          }
+          const pagingKey = this.buildSessionMessagesPaginationKey({ sessionId, scope: 'main' });
+          this.sessionMessagesBeforeSeqByKey.set(pagingKey, record.minSeq);
+          this.sessionMessagesHasMoreOlderByKey.set(pagingKey, record.hasMoreOlder);
+          // Overwrite, not raise: the separately persisted head may be ahead of what this record
+          // holds, and resuming above the record would skip the difference.
+          this.sessionMaterializedMaxSeqById = { ...this.sessionMaterializedMaxSeqById, [sessionId]: record.maxSeq };
+          this.sessionMaterializedMaxSeqDirty = true;
+          this.scheduleSessionMaterializedMaxSeqFlush();
+          storage.getState().applyMessagesLoaded(sessionId);
+          this.sessionTranscriptCache.markHydrated(sessionId, scope, record);
+          syncPerformanceTelemetry.recordDuration('sync.transcriptCache.hydrated', Date.now() - startedAtMs, {
+              messages: record.messages.length,
+          });
+          return true;
+      }
+
+      /**
+       * Replay a persisted session row through the same decoder the network fetch uses, so a
+       * cold-started session renders (and can decrypt its delta) before `/v2/sessions/:id`
+       * answers. Route hydration still runs and replaces this shell with the live row.
+       */
+      private async applySessionShellFromTranscriptCache(
+          sessionId: string,
+          row: NonNullable<TranscriptCacheRecord['session']>,
+      ): Promise<void> {
+          const stagedSessionDataKeys = new Map(this.sessionDataKeys);
+          const stagedSessionDataKeyEnvelopes = new Map(this.sessionDataKeyEnvelopes);
+          const currentSettings = storage.getState().settings;
+          try {
+              const decoded = await decodeSessionByIdRow({
+                  row,
+                  encryption: this.encryption,
+                  sessionDataKeys: stagedSessionDataKeys,
+                  sessionDataKeyEnvelopes: stagedSessionDataKeyEnvelopes,
+                  clientEncryptionRequirement: resolveUiClientEncryptionRequirement({
+                      syncedSettings: currentSettings,
+                      localSettings: currentSettings,
+                  }),
+                  log,
+              });
+              if (!decoded.ok) return;
+              if (storage.getState().sessions[sessionId]) {
+                  // The live row won the race. Decoding re-initialized this session's runtime
+                  // encryption from the cached envelope, so restore it from the committed key.
+                  const committedKey = this.sessionDataKeys.get(sessionId) ?? null;
+                  if (decoded.encryptionMode === 'e2ee' && committedKey) {
+                      await this.encryption.initializeSessions(new Map([[sessionId, committedKey]]));
+                  }
+                  return;
+              }
+              this.commitSessionDataKeyCacheEntry(sessionId, stagedSessionDataKeys, stagedSessionDataKeyEnvelopes);
+              this.applySessions([buildSessionFromDecodedRow({
+                  row,
+                  serverId: null,
+                  decoded,
+                  sessionTurns: null,
+              })]);
+          } catch (error) {
+              syncReliabilityTelemetry.record('sync.transcriptCache.shellReplayFailed', {
+                  error: error instanceof Error ? error.name : 'unknown',
+              });
+          }
+      }
+
+      /**
+       * A durable edit for a session the engine does not hold in memory cannot be repaired there,
+       * so its persisted copy is the only stale one left: drop it before the changes cursor moves
+       * past the edit.
+       */
+      private async discardUnloadedTranscriptCopiesForRepairs(
+          repairs: ReadonlyArray<Readonly<{ sessionId: string }>>,
+      ): Promise<void> {
+          const discards: Promise<void>[] = [];
+          for (const repair of repairs) {
+              if (storage.getState().sessionMessages[repair.sessionId]?.isLoaded === true) continue;
+              discards.push(this.sessionTranscriptCache.discardPersisted(repair.sessionId));
+          }
+          await Promise.all(discards);
+      }
+
       /**
        * Canonical transcript memory release for bounded retention: drops the store
        * entry entirely (which also clears the per-session derived caches through
@@ -7002,6 +7258,8 @@ class Sync {
        * transcript state, so re-opening runs the first-open page-limited load pipeline.
        */
       private evictSessionTranscript(sessionId: string): void {
+          // Persist before release: the window inputs (materialized head, cursors) are reset below.
+          this.sessionTranscriptCache.flushAndRelease(sessionId);
           storage.getState().evictSessionMessages(sessionId);
           this.resetSessionTranscriptState(sessionId);
           syncPerformanceTelemetry.count('sync.sessions.transcript.evicted', { evicted: 1 });
@@ -7088,6 +7346,11 @@ class Sync {
     private flushBackgroundSyncCheckpointsNow(): void {
         try {
             this.flushPendingSettingsForCurrentScopeNow();
+        } catch {
+            // ignore
+        }
+        try {
+            this.sessionTranscriptCache.flushAll();
         } catch {
             // ignore
         }
@@ -7251,6 +7514,7 @@ class Sync {
                     await this.snapshotRefreshOnResume({ mode: 'long-offline', reason: 'snapshot-refresh' });
                 },
                 applyPlanned: async (planned) => {
+                    await this.discardUnloadedTranscriptCopiesForRepairs(planned.sessionTranscriptRepairs);
                     return await applyPlannedChangeActions({
                         planned,
                         credentials: this.credentials,
@@ -7573,6 +7837,9 @@ class Sync {
 
     private markSessionTranscriptStale(sessionId: string, marker: DeferredTranscriptMarker): void {
         this.deferredTranscriptState = markTranscriptStale(this.deferredTranscriptState, sessionId, marker);
+        // The persisted copy now holds a row the server has since edited; it is rewritten from
+        // memory once the targeted repair lands (`readTranscriptCachePersistDecision`).
+        void this.sessionTranscriptCache.discardPersisted(sessionId);
     }
 
     private markSessionStateHydrationDeferred(sessionId: string): void {
@@ -7637,6 +7904,7 @@ class Sync {
         options?: { notifyVoice?: boolean; notifyActivity?: boolean }
     ) => {
         const result = storage.getState().applyMessages(sessionId, messages);
+        this.sessionTranscriptCache.noteAppliedMessages(sessionId, messages);
         const notifyVoice = options?.notifyVoice !== false;
         const notifyActivity = options?.notifyActivity ?? notifyVoice;
         if (notifyVoice || notifyActivity) {

@@ -31,6 +31,7 @@ import type { EncryptionScopeInput } from '@/sync/encryption/encryption';
 
 import { parsePlainSessionAgentState, parsePlainSessionMetadata } from './parsePlainSessionPayload';
 import { fetchSessionListPageCompat } from './sessionHttpCompat';
+import { rememberSessionRecordRow } from './sessionRecordRowRegistry';
 import { resolveSessionRuntimeActivityProjectionFields } from './sessionRuntimeActivityProjection';
 import {
     isSessionListRowAttentionHydrationPriority,
@@ -1005,6 +1006,7 @@ async function decryptSessionRow(
                             return { metadata, agentState };
                         })();
 
+                rememberSessionRecordRow(row);
                 return buildHydratedSessionFromDecryptedRow(row, encryptionMode, decryptedState, serverId);
             } catch (error) {
                 console.error(`[sessionsSnapshot] Failed to decrypt session ${row.id}`, error);

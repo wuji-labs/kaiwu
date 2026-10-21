@@ -12,7 +12,8 @@ import {
 import { SessionListVirtualizedList } from '@/components/ui/lists/flashListCompat/SessionListVirtualizedList';
 import { usePathname, useRouter } from 'expo-router';
 import { useNavigateToSession } from '@/hooks/session/useNavigateToSession';
-import { SessionListViewItem, storage, useSetting, useSettings } from '@/sync/domains/state/storage';
+import { SessionListViewItem, storage, useSetting } from '@/sync/domains/state/storage';
+import { useSessionForkReplaySettings } from '@/components/sessions/fork/useSessionForkReplaySettings';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useVisibleSessionListViewData } from '@/hooks/session/useVisibleSessionListViewData';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -772,7 +773,7 @@ export const SessionsListContent = React.memo(function SessionsListContent(props
     const sessionListActiveColorMode = useSetting('sessionListActiveColorModeV1');
     const sessionListSectionModeRaw = useSetting('sessionListSectionModeV1');
     const sessionReplayEnabled = useSetting('sessionReplayEnabled');
-    const sessionForkReplaySettings = useSettings();
+    const sessionForkReplaySettings = useSessionForkReplaySettings();
     const executionRunsEnabled = useFeatureEnabled('execution.runs');
     const forkActionContext = React.useMemo(() => ({
         settings: sessionForkReplaySettings,
