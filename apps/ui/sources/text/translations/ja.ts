@@ -728,6 +728,7 @@ export const ja: TranslationStructure = {
     actionOperations: {
       sections: { inProgress: "進行中", needsAttention: "確認が必要", recent: "最近" },
       clearRecent: "最近の項目を消去",
+      titles: { createSession: 'セッションを作成', forkSession: 'セッションを分岐', handoffSession: 'セッションを引き継ぎ' },
       status: { accepted: "受け付け済み", running: "実行中", succeeded: "完了", failed: "失敗", cancelled: "キャンセル済み", reconnecting: "再接続中", unavailable: "状態を確認できません", setupNeedsAttention: "セッションは作成されました。設定を確認してください" },
       empty: "時間のかかるアクションはここに表示されます。",
       openHint: "アクションの詳細を開きます",

@@ -530,6 +530,7 @@ export const en = {
         actionOperations: {
             sections: { inProgress: 'In progress', needsAttention: 'Needs attention', recent: 'Recent' },
             clearRecent: 'Clear recent',
+            titles: { createSession: 'Create session', forkSession: 'Fork session', handoffSession: 'Hand off session' },
             status: { accepted: 'Accepted', running: 'Running', succeeded: 'Succeeded', failed: 'Failed', cancelled: 'Cancelled', reconnecting: 'Reconnecting', unavailable: 'Status unavailable', setupNeedsAttention: 'Session created; setup needs attention' },
             empty: 'Long-running actions will appear here.',
             openHint: 'Opens operation details',

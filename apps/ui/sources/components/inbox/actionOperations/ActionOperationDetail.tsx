@@ -11,9 +11,12 @@ import { ModalCardFrame } from '@/modal/components/card/ModalCardFrame';
 import { t } from '@/text';
 import { useNowMs } from '@/hooks/time/useNowMs';
 import { actionOperationReentry } from '@/sync/domains/actionOperations/actionOperationReentry';
+import { storage } from '@/sync/domains/state/storage';
+import { getSessionName } from '@/utils/sessions/sessionUtils';
 
 import {
     resolveActionOperationDetailContent,
+    resolveActionOperationTitle,
     resolveActionOperationPresentation,
     type ActionOperationObservationPresentation,
     type ActionOperationPresentationStatus,
@@ -131,6 +134,11 @@ export const ActionOperationDetail = React.memo(function ActionOperationDetail(p
     const presentation = resolveActionOperationPresentation(props.operation, props.observation, nowMs);
     const status = statusLabel(presentation.status);
     const detail = resolveActionOperationDetailContent(props.operation);
+    // Read once, not subscribed: this sits after the unavailable early return, where hooks may not run.
+    const title = resolveActionOperationTitle(props.operation, (sessionId) => {
+        const session = storage.getState().sessions[sessionId];
+        return session ? getSessionName(session) : null;
+    });
     const progress = [presentation.progressLabel, presentation.progressValue].filter(Boolean).join('  ');
     const liveMeta = [progress, presentation.timeValue].filter(Boolean).join('  ·  ');
 
@@ -163,7 +171,7 @@ export const ActionOperationDetail = React.memo(function ActionOperationDetail(p
                         accessibilityRole="header"
                         style={styles.title}
                     >
-                        {props.operation.title}
+                        {title}
                     </Text>
                     <Text style={styles.actionId}>{props.operation.actionId}</Text>
                 </View>

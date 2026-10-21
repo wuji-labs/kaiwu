@@ -26,6 +26,7 @@ vi.mock('@/sync/domains/state/storage', async () => {
         useAllMachines: () => [],
         useAllSessions: () => [],
         useAllSessionListRenderables: () => [],
+        useSession: () => null,
     });
 });
 

@@ -743,6 +743,7 @@ export const zhHans: TranslationStructure = {
     actionOperations: {
       sections: { inProgress: "进行中", needsAttention: "需要处理", recent: "最近" },
       clearRecent: "清除最近记录",
+      titles: { createSession: '新建会话', forkSession: '分叉会话', handoffSession: '接力会话' },
       status: { accepted: "已接受", running: "运行中", succeeded: "已成功", failed: "失败", cancelled: "已取消", reconnecting: "正在重新连接", unavailable: "状态不可用", setupNeedsAttention: "会话已创建；设置需要处理" },
       empty: "长时间运行的操作会显示在这里。",
       openHint: "打开操作详情",
