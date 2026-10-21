@@ -44,6 +44,9 @@ vi.mock('@/scm/utils/filePresentation', () => ({
     getImageMimeTypeFromPath: () => null,
     isBinaryContent: () => false,
     isKnownBinaryPath: () => false,
+    getMediaKind: () => null,
+    getMediaMimeTypeFromPath: () => null,
+    getLegacyOfficeKind: () => null,
 }));
 
 const { refreshSessionFileDetails } = await import('./refreshSessionFileDetails');
