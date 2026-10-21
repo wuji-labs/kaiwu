@@ -5,20 +5,11 @@ import { configuration } from '@/configuration';
 import { resolveDaemonStartupSourceServiceManagedState } from '@/daemon/ownership/daemonOwnershipMetadata';
 import { readCredentials, readDaemonState, readSettings } from '@/persistence';
 import { resolveDaemonServiceInstallationSnapshotFromEnv } from '@/daemon/service/cli';
+import { isPidAliveBySignal } from '@/daemon/processRunState';
 
 export type DaemonStatusSnapshot = NonNullable<DoctorSnapshot['daemonStatus']>;
 
-function isPidAlive(pid: number | null | undefined): boolean {
-  if (!pid) {
-    return false;
-  }
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch {
-    return false;
-  }
-}
+const isPidAlive = isPidAliveBySignal;
 
 function resolveComparableKey(rawUrl: string): string | null {
   const value = String(rawUrl ?? '').trim();
