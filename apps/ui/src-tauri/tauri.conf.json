@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "无极开物",
-  "version": "0.2.11",
+  "version": "../package.json",
   "identifier": "com.wujilabs.kaiwu",
   "build": {
     "frontendDist": "../dist",

@@ -10,7 +10,7 @@ const scriptPath = join(repoRoot, 'scripts', 'release', 'publish-downloads.mjs')
 
 const expectedNames = {
     'desktop-windows': 'kaiwu-desktop-v1.2.3-windows-x64.zip',
-    'desktop-macos': 'kaiwu-desktop-v1.2.3-macos-universal.dmg',
+    'desktop-macos': 'kaiwu-desktop-v1.2.3-macos-apple-silicon.dmg',
     'desktop-linux': 'kaiwu-desktop-v1.2.3-linux-x64.AppImage',
     harmony: 'kaiwu-v1.2.3-harmony.hap',
 };

@@ -30,6 +30,7 @@ import { parseArgs } from 'node:util';
 const SUPPORTED_PLATFORMS = [
     'desktop-windows',
     'desktop-macos',
+    'desktop-macos-intel',
     'desktop-linux',
     'windows',
     'macos',
@@ -43,7 +44,8 @@ const SUPPORTED_PLATFORMS = [
 
 const CANONICAL_FILENAMES = {
     'desktop-windows': (ver) => `kaiwu-desktop-v${ver}-windows-x64.zip`,
-    'desktop-macos': (ver) => `kaiwu-desktop-v${ver}-macos-universal.dmg`,
+    'desktop-macos': (ver) => `kaiwu-desktop-v${ver}-macos-apple-silicon.dmg`,
+    'desktop-macos-intel': (ver) => `kaiwu-desktop-v${ver}-macos-intel.dmg`,
     'desktop-linux': (ver) => `kaiwu-desktop-v${ver}-linux-x64.AppImage`,
     windows: (ver) => `kaiwu-v${ver}-windows-x64.zip`,
     macos: (ver) => `kaiwu-cli-${ver}.tgz`,
@@ -57,7 +59,8 @@ const CANONICAL_FILENAMES = {
 
 const LATEST_ALIASES = {
     'desktop-windows': 'kaiwu-desktop-windows-x64.zip',
-    'desktop-macos': 'kaiwu-desktop-macos-universal.dmg',
+    'desktop-macos': 'kaiwu-desktop-macos-apple-silicon.dmg',
+    'desktop-macos-intel': 'kaiwu-desktop-macos-intel.dmg',
     'desktop-linux': 'kaiwu-desktop-linux-x64.AppImage',
     windows: 'kaiwu-windows-x64.zip',
     macos: 'kaiwu-cli.tgz',

@@ -147,21 +147,22 @@
     <div class="sec-head"><h2>桌面客户端</h2><p>在电脑上运行开物，连接你的手机与网页</p></div>
     <div class="row" data-p="desktop-windows">
       <div class="glyph"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5 10.5 4.4v7.1H3zm8.5-1.2L21 3v8.5h-9.5zM3 12.5h7.5v7.1L3 18.5zm8.5 0H21V21l-9.5-1.3z"/></svg></div>
-      <div><div class="name">Windows</div><div class="desc">Windows 10 / 11（64 位）。下载 ZIP，解压后即可启动桌面客户端。</div></div>
+      <div><div class="name">Windows</div><div class="desc">Windows 10 / 11（64 位）。下载后解压，运行安装程序即可。</div></div>
       <div class="meta num" data-meta>—</div>
       <div class="acts"><a class="act" data-dl aria-disabled="true" tabindex="-1">下载</a></div>
       <div class="detail"><details><summary>安装说明 · 校验值</summary>
-        <div class="note">下载 ZIP 后解压到任意目录，运行其中的应用程序。</div>
+        <div class="note">解压 ZIP，双击其中的安装程序，按提示完成安装；之后从开始菜单打开「无极开物」。</div>
         <div class="code"><code data-sha>—</code><button class="copy">复制</button></div></details></div>
     </div>
     <div class="row" data-p="desktop-macos">
       <div class="glyph"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9s-1.8-.9-3-.8C7 7.4 5.6 8.3 4.8 9.7c-1.6 2.8-.4 6.9 1.2 9.2.8 1.1 1.7 2.3 2.8 2.3 1.1 0 1.6-.7 2.9-.7 1.4 0 1.7.7 2.9.7 1.2 0 2-1.1 2.7-2.2.9-1.3 1.2-2.5 1.2-2.6 0 0-2.3-.9-2.3-3.8zM14.2 5.6c.6-.8 1-1.8.9-2.9-.9 0-2 .6-2.6 1.4-.6.7-1.1 1.7-1 2.7 1 .1 2-.5 2.7-1.2z"/></svg></div>
-      <div><div class="name">macOS</div><div class="desc">macOS 12 及以上，支持 Apple 芯片与 Intel 芯片。</div></div>
+      <div><div class="name">macOS</div><div class="desc">macOS 12 及以上。「关于本机」显示 Apple M 系列芯片选 Apple 芯片，显示 Intel 选 Intel。</div></div>
       <div class="meta num" data-meta>—</div>
-      <div class="acts"><a class="act" data-dl aria-disabled="true" tabindex="-1">下载</a></div>
+      <div class="acts"><a class="act" data-dl data-label="Apple 芯片" aria-disabled="true" tabindex="-1">Apple 芯片</a><a class="act" data-dl="desktop-macos-intel" data-label="Intel" aria-disabled="true" tabindex="-1">Intel</a></div>
       <div class="detail"><details><summary>安装说明 · 校验值</summary>
-        <div class="note">打开 DMG 后将应用拖入 Applications。若首次打开提示无法验证开发者，请在 Finder 中右键应用选择「打开」，或前往系统设置 → 隐私与安全性 → 仍要打开。</div>
-        <div class="code"><code data-sha>—</code><button class="copy">复制</button></div></details></div>
+        <div class="note">打开 DMG，把「无极开物」拖入「应用程序」文件夹即可。</div>
+        <div class="code"><code data-sha>—</code><button class="copy">复制</button></div>
+        <div class="code"><code data-sha="desktop-macos-intel">—</code><button class="copy">复制</button></div></details></div>
     </div>
     <div class="row" data-p="desktop-linux">
       <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2.5"/><path d="m7 9 3 2.5L7 14m5 0h5"/></svg></div>
@@ -255,6 +256,7 @@
 (function(){
   var L={windows:'Windows',macos:'macOS',linux:'Linux',android:'Android',ios:'iPhone'};
   var desktopKey={windows:'desktop-windows',macos:'desktop-macos',linux:'desktop-linux'};
+  var SHA_TAG={'desktop-macos':'Apple 芯片'};
   function mb(b){return b>=1e9?(b/1e9).toFixed(2)+' GB':Math.round(b/1e6)+' MB'}
   function os(){
     var u=navigator.userAgent||'',p=(navigator.userAgentData&&navigator.userAgentData.platform)||navigator.platform||'';
@@ -280,8 +282,11 @@
       }
       if(row.dataset.p.indexOf('desktop-')===0){row.style.display='';desktopVisible=true;}
       var meta=row.querySelector('[data-meta]'); if(meta)meta.textContent='v'+d.version+(d.size?' · '+mb(d.size):'');
-      row.querySelectorAll('[data-dl]').forEach(function(a){a.href=d.url||d.directUrl;a.removeAttribute('aria-disabled');a.removeAttribute('tabindex');a.textContent='下载'});
-      var s=row.querySelector('[data-sha]'); if(s&&d.sha256)s.textContent='SHA256  '+d.sha256;
+      row.querySelectorAll('[data-dl]').forEach(function(a){var x=a.dataset.dl?P[a.dataset.dl]:d; if(!x||!x.version){a.style.display='none';return}
+        a.href=x.url||x.directUrl;a.removeAttribute('aria-disabled');a.removeAttribute('tabindex');a.textContent=a.dataset.label||'下载'});
+      row.querySelectorAll('[data-sha]').forEach(function(s){var x=s.dataset.sha?P[s.dataset.sha]:d;
+        if(!x||!x.sha256){s.parentNode.style.display='none';return}
+        var tag=s.dataset.sha?'Intel':SHA_TAG[row.dataset.p]; s.textContent=(tag?tag+'  ':'')+'SHA256  '+x.sha256});
     });
     document.getElementById('desktop').hidden=!desktopVisible;
     var pr=document.getElementById('primary'),lab=document.getElementById('primary-label'),pm=document.getElementById('primary-meta');
@@ -289,7 +294,7 @@
     if(cur==='ios'){lab.textContent='打开网页版';pr.href='/';pm.textContent='在 Safari 中添加到主屏幕即可';return}
     if(cur==='harmony'){lab.textContent='打开网页版';pr.href='/';pm.textContent='鸿蒙版即将上线';return}
     var d=cur&&P[desktopKey[cur]||cur];
-    if(d&&d.version){lab.textContent='下载 '+L[cur]+' 桌面版';pr.href=d.url||d.directUrl;pm.textContent='v'+d.version+' · '+mb(d.size)}
+    if(d&&d.version){lab.textContent='下载 '+L[cur]+' 桌面版';pr.href=d.url||d.directUrl;pm.textContent=(cur==='macos'?'Apple 芯片 · ':'')+'v'+d.version+' · '+mb(d.size)}
     else{var c=cur&&P[cur]; if(c&&c.version){lab.textContent='下载 '+L[cur]+' 版';pr.href=c.url||c.directUrl;pm.textContent='v'+c.version+' · '+mb(c.size);
       var cr=document.querySelector('.row[data-p="'+cur+'"]'); document.querySelectorAll('.row.is-current').forEach(function(x){x.classList.remove('is-current')}); if(cr)cr.classList.add('is-current');}}
   }).catch(function(){});
