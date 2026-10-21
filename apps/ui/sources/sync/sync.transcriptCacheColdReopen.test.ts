@@ -366,6 +366,10 @@ describe('sync durable transcript cache', () => {
         await expect.poll(persistedMaxSeq, { timeout: 5_000, interval: 50 }).toBe(22);
         // Only the delta crossed the network.
         expect(messagesRequestPaths(), JSON.stringify(messagesRequestPaths())).toEqual([expect.stringContaining('afterSeq=20')]);
+        // Merged on disk: the store (and so the reducer and the UI) never held the transcript.
+        expect(storage.getState().sessionMessages[SESSION_ID]?.isLoaded ?? false).toBe(false);
+        const record = JSON.parse([...backend.values.entries()].find(([key]) => key.endsWith(`:${SESSION_ID}`))?.[1] ?? '{}');
+        expect(record.messages.map((entry: { m: { seq: number } }) => entry.m.seq)).toEqual(Array.from({ length: 22 }, (_unused, index) => index + 1));
     });
 
     it('does not prefetch a session that advances without a durable copy', async () => {

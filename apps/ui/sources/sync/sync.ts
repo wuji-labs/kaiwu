@@ -361,7 +361,12 @@ import {
 } from '@/sync/engine/sessions/sessionTranscriptCache';
 import { clearSessionRecordRows, readSessionRecordRow } from '@/sync/engine/sessions/sessionRecordRowRegistry';
 import { buildSessionFromDecodedRow, decodeSessionByIdRow } from '@/sync/engine/sessions/sessionById';
-import { readTranscriptCacheBounds, type TranscriptCacheRecord, type TranscriptCacheScope } from '@/sync/domains/state/transcriptCachePersistence';
+import {
+    readTranscriptCacheBounds,
+    saveTranscriptCacheRecord,
+    type TranscriptCacheRecord,
+    type TranscriptCacheScope,
+} from '@/sync/domains/state/transcriptCachePersistence';
 import type {
     EnsureSessionVisibleForRouteResult,
     SessionRouteHydrationMissingCause,
@@ -7284,7 +7289,7 @@ class Sync {
                   if (this.serverScopeGeneration !== generation || !this.isForeground) break;
                   // Opened meanwhile: the visible catch-up owns it now.
                   if (storage.getState().sessionMessages[sessionId]?.isLoaded === true) continue;
-                  const applied = await this.refreshSessionTranscriptInBackground(
+                  const applied = await this.extendTranscriptCacheRecordOnDisk(
                       sessionId,
                       Date.now() + FOREGROUND_KEEP_CURRENT_SESSION_BUDGET_MS,
                   );
@@ -7292,8 +7297,6 @@ class Sync {
                   refreshed += 1;
               }
               if (refreshed > 0) {
-                  // Each copy is persisted; let bounded retention release the ones nobody is viewing.
-                  this.sessionTranscriptRetention.scheduleSweep();
                   syncPerformanceTelemetry.count('sync.transcriptCache.keptCurrent', {
                       sessions: refreshed,
                       newMessages,
@@ -7305,6 +7308,92 @@ class Sync {
                   this.scheduleForegroundKeepCurrent();
               }
           }
+      }
+
+      /**
+       * Extend one durable copy with the server's delta without touching the store: the pages are
+       * decrypted and normalized by the same pipeline the visible catch-up uses, but collected
+       * instead of applied, then merged into the record on disk. No reducer run and no render, so
+       * keeping a busy session current costs the UI thread nothing while the user is elsewhere.
+       * Returns how many new messages were persisted.
+       */
+      private async extendTranscriptCacheRecordOnDisk(sessionId: string, deadlineAtMs: number): Promise<number> {
+          const loaded = await this.sessionTranscriptCache.load(sessionId);
+          if (!loaded) return 0;
+          const { scope, record, epoch } = loaded;
+          const session = storage.getState().sessions[sessionId] ?? null;
+          if (!session || readDirectSessionLink(session.metadata)) return 0;
+          const sessionEncryptionMode = session.encryptionMode === 'plain' ? 'plain' : 'e2ee';
+          const requestMessages = this.createSessionMessagesRequest(sessionId);
+          // Isolated from the engine's received map: nothing here reaches the store.
+          const received = new Map<string, Map<string, number>>();
+          const collected = new Map<string, NormalizedMessage>();
+          let afterSeq = record.maxSeq;
+          try {
+              for (let page = 0; page < this.syncTuning.messageMaxIncrementalPagesOnResume; page += 1) {
+                  if (Date.now() >= deadlineAtMs) break;
+                  const result = await fetchAndApplyNewerMessages({
+                      sessionId,
+                      sessionEncryptionMode,
+                      afterSeq,
+                      limit: this.getSessionMessagesPageSize(),
+                      getSessionEncryption: (id) => this.encryption.getSessionEncryption(id),
+                      isSessionKnown: (id) => this.isSessionKnownOnResolvedOwnerServer(id),
+                      request: requestMessages,
+                      sessionReceivedMessages: received,
+                      applyMessages: (_sid, messages) => {
+                          for (const message of messages) collected.set(message.id, message);
+                      },
+                      ...this.getMessageDecryptBatchOptions(),
+                      log,
+                  });
+                  const nextAfterSeq = result.page.nextAfterSeq ?? null;
+                  if (!nextAfterSeq || result.page.messages.length === 0) break;
+                  afterSeq = nextAfterSeq;
+              }
+          } catch (error) {
+              syncReliabilityTelemetry.record('sync.transcriptCache.keepCurrentFailed', {
+                  error: error instanceof Error ? error.name : 'unknown',
+              });
+          }
+          const fresh = [...collected.values()].filter((message) => (
+              !message.isSidechain && typeof message.seq === 'number' && message.seq > record.maxSeq
+          ));
+          if (fresh.length === 0) return 0;
+          // Opened, discarded or re-scoped while the delta was in flight: the copy is not ours to write.
+          if (
+              storage.getState().sessionMessages[sessionId]?.isLoaded === true
+              || this.sessionTranscriptCache.readDiscardEpoch(sessionId) !== epoch
+              || !this.sessionTranscriptCache.isScopeCurrent(scope)
+          ) {
+              return 0;
+          }
+          const receivedAt = received.get(sessionId);
+          const merged = [
+              ...record.messages,
+              ...fresh.map((message) => ({ message, updatedAt: receivedAt?.get(message.id) ?? null })),
+          ].sort((left, right) => (left.message.seq ?? 0) - (right.message.seq ?? 0));
+          const maxMessages = readTranscriptCacheBounds().maxMessagesPerRecord;
+          const kept = merged.slice(Math.max(0, merged.length - maxMessages));
+          const maxSeq = Math.max(record.maxSeq, ...fresh.map((message) => message.seq ?? 0));
+          try {
+              await saveTranscriptCacheRecord(scope, {
+                  sessionId,
+                  savedAt: Date.now(),
+                  maxSeq,
+                  minSeq: kept[0]?.message.seq ?? record.minSeq,
+                  hasMoreOlder: record.hasMoreOlder || kept.length < merged.length,
+                  session: readSessionRecordRow(sessionId) ?? record.session,
+                  messages: kept,
+              });
+          } catch (error) {
+              syncReliabilityTelemetry.record('sync.transcriptCache.failed', {
+                  operation: 'save',
+                  error: error instanceof Error ? error.name : 'unknown',
+              });
+              return 0;
+          }
+          return fresh.length;
       }
 
       /** Persisted transcripts are scoped to the active server; another server's route never reads them. */
