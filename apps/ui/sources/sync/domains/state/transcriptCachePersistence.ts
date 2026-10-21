@@ -39,24 +39,55 @@ const TRANSCRIPT_CACHE_RECORD_PREFIX = 'transcript';
 const TRANSCRIPT_CACHE_INDEX_KEY = 'transcript-index';
 
 /**
- * Bounds, derived from the storage that pays for them:
+ * Bounds, derived from the storage that pays for them. Sizes are measured in UTF-16 code units of
+ * the serialized JSON, which tracks bytes for the ASCII-dominated JSON these records are and is
+ * what the JS side can measure without encoding.
  *
- * - An encrypted MMKV instance is decrypted into memory in full the first time it is opened, so
- *   the total is what the first transcript open after a cold start pays once, and what the app
- *   keeps resident afterwards. 8 MiB keeps that to a few tens of milliseconds of native AES on a
- *   mid-range phone and a bounded resident cost; the same number on web is far inside any
- *   IndexedDB origin quota.
- * - A single record is capped at 512 KiB so one session with huge tool outputs cannot evict the
- *   rest; the newest messages that fit are kept, which still paints the viewport.
- * - 30 sessions covers every session a user plausibly switches between; older ones simply load
- *   from the network the way every session did before this cache existed.
+ * **Native (MMKV).** An encrypted MMKV instance is decrypted into memory in full the first time it
+ * is opened, so the total is what the first transcript open after a cold start pays once, and what
+ * the app keeps resident afterwards. 8 MiB keeps that to a few tens of milliseconds of native AES
+ * on a mid-range phone and a bounded resident cost. 30 sessions × the configured page (150).
  *
- * Sizes are measured in UTF-16 code units of the serialized JSON, which tracks bytes for the
- * ASCII-dominated JSON these records are and is what the JS side can measure without encoding.
+ * **Web / Tauri (IndexedDB).** Each record is its own key, read only when that session opens, so
+ * the total costs disk (far inside any origin quota), never memory or open latency; only one
+ * record's parse sits on the open path. The desktop is where people work across many long agent
+ * sessions, so it keeps every session they plausibly return to (300) and a deeper window each
+ * (400 messages, the scroll-back a reader reaches before asking for more), with a 4 Mi-char record
+ * cap so one session full of tool output cannot crowd out the rest.
+ *
+ * Either way a session past the bounds simply loads from the network the way every session did
+ * before this cache existed.
  */
-export const TRANSCRIPT_CACHE_MAX_RECORDS = 30;
-export const TRANSCRIPT_CACHE_MAX_RECORD_CHARS = 512 * 1024;
-export const TRANSCRIPT_CACHE_MAX_TOTAL_CHARS = 8 * 1024 * 1024;
+export type TranscriptCacheBounds = Readonly<{
+    maxRecords: number;
+    maxRecordChars: number;
+    maxTotalChars: number;
+    /** Messages kept per session — the window a hydrate replays. */
+    maxMessagesPerRecord: number;
+}>;
+
+export const NATIVE_TRANSCRIPT_CACHE_BOUNDS: TranscriptCacheBounds = {
+    maxRecords: 30,
+    maxRecordChars: 512 * 1024,
+    maxTotalChars: 8 * 1024 * 1024,
+    maxMessagesPerRecord: 150,
+};
+
+export const WEB_TRANSCRIPT_CACHE_BOUNDS: TranscriptCacheBounds = {
+    maxRecords: 300,
+    maxRecordChars: 4 * 1024 * 1024,
+    maxTotalChars: 64 * 1024 * 1024,
+    maxMessagesPerRecord: 400,
+};
+
+export const TRANSCRIPT_CACHE_MAX_RECORDS = NATIVE_TRANSCRIPT_CACHE_BOUNDS.maxRecords;
+export const TRANSCRIPT_CACHE_MAX_RECORD_CHARS = NATIVE_TRANSCRIPT_CACHE_BOUNDS.maxRecordChars;
+export const TRANSCRIPT_CACHE_MAX_TOTAL_CHARS = NATIVE_TRANSCRIPT_CACHE_BOUNDS.maxTotalChars;
+
+/** The bounds of the storage this runtime persists into. */
+export function readTranscriptCacheBounds(): TranscriptCacheBounds {
+    return isWebRuntime() ? WEB_TRANSCRIPT_CACHE_BOUNDS : NATIVE_TRANSCRIPT_CACHE_BOUNDS;
+}
 
 const NormalizedMessageEnvelopeSchema = z.union([
     z.object({
@@ -297,13 +328,14 @@ async function readIndex(backend: TranscriptCacheBackend): Promise<TranscriptCac
 }
 
 function selectEvictions(index: TranscriptCacheIndex): string[] {
+    const bounds = readTranscriptCacheBounds();
     const keys = Object.keys(index).sort((left, right) => index[right].usedAt - index[left].usedAt);
     const evicted: string[] = [];
     let total = 0;
     let kept = 0;
     for (const key of keys) {
         const chars = index[key].chars;
-        if (kept >= TRANSCRIPT_CACHE_MAX_RECORDS || total + chars > TRANSCRIPT_CACHE_MAX_TOTAL_CHARS) {
+        if (kept >= bounds.maxRecords || total + chars > bounds.maxTotalChars) {
             evicted.push(key);
             continue;
         }
@@ -324,6 +356,7 @@ function toPersistedMessages(messages: readonly TranscriptCacheMessage[]) {
  * plus one message fits.
  */
 function serializeBounded(record: TranscriptCacheRecord): string | null {
+    const maxRecordChars = readTranscriptCacheBounds().maxRecordChars;
     let messages = [...record.messages].sort((left, right) => (left.message.seq ?? 0) - (right.message.seq ?? 0));
     let hasMoreOlder = record.hasMoreOlder;
     while (messages.length > 0) {
@@ -338,9 +371,9 @@ function serializeBounded(record: TranscriptCacheRecord): string | null {
             session: record.session,
             messages: toPersistedMessages(messages),
         });
-        if (serialized.length <= TRANSCRIPT_CACHE_MAX_RECORD_CHARS) return serialized;
+        if (serialized.length <= maxRecordChars) return serialized;
         // Halve the overshoot rather than dropping one message per stringify.
-        const keepRatio = TRANSCRIPT_CACHE_MAX_RECORD_CHARS / serialized.length;
+        const keepRatio = maxRecordChars / serialized.length;
         const keep = Math.min(messages.length - 1, Math.floor(messages.length * keepRatio));
         messages = messages.slice(messages.length - Math.max(0, keep));
         hasMoreOlder = true;

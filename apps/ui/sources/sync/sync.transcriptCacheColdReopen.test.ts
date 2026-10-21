@@ -340,6 +340,47 @@ describe('sync durable transcript cache', () => {
         setServerReachabilityNetworkAllowed(true);
     });
 
+    it('keeps a durable copy current in the foreground when its session advances while not in memory', async () => {
+        const { sync, syncForTest } = await bootSync();
+        requestMock.mockImplementation(() => Promise.resolve(jsonResponse({
+            messages: Array.from({ length: 20 }, (_unused, index) => apiMessage(20 - index)),
+            hasMore: false,
+            nextBeforeSeq: null,
+        })));
+        await sync.refreshSessionMessages(SESSION_ID);
+        syncForTest.evictSessionTranscript(SESSION_ID);
+        await settle();
+
+        requestMock.mockReset();
+        requestMock.mockImplementation((path: string) => Promise.resolve(String(path).includes('afterSeq=20')
+            ? jsonResponse({ messages: [apiMessage(21), apiMessage(22)], nextAfterSeq: null })
+            : jsonResponse({ messages: [], nextAfterSeq: null })));
+
+        // An agent writes in the session while the user is elsewhere in the app: only the list row moves.
+        (sync as unknown as { applySessions: (sessions: Session[]) => void }).applySessions([createSession(SESSION_ID, 22)]);
+
+        const persistedMaxSeq = () => {
+            const record = [...backend.values.entries()].find(([key]) => key.endsWith(`:${SESSION_ID}`))?.[1];
+            return record ? JSON.parse(record).maxSeq : null;
+        };
+        await expect.poll(persistedMaxSeq, { timeout: 5_000, interval: 50 }).toBe(22);
+        // Only the delta crossed the network.
+        expect(messagesRequestPaths(), JSON.stringify(messagesRequestPaths())).toEqual([expect.stringContaining('afterSeq=20')]);
+    });
+
+    it('does not prefetch a session that advances without a durable copy', async () => {
+        const { sync } = await bootSync();
+        const otherSessionId = 's-never-opened';
+        storage.getState().applySessions([createSession(otherSessionId, 3)]);
+        requestMock.mockReset();
+        requestMock.mockImplementation(() => Promise.resolve(jsonResponse({ messages: [], hasMore: false, nextAfterSeq: null })));
+
+        (sync as unknown as { applySessions: (sessions: Session[]) => void }).applySessions([createSession(otherSessionId, 9)]);
+        await new Promise((resolve) => setTimeout(resolve, 2_000));
+
+        expect(messagesRequestPaths()).toEqual([]);
+    });
+
     it('never paints a persisted copy into a different account scope', async () => {
         const { sync, syncForTest } = await bootSync();
         requestMock.mockImplementation(() => Promise.resolve(jsonResponse({

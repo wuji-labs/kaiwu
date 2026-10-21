@@ -38,7 +38,17 @@ require('./sources/unistyles');
 
 // Background session refresh tasks must be defined before the root renders: the OS may start JS
 // only to run one (periodic refresh, push wake). Web has no OS background execution.
-if (typeof document === 'undefined') {
+// The task modules are native; a binary built before they were added runs the same JS through a
+// hot update, so the whole feature stays off there (the durable cache and foreground catch-up do
+// not need it) instead of throwing at module evaluation.
+const hasBackgroundTaskNativeModules = (): boolean => {
+    const { requireOptionalNativeModule } = require('expo-modules-core') as {
+        requireOptionalNativeModule: (name: string) => unknown;
+    };
+    return requireOptionalNativeModule('ExpoBackgroundTask') != null
+        && requireOptionalNativeModule('ExpoTaskManager') != null;
+};
+if (typeof document === 'undefined' && hasBackgroundTaskNativeModules()) {
     // React Native defines `window` but never `document`: this is a native build.
     const mod = require('./sources/sync/background/installBackgroundSessionRefresh');
     if (typeof mod === 'object' && mod !== null && 'installBackgroundSessionRefresh' in mod) {

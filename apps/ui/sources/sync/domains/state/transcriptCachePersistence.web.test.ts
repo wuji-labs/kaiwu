@@ -142,6 +142,41 @@ describe('transcriptCachePersistence on web', () => {
         expect(fake.data.size).toBe(0);
     });
 
+    it('keeps far more sessions on web than the native MMKV budget allows', async () => {
+        const fake = createFakeIndexedDb();
+        vi.stubGlobal('indexedDB', fake.factory);
+        const persistence = await import('./transcriptCachePersistence');
+        expect(persistence.readTranscriptCacheBounds()).toBe(persistence.WEB_TRANSCRIPT_CACHE_BOUNDS);
+        const scope = { serverId: 'server-a', accountId: 'account-a' };
+
+        // Past the native 30-record cap, every web record is still there.
+        const sessions = persistence.NATIVE_TRANSCRIPT_CACHE_BOUNDS.maxRecords + 10;
+        for (let index = 0; index < sessions; index += 1) {
+            await persistence.saveTranscriptCacheRecord(scope, {
+                sessionId: `s${index}`,
+                savedAt: index,
+                maxSeq: 1,
+                minSeq: 1,
+                hasMoreOlder: false,
+                session: null,
+                messages: [{
+                    message: {
+                        id: `m${index}`,
+                        seq: 1,
+                        localId: null,
+                        createdAt: 1,
+                        isSidechain: false,
+                        role: 'user',
+                        content: { type: 'text', text: 'hello' },
+                    },
+                    updatedAt: 1,
+                }],
+            });
+        }
+        expect((await persistence.loadTranscriptCacheRecord(scope, 's0')).kind).toBe('hit');
+        expect(await persistence.listTranscriptCacheSessionIds(scope, 1_000)).toHaveLength(sessions);
+    });
+
     it('degrades to a miss when the runtime has no IndexedDB', async () => {
         vi.stubGlobal('indexedDB', undefined);
         const persistence = await import('./transcriptCachePersistence');

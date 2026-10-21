@@ -2,7 +2,7 @@
   "name": "@happier-dev/app",
   "main": "index.ts",
   "version": "0.2.25",
-  "happierExpoRuntimeVersion": "kaiwu-2-native",
+  "happierExpoRuntimeVersion": "kaiwu-1-native",
   "happier": {
     "installFreshnessInputs": [
       "app.config.js",

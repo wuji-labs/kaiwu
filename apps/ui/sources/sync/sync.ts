@@ -361,7 +361,7 @@ import {
 } from '@/sync/engine/sessions/sessionTranscriptCache';
 import { clearSessionRecordRows, readSessionRecordRow } from '@/sync/engine/sessions/sessionRecordRowRegistry';
 import { buildSessionFromDecodedRow, decodeSessionByIdRow } from '@/sync/engine/sessions/sessionById';
-import type { TranscriptCacheRecord, TranscriptCacheScope } from '@/sync/domains/state/transcriptCachePersistence';
+import { readTranscriptCacheBounds, type TranscriptCacheRecord, type TranscriptCacheScope } from '@/sync/domains/state/transcriptCachePersistence';
 import type {
     EnsureSessionVisibleForRouteResult,
     SessionRouteHydrationMissingCause,
@@ -518,6 +518,17 @@ const TRANSCRIPT_CACHE_FLUSH_QUIET_MS = 3_000;
  * at most a few small `afterSeq` pages; five fit the OS background budget on a slow link.
  */
 const BACKGROUND_REFRESH_MAX_SESSIONS = 5;
+
+/**
+ * Foreground keep-current: while the app is open, a session with a durable copy that is not held in
+ * memory and advances on the server (an agent working in another session) has its delta pulled and
+ * persisted in the background, so switching to it paints a transcript that is already current
+ * instead of waiting on a catch-up. Bounded to the most recently used durable copies — the
+ * sessions a user actually returns to — and to one session at a time, after the burst settles.
+ */
+const FOREGROUND_KEEP_CURRENT_MAX_SESSIONS = 12;
+const FOREGROUND_KEEP_CURRENT_SETTLE_MS = 1_500;
+const FOREGROUND_KEEP_CURRENT_SESSION_BUDGET_MS = 20_000;
 
 export type BackgroundSessionRefreshOutcome = Readonly<{
     kind: 'refreshed' | 'signed-out';
@@ -985,6 +996,9 @@ class Sync {
         private sessionTranscriptRetention!: SessionTranscriptRetentionController;
         private sessionTranscriptCache!: SessionTranscriptCacheController;
         private sessionTranscriptCacheHydrationInFlight = new Map<string, Promise<boolean>>();
+        private foregroundKeepCurrentQueue = new Set<string>();
+        private foregroundKeepCurrentTimer: ReturnType<typeof setTimeout> | null = null;
+        private foregroundKeepCurrentRunning = false;
       private resumeInFlight: Promise<void> | null = null;
       private changesCatchUpQueuedAfterResume = false;
       private pendingOutboxRearmInFlightByScope = new Map<string, Promise<void>>();
@@ -1199,7 +1213,7 @@ class Sync {
             readPersistDecision: (sessionId) => this.readTranscriptCachePersistDecision(sessionId),
             readReceivedUpdatedAt: (sessionId, messageId) => this.sessionReceivedMessages.get(sessionId)?.get(messageId),
             readSessionRow: (sessionId) => readSessionRecordRow(sessionId),
-            readMaxMessages: () => this.getSessionMessagesPageSize(),
+            readMaxMessages: () => readTranscriptCacheBounds().maxMessagesPerRecord,
             flushDelayMs: TRANSCRIPT_CACHE_FLUSH_QUIET_MS,
             onFailure: (operation, error) => {
                 syncReliabilityTelemetry.record('sync.transcriptCache.failed', {
@@ -2046,6 +2060,7 @@ class Sync {
         // window state is cleared below; nothing of it may be read under the next scope.
         this.sessionTranscriptCache.flushAllAndRelease();
         this.sessionTranscriptCacheHydrationInFlight.clear();
+        this.resetForegroundKeepCurrent();
         clearSessionRecordRows();
         this.changesCatchUpQueuedAfterResume = false;
         this.postSubscriptionChangesCatchUpPending = false;
@@ -7200,6 +7215,92 @@ class Sync {
           return applied;
       }
 
+      /**
+       * Queue sessions whose server seq moved past what memory holds, when memory does not hold
+       * their transcript (a held transcript is reconciled by its own realtime/catch-up path).
+       * Whether a queued session has a durable copy is decided when the queue runs.
+       */
+      private noteSessionsAdvancedForKeepCurrent(
+          previousSessions: Readonly<Record<string, Session | undefined>>,
+          applied: ReadonlyArray<Readonly<{ id: string; seq?: number | null }>>,
+      ): void {
+          if (!this.credentials) return;
+          const state = storage.getState();
+          let queued = false;
+          for (const session of applied) {
+              const sessionId = session?.id;
+              if (!sessionId) continue;
+              const nextSeq = state.sessions[sessionId]?.seq ?? 0;
+              const previousSeq = previousSessions[sessionId]?.seq ?? 0;
+              // A first sighting (no previous row) is the list loading, not the session advancing.
+              if (!previousSessions[sessionId] || !(nextSeq > previousSeq)) continue;
+              if (state.sessionMessages[sessionId]?.isLoaded === true) continue;
+              if (state.deletedSessionIds[sessionId] === true) continue;
+              if (readDirectSessionLink(state.sessions[sessionId]?.metadata)) continue;
+              this.foregroundKeepCurrentQueue.add(sessionId);
+              queued = true;
+          }
+          if (queued) this.scheduleForegroundKeepCurrent();
+      }
+
+      private scheduleForegroundKeepCurrent(): void {
+          if (this.foregroundKeepCurrentTimer || this.foregroundKeepCurrentRunning) return;
+          this.foregroundKeepCurrentTimer = setTimeout(() => {
+              this.foregroundKeepCurrentTimer = null;
+              fireAndForget(this.runForegroundKeepCurrent(), { tag: 'Sync.runForegroundKeepCurrent' });
+          }, FOREGROUND_KEEP_CURRENT_SETTLE_MS);
+      }
+
+      private resetForegroundKeepCurrent(): void {
+          this.foregroundKeepCurrentQueue.clear();
+          if (this.foregroundKeepCurrentTimer) {
+              clearTimeout(this.foregroundKeepCurrentTimer);
+              this.foregroundKeepCurrentTimer = null;
+          }
+      }
+
+      private async runForegroundKeepCurrent(): Promise<void> {
+          // Backgrounded: the OS-scheduled refresh owns this; the next open catches up anyway.
+          if (!this.isForeground || this.pauseController.isPaused()) {
+              this.foregroundKeepCurrentQueue.clear();
+              return;
+          }
+          if (this.foregroundKeepCurrentQueue.size === 0) return;
+          this.foregroundKeepCurrentRunning = true;
+          const generation = this.serverScopeGeneration;
+          try {
+              const durable = new Set(await this.sessionTranscriptCache.listRecentSessionIds(FOREGROUND_KEEP_CURRENT_MAX_SESSIONS));
+              const targets = [...this.foregroundKeepCurrentQueue].filter((sessionId) => durable.has(sessionId));
+              this.foregroundKeepCurrentQueue.clear();
+              let refreshed = 0;
+              let newMessages = 0;
+              for (const sessionId of targets) {
+                  if (this.serverScopeGeneration !== generation || !this.isForeground) break;
+                  // Opened meanwhile: the visible catch-up owns it now.
+                  if (storage.getState().sessionMessages[sessionId]?.isLoaded === true) continue;
+                  const applied = await this.refreshSessionTranscriptInBackground(
+                      sessionId,
+                      Date.now() + FOREGROUND_KEEP_CURRENT_SESSION_BUDGET_MS,
+                  );
+                  newMessages += applied;
+                  refreshed += 1;
+              }
+              if (refreshed > 0) {
+                  // Each copy is persisted; let bounded retention release the ones nobody is viewing.
+                  this.sessionTranscriptRetention.scheduleSweep();
+                  syncPerformanceTelemetry.count('sync.transcriptCache.keptCurrent', {
+                      sessions: refreshed,
+                      newMessages,
+                  });
+              }
+          } finally {
+              this.foregroundKeepCurrentRunning = false;
+              if (this.foregroundKeepCurrentQueue.size > 0 && this.serverScopeGeneration === generation) {
+                  this.scheduleForegroundKeepCurrent();
+              }
+          }
+      }
+
       /** Persisted transcripts are scoped to the active server; another server's route never reads them. */
       private isActiveServerRouteScope(scopedServerId: string | null | undefined): boolean {
           const routeServerId = String(scopedServerId ?? '').trim();
@@ -8200,6 +8301,7 @@ class Sync {
         // guard to avoid cross-server message fetches after the initial session snapshot. Ensure
         // that any newly-applied sessions (via socket updates, create flows, etc.) are treated as
         // "known" on the active server too, otherwise message fetches can be incorrectly skipped.
+        const previousSessions = storage.getState().sessions;
         for (const session of sessions) {
             if (session?.id) {
                 this.activeServerSessionIds.add(session.id);
@@ -8208,6 +8310,7 @@ class Sync {
         storage.getState().applySessions(sessions);
         const newActive = storage.getState().getActiveSessions();
         this.applySessionDiff(active, newActive);
+        this.noteSessionsAdvancedForKeepCurrent(previousSessions, sessions);
     }
 
     private markSessionMaterializedMaxSeq(sessionId: string, seq: number): void {
