@@ -128,5 +128,5 @@ node scripts/release/publish-downloads.mjs --platform <平台> --version <版本
 - **构建**：`gh workflow run build-desktop-wuji.yml -R wuji-labs/kaiwu --ref wuji/main -f environment=production -f source_ref=wuji/main -f publish_release=false -f release_message="无极开物桌面端"`。Apple 证书与公证密钥已在仓库 secrets；**先改 secrets 再触发**（run 创建时快照 secrets）。
 - **取产物**：GitHub 产物直连极慢，走路由器代理分段下载（`--socks5-hostname 192.168.8.1:1071`）。
 - **自动更新源**：`uv run --no-project --with pynacl --with cos-python-sdk-v5 python -I scripts/release/desktop_update_feed.py --version <v> --entry <平台>=<更新包>`（验签→上传 COS→合并 `download/desktop/latest.json`→回读）。
-- **下载页**：改 `apps/website/public/download/index.html` 后运行 `python -I scripts/release/deploy_download_page.py`（备份→上传→线上哈希比对→1440/390 截图，打印回滚命令）。
+- **下载页**：改 `apps/website/public/download/index.html` 后运行 `python scripts/release/deploy_download_page.py`（备份→上传→线上哈希比对→1440/390 截图，打印回滚命令）；只读体检 `python scripts/release/deploy_download_page.py --check`（逐个下载链接验文件类型、安装脚本、Windows 首屏按钮）。
 - **Windows 命令行包不提供 zip 下载**：5.7 万文件、路径最长 444 字符，系统自带解压报「无效」；下载页只给 `irm https://kaiwu.wujilabs.cn/install.ps1 | iex`。

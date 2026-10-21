@@ -59,14 +59,64 @@ def screenshots(out_dir: Path, stamp: str) -> list[Path]:
     return shots
 
 
+MAGIC = {'.zip': b'PK\x03\x04', '.apk': b'PK\x03\x04', '.ipa': b'PK\x03\x04', '.tgz': b'\x1f\x8b',
+         '.gz': b'\x1f\x8b', '.appimage': b'\x7fELF'}
+
+
+def expected_magic(filename: str) -> bytes | None:
+    return MAGIC.get(Path(filename.lower()).suffix)
+
+
+def check_live(stamp: str) -> int:
+    """Read-only health check: every manifest download resolves with the right file type, the install
+    script is reachable, and the Windows hero button points at the desktop build."""
+    import json
+    failures = 0
+    with urllib.request.urlopen(f'{LIVE}manifest.json?t={stamp}', timeout=30) as r:
+        platforms = json.loads(r.read())['platforms']
+    for key, entry in sorted(platforms.items()):
+        if not entry.get('version'):
+            continue
+        req = urllib.request.Request(entry['url'], headers={'Range': 'bytes=0-7'})
+        try:
+            with urllib.request.urlopen(req, timeout=60) as r:
+                head = r.read(8)
+            magic = expected_magic(entry['filename'])
+            ok = magic is None or head.startswith(magic)
+        except Exception as exc:  # noqa: BLE001 - report and continue
+            ok, head = False, str(exc).encode()
+        failures += not ok
+        print(f"[check] {'OK  ' if ok else 'FAIL'} {key} v{entry['version']} {entry['filename']}")
+    with urllib.request.urlopen('https://kaiwu.wujilabs.cn/install.ps1', timeout=30) as r:
+        ok = r.status == 200 and b'& {' in r.read(64)
+    failures += not ok
+    print(f"[check] {'OK  ' if ok else 'FAIL'} install.ps1")
+    from playwright.sync_api import sync_playwright
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page(user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+                                           '(KHTML, like Gecko) Chrome/140.0 Safari/537.36')
+        page.goto(f'{LIVE}?t={stamp}', wait_until='networkidle')
+        page.wait_for_timeout(1200)
+        href = page.locator('#primary').get_attribute('href') or ''
+        browser.close()
+    ok = href.endswith('/download/desktop-windows')
+    failures += not ok
+    print(f"[check] {'OK  ' if ok else 'FAIL'} Windows hero -> {href}")
+    return 1 if failures else 0
+
+
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument('--shots-dir', default='D:/tmp/download-shots')
     ap.add_argument('--no-shots', action='store_true')
     ap.add_argument('--dry-run', action='store_true')
+    ap.add_argument('--check', action='store_true', help='read-only live health check, no deploy')
     args = ap.parse_args(argv)
 
     stamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+    if args.check:
+        return check_live(stamp)
     local = LOCAL.read_bytes()
     print(f'[page] local {LOCAL.name} sha256 {sha256(local)[:16]}')
     if args.dry_run:
