@@ -5,13 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>下载无极开物</title>
 <meta name="description" content="下载无极开物桌面客户端：Windows、macOS、Linux，以及 iPhone、Android、命令行与自托管服务端。">
-<meta name="theme-color" content="#0A0909">
+<meta name="theme-color" content="#0A0909" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F6F5F3" media="(prefers-color-scheme: light)">
+<meta name="color-scheme" content="light dark">
 <link rel="icon" href="/icons/favicon.png">
 <link rel="preload" as="image" href="/download/assets/planet-2400.webp" media="(min-width: 760px)">
 <link rel="preload" as="image" href="/download/assets/planet-1200.webp" media="(max-width: 759px)">
 <style>
   :root{
-    --bg:#0A0909; --ink:#F4F1EC; --ink-2:rgba(244,241,236,.64); --ink-3:rgba(244,241,236,.42);
+    --bg:#0A0909; --bg-rgb:10,9,9; --on-ink:#141212; --planet:url(/download/assets/planet-2400.webp); --planet-s:url(/download/assets/planet-1200.webp);
+    --ink:#F4F1EC; --ink-2:rgba(244,241,236,.64); --ink-3:rgba(244,241,236,.42);
     --hair:rgba(244,241,236,.09); --hair-2:rgba(244,241,236,.16); --warm:#FF8A3D;
     --sans:"Inter","PingFang SC","HarmonyOS Sans SC","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
     --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
@@ -28,10 +31,10 @@
   .hero{position:relative;isolation:isolate;min-height:min(640px,82vh);display:flex;flex-direction:column}
   .planet{position:absolute;z-index:-1;inset:0;overflow:hidden;pointer-events:none}
   .planet::before{content:"";position:absolute;right:-18%;top:-22%;width:min(1500px,118vw);aspect-ratio:3/2;
-    background:url(/download/assets/planet-2400.webp) center/cover no-repeat;opacity:.95}
+    background:var(--planet) center/cover no-repeat;opacity:.95}
   .planet::after{content:"";position:absolute;inset:0;
-    background:linear-gradient(90deg,var(--bg) 0%,rgba(10,9,9,.86) 32%,rgba(10,9,9,0) 62%),
-               linear-gradient(0deg,var(--bg) 0%,rgba(10,9,9,0) 36%)}
+    background:linear-gradient(90deg,var(--bg) 0%,rgba(var(--bg-rgb),.86) 32%,rgba(var(--bg-rgb),0) 62%),
+               linear-gradient(0deg,var(--bg) 0%,rgba(var(--bg-rgb),0) 36%)}
   header{display:flex;align-items:center;justify-content:space-between;padding-top:28px}
   header img{height:22px;width:auto;display:block}
   header nav{display:flex;gap:28px;font-size:14px;color:var(--ink-2)}
@@ -44,7 +47,7 @@
   .lede{margin-top:22px;font-size:17px;color:var(--ink-2);max-width:440px}
   .cta{margin-top:40px;display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px}
   .btn{display:inline-flex;align-items:center;gap:10px;height:52px;padding:0 26px;border-radius:14px;
-    background:var(--ink);color:#141212;font-weight:600;font-size:16px;transition:transform .18s cubic-bezier(.2,.8,.2,1),background .18s}
+    background:var(--ink);color:var(--on-ink);font-weight:600;font-size:16px;transition:transform .18s cubic-bezier(.2,.8,.2,1),background .18s}
   .btn:hover{background:#fff;transform:translateY(-1px)}
   .btn:active{transform:translateY(0) scale(.985)}
   .btn svg{width:18px;height:18px}
@@ -61,7 +64,7 @@
   .sec-head p{font-size:13px;color:var(--ink-3)}
   .row{display:grid;grid-template-columns:44px minmax(0,1fr) 170px auto;align-items:center;gap:18px;padding:22px 0;border-bottom:1px solid var(--hair)}
   .row.is-current{position:relative}
-  .row.is-current .act[data-dl]:first-child{background:var(--ink);color:#141212;border-color:var(--ink)}
+  .row.is-current .act[data-dl]:first-child{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
   .meta:empty{display:none}
   .row.is-current::before{content:"";position:absolute;left:-18px;top:28px;width:3px;height:22px;border-radius:2px;background:var(--warm)}
   .glyph{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:rgba(244,241,236,.05);color:var(--ink)}
@@ -73,7 +76,7 @@
   .acts{display:flex;gap:10px;justify-content:flex-end}
   .act{height:38px;padding:0 16px;border-radius:10px;border:1px solid var(--hair-2);display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--ink);background:transparent;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background .15s,border-color .15s}
   .act:hover{background:rgba(244,241,236,.06);border-color:rgba(244,241,236,.28)}
-  .act.solid{background:var(--ink);color:#141212;border-color:var(--ink)}
+  .act.solid{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
   .act.solid:hover{background:#fff}
   .act[aria-disabled="true"]{color:var(--ink-3);pointer-events:none}
   .detail{grid-column:2 / -1;margin-top:-6px}
@@ -92,8 +95,8 @@
   footer a:hover{color:var(--ink-2)}
 
   @media (max-width:759px){
-    .planet::before{background-image:url(/download/assets/planet-1200.webp);right:-62%;top:-4%;width:190vw}
-    .planet::after{background:linear-gradient(0deg,var(--bg) 4%,rgba(10,9,9,.62) 38%,rgba(10,9,9,0) 70%)}
+    .planet::before{background-image:var(--planet-s);right:-62%;top:-4%;width:190vw}
+    .planet::after{background:linear-gradient(0deg,var(--bg) 4%,rgba(var(--bg-rgb),.62) 38%,rgba(var(--bg-rgb),0) 70%)}
     header nav a:not(:last-child){display:none}
     .hero{min-height:auto}
     .hero-body{padding:200px 0 48px}
@@ -102,6 +105,17 @@
     .meta{grid-column:2;text-align:left}
     .acts{grid-column:2;justify-content:flex-start;margin-top:10px}
     .row.is-current::before{left:-12px}
+  }
+  /* 浅色：与欢迎页浅色主题同一套（浅色星球、深色字标、黑底按钮） */
+  @media (prefers-color-scheme: light){
+    :root{--bg:#F6F5F3;--bg-rgb:246,245,243;--on-ink:#F6F5F3;--ink:#141212;--ink-2:rgba(20,18,18,.66);--ink-3:rgba(20,18,18,.46);
+      --hair:rgba(20,18,18,.08);--hair-2:rgba(20,18,18,.14);--warm:#E8742A;
+      --planet:url(/download/assets/planet-light-2400.webp);--planet-s:url(/download/assets/planet-light-1200.webp)}
+    .glyph{background:rgba(20,18,18,.05)}
+    .code{background:rgba(20,18,18,.035)}
+    .btn:hover,.act.solid:hover{background:#000}
+    .act:hover{background:rgba(20,18,18,.05);border-color:rgba(20,18,18,.26)}
+    .eyebrow i{box-shadow:none}
   }
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -112,7 +126,7 @@
   <div class="planet" aria-hidden="true"></div>
   <div class="wrap" style="width:100%">
     <header>
-      <a href="/" aria-label="无极开物"><img src="/download/assets/logotype.png" alt="无极开物" width="231" height="43"></a>
+      <a href="/" aria-label="无极开物"><picture><source srcset="/download/assets/logotype-ink.png" media="(prefers-color-scheme: light)"><img src="/download/assets/logotype.png" alt="无极开物" width="231" height="43"></picture></a>
       <nav><a href="/docs">文档</a><a href="/">打开网页版</a></nav>
     </header>
     <div class="hero-body">
@@ -164,7 +178,32 @@
   </section>
 
   <section>
-    <div class="sec-head"><h2>命令行 / 开发者</h2><p>命令行、包管理器与私有部署</p></div>
+    <div class="sec-head"><h2>手机</h2><p>随时查看、审批、接管</p></div>
+    <div class="row" data-p="ios">
+      <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.6"/><path d="M10.5 18.5h3"/></svg></div>
+      <div><div class="name">iPhone 与 iPad</div><div class="desc">用 Safari 打开网页版，点「分享」→「添加到主屏幕」。</div></div>
+      <div class="meta num" data-meta>—</div>
+      <div class="acts"><a class="act solid" href="/">打开网页版</a><a class="act" data-dl>IPA</a></div>
+    </div>
+    <div class="row" data-p="android">
+      <div class="glyph"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 9.4 19.3 6.3a.4.4 0 0 0-.7-.4l-1.8 3.1A10.9 10.9 0 0 0 12 8a10.9 10.9 0 0 0-4.8 1L5.4 5.9a.4.4 0 1 0-.7.4l1.8 3.1A9.8 9.8 0 0 0 1.5 17h21a9.8 9.8 0 0 0-5-7.6zM7 14.3a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm10 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/></svg></div>
+      <div><div class="name">Android</div><div class="desc">首次安装需在设置中允许「安装未知来源应用」，之后在应用内自动更新。</div></div>
+      <div class="meta num" data-meta>—</div>
+      <div class="acts"><a class="act" data-dl>下载 APK</a></div>
+      <div class="detail"><details><summary>校验值</summary>
+        <div class="code"><code data-sha>—</code><button class="copy">复制</button></div></details></div>
+    </div>
+    <div class="row" data-p="harmony">
+      <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17M3.5 12h17" opacity=".5"/></svg></div>
+      <div><div class="name">HarmonyOS<small>即将上线</small></div><div class="desc">华为手机可先用浏览器打开网页版。</div></div>
+      <div class="meta"></div>
+      <div class="acts"><a class="act" href="/">打开网页版</a></div>
+    </div>
+
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>命令行与自托管</h2><p>命令行工具、npm 包与私有部署</p></div>
     <div class="row" data-p="windows">
       <div class="glyph"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5 10.5 4.4v7.1H3zm8.5-1.2L21 3v8.5h-9.5zM3 12.5h7.5v7.1L3 18.5zm8.5 0H21V21l-9.5-1.3z"/></svg></div>
       <div><div class="name">Windows 命令行工具</div><div class="desc">Windows 10 / 11（64 位），适用于命令行与开发工具链。</div></div>
@@ -192,31 +231,6 @@
         <div class="code"><code>curl -fsSL https://kaiwu.wujilabs.cn/install | bash</code><button class="copy">复制</button></div>
         <div class="code"><code data-sha>—</code><button class="copy">复制</button></div></details></div>
     </div>
-  </section>
-
-  <section>
-    <div class="sec-head"><h2>手机</h2><p>随时查看、审批、接管</p></div>
-    <div class="row" data-p="ios">
-      <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.6"/><path d="M10.5 18.5h3"/></svg></div>
-      <div><div class="name">iPhone 与 iPad</div><div class="desc">用 Safari 打开网页版，点「分享」→「添加到主屏幕」。</div></div>
-      <div class="meta num" data-meta>—</div>
-      <div class="acts"><a class="act solid" href="/">打开网页版</a><a class="act" data-dl>IPA</a></div>
-    </div>
-    <div class="row" data-p="android">
-      <div class="glyph"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 9.4 19.3 6.3a.4.4 0 0 0-.7-.4l-1.8 3.1A10.9 10.9 0 0 0 12 8a10.9 10.9 0 0 0-4.8 1L5.4 5.9a.4.4 0 1 0-.7.4l1.8 3.1A9.8 9.8 0 0 0 1.5 17h21a9.8 9.8 0 0 0-5-7.6zM7 14.3a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm10 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/></svg></div>
-      <div><div class="name">Android</div><div class="desc">首次安装需在设置中允许「安装未知来源应用」，之后在应用内自动更新。</div></div>
-      <div class="meta num" data-meta>—</div>
-      <div class="acts"><a class="act" data-dl>下载 APK</a></div>
-      <div class="detail"><details><summary>校验值</summary>
-        <div class="code"><code data-sha>—</code><button class="copy">复制</button></div></details></div>
-    </div>
-    <div class="row" data-p="harmony">
-      <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17M3.5 12h17" opacity=".5"/></svg></div>
-      <div><div class="name">HarmonyOS<small>即将上线</small></div><div class="desc">华为手机可先用浏览器打开网页版。</div></div>
-      <div class="meta"></div>
-      <div class="acts"><a class="act" href="/">打开网页版</a></div>
-    </div>
-
     <div class="row" data-p="npm">
       <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7 3 12l5 5m8-10 5 5-5 5M14 4l-4 16"/></svg></div>
       <div><div class="name">npm 包</div><div class="desc">已安装 Node.js 18+ 或 Bun 的电脑，用一行命令安装。</div></div>
@@ -282,7 +296,8 @@
     if(cur==='harmony'){lab.textContent='打开网页版';pr.href='/';pm.textContent='鸿蒙版即将上线';return}
     var d=cur&&P[desktopKey[cur]||cur];
     if(d&&d.version){lab.textContent='下载 '+L[cur]+' 桌面版';pr.href=d.url||d.directUrl;pm.textContent='v'+d.version+' · '+mb(d.size)}
-    else if(cur&&desktopKey[cur]){lab.textContent=L[cur]+' 桌面版暂未发布';pr.href='#desktop';pm.textContent='桌面客户端发布后可在此下载'}
+    else{var c=cur&&P[cur]; if(c&&c.version){lab.textContent='下载 '+L[cur]+' 版';pr.href=c.url||c.directUrl;pm.textContent='v'+c.version+' · '+mb(c.size);
+      var cr=document.querySelector('.row[data-p="'+cur+'"]'); document.querySelectorAll('.row.is-current').forEach(function(x){x.classList.remove('is-current')}); if(cr)cr.classList.add('is-current');}}
   }).catch(function(){});
 })();
 </script>
