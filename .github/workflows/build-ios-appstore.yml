@@ -1,0 +1,207 @@
+name: BUILD — iOS App Store (Kaiwu)
+
+# Signed App Store build for com.wujilabs.kaiwu (team 5HNCY2JAA4).
+# Signing is Xcode automatic signing authenticated with an App Store Connect API key,
+# so no certificates or profiles live in the repo or on a Mac: Xcode creates the
+# cloud-managed distribution certificate and the App Store profile on demand.
+# Secrets: ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8_BASE64.
+
+on:
+  workflow_dispatch:
+    inputs:
+      upload:
+        description: Upload the signed build to App Store Connect
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-ios-appstore-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  APPLE_TEAM_ID: 5HNCY2JAA4
+  IOS_BUNDLE_ID: com.wujilabs.kaiwu
+
+jobs:
+  build_appstore_ios:
+    name: Build, sign and upload iOS
+    runs-on: macos-15
+    timeout-minutes: 150
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 1
+
+      # App Store uploads must be built with the current SDK; pick the newest installed Xcode.
+      - name: Select newest Xcode
+        run: |
+          set -euo pipefail
+          XCODE=$(ls -d /Applications/Xcode_*.app | sort -V | tail -n 1)
+          sudo xcode-select -s "$XCODE/Contents/Developer"
+          xcodebuild -version
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.x
+          cache: yarn
+          cache-dependency-path: yarn.lock
+
+      - name: Enable Corepack (Yarn)
+        run: |
+          set -euo pipefail
+          corepack enable
+          corepack prepare yarn@1.22.22 --activate
+
+      - name: Install dependencies
+        env:
+          YARN_PRODUCTION: "false"
+          npm_config_production: "false"
+        run: |
+          set -euo pipefail
+          corepack yarn install --frozen-lockfile --network-concurrency 8 || corepack yarn install --network-concurrency 8
+
+      - name: Build internal packages
+        run: |
+          set -euo pipefail
+          corepack yarn build:packages
+
+      - name: Ensure UI workspace packages built
+        run: |
+          set -euo pipefail
+          cd apps/ui
+          corepack yarn -s ensure:workspace:built
+
+      - name: Release gate (critical tests + typecheck ratchet)
+        run: |
+          set -euo pipefail
+          node scripts/release-critical-tests.mjs
+
+      # CFBundleVersion must grow on every upload of the same marketing version.
+      - name: Compute build number
+        id: build_number
+        run: |
+          set -euo pipefail
+          echo "value=$(date -u +%Y%m%d%H%M)" >> "$GITHUB_OUTPUT"
+
+      - name: Prebuild iOS project
+        env:
+          APP_ENV: production
+          EXPO_APP_BUNDLE_ID: ${{ env.IOS_BUNDLE_ID }}
+          EXPO_IOS_BUILD_NUMBER: ${{ steps.build_number.outputs.value }}
+          EXPO_UNSTABLE_WEB_MODAL: "1"
+        run: |
+          set -euo pipefail
+          cd apps/ui
+          npx expo prebuild --platform ios --no-install
+
+      - name: Install CocoaPods
+        run: |
+          set -euo pipefail
+          cd apps/ui/ios
+          pod install
+
+      - name: Install App Store Connect API key
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+        run: |
+          set -euo pipefail
+          KEY_PATH="$RUNNER_TEMP/AuthKey_${ASC_KEY_ID}.p8"
+          echo "$ASC_KEY_P8_BASE64" | base64 --decode > "$KEY_PATH"
+          echo "ASC_KEY_PATH=$KEY_PATH" >> "$GITHUB_ENV"
+
+      - name: Discover workspace and scheme
+        id: xcode_meta
+        run: |
+          set -euo pipefail
+          cd apps/ui/ios
+          xcodebuild -list -json > xcode_list.json
+          WORKSPACE=$(find . -maxdepth 1 -name "*.xcworkspace" | head -n 1)
+          if [ -z "$WORKSPACE" ]; then
+            echo "No .xcworkspace found!" >&2
+            exit 1
+          fi
+          SCHEME=$(node -e '
+            const fs = require("fs");
+            const data = JSON.parse(fs.readFileSync("xcode_list.json", "utf8"));
+            const schemes = data.workspace?.schemes || data.project?.schemes || [];
+            const target = schemes.find(s => s.includes("无极开物") || s.toLowerCase().includes("kaiwu")) || schemes.find(s => s !== "Pods") || schemes[0];
+            if (!target) throw new Error("No scheme found");
+            console.log(target);
+          ')
+          echo "workspace=$WORKSPACE" >> "$GITHUB_OUTPUT"
+          echo "scheme=$SCHEME" >> "$GITHUB_OUTPUT"
+
+      - name: Archive iOS (signed)
+        env:
+          WORKSPACE: ${{ steps.xcode_meta.outputs.workspace }}
+          SCHEME: ${{ steps.xcode_meta.outputs.scheme }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          SENTRY_DISABLE_AUTO_UPLOAD: "true"
+        run: |
+          set -euo pipefail
+          cd apps/ui/ios
+          xcodebuild -workspace "$WORKSPACE" \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/kaiwu.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            CODE_SIGN_STYLE=Automatic \
+            archive \
+            -quiet
+
+      - name: Export and upload
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          DESTINATION: ${{ inputs.upload && 'upload' || 'export' }}
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>${DESTINATION}</string>
+            <key>teamID</key><string>${APPLE_TEAM_ID}</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>uploadSymbols</key><true/>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict>
+          </plist>
+          PLIST
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/kaiwu.xcarchive" \
+            -exportPath "$RUNNER_TEMP/export" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+          ls -la "$RUNNER_TEMP/export" || true
+          plutil -p "$RUNNER_TEMP/kaiwu.xcarchive/Products/Applications/"*.app/Info.plist | grep -E "CFBundleIdentifier|CFBundleShortVersionString|CFBundleVersion"
+
+      - name: Upload exported IPA artifact
+        if: ${{ !inputs.upload }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: kaiwu-ios-appstore
+          path: ${{ runner.temp }}/export/*.ipa
+          retention-days: 7
+
+      - name: Remove API key
+        if: always()
+        run: rm -f "$RUNNER_TEMP"/AuthKey_*.p8

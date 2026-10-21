@@ -240,6 +240,18 @@
         "HAPPIER_ANDROID_GRADLE_JVMARGS": "-Xmx4096m -XX:MaxMetaspaceSize=1024m -Dfile.encoding=UTF-8"
       }
     },
+    "appstore": {
+      "extends": "production",
+      "distribution": "store",
+      "credentialsSource": "local",
+      "ios": {
+        "image": "latest"
+      },
+      "env": {
+        "APP_ENV": "production",
+        "EXPO_APP_BUNDLE_ID": "com.wujilabs.kaiwu"
+      }
+    },
     "development": {
       "extends": "internaldev"
     },
@@ -254,6 +266,15 @@
     }
   },
   "submit": {
+    "appstore": {
+      "ios": {
+        "ascAppId": "6825191113",
+        "appleTeamId": "5HNCY2JAA4",
+        "ascApiKeyId": "URFCWML2SP",
+        "ascApiKeyIssuerId": "6caa52e6-ce1a-4cff-8fd3-6a3ada076e24",
+        "ascApiKeyPath": "./.eas/keys/AuthKey_URFCWML2SP.p8"
+      }
+    },
     "publicdev": {
       "ios": {
         "appleId": "leeroy.brun@gmail.com",

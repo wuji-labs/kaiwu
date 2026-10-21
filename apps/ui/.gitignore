@@ -42,3 +42,6 @@ public/pierre-diff-worker*.js
 .eas/keys/
 
 .env.local
+
+# EAS local signing (real files in .eas/keys/, source of truth secrets/apple-developer)
+credentials.json

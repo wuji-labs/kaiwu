@@ -32,3 +32,7 @@ public/pierre-diff-worker*.js
 # Use EAS project env vars or `eas.json` `build.<profile>.env` instead.
 .env
 .env*.local
+
+# local signing credentials are read locally by eas-cli, never uploaded
+credentials.json
+.eas/keys/
