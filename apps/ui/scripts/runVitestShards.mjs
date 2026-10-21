@@ -2,6 +2,7 @@
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
+import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 
 import { resolveSignalExitCode, runManagedChildCommand } from '../../../scripts/testing/process/managedChildLifecycle.mjs';
@@ -12,6 +13,18 @@ import {
 import { resolveMaxOldSpaceSizeMb, upsertMaxOldSpaceSize } from './withNodeHeapLimit.mjs';
 
 export { classifyVitestShardTermination, summarizeVitestShardOutcomes };
+
+/**
+ * Run Vitest through the current Node binary instead of a `vitest` shim behind a shell. A shard
+ * passes ~110 absolute file paths, which overflows cmd.exe's 8191-character command line on Windows
+ * (every shard then fails with `"The command line is too long`"); CreateProcess allows 32767, and no
+ * shell also means no argument re-quoting on any platform.
+ */
+export function resolveVitestCommand() {
+  const require = createRequire(import.meta.url);
+  const entry = path.join(path.dirname(require.resolve('vitest/package.json')), 'vitest.mjs');
+  return { command: process.execPath, prefixArgs: [entry] };
+}
 
 function parsePositiveInt(raw) {
   const parsed = Number.parseInt(String(raw ?? '').trim(), 10);
@@ -160,9 +173,11 @@ async function resolveVitestTestFiles({ configPath, nodeOptions, passthroughArgs
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'happier-ui-vitest-list-'));
   const jsonPath = path.join(tmpDir, 'vitest-files.json');
 
+  const vitest = resolveVitestCommand();
   const result = await runManagedChildCommand({
-    command: 'vitest',
+    command: vitest.command,
     args: [
+      ...vitest.prefixArgs,
       'list',
       '--config',
       configPath,
@@ -177,7 +192,6 @@ async function resolveVitestTestFiles({ configPath, nodeOptions, passthroughArgs
         NODE_OPTIONS: nodeOptions,
       },
       stdio: 'inherit',
-      shell: process.platform === 'win32',
     },
     cleanupPollMs: 25,
     signalCleanupGraceMs: 0,
@@ -208,16 +222,16 @@ async function resolveVitestTestFiles({ configPath, nodeOptions, passthroughArgs
 }
 
 function spawnVitestRun({ configPath, nodeOptions, passthroughArgs, positionalFilters, files, timeoutMs }) {
+  const vitest = resolveVitestCommand();
   return runManagedChildCommand({
-    command: 'vitest',
-    args: buildVitestShardRunArgs({ configPath, passthroughArgs, positionalFilters, files }),
+    command: vitest.command,
+    args: [...vitest.prefixArgs, ...buildVitestShardRunArgs({ configPath, passthroughArgs, positionalFilters, files })],
     spawnOptions: {
       env: {
         ...process.env,
         NODE_OPTIONS: nodeOptions,
       },
       stdio: 'inherit',
-      shell: process.platform === 'win32',
     },
     cleanupPollMs: 25,
     signalCleanupGraceMs: 0,

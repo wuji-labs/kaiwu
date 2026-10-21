@@ -4,6 +4,7 @@ import {
     buildVitestShardRunArgs,
     classifyVitestShardTermination,
     partitionVitestFilesIntoShards,
+    resolveVitestCommand,
     resolveVitestConfigPath,
     resolveVitestPositionalFilters,
     resolveVitestShardCount,
@@ -16,6 +17,15 @@ import {
 } from '../../scripts/runVitestShards.mjs';
 
 describe('apps/ui runVitestShards', () => {
+    it('runs Vitest through the current Node binary, never through a shell (Windows command-line cap)', async () => {
+        const { existsSync } = await import('node:fs');
+        const { command, prefixArgs } = resolveVitestCommand();
+        expect(command).toBe(process.execPath);
+        expect(prefixArgs).toHaveLength(1);
+        expect(prefixArgs[0]).toMatch(/vitest\.mjs$/);
+        expect(existsSync(prefixArgs[0])).toBe(true);
+    });
+
     it('defaults shard count to 32 so worker result batches stay below the observed RPC timeout boundary', () => {
         expect(resolveVitestShardCount({})).toBe(32);
     });
