@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-21T00:21:40.011Z",
+  "updatedAt": "2026-10-21T12:44:36.778Z",
   "platforms": {
     "windows": {
       "version": "0.2.29",
@@ -74,6 +74,24 @@
       "versionedUrl": "https://kaiwu.wujilabs.cn/download/npm/0.2.29",
       "directUrl": "https://kaiwu.wujilabs.cn/docs/releases/npm/0.2.29/kaiwu-cli-0.2.29.tgz",
       "installCommand": "npm install -g https://kaiwu.wujilabs.cn/download/npm"
+    },
+    "desktop-windows": {
+      "version": "0.2.24",
+      "filename": "kaiwu-desktop-v0.2.24-windows-x64.zip",
+      "size": 74273724,
+      "sha256": "169a67d7b065d7bcf8a3d54d17d7d273fa6bbdf328529f3c241f800c38886d82",
+      "url": "https://kaiwu.wujilabs.cn/download/desktop-windows",
+      "versionedUrl": "https://kaiwu.wujilabs.cn/download/desktop-windows/0.2.24",
+      "directUrl": "https://kaiwu.wujilabs.cn/docs/releases/desktop-windows/0.2.24/kaiwu-desktop-v0.2.24-windows-x64.zip"
+    },
+    "desktop-linux": {
+      "version": "0.2.24",
+      "filename": "kaiwu-desktop-v0.2.24-linux-x64.AppImage",
+      "size": 167344632,
+      "sha256": "da9519186a7ea34a74e17ada7df928d3640a291bf3d23db0f8e5c76b1ca08e7f",
+      "url": "https://kaiwu.wujilabs.cn/download/desktop-linux",
+      "versionedUrl": "https://kaiwu.wujilabs.cn/download/desktop-linux/0.2.24",
+      "directUrl": "https://kaiwu.wujilabs.cn/docs/releases/desktop-linux/0.2.24/kaiwu-desktop-v0.2.24-linux-x64.AppImage"
     }
   }
 }

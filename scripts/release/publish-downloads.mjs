@@ -26,6 +26,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { basename, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { tmpdir } from 'node:os';
 import { parseArgs } from 'node:util';
 
 const SUPPORTED_PLATFORMS = [
@@ -218,12 +219,19 @@ async function main() {
     console.log(`\n[步骤 5/6] 更新机器可读清单 manifest.json...`);
     const manifestPath = `/opt/wuji-kaiwu/docs/html/download/manifest.json`;
     const currentManifestJson = runCommand(`ssh ${config.remoteHost} "cat ${manifestPath}"`);
+    // fail-closed：读不到合法清单就停，绝不以空清单重写（2026-10-21 曾因此把线上清单写成只剩一个平台）。
     let manifest;
     try {
         manifest = JSON.parse(currentManifestJson);
-    } catch {
-        manifest = { updatedAt: new Date().toISOString(), platforms: {} };
+    } catch (error) {
+        console.error(`[ERROR] 远程 manifest.json 无法解析，拒绝覆盖: ${error.message}`);
+        process.exit(1);
     }
+    if (!manifest || typeof manifest.platforms !== 'object' || Object.keys(manifest.platforms).length === 0) {
+        console.error('[ERROR] 远程 manifest.json 没有任何平台条目，拒绝覆盖。请先从备份恢复。');
+        process.exit(1);
+    }
+    const platformCountBefore = Object.keys(manifest.platforms).length;
 
     manifest.updatedAt = new Date().toISOString();
     manifest.platforms[config.platform] = {
@@ -244,8 +252,19 @@ async function main() {
         console.log(`[OK] 已更新本地清单: ${localManifestPath}`);
     }
 
-    // 写入远程 manifest.json
-    runCommand(`ssh ${config.remoteHost} "cat << 'EOF' > ${manifestPath}\n${updatedJson}\nEOF"`);
+    // 写入远程 manifest.json：先备份，再经临时文件 scp（ssh heredoc 在 Windows 下会写出空文件），最后回读校验。
+    const stamp = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14);
+    runCommand(`ssh ${config.remoteHost} "cp ${manifestPath} ${manifestPath}.bak-${stamp}"`);
+    const tmpManifest = resolve(tmpdir(), `kaiwu-manifest-${process.pid}.json`);
+    writeFileSync(tmpManifest, updatedJson + '\n', 'utf8');
+    runCommand(`scp -q "${tmpManifest}" ${config.remoteHost}:${manifestPath}`);
+    const readBack = JSON.parse(runCommand(`ssh ${config.remoteHost} "cat ${manifestPath}"`));
+    const platformCountAfter = Object.keys(readBack.platforms ?? {}).length;
+    if (readBack.platforms?.[config.platform]?.sha256 !== sha256 || platformCountAfter < platformCountBefore) {
+        console.error(`[ERROR] 清单回读校验失败（平台数 ${platformCountBefore} -> ${platformCountAfter}），已备份为 ${manifestPath}.bak-${stamp}`);
+        process.exit(1);
+    }
+    console.log(`[OK] 远程清单已更新并回读校验（${platformCountAfter} 个平台）`);
     console.log(`[OK] 已更新远程清单: ${manifestPath}`);
 
     // 6. 验证生产访问与重定向
