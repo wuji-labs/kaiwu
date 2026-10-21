@@ -293,6 +293,16 @@ describe('sync durable transcript cache', () => {
         ).toBe(2);
     });
 
+    it('fetches one screenful, not the full configured page, on a first open with nothing cached', async () => {
+        const { sync } = await bootSync();
+        requestMock.mockImplementation(() => Promise.resolve(jsonResponse({ messages: [apiMessage(1)], hasMore: false, nextBeforeSeq: null })));
+
+        await sync.refreshSessionMessages(SESSION_ID);
+
+        // The stubbed window is 600 dp tall: ceil(600 / 40) rows x 2 messages per row.
+        expect(messagesRequestPaths()).toEqual([expect.stringContaining('limit=30')]);
+    });
+
     it('never paints a persisted copy into a different account scope', async () => {
         const { sync, syncForTest } = await bootSync();
         requestMock.mockImplementation(() => Promise.resolve(jsonResponse({

@@ -45,7 +45,7 @@ export type ChangesCursorBlockedContext = Readonly<{
 }>;
 
 export type SnapshotBaseCursorFetchFailedContext = Readonly<{
-    trigger: 'cursor-gone' | 'forced-snapshot' | 'page-budget';
+    trigger: 'cursor-gone' | 'page-budget';
     fallbackCursor: string;
     error: string;
 }>;
@@ -83,7 +83,6 @@ export async function runSocketReconnectCatchUpViaChanges(params: {
     afterCursor: string | null;
     changesPageLimit: number;
     maxChangesPagesPerResume?: number;
-    forceSnapshotRefresh: boolean;
     fetchChanges: FetchChangesFn;
     fetchCurrentCursor?: FetchCurrentChangesCursorFn;
     checkpointCursor?: (cursor: string, context: ChangesCursorCheckpointContext) => Promise<boolean> | boolean;
@@ -234,7 +233,6 @@ export async function runSocketReconnectCatchUpViaChanges(params: {
 
     let afterCursor = params.afterCursor ?? '0';
     const maxPages = Math.max(1, Math.trunc(params.maxChangesPagesPerResume ?? 5));
-    let forceSnapshotRefresh = params.forceSnapshotRefresh;
     let snapshotCursorAwaitingFinalPersist: string | null = null;
 
     for (let pageIndex = 0; pageIndex < maxPages; pageIndex += 1) {
@@ -250,7 +248,6 @@ export async function runSocketReconnectCatchUpViaChanges(params: {
                 return snapshot;
             }
             afterCursor = snapshot.cursor;
-            forceSnapshotRefresh = false;
             snapshotCursorAwaitingFinalPersist = snapshot.checkpointPersisted ? null : snapshot.cursor;
             continue;
         }
@@ -261,17 +258,6 @@ export async function runSocketReconnectCatchUpViaChanges(params: {
 
         const { changes, nextCursor } = result;
         reportCursorContractAnomaly({ afterCursor, nextCursor, changes });
-
-        if (forceSnapshotRefresh) {
-            const snapshot = await runSnapshotRepair(nextCursor, 'forced-snapshot');
-            if (snapshot.status === 'fallback') {
-                return snapshot;
-            }
-            afterCursor = snapshot.cursor;
-            forceSnapshotRefresh = false;
-            snapshotCursorAwaitingFinalPersist = snapshot.checkpointPersisted ? null : snapshot.cursor;
-            continue;
-        }
 
         if (changes.length === 0) {
             return {

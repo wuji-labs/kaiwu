@@ -12,7 +12,6 @@ describe('runSocketReconnectCatchUpViaChanges', () => {
             accountId: 'a',
             afterCursor: '0',
             changesPageLimit: 200,
-            forceSnapshotRefresh: false,
             fetchChanges: (async () => ({ status: 'error' })) as FetchChangesFn,
             applyPlanned: async () => {},
             snapshotRefresh: async () => {},
@@ -28,7 +27,6 @@ describe('runSocketReconnectCatchUpViaChanges', () => {
             accountId: 'a',
             afterCursor: '0',
             changesPageLimit: 200,
-            forceSnapshotRefresh: false,
             fetchChanges,
             applyPlanned: async () => {},
             snapshotRefresh: async () => {},
@@ -49,7 +47,6 @@ describe('runSocketReconnectCatchUpViaChanges', () => {
             accountId: 'a',
             afterCursor: '10',
             changesPageLimit: 200,
-            forceSnapshotRefresh: false,
             fetchChanges,
             applyPlanned: async () => {},
             snapshotRefresh,
@@ -76,7 +73,6 @@ describe('runSocketReconnectCatchUpViaChanges', () => {
             accountId: 'a',
             afterCursor: '10',
             changesPageLimit: 200,
-            forceSnapshotRefresh: false,
             fetchChanges,
             fetchCurrentCursor,
             applyPlanned: async () => {},
@@ -104,7 +100,6 @@ describe('runSocketReconnectCatchUpViaChanges', () => {
             accountId: 'a',
             afterCursor: '10',
             changesPageLimit: 200,
-            forceSnapshotRefresh: false,
             fetchChanges,
             fetchCurrentCursor,
             onSnapshotBaseCursorFetchFailed,
@@ -134,7 +129,6 @@ describe('runSocketReconnectCatchUpViaChanges', () => {
             accountId: 'a',
             afterCursor: '10',
             changesPageLimit: 200,
-            forceSnapshotRefresh: false,
             fetchChanges,
             fetchCurrentCursor,
             onSnapshotBaseCursorFetchFailed,
@@ -179,7 +173,6 @@ describe('runSocketReconnectCatchUpViaChanges', () => {
             accountId: 'a',
             afterCursor: '10',
             changesPageLimit: 200,
-            forceSnapshotRefresh: false,
             fetchChanges,
             fetchCurrentCursor,
             checkpointCursor,
@@ -208,7 +201,6 @@ describe('runSocketReconnectCatchUpViaChanges', () => {
             accountId: 'a',
             afterCursor: '10',
             changesPageLimit: 200,
-            forceSnapshotRefresh: false,
             fetchChanges,
             fetchCurrentCursor,
             checkpointCursor,
@@ -239,7 +231,6 @@ describe('runSocketReconnectCatchUpViaChanges', () => {
             accountId: 'a',
             afterCursor: '10',
             changesPageLimit: 200,
-            forceSnapshotRefresh: false,
             fetchChanges,
             applyPlanned,
             snapshotRefresh,
@@ -271,7 +262,6 @@ describe('runSocketReconnectCatchUpViaChanges', () => {
             accountId: 'a',
             afterCursor: '10',
             changesPageLimit: 200,
-            forceSnapshotRefresh: false,
             fetchChanges,
             onCursorContractAnomaly,
             applyPlanned,
@@ -312,7 +302,6 @@ describe('runSocketReconnectCatchUpViaChanges', () => {
             accountId: 'a',
             afterCursor: '10',
             changesPageLimit: 200,
-            forceSnapshotRefresh: false,
             fetchChanges,
             onCursorContractAnomaly,
             applyPlanned,
@@ -356,7 +345,6 @@ describe('runSocketReconnectCatchUpViaChanges', () => {
             afterCursor: '0',
             changesPageLimit: 200,
             maxChangesPagesPerResume: 2,
-            forceSnapshotRefresh: false,
             fetchChanges,
             applyPlanned,
             snapshotRefresh,
@@ -395,7 +383,6 @@ describe('runSocketReconnectCatchUpViaChanges', () => {
             accountId: 'a',
             afterCursor: '0',
             changesPageLimit: 2,
-            forceSnapshotRefresh: false,
             fetchChanges,
             applyPlanned,
             snapshotRefresh,
@@ -446,7 +433,6 @@ describe('runSocketReconnectCatchUpViaChanges', () => {
             accountId: 'a',
             afterCursor: '0',
             changesPageLimit: 2,
-            forceSnapshotRefresh: false,
             fetchChanges,
             checkpointCursor,
             applyPlanned,
@@ -479,7 +465,6 @@ describe('runSocketReconnectCatchUpViaChanges', () => {
             accountId: 'a',
             afterCursor: '0',
             changesPageLimit: 200,
-            forceSnapshotRefresh: false,
             fetchChanges,
             applyPlanned,
             snapshotRefresh,
@@ -518,7 +503,6 @@ describe('runSocketReconnectCatchUpViaChanges', () => {
             accountId: 'a',
             afterCursor: '0',
             changesPageLimit: 200,
-            forceSnapshotRefresh: false,
             fetchChanges,
             checkpointCursor,
             onCursorBlocked,
@@ -565,7 +549,6 @@ describe('runSocketReconnectCatchUpViaChanges', () => {
             accountId: 'a',
             afterCursor: '0',
             changesPageLimit: 200,
-            forceSnapshotRefresh: false,
             fetchChanges,
             checkpointCursor,
             onCursorBlocked,
@@ -592,39 +575,4 @@ describe('runSocketReconnectCatchUpViaChanges', () => {
         });
     });
 
-    it('can force snapshot refresh even when under the page limit', async () => {
-        const applyPlanned = vi.fn(async () => {});
-        const snapshotRefresh = vi.fn(async () => {});
-        const fetchChanges = vi.fn<FetchChangesFn>()
-            .mockResolvedValueOnce({
-                status: 'ok' as const,
-                changes: [{ cursor: 11, kind: 'session' as const, entityId: 's1', changedAt: 1 }],
-                nextCursor: '11',
-            })
-            .mockResolvedValueOnce({
-                status: 'ok' as const,
-                changes: [],
-                nextCursor: '11',
-            });
-
-        const res = await runSocketReconnectCatchUpViaChanges({
-            credentials,
-            accountId: 'a',
-            afterCursor: '10',
-            changesPageLimit: 200,
-            forceSnapshotRefresh: true,
-            fetchChanges,
-            applyPlanned,
-            snapshotRefresh,
-        });
-
-        expect(snapshotRefresh).toHaveBeenCalledTimes(1);
-        expect(fetchChanges.mock.calls.map(([call]) => call.afterCursor)).toEqual(['10', '11']);
-        expect(applyPlanned).not.toHaveBeenCalled();
-        expect(res).toEqual({
-            status: 'ok',
-            nextCursor: '11',
-            shouldPersistCursor: true,
-        });
-    });
 });

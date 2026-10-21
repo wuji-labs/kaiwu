@@ -7,7 +7,6 @@ export type MessageCatchUpDecision =
 export type MessageCatchUpThresholds = {
     largeGapSeq: number;
     maxIncrementalPagesOnResume: number;
-    forceSnapshotOfflineMs: number;
 };
 
 export function decideMessageCatchUpPolicy(input: Readonly<{
@@ -56,10 +55,10 @@ export function decideMessageCatchUpPolicy(input: Readonly<{
         return { kind: 'do_nothing' };
     }
 
-    const isLongOffline = input.offlineForMs >= thresholds.forceSnapshotOfflineMs;
-    const isLargeGap = gapSeq >= thresholds.largeGapSeq;
-
-    if (isLongOffline || isLargeGap) {
+    // Bytes-first: the gap is known, so time offline alone never justifies a full latest page —
+    // paging `afterSeq` costs exactly the missing messages, and an incremental run that does not
+    // converge still falls through to the tail reset (`onIncrementalExhausted`).
+    if (gapSeq >= thresholds.largeGapSeq) {
         if (input.isPinned) {
             return { kind: 'tail_reset_latest_page' };
         }

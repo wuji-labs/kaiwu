@@ -44,6 +44,12 @@ vi.mock('@/sync/api/session/apiSocket', () => ({
     },
 }));
 
+const fetchChangesMock = vi.hoisted(() => vi.fn(async () => ({ status: 'ok' as const, changes: [], nextCursor: '5' })));
+vi.mock('@/sync/api/session/apiChanges', () => ({
+    fetchChanges: fetchChangesMock,
+    fetchCurrentChangesCursor: vi.fn(async () => ({ status: 'ok' as const, cursor: '5' })),
+}));
+
 vi.mock('@/log', () => ({
     log: { log: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }));
@@ -71,8 +77,28 @@ function createSyncUnitStub(): SyncUnitStub {
  */
 async function createResumableSync(
     refreshedByCatchUp: Readonly<{ sessions: boolean; machines: boolean }> = { sessions: false, machines: false },
+    options: Readonly<{ activeSessionInList?: boolean }> = { activeSessionInList: true },
 ) {
     const { sync } = await import('./sync');
+    const { storage } = await import('./domains/state/storage');
+    // Session presence is ephemeral only while a session is live; an all-inactive list can only
+    // change through durable, cursor-backed lifecycle updates the changes catch-up already applied.
+    const now = Date.now();
+    storage.getState().applySessions(options.activeSessionInList === false ? [] : [{
+        id: 'live-session',
+        seq: 1,
+        createdAt: now,
+        updatedAt: now,
+        active: true,
+        activeAt: now,
+        metadata: null,
+        metadataVersion: 1,
+        agentState: null,
+        agentStateVersion: 1,
+        thinking: false,
+        thinkingAt: 0,
+        presence: 'online',
+    }]);
 
     // Register the socket status listener that owns the offline-duration bookkeeping.
     (sync as unknown as { subscribeToUpdates: () => void }).subscribeToUpdates();
@@ -173,6 +199,47 @@ describe('sync foreground ephemeral recovery', () => {
 
         expect(units.sessionsSync.invalidateCoalesced).toHaveBeenCalledTimes(1);
         expect(units.machinesSync.invalidateCoalesced).not.toHaveBeenCalled();
+    });
+
+    it('does not refetch the session list when no session was live, but still settles machine presence', async () => {
+        // Bytes-first: every foreground after a socket outage refetched the full /v2/sessions page
+        // (125 times in 7 h on the production relay). With nothing live there is no ephemeral
+        // session state to repair; machine presence is ephemeral-only and is still refreshed.
+        const { sync, units } = await createResumableSync(undefined, { activeSessionInList: false });
+
+        const appStateHandler = Array.from(appStateHandlers)[0];
+        appStateHandler!('background');
+        await vi.advanceTimersByTimeAsync(30_000);
+
+        appStateHandler!('active');
+        await (sync as unknown as { resumeInFlight: Promise<void> | null }).resumeInFlight;
+        await vi.advanceTimersByTimeAsync(0);
+
+        expect(units.sessionsSync.invalidateCoalesced).not.toHaveBeenCalled();
+        expect(units.machinesSync.invalidateCoalesced).toHaveBeenCalledTimes(1);
+    });
+
+    it('catches up through the changes feed after a long background instead of a full snapshot refresh', async () => {
+        // A snapshot refresh refetches the session list and machines and must discard every
+        // persisted transcript copy (it cannot prove which rows were edited); forcing one merely
+        // because the phone slept for 30 minutes threw away the transcript cache on the most common
+        // reopen. The changes feed is still authoritative here — it only degrades to a snapshot on
+        // `cursor-gone` or when the page budget runs out.
+        const { sync } = await createResumableSync();
+        vi.mocked((sync as any).resumeViaChanges).mockRestore?.();
+        const snapshotRefresh = vi.spyOn(sync as any, 'snapshotRefreshOnResume').mockResolvedValue(undefined);
+        (sync as any).changesCursor = '4';
+
+        const appStateHandler = Array.from(appStateHandlers)[0];
+        appStateHandler!('background');
+        await vi.advanceTimersByTimeAsync(2 * 60 * 60 * 1000);
+
+        appStateHandler!('active');
+        await (sync as unknown as { resumeInFlight: Promise<void> | null }).resumeInFlight;
+        await vi.advanceTimersByTimeAsync(0);
+
+        expect(fetchChangesMock).toHaveBeenCalled();
+        expect(snapshotRefresh).not.toHaveBeenCalled();
     });
 
     it('does not refresh sessions and machines when the socket never went offline', async () => {

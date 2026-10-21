@@ -91,7 +91,8 @@ import { createSessionListOrganizationSnapshotRequest } from '@/sync/engine/sess
 import { ActivityUpdateAccumulator, type ActivityUpdateAccumulatorFlushOptions } from './reducer/activityUpdateAccumulator';
 import { MachineActivityAccumulator, type MachineActivityUpdate } from './reducer/machineActivityAccumulator';
 import { randomUUID } from '@/platform/randomUUID';
-import { Platform, AppState } from 'react-native';
+import { Platform, AppState, Dimensions } from 'react-native';
+import { resolveInitialSessionMessagesPageSize } from '@/sync/runtime/initialTranscriptPageSize';
 import { buildOutgoingUserTextRecord } from './domains/messages/outgoingUserMessage';
 import { resolveSentFrom } from './domains/messages/sentFrom';
 import { NormalizedMessage, normalizeRawMessage, RawRecord, RawRecordSchema } from './typesRaw';
@@ -504,8 +505,6 @@ import { actionOperationStore } from './domains/actionOperations/actionOperation
 import { openActionOperationRevisionEphemeral } from './domains/actionOperations/actionOperationEphemeral';
 
 const SESSION_LIST_BACKGROUND_HYDRATION_SCROLL_SETTLE_MS = 180;
-const WEB_INITIAL_SESSION_MESSAGES_PAGE_SIZE = 12;
-
 /**
  * Quiet period before a changed transcript is written to the durable cache. A streaming turn keeps
  * resetting it, so serialization never competes with streaming frames; eviction, backgrounding and
@@ -1554,6 +1553,15 @@ class Sync {
               this.sessionListScrollIdleResolvers.push(resolve);
           });
       };
+
+      /** First page with nothing held locally: one screenful (see `initialTranscriptPageSize.ts`). */
+      private getInitialSessionMessagesPageSize(): number {
+          return resolveInitialSessionMessagesPageSize({
+              platformOS: Platform.OS,
+              viewportHeightDp: Dimensions.get('window').height,
+              configuredPageSize: this.getSessionMessagesPageSize(),
+          });
+      }
 
       private getSessionMessagesPageSize(options?: LoadOlderMessagesOptions): number {
           const optionLimit = options?.limit;
@@ -4571,7 +4579,6 @@ class Sync {
                   const { status, refreshedByCatchUp } = await this.resumeViaChanges({
                       accountId,
                       shouldContinue,
-                      allowOfflineSnapshotRefresh: reason !== 'changes-catch-up',
                   });
                   if (status === 'aborted') {
                       return;
@@ -4618,7 +4625,11 @@ class Sync {
                   // after the first.
                   if (this.readSocketOfflineDurationMs() > 0) {
                       const offlineRecoveryTasks: Array<() => Promise<void>> = [];
-                      if (!refreshedByCatchUp.sessions) {
+                      // Session presence is ephemeral only for live sessions: a session going live or
+                      // ending is a durable, cursor-backed lifecycle change the catch-up above already
+                      // applied. With nothing live there is nothing ephemeral to repair, and the full
+                      // list refetch is pure bytes on a constrained link.
+                      if (!refreshedByCatchUp.sessions && this.hasLiveSessionInList()) {
                           offlineRecoveryTasks.push(
                               () => invalidateBounded(this.sessionsSync, this.syncTuning.resumeQuickInvalidateTimeoutMs),
                           );
@@ -5490,14 +5501,13 @@ class Sync {
           // A previous empty or interrupted open can leave a non-empty session hint with a loaded,
           // zero-row cache. Recover with a snapshot so catch-up does not preserve the blank projection.
           const needsSnapshotLoad = !hasLoadedMessages || (!hasMaterializedMessages && sessionSeqHint > 0);
+          const initialPageSize = this.getInitialSessionMessagesPageSize();
           if (needsSnapshotLoad) {
               this.deferredForwardLoadingSessions.delete(sessionId);
               const fetchSnapshot = () => fetchAndApplyMessages({
                   sessionId,
                   sessionEncryptionMode,
-                  limit: Platform.OS === 'web'
-                      ? WEB_INITIAL_SESSION_MESSAGES_PAGE_SIZE
-                      : this.getSessionMessagesPageSize(),
+                  limit: initialPageSize,
                   getSessionEncryption: (id) => this.encryption.getSessionEncryption(id),
                   isSessionKnown: (id) => this.isSessionKnownOnResolvedOwnerServer(id),
                   request: requestMessages,
@@ -5506,7 +5516,7 @@ class Sync {
                   onTaskLifecycleEvent: (event) => this.applySessionThinkingFromTaskLifecycle(sessionId, event),
                   markMessagesLoaded: (sid) => storage.getState().applyMessagesLoaded(sid),
                   onMessagesPage: (page) => {
-                      this.updateSessionMessagesPaginationFromPage(sessionId, { scope: 'main' }, page, { allowHasMoreInference: true });
+                      this.updateSessionMessagesPaginationFromPage(sessionId, { scope: 'main' }, page, { allowHasMoreInference: true, pageSize: initialPageSize });
                   },
                   ...this.getMessageDecryptBatchOptions(),
                   log,
@@ -5538,7 +5548,6 @@ class Sync {
                 thresholds: {
                     largeGapSeq: this.syncTuning.messageLargeGapSeq,
                     maxIncrementalPagesOnResume: this.syncTuning.messageMaxIncrementalPagesOnResume,
-                    forceSnapshotOfflineMs: this.syncTuning.messageForceSnapshotOfflineMs,
                 },
             });
 
@@ -5591,7 +5600,8 @@ class Sync {
                   await fetchAndApplyMessages({
                       sessionId,
                       sessionEncryptionMode,
-                      limit: this.getSessionMessagesPageSize(),
+                      // The reader sees the newest screen; the hole below it is walked on scroll-up.
+                      limit: initialPageSize,
                       getSessionEncryption: (id) => this.encryption.getSessionEncryption(id),
                       isSessionKnown: (id) => this.isSessionKnownOnResolvedOwnerServer(id),
                       request: requestMessages,
@@ -5600,7 +5610,7 @@ class Sync {
                       onTaskLifecycleEvent: (event) => this.applySessionThinkingFromTaskLifecycle(sessionId, event),
                       markMessagesLoaded: (sid) => storage.getState().applyMessagesLoaded(sid),
                       onMessagesPage: (page) => {
-                          this.updateSessionMessagesPaginationFromPage(sessionId, { scope: 'main' }, page, { allowHasMoreInference: true });
+                          this.updateSessionMessagesPaginationFromPage(sessionId, { scope: 'main' }, page, { allowHasMoreInference: true, pageSize: initialPageSize });
                           this.openSessionTailDiscontinuityFromSnapshotPage(sessionId, prefixMaxSeqBeforeSnapshot, page);
                       },
                       ...this.getMessageDecryptBatchOptions(),
@@ -7067,6 +7077,17 @@ class Sync {
           return areServerProfileIdentifiersEquivalent(routeServerId, String(getActiveServerSnapshot().serverId ?? '').trim());
       }
 
+      private hasLiveSessionInList(): boolean {
+          const state = storage.getState();
+          for (const row of Object.values(state.sessionListRenderables)) {
+              if (row?.active === true) return true;
+          }
+          for (const session of Object.values(state.sessions)) {
+              if (session?.active === true) return true;
+          }
+          return false;
+      }
+
       private readTranscriptCacheScope(): TranscriptCacheScope | null {
           const serverId = String(getActiveServerSnapshot().serverId ?? '').trim();
           const accountId = String(this.serverID ?? '').trim();
@@ -7389,7 +7410,6 @@ class Sync {
       private async resumeViaChanges(opts: {
           accountId: string;
           shouldContinue?: () => boolean;
-          allowOfflineSnapshotRefresh?: boolean;
       }): Promise<ResumeViaChangesOutcome> {
           const CHANGES_PAGE_LIMIT = this.syncTuning.changesPageLimit;
           const afterCursor = this.changesCursor ?? '0';
@@ -7411,17 +7431,12 @@ class Sync {
               return false;
           };
 
-          const offlineForMs = this.readSocketOfflineDurationMs();
-          const forceSnapshotRefresh = opts.allowOfflineSnapshotRefresh !== false
-              && offlineForMs >= this.syncTuning.messageForceSnapshotOfflineMs;
-
           const catchUp = await runSocketReconnectCatchUpViaChanges({
               credentials: this.credentials,
               accountId: opts.accountId,
               afterCursor,
               changesPageLimit: CHANGES_PAGE_LIMIT,
               maxChangesPagesPerResume: this.syncTuning.changesMaxPagesPerResume,
-              forceSnapshotRefresh,
                 fetchChanges,
                 fetchCurrentCursor: fetchCurrentChangesCursor,
                 checkpointCursor: async (cursor, context) => {
@@ -7942,7 +7957,7 @@ class Sync {
             nextBeforeSeq?: number | null;
             nextAfterSeq?: number | null;
         },
-        options?: { allowHasMoreInference?: boolean; direction?: 'older' | 'newer' },
+        options?: { allowHasMoreInference?: boolean; direction?: 'older' | 'newer'; pageSize?: number },
     ): void {
         const pagingKey = this.buildSessionMessagesPaginationKey({
             sessionId,
@@ -7963,7 +7978,8 @@ class Sync {
         const update = computeSessionMessagesPaginationUpdateFromPage({
             prev,
             page,
-            pageSize: this.getSessionMessagesPageSize(),
+            // Inference compares against the limit this page was actually requested with.
+            pageSize: options?.pageSize ?? this.getSessionMessagesPageSize(),
             allowHasMoreInference: options?.allowHasMoreInference === true,
             direction: options?.direction ?? 'older',
         });
