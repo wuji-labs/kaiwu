@@ -187,6 +187,16 @@ describe('session record coercion carries the server-materialized unread entry f
         expect(page.sessions[0]?.unreadSince).toBeNull();
     });
 
+    it('carries pendingActivationAuthorization through the v2 list path', async () => {
+        const authorization = { requestId: 'req-1', requestedAt: 1_700_000_000_500, status: 'waiting' as const };
+        const request = v2ListRequest([rawSessionRow({ active: false, pendingActivationAuthorization: authorization })]);
+
+        const page = await fetchSessionListPageCompat({ request, token: 'token', limit: 50 });
+
+        expect(page.source).toBe('v2');
+        expect(page.sessions[0]?.pendingActivationAuthorization).toEqual(authorization);
+    });
+
     it('KEYSTONE: rebuilds a carrier for every field the protocol record schema declares', async () => {
         // The record rebuild is an allow-list, so a newly declared protocol field
         // is silently dropped unless a carrier is added here too — the exact way

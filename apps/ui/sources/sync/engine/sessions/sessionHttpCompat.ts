@@ -1,4 +1,5 @@
 import {
+    PendingActivationAuthorizationV1Schema,
     V2SessionListResponseSchema,
     V2SessionByIdNotFoundSchema,
     type V2SessionListResponse,
@@ -98,6 +99,11 @@ function readOptionalString(value: unknown): string | undefined {
 function readNullableString(value: unknown): string | null | undefined {
     if (value == null) return null;
     return typeof value === 'string' ? value : undefined;
+}
+
+function readPendingActivationAuthorization(value: unknown): V2SessionRecord['pendingActivationAuthorization'] {
+    const parsed = PendingActivationAuthorizationV1Schema.safeParse(value);
+    return parsed.success ? parsed.data : undefined;
 }
 
 function readRollbackEligibleTurnStarts(value: unknown): readonly number[] | null | undefined {
@@ -232,6 +238,9 @@ function coerceLegacySessionRecord(raw: unknown): V2SessionRecord | null {
         pendingCount: readNumber(raw.pendingCount) ?? undefined,
         pendingBlockedCount: readNumber(raw.pendingBlockedCount) ?? undefined,
         pendingVersion: readNumber(raw.pendingVersion) ?? undefined,
+        // Server-owned authority for queued input on an inactive session; the
+        // recovery UI reads it from the session row, so it must survive the rebuild.
+        pendingActivationAuthorization: readPendingActivationAuthorization(raw.pendingActivationAuthorization),
         thinking: readOptionalBoolean(raw.thinking),
         thinkingAt: readNumber(raw.thinkingAt) ?? undefined,
         dataEncryptionKey: readNullableString(raw.dataEncryptionKey) ?? null,
