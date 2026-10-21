@@ -34,9 +34,11 @@ describe('vitest config aliases', () => {
             ? config.plugins
             : [];
         const resolver = plugins.find((plugin) => plugin.name === 'happier-vitest-expo-node-module-stubs');
+        // The resolver returns OS-native absolute paths (backslashes on Windows); compare with POSIX separators.
+        const resolvePosix = (id: string) => resolver?.resolveId?.(id)?.replaceAll('\\', '/');
 
-        expect(resolver?.resolveId?.('@happier-dev/agents')).toContain('/packages/agents/src/index.ts');
-        expect(resolver?.resolveId?.('@happier-dev/agents/permissions')).toContain(
+        expect(resolvePosix('@happier-dev/agents')).toContain('/packages/agents/src/index.ts');
+        expect(resolvePosix('@happier-dev/agents/permissions')).toContain(
             '/packages/agents/src/permissions/index.ts',
         );
     });

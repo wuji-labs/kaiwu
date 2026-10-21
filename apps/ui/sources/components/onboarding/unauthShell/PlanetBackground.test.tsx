@@ -38,7 +38,8 @@ function sourceName(source: unknown): string | undefined {
         : typeof source === 'string'
           ? source
           : undefined;
-    return value ? value.split('/').pop() : undefined;
+    // The vitest asset require hook yields OS-native absolute paths (backslashes on Windows).
+    return value ? value.split(/[\\/]/).pop() : undefined;
 }
 
 describe('PlanetBackground', () => {
