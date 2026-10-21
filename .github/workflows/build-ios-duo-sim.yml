@@ -18,6 +18,8 @@ jobs:
     name: Build and Test on iPhone Duo Simulator
     runs-on: xcode-27
     timeout-minutes: 120
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.1_Release_Candidate.app/Contents/Developer
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -27,9 +29,18 @@ jobs:
       - name: Xcode version and Duo simulator availability
         run: |
           set -euo pipefail
-          echo "Current Xcode:"
-          xcode-select -p
-          xcodebuild -version
+          echo "=== Xcode Version (must be 27.1) ==="
+          XCODE_VERSION=$(xcodebuild -version | head -1)
+          echo "$XCODE_VERSION"
+          if ! echo "$XCODE_VERSION" | grep -q "27\.1"; then
+            echo "ERROR: Xcode must be 27.1, got: $XCODE_VERSION" >&2
+            exit 1
+          fi
+          echo "✓ Xcode 27.1 confirmed"
+
+          echo "=== Available iOS SDKs ==="
+          xcodebuild -showsdks | grep iphonesimulator || echo "No iphonesimulator SDK found"
+
           echo "=== Checking for iPhone Duo device types ==="
           xcrun simctl list devicetypes | grep -i duo || echo "No Duo simulator found; will show all available"
           xcrun simctl list devicetypes | head -20
