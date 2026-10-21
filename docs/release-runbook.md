@@ -100,7 +100,8 @@ node scripts/release/publish-downloads.mjs --platform <平台> --version <版本
 
 **支持的平台标识**：
 - `desktop-windows`: Tauri Windows x64 桌面客户端（按集团安全规范以 `.zip` 分发）
-- `desktop-macos`: Tauri macOS 通用桌面客户端（`.dmg`）
+- `desktop-macos`: Tauri macOS Apple 芯片桌面客户端（`.dmg`，Developer ID 签名 + 公证）
+- `desktop-macos-intel`: Tauri macOS Intel 桌面客户端（`.dmg`）
 - `desktop-linux`: Tauri Linux x64 桌面客户端（`.AppImage`）
 - `windows`: Windows x64 命令行/便携包（按集团安全规范压制为 `.zip`）
 - `macos`: macOS 核心命令行包（`.tgz`）
@@ -123,3 +124,9 @@ node scripts/release/publish-downloads.mjs --platform <平台> --version <版本
 - **Windows 防拦截规范**：exe 安装包必须打成 `.zip` 格式分发（参见 `D:\Projects\qianyuan-wuji` 记忆「Windows客户端发布防拦截规范」），发版后提报微软 Defender Security Intelligence 白名单。
 - **并行合同协同**：若 K500 合同或其他功能分支发布了新版本（如突破上传上限后的新版 CLI），在该版本构建完成后，直接调用 `publish-downloads.mjs` 传入新版本产物即可无缝刷新下载中心，无需重复调整服务器 Caddy 路由基础架构。
 
+### 8.4 桌面端构建、自动更新源与下载页（2026-10-21）
+- **构建**：`gh workflow run build-desktop-wuji.yml -R wuji-labs/kaiwu --ref wuji/main -f environment=production -f source_ref=wuji/main -f publish_release=false -f release_message="无极开物桌面端"`。Apple 证书与公证密钥已在仓库 secrets；**先改 secrets 再触发**（run 创建时快照 secrets）。
+- **取产物**：GitHub 产物直连极慢，走路由器代理分段下载（`--socks5-hostname 192.168.8.1:1071`）。
+- **自动更新源**：`uv run --no-project --with pynacl --with cos-python-sdk-v5 python -I scripts/release/desktop_update_feed.py --version <v> --entry <平台>=<更新包>`（验签→上传 COS→合并 `download/desktop/latest.json`→回读）。
+- **下载页**：改 `apps/website/public/download/index.html` 后运行 `python -I scripts/release/deploy_download_page.py`（备份→上传→线上哈希比对→1440/390 截图，打印回滚命令）。
+- **Windows 命令行包不提供 zip 下载**：5.7 万文件、路径最长 444 字符，系统自带解压报「无效」；下载页只给 `irm https://kaiwu.wujilabs.cn/install.ps1 | iex`。
