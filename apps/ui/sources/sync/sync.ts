@@ -513,6 +513,9 @@ const SESSION_LIST_BACKGROUND_HYDRATION_SCROLL_SETTLE_MS = 180;
  */
 const TRANSCRIPT_CACHE_FLUSH_QUIET_MS = 3_000;
 
+/** Messages replayed before the first frame when a deep persisted window is hydrated. */
+const TRANSCRIPT_CACHE_FIRST_PAINT_MESSAGES = 60;
+
 /**
  * Sessions one background refresh keeps current — the most recently used durable copies. Each costs
  * at most a few small `afterSeq` pages; five fit the OS background budget on a slow link.
@@ -7399,12 +7402,14 @@ class Sync {
           record: TranscriptCacheRecord,
       ): boolean {
           const startedAtMs = Date.now();
+          // Paint the newest screenful first; the older part of a deep window replays on the next
+          // task so its reducer cost never sits between the tap and the first frame.
+          const messages = record.messages.map((entry) => entry.message);
+          const splitAt = Math.max(0, messages.length - TRANSCRIPT_CACHE_FIRST_PAINT_MESSAGES);
+          const firstPaint = messages.slice(splitAt);
+          const deferredOlder = messages.slice(0, splitAt);
           try {
-              this.applyMessages(
-                  sessionId,
-                  record.messages.map((entry) => entry.message),
-                  { notifyVoice: false, notifyActivity: false },
-              );
+              this.applyMessages(sessionId, firstPaint, { notifyVoice: false, notifyActivity: false });
           } catch (error) {
               // A record the reducer cannot replay is worthless; drop it and let the network
               // path load the transcript as if there had been no cache.
@@ -7420,12 +7425,50 @@ class Sync {
               receivedMessages = new Map<string, number>();
               this.sessionReceivedMessages.set(sessionId, receivedMessages);
           }
-          for (const entry of record.messages) {
-              if (typeof entry.updatedAt === 'number') receivedMessages.set(entry.message.id, entry.updatedAt);
-          }
+          // Only what is in the store counts as received: a network page must still apply the
+          // deferred older part if that part never lands.
+          const markReceived = (entries: readonly TranscriptCacheRecord['messages'][number][]) => {
+              const received = this.sessionReceivedMessages.get(sessionId);
+              if (!received) return;
+              for (const entry of entries) {
+                  if (typeof entry.updatedAt === 'number') received.set(entry.message.id, entry.updatedAt);
+              }
+          };
+          markReceived(record.messages.slice(splitAt));
           const pagingKey = this.buildSessionMessagesPaginationKey({ sessionId, scope: 'main' });
-          this.sessionMessagesBeforeSeqByKey.set(pagingKey, record.minSeq);
-          this.sessionMessagesHasMoreOlderByKey.set(pagingKey, record.hasMoreOlder);
+          if (deferredOlder.length === 0) {
+              this.sessionMessagesBeforeSeqByKey.set(pagingKey, record.minSeq);
+              this.sessionMessagesHasMoreOlderByKey.set(pagingKey, record.hasMoreOlder);
+          } else {
+              // Until the older part lands, the window starts at the first-paint slice; an older
+              // load in between pages from there, and message ids de-duplicate any overlap.
+              this.sessionMessagesBeforeSeqByKey.set(pagingKey, firstPaint[0]?.seq ?? record.minSeq);
+              this.sessionMessagesHasMoreOlderByKey.set(pagingKey, true);
+              const generation = this.serverScopeGeneration;
+              const epoch = this.sessionTranscriptCache.readDiscardEpoch(sessionId);
+              setTimeout(() => {
+                  if (
+                      this.serverScopeGeneration !== generation
+                      || this.sessionTranscriptCache.readDiscardEpoch(sessionId) !== epoch
+                      || storage.getState().sessionMessages[sessionId]?.isLoaded !== true
+                      || this.hasUserOlderLoadInFlight(sessionId)
+                  ) {
+                      return;
+                  }
+                  try {
+                      this.applyMessages(sessionId, deferredOlder, { notifyVoice: false, notifyActivity: false });
+                      markReceived(record.messages.slice(0, splitAt));
+                  } catch (error) {
+                      syncReliabilityTelemetry.record('sync.transcriptCache.replayFailed', {
+                          error: error instanceof Error ? error.name : 'unknown',
+                          phase: 'older',
+                      });
+                      return;
+                  }
+                  this.sessionMessagesBeforeSeqByKey.set(pagingKey, record.minSeq);
+                  this.sessionMessagesHasMoreOlderByKey.set(pagingKey, record.hasMoreOlder);
+              }, 0);
+          }
           // Overwrite, not raise: the separately persisted head may be ahead of what this record
           // holds, and resuming above the record would skip the difference.
           this.sessionMaterializedMaxSeqById = { ...this.sessionMaterializedMaxSeqById, [sessionId]: record.maxSeq };

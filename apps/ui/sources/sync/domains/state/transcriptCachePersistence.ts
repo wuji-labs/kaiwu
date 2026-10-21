@@ -84,9 +84,17 @@ export const TRANSCRIPT_CACHE_MAX_RECORDS = NATIVE_TRANSCRIPT_CACHE_BOUNDS.maxRe
 export const TRANSCRIPT_CACHE_MAX_RECORD_CHARS = NATIVE_TRANSCRIPT_CACHE_BOUNDS.maxRecordChars;
 export const TRANSCRIPT_CACHE_MAX_TOTAL_CHARS = NATIVE_TRANSCRIPT_CACHE_BOUNDS.maxTotalChars;
 
+let boundsOverride: TranscriptCacheBounds | undefined;
+
 /** The bounds of the storage this runtime persists into. */
 export function readTranscriptCacheBounds(): TranscriptCacheBounds {
+    if (boundsOverride) return boundsOverride;
     return isWebRuntime() ? WEB_TRANSCRIPT_CACHE_BOUNDS : NATIVE_TRANSCRIPT_CACHE_BOUNDS;
+}
+
+/** Test seam: exercise one platform's bounds from another runtime. */
+export function setTranscriptCacheBoundsForTests(bounds: TranscriptCacheBounds | undefined): void {
+    boundsOverride = bounds;
 }
 
 const NormalizedMessageEnvelopeSchema = z.union([
