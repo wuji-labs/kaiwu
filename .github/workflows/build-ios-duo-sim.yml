@@ -252,9 +252,21 @@ jobs:
       # instead of Simulator.app; drive its "Open" pose through System Events, then shoot the inner display.
       - name: Unfold iPhone Duo through DeviceHub and capture the inner display
         continue-on-error: true
+        timeout-minutes: 12
         run: |
           set -uo pipefail
           SIM_UDID="${{ steps.create_sim.outputs.sim_udid }}"
+          # Every AppleScript call is bounded: a TCC consent sheet must never hang the job.
+          osa() { perl -e 'alarm shift; exec @ARGV' 45 osascript "$@"; }
+          # Pre-authorize Automation (AppleEvents) to System Events / DeviceHub in the user TCC db.
+          UTCC="$HOME/Library/Application Support/com.apple.TCC/TCC.db"
+          NOW2=$(date +%s)
+          for c in com.apple.Terminal /usr/bin/osascript /bin/bash; do
+            ctype=1; case "$c" in com.*) ctype=0;; esac
+            for target in com.apple.systemevents com.apple.dt.DeviceHub com.apple.dt.devicehub; do
+              sqlite3 "$UTCC" "INSERT OR REPLACE INTO access (service, client, client_type, auth_value, auth_reason, auth_version, indirect_object_identifier_type, indirect_object_identifier, flags, last_modified) VALUES ('kTCCServiceAppleEvents', '$c', $ctype, 2, 3, 1, 0, '$target', 0, $NOW2);" 2>&1 || true
+            done
+          done
           TCC="/Library/Application Support/com.apple.TCC/TCC.db"
           NOW=$(date +%s)
           # TCC checks the *responsible* process: grant every executable on our parent chain too.
@@ -277,14 +289,14 @@ jobs:
           /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$HUB/Contents/Info.plist" || true
           open "$HUB" --args -CurrentDeviceUDID "$SIM_UDID" || open "$HUB"
           sleep 15
-          PROC=$(osascript -e 'tell application "System Events" to get name of every process whose background only is false' 2>&1)
+          PROC=$(osa -e 'tell application "System Events" to get name of every process whose background only is false' 2>&1)
           echo "processes: $PROC"
           HUBPROC=$(echo "$PROC" | tr ',' '\n' | sed 's/^ *//' | grep -i -E "device ?hub" | sed -n 1p)
           echo "hub process: $HUBPROC"
           HUBPROC="${HUBPROC:-DeviceHub}"
-          osascript -e "tell application \"$HUB\" to activate" 2>&1 || true
+          osa -e "tell application \"$HUB\" to activate" 2>&1 || true
           sleep 6
-          osascript -e "tell application \"System Events\" to tell process \"$HUBPROC\" to get {frontmost, count of windows, count of menu bars}" 2>&1 || true
+          osa -e "tell application \"System Events\" to tell process \"$HUBPROC\" to get {frontmost, count of windows, count of menu bars}" 2>&1 || true
           # CoreSimulator pose hooks (fallback research): strings that mention pose / hinge.
           CS=/Library/Developer/PrivateFrameworks/CoreSimulator.framework/Versions/A/CoreSimulator
           [ -f "$CS" ] && strings "$CS" | grep -i -E "pose|hinge|fold" | sort -u | sed -n '1,60p' > screenshots/coresim-pose-strings.txt || true
@@ -296,7 +308,7 @@ jobs:
             fi
           done > screenshots/devicehub-pose-strings.txt 2>&1 || true
           # Dismiss crash/report dialogs ("InputUI quit unexpectedly") from any process.
-          osascript > screenshots/devicehub-dismiss.txt 2>&1 <<OSA || true
+          osa > screenshots/devicehub-dismiss.txt 2>&1 <<OSA || true
           tell application "System Events"
             set hits to ""
             repeat with p in (every process whose background only is false)
@@ -316,7 +328,7 @@ jobs:
           OSA
           cat screenshots/devicehub-dismiss.txt
           # Dump menus (names) and window buttons (descriptions) so later runs can target exact labels.
-          osascript > screenshots/devicehub-menus.txt 2>&1 <<OSA || true
+          osa > screenshots/devicehub-menus.txt 2>&1 <<OSA || true
           tell application "System Events" to tell process "$HUBPROC"
             set out to ""
             repeat with mm in menus of menu bar 1
@@ -342,7 +354,7 @@ jobs:
           OSA
           cat screenshots/devicehub-menus.txt
           # Press the "Open" pose: menu item first, then a toolbar button whose description says open.
-          osascript > screenshots/devicehub-click.txt 2>&1 <<OSA || true
+          osa > screenshots/devicehub-click.txt 2>&1 <<OSA || true
           tell application "System Events" to tell process "$HUBPROC"
             set frontmost to true
             repeat with mm in menus of menu bar 1
@@ -446,12 +458,12 @@ jobs:
             return out & "no Open control found"
           end run
           OSA
-          printf '#!/bin/bash\nosascript /tmp/duo-unfold.applescript "%s" > "%s/devicehub-terminal.txt" 2>&1\ntouch "%s/devicehub-terminal.done"\n' "$HUBPROC" "$WS" "$WS" > /tmp/duo-unfold.command
+          printf '#!/bin/bash\nperl -e "alarm 90; exec @ARGV" osascript /tmp/duo-unfold.applescript "%s" > "%s/devicehub-terminal.txt" 2>&1\ntouch "%s/devicehub-terminal.done"\n' "$HUBPROC" "$WS" "$WS" > /tmp/duo-unfold.command
           chmod +x /tmp/duo-unfold.command
           open -a Terminal /tmp/duo-unfold.command
-          for i in $(seq 1 60); do [ -f "$WS/devicehub-terminal.done" ] && break; sleep 2; done
+          for i in $(seq 1 60); do [ -f "$WS/devicehub-terminal.done" ] && break; osa -e 'tell application "System Events" to repeat with p in (every process whose background only is false)' -e 'try' -e 'repeat with w in windows of p' -e 'try' -e 'if exists button "Allow" of w then click button "Allow" of w' -e 'if exists button "OK" of w then click button "OK" of w' -e 'end try' -e 'end repeat' -e 'end try' -e 'end repeat' >/dev/null 2>&1 || true; sleep 2; done
           cat "$WS/devicehub-terminal.txt" || true
-          osascript -e "tell application \"$HUB\" to activate" 2>&1 || true
+          osa -e "tell application \"$HUB\" to activate" 2>&1 || true
           sleep 8
           screencapture -x screenshots/runner-desktop.png || true
           for d in 1 3; do
