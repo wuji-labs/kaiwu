@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import renderer, { act } from 'react-test-renderer';
 
 import { installCapabilitiesOpsModuleMock, renderScreen } from '@/dev/testkit';
@@ -7,7 +7,20 @@ import { NEW_SESSION_CAPABILITY_PROBE_TIMEOUT_MS } from '@/components/sessions/n
 
 (globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
 
-describe('useNewSessionPreflightConfigOptionsState', () => {
+// Each test resets the module registry and re-evaluates the hook's whole module graph so it can install its
+// own capabilities mock; that re-evaluation measured ~30 s per test on a loaded workstation, so the per-test
+// budget covers that work rather than an idle machine.
+const PER_TEST_REIMPORT_TIMEOUT_MS = 180_000;
+
+describe('useNewSessionPreflightConfigOptionsState', { timeout: PER_TEST_REIMPORT_TIMEOUT_MS }, () => {
+    // The cold transform of that graph is cached across resets; paying it once here, under its own budget,
+    // keeps it out of the first test. When the first test overran its limit, its pending probe leaked into
+    // the next tests' spy counts.
+    beforeAll(async () => {
+        await import('@/sync/acp/dynamicConfigOptionsProbeCache');
+        await import('./useNewSessionPreflightConfigOptionsState');
+    }, 300_000);
+
     it('keeps previous config options visible while a new cwd probe is pending', async () => {
         vi.resetModules();
 
