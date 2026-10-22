@@ -219,14 +219,10 @@ jobs:
           shoot_all() {  # $1 = tag
             xcrun simctl io "$SIM_UDID" screenshot "screenshots/probe-$1.png" > "screenshots/displays-$1.txt" 2>&1 || true
             cat "screenshots/displays-$1.txt"
-            IDS=$(grep -Eo -- '--display=[0-9]+' "screenshots/displays-$1.txt" | cut -d= -f2 | sort -u || true)
-            if [ -z "$IDS" ]; then
-              if [ -f "screenshots/probe-$1.png" ]; then mv "screenshots/probe-$1.png" "screenshots/duo-$1-display-1.png"; fi
-            else
-              for d in $IDS; do
-                xcrun simctl io "$SIM_UDID" screenshot --display="$d" "screenshots/duo-$1-display-$d.png" || true
-              done
-            fi
+            IDS=$( (echo 1; echo 3; grep -Eo -- '--display=[0-9]+' "screenshots/displays-$1.txt" | cut -d= -f2) | sort -u || true)
+            for d in $IDS; do
+              xcrun simctl io "$SIM_UDID" screenshot --display="$d" "screenshots/duo-$1-display-$d.png" || true
+            done
           }
           xcrun simctl io "$SIM_UDID" enumerate > screenshots/enumerate.txt 2>&1 || true
           cat screenshots/enumerate.txt
@@ -275,7 +271,14 @@ jobs:
           echo "processes: $PROC"
           HUBPROC=$(echo "$PROC" | tr ',' '\n' | sed 's/^ *//' | grep -i -E "device ?hub" | sed -n 1p)
           echo "hub process: $HUBPROC"
-          HUBPROC="${HUBPROC:-Device Hub}"
+          HUBPROC="${HUBPROC:-DeviceHub}"
+          osascript -e "tell application \"$HUB\" to activate" 2>&1 || true
+          sleep 6
+          osascript -e "tell application \"System Events\" to tell process \"$HUBPROC\" to get {frontmost, count of windows, count of menu bars}" 2>&1 || true
+          # CoreSimulator pose hooks (fallback research): strings that mention pose / hinge.
+          CS=/Library/Developer/PrivateFrameworks/CoreSimulator.framework/Versions/A/CoreSimulator
+          [ -f "$CS" ] && strings "$CS" | grep -i -E "pose|hinge|fold" | sort -u | sed -n '1,60p' > screenshots/coresim-pose-strings.txt || true
+          strings "$HUB/Contents/MacOS/"* 2>/dev/null | grep -i -E "pose|hinge|partially|fold" | sort -u | sed -n '1,80p' > screenshots/devicehub-pose-strings.txt || true
           # Dismiss crash/report dialogs ("InputUI quit unexpectedly") from any process.
           osascript > screenshots/devicehub-dismiss.txt 2>&1 <<OSA || true
           tell application "System Events"
@@ -363,9 +366,7 @@ jobs:
           cat screenshots/devicehub-click.txt
           sleep 8
           screencapture -x screenshots/runner-desktop.png || true
-          xcrun simctl io "$SIM_UDID" screenshot screenshots/probe-hub.png > screenshots/displays-hub.txt 2>&1 || true
-          cat screenshots/displays-hub.txt
-          for d in $(grep -Eo -- '--display=[0-9]+' screenshots/displays-hub.txt | cut -d= -f2 | sort -u || true); do
+          for d in 1 3; do
             xcrun simctl io "$SIM_UDID" screenshot --display="$d" "screenshots/duo-hub-display-$d.png" || true
           done
           ls -la screenshots
