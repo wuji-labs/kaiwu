@@ -21,7 +21,7 @@ describe('resolveAssetUrl', () => {
 
     it('falls back to the Kaiwu asset host when no manifest/asset index is configured', () => {
         const resolved = resolveAssetUrl('v1.0.0/hero.webp');
-        expect(resolved?.url).toContain('kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/assets/release-notes/');
+        expect(resolved?.url).toContain('kaiwu-static.wujilabs.cn/assets/release-notes/');
         expect(resolved?.url).toContain('hero.webp');
     });
 
@@ -60,11 +60,11 @@ describe('resolveAssetUrl', () => {
             expect(resolved?.primary.kind).toBe('local');
             expect(resolved?.primary.uri).toContain('127.0.0.1');
             expect(resolved?.fallback?.kind).toBe('remote');
-            expect(resolved?.fallback?.uri).toContain('kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/assets/');
+            expect(resolved?.fallback?.uri).toContain('kaiwu-static.wujilabs.cn/assets/');
         } else {
             // In a non-dev test runtime, the resolver must still produce a remote URL.
             expect(resolved?.primary.kind).toBe('remote');
-            expect(resolved?.url).toContain('kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/assets/');
+            expect(resolved?.url).toContain('kaiwu-static.wujilabs.cn/assets/');
             expect(resolved?.fallback).toBeNull();
         }
     });

@@ -149,11 +149,12 @@ def main():
             raise RuntimeError(f"SHA256 mismatch for {cos_key}: local={sha256}, remote={remote_sha}")
 
         print(f"  [OK] Verified {cos_key} (size={remote_size})")
+        public_base_url = os.environ.get('KAIWU_PUBLIC_BASE_URL', 'https://kaiwu-static.wujilabs.cn').rstrip('/')
         results.append({
             'key': cos_key,
             'size': size,
             'sha256': sha256,
-            'url': f"https://{bucket}.cos.ap-shanghai.myqcloud.com/{cos_key}"
+            'url': f"{public_base_url}/{cos_key}"
         })
 
     print("\n--- All Uploads Succeeded & Verified ---")

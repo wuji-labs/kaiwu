@@ -10,6 +10,7 @@ describe('kaiwuReleaseSource', () => {
       return new Response(JSON.stringify({ version: '0.2.28' }));
     }) as unknown as typeof fetch;
     await expect(fetchKaiwuLatestCliVersion(fakeFetch)).resolves.toBe('0.2.28');
+    expect(KAIWU_CLI_RELEASE_MANIFEST_URL).toBe('https://kaiwu-static.wujilabs.cn/releases/cli/latest.json');
     expect(seen).toEqual([KAIWU_CLI_RELEASE_MANIFEST_URL]);
     expect(seen.join()).not.toMatch(/npmjs|github|happier\.dev/);
   });
