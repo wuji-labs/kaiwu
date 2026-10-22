@@ -380,6 +380,78 @@ jobs:
           end tell
           OSA
           cat screenshots/devicehub-click.txt
+          WS="$PWD/screenshots"
+          cat > /tmp/duo-unfold.applescript <<'OSA'
+          on run argv
+            set procName to item 1 of argv
+            set out to ""
+            tell application "System Events"
+              tell process procName
+                set frontmost to true
+                delay 2
+                set out to out & "windows=" & (count of windows) & " menubars=" & (count of menu bars) & linefeed
+                -- dismiss crash dialogs
+                repeat with w in windows
+                  try
+                    if exists button "Ignore" of w then click button "Ignore" of w
+                  end try
+                end repeat
+                -- menus
+                repeat with mm in menus of menu bar 1
+                  set out to out & "## " & (name of mm) & linefeed
+                  repeat with mi in menu items of mm
+                    try
+                      set out to out & "  - " & (name of mi) & linefeed
+                    end try
+                  end repeat
+                end repeat
+                -- press the Open pose: menu item first
+                repeat with mm in menus of menu bar 1
+                  repeat with mi in menu items of mm
+                    try
+                      set n to name of mi
+                      if n is "Open" or n is "Fully Open" then
+                        click mi
+                        return out & "CLICKED menu " & (name of mm) & " > " & n
+                      end if
+                    end try
+                    try
+                      repeat with sb in menu items of menu 1 of mi
+                        if (name of sb) is "Open" or (name of sb) is "Fully Open" then
+                          click sb
+                          return out & "CLICKED menu " & (name of mm) & " > " & (name of mi) & " > " & (name of sb)
+                        end if
+                      end repeat
+                    end try
+                  end repeat
+                end repeat
+                -- then any button / radio whose description or help says open
+                repeat with b in (entire contents of window 1)
+                  try
+                    set d to (description of b) as text
+                    set h to ""
+                    try
+                      set h to (help of b) as text
+                    end try
+                    if d contains "Open" or h contains "Open" then
+                      if d does not contain "Partially" and h does not contain "Partially" then
+                        click b
+                        return out & "CLICKED control " & d & " | " & h
+                      end if
+                    end if
+                  end try
+                end repeat
+              end tell
+            end tell
+            return out & "no Open control found"
+          end run
+          OSA
+          printf '#!/bin/bash\nosascript /tmp/duo-unfold.applescript "%s" > "%s/devicehub-terminal.txt" 2>&1\ntouch "%s/devicehub-terminal.done"\n' "$HUBPROC" "$WS" "$WS" > /tmp/duo-unfold.command
+          chmod +x /tmp/duo-unfold.command
+          open -a Terminal /tmp/duo-unfold.command
+          for i in $(seq 1 60); do [ -f "$WS/devicehub-terminal.done" ] && break; sleep 2; done
+          cat "$WS/devicehub-terminal.txt" || true
+          osascript -e "tell application \"$HUB\" to activate" 2>&1 || true
           sleep 8
           screencapture -x screenshots/runner-desktop.png || true
           for d in 1 3; do
