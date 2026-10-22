@@ -231,11 +231,6 @@ jobs:
           xcrun simctl io "$SIM_UDID" enumerate > screenshots/enumerate.txt 2>&1 || true
           cat screenshots/enumerate.txt
           shoot_all boot
-          # Try to bring up the inner display (unfold): power the inner panel on, outer off.
-          { xcrun simctl io "$SIM_UDID" screenConfig --display=3 power on; xcrun simctl io "$SIM_UDID" screenConfig --display=1 power off; } > screenshots/unfold.txt 2>&1 || true
-          cat screenshots/unfold.txt
-          sleep 6
-          shoot_all unfolded
           ls -la screenshots/
           ls screenshots/duo-*-display-*.png
           xcrun simctl spawn "$SIM_UDID" log show --last 3m --style compact             --predicate "process == \"$EXEC_NAME\"" > screenshots/app-log.txt 2>&1 || true
@@ -264,6 +259,14 @@ jobs:
         run: |
           set -uo pipefail
           SIM_UDID="${{ steps.create_sim.outputs.sim_udid }}"
+          TCC="/Library/Application Support/com.apple.TCC/TCC.db"
+          NOW=$(date +%s)
+          for client in /usr/bin/osascript /bin/bash /bin/zsh /bin/sh /usr/libexec/sshd-keygen-wrapper; do
+            for svc in kTCCServiceAccessibility kTCCServicePostEvent; do
+              sudo sqlite3 "$TCC" "INSERT OR REPLACE INTO access (service, client, client_type, auth_value, auth_reason, auth_version, indirect_object_identifier, flags, last_modified) VALUES ('$svc', '$client', 1, 2, 4, 1, 'UNUSED', 0, $NOW);" 2>&1 || true
+            done
+          done
+          sudo sqlite3 "$TCC" "SELECT service, client, auth_value FROM access WHERE service IN ('kTCCServiceAccessibility','kTCCServicePostEvent');" 2>&1 || true
           HUB="${DEVELOPER_DIR%/Contents/Developer}/Contents/Applications/DeviceHub.app"
           /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$HUB/Contents/Info.plist" || true
           open "$HUB" --args -CurrentDeviceUDID "$SIM_UDID" || open "$HUB"
