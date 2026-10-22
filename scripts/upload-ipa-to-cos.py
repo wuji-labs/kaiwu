@@ -109,9 +109,10 @@ def main():
             )
         print(f"Successfully uploaded {key}")
 
+    public_base_url = os.environ.get("KAIWU_PUBLIC_BASE_URL", "https://kaiwu-static.wujilabs.cn").rstrip("/")
     latest_payload = {
         "version": version,
-        "ipa": f"https://{bucket}.cos.{region}.myqcloud.com/releases/ios/{version}/kaiwu-{version}-unsigned.ipa",
+        "ipa": f"{public_base_url}/releases/ios/{version}/kaiwu-{version}-unsigned.ipa",
         "sha256": file_sha256,
         "signed": False,
     }

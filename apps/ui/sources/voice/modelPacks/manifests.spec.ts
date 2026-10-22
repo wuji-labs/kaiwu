@@ -14,7 +14,7 @@ describe('modelPacks manifests', () => {
 
   it('falls back to the Kaiwu asset host when no manifest is configured', () => {
     expect(resolveModelPackManifestUrl({ packId: 'kokoro-tts-en-v1', env: {} })).toBe(
-      'https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/assets/model-packs/kokoro-tts-en-v1__manifest.json',
+      'https://kaiwu-static.wujilabs.cn/assets/model-packs/kokoro-tts-en-v1__manifest.json',
     );
   });
 

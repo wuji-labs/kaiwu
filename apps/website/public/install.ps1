@@ -34,9 +34,9 @@ $KAIWU_SERVER_URL = if ($ServerUrl) {
     "https://kaiwu.wujilabs.cn"
 }
 
-$LATEST_METADATA_URL = "https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/latest.json"
+$LATEST_METADATA_URL = "https://kaiwu-static.wujilabs.cn/releases/cli/latest.json"
 $DEFAULT_VERSION = "0.2.30"
-$DEFAULT_ARCHIVE_URL = "https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/$DEFAULT_VERSION/kaiwu-v$DEFAULT_VERSION-windows-x64.tar.gz"
+$DEFAULT_ARCHIVE_URL = "https://kaiwu-static.wujilabs.cn/releases/cli/$DEFAULT_VERSION/kaiwu-v$DEFAULT_VERSION-windows-x64.tar.gz"
 $DEFAULT_ARCHIVE_SHA256 = "d6dcae3e269038df636689333efea6b0d1f506f45c1100ab972aa05df8952a1b"
 
 function Write-Info {

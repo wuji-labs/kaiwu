@@ -319,7 +319,7 @@ const syncTuningJson = (
 // - EXPO_PUBLIC_HAPPIER_MODEL_PACK_MANIFESTS (full JSON mapping)
 // - EXPO_PUBLIC_HAPPIER_MODEL_PACKS_TAG (convenience)
 // Packs are served from Kaiwu's own asset host (see sources/utils/kaiwuAssets.ts), never GitHub.
-const kaiwuAssetsBaseUrl = 'https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/assets';
+const kaiwuAssetsBaseUrl = 'https://kaiwu-static.wujilabs.cn/assets';
 const defaultModelPacksTag = (process.env.EXPO_PUBLIC_HAPPIER_MODEL_PACKS_TAG || 'model-packs').trim();
 if (!process.env.EXPO_PUBLIC_HAPPIER_MODEL_PACK_MANIFESTS) {
     process.env.EXPO_PUBLIC_HAPPIER_MODEL_PACK_MANIFESTS = JSON.stringify({

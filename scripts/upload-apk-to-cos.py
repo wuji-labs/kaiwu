@@ -130,9 +130,10 @@ def main():
             )
         print(f"Successfully uploaded {key}")
 
+    public_base_url = os.environ.get("KAIWU_PUBLIC_BASE_URL", "https://kaiwu-static.wujilabs.cn").rstrip("/")
     latest_payload = {
         "version": version,
-        "apk": f"https://{bucket}.cos.{region}.myqcloud.com/releases/android/{version}/kaiwu-{version}.apk",
+        "apk": f"{public_base_url}/releases/android/{version}/kaiwu-{version}.apk",
         "sha256": file_sha256,
     }
     latest_json_str = json.dumps(latest_payload, ensure_ascii=False)

@@ -192,7 +192,8 @@ async function main() {
     const shouldPullFromCos = !config.skipCos && size > 50 * 1024 * 1024;
 
     if (shouldPullFromCos) {
-        const cosUrl = `https://${config.cosBucket}.cos.ap-shanghai.myqcloud.com/${cosVersionKey}`;
+        const publicBaseUrl = (process.env.KAIWU_PUBLIC_BASE_URL || 'https://kaiwu-static.wujilabs.cn').replace(/\/+$/, '');
+        const cosUrl = `${publicBaseUrl}/${cosVersionKey}`;
         console.log(`[INFO] 文件较大 (${sizeMb} MB)，服务器从 COS 拉取...`);
         runCommand(`ssh ${config.remoteHost} "curl -fsSL '${cosUrl}' -o '${remoteTargetFile}'"`);
     } else {

@@ -3,7 +3,7 @@
  * repository names belong to the upstream project), so version checks and updates go only here.
  */
 export const KAIWU_CLI_RELEASE_MANIFEST_URL =
-  'https://kaiwu-static-1444025891.cos.ap-shanghai.myqcloud.com/releases/cli/latest.json';
+  'https://kaiwu-static.wujilabs.cn/releases/cli/latest.json';
 export const KAIWU_INSTALL_SH_URL = 'https://kaiwu.wujilabs.cn/install';
 export const KAIWU_INSTALL_PS1_URL = 'https://kaiwu.wujilabs.cn/install.ps1';
 
