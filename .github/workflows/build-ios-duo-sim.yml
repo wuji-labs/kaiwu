@@ -473,14 +473,6 @@ jobs:
           done
           ls -la screenshots
 
-      - name: Shutdown simulator
-        if: always()
-        run: |
-          set -euo pipefail
-          SIM_UDID="${{ steps.create_sim.outputs.sim_udid }}"
-          xcrun simctl shutdown "$SIM_UDID" || true
-          xcrun simctl delete "$SIM_UDID" || true
-
       - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -488,6 +480,15 @@ jobs:
           name: duo-simulator-screenshots
           path: screenshots/
           retention-days: 7
+
+      - name: Shutdown simulator
+        if: always()
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          SIM_UDID="${{ steps.create_sim.outputs.sim_udid }}"
+          xcrun simctl shutdown "$SIM_UDID" || true
+          xcrun simctl delete "$SIM_UDID" || true
 
       - name: Summary
         if: always()
