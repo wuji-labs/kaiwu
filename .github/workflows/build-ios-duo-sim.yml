@@ -257,7 +257,17 @@ jobs:
           SIM_UDID="${{ steps.create_sim.outputs.sim_udid }}"
           TCC="/Library/Application Support/com.apple.TCC/TCC.db"
           NOW=$(date +%s)
-          for client in /usr/bin/osascript /bin/bash /bin/zsh /bin/sh /usr/libexec/sshd-keygen-wrapper; do
+          # TCC checks the *responsible* process: grant every executable on our parent chain too.
+          CHAIN=""
+          pid=$$
+          while [ "$pid" -gt 1 ]; do
+            exe=$(ps -o comm= -p "$pid" 2>/dev/null | sed 's/^ *//')
+            case "$exe" in /*) CHAIN="$CHAIN $exe" ;; esac
+            pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d ' ')
+            [ -z "$pid" ] && break
+          done
+          echo "parent chain:$CHAIN"
+          for client in /usr/bin/osascript /bin/bash /bin/zsh /bin/sh /usr/libexec/sshd-keygen-wrapper $CHAIN; do
             for svc in kTCCServiceAccessibility kTCCServicePostEvent; do
               sudo sqlite3 "$TCC" "INSERT OR REPLACE INTO access (service, client, client_type, auth_value, auth_reason, auth_version, indirect_object_identifier, flags, last_modified) VALUES ('$svc', '$client', 1, 2, 4, 1, 'UNUSED', 0, $NOW);" 2>&1 || true
             done
@@ -278,7 +288,13 @@ jobs:
           # CoreSimulator pose hooks (fallback research): strings that mention pose / hinge.
           CS=/Library/Developer/PrivateFrameworks/CoreSimulator.framework/Versions/A/CoreSimulator
           [ -f "$CS" ] && strings "$CS" | grep -i -E "pose|hinge|fold" | sort -u | sed -n '1,60p' > screenshots/coresim-pose-strings.txt || true
-          strings "$HUB/Contents/MacOS/"* 2>/dev/null | grep -i -E "pose|hinge|partially|fold" | sort -u | sed -n '1,80p' > screenshots/devicehub-pose-strings.txt || true
+          XC="${DEVELOPER_DIR%/Contents/Developer}"
+          for bin in $(find "$HUB/Contents" "$XC/Contents/SharedFrameworks" "$XC/Contents/Developer/Library/PrivateFrameworks" /Library/Developer/PrivateFrameworks -maxdepth 4 -type f -perm -u+x 2>/dev/null); do
+            if strings "$bin" 2>/dev/null | grep -q -E "PartiallyOpen|partiallyOpen|HingeAngle|hingeAngle|devicePose|DevicePose"; then
+              echo "== $bin"
+              strings "$bin" | grep -E "PartiallyOpen|partiallyOpen|HingeAngle|hingeAngle|[Pp]ose" | sort -u | sed -n '1,40p'
+            fi
+          done > screenshots/devicehub-pose-strings.txt 2>&1 || true
           # Dismiss crash/report dialogs ("InputUI quit unexpectedly") from any process.
           osascript > screenshots/devicehub-dismiss.txt 2>&1 <<OSA || true
           tell application "System Events"
