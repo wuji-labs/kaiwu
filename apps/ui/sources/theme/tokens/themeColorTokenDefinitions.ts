@@ -244,10 +244,50 @@ const shadowLevelTokenClassifications = [1, 2, 3, 4, 5, 6].flatMap((level) => [
     },
 ] as const);
 
+const diffRendererPaletteTokenClassifications = [
+    'rowAddedBg',
+    'rowRemovedBg',
+    'rowContextBg',
+    'gutterAddedBg',
+    'gutterRemovedBg',
+    'gutterContextBg',
+    'gutterBorder',
+    'markerAdded',
+    'markerRemoved',
+    'wordAddedBg',
+    'wordRemovedBg',
+    'sectionText',
+].map((key) => ({
+    path: ['diff', key],
+    status: 'internal',
+    reason: 'Native unified diff renderer palette tuned to match GitHub diffs; public customization routes through the diff added/removed/hunk/context tokens.',
+} as const));
+
+const diffSyntaxTokenClassifications = [
+    'plain',
+    'keyword',
+    'string',
+    'comment',
+    'number',
+    'function',
+    'operator',
+    'punctuation',
+    'type',
+    'variable',
+    'tag',
+    'attr',
+].map((key) => ({
+    path: ['diff', 'syntax', key],
+    status: 'internal',
+    reason: 'Diff renderer syntax highlight palette; public syntax customization routes through the shared syntax tokens.',
+} as const));
+
 export const THEME_COLOR_TOKEN_CLASSIFICATIONS = [
     ...accentPaletteTokenClassifications,
     ...desktopPetOverlayTokenClassifications,
     ...shadowLevelTokenClassifications,
+    ...diffRendererPaletteTokenClassifications,
+    ...diffSyntaxTokenClassifications,
 
     { path: ['button', 'primary', 'gradient', 'colors', '0'], status: 'derived', reason: 'Primary button gradient stop derived from the primary button background recipe.' },
     { path: ['button', 'primary', 'gradient', 'colors', '1'], status: 'derived', reason: 'Primary button gradient stop derived from the primary button background recipe.' },

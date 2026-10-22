@@ -1715,9 +1715,9 @@ describe('/session/[id]/info', () => {
         expect(copyDebugItem).toBeTruthy();
         expect(copyDebugItem?.props.onPress).toBeUndefined();
         expect(copyDebugItem?.props.copy).toBe([
-            'Happier session ID: session-1',
+            'Kaiwu session ID: session-1',
             'agentInput.agent.codex session ID: codex-session-1',
-            'Happier logs: /tmp/.happier/logs/session.log',
+            'Kaiwu logs: /tmp/.happier/logs/session.log',
         ].join('\n'));
     });
 

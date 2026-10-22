@@ -91,7 +91,9 @@ import { createSessionListOrganizationSnapshotRequest } from '@/sync/engine/sess
 import { ActivityUpdateAccumulator, type ActivityUpdateAccumulatorFlushOptions } from './reducer/activityUpdateAccumulator';
 import { MachineActivityAccumulator, type MachineActivityUpdate } from './reducer/machineActivityAccumulator';
 import { randomUUID } from '@/platform/randomUUID';
-import { Platform, AppState } from 'react-native';
+import { Platform, AppState, Dimensions } from 'react-native';
+import { resolveInitialSessionMessagesPageSize } from '@/sync/runtime/initialTranscriptPageSize';
+import { withTimeout } from '@/utils/timing/time';
 import { buildOutgoingUserTextRecord } from './domains/messages/outgoingUserMessage';
 import { resolveSentFrom } from './domains/messages/sentFrom';
 import { NormalizedMessage, normalizeRawMessage, RawRecord, RawRecordSchema } from './typesRaw';
@@ -352,6 +354,19 @@ import { resolvePreferredServerIdForSessionId } from '@/sync/runtime/orchestrati
 import { resolveServerIdForSessionIdFromLocalCache } from '@/sync/runtime/orchestration/serverScopedRpc/resolveServerIdForSessionIdFromLocalCache';
 import { emitSessionMetadataUpdateWithServerScope } from '@/sync/runtime/orchestration/serverScopedRpc/emitSessionMetadataUpdateWithServerScope';
 import { fetchSessionByIdWithServerScope } from '@/sync/runtime/orchestration/serverScopedRpc/fetchSessionByIdWithServerScope';
+import {
+    createSessionTranscriptCacheController,
+    type SessionTranscriptCacheController,
+    type SessionTranscriptPersistDecision,
+} from '@/sync/engine/sessions/sessionTranscriptCache';
+import { clearSessionRecordRows, readSessionRecordRow } from '@/sync/engine/sessions/sessionRecordRowRegistry';
+import { buildSessionFromDecodedRow, decodeSessionByIdRow } from '@/sync/engine/sessions/sessionById';
+import {
+    readTranscriptCacheBounds,
+    saveTranscriptCacheRecord,
+    type TranscriptCacheRecord,
+    type TranscriptCacheScope,
+} from '@/sync/domains/state/transcriptCachePersistence';
 import type {
     EnsureSessionVisibleForRouteResult,
     SessionRouteHydrationMissingCause,
@@ -496,7 +511,38 @@ import { actionOperationStore } from './domains/actionOperations/actionOperation
 import { openActionOperationRevisionEphemeral } from './domains/actionOperations/actionOperationEphemeral';
 
 const SESSION_LIST_BACKGROUND_HYDRATION_SCROLL_SETTLE_MS = 180;
-const WEB_INITIAL_SESSION_MESSAGES_PAGE_SIZE = 12;
+/**
+ * Quiet period before a changed transcript is written to the durable cache. A streaming turn keeps
+ * resetting it, so serialization never competes with streaming frames; eviction, backgrounding and
+ * scope switches flush immediately instead of waiting it out.
+ */
+const TRANSCRIPT_CACHE_FLUSH_QUIET_MS = 3_000;
+
+/** Messages replayed before the first frame when a deep persisted window is hydrated. */
+const TRANSCRIPT_CACHE_FIRST_PAINT_MESSAGES = 60;
+
+/**
+ * Sessions one background refresh keeps current — the most recently used durable copies. Each costs
+ * at most a few small `afterSeq` pages; five fit the OS background budget on a slow link.
+ */
+const BACKGROUND_REFRESH_MAX_SESSIONS = 5;
+
+/**
+ * Foreground keep-current: while the app is open, a session with a durable copy that is not held in
+ * memory and advances on the server (an agent working in another session) has its delta pulled and
+ * persisted in the background, so switching to it paints a transcript that is already current
+ * instead of waiting on a catch-up. Bounded to the most recently used durable copies — the
+ * sessions a user actually returns to — and to one session at a time, after the burst settles.
+ */
+const FOREGROUND_KEEP_CURRENT_MAX_SESSIONS = 12;
+const FOREGROUND_KEEP_CURRENT_SETTLE_MS = 1_500;
+const FOREGROUND_KEEP_CURRENT_SESSION_BUDGET_MS = 20_000;
+
+export type BackgroundSessionRefreshOutcome = Readonly<{
+    kind: 'refreshed' | 'signed-out';
+    sessions: number;
+    newMessages: number;
+}>;
 
 /**
  * How long a successful `/v1/version` answer stays fresh.
@@ -956,6 +1002,13 @@ class Sync {
         private pauseController = new PauseController();
         private syncTuning: SyncTuning = loadSyncTuning();
         private sessionTranscriptRetention!: SessionTranscriptRetentionController;
+        private sessionTranscriptCache!: SessionTranscriptCacheController;
+        private sessionTranscriptCacheHydrationInFlight = new Map<string, Promise<boolean>>();
+        /** Hydrated records whose older part is still queued behind the first paint. */
+        private transcriptCachePendingOlderBySessionId = new Map<string, Readonly<{ minSeq: number; hasMoreOlder: boolean }>>();
+        private foregroundKeepCurrentQueue = new Set<string>();
+        private foregroundKeepCurrentTimer: ReturnType<typeof setTimeout> | null = null;
+        private foregroundKeepCurrentRunning = false;
       private resumeInFlight: Promise<void> | null = null;
       private changesCatchUpQueuedAfterResume = false;
       private pendingOutboxRearmInFlightByScope = new Map<string, Promise<void>>();
@@ -1165,6 +1218,23 @@ class Sync {
             },
         });
         subscribeSessionTranscriptConsumerReleases(() => this.sessionTranscriptRetention.scheduleSweep());
+        this.sessionTranscriptCache = createSessionTranscriptCacheController({
+            readScope: () => this.readTranscriptCacheScope(),
+            readPersistDecision: (sessionId) => this.readTranscriptCachePersistDecision(sessionId),
+            readReceivedUpdatedAt: (sessionId, messageId) => this.sessionReceivedMessages.get(sessionId)?.get(messageId),
+            readSessionRow: (sessionId) => readSessionRecordRow(sessionId),
+            readMaxMessages: () => readTranscriptCacheBounds().maxMessagesPerRecord,
+            flushDelayMs: TRANSCRIPT_CACHE_FLUSH_QUIET_MS,
+            onFailure: (operation, error) => {
+                syncReliabilityTelemetry.record('sync.transcriptCache.failed', {
+                    operation,
+                    error: error instanceof Error ? error.name : 'unknown',
+                });
+            },
+            onInvalidRecord: () => {
+                syncReliabilityTelemetry.record('sync.transcriptCache.invalidRecordDiscarded');
+            },
+        });
         fireAndForget(Promise.resolve().then(() => {
             const pruned = pruneStaleInstanceChangesCursors({
                 nowMs: Date.now(),
@@ -1520,6 +1590,15 @@ class Sync {
               this.sessionListScrollIdleResolvers.push(resolve);
           });
       };
+
+      /** First page with nothing held locally: one screenful (see `initialTranscriptPageSize.ts`). */
+      private getInitialSessionMessagesPageSize(): number {
+          return resolveInitialSessionMessagesPageSize({
+              platformOS: Platform.OS,
+              viewportHeightDp: Dimensions.get('window').height,
+              configuredPageSize: this.getSessionMessagesPageSize(),
+          });
+      }
 
       private getSessionMessagesPageSize(options?: LoadOlderMessagesOptions): number {
           const optionLimit = options?.limit;
@@ -1987,6 +2066,13 @@ class Sync {
     }
 
     private resetServerScopedRuntimeState = () => {
+        // Write pending transcripts into the scope they were observed in before that scope's
+        // window state is cleared below; nothing of it may be read under the next scope.
+        this.sessionTranscriptCache.flushAllAndRelease();
+        this.sessionTranscriptCacheHydrationInFlight.clear();
+        this.transcriptCachePendingOlderBySessionId.clear();
+        this.resetForegroundKeepCurrent();
+        clearSessionRecordRows();
         this.changesCatchUpQueuedAfterResume = false;
         this.postSubscriptionChangesCatchUpPending = false;
         this.sessionDraftSyncEnabled = false;
@@ -2129,6 +2215,10 @@ class Sync {
         this.resetServerScopedRuntimeState();
         apiSocket.initialize({ endpoint: getActiveServerSnapshot().serverUrl, token: credentials.token }, encryption);
         await this.restore(credentials, encryption);
+    }
+
+    public hasSignedInCredentials(): boolean {
+        return Boolean(this.credentials);
     }
 
     public disconnectServer(): void {
@@ -2319,6 +2409,14 @@ class Sync {
                     }
                     return createEnsureSessionVisibleAvailableResult(normalized, scopedServerId);
                 }
+            }
+
+            // Paint from the durable cache while the live row is fetched below; the fetch replaces
+            // the shell, and its messages invalidation resumes from the hydrated head.
+            if (!storage.getState().sessions[normalized] && this.isActiveServerRouteScope(scopedServerId)) {
+                fireAndForget(this.hydrateSessionFromTranscriptCache(normalized), {
+                    tag: 'Sync.ensureSessionVisibleForMessageRoute.transcriptCache',
+                });
             }
 
             // Sync might not be fully initialized yet (e.g. very early during app bootstrap).
@@ -4524,7 +4622,6 @@ class Sync {
                   const { status, refreshedByCatchUp } = await this.resumeViaChanges({
                       accountId,
                       shouldContinue,
-                      allowOfflineSnapshotRefresh: reason !== 'changes-catch-up',
                   });
                   if (status === 'aborted') {
                       return;
@@ -4571,7 +4668,11 @@ class Sync {
                   // after the first.
                   if (this.readSocketOfflineDurationMs() > 0) {
                       const offlineRecoveryTasks: Array<() => Promise<void>> = [];
-                      if (!refreshedByCatchUp.sessions) {
+                      // Session presence is ephemeral only for live sessions: a session going live or
+                      // ending is a durable, cursor-backed lifecycle change the catch-up above already
+                      // applied. With nothing live there is nothing ephemeral to repair, and the full
+                      // list refetch is pure bytes on a constrained link.
+                      if (!refreshedByCatchUp.sessions && this.hasLiveSessionInList()) {
                           offlineRecoveryTasks.push(
                               () => invalidateBounded(this.sessionsSync, this.syncTuning.resumeQuickInvalidateTimeoutMs),
                           );
@@ -4688,6 +4789,15 @@ class Sync {
           };
 
           const concurrencyLimit = this.syncTuning.resumeConcurrencyLimit;
+
+          // A snapshot refresh means the changes feed could not prove which rows were edited in
+          // the gap. Transcripts held in memory are reconciled by the catch-up below; persisted
+          // copies of every other session can no longer be trusted.
+          await this.sessionTranscriptCache.discardScopeExcept(new Set(
+              Object.entries(storage.getState().sessionMessages)
+                  .filter(([, messages]) => messages?.isLoaded === true)
+                  .map(([sessionId]) => sessionId),
+          ));
 
           // Rebuild core lists first (sessions drives most downstream state).
           await runTasksWithLimit(
@@ -5368,6 +5478,15 @@ class Sync {
     }
 
     private fetchMessages = async (sessionId: string) => {
+        if (
+            storage.getState().sessionMessages[sessionId]?.isLoaded !== true
+            // Direct sessions own their transcript cursor elsewhere and are never persisted here.
+            && !readDirectSessionLink(storage.getState().sessions[sessionId]?.metadata)
+        ) {
+            // Paint the persisted tail first; everything below then treats it as a loaded
+            // transcript and only fetches the delta above its head. A miss changes nothing.
+            await this.hydrateSessionFromTranscriptCache(sessionId);
+        }
         if (this.hasFetchedSessionsSnapshotForActiveServer && !this.isSessionKnownOnResolvedOwnerServer(sessionId)) {
             // Do not fetch messages when we cannot resolve the session to either the active server
             // or a locally known owner server. This avoids cross-server message fetches. The owner
@@ -5425,14 +5544,13 @@ class Sync {
           // A previous empty or interrupted open can leave a non-empty session hint with a loaded,
           // zero-row cache. Recover with a snapshot so catch-up does not preserve the blank projection.
           const needsSnapshotLoad = !hasLoadedMessages || (!hasMaterializedMessages && sessionSeqHint > 0);
+          const initialPageSize = this.getInitialSessionMessagesPageSize();
           if (needsSnapshotLoad) {
               this.deferredForwardLoadingSessions.delete(sessionId);
               const fetchSnapshot = () => fetchAndApplyMessages({
                   sessionId,
                   sessionEncryptionMode,
-                  limit: Platform.OS === 'web'
-                      ? WEB_INITIAL_SESSION_MESSAGES_PAGE_SIZE
-                      : this.getSessionMessagesPageSize(),
+                  limit: initialPageSize,
                   getSessionEncryption: (id) => this.encryption.getSessionEncryption(id),
                   isSessionKnown: (id) => this.isSessionKnownOnResolvedOwnerServer(id),
                   request: requestMessages,
@@ -5441,7 +5559,7 @@ class Sync {
                   onTaskLifecycleEvent: (event) => this.applySessionThinkingFromTaskLifecycle(sessionId, event),
                   markMessagesLoaded: (sid) => storage.getState().applyMessagesLoaded(sid),
                   onMessagesPage: (page) => {
-                      this.updateSessionMessagesPaginationFromPage(sessionId, { scope: 'main' }, page, { allowHasMoreInference: true });
+                      this.updateSessionMessagesPaginationFromPage(sessionId, { scope: 'main' }, page, { allowHasMoreInference: true, pageSize: initialPageSize });
                   },
                   ...this.getMessageDecryptBatchOptions(),
                   log,
@@ -5473,7 +5591,6 @@ class Sync {
                 thresholds: {
                     largeGapSeq: this.syncTuning.messageLargeGapSeq,
                     maxIncrementalPagesOnResume: this.syncTuning.messageMaxIncrementalPagesOnResume,
-                    forceSnapshotOfflineMs: this.syncTuning.messageForceSnapshotOfflineMs,
                 },
             });
 
@@ -5526,7 +5643,8 @@ class Sync {
                   await fetchAndApplyMessages({
                       sessionId,
                       sessionEncryptionMode,
-                      limit: this.getSessionMessagesPageSize(),
+                      // The reader sees the newest screen; the hole below it is walked on scroll-up.
+                      limit: initialPageSize,
                       getSessionEncryption: (id) => this.encryption.getSessionEncryption(id),
                       isSessionKnown: (id) => this.isSessionKnownOnResolvedOwnerServer(id),
                       request: requestMessages,
@@ -5535,7 +5653,7 @@ class Sync {
                       onTaskLifecycleEvent: (event) => this.applySessionThinkingFromTaskLifecycle(sessionId, event),
                       markMessagesLoaded: (sid) => storage.getState().applyMessagesLoaded(sid),
                       onMessagesPage: (page) => {
-                          this.updateSessionMessagesPaginationFromPage(sessionId, { scope: 'main' }, page, { allowHasMoreInference: true });
+                          this.updateSessionMessagesPaginationFromPage(sessionId, { scope: 'main' }, page, { allowHasMoreInference: true, pageSize: initialPageSize });
                           this.openSessionTailDiscontinuityFromSnapshotPage(sessionId, prefixMaxSeqBeforeSnapshot, page);
                       },
                       ...this.getMessageDecryptBatchOptions(),
@@ -6996,12 +7114,550 @@ class Sync {
       }
 
       /**
+       * Bring the most recently used sessions (or the given ones) up to date while the app is not
+       * in the foreground — an OS background-refresh window or a push wake — and persist the result,
+       * so the next open paints a transcript that is already current.
+       *
+       * Runs inside the OS budget given by `deadlineAtMs`; any session not reached is simply caught up
+       * on open the normal way. Lifts the background network/crypto quiescence only for its own
+       * duration and only when the app really is backgrounded.
+       */
+      public refreshSessionsInBackground = async (params: Readonly<{
+          sessionIds?: readonly string[];
+          deadlineAtMs: number;
+      }>): Promise<BackgroundSessionRefreshOutcome> => {
+          if (!this.credentials) return { kind: 'signed-out', sessions: 0, newMessages: 0 };
+          const generation = this.serverScopeGeneration;
+          const liftedQuiescence = !this.isForeground;
+          if (liftedQuiescence) {
+              setServerReachabilityNetworkAllowed(true);
+              this.resumeNativeCryptoWorkerDispatchAfterForeground('Sync.refreshSessionsInBackground');
+          }
+          try {
+              const explicit = (params.sessionIds ?? []).map((id) => String(id ?? '').trim()).filter(Boolean);
+              const targets = (explicit.length > 0
+                  ? explicit
+                  : await this.sessionTranscriptCache.listRecentSessionIds(BACKGROUND_REFRESH_MAX_SESSIONS)
+              ).slice(0, BACKGROUND_REFRESH_MAX_SESSIONS);
+
+              const listBudgetMs = params.deadlineAtMs - Date.now();
+              if (listBudgetMs > 0) {
+                  try {
+                      await withTimeout(this.fetchSessions(), listBudgetMs, 'background session list refresh');
+                  } catch {
+                      // The list is a bonus; the transcripts below do not depend on it.
+                  }
+              }
+
+              let newMessages = 0;
+              let sessions = 0;
+              for (const sessionId of targets) {
+                  if (Date.now() >= params.deadlineAtMs || this.serverScopeGeneration !== generation) break;
+                  newMessages += await this.refreshSessionTranscriptInBackground(sessionId, params.deadlineAtMs);
+                  sessions += 1;
+              }
+              await this.sessionTranscriptCache.flushAllAndWait();
+              this.flushBackgroundSyncCheckpointsNow();
+              return { kind: 'refreshed', sessions, newMessages };
+          } finally {
+              if (liftedQuiescence && !this.isForeground) {
+                  setServerReachabilityNetworkAllowed(false);
+                  this.markNativeCryptoWorkerBackgroundQuiescent();
+              }
+          }
+      };
+
+      /**
+       * One session's delta through the same pipeline the visible catch-up uses: repaint from the
+       * durable cache if memory has nothing, then page `afterSeq` forward from the materialized head.
+       * Only sessions with a durable copy are refreshed — a session never opened is not prefetched.
+       * Returns how many new messages were applied.
+       */
+      private async refreshSessionTranscriptInBackground(sessionId: string, deadlineAtMs: number): Promise<number> {
+          if (storage.getState().sessionMessages[sessionId]?.isLoaded !== true) {
+              const hydrated = await this.hydrateSessionFromTranscriptCache(sessionId);
+              if (!hydrated) return 0;
+          }
+          if (this.hasUserOlderLoadInFlight(sessionId)) return 0;
+          const session = storage.getState().sessions[sessionId] ?? null;
+          if (readDirectSessionLink(session?.metadata)) return 0;
+          const sessionEncryptionMode = session?.encryptionMode === 'plain' ? 'plain' : 'e2ee';
+          const requestMessages = this.createSessionMessagesRequest(sessionId);
+          let afterSeq = this.sessionMaterializedMaxSeqById[sessionId] ?? 0;
+          if (!(afterSeq > 0)) return 0;
+          let applied = 0;
+          try {
+              for (let page = 0; page < this.syncTuning.messageMaxIncrementalPagesOnResume; page += 1) {
+                  if (Date.now() >= deadlineAtMs) break;
+                  const result = await fetchAndApplyNewerMessages({
+                      sessionId,
+                      sessionEncryptionMode,
+                      afterSeq,
+                      limit: this.getSessionMessagesPageSize(),
+                      getSessionEncryption: (id) => this.encryption.getSessionEncryption(id),
+                      isSessionKnown: (id) => this.isSessionKnownOnResolvedOwnerServer(id),
+                      request: requestMessages,
+                      sessionReceivedMessages: this.sessionReceivedMessages,
+                      // A background refresh is not the user reading: no voice, no ready/activity effects.
+                      applyMessages: (sid, messages) => this.applyMessages(sid, messages, { notifyVoice: false, notifyActivity: false }),
+                      onNormalizedMessages: (messages) => ingestWorkspaceMutationMessages(sessionId, messages),
+                      onMessagesPage: (messagesPage) => {
+                          this.updateSessionMessagesPaginationFromPage(
+                              sessionId,
+                              { scope: 'main' },
+                              messagesPage,
+                              { allowHasMoreInference: true, direction: 'newer' },
+                          );
+                      },
+                      ...this.getMessageDecryptBatchOptions(),
+                      log,
+                  });
+                  applied += result.page.messages.length;
+                  const nextAfterSeq = result.page.nextAfterSeq ?? null;
+                  if (!nextAfterSeq || result.page.messages.length === 0) break;
+                  afterSeq = nextAfterSeq;
+              }
+          } catch (error) {
+              syncReliabilityTelemetry.record('sync.backgroundRefresh.sessionFailed', {
+                  error: error instanceof Error ? error.name : 'unknown',
+              });
+          }
+          this.sessionTranscriptCache.flush(sessionId);
+          return applied;
+      }
+
+      /**
+       * Queue sessions whose server seq moved past what memory holds, when memory does not hold
+       * their transcript (a held transcript is reconciled by its own realtime/catch-up path).
+       * Whether a queued session has a durable copy is decided when the queue runs.
+       */
+      private noteSessionsAdvancedForKeepCurrent(
+          previousSessions: Readonly<Record<string, Session | undefined>>,
+          applied: ReadonlyArray<Readonly<{ id: string; seq?: number | null }>>,
+      ): void {
+          if (!this.credentials) return;
+          const state = storage.getState();
+          let queued = false;
+          for (const session of applied) {
+              const sessionId = session?.id;
+              if (!sessionId) continue;
+              const nextSeq = state.sessions[sessionId]?.seq ?? 0;
+              const previousSeq = previousSessions[sessionId]?.seq ?? 0;
+              // A first sighting (no previous row) is the list loading, not the session advancing.
+              if (!previousSessions[sessionId] || !(nextSeq > previousSeq)) continue;
+              if (state.sessionMessages[sessionId]?.isLoaded === true) continue;
+              if (state.deletedSessionIds[sessionId] === true) continue;
+              if (readDirectSessionLink(state.sessions[sessionId]?.metadata)) continue;
+              this.foregroundKeepCurrentQueue.add(sessionId);
+              queued = true;
+          }
+          if (queued) this.scheduleForegroundKeepCurrent();
+      }
+
+      private scheduleForegroundKeepCurrent(): void {
+          if (this.foregroundKeepCurrentTimer || this.foregroundKeepCurrentRunning) return;
+          this.foregroundKeepCurrentTimer = setTimeout(() => {
+              this.foregroundKeepCurrentTimer = null;
+              fireAndForget(this.runForegroundKeepCurrent(), { tag: 'Sync.runForegroundKeepCurrent' });
+          }, FOREGROUND_KEEP_CURRENT_SETTLE_MS);
+      }
+
+      private resetForegroundKeepCurrent(): void {
+          this.foregroundKeepCurrentQueue.clear();
+          if (this.foregroundKeepCurrentTimer) {
+              clearTimeout(this.foregroundKeepCurrentTimer);
+              this.foregroundKeepCurrentTimer = null;
+          }
+      }
+
+      private async runForegroundKeepCurrent(): Promise<void> {
+          // Backgrounded: the OS-scheduled refresh owns this; the next open catches up anyway.
+          if (!this.isForeground || this.pauseController.isPaused()) {
+              this.foregroundKeepCurrentQueue.clear();
+              return;
+          }
+          if (this.foregroundKeepCurrentQueue.size === 0) return;
+          this.foregroundKeepCurrentRunning = true;
+          const generation = this.serverScopeGeneration;
+          try {
+              const durable = new Set(await this.sessionTranscriptCache.listRecentSessionIds(FOREGROUND_KEEP_CURRENT_MAX_SESSIONS));
+              const targets = [...this.foregroundKeepCurrentQueue].filter((sessionId) => durable.has(sessionId));
+              this.foregroundKeepCurrentQueue.clear();
+              let refreshed = 0;
+              let newMessages = 0;
+              for (const sessionId of targets) {
+                  if (this.serverScopeGeneration !== generation || !this.isForeground) break;
+                  // Opened meanwhile: the visible catch-up owns it now.
+                  if (storage.getState().sessionMessages[sessionId]?.isLoaded === true) continue;
+                  const applied = await this.extendTranscriptCacheRecordOnDisk(
+                      sessionId,
+                      Date.now() + FOREGROUND_KEEP_CURRENT_SESSION_BUDGET_MS,
+                  );
+                  newMessages += applied;
+                  refreshed += 1;
+              }
+              if (refreshed > 0) {
+                  syncPerformanceTelemetry.count('sync.transcriptCache.keptCurrent', {
+                      sessions: refreshed,
+                      newMessages,
+                  });
+              }
+          } finally {
+              this.foregroundKeepCurrentRunning = false;
+              if (this.foregroundKeepCurrentQueue.size > 0 && this.serverScopeGeneration === generation) {
+                  this.scheduleForegroundKeepCurrent();
+              }
+          }
+      }
+
+      /**
+       * Extend one durable copy with the server's delta without touching the store: the pages are
+       * decrypted and normalized by the same pipeline the visible catch-up uses, but collected
+       * instead of applied, then merged into the record on disk. No reducer run and no render, so
+       * keeping a busy session current costs the UI thread nothing while the user is elsewhere.
+       * Returns how many new messages were persisted.
+       */
+      private async extendTranscriptCacheRecordOnDisk(sessionId: string, deadlineAtMs: number): Promise<number> {
+          const loaded = await this.sessionTranscriptCache.load(sessionId);
+          if (!loaded) return 0;
+          const { scope, record, epoch } = loaded;
+          const session = storage.getState().sessions[sessionId] ?? null;
+          if (!session || readDirectSessionLink(session.metadata)) return 0;
+          const sessionEncryptionMode = session.encryptionMode === 'plain' ? 'plain' : 'e2ee';
+          const requestMessages = this.createSessionMessagesRequest(sessionId);
+          // Isolated from the engine's received map: nothing here reaches the store.
+          const received = new Map<string, Map<string, number>>();
+          const collected = new Map<string, NormalizedMessage>();
+          let afterSeq = record.maxSeq;
+          try {
+              for (let page = 0; page < this.syncTuning.messageMaxIncrementalPagesOnResume; page += 1) {
+                  if (Date.now() >= deadlineAtMs) break;
+                  const result = await fetchAndApplyNewerMessages({
+                      sessionId,
+                      sessionEncryptionMode,
+                      afterSeq,
+                      limit: this.getSessionMessagesPageSize(),
+                      getSessionEncryption: (id) => this.encryption.getSessionEncryption(id),
+                      isSessionKnown: (id) => this.isSessionKnownOnResolvedOwnerServer(id),
+                      request: requestMessages,
+                      sessionReceivedMessages: received,
+                      applyMessages: (_sid, messages) => {
+                          for (const message of messages) collected.set(message.id, message);
+                      },
+                      ...this.getMessageDecryptBatchOptions(),
+                      log,
+                  });
+                  const nextAfterSeq = result.page.nextAfterSeq ?? null;
+                  if (!nextAfterSeq || result.page.messages.length === 0) break;
+                  afterSeq = nextAfterSeq;
+              }
+          } catch (error) {
+              syncReliabilityTelemetry.record('sync.transcriptCache.keepCurrentFailed', {
+                  error: error instanceof Error ? error.name : 'unknown',
+              });
+          }
+          const fresh = [...collected.values()].filter((message) => (
+              !message.isSidechain && typeof message.seq === 'number' && message.seq > record.maxSeq
+          ));
+          if (fresh.length === 0) return 0;
+          // Opened, discarded or re-scoped while the delta was in flight: the copy is not ours to write.
+          if (
+              storage.getState().sessionMessages[sessionId]?.isLoaded === true
+              || this.sessionTranscriptCache.readDiscardEpoch(sessionId) !== epoch
+              || !this.sessionTranscriptCache.isScopeCurrent(scope)
+          ) {
+              return 0;
+          }
+          const receivedAt = received.get(sessionId);
+          const merged = [
+              ...record.messages,
+              ...fresh.map((message) => ({ message, updatedAt: receivedAt?.get(message.id) ?? null })),
+          ].sort((left, right) => (left.message.seq ?? 0) - (right.message.seq ?? 0));
+          const maxMessages = readTranscriptCacheBounds().maxMessagesPerRecord;
+          const kept = merged.slice(Math.max(0, merged.length - maxMessages));
+          const maxSeq = Math.max(record.maxSeq, ...fresh.map((message) => message.seq ?? 0));
+          try {
+              await saveTranscriptCacheRecord(scope, {
+                  sessionId,
+                  savedAt: Date.now(),
+                  maxSeq,
+                  minSeq: kept[0]?.message.seq ?? record.minSeq,
+                  hasMoreOlder: record.hasMoreOlder || kept.length < merged.length,
+                  session: readSessionRecordRow(sessionId) ?? record.session,
+                  messages: kept,
+              });
+          } catch (error) {
+              syncReliabilityTelemetry.record('sync.transcriptCache.failed', {
+                  operation: 'save',
+                  error: error instanceof Error ? error.name : 'unknown',
+              });
+              return 0;
+          }
+          return fresh.length;
+      }
+
+      /** Persisted transcripts are scoped to the active server; another server's route never reads them. */
+      private isActiveServerRouteScope(scopedServerId: string | null | undefined): boolean {
+          const routeServerId = String(scopedServerId ?? '').trim();
+          if (!routeServerId) return true;
+          return areServerProfileIdentifiersEquivalent(routeServerId, String(getActiveServerSnapshot().serverId ?? '').trim());
+      }
+
+      private hasLiveSessionInList(): boolean {
+          const state = storage.getState();
+          for (const row of Object.values(state.sessionListRenderables)) {
+              if (row?.active === true) return true;
+          }
+          for (const session of Object.values(state.sessions)) {
+              if (session?.active === true) return true;
+          }
+          return false;
+      }
+
+      private readTranscriptCacheScope(): TranscriptCacheScope | null {
+          const serverId = String(getActiveServerSnapshot().serverId ?? '').trim();
+          const accountId = String(this.serverID ?? '').trim();
+          return serverId && accountId ? { serverId, accountId } : null;
+      }
+
+      /**
+       * The single answer to "may this session's in-memory transcript be written to disk now, and
+       * which window of it". Only the contiguous main-chain window ending at the materialized head
+       * qualifies, so a hydrated record can always be extended by the `afterSeq` delta alone.
+       */
+      private readTranscriptCachePersistDecision(sessionId: string): SessionTranscriptPersistDecision {
+          const state = storage.getState();
+          if (state.deletedSessionIds[sessionId] === true) return { kind: 'discard' };
+          if (hasStaleTranscriptMarkers(this.deferredTranscriptState, sessionId)) return { kind: 'discard' };
+          const session = state.sessions[sessionId] ?? null;
+          if (session && readDirectSessionLink(session.metadata)) return { kind: 'skip' };
+          const activeServerId = String(getActiveServerSnapshot().serverId ?? '').trim();
+          const sessionServerId = String(session?.serverId ?? '').trim();
+          if (sessionServerId && !areServerProfileIdentifiersEquivalent(sessionServerId, activeServerId)) {
+              return { kind: 'skip' };
+          }
+          const maxSeq = this.sessionMaterializedMaxSeqById[sessionId] ?? 0;
+          if (!(maxSeq > 0)) return { kind: 'skip' };
+          const pagingKey = this.buildSessionMessagesPaginationKey({ sessionId, scope: 'main' });
+          const beforeSeq = this.sessionMessagesBeforeSeqByKey.get(pagingKey);
+          if (typeof beforeSeq !== 'number') return { kind: 'skip' };
+          const discontinuity = this.sessionMessagesTailDiscontinuityBySessionId.get(sessionId) ?? null;
+          // The older part of a hydrated record is still queued behind the first paint: memory's
+          // window starts later than the record's, but the buffer holds the whole record, so a
+          // write in between must keep the record's depth rather than shrink it to the first paint.
+          const pendingOlder = this.transcriptCachePendingOlderBySessionId.get(sessionId);
+          if (pendingOlder && !discontinuity) {
+              return { kind: 'persist', maxSeq, floorSeq: pendingOlder.minSeq, hasMoreOlder: pendingOlder.hasMoreOlder };
+          }
+          const floorSeq = Math.max(beforeSeq, discontinuity?.walkCursor ?? 0);
+          const hasMoreOlder = this.sessionMessagesHasMoreOlderByKey.has(pagingKey)
+              ? this.sessionMessagesHasMoreOlderByKey.get(pagingKey) === true
+              : null;
+          return { kind: 'persist', maxSeq, floorSeq, hasMoreOlder: discontinuity ? true : hasMoreOlder };
+      }
+
+      /**
+       * Paint a released or cold-started transcript (and, if the store has none yet, its session
+       * shell) from the durable cache. One attempt per session at a time; `true` when the
+       * transcript is now loaded from disk.
+       */
+      private hydrateSessionFromTranscriptCache(sessionId: string): Promise<boolean> {
+          const existing = this.sessionTranscriptCacheHydrationInFlight.get(sessionId);
+          if (existing) return existing;
+          const attempt = this.hydrateSessionFromTranscriptCacheOnce(sessionId).finally(() => {
+              if (this.sessionTranscriptCacheHydrationInFlight.get(sessionId) === attempt) {
+                  this.sessionTranscriptCacheHydrationInFlight.delete(sessionId);
+              }
+          });
+          this.sessionTranscriptCacheHydrationInFlight.set(sessionId, attempt);
+          return attempt;
+      }
+
+      private async hydrateSessionFromTranscriptCacheOnce(sessionId: string): Promise<boolean> {
+          const generation = this.serverScopeGeneration;
+          const loaded = await this.sessionTranscriptCache.load(sessionId);
+          if (!loaded) return false;
+          const isCurrent = () => (
+              this.serverScopeGeneration === generation
+              && this.sessionTranscriptCache.isScopeCurrent(loaded.scope)
+              && this.sessionTranscriptCache.readDiscardEpoch(sessionId) === loaded.epoch
+              && storage.getState().deletedSessionIds[sessionId] !== true
+          );
+          if (!isCurrent()) return false;
+
+          if (!storage.getState().sessions[sessionId] && loaded.record.session) {
+              await this.applySessionShellFromTranscriptCache(sessionId, loaded.record.session);
+              if (!isCurrent()) return false;
+          }
+          // The network may have landed the transcript while the record was being read; its copy
+          // is authoritative, and replaying an older one over it would only churn the store.
+          if (storage.getState().sessionMessages[sessionId]?.isLoaded === true) return false;
+          return this.applyTranscriptCacheRecord(sessionId, loaded.scope, loaded.record);
+      }
+
+      private applyTranscriptCacheRecord(
+          sessionId: string,
+          scope: TranscriptCacheScope,
+          record: TranscriptCacheRecord,
+      ): boolean {
+          const startedAtMs = Date.now();
+          // Paint the newest screenful first; the older part of a deep window replays on the next
+          // task so its reducer cost never sits between the tap and the first frame.
+          const messages = record.messages.map((entry) => entry.message);
+          const splitAt = Math.max(0, messages.length - TRANSCRIPT_CACHE_FIRST_PAINT_MESSAGES);
+          const firstPaint = messages.slice(splitAt);
+          const deferredOlder = messages.slice(0, splitAt);
+          try {
+              this.applyMessages(sessionId, firstPaint, { notifyVoice: false, notifyActivity: false });
+          } catch (error) {
+              // A record the reducer cannot replay is worthless; drop it and let the network
+              // path load the transcript as if there had been no cache.
+              this.resetSessionTranscriptState(sessionId);
+              void this.sessionTranscriptCache.discardPersisted(sessionId);
+              syncReliabilityTelemetry.record('sync.transcriptCache.replayFailed', {
+                  error: error instanceof Error ? error.name : 'unknown',
+              });
+              return false;
+          }
+          let receivedMessages = this.sessionReceivedMessages.get(sessionId);
+          if (!receivedMessages) {
+              receivedMessages = new Map<string, number>();
+              this.sessionReceivedMessages.set(sessionId, receivedMessages);
+          }
+          // Only what is in the store counts as received: a network page must still apply the
+          // deferred older part if that part never lands.
+          const markReceived = (entries: readonly TranscriptCacheRecord['messages'][number][]) => {
+              const received = this.sessionReceivedMessages.get(sessionId);
+              if (!received) return;
+              for (const entry of entries) {
+                  if (typeof entry.updatedAt === 'number') received.set(entry.message.id, entry.updatedAt);
+              }
+          };
+          markReceived(record.messages.slice(splitAt));
+          const pagingKey = this.buildSessionMessagesPaginationKey({ sessionId, scope: 'main' });
+          if (deferredOlder.length === 0) {
+              this.sessionMessagesBeforeSeqByKey.set(pagingKey, record.minSeq);
+              this.sessionMessagesHasMoreOlderByKey.set(pagingKey, record.hasMoreOlder);
+          } else {
+              // Until the older part lands, the window starts at the first-paint slice; an older
+              // load in between pages from there, and message ids de-duplicate any overlap.
+              this.sessionMessagesBeforeSeqByKey.set(pagingKey, firstPaint[0]?.seq ?? record.minSeq);
+              this.sessionMessagesHasMoreOlderByKey.set(pagingKey, true);
+              const generation = this.serverScopeGeneration;
+              const epoch = this.sessionTranscriptCache.readDiscardEpoch(sessionId);
+              const pending = { minSeq: record.minSeq, hasMoreOlder: record.hasMoreOlder };
+              this.transcriptCachePendingOlderBySessionId.set(sessionId, pending);
+              setTimeout(() => {
+                  if (this.transcriptCachePendingOlderBySessionId.get(sessionId) !== pending) return;
+                  this.transcriptCachePendingOlderBySessionId.delete(sessionId);
+                  if (
+                      this.serverScopeGeneration !== generation
+                      || this.sessionTranscriptCache.readDiscardEpoch(sessionId) !== epoch
+                      || storage.getState().sessionMessages[sessionId]?.isLoaded !== true
+                      || this.hasUserOlderLoadInFlight(sessionId)
+                  ) {
+                      return;
+                  }
+                  try {
+                      this.applyMessages(sessionId, deferredOlder, { notifyVoice: false, notifyActivity: false });
+                      markReceived(record.messages.slice(0, splitAt));
+                  } catch (error) {
+                      syncReliabilityTelemetry.record('sync.transcriptCache.replayFailed', {
+                          error: error instanceof Error ? error.name : 'unknown',
+                          phase: 'older',
+                      });
+                      return;
+                  }
+                  this.sessionMessagesBeforeSeqByKey.set(pagingKey, record.minSeq);
+                  this.sessionMessagesHasMoreOlderByKey.set(pagingKey, record.hasMoreOlder);
+              }, 0);
+          }
+          // Overwrite, not raise: the separately persisted head may be ahead of what this record
+          // holds, and resuming above the record would skip the difference.
+          this.sessionMaterializedMaxSeqById = { ...this.sessionMaterializedMaxSeqById, [sessionId]: record.maxSeq };
+          this.sessionMaterializedMaxSeqDirty = true;
+          this.scheduleSessionMaterializedMaxSeqFlush();
+          storage.getState().applyMessagesLoaded(sessionId);
+          this.sessionTranscriptCache.markHydrated(sessionId, scope, record);
+          syncPerformanceTelemetry.recordDuration('sync.transcriptCache.hydrated', Date.now() - startedAtMs, {
+              messages: record.messages.length,
+          });
+          return true;
+      }
+
+      /**
+       * Replay a persisted session row through the same decoder the network fetch uses, so a
+       * cold-started session renders (and can decrypt its delta) before `/v2/sessions/:id`
+       * answers. Route hydration still runs and replaces this shell with the live row.
+       */
+      private async applySessionShellFromTranscriptCache(
+          sessionId: string,
+          row: NonNullable<TranscriptCacheRecord['session']>,
+      ): Promise<void> {
+          const stagedSessionDataKeys = new Map(this.sessionDataKeys);
+          const stagedSessionDataKeyEnvelopes = new Map(this.sessionDataKeyEnvelopes);
+          const currentSettings = storage.getState().settings;
+          try {
+              const decoded = await decodeSessionByIdRow({
+                  row,
+                  encryption: this.encryption,
+                  sessionDataKeys: stagedSessionDataKeys,
+                  sessionDataKeyEnvelopes: stagedSessionDataKeyEnvelopes,
+                  clientEncryptionRequirement: resolveUiClientEncryptionRequirement({
+                      syncedSettings: currentSettings,
+                      localSettings: currentSettings,
+                  }),
+                  log,
+              });
+              if (!decoded.ok) return;
+              if (storage.getState().sessions[sessionId]) {
+                  // The live row won the race. Decoding re-initialized this session's runtime
+                  // encryption from the cached envelope, so restore it from the committed key.
+                  const committedKey = this.sessionDataKeys.get(sessionId) ?? null;
+                  if (decoded.encryptionMode === 'e2ee' && committedKey) {
+                      await this.encryption.initializeSessions(new Map([[sessionId, committedKey]]));
+                  }
+                  return;
+              }
+              this.commitSessionDataKeyCacheEntry(sessionId, stagedSessionDataKeys, stagedSessionDataKeyEnvelopes);
+              this.applySessions([buildSessionFromDecodedRow({
+                  row,
+                  serverId: null,
+                  decoded,
+                  sessionTurns: null,
+              })]);
+          } catch (error) {
+              syncReliabilityTelemetry.record('sync.transcriptCache.shellReplayFailed', {
+                  error: error instanceof Error ? error.name : 'unknown',
+              });
+          }
+      }
+
+      /**
+       * A durable edit for a session the engine does not hold in memory cannot be repaired there,
+       * so its persisted copy is the only stale one left: drop it before the changes cursor moves
+       * past the edit.
+       */
+      private async discardUnloadedTranscriptCopiesForRepairs(
+          repairs: ReadonlyArray<Readonly<{ sessionId: string }>>,
+      ): Promise<void> {
+          const discards: Promise<void>[] = [];
+          for (const repair of repairs) {
+              if (storage.getState().sessionMessages[repair.sessionId]?.isLoaded === true) continue;
+              discards.push(this.sessionTranscriptCache.discardPersisted(repair.sessionId));
+          }
+          await Promise.all(discards);
+      }
+
+      /**
        * Canonical transcript memory release for bounded retention: drops the store
        * entry entirely (which also clears the per-session derived caches through
        * clearSessionTranscriptDerivedCachesForSession) and resets sync-side per-session
        * transcript state, so re-opening runs the first-open page-limited load pipeline.
        */
       private evictSessionTranscript(sessionId: string): void {
+          // Persist before release: the window inputs (materialized head, cursors) are reset below.
+          this.sessionTranscriptCache.flushAndRelease(sessionId);
           storage.getState().evictSessionMessages(sessionId);
           this.resetSessionTranscriptState(sessionId);
           syncPerformanceTelemetry.count('sync.sessions.transcript.evicted', { evicted: 1 });
@@ -7009,6 +7665,7 @@ class Sync {
 
       private resetSessionTranscriptState(sessionId: string): void {
           storage.getState().resetSessionMessages(sessionId);
+          this.transcriptCachePendingOlderBySessionId.delete(sessionId);
 
           this.sessionReceivedMessages.delete(sessionId);
           this.deleteSessionMessagesPaginationStateForSession(sessionId);
@@ -7092,6 +7749,11 @@ class Sync {
             // ignore
         }
         try {
+            this.sessionTranscriptCache.flushAll();
+        } catch {
+            // ignore
+        }
+        try {
             this.flushSessionMaterializedMaxSeq();
         } catch {
             // ignore
@@ -7126,7 +7788,6 @@ class Sync {
       private async resumeViaChanges(opts: {
           accountId: string;
           shouldContinue?: () => boolean;
-          allowOfflineSnapshotRefresh?: boolean;
       }): Promise<ResumeViaChangesOutcome> {
           const CHANGES_PAGE_LIMIT = this.syncTuning.changesPageLimit;
           const afterCursor = this.changesCursor ?? '0';
@@ -7148,17 +7809,12 @@ class Sync {
               return false;
           };
 
-          const offlineForMs = this.readSocketOfflineDurationMs();
-          const forceSnapshotRefresh = opts.allowOfflineSnapshotRefresh !== false
-              && offlineForMs >= this.syncTuning.messageForceSnapshotOfflineMs;
-
           const catchUp = await runSocketReconnectCatchUpViaChanges({
               credentials: this.credentials,
               accountId: opts.accountId,
               afterCursor,
               changesPageLimit: CHANGES_PAGE_LIMIT,
               maxChangesPagesPerResume: this.syncTuning.changesMaxPagesPerResume,
-              forceSnapshotRefresh,
                 fetchChanges,
                 fetchCurrentCursor: fetchCurrentChangesCursor,
                 checkpointCursor: async (cursor, context) => {
@@ -7251,6 +7907,7 @@ class Sync {
                     await this.snapshotRefreshOnResume({ mode: 'long-offline', reason: 'snapshot-refresh' });
                 },
                 applyPlanned: async (planned) => {
+                    await this.discardUnloadedTranscriptCopiesForRepairs(planned.sessionTranscriptRepairs);
                     return await applyPlannedChangeActions({
                         planned,
                         credentials: this.credentials,
@@ -7573,6 +8230,9 @@ class Sync {
 
     private markSessionTranscriptStale(sessionId: string, marker: DeferredTranscriptMarker): void {
         this.deferredTranscriptState = markTranscriptStale(this.deferredTranscriptState, sessionId, marker);
+        // The persisted copy now holds a row the server has since edited; it is rewritten from
+        // memory once the targeted repair lands (`readTranscriptCachePersistDecision`).
+        void this.sessionTranscriptCache.discardPersisted(sessionId);
     }
 
     private markSessionStateHydrationDeferred(sessionId: string): void {
@@ -7637,6 +8297,7 @@ class Sync {
         options?: { notifyVoice?: boolean; notifyActivity?: boolean }
     ) => {
         const result = storage.getState().applyMessages(sessionId, messages);
+        this.sessionTranscriptCache.noteAppliedMessages(sessionId, messages);
         const notifyVoice = options?.notifyVoice !== false;
         const notifyActivity = options?.notifyActivity ?? notifyVoice;
         if (notifyVoice || notifyActivity) {
@@ -7674,7 +8335,7 @@ class Sync {
             nextBeforeSeq?: number | null;
             nextAfterSeq?: number | null;
         },
-        options?: { allowHasMoreInference?: boolean; direction?: 'older' | 'newer' },
+        options?: { allowHasMoreInference?: boolean; direction?: 'older' | 'newer'; pageSize?: number },
     ): void {
         const pagingKey = this.buildSessionMessagesPaginationKey({
             sessionId,
@@ -7695,7 +8356,8 @@ class Sync {
         const update = computeSessionMessagesPaginationUpdateFromPage({
             prev,
             page,
-            pageSize: this.getSessionMessagesPageSize(),
+            // Inference compares against the limit this page was actually requested with.
+            pageSize: options?.pageSize ?? this.getSessionMessagesPageSize(),
             allowHasMoreInference: options?.allowHasMoreInference === true,
             direction: options?.direction ?? 'older',
         });
@@ -7786,6 +8448,7 @@ class Sync {
         // guard to avoid cross-server message fetches after the initial session snapshot. Ensure
         // that any newly-applied sessions (via socket updates, create flows, etc.) are treated as
         // "known" on the active server too, otherwise message fetches can be incorrectly skipped.
+        const previousSessions = storage.getState().sessions;
         for (const session of sessions) {
             if (session?.id) {
                 this.activeServerSessionIds.add(session.id);
@@ -7794,6 +8457,7 @@ class Sync {
         storage.getState().applySessions(sessions);
         const newActive = storage.getState().getActiveSessions();
         this.applySessionDiff(active, newActive);
+        this.noteSessionsAdvancedForKeepCurrent(previousSessions, sessions);
     }
 
     private markSessionMaterializedMaxSeq(sessionId: string, seq: number): void {
@@ -7862,22 +8526,57 @@ export const sync = new Sync();
 //
 
 let isInitialized = false;
+/**
+ * The one initialization in flight or done, so a second entry point (the OS waking JS for a
+ * background task while the root layout boots) waits for it instead of returning before
+ * encryption and credentials exist.
+ */
+let initialization: Promise<void> | null = null;
 export async function syncCreate(credentials: AuthCredentials) {
     if (isInitialized) {
         console.warn('Sync already initialized: ignoring');
+        await initialization?.catch(() => undefined);
         return;
     }
     isInitialized = true;
-    await syncInit(credentials, false);
+    initialization = syncInit(credentials, false);
+    await initialization;
 }
 
 export async function syncRestore(credentials: AuthCredentials) {
     if (isInitialized) {
         console.warn('Sync already initialized: ignoring');
+        await initialization?.catch(() => undefined);
         return;
     }
     isInitialized = true;
-    await syncInit(credentials, true);
+    initialization = syncInit(credentials, true);
+    await initialization;
+}
+
+/**
+ * Background tasks run in whatever JS runtime the OS started: an already-running app (sync is up),
+ * or a cold runtime launched only for the task (no root layout, nothing booted). This restores sync
+ * through the same legs the app boot uses, or joins the boot already in flight. `false` when there
+ * is no signed-in account to refresh.
+ */
+export async function ensureSyncRestoredForBackgroundWork(legs: Readonly<{
+    resolveCredentials: () => Promise<AuthCredentials | null>;
+    prepareWarmCache: () => Promise<unknown>;
+    sodiumReady: PromiseLike<unknown>;
+}>): Promise<boolean> {
+    if (!isInitialized) {
+        await Promise.all([
+            Promise.resolve(legs.sodiumReady),
+            legs.prepareWarmCache().catch(() => undefined),
+        ]);
+        const credentials = await legs.resolveCredentials().catch(() => null);
+        if (!credentials) return false;
+        await syncRestore(credentials);
+    } else {
+        await initialization?.catch(() => undefined);
+    }
+    return sync.hasSignedInCredentials();
 }
 
 export async function syncSwitchServer(credentials: AuthCredentials | null): Promise<void> {

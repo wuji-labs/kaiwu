@@ -3,6 +3,8 @@ import { TokenStorage, type AuthCredentials } from '@/auth/storage/tokenStorage'
 import { syncSwitchServer } from '@/sync/sync';
 import { localSettingsDefaults } from '@/sync/domains/settings/localSettings';
 import { clearPersistence, loadLocalSettings, saveLocalSettings } from '@/sync/domains/state/persistence';
+import { clearTranscriptCache } from '@/sync/domains/state/transcriptCachePersistence';
+import { syncReliabilityTelemetry } from '@/sync/runtime/syncReliabilityTelemetry';
 import { useApplyLocalSettings } from '@/sync/store/settingsWriters';
 import { trackLogout } from '@/track';
 import { subscribeActiveServer } from '@/sync/domains/server/serverRuntime';
@@ -71,6 +73,14 @@ export function AuthProvider({ children, initialCredentials }: { children: React
         }
         await TokenStorage.removeCredentials();
         await syncSwitchServer(null);
+        // After the switch: tearing the server scope down flushes pending transcripts to disk,
+        // and this clear is queued behind those writes, so nothing of the account survives.
+        await clearTranscriptCache().catch((error: unknown) => {
+            // Never block sign-out on it, but a transcript left behind must be visible.
+            syncReliabilityTelemetry.recordCritical('auth.logout.transcriptCacheClearFailed', {
+                error: error instanceof Error ? error.name : 'unknown',
+            });
+        });
         setCredentials(null);
         setIsAuthenticated(false);
     }, []);

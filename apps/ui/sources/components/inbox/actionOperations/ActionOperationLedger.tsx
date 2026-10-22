@@ -11,10 +11,13 @@ import { Text } from '@/components/ui/text/Text';
 import { useNowMs } from '@/hooks/time/useNowMs';
 import { t } from '@/text';
 import { actionOperationReentry } from '@/sync/domains/actionOperations/actionOperationReentry';
+import { useSession } from '@/sync/domains/state/storage';
+import { getSessionName } from '@/utils/sessions/sessionUtils';
 
 import {
     buildActionOperationLedgerSections,
     resolveActionOperationPresentation,
+    resolveActionOperationTitle,
     type ActionOperationObservationPresentation,
     type ActionOperationPresentationStatus,
 } from './actionOperationPresentation';
@@ -27,6 +30,8 @@ export type ActionOperationLedgerProps = Readonly<{
     contextForOperation?: (operation: ActionOperationSnapshotV1) => string | null;
     onOpenOperation: (operationId: string) => void;
     showEmptyState?: boolean;
+    /** Settled operations are history; surfaces that only list what needs the user omit them. */
+    includeRecent?: boolean;
     nowMs?: number;
     preferredSessionId?: string | null;
     onCancelOperation?: (operationId: string) => Promise<void> | void;
@@ -87,6 +92,11 @@ const ActionOperationRow = React.memo(function ActionOperationRow(props: Readonl
 }>) {
     const { theme } = useUnistyles();
     const presentation = resolveActionOperationPresentation(props.operation, props.observation, props.nowMs);
+    const resultSession = useSession(presentation.openSessionId ?? '');
+    const title = resolveActionOperationTitle(
+        props.operation,
+        () => (resultSession ? getSessionName(resultSession) : null),
+    );
     const status = statusLabel(presentation.status);
     const progress = [presentation.progressLabel, presentation.progressValue].filter(Boolean).join('  ');
     const subtitle = [props.context, progress].filter(Boolean).join('\n');
@@ -110,7 +120,7 @@ const ActionOperationRow = React.memo(function ActionOperationRow(props: Readonl
     return (
         <Item
             testID={`action-operation-row-${props.operation.operationId}`}
-            title={props.operation.title}
+            title={title}
             subtitle={subtitle}
             subtitleLines={3}
             detail={presentation.timeValue}
@@ -169,7 +179,7 @@ const ActionOperationRow = React.memo(function ActionOperationRow(props: Readonl
                 </View>
             )}
             keepChevronWithRightElement={true}
-            accessibilityLabel={`${props.operation.title}, ${status}`}
+            accessibilityLabel={`${title}, ${status}`}
             accessibilityHint={t('inbox.actionOperations.openHint')}
             accessibilityState={{ busy: !presentation.terminal }}
             onPress={() => props.onOpenOperation(props.operation.operationId)}
@@ -193,6 +203,8 @@ export const ActionOperationLedger = React.memo(function ActionOperationLedger(p
         [props.observationForOperation, props.operations, props.preferredSessionId, reentryRevision],
     );
 
+    const recent = props.includeRecent === false ? [] : sections.recent;
+
     const renderRows = React.useCallback((operations: readonly ActionOperationSnapshotV1[]) => (
         operations.map((operation) => (
             <ActionOperationRow
@@ -212,7 +224,7 @@ export const ActionOperationLedger = React.memo(function ActionOperationLedger(p
     if (
         sections.inProgress.length === 0
         && sections.needsAttention.length === 0
-        && sections.recent.length === 0
+        && recent.length === 0
     ) {
         if (props.showEmptyState === false) return null;
         return (
@@ -235,7 +247,7 @@ export const ActionOperationLedger = React.memo(function ActionOperationLedger(p
                     {renderRows(sections.needsAttention)}
                 </ItemGroup>
             ) : null}
-            {sections.recent.length > 0 ? (
+            {recent.length > 0 ? (
                 <ItemGroup title={(
                     <View style={styles.recentHeader}>
                         <Text style={styles.recentHeaderTitle}>{t('inbox.actionOperations.sections.recent')}</Text>
@@ -255,7 +267,7 @@ export const ActionOperationLedger = React.memo(function ActionOperationLedger(p
                         ) : null}
                     </View>
                 )}>
-                    {renderRows(sections.recent)}
+                    {renderRows(recent)}
                 </ItemGroup>
             ) : null}
         </View>

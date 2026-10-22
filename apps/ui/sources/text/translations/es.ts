@@ -745,6 +745,7 @@ export const es: TranslationStructure = {
     actionOperations: {
       sections: { inProgress: "En curso", needsAttention: "Requiere atención", recent: "Recientes" },
       clearRecent: "Borrar recientes",
+      titles: { createSession: 'Crear sesión', forkSession: 'Bifurcar sesión', handoffSession: 'Transferir sesión' },
       status: { accepted: "Aceptada", running: "En curso", succeeded: "Completada", failed: "Fallida", cancelled: "Cancelada", reconnecting: "Reconectando", unavailable: "Estado no disponible", setupNeedsAttention: "Sesión creada; la configuración requiere atención" },
       empty: "Las acciones de larga duración aparecerán aquí.",
       openHint: "Abre los detalles de la acción",

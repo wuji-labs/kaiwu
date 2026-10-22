@@ -100,6 +100,7 @@ describe('sessionExecutionRuns', () => {
                 retentionPolicy: 'ephemeral',
                 runClass: 'bounded',
                 ioMode: 'request_response',
+                launchOrigin: { kind: 'external', source: 'action' },
             },
             expectRpcTimeout,
         );

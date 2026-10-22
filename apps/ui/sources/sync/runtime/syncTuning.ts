@@ -41,7 +41,6 @@ export type SessionListVirtualizedEngine = 'flashList' | 'legendList';
 export type SyncTuning = Readonly<{
     messageLargeGapSeq: number;
     messageMaxIncrementalPagesOnResume: number;
-    messageForceSnapshotOfflineMs: number;
     sessionMessagesPageSize: number;
     transcriptNativeOlderMessagesPageSize: number;
     transcriptForwardPrefetchThresholdPx: number;
@@ -279,7 +278,6 @@ export function loadSyncTuning(opts?: {
     const defaults: SyncTuning = {
         messageLargeGapSeq: 500,
         messageMaxIncrementalPagesOnResume: 3,
-        messageForceSnapshotOfflineMs: 30 * 60 * 1000,
         sessionMessagesPageSize: 150,
         transcriptNativeOlderMessagesPageSize: 64,
         transcriptForwardPrefetchThresholdPx: 800,
@@ -428,7 +426,6 @@ export function loadSyncTuning(opts?: {
     const validated: SyncTuning = {
         messageLargeGapSeq: readNumber(merged, 'messageLargeGapSeq', { min: 1, max: 1_000_000 }) ?? defaults.messageLargeGapSeq,
         messageMaxIncrementalPagesOnResume: readNumber(merged, 'messageMaxIncrementalPagesOnResume', { min: 1, max: 100 }) ?? defaults.messageMaxIncrementalPagesOnResume,
-        messageForceSnapshotOfflineMs: readNumber(merged, 'messageForceSnapshotOfflineMs', { min: 0, max: 365 * 24 * 60 * 60 * 1000 }) ?? defaults.messageForceSnapshotOfflineMs,
         sessionMessagesPageSize: readNumber(merged, 'sessionMessagesPageSize', { min: 1, max: 1000 }) ?? defaults.sessionMessagesPageSize,
         transcriptNativeOlderMessagesPageSize: readNumber(merged, 'transcriptNativeOlderMessagesPageSize', { min: 1, max: 1000 }) ?? defaults.transcriptNativeOlderMessagesPageSize,
         transcriptForwardPrefetchThresholdPx: readNumber(merged, 'transcriptForwardPrefetchThresholdPx', { min: 0, max: 50_000 }) ?? defaults.transcriptForwardPrefetchThresholdPx,

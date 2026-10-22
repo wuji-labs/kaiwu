@@ -1257,6 +1257,22 @@ describe('sync socket offline tracking', () => {
     };
     (sync as any).isForeground = true;
     (sync as any).lastSocketDisconnectedAtMs = Date.now() - 1000;
+    // A live session: its presence is the ephemeral state the offline-recovery refresh repairs.
+    storage.getState().applySessions([{
+      id: 'live-session',
+      seq: 1,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      active: true,
+      activeAt: Date.now(),
+      metadata: null,
+      metadataVersion: 1,
+      agentState: null,
+      agentStateVersion: 1,
+      thinking: false,
+      thinkingAt: 0,
+      presence: 'online',
+    }]);
 
     await (sync as any).resumeSync('socket-reconnect');
 

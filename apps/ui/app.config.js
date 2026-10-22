@@ -475,6 +475,9 @@ const baseExpoConfig = {
                     "enableBackgroundRemoteNotifications": true
                 }
             ],
+            // BGTaskScheduler `processing` mode + permitted identifier (iOS), WorkManager (Android):
+            // periodic background session refresh, see sources/sync/background/backgroundSessionRefresh.ts.
+            "expo-background-task",
             [
                 'expo-splash-screen',
                 {

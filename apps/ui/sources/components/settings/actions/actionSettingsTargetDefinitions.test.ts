@@ -28,7 +28,7 @@ describe('action settings target definitions', () => {
             category: 'integrations',
         });
         expect(en.settingsActions.targets.session_agent.title).toBe('AI session');
-        expect(en.settingsActions.targets.session_agent.subtitle).toContain('assistant running inside a Happier session');
+        expect(en.settingsActions.targets.session_agent.subtitle).toContain('assistant running inside a Kaiwu session');
         expect(en.settingsActions.targets.mcp.subtitle).toContain('external MCP clients');
     });
 });

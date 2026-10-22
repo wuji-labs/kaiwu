@@ -311,7 +311,7 @@ describe('useRelayDriftBanner', () => {
         expect(cancelMock).toHaveBeenCalledWith('task_1');
     });
 
-    it('infers the active webapp url when repairing Happier Cloud relay drift', async () => {
+    it('infers the active webapp url when repairing Kaiwu Cloud relay drift', async () => {
         const { useRelayDriftBanner } = await import('./useRelayDriftBanner');
         const { createSystemTaskRunner } = await import('@/components/systemTasks/createSystemTaskRunner');
         const { SystemTaskSpecSchema } = await import('@happier-dev/protocol');
@@ -334,7 +334,7 @@ describe('useRelayDriftBanner', () => {
         });
         state.activeServerSnapshot = {
             serverId: 'cloud',
-            serverUrl: 'https://api.happier.dev',
+            serverUrl: 'https://api.kaiwu.wujilabs.cn',
             generation: 1,
         } as ActiveServerSnapshot;
         state.cachedDoctorSnapshot = {
@@ -370,8 +370,8 @@ describe('useRelayDriftBanner', () => {
         });
 
         expect(startMock).toHaveBeenCalledWith(buildRelayDriftRepairSystemTaskSpec({
-            activeRelayUrl: 'https://api.happier.dev',
-            activeWebappUrl: 'https://app.happier.dev',
+            activeRelayUrl: 'https://api.kaiwu.wujilabs.cn',
+            activeWebappUrl: 'https://kaiwu.wujilabs.cn',
             activeLocalRelayUrl: null,
         }));
     });

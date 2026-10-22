@@ -266,7 +266,7 @@ describe('/ (welcome) auto redirect', () => {
             });
             await flushHookEffects();
 
-            expect(shared.openURL).toHaveBeenCalledWith('https://server.test/v1/auth/mtls/start?returnTo=happier%3A%2F%2F%2Fmtls');
+            expect(shared.openURL).toHaveBeenCalledWith('https://server.test/v1/auth/mtls/start?returnTo=kaiwu%3A%2F%2F%2Fmtls');
         } finally {
             delete process.env.EXPO_PUBLIC_HAPPIER_WELCOME_SERVER_CHECK_RETRY_DELAY_MS;
         }
@@ -293,7 +293,7 @@ describe('/ (welcome) auto redirect', () => {
         });
 
         await renderWelcomeScreen();
-        expect(shared.openURL).toHaveBeenCalledWith('https://server.test/v1/auth/mtls/start?returnTo=happier%3A%2F%2F%2Fmtls');
+        expect(shared.openURL).toHaveBeenCalledWith('https://server.test/v1/auth/mtls/start?returnTo=kaiwu%3A%2F%2F%2Fmtls');
     }, testTimeoutMs);
 
     it('uses the configured app scheme for the mTLS returnTo deep link', async () => {

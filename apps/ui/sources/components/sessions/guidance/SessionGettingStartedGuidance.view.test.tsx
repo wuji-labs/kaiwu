@@ -101,8 +101,8 @@ describe('SessionGettingStartedGuidanceView', () => {
     expect(screen.findByTestId('session-getting-started-setup-primary-card')).not.toBeNull();
     expect(screen.findByTestId('session-getting-started-cli-follow-up')).toBeNull();
     expect(screen.findByTestId('session-getting-started-show-manual')).not.toBeNull();
-    expect(content).not.toContain('happier server add');
-    expect(content).not.toContain('happier daemon install');
+    expect(content).not.toContain('kaiwu server add');
+    expect(content).not.toContain('kaiwu daemon install');
 
     expect(screen.findByTestId('session-getting-started-copy-all')).toBeNull();
     expect(screen.findByTestId('session-getting-started-scroll')).not.toBeNull();
@@ -121,21 +121,21 @@ describe('SessionGettingStartedGuidanceView', () => {
     expect(screen.findByTestId('session-getting-started-step-auth_login')).not.toBeNull();
     expect(screen.findByTestId('session-getting-started-step-daemon_install')).toBeNull();
     expect(screen.findByTestId('session-getting-started-step-create_session')).not.toBeNull();
-    expect(expandedContent).not.toContain('happier server add');
+    expect(expandedContent).not.toContain('kaiwu server add');
     expect(expandedContent).toContain('https://api.company.example');
     expect(expandedContent).not.toContain('$ npm i -g @happier-dev/cli');
-    expect(expandedContent).toContain('curl -fsSL https://happier.dev/install | bash -s -- --yes');
+    expect(expandedContent).toContain('curl -fsSL https://kaiwu.wujilabs.cn/install | bash -s -- --yes');
     expect(expandedContent).not.toContain('npm i -g @happier-dev/cli');
-    expect(expandedContent).not.toContain('happier service install');
-    expect(expandedContent).toContain('happier setup --relay "https://api.company.example"');
-    expect(expandedContent).not.toContain('happier daemon install');
-    expect(expandedContent).toContain('happier codex');
-    expect(expandedContent).toContain('happier opencode');
+    expect(expandedContent).not.toContain('kaiwu service install');
+    expect(expandedContent).toContain('kaiwu setup --relay "https://api.company.example"');
+    expect(expandedContent).not.toContain('kaiwu daemon install');
+    expect(expandedContent).toContain('kaiwu codex');
+    expect(expandedContent).toContain('kaiwu opencode');
 
     clipboardMocks.setStringAsync.mockClear();
     modalMocks.alert.mockClear();
     await screen.pressByTestIdAsync('session-getting-started-copy-auth_login');
-    expect(clipboardMocks.setStringAsync).toHaveBeenCalledWith('happier setup --relay "https://api.company.example"');
+    expect(clipboardMocks.setStringAsync).toHaveBeenCalledWith('kaiwu setup --relay "https://api.company.example"');
     expect(modalMocks.alert).not.toHaveBeenCalledWith('common.copied', 'items.copiedToClipboard');
     expect(screen.findByTestId('session-getting-started-copy-auth_login-copied')).not.toBeNull();
   });
@@ -278,10 +278,10 @@ describe('SessionGettingStartedGuidanceView', () => {
     );
 
     const content = screen.getTextContent();
-    expect(content).toContain('happier service install');
-    expect(content).toContain('happier service start');
-    expect(content).not.toContain('happier daemon install');
-    expect(content).not.toContain('happier daemon start');
+    expect(content).toContain('kaiwu service install');
+    expect(content).toContain('kaiwu service start');
+    expect(content).not.toContain('kaiwu daemon install');
+    expect(content).not.toContain('kaiwu daemon start');
   });
 
   it('skips rerendering the guidance view when props are equal by value', async () => {

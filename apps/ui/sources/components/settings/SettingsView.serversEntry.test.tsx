@@ -368,13 +368,13 @@ describe('SettingsView', () => {
         }
     });
 
-    it('renders the GitHub repository as subtitle, not right-side detail', async () => {
+    it('renders the official website as subtitle, not right-side detail', async () => {
         const screen = await renderSettingsViewUnderTest();
-        const githubItem = screen.findRowByTitle('settings.github');
+        const websiteItem = screen.findRowByTitle('官方网站');
 
-        expect(githubItem).toBeTruthy();
-        expect(githubItem?.props.subtitle).toBe('happier-dev/happier');
-        expect(githubItem?.props.detail).toBeUndefined();
+        expect(websiteItem).toBeTruthy();
+        expect(websiteItem?.props.subtitle).toBe('wujilabs.cn');
+        expect(websiteItem?.props.detail).toBeUndefined();
     });
 
     it('shows Rate us right below What’s New and triggers store review only when pressed', async () => {

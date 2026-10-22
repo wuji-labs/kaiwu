@@ -407,9 +407,9 @@ describe('SessionItem context menu press suppression', () => {
         });
 
         expect(Clipboard.setStringAsync).toHaveBeenCalledWith([
-            'Happier session ID: sess_debug_full',
+            'Kaiwu session ID: sess_debug_full',
             'agentInput.agent.claude session ID: claude-session-1',
-            'Happier logs: /tmp/happier/session.log',
+            'Kaiwu logs: /tmp/happier/session.log',
             'agentInput.agent.claude session logs: /tmp/claude/session.jsonl',
         ].join('\n'));
     });

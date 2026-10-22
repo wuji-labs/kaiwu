@@ -20,10 +20,13 @@ function listConfiguredAppUrlSchemes(): string[] {
     return result;
 }
 
+const DEFAULT_APP_URL_SCHEME = 'kaiwu';
+const LEGACY_APP_URL_SCHEME = 'happier';
+
 export function resolveAppUrlScheme(): string {
     const configured = listConfiguredAppUrlSchemes()[0];
     if (configured) return configured;
-    return 'kaiwu';
+    return DEFAULT_APP_URL_SCHEME;
 }
 
 export function resolveAppUrlProtocol(): string {
@@ -41,9 +44,12 @@ export function listAcceptedHappierUrlSchemes(): readonly string[] {
         result.push(value);
     }
 
-    if (!seen.has('happier')) {
-        seen.add('happier');
-        result.push('happier');
+    // Always accept the default scheme (links built without a configured scheme use it)
+    // and the legacy scheme (links issued before the rename).
+    for (const scheme of [DEFAULT_APP_URL_SCHEME, LEGACY_APP_URL_SCHEME]) {
+        if (seen.has(scheme)) continue;
+        seen.add(scheme);
+        result.push(scheme);
     }
 
     return result;

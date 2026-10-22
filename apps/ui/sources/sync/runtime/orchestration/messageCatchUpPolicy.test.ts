@@ -5,7 +5,6 @@ describe('decideMessageCatchUpPolicy', () => {
     const thresholds = {
         largeGapSeq: 5,
         maxIncrementalPagesOnResume: 2,
-        forceSnapshotOfflineMs: 1000,
     };
 
     it('returns do_nothing when not foreground', () => {
@@ -114,6 +113,21 @@ describe('decideMessageCatchUpPolicy', () => {
             materializedMaxSeq: 10,
             sessionSeqHint: 13,
             offlineForMs: 0,
+            thresholds,
+        })).toEqual({ kind: 'incremental_batched', maxPages: 2 });
+    });
+
+    it('pages only the missing delta after a long offline period when the gap is small', () => {
+        // Bytes-first: the gap size is known, so a resume after hours offline must cost the
+        // missing messages, not a full latest page (a 150-message page measured 420 KB gzipped
+        // on the production relay link).
+        expect(decideMessageCatchUpPolicy({
+            isForeground: true,
+            isSessionVisible: true,
+            isPinned: true,
+            materializedMaxSeq: 10,
+            sessionSeqHint: 12,
+            offlineForMs: 60 * 60 * 1000,
             thresholds,
         })).toEqual({ kind: 'incremental_batched', maxPages: 2 });
     });

@@ -24,7 +24,11 @@ vi.mock('@/components/ui/pathBrowser/openMachinePathBrowserModal', () => ({
     openMachinePathBrowserModal: (input: unknown) => openMachinePathBrowserModalMock(input),
 }));
 
-vi.mock('@/sync/domains/input/machineFileBrowser', () => ({
+vi.mock('@/sync/domains/input/machineFileBrowser', async (importOriginal) => ({
+    // Keep the pure not-found classifier real: PathSelectionList delegates its
+    // ENOENT/ENOTDIR detection to it, so the test exercises the actual contract.
+    isMachineFileBrowserPathNotFoundError:
+        (await importOriginal<typeof import('@/sync/domains/input/machineFileBrowser')>()).isMachineFileBrowserPathNotFoundError,
     listMachineFileBrowserDirectoryEntries: (input: unknown) => listMachineFileBrowserDirectoryEntriesMock(input),
 }));
 

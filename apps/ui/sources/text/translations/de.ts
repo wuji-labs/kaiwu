@@ -532,6 +532,7 @@ export const de: TranslationStructure = {
         actionOperations: {
             sections: { inProgress: 'In Bearbeitung', needsAttention: 'Aufmerksamkeit erforderlich', recent: 'Zuletzt' },
             clearRecent: 'Letzte löschen',
+            titles: { createSession: 'Sitzung erstellen', forkSession: 'Sitzung abzweigen', handoffSession: 'Sitzung übergeben' },
             status: { accepted: 'Angenommen', running: 'Wird ausgeführt', succeeded: 'Erfolgreich', failed: 'Fehlgeschlagen', cancelled: 'Abgebrochen', reconnecting: 'Verbindung wird wiederhergestellt', unavailable: 'Status nicht verfügbar', setupNeedsAttention: 'Session erstellt; Einrichtung erfordert Aufmerksamkeit' },
             empty: 'Länger laufende Aktionen werden hier angezeigt.',
             openHint: 'Öffnet die Details der Aktion',

@@ -209,15 +209,6 @@ export const InboxView = React.memo(({}: InboxViewProps) => {
                 <RecoveryKeyReminderBanner />
                 <UpdateBanner />
 
-                <ActionOperationLedger
-                    operations={actionOperations}
-                    observationForOperation={actionOperationModel.observationForOperation}
-                    contextForOperation={actionOperationModel.contextForOperation}
-                    onOpenOperation={openActionOperationDetail}
-                    canDismissOperation={actionOperationModel.canDismissOperation}
-                    onDismissOperation={actionOperationModel.dismissOperation}
-                    showEmptyState={false}
-                />
 
                 {openApprovals.length > 0 && (
                     <ItemGroup title={t('inbox.approvals')}>
@@ -246,6 +237,19 @@ export const InboxView = React.memo(({}: InboxViewProps) => {
                     </ItemGroup>
                 )}
 
+                {/* Inbox order is urgency: what an agent is blocked on, then operations that are
+                    running or need a decision, then what is unread. Settled operations are history,
+                    not inbox — they live in the activity button's ledger. */}
+                <ActionOperationLedger
+                    operations={actionOperations}
+                    observationForOperation={actionOperationModel.observationForOperation}
+                    contextForOperation={actionOperationModel.contextForOperation}
+                    onOpenOperation={openActionOperationDetail}
+                    canDismissOperation={actionOperationModel.canDismissOperation}
+                    onDismissOperation={actionOperationModel.dismissOperation}
+                    showEmptyState={false}
+                    includeRecent={false}
+                />
                 {unreadSessions.length > 0 && (
                     <ItemGroup title={t('inbox.unreadSessions')}>
                         {unreadSessions.map((session) => (

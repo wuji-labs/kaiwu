@@ -105,6 +105,39 @@ describe('ActionOperationLedger', () => {
             .toContain('Session created; setup needs attention');
     });
 
+    it('lists only work that needs the user when settled history is left to the activity ledger', async () => {
+        const { ActionOperationLedger } = await import('./ActionOperationLedger');
+        const failed: ActionOperationSnapshotV1 = {
+            ...runningOperation(),
+            operationId: 'operation-failed',
+            revision: 3,
+            state: 'failed',
+            settledAt: 1_700_000_120_000,
+            error: { errorCode: 'failed', error: 'Failed' },
+        };
+        const succeeded: ActionOperationSnapshotV1 = {
+            ...runningOperation(),
+            operationId: 'operation-succeeded',
+            revision: 3,
+            state: 'succeeded',
+            settledAt: 1_700_000_120_000,
+        };
+        const screen = await renderScreen(
+            <ActionOperationLedger
+                operations={[runningOperation(), failed, succeeded]}
+                onOpenOperation={() => {}}
+                includeRecent={false}
+                showEmptyState={false}
+                nowMs={1_700_000_120_000}
+            />,
+        );
+
+        expect(screen.findByTestId('action-operation-row-operation-1')).not.toBeNull();
+        expect(screen.findByTestId('action-operation-row-operation-failed')).not.toBeNull();
+        expect(screen.findByTestId('action-operation-row-operation-succeeded')).toBeNull();
+        expect(screen.getTextContent()).not.toContain('Recent');
+    });
+
     it('offers restrained recent cleanup without routing active or failed rows through it', async () => {
         const onClearRecent = vi.fn();
         const { ActionOperationLedger } = await import('./ActionOperationLedger');

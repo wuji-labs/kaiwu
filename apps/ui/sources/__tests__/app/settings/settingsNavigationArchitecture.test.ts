@@ -1,5 +1,5 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { basename, join, relative } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
@@ -54,7 +54,7 @@ describe('settings navigation architecture', () => {
         const registry = readFileSync(SETTINGS_NAVIGATION_REGISTRY_PATH, 'utf8');
         const routeNames = walkFiles(SETTINGS_ROUTES_ROOT)
             .filter((fullPath) => fullPath.endsWith('.tsx'))
-            .filter((fullPath) => !fullPath.endsWith('/_layout.tsx'))
+            .filter((fullPath) => basename(fullPath) !== '_layout.tsx')
             .map((fullPath) => {
                 const relativePath = relative(SETTINGS_ROUTES_ROOT, fullPath).replaceAll('\\', '/');
                 return relativePath.replace(/\.tsx$/, '');
@@ -71,7 +71,7 @@ describe('settings navigation architecture', () => {
             ...walkFiles(join(UI_SOURCES_ROOT, 'components', 'settings')),
         ]
             .filter((fullPath) => fullPath.endsWith('.tsx'))
-            .filter((fullPath) => !fullPath.endsWith('/_layout.tsx'))
+            .filter((fullPath) => basename(fullPath) !== '_layout.tsx')
             .map((fullPath) => ({
                 relativePath: toRelativeUiPath(fullPath),
                 contents: readFileSync(fullPath, 'utf8'),

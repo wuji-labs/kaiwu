@@ -244,8 +244,8 @@ describe('resolveSessionComposerSend', () => {
         expect(resolved.kind).toBe('send');
         if (resolved.kind === 'send') {
             // Body is the verbatim SKILL.md. Sanity-check a couple of distinctive lines.
-            expect(resolved.text).toContain('name: happier-diagnose');
-            expect(resolved.text).toContain('# Happier Diagnose');
+            expect(resolved.text).toContain('name: kaiwu-diagnose');
+            expect(resolved.text).toContain('# Kaiwu Diagnose');
             // Should not be the literal slash token.
             expect(resolved.text).not.toBe('/happier-diagnose');
         }
@@ -258,7 +258,7 @@ describe('resolveSessionComposerSend', () => {
         });
         expect(resolved.kind).toBe('send');
         if (resolved.kind === 'send') {
-            expect(resolved.text).toContain('# Happier Diagnose');
+            expect(resolved.text).toContain('# Kaiwu Diagnose');
             expect(resolved.text.endsWith('sess_abcdef123456')).toBe(true);
         }
     });
@@ -296,7 +296,7 @@ describe('resolveSessionComposerSend', () => {
         const resolved = resolveSessionComposerSend({ input: '/Happier-Diagnose', executionRunsEnabled: true });
         expect(resolved.kind).toBe('send');
         if (resolved.kind === 'send') {
-            expect(resolved.text).toContain('# Happier Diagnose');
+            expect(resolved.text).toContain('# Kaiwu Diagnose');
         }
     });
 });

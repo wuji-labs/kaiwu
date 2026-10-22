@@ -330,13 +330,15 @@ vi.mock('@/utils/system/fireAndForget', () => ({
     fireAndForget: () => {},
 }));
 
+const { SessionView } = await import('./SessionView');
+const { PendingMessagesTranscriptBlock } = await import('@/components/sessions/pending/PendingMessagesTranscriptBlock');
+
 describe('SessionView (right pane auto-open)', () => {
     const AppPaneProviderWrapper = ({ children }: { children?: React.ReactNode }) => (
         <AppPaneProvider>{children ?? null}</AppPaneProvider>
     );
 
     async function renderSessionView(paneUrlState?: Record<string, unknown>) {
-        const { SessionView } = await import('./SessionView');
         return renderScreen(
             <SessionView id="s1" paneUrlState={paneUrlState as any} />,
             {
@@ -426,8 +428,6 @@ describe('SessionView (right pane auto-open)', () => {
     });
 
     it('re-fetches pending messages when the session view remounts with a pending queue rendered', async () => {
-        const { PendingMessagesTranscriptBlock } = await import('@/components/sessions/pending/PendingMessagesTranscriptBlock');
-        const { SessionView } = await import('./SessionView');
         const tree = React.createElement(
             React.Fragment,
             null,

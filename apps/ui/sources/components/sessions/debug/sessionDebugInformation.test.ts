@@ -27,9 +27,9 @@ describe('sessionDebugInformation', () => {
         });
 
         expect(result.text).toBe([
-            'Happier session ID: happy-session-1',
+            'Kaiwu session ID: happy-session-1',
             'Claude session ID: claude-session-1',
-            'Happier logs: /tmp/happier/session.log',
+            'Kaiwu logs: /tmp/happier/session.log',
         ].join('\n'));
         expect(result.providerSessionArtifactPath).toBeNull();
     });
@@ -47,10 +47,10 @@ describe('sessionDebugInformation', () => {
             providerSessionId: null,
         });
 
-        expect(result.text).toBe('Happier session ID: happy-session-2');
+        expect(result.text).toBe('Kaiwu session ID: happy-session-2');
         expect(result.text).not.toContain('Not available');
         expect(result.text).not.toContain('Claude session ID');
-        expect(result.text).not.toContain('Happier logs');
+        expect(result.text).not.toContain('Kaiwu logs');
         expect(result.text).not.toContain('Claude session logs');
     });
 
@@ -130,7 +130,7 @@ describe('sessionDebugInformation', () => {
         });
 
         expect(withArtifact.text).toBe([
-            'Happier session ID: happy-session-3',
+            'Kaiwu session ID: happy-session-3',
             'Claude session ID: claude-session-3',
             'Claude session logs: /tmp/claude/session.jsonl',
         ].join('\n'));
@@ -147,7 +147,7 @@ describe('sessionDebugInformation', () => {
         });
 
         expect(withoutArtifact.text).toBe([
-            'Happier session ID: happy-session-4',
+            'Kaiwu session ID: happy-session-4',
             'Codex session ID: codex-session-4',
         ].join('\n'));
     });

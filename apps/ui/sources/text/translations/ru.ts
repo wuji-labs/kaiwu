@@ -760,6 +760,7 @@ export const ru: TranslationStructure = {
     actionOperations: {
       sections: { inProgress: "Выполняются", needsAttention: "Требуют внимания", recent: "Недавние" },
       clearRecent: "Очистить недавние",
+      titles: { createSession: 'Создать сессию', forkSession: 'Ответвить сессию', handoffSession: 'Передать сессию' },
       status: { accepted: "Принято", running: "Выполняется", succeeded: "Выполнено", failed: "Ошибка", cancelled: "Отменено", reconnecting: "Повторное подключение", unavailable: "Статус недоступен", setupNeedsAttention: "Сессия создана; настройка требует внимания" },
       empty: "Здесь появятся длительные действия.",
       openHint: "Открывает сведения о действии",

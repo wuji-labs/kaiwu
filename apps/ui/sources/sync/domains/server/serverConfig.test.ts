@@ -138,7 +138,7 @@ describe('getServerUrl', () => {
         expect(getServerUrl()).toBe('https://legacy-generic.example.test');
     });
 
-    it('defaults to Happier Cloud on native when no server is configured', async () => {
+    it('defaults to the hosted Kaiwu server on native when no server is configured', async () => {
         delete process.env.EXPO_PUBLIC_HAPPIER_SERVER_URL;
         delete process.env.EXPO_PUBLIC_HAPPY_SERVER_URL;
         delete process.env.EXPO_PUBLIC_SERVER_URL;
@@ -146,7 +146,7 @@ describe('getServerUrl', () => {
 
         const { getServerUrl } = await importFreshServerConfig();
 
-        expect(getServerUrl()).toBe('https://api.happier.dev');
+        expect(getServerUrl()).toBe('https://kaiwu.wujilabs.cn');
     });
 
     it('trims EXPO_PUBLIC_HAPPY_SERVER_URL to avoid whitespace issues', async () => {

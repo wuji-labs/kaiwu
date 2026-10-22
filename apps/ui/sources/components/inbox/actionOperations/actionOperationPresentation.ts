@@ -1,6 +1,7 @@
 import type { ActionOperationSnapshotV1 } from '@happier-dev/protocol';
 
 import type { IconName } from '@/components/ui/icons/Icon';
+import { t, type TranslationKey } from '@/text';
 import { formatShortRelativeTimeAt } from '@/utils/time/formatShortRelativeTime';
 import {
     actionOperationReentry,
@@ -125,6 +126,38 @@ export function resolveActionOperationDetailContent(
     };
 }
 
+/** Core actions get a translated name; any other action keeps its spec title. */
+const CORE_ACTION_OPERATION_TITLE_KEYS = {
+    'session.spawn_new': 'inbox.actionOperations.titles.createSession',
+    'session.fork': 'inbox.actionOperations.titles.forkSession',
+    'session.handoff': 'inbox.actionOperations.titles.handoffSession',
+} as const satisfies Readonly<Record<string, TranslationKey>>;
+
+/**
+ * The row title: the translated action name, followed by the session it produced once that
+ * session is known — a column of identical "Create session" rows says nothing about which is which.
+ */
+export function resolveActionOperationTitle(
+    operation: ActionOperationSnapshotV1,
+    readSessionName?: (sessionId: string) => string | null,
+): string {
+    const key = (CORE_ACTION_OPERATION_TITLE_KEYS as Readonly<Record<string, TranslationKey>>)[operation.actionId];
+    const actionTitle = key ? t(key) : operation.title;
+    const sessionId = resolveActionOperationDetailContent(operation).openSessionId;
+    const sessionName = sessionId ? readSessionName?.(sessionId) ?? null : null;
+    return sessionName ? `${actionTitle} · ${sessionName}` : actionTitle;
+}
+
+/**
+ * A successful "create session" is fully recorded by the session itself in the session list;
+ * keeping it in the ledger only buries the operations that still need the user.
+ */
+function isSettledSessionCreation(operation: ActionOperationSnapshotV1): boolean {
+    return operation.actionId === 'session.spawn_new'
+        && operation.state === 'succeeded'
+        && resolveActionOperationDetailContent(operation).openSessionId !== null;
+}
+
 function isTerminal(operation: ActionOperationSnapshotV1): boolean {
     return operation.state === 'succeeded' || operation.state === 'failed' || operation.state === 'cancelled';
 }
@@ -203,7 +236,7 @@ export function buildActionOperationLedgerSections(
             || (options?.localPresentationForOperation ?? actionOperationReentry.resolvePresentation)(operation)?.kind === 'setup_needs_attention'
         ) {
             needsAttention.push(operation);
-        } else {
+        } else if (!isSettledSessionCreation(operation)) {
             recent.push(operation);
         }
     }

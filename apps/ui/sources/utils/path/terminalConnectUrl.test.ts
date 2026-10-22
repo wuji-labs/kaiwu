@@ -100,7 +100,7 @@ describe('buildTerminalConnectDeepLink', () => {
                 serverUrl: 'https://stack.example.test/path?x=1',
             }),
         ).toBe(
-            'happier://terminal?key=abcDEF_123-zzz&server=https%3A%2F%2Fstack.example.test%2Fpath%3Fx%3D1',
+            'kaiwu://terminal?key=abcDEF_123-zzz&server=https%3A%2F%2Fstack.example.test%2Fpath%3Fx%3D1',
         );
     });
 
@@ -116,7 +116,7 @@ describe('buildTerminalConnectDeepLink', () => {
                 },
             }),
         ).toBe(
-            'happier://terminal?key=abc&pairingSecret=secret&createdAt=1000&expiresAt=61000',
+            'kaiwu://terminal?key=abc&pairingSecret=secret&createdAt=1000&expiresAt=61000',
         );
     });
 
@@ -126,6 +126,6 @@ describe('buildTerminalConnectDeepLink', () => {
                 publicKeyB64Url: 'abcDEF_123-zzz',
                 serverUrl: null,
             }),
-        ).toBe('happier://terminal?abcDEF_123-zzz');
+        ).toBe('kaiwu://terminal?abcDEF_123-zzz');
     });
 });

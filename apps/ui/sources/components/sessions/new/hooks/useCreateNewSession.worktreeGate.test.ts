@@ -103,6 +103,8 @@ const saveNewSessionDraftMock = vi.hoisted(() => vi.fn());
 const storeTempDataMock = vi.hoisted(() => vi.fn(() => 'temp-recovery-1'));
 const updateSessionPermissionModeMock = vi.hoisted(() => vi.fn());
 const updateSessionModelModeMock = vi.hoisted(() => vi.fn());
+const markSessionOptimisticThinkingMock = vi.hoisted(() => vi.fn());
+const upsertPendingMessageMock = vi.hoisted(() => vi.fn());
 const storedSessionsState = vi.hoisted(() => ({ sessions: {} as Record<string, Session> }));
 const ensureSessionVisibleForMessageRouteMock = vi.hoisted(() => vi.fn(async (sessionId?: unknown) => {
     const hydratedSessionId = String(sessionId ?? '').trim();
@@ -169,6 +171,8 @@ installNewSessionScreenModelCommonModuleMocks({
                 sessions: storedSessionsState.sessions,
                 updateSessionPermissionMode: updateSessionPermissionModeMock,
                 updateSessionModelMode: updateSessionModelModeMock,
+                markSessionOptimisticThinking: markSessionOptimisticThinkingMock,
+                upsertPendingMessage: upsertPendingMessageMock,
             }),
         });
     },
@@ -1437,6 +1441,15 @@ describe('useCreateNewSession (worktree gating)', () => {
         expect(spawnedOptions?.workspaceId).toBeUndefined();
         expect(spawnedOptions?.workspaceLocationId).toBeUndefined();
         expect(spawnedOptions?.workspaceCheckoutId).toBeUndefined();
+        expect(markSessionOptimisticThinkingMock).toHaveBeenCalledWith('session-created');
+        expect(upsertPendingMessageMock).toHaveBeenCalledWith(
+            'session-created',
+            expect.objectContaining({
+                source: 'local_outbound',
+                deliveryStatus: 'accepted',
+                text: 'Investigate this bug',
+            }),
+        );
         expect(routerReplace).toHaveBeenCalledWith('/session/session-created?serverId=api.happier.dev', expect.anything());
         expect(disableDraftPersistence).toHaveBeenCalledTimes(1);
         expect(setIsCreating).not.toHaveBeenCalledWith(false);

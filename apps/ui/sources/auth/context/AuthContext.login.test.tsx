@@ -132,4 +132,66 @@ describe('AuthContext.login', () => {
             clearPersistence();
         }
     });
+
+    it('removes every persisted transcript from the device on logout', async () => {
+        const {
+            loadTranscriptCacheRecord,
+            saveTranscriptCacheRecord,
+            setTranscriptCacheBackendForTests,
+        } = await import('@/sync/domains/state/transcriptCachePersistence');
+        const values = new Map<string, string>();
+        setTranscriptCacheBackendForTests({
+            read: async (key) => values.get(key) ?? null,
+            write: async (key, value) => {
+                values.set(key, value);
+            },
+            remove: async (keys) => {
+                for (const key of keys) values.delete(key);
+            },
+            clear: async () => {
+                values.clear();
+            },
+        });
+        const scope = { serverId: 'server-a', accountId: 'account-a' };
+        await saveTranscriptCacheRecord(scope, {
+            sessionId: 'session-a',
+            savedAt: 1,
+            maxSeq: 1,
+            minSeq: 1,
+            hasMoreOlder: false,
+            session: null,
+            messages: [{
+                message: {
+                    id: 'm1',
+                    seq: 1,
+                    localId: null,
+                    createdAt: 1,
+                    isSidechain: false,
+                    role: 'user',
+                    content: { type: 'text', text: 'private' },
+                },
+                updatedAt: 1,
+            }],
+        });
+        expect((await loadTranscriptCacheRecord(scope, 'session-a')).kind).toBe('hit');
+
+        const { AuthProvider, getCurrentAuth } = await import('./AuthContext');
+        const screen = await renderScreen(
+            React.createElement(AuthProvider, {
+                initialCredentials: { token: buildTokenWithSub('server-test'), secret: 'secret-test' },
+                children: React.createElement(React.Fragment, null),
+            }),
+        );
+        try {
+            const auth = getCurrentAuth();
+            if (!auth) throw new Error('Expected current auth to be set');
+            await act(async () => {
+                await auth.logout();
+            });
+            expect(values.size).toBe(0);
+        } finally {
+            await screen.unmount();
+            setTranscriptCacheBackendForTests(undefined);
+        }
+    });
 });

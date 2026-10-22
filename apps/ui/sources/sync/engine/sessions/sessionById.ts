@@ -19,6 +19,7 @@ import {
 
 import { parsePlainSessionAgentState, parsePlainSessionMetadata } from './parsePlainSessionPayload';
 import { resolveSessionRuntimeActivityProjectionFields } from './sessionRuntimeActivityProjection';
+import { rememberSessionRecordRow } from './sessionRecordRowRegistry';
 import {
   looksLikeCurrentV2SessionNotFound404,
   looksLikeMissingV2SessionRoute404,
@@ -175,6 +176,114 @@ async function fetchSessionTurnsProjection(params: Readonly<{
   return parsed.data;
 }
 
+type SessionByIdRow = V2SessionByIdResponse['session'];
+
+/**
+ * Decode one server session row into the store's shape: settle its data key (reusing the cached
+ * key when the envelope is unchanged), initialize its runtime encryption, and decrypt metadata
+ * and agent state. Shared by the network fetch below and by the transcript cache, which replays a
+ * persisted (still-ciphertext) row so a cold-started session can paint before the network answers.
+ */
+export async function decodeSessionByIdRow(params: Readonly<{
+  row: SessionByIdRow;
+  encryption: SessionByIdEncryption;
+  sessionDataKeys: Map<string, Uint8Array>;
+  sessionDataKeyEnvelopes?: SessionDataKeyEnvelopeCache;
+  clientEncryptionRequirement: ClientEncryptionRequirement;
+  log: { log: (message: string) => void };
+}>): Promise<
+  | Readonly<{ ok: true; encryptionMode: 'e2ee' | 'plain'; metadata: Metadata | null; agentState: unknown }>
+  | Readonly<{ ok: false; errorCode: string }>
+> {
+  const row = params.row;
+  const sessionId = row.id;
+  const encryptionMode: 'e2ee' | 'plain' = row.encryptionMode === 'plain' ? 'plain' : 'e2ee';
+  if (!isSessionEncryptionModeAllowedByClientRequirement(params.clientEncryptionRequirement, encryptionMode)) {
+    return { ok: false, errorCode: 'client_e2ee_required' };
+  }
+
+  if (encryptionMode === 'plain') {
+    params.sessionDataKeys.delete(sessionId);
+    params.sessionDataKeyEnvelopes?.delete(sessionId);
+  } else {
+    const sessionKeys = new Map<string, Uint8Array | null>();
+    if (typeof row.dataEncryptionKey === 'string' && row.dataEncryptionKey.length > 0) {
+      const cachedKey = params.sessionDataKeys.get(sessionId);
+      const decrypted = cachedKey && params.sessionDataKeyEnvelopes?.get(sessionId) === row.dataEncryptionKey
+        ? cachedKey
+        : await params.encryption.decryptEncryptionKey(row.dataEncryptionKey);
+      if (decrypted) {
+        sessionKeys.set(sessionId, decrypted);
+        params.sessionDataKeys.set(sessionId, decrypted);
+        params.sessionDataKeyEnvelopes?.set(sessionId, row.dataEncryptionKey);
+      } else {
+        sessionKeys.set(sessionId, null);
+        params.sessionDataKeys.delete(sessionId);
+        params.sessionDataKeyEnvelopes?.delete(sessionId);
+      }
+    } else {
+      sessionKeys.set(sessionId, null);
+      params.sessionDataKeys.delete(sessionId);
+      params.sessionDataKeyEnvelopes?.delete(sessionId);
+    }
+
+    await params.encryption.initializeSessions(sessionKeys);
+  }
+
+  const sessionEncryption = encryptionMode === 'plain' ? null : params.encryption.getSessionEncryption(sessionId);
+  if (encryptionMode === 'e2ee' && !sessionEncryption) {
+    params.log.log(`[sessionById] Session encryption not found for ${sessionId}`);
+    return { ok: false, errorCode: 'session_encryption_not_found' };
+  }
+
+  const [metadata, agentState] = encryptionMode === 'plain'
+    ? [
+      parsePlainSessionMetadata(row.metadata),
+      parsePlainSessionAgentState(row.agentState),
+    ] as const
+    : await Promise.all([
+      sessionEncryption!.decryptMetadata(row.metadataVersion, row.metadata),
+      sessionEncryption!.decryptAgentState(row.agentStateVersion, row.agentState),
+    ]);
+
+  return { ok: true, encryptionMode, metadata, agentState };
+}
+
+/**
+ * The store's session shape for a decoded row. `thinking` starts false because the row carries no
+ * live turn; realtime events own it from here.
+ */
+export function buildSessionFromDecodedRow(params: Readonly<{
+  row: SessionByIdRow;
+  serverId?: string | null;
+  decoded: Readonly<{ encryptionMode: 'e2ee' | 'plain'; metadata: Metadata | null; agentState: unknown }>;
+  sessionTurns: SessionTurnsProjectionV1 | null;
+}>) {
+  const { row, decoded, sessionTurns } = params;
+  const accessLevel = row.share?.accessLevel;
+  const normalizedAccessLevel = accessLevel === 'view' || accessLevel === 'edit' || accessLevel === 'admin' ? accessLevel : undefined;
+  const rollbackEligibleTurnStarts = listRollbackEligibleTurnStarts(sessionTurns);
+  const runtimeActivityProjection = resolveSessionRuntimeActivityProjectionFields({}, row);
+  return {
+    ...row,
+    ...runtimeActivityProjection,
+    serverId: typeof params.serverId === 'string' && params.serverId.trim().length > 0 ? params.serverId.trim() : undefined,
+    encryptionMode: decoded.encryptionMode,
+    thinking: false,
+    thinkingAt: 0,
+    metadata: decoded.metadata,
+    agentState: decoded.agentState as Session['agentState'],
+    accessLevel: normalizedAccessLevel,
+    canApprovePermissions: row.share?.canApprovePermissions ?? undefined,
+    ...(sessionTurns
+      ? {
+        sessionTurns,
+        rollbackEligibleTurnStarts,
+      }
+      : {}),
+  };
+}
+
 export async function fetchAndApplySessionById(params: Readonly<{
   sessionId: string;
   serverId?: string | null;
@@ -191,7 +300,7 @@ export async function fetchAndApplySessionById(params: Readonly<{
   clientEncryptionRequirement: ClientEncryptionRequirement;
 }>): Promise<{
   ok: boolean;
-  session: (V2SessionByIdResponse['session'] & { metadata: Metadata | null }) | null;
+  session: (Omit<V2SessionByIdResponse['session'], 'metadata'> & { metadata: Metadata | null }) | null;
   errorCode?: string;
   httpStatus?: number;
 }> {
@@ -277,57 +386,19 @@ export async function fetchAndApplySessionById(params: Readonly<{
     return { ok: false, session: null, errorCode: 'invalid_response' };
   }
 
-  const encryptionMode: 'e2ee' | 'plain' = row.encryptionMode === 'plain' ? 'plain' : 'e2ee';
-  if (!isSessionEncryptionModeAllowedByClientRequirement(params.clientEncryptionRequirement, encryptionMode)) {
-    return { ok: false, session: null, errorCode: 'client_e2ee_required' };
+  const decoded = await decodeSessionByIdRow({
+    row,
+    encryption: params.encryption,
+    sessionDataKeys: params.sessionDataKeys,
+    sessionDataKeyEnvelopes: params.sessionDataKeyEnvelopes,
+    clientEncryptionRequirement: params.clientEncryptionRequirement,
+    log: params.log,
+  });
+  if (!decoded.ok) {
+    return { ok: false, session: null, errorCode: decoded.errorCode };
   }
+  const { encryptionMode, metadata, agentState } = decoded;
 
-  if (encryptionMode === 'plain') {
-    params.sessionDataKeys.delete(sessionId);
-    params.sessionDataKeyEnvelopes?.delete(sessionId);
-  } else {
-    const sessionKeys = new Map<string, Uint8Array | null>();
-    if (typeof row.dataEncryptionKey === 'string' && row.dataEncryptionKey.length > 0) {
-      const cachedKey = params.sessionDataKeys.get(sessionId);
-      const decrypted = cachedKey && params.sessionDataKeyEnvelopes?.get(sessionId) === row.dataEncryptionKey
-        ? cachedKey
-        : await params.encryption.decryptEncryptionKey(row.dataEncryptionKey);
-      if (decrypted) {
-        sessionKeys.set(sessionId, decrypted);
-        params.sessionDataKeys.set(sessionId, decrypted);
-        params.sessionDataKeyEnvelopes?.set(sessionId, row.dataEncryptionKey);
-      } else {
-        sessionKeys.set(sessionId, null);
-        params.sessionDataKeys.delete(sessionId);
-        params.sessionDataKeyEnvelopes?.delete(sessionId);
-      }
-    } else {
-      sessionKeys.set(sessionId, null);
-      params.sessionDataKeys.delete(sessionId);
-      params.sessionDataKeyEnvelopes?.delete(sessionId);
-    }
-
-    await params.encryption.initializeSessions(sessionKeys);
-  }
-
-  const sessionEncryption = encryptionMode === 'plain' ? null : params.encryption.getSessionEncryption(sessionId);
-  if (encryptionMode === 'e2ee' && !sessionEncryption) {
-    params.log.log(`[sessionById] Session encryption not found for ${sessionId}`);
-    return { ok: false, session: null, errorCode: 'session_encryption_not_found' };
-  }
-
-  const [metadata, agentState] = encryptionMode === 'plain'
-    ? [
-      parsePlainSessionMetadata(row.metadata),
-      parsePlainSessionAgentState(row.agentState),
-    ] as const
-    : await Promise.all([
-      sessionEncryption!.decryptMetadata(row.metadataVersion, row.metadata),
-      sessionEncryption!.decryptAgentState(row.agentStateVersion, row.agentState),
-    ]);
-
-  const accessLevel = row.share?.accessLevel;
-  const normalizedAccessLevel = accessLevel === 'view' || accessLevel === 'edit' || accessLevel === 'admin' ? accessLevel : undefined;
   const sessionTurns = params.includeTurnsProjection === false
     ? null
     : await fetchSessionTurnsProjection({
@@ -337,26 +408,13 @@ export async function fetchAndApplySessionById(params: Readonly<{
       log: params.log,
     });
   const rollbackEligibleTurnStarts = listRollbackEligibleTurnStarts(sessionTurns);
-
-  const runtimeActivityProjection = resolveSessionRuntimeActivityProjectionFields({}, row);
-  const nextSession = {
-    ...row,
-    ...runtimeActivityProjection,
-    serverId: typeof params.serverId === 'string' && params.serverId.trim().length > 0 ? params.serverId.trim() : undefined,
-    encryptionMode,
-    thinking: false,
-    thinkingAt: 0,
-    metadata,
-    agentState,
-    accessLevel: normalizedAccessLevel,
-    canApprovePermissions: row.share?.canApprovePermissions ?? undefined,
-    ...(sessionTurns
-      ? {
-        sessionTurns,
-        rollbackEligibleTurnStarts,
-      }
-      : {}),
-  };
+  const nextSession = buildSessionFromDecodedRow({
+    row,
+    serverId: params.serverId,
+    decoded: { encryptionMode, metadata, agentState },
+    sessionTurns,
+  });
+  rememberSessionRecordRow(row);
 
   const previousSession = params.getExistingSession?.(sessionId);
   params.applySessions([nextSession]);

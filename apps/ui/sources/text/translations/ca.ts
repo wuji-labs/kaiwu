@@ -697,6 +697,7 @@ export const ca: TranslationStructure = {
         actionOperations: {
             sections: { inProgress: 'En curs', needsAttention: 'Requereix atenció', recent: 'Recents' },
             clearRecent: 'Neteja els recents',
+            titles: { createSession: 'Crea una sessió', forkSession: 'Bifurca la sessió', handoffSession: 'Traspassa la sessió' },
             status: { accepted: 'Acceptada', running: 'En curs', succeeded: 'Completada', failed: 'Ha fallat', cancelled: 'Cancel·lada', reconnecting: 'S’està reconnectant', unavailable: 'Estat no disponible', setupNeedsAttention: 'Sessió creada; la configuració requereix atenció' },
             empty: 'Les accions de llarga durada apareixeran aquí.',
             openHint: 'Obre els detalls de l’acció',

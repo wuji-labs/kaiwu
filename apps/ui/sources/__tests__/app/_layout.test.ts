@@ -246,6 +246,11 @@ vi.mock('@/utils/platform/platform', () => {
     return { isRunningOnMac: () => false };
 });
 
+// Every test re-imports `@/app/(app)/_layout` after `vi.resetModules()`, which re-evaluates the whole
+// RootLayout module graph. That costs ~2s per test (~13s for the cold first import) on an idle machine,
+// and 30-60s+ when eight vitest processes share the CPU, so a fixed 30s/60s budget times out under load.
+const ROOT_LAYOUT_TEST_TIMEOUT_MS = 180_000;
+
 afterEach(() => {
     vi.unstubAllGlobals();
     vi.resetModules();
@@ -287,7 +292,7 @@ describe('RootLayout hooks order', () => {
                 });
             }
         }
-    }, 60_000);
+    }, ROOT_LAYOUT_TEST_TIMEOUT_MS);
 
     it('renders a redirect instead of a blank tree for unauthenticated protected routes', async () => {
         stubFeatureFetch();
@@ -312,7 +317,7 @@ describe('RootLayout hooks order', () => {
                 });
             }
         }
-    }, 60_000);
+    }, ROOT_LAYOUT_TEST_TIMEOUT_MS);
 });
 
 describe('RootLayout notification routing', () => {
@@ -321,7 +326,7 @@ describe('RootLayout notification routing', () => {
         notificationNativeState.unavailable = true;
 
         await expect(import('@/app/(app)/_layout')).resolves.toHaveProperty('default');
-    });
+    }, ROOT_LAYOUT_TEST_TIMEOUT_MS);
 
     it('ignores absolute URLs from notification payloads', async () => {
         stubFeatureFetch();
@@ -350,7 +355,7 @@ describe('RootLayout notification routing', () => {
                 });
             }
         }
-    }, 30_000);
+    }, ROOT_LAYOUT_TEST_TIMEOUT_MS);
 });
 
 describe('RootLayout unauth navigation chrome', () => {
@@ -396,7 +401,7 @@ describe('RootLayout unauth navigation chrome', () => {
                 });
             }
         }
-    }, 30_000);
+    }, ROOT_LAYOUT_TEST_TIMEOUT_MS);
 });
 
 describe('RootLayout main tabs', () => {
@@ -425,7 +430,7 @@ describe('RootLayout main tabs', () => {
                 });
             }
         }
-    }, 30_000);
+    }, ROOT_LAYOUT_TEST_TIMEOUT_MS);
 });
 
 describe('RootLayout session cockpit surface routes', () => {
@@ -460,7 +465,7 @@ describe('RootLayout session cockpit surface routes', () => {
                 });
             }
         }
-    }, 30_000);
+    }, ROOT_LAYOUT_TEST_TIMEOUT_MS);
 });
 
 describe('RootLayout native freeze policy', () => {
@@ -543,7 +548,7 @@ describe('RootLayout native freeze policy', () => {
                 });
             }
         }
-    }, 60_000);
+    }, ROOT_LAYOUT_TEST_TIMEOUT_MS);
 
     it('does not rely on native freeze for the web root index route', async () => {
         stubFeatureFetch();
@@ -569,5 +574,5 @@ describe('RootLayout native freeze policy', () => {
                 });
             }
         }
-    }, 30_000);
+    }, ROOT_LAYOUT_TEST_TIMEOUT_MS);
 });

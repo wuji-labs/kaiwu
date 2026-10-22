@@ -5,6 +5,7 @@ import {
     buildActionOperationLedgerSections,
     resolveActionOperationDetailContent,
     resolveActionOperationPresentation,
+    resolveActionOperationTitle,
 } from './actionOperationPresentation';
 
 const NOW = 1_700_000_120_000;
@@ -55,6 +56,30 @@ describe('action operation presentation', () => {
             ...sections.needsAttention,
             ...sections.recent,
         ].map((entry) => entry.operationId)).toEqual(['running', 'failed', 'succeeded', 'cancelled']);
+    });
+
+    it('leaves a created session to the session list instead of stacking it in Recent', () => {
+        const created = operation('created', 'succeeded', { result: { sessionId: 'session-new' } });
+        const failedCreate = operation('failed-create', 'failed');
+        const forked = operation('forked', 'succeeded', { actionId: 'session.fork', result: { childSessionId: 'session-child' } });
+
+        const sections = buildActionOperationLedgerSections([created, failedCreate, forked]);
+
+        expect(sections.recent.map((entry) => entry.operationId)).toEqual(['forked']);
+        expect(sections.needsAttention.map((entry) => entry.operationId)).toEqual(['failed-create']);
+    });
+
+    it('names the session an operation produced instead of repeating the action title', () => {
+        const forked = operation('forked', 'succeeded', { actionId: 'session.fork', title: 'Fork session', result: { childSessionId: 'session-child' } });
+        const pending = operation('pending', 'running', { title: 'Create session' });
+        const custom = operation('custom', 'succeeded', { actionId: 'review.start', title: 'Start review' });
+        const names: Record<string, string> = { 'session-child': 'Refactor auth' };
+
+        const titleOf = (entry: ActionOperationSnapshotV1) => resolveActionOperationTitle(entry, (id) => names[id] ?? null);
+
+        expect(titleOf(forked)).toBe('Fork session · Refactor auth');
+        expect(titleOf(pending)).not.toContain(' · ');
+        expect(titleOf(custom)).toBe('Start review');
     });
 
     it('keeps terminal truth while projecting reconnecting only onto active work', () => {

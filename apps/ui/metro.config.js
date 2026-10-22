@@ -51,8 +51,11 @@ function isGeneratedWorkletImport(moduleName) {
 }
 
 function referencesGeneratedWorkletPath(moduleName) {
-  return typeof moduleName === "string"
-    && generatedWorkletModulePrefixes.some((prefix) => moduleName.includes(prefix));
+  if (typeof moduleName !== "string") return false;
+  // Metro hands the serializer OS-native absolute paths, so match the POSIX prefixes against a
+  // forward-slash form (Windows paths use backslashes).
+  const posixModuleName = moduleName.replace(/\\/g, "/");
+  return generatedWorkletModulePrefixes.some((prefix) => posixModuleName.includes(prefix));
 }
 
 function resolveGeneratedWorkletModule(moduleName) {

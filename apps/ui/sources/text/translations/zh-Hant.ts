@@ -837,6 +837,7 @@ const zhHantOverrides: DeepPartial<TranslationStructure> = {
         actionOperations: {
             sections: { inProgress: '進行中', needsAttention: '需要處理', recent: '最近' },
             clearRecent: '清除最近記錄',
+            titles: { createSession: '新建會話', forkSession: '分叉會話', handoffSession: '接力會話' },
             status: { accepted: '已接受', running: '執行中', succeeded: '已成功', failed: '失敗', cancelled: '已取消', reconnecting: '正在重新連線', unavailable: '狀態無法使用', setupNeedsAttention: '工作階段已建立；設定需要處理' },
             empty: '長時間執行的操作會顯示在這裡。',
             openHint: '開啟操作詳細資訊',

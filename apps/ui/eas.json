@@ -278,8 +278,8 @@
     "publicdev": {
       "ios": {
         "appleId": "leeroy.brun@gmail.com",
-        "ascAppId": "TODO_ASC_APP_ID", // 从 Apple App Store Connect 获取
-        "appleTeamId": "TODO_APPLE_TEAM_ID", // 从我方 Apple 开发者账号获取
+        "ascAppId": "TODO_ASC_APP_ID",
+        "appleTeamId": "TODO_APPLE_TEAM_ID",
         "ascApiKeyId": "58Q493BG53",
         "ascApiKeyIssuerId": "69a6de85-8d20-47e3-e053-5b8c7c11a4d1",
         "ascApiKeyPath": "./.eas/keys/AuthKey_58Q493BG53.p8"
@@ -292,8 +292,8 @@
     "preview": {
       "ios": {
         "appleId": "leeroy.brun@gmail.com",
-        "ascAppId": "TODO_ASC_APP_ID", // 从 Apple App Store Connect 获取
-        "appleTeamId": "TODO_APPLE_TEAM_ID", // 从我方 Apple 开发者账号获取
+        "ascAppId": "TODO_ASC_APP_ID",
+        "appleTeamId": "TODO_APPLE_TEAM_ID",
         "ascApiKeyId": "58Q493BG53",
         "ascApiKeyIssuerId": "69a6de85-8d20-47e3-e053-5b8c7c11a4d1",
         "ascApiKeyPath": "./.eas/keys/AuthKey_58Q493BG53.p8"
@@ -305,8 +305,8 @@
     "production": {
       "ios": {
         "appleId": "leeroy.brun@gmail.com",
-        "ascAppId": "TODO_ASC_APP_ID", // 从 Apple App Store Connect 获取
-        "appleTeamId": "TODO_APPLE_TEAM_ID", // 从我方 Apple 开发者账号获取
+        "ascAppId": "TODO_ASC_APP_ID",
+        "appleTeamId": "TODO_APPLE_TEAM_ID",
         "ascApiKeyId": "58Q493BG53",
         "ascApiKeyIssuerId": "69a6de85-8d20-47e3-e053-5b8c7c11a4d1",
         "ascApiKeyPath": "./.eas/keys/AuthKey_58Q493BG53.p8"

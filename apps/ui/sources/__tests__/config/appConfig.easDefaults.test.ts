@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const DEFAULT_EAS_PROJECT_ID = '2a550bd7-e4d2-4f59-ab47-dcb778775cee';
+const DEFAULT_EAS_PROJECT_ID = 'fe8b4c48-acd5-40c8-8682-06e285dc28b5';
 const DEFAULT_UPDATES_URL = 'https://kaiwu.wujilabs.cn/ota/api/manifest';
 
 function getUiDir(): string {
@@ -144,7 +144,7 @@ describe('app.config.js', () => {
         expect(exp.updates?.url).toBe(DEFAULT_UPDATES_URL);
         expect(exp.extra?.app?.variant).toBe('production');
         expect(exp.extra?.app?.identityVariant).toBe('production');
-        expect(exp.owner).toBe('wuji-labs');
+        expect(exp.owner).toBe('wujilabs');
         expect(exp.slug).toBe('kaiwu');
         expect(exp.ios?.bundleIdentifier).toBe('com.wujilabs.kaiwu');
         expect(exp.android?.package).toBe('com.wujilabs.kaiwu');
@@ -279,8 +279,12 @@ describe('app.config.js', () => {
 
     it('sets iOS buildNumber and Android versionCode based on app version by default', () => {
         const exp = withCleanEnv(() => getPublicConfig());
-        expect(exp.ios?.buildNumber).toBe('224');
-        expect(exp.android?.versionCode).toBe(224);
+        // Derive from the package version so release bumps do not break this test; the
+        // semver -> build number mapping itself is pinned with literals in the next test.
+        const [major, minor, patch] = String(readUiPackageJson().version).split('.').map(Number);
+        const expectedBuildNumber = major * 10000 + minor * 100 + patch;
+        expect(exp.ios?.buildNumber).toBe(String(expectedBuildNumber));
+        expect(exp.android?.versionCode).toBe(expectedBuildNumber);
     });
 
     it('calculates buildNumber and versionCode correctly for other versions (e.g. 0.3.0 and 1.0.0)', () => {

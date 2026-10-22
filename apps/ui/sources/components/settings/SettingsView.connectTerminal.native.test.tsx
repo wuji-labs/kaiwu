@@ -343,22 +343,22 @@ describe('SettingsView (native connect terminal)', () => {
             expect(findItemByTitle(screen.tree, 'settingsProviders.title')).toBeTruthy();
             expect(Boolean(findItemByTitle(screen.tree, 'settings.sessions'))).toBe(false);
             expect(Boolean(findItemByTitle(screen.tree, 'settings.servers'))).toBe(false);
-            expect(Boolean(findItemByTitle(screen.tree, 'settings.github'))).toBe(false);
+            expect(Boolean(findItemByTitle(screen.tree, '官方网站'))).toBe(false);
 
             await flushDeferredSettingsDelay(20);
 
             expect(findItemByTitle(screen.tree, 'settings.sessions')).toBeTruthy();
             expect(Boolean(findItemByTitle(screen.tree, 'settings.servers'))).toBe(false);
-            expect(Boolean(findItemByTitle(screen.tree, 'settings.github'))).toBe(false);
+            expect(Boolean(findItemByTitle(screen.tree, '官方网站'))).toBe(false);
 
             await flushDeferredSettingsDelay(20);
 
             expect(findItemByTitle(screen.tree, 'settings.servers')).toBeTruthy();
-            expect(Boolean(findItemByTitle(screen.tree, 'settings.github'))).toBe(false);
+            expect(Boolean(findItemByTitle(screen.tree, '官方网站'))).toBe(false);
 
             await flushDeferredSettingsDelay(20);
 
-            expect(findItemByTitle(screen.tree, 'settings.github')).toBeTruthy();
+            expect(findItemByTitle(screen.tree, '官方网站')).toBeTruthy();
         } finally {
             vi.useRealTimers();
         }
