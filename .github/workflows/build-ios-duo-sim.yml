@@ -233,7 +233,9 @@ jobs:
           tail -60 screenshots/app-log.txt
 
           # Fail closed: the app process must still be alive and no crash report may exist.
-          if ! xcrun simctl spawn "$SIM_UDID" launchctl list | grep -q "$BUNDLE_ID"; then
+          # No `| grep -q` here: grep exits early, launchctl gets SIGPIPE and pipefail reports a false "not running".
+          xcrun simctl spawn "$SIM_UDID" launchctl list > screenshots/launchctl.txt 2>&1 || true
+          if ! grep -q "$BUNDLE_ID" screenshots/launchctl.txt; then
             echo "ERROR: $BUNDLE_ID is not running 20s after launch (pid $PID)" >&2
             exit 1
           fi
