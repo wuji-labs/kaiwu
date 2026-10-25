@@ -1,7 +1,8 @@
 import { spawnSync } from "node:child_process";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { renderPrismaCompatibleSqliteDatabaseUrl } from "@happier-dev/cli-common/firstPartyRuntime";
 
@@ -32,17 +33,19 @@ export type LightSqliteHarnessOptions = Readonly<{
     env?: EnvValues;
 }>;
 
-function runSqliteMigrations(params: { cwd: string; env: NodeJS.ProcessEnv }): void {
-    const packageManagerScript = process.env.npm_execpath;
-    const command = packageManagerScript ? process.execPath : "yarn";
-    const args = packageManagerScript
-        ? [packageManagerScript, "-s", "migrate:sqlite:deploy"]
-        : ["-s", "migrate:sqlite:deploy"];
+function resolveServerRoot(): string {
+    return resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
+}
+
+function runSqliteMigrations(params: { cwd?: string; env: NodeJS.ProcessEnv }): void {
+    const serverRoot = resolveServerRoot();
+    const scriptPath = join(serverRoot, "scripts", "migrate.sqlite.deploy.ts");
+    const tsxPath = resolve(serverRoot, "..", "..", "node_modules", "tsx", "dist", "cli.mjs");
     const res = spawnSync(
-        command,
-        args,
+        process.execPath,
+        [tsxPath, "--tsconfig", join(serverRoot, "tsconfig.json"), scriptPath],
         {
-            cwd: params.cwd,
+            cwd: serverRoot,
             env: { ...(params.env as Record<string, string>), RUST_LOG: "info" },
             encoding: "utf8",
             stdio: ["ignore", "pipe", "pipe"],
@@ -70,6 +73,8 @@ export async function createLightSqliteHarness(options: LightSqliteHarnessOption
         applyEnvValues({
             KAIWU_DB_PROVIDER: "sqlite",
             HAPPY_DB_PROVIDER: "sqlite",
+            KAIWU_SQLITE_MIGRATIONS_DIR: join(resolveServerRoot(), "prisma", "sqlite", "migrations"),
+            HAPPIER_SQLITE_MIGRATIONS_DIR: join(resolveServerRoot(), "prisma", "sqlite", "migrations"),
             DATABASE_URL: renderPrismaCompatibleSqliteDatabaseUrl({
                 dbPath,
                 platform: process.platform,

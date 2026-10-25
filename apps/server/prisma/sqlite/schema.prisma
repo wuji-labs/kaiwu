@@ -76,6 +76,7 @@ model Account {
     SessionShareAccessLogs SessionShareAccessLog[]    @relation("SessionShareAccessLogs")
     PublicSessionShares    PublicSessionShare[]       @relation("PublicSessionShares")
     PublicShareAccessLogs  PublicShareAccessLog[]     @relation("PublicShareAccessLogs")
+    PublicShareReports     PublicShareReport[]        @relation("AccountPublicShareReports")
     AccountChanges         AccountChange[]
     AccountSettingsSnapshots AccountSettingsSnapshot[]
     SessionPendingMessage  SessionPendingMessage[]
@@ -1323,4 +1324,19 @@ model PublicShareAccessLog {
     @@index([publicShareId])
     @@index([userId])
     @@index([accessedAt])
+}
+
+/// User-submitted report against a public session share
+model PublicShareReport {
+    id         String   @id @default(cuid())
+    shareToken String
+    accountId  String?
+    account    Account? @relation("AccountPublicShareReports", fields: [accountId], references: [id], onDelete: SetNull)
+    reason     String
+    details    String?
+    createdAt  DateTime @default(now())
+
+    @@index([shareToken])
+    @@index([accountId])
+    @@index([createdAt])
 }
