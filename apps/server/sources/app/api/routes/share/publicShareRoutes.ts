@@ -5,6 +5,7 @@ import { isSessionOwner } from "@/app/share/accessControl";
 import { PROFILE_SELECT, toShareUserProfile } from "@/app/share/types";
 import { registerPublicShareOwnerRoutes } from "./registerPublicShareOwnerRoutes";
 import { registerPublicShareReadRoutes } from "./registerPublicShareReadRoutes";
+import { registerPublicShareReportRoute } from "./registerPublicShareReportRoute";
 
 /**
  * Public session sharing API routes
@@ -14,6 +15,7 @@ import { registerPublicShareReadRoutes } from "./registerPublicShareReadRoutes";
 export function publicShareRoutes(app: Fastify): void {
     registerPublicShareOwnerRoutes(app);
     registerPublicShareReadRoutes(app);
+    registerPublicShareReportRoute(app);
 
     /**
      * Get access logs for public share
