@@ -334,6 +334,44 @@ export async function accessPublicShare(
 }
 
 /**
+ * Report a public share for inappropriate content or violation
+ */
+export async function reportPublicShare(
+    token: string,
+    report: { reason: string; details?: string },
+    credentials?: AuthCredentials
+): Promise<{ success: boolean; id: string }> {
+    return await backoff(async () => {
+        const path = `/v1/public-share/${token}/report`;
+        const headers: Record<string, string> = {
+            'Content-Type': 'application/json',
+        };
+        if (credentials?.token) {
+            headers['Authorization'] = `Bearer ${credentials.token}`;
+        }
+
+        const response = await serverFetch(path, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(report),
+        }, { includeAuth: false });
+
+        if (!response.ok) {
+            let message = 'Failed to report public share';
+            try {
+                const data = await response.json();
+                if (data?.error) message = data.error;
+            } catch {
+                // ignore
+            }
+            throw new Error(message);
+        }
+
+        return await response.json();
+    });
+}
+
+/**
  * Get access logs for public share
  */
 export async function getPublicShareAccessLogs(
