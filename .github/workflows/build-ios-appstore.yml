@@ -79,6 +79,15 @@ jobs:
           cd apps/ui
           corepack yarn -s ensure:workspace:built
 
+      # Without this patch an NSException in any async TurboModule method aborts the app (SIGABRT).
+      - name: Verify RCTTurboModule crash patch is applied
+        run: |
+          set -euo pipefail
+          cd apps/ui
+          RN_DIR=$(dirname "$(node -p "require.resolve('react-native/package.json')")")
+          grep -q kaiwuRecordSwallowedNativeException "$RN_DIR/ReactCommon/react/nativemodule/core/platform/ios/ReactCommon/RCTTurboModule.mm"
+          echo "patch present in $RN_DIR"
+
       - name: Release gate (critical tests + typecheck ratchet)
         run: |
           set -euo pipefail

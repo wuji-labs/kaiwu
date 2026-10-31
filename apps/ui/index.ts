@@ -48,6 +48,21 @@ const hasBackgroundTaskNativeModules = (): boolean => {
     return requireOptionalNativeModule('ExpoBackgroundTask') != null
         && requireOptionalNativeModule('ExpoTaskManager') != null;
 };
+// iOS: move exceptions swallowed by the patched RCTTurboModule (see drainNativeExceptionLog) into
+// reliability telemetry. Deferred so it never changes the module evaluation order of a launch.
+if (typeof document === 'undefined') {
+    setTimeout(() => {
+        try {
+            const { Platform, Settings } = require('react-native') as typeof import('react-native');
+            if (Platform.OS !== 'ios') return;
+            const mod = require('./sources/sync/runtime/drainNativeExceptionLog') as typeof import('./sources/sync/runtime/drainNativeExceptionLog');
+            mod.drainNativeExceptionLog(Settings);
+        } catch {
+            // telemetry only
+        }
+    }, 5_000);
+}
+
 if (typeof document === 'undefined' && hasBackgroundTaskNativeModules()) {
     // React Native defines `window` but never `document`: this is a native build.
     const mod = require('./sources/sync/background/installBackgroundSessionRefresh');

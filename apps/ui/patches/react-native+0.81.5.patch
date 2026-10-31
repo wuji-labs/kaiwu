@@ -138,3 +138,84 @@ index 2f38990..4a91ec4 100644
    }
    spec.pod_target_xcconfig = {
      "CLANG_CXX_LANGUAGE_STANDARD" => rct_cxx_language_standard(),
+diff --git a/node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios/ReactCommon/RCTTurboModule.mm b/node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios/ReactCommon/RCTTurboModule.mm
+index 2a67797..ac300c9 100644
+--- a/node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios/ReactCommon/RCTTurboModule.mm
++++ b/node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios/ReactCommon/RCTTurboModule.mm
+@@ -205,6 +205,49 @@ static jsi::Value createJSRuntimeError(jsi::Runtime &runtime, const std::string
+   return runtime.global().getPropertyAsFunction(runtime, "Error").call(runtime, message);
+ }
+ 
++/**
++ * Kaiwu: persists an exception swallowed from an async void TurboModule method (newest last,
++ * capped at 20) to NSUserDefaults key "KaiwuNativeExceptionLog", readable from JS via Settings.
++ */
++static void kaiwuRecordSwallowedNativeException(
++    NSException *exception,
++    const char *moduleName,
++    const std::string &methodName)
++{
++  @try {
++    NSString *module = moduleName ? @(moduleName) : @"?";
++    NSString *method = @(methodName.c_str()) ?: @"?";
++    NSString *name = exception.name ?: @"?";
++    NSString *reason = exception.reason ?: @"";
++    if (reason.length > 500) {
++      reason = [reason substringToIndex:500];
++    }
++    NSArray<NSString *> *symbols = exception.callStackSymbols ?: @[];
++    NSString *stack = [[symbols subarrayWithRange:NSMakeRange(0, MIN((NSUInteger)12, symbols.count))]
++        componentsJoinedByString:@"\n"];
++    NSLog(@"[Kaiwu] swallowed exception in %@.%@: %@ %@", module, method, name, reason);
++    NSDictionary *entry = @{
++      @"atMs" : @((long long)([[NSDate date] timeIntervalSince1970] * 1000)),
++      @"module" : module,
++      @"method" : method,
++      @"name" : name,
++      @"reason" : reason,
++      @"stack" : stack ?: @"",
++    };
++    @synchronized([NSUserDefaults class]) {
++      NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
++      NSArray *existing = [defaults arrayForKey:@"KaiwuNativeExceptionLog"] ?: @[];
++      NSMutableArray *next = [existing mutableCopy];
++      [next addObject:entry];
++      while (next.count > 20) {
++        [next removeObjectAtIndex:0];
++      }
++      [defaults setObject:next forKey:@"KaiwuNativeExceptionLog"];
++    }
++  } @catch (__unused NSException *ignored) {
++  }
++}
++
+ /**
+  * Creates JSError with current JS runtime and NSException stack trace.
+  */
+@@ -371,7 +414,9 @@ id ObjCTurboModule::performMethodInvocation(
+         // See https://github.com/reactwg/react-native-new-architecture/discussions/276#discussioncomment-12567155
+         throw convertNSExceptionToJSError(runtime, exception, std::string{moduleName}, methodNameStr);
+       } else {
+-        @throw exception;
++        // Kaiwu: same as the void path — rethrowing on the method queue aborts the process.
++        kaiwuRecordSwallowedNativeException(exception, moduleName, methodNameStr);
++        return;
+       }
+     } @finally {
+       [retainedObjectsForInvocation removeAllObjects];
+@@ -435,7 +480,14 @@ void ObjCTurboModule::performVoidMethodInvocation(
+     @try {
+       [inv invokeWithTarget:strongModule];
+     } @catch (NSException *exception) {
+-      throw convertNSExceptionToJSError(runtime, exception, std::string{moduleName}, methodNameStr);
++      if (shouldVoidMethodsExecuteSync_) {
++        throw convertNSExceptionToJSError(runtime, exception, std::string{moduleName}, methodNameStr);
++      }
++      // Kaiwu: an async void method runs on the module's method queue, where nothing can catch a
++      // C++ JSError (and the JS runtime must not be touched off its thread). Upstream rethrows and
++      // the process aborts (SIGABRT), typically while the app is backgrounded. Record the failure
++      // and keep the process alive; JS drains KaiwuNativeExceptionLog on next boot.
++      kaiwuRecordSwallowedNativeException(exception, moduleName, methodNameStr);
+     } @finally {
+       [retainedObjectsForInvocation removeAllObjects];
+     }
