@@ -53,9 +53,16 @@ const hasBackgroundTaskNativeModules = (): boolean => {
 if (typeof document === 'undefined') {
     setTimeout(() => {
         try {
-            const { Platform, Settings } = require('react-native') as typeof import('react-native');
+            // Local shapes on purpose: a type-level import of 'react-native' here pulls its global
+            // timer typings into the whole program.
+            const { Platform, Settings } = require('react-native') as {
+                Platform: { OS: string };
+                Settings: { get: (key: string) => unknown; set: (values: Record<string, unknown>) => void };
+            };
             if (Platform.OS !== 'ios') return;
-            const mod = require('./sources/sync/runtime/drainNativeExceptionLog') as typeof import('./sources/sync/runtime/drainNativeExceptionLog');
+            const mod = require('./sources/sync/runtime/drainNativeExceptionLog') as {
+                drainNativeExceptionLog: (settings: { get: (key: string) => unknown; set: (values: Record<string, unknown>) => void }) => number;
+            };
             mod.drainNativeExceptionLog(Settings);
         } catch {
             // telemetry only
