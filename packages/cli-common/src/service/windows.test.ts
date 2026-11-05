@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import {
+  buildApplyWindowsScheduledTaskServicePolicyPowerShellCommand,
   buildRemoveWindowsScheduledTaskIfPresentPowerShellCommand,
   buildReadWindowsScheduledTaskStatusPowerShellCommand,
   buildStopWindowsScheduledTaskIfRunningPowerShellCommand,
@@ -49,6 +50,41 @@ describe('Windows scheduled task PowerShell status helper', () => {
     expect(command).toContain('LastRunTime');
     expect(command).toContain('Actions');
     expect(command).toContain('ConvertTo-Json -Compress');
+  });
+});
+
+describe('Windows scheduled task principal policy', () => {
+  // S4U logons carry no password, so Windows refuses them the user's DPAPI master
+  // key (CryptProtectData -> ERROR_ACCESS_DENIED, DPAPI event 8198/8203 "Could not
+  // get the master key"). Everything bound to the user profile then breaks inside
+  // the daemon: the credential vault, sealed operator tokens, any ProtectedData
+  // use. A daemon task must therefore keep an interactive token, which is also
+  // what a plain `schtasks /Create` produces before this policy pass touches it.
+  it('moves the daemon principal to InteractiveToken instead of S4U', () => {
+    const command = buildApplyWindowsScheduledTaskServicePolicyPowerShellCommand({
+      qualifiedTaskName: 'Happier\\happier-daemon.default',
+      restartPolicy: 'always',
+    });
+
+    expect(command).toContain(
+      'New-ScheduledTaskPrincipal -UserId $p.UserId -LogonType InteractiveToken -RunLevel Limited',
+    );
+    expect(command).not.toMatch(/-LogonType\s+S4U/);
+    expect(command).not.toContain('"S4U"');
+  });
+
+  it('leaves password principals and service accounts alone', () => {
+    const command = buildApplyWindowsScheduledTaskServicePolicyPowerShellCommand({
+      qualifiedTaskName: 'Happier\\happier-daemon.default',
+      restartPolicy: 'always',
+    });
+
+    // Password logons already work with DPAPI (the logon holds the password).
+    expect(command).toContain(
+      '[string]$p.LogonType -notin @("InteractiveToken", "Interactive", "3", "Password", "1")',
+    );
+    // SYSTEM / LocalService / NetworkService principals must never be rewritten.
+    expect(command).toContain('[string]$p.UserId -notmatch "(?i)^(SYSTEM|LOCAL SERVICE|NETWORK SERVICE)$"');
   });
 });
 

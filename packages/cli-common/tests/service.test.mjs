@@ -462,7 +462,7 @@ test('applyServicePlan does not execute shell metacharacters while probing for c
   }
 });
 
-test('buildApplyWindowsScheduledTaskServicePolicyPowerShellCommand includes boot trigger and S4U augmentation', () => {
+test('buildApplyWindowsScheduledTaskServicePolicyPowerShellCommand includes boot trigger and InteractiveToken augmentation', () => {
   const cmd = buildApplyWindowsScheduledTaskServicePolicyPowerShellCommand({
     qualifiedTaskName: 'Happier\\happier-daemon.default',
     restartPolicy: 'always',
@@ -471,7 +471,10 @@ test('buildApplyWindowsScheduledTaskServicePolicyPowerShellCommand includes boot
   assert.match(cmd, /Set-ScheduledTask -TaskPath/);
   assert.match(cmd, /New-ScheduledTaskTrigger -AtStartup/);
   assert.match(cmd, /Delay = "PT1M"/);
-  assert.match(cmd, /New-ScheduledTaskPrincipal -UserId \$p\.UserId -LogonType S4U/);
+  // S4U logons hold no password and therefore cannot use the user's DPAPI master
+  // key; user-mode daemons must stay on an interactive token.
+  assert.match(cmd, /New-ScheduledTaskPrincipal -UserId \$p\.UserId -LogonType InteractiveToken/);
+  assert.doesNotMatch(cmd, /LogonType S4U/);
 });
 
 test('buildApplyWindowsScheduledTaskServicePolicyPowerShellCommand can disable boot trigger augmentation', () => {

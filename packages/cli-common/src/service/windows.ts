@@ -302,9 +302,9 @@ export function buildApplyWindowsScheduledTaskServicePolicyPowerShellCommand(par
       '} catch {}',
       'try {',
       '  $p = (Get-ScheduledTask -TaskPath $taskPath -TaskName $taskName -ErrorAction Stop).Principal',
-      '  if ($null -ne $p -and [string]$p.LogonType -notin @("S4U", "2", "Password") -and [string]$p.UserId -notmatch "(?i)^(SYSTEM|LOCAL SERVICE|NETWORK SERVICE)$") {',
-      '    $s4u = New-ScheduledTaskPrincipal -UserId $p.UserId -LogonType S4U -RunLevel Limited',
-      '    Set-ScheduledTask -TaskPath $taskPath -TaskName $taskName -Principal $s4u -ErrorAction Stop | Out-Null',
+      '  if ($null -ne $p -and [string]$p.LogonType -notin @("InteractiveToken", "Interactive", "3", "Password", "1") -and [string]$p.UserId -notmatch "(?i)^(SYSTEM|LOCAL SERVICE|NETWORK SERVICE)$") {',
+      '    $principal = New-ScheduledTaskPrincipal -UserId $p.UserId -LogonType InteractiveToken -RunLevel Limited',
+      '    Set-ScheduledTask -TaskPath $taskPath -TaskName $taskName -Principal $principal -ErrorAction Stop | Out-Null',
       '  }',
       '} catch {}',
     ]
