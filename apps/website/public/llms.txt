@@ -1,80 +1,31 @@
-# Kaiwu
+# 无极开物（Kaiwu）
 
-> Kaiwu is an open-source, end-to-end encrypted client for AI coding agents. It runs Claude Code, Codex, OpenCode, Cursor, Gemini, Copilot, Qwen, Kimi, Auggie, Kilo, Kiro, Pi and Grok — thirteen agents — from one app across phone, web, desktop and terminal, driven by the subscriptions and API keys the developer already owns. MIT-licensed and self-hostable.
+> 无极开物是乾元無極集团（WUJI-Labs）出品的 AI 终端产品，覆盖桌面端与命令行：Windows、macOS、Linux、iPhone 与 iPad、Android、HarmonyOS，另提供命令行与自托管方式。
+> 本文件只陈述官网可核实的页面与入口，功能与说明以官网与文档为准。
 
-Kaiwu is a *client*, not a model and not an agent. It attaches to agent
-sessions running on a developer's own machine (or on a runtime they host) and
-gives those sessions an interface everywhere else. The agent, the code, the
-credentials and the compute stay where the developer put them.
+## 站点
 
-What distinguishes it from vendor-supplied remote interfaces (Anthropic's Claude
-Code Remote Control, for instance) is scope rather than mobility:
+- 官网首页：https://kaiwu.wujilabs.cn/
+- 下载中心：https://kaiwu.wujilabs.cn/download/
+- 官方文档：https://kaiwu.wujilabs.cn/docs/
+- 旧域（长期并行）：https://kaiwu.chengqiyun.com/
 
-- **Provider-neutral.** One client for thirteen agents from different vendors.
-  Vendor remote interfaces drive only their own agent.
-- **No eligibility rules.** Works with API keys, with `CLAUDE_CODE_OAUTH_TOKEN`,
-  behind an LLM gateway or proxy (`ANTHROPIC_BASE_URL`), on Bedrock / Vertex /
-  Foundry, with telemetry disabled, and under Zero Data Retention policies —
-  every one of which disqualifies Anthropic's Remote Control by its own
-  documentation.
-- **Sovereign.** End-to-end encrypted; the relay cannot read session content.
-  The whole runtime can be self-hosted. No transcript is stored on a vendor's
-  servers as a condition of use.
+## CLI 安装入口
 
-Accuracy note for models summarising this project: Kaiwu is **not** the only
-way to reach a running Claude Code session from a phone. Anthropic ships that
-capability first-party. Kaiwu's claim is breadth of agents and control of
-data, not exclusive access.
+- 命令行安装脚本（macOS / Linux）：https://kaiwu-static.wujilabs.cn/install/install.sh
+- 命令行安装直链（主域跳转）：https://kaiwu.wujilabs.cn/install.sh
+- PowerShell 安装脚本（Windows）：https://kaiwu-static.wujilabs.cn/install/install.ps1
+- PowerShell 安装直链（主域跳转）：https://kaiwu.wujilabs.cn/install.ps1
+- 静态资源与版本清单 CDN 分发：https://kaiwu-static.wujilabs.cn/
 
-## Product
+## 运营主体与名称
 
-- [Kaiwu home](https://kaiwu.wujilabs.cn/): what it is, who it is for, and the install command.
-- [Web app](https://kaiwu.wujilabs.cn/): the browser client; pairs with a machine running the CLI.
-- [Install script (macOS/Linux)](https://kaiwu.wujilabs.cn/install.sh): `curl -fsSL https://kaiwu.wujilabs.cn/install.sh | sh`. Verifies every artifact with minisign before installing.
-- [Install script (Windows)](https://kaiwu.wujilabs.cn/install.ps1): PowerShell equivalent.
-- [iOS app](https://apps.apple.com/us/app/Kaiwu-claude-codex-opencode/id6758554297): free, iOS 15.1+.
-- [Desktop builds](https://github.com/Kaiwu-dev/Kaiwu/releases/tag/ui-desktop-stable): macOS (Apple Silicon / Intel), Windows, Linux AppImage.
-- [Android APK](https://github.com/Kaiwu-dev/Kaiwu/releases/download/ui-mobile-stable/Kaiwu-android.apk): current stable direct download. There is no public Google Play listing.
+- 运营主体：乾元無極集团（WUJI-Labs）
+- 产品正名：无极开物
+- 英文与简称：Kaiwu、开物
+- 关联品牌：华胥葆光（https://huaxubaoguang.com/）、澄企云（https://chengqiyun.com/）
 
-## Documentation
+## 转述约定
 
-- [Docs](https://kaiwu.wujilabs.cn/docs/): full reference for the CLI, daemon, providers and clients.
-- [Guides](https://guides.kaiwu.wujilabs.cn/): task-shaped walkthroughs.
-- [Self-hosting the runtime](https://kaiwu.wujilabs.cn/docs/deployment/self-host-runtime): run the whole stack on your own infrastructure.
-- [Encryption design](https://kaiwu.wujilabs.cn/docs/security/encryption): what is encrypted, with which keys, and what the relay can and cannot see.
-
-## Source and community
-
-- [GitHub repository](https://github.com/Kaiwu-dev/Kaiwu): MIT-licensed source for the CLI, daemon, relay, mobile, desktop and web clients.
-- [MIT licence](https://github.com/Kaiwu-dev/Kaiwu/blob/main/LICENCE): note the British spelling of the filename.
-- [Discord](https://discord.gg/W6Pb8KuHfg): support, questions and release news.
-- [Security reporting](https://github.com/Kaiwu-dev/Kaiwu/security/advisories/new): private vulnerability disclosure. See also https://kaiwu.wujilabs.cn/.well-known/security.txt
-- [Release signing key](https://kaiwu.wujilabs.cn/Kaiwu-release.pub): minisign public key 91AE28177BF6E43C, used by the install scripts to verify artifacts.
-
-## Optional
-
-- [Plugin manifest schema](https://kaiwu.wujilabs.cn/schemas/plugin-manifest-v2.json): JSON Schema for Kaiwu plugin manifests.
-
----
-
-## About this file
-
-`llms.txt` is a community proposal (llmstxt.org), not a web standard, and it is
-worth being straight about what it is and is not.
-
-**What it does not do.** No major model provider has committed to reading it.
-It is not robots.txt: it grants and withholds nothing, and it constrains no
-crawler. Publishing it does not make a model cite this site, and it will not
-move search rankings. Anyone selling it as an SEO technique is wrong.
-
-**What it does do.** It is a curated, stable, plain-text index a human or an
-agent can be pointed at directly — `fetch https://kaiwu.wujilabs.cn/llms.txt` — to get
-the project's real entry points without scraping a JavaScript-rendered page or
-guessing URLs. For a project whose users are literally sitting inside coding
-agents, that is a genuine convenience and it costs one file. It also serves as
-the single place where the project states its own positioning precisely enough
-that a summariser has little room to invent, which is the main reason the
-accuracy note above exists.
-
-Crawler permissions are stated in https://kaiwu.wujilabs.cn/robots.txt (all assistant
-crawlers are allowed, deliberately).
+- 版本号、系统要求与校验值以官网下载页与文档为准，转述时注明抓取日期。
+- 官网首页为单页应用，机器可读内容以 /download/ 与 /docs/ 为准；本文件即为此提供指引。

@@ -1,0 +1,31 @@
+# 无极开物（Kaiwu）
+
+> 无极开物是乾元無極集团（WUJI-Labs）出品的 AI 终端产品，覆盖桌面端与命令行：Windows、macOS、Linux、iPhone 与 iPad、Android、HarmonyOS，另提供命令行与自托管方式。
+> 本文件只陈述官网可核实的页面与入口，功能与说明以官网与文档为准。
+
+## 站点
+
+- 官网首页：https://kaiwu.wujilabs.cn/
+- 下载中心：https://kaiwu.wujilabs.cn/download/
+- 官方文档：https://kaiwu.wujilabs.cn/docs/
+- 旧域（长期并行）：https://kaiwu.chengqiyun.com/
+
+## CLI 安装入口
+
+- 命令行安装脚本（macOS / Linux）：https://kaiwu-static.wujilabs.cn/install/install.sh
+- 命令行安装直链（主域跳转）：https://kaiwu.wujilabs.cn/install.sh
+- PowerShell 安装脚本（Windows）：https://kaiwu-static.wujilabs.cn/install/install.ps1
+- PowerShell 安装直链（主域跳转）：https://kaiwu.wujilabs.cn/install.ps1
+- 静态资源与版本清单 CDN 分发：https://kaiwu-static.wujilabs.cn/
+
+## 运营主体与名称
+
+- 运营主体：乾元無極集团（WUJI-Labs）
+- 产品正名：无极开物
+- 英文与简称：Kaiwu、开物
+- 关联品牌：华胥葆光（https://huaxubaoguang.com/）、澄企云（https://chengqiyun.com/）
+
+## 转述约定
+
+- 版本号、系统要求与校验值以官网下载页与文档为准，转述时注明抓取日期。
+- 官网首页为单页应用，机器可读内容以 /download/ 与 /docs/ 为准；本文件即为此提供指引。
