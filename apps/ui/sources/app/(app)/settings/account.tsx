@@ -30,6 +30,7 @@ import { isLegacyAuthCredentials } from '@/auth/storage/tokenStorage';
 import { useFeatureEnabled } from '@/hooks/server/useFeatureEnabled';
 import { fetchAccountEncryptionMode } from '@/sync/api/account/apiAccountEncryptionMode';
 import { migrateAccountEncryptionMode } from '@/sync/api/account/apiAccountEncryptionMigrate';
+import { deleteAccount } from '@/sync/api/account/apiAccountDelete';
 import { Text } from '@/components/ui/text/Text';
 import { useRouter } from 'expo-router';
 import { isRunningOnMac } from '@/utils/platform/platform';
@@ -174,6 +175,35 @@ export default React.memo(() => {
         if (confirmed) {
             await auth.logout();
             router.replace('/');
+        }
+    };
+
+    const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+
+    const handleDeleteAccount = async () => {
+        if (!auth.credentials) return;
+        const confirmed = await Modal.confirm(
+            t('settingsAccount.deleteAccountConfirmTitle'),
+            t('settingsAccount.deleteAccountConfirmMessage'),
+            {
+                confirmText: t('settingsAccount.deleteAccountConfirmButton'),
+                destructive: true,
+            }
+        );
+        if (!confirmed) return;
+
+        setIsDeletingAccount(true);
+        try {
+            await deleteAccount(auth.credentials);
+            await auth.logout();
+            router.replace('/');
+        } catch (error) {
+            Modal.alert(
+                t('common.error'),
+                error instanceof Error ? error.message : t('settingsAccount.deleteAccountFailed')
+            );
+        } finally {
+            setIsDeletingAccount(false);
         }
     };
 
@@ -645,6 +675,15 @@ export default React.memo(() => {
                         icon={<Icon name="sign-out" size={29} color={theme.colors.state.danger.foreground} />}
                         destructive
                         onPress={handleLogout}
+                    />
+                    <Item
+                        testID="settings-account-delete"
+                        title={t('settingsAccount.deleteAccount')}
+                        subtitle={t('settingsAccount.deleteAccountSubtitle')}
+                        icon={<Icon name="trash" size={29} color={theme.colors.state.danger.foreground} />}
+                        destructive
+                        disabled={isDeletingAccount}
+                        onPress={handleDeleteAccount}
                     />
                 </ItemGroup>
             </ItemList>

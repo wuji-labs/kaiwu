@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { t } from '@/text';
@@ -27,6 +27,10 @@ import { ActivitySpinner } from '@/components/ui/feedback/ActivitySpinner';
 import { useHeaderHeight } from '@/utils/platform/responsive';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from '@/components/ui/icons/Icon';
+import { Modal } from '@/modal';
+import { RoundButton } from '@/components/ui/buttons/RoundButton';
+import { useIsShareTokenBlocked, blockShareToken, unblockShareToken } from '@/sync/domains/social/blockedSharesStorage';
+import { openPublicShareReportDialog } from '@/components/sessions/sharing/openPublicShareReportDialog';
 
 const SHARE_SCREEN_OPTIONS = { headerShown: false } as const;
 
@@ -150,6 +154,7 @@ export default memo(function PublicShareViewerScreen() {
         typeof window === 'undefined' ? null : window.location.pathname,
     );
 
+    const isBlocked = useIsShareTokenBlocked(tokenParam ?? '');
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [consentInfo, setConsentInfo] = useState<PublicShareConsentResponse | null>(null);
@@ -170,6 +175,11 @@ export default memo(function PublicShareViewerScreen() {
             setConsentInfo(null);
             setDataset(null);
             setError(t('errors.invalidShareLink'));
+            setIsLoading(false);
+            return;
+        }
+
+        if (isBlocked) {
             setIsLoading(false);
             return;
         }
@@ -343,14 +353,76 @@ export default memo(function PublicShareViewerScreen() {
             setError(t('errors.operationFailed'));
             setIsLoading(false);
         }
-    }, [authHeader, tokenParam]);
+    }, [authHeader, isBlocked, tokenParam]);
 
     useEffect(() => {
+        if (isBlocked) return;
         void load(false);
         return () => {
             loadGenerationRef.current += 1;
         };
-    }, [load]);
+    }, [isBlocked, load]);
+
+    const handleOpenReport = useCallback(() => {
+        if (!tokenParam) return;
+        void openPublicShareReportDialog(tokenParam);
+    }, [tokenParam]);
+
+    const handleBlockShare = useCallback(async () => {
+        if (!tokenParam) return;
+        const confirmed = await Modal.confirm(
+            t('session.sharing.blockConfirmTitle'),
+            t('session.sharing.blockConfirmMessage'),
+            {
+                confirmText: t('session.sharing.blockConfirmButton'),
+                cancelText: t('common.cancel'),
+                destructive: true,
+            },
+        );
+        if (confirmed) {
+            blockShareToken(tokenParam);
+        }
+    }, [tokenParam]);
+
+    if (tokenParam && isBlocked) {
+        return (
+            <>
+                <Stack.Screen options={SHARE_SCREEN_OPTIONS} />
+                <View style={{ flex: 1, backgroundColor: theme.colors.surface.base }}>
+                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1000 }}>
+                        <ChatHeaderView
+                            title={t('session.sharing.shareBlockedTitle')}
+                            onBackPress={() => router.back()}
+                            isConnected={false}
+                            flavor={null}
+                        />
+                    </View>
+                    <View style={[styles.center, { backgroundColor: theme.colors.background.canvas, paddingTop: safeArea.top + headerHeight }]}>
+                        <Icon name="eye-slash" size={64} color={theme.colors.text.secondary} />
+                        <View style={{ height: 16 }} />
+                        <ItemList>
+                            <ItemGroup>
+                                <Item
+                                    title={t('session.sharing.shareBlockedTitle')}
+                                    subtitle={t('session.sharing.shareBlockedMessage')}
+                                    showChevron={false}
+                                />
+                            </ItemGroup>
+                        </ItemList>
+                        <View style={{ height: 16 }} />
+                        <View style={{ width: '100%', maxWidth: 280 }}>
+                            <RoundButton
+                                testID="public-share-unblock-button"
+                                title={t('session.sharing.unblock')}
+                                onPress={() => unblockShareToken(tokenParam)}
+                                size="normal"
+                            />
+                        </View>
+                    </View>
+                </View>
+            </>
+        );
+    }
 
     const hasCurrentPublishedDataset = dataset?.tokenParam === tokenParam;
     const publicDatasetKey = dataset && hasCurrentPublishedDataset
@@ -428,6 +500,30 @@ export default memo(function PublicShareViewerScreen() {
                         onBackPress={() => router.back()}
                         isConnected={false}
                         flavor={null}
+                        rightElement={
+                            <View style={styles.headerActions}>
+                                <Pressable
+                                    onPress={handleOpenReport}
+                                    testID="public-share-report-button"
+                                    accessibilityRole="button"
+                                    accessibilityLabel={t('session.sharing.report')}
+                                    style={styles.headerActionButton}
+                                    hitSlop={10}
+                                >
+                                    <Icon name="warning" size={20} color={theme.colors.chrome.header.foreground} />
+                                </Pressable>
+                                <Pressable
+                                    onPress={handleBlockShare}
+                                    testID="public-share-block-button"
+                                    accessibilityRole="button"
+                                    accessibilityLabel={t('session.sharing.block')}
+                                    style={styles.headerActionButton}
+                                    hitSlop={10}
+                                >
+                                    <Icon name="eye-slash" size={20} color={theme.colors.chrome.header.foreground} />
+                                </Pressable>
+                            </View>
+                        }
                     />
                 </View>
                 <View style={{ flex: 1, paddingTop: safeArea.top + headerHeight }}>
@@ -455,5 +551,17 @@ const styles = StyleSheet.create(() => ({
         alignItems: 'center',
         justifyContent: 'center',
         paddingHorizontal: 24,
+    },
+    headerActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    headerActionButton: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 }));

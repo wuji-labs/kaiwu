@@ -1,3 +1,4 @@
+import { spawnSync } from "node:child_process";
 import { mkdir } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -45,7 +46,21 @@ export async function runSqliteMigrationDeploy(
     if (params.runSchemaSync) {
         await params.runSchemaSync({ env, serverRoot });
     } else {
-        await runCommand("yarn", ["-s", "schema:sync", "--quiet"], env);
+        const schemaSyncScript = join(serverRoot, "scripts", "schemaSync.ts");
+        const tsxPath = resolve(serverRoot, "..", "..", "node_modules", "tsx", "dist", "cli.mjs");
+        const syncRes = spawnSync(
+            process.execPath,
+            [tsxPath, "--tsconfig", join(serverRoot, "tsconfig.json"), schemaSyncScript, "--quiet"],
+            {
+                cwd: serverRoot,
+                env: { ...env, RUST_LOG: "info" },
+                encoding: "utf8",
+                stdio: ["ignore", "pipe", "pipe"],
+            },
+        );
+        if (syncRes.status !== 0) {
+            await runCommand("yarn", ["-s", "schema:sync", "--quiet"], env);
+        }
     }
 
     ensureSqliteDatabaseUrl(env);
@@ -55,9 +70,11 @@ export async function runSqliteMigrationDeploy(
     if (!databasePath) {
         throw new Error("SQLite migration deploy requires DATABASE_URL=file:... to be set");
     }
-    env.HAPPIER_SQLITE_MIGRATIONS_DIR =
-        String(env.HAPPIER_SQLITE_MIGRATIONS_DIR ?? env.HAPPY_SQLITE_MIGRATIONS_DIR ?? "").trim()
+    const migrationsDir =
+        String(env.KAIWU_SQLITE_MIGRATIONS_DIR ?? env.HAPPIER_SQLITE_MIGRATIONS_DIR ?? env.HAPPY_SQLITE_MIGRATIONS_DIR ?? "").trim()
         || join(serverRoot, "prisma", "sqlite", "migrations");
+    env.KAIWU_SQLITE_MIGRATIONS_DIR = migrationsDir;
+    env.HAPPIER_SQLITE_MIGRATIONS_DIR = migrationsDir;
 
     return await applySqliteMigrations({
         databasePath,
