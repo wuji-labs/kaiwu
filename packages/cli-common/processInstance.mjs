@@ -187,10 +187,18 @@ export function readProcessInstanceFingerprintSync(pid, {
   platform = process.platform,
   spawnSyncImpl = spawnSync,
   readFileSyncImpl = readFileSync,
+  cacheTtlMs = 60000,
 } = {}) {
   const normalizedPid = normalizePid(pid);
   if (!normalizedPid) return null;
 
+  const now = Date.now();
+  const cached = fingerprintCache.get(normalizedPid);
+  if (cached && cached.expiresAt > now && cached.fingerprint) {
+    return cached.fingerprint;
+  }
+
+  let result = null;
   if (platform === 'linux') {
     try {
       const stat = String(readFileSyncImpl(`/proc/${normalizedPid}/stat`, 'utf8'));
@@ -200,14 +208,14 @@ export function readProcessInstanceFingerprintSync(pid, {
         : [];
       const startTimeTicks = fieldsAfterCommand[19];
       if (/^\d+$/.test(String(startTimeTicks ?? ''))) {
-        return `linux-proc:${startTimeTicks}`;
+        result = `linux-proc:${startTimeTicks}`;
       }
     } catch {
       // Fall through to the portable POSIX probe.
     }
   }
 
-  if (platform === 'win32') {
+  if (!result && platform === 'win32') {
     const script = [
       `$p = Get-CimInstance Win32_Process -Filter "ProcessId=${normalizedPid}" -ErrorAction Stop`,
       'if ($null -eq $p) { exit 3 }',
@@ -219,11 +227,23 @@ export function readProcessInstanceFingerprintSync(pid, {
       '-Command',
       script,
     ], { spawnSyncImpl });
-    return value ? `win32-cim:${value}` : null;
+    result = value ? `win32-cim:${value}` : null;
   }
 
-  const value = runProbe('ps', ['-o', 'lstart=', '-p', String(normalizedPid)], { spawnSyncImpl });
-  return value ? `${platform}-ps:${value}` : null;
+  if (!result && platform !== 'linux' && platform !== 'win32') {
+    const value = runProbe('ps', ['-o', 'lstart=', '-p', String(normalizedPid)], { spawnSyncImpl });
+    result = value ? `${platform}-ps:${value}` : null;
+  }
+
+  if (result) {
+    fingerprintCache.set(normalizedPid, {
+      fingerprint: result,
+      expiresAt: Date.now() + cacheTtlMs,
+      promise: null,
+    });
+  }
+
+  return result;
 }
 
 export function processInstanceFingerprintMatches(expected, observed) {

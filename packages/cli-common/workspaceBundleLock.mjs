@@ -223,7 +223,6 @@ export async function withWorkspaceBundleLock(fn, options = {}) {
   const timeoutMs = options.timeoutMs ?? 240_000;
   const pollIntervalMs = options.pollIntervalMs ?? 250;
   const staleAfterMs = options.staleAfterMs ?? timeoutMs;
-  const startedAt = Date.now();
   const ownerToken = randomUUID();
   let createdAtMs = 0;
   let ownLockRaw = null;
@@ -233,6 +232,7 @@ export async function withWorkspaceBundleLock(fn, options = {}) {
   const readProcessInstanceFingerprintImpl = options.readProcessInstanceFingerprintImpl
     ?? readProcessInstanceFingerprintSync;
   const processInstanceFingerprint = readProcessInstanceFingerprintImpl(process.pid);
+  const startedAt = Date.now();
 
   while (true) {
     try {
@@ -257,8 +257,9 @@ export async function withWorkspaceBundleLock(fn, options = {}) {
       ownLockRaw = null;
       const snapshot = readLockOwnerSnapshot(lockPath);
       if (shouldReclaimLockSnapshot(snapshot, staleAfterMs, Date.now(), options)) {
-        reclaimLockSnapshot(lockPath, snapshot.raw);
-        continue;
+        if (reclaimLockSnapshot(lockPath, snapshot.raw)) {
+          continue;
+        }
       }
       if (Date.now() - startedAt > timeoutMs) {
         const errorLabel = options.errorLabel ?? 'workspace bundle lock';
@@ -317,7 +318,6 @@ export function withWorkspaceBundleLockSync(fn, options = {}) {
   const timeoutMs = options.timeoutMs ?? 240_000;
   const pollIntervalMs = options.pollIntervalMs ?? 250;
   const staleAfterMs = options.staleAfterMs ?? timeoutMs;
-  const startedAt = Date.now();
   const ownerToken = randomUUID();
   const createdAtMs = Date.now();
   let ownLockRaw = null;
@@ -326,6 +326,7 @@ export function withWorkspaceBundleLockSync(fn, options = {}) {
   const readProcessInstanceFingerprintImpl = options.readProcessInstanceFingerprintImpl
     ?? readProcessInstanceFingerprintSync;
   const processInstanceFingerprint = readProcessInstanceFingerprintImpl(process.pid);
+  const startedAt = Date.now();
 
   while (true) {
     try {
@@ -349,8 +350,9 @@ export function withWorkspaceBundleLockSync(fn, options = {}) {
       ownLockRaw = null;
       const snapshot = readLockOwnerSnapshot(lockPath);
       if (shouldReclaimLockSnapshot(snapshot, staleAfterMs, Date.now(), options)) {
-        reclaimLockSnapshot(lockPath, snapshot.raw);
-        continue;
+        if (reclaimLockSnapshot(lockPath, snapshot.raw)) {
+          continue;
+        }
       }
       if (Date.now() - startedAt > timeoutMs) {
         const errorLabel = options.errorLabel ?? 'workspace bundle lock';

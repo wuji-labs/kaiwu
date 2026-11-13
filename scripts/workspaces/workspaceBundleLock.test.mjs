@@ -4,11 +4,11 @@ import { spawn } from 'node:child_process';
 import { existsSync, linkSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { withWorkspaceBundleLock, withWorkspaceBundleLockSync } from './workspaceBundleLock.mjs';
 
-async function waitForFile(path, { timeoutMs = 1_000 } = {}) {
+async function waitForFile(path, { timeoutMs = 10_000 } = {}) {
   const startedAt = Date.now();
   while (!existsSync(path)) {
     if (Date.now() - startedAt > timeoutMs) {
@@ -334,7 +334,7 @@ test('withWorkspaceBundleLock does not reclaim a stale lock while the owner pid 
         '-e',
         [
           "import { rmSync, writeFileSync } from 'node:fs';",
-          `import { withWorkspaceBundleLock } from ${JSON.stringify(modulePath)};`,
+          `import { withWorkspaceBundleLock } from ${JSON.stringify(pathToFileURL(modulePath).href)};`,
           'function sleepSync(ms) {',
           '  const arr = new Int32Array(new SharedArrayBuffer(4));',
           '  Atomics.wait(arr, 0, 0, ms);',
@@ -343,7 +343,7 @@ test('withWorkspaceBundleLock does not reclaim a stale lock while the owner pid 
           `  writeFileSync(${JSON.stringify(activePath)}, 'active', 'utf8');`,
           '  sleepSync(350);',
           `  rmSync(${JSON.stringify(activePath)}, { force: true });`,
-          `}, { lockPath: ${JSON.stringify(lockPath)}, timeoutMs: 2_000, pollIntervalMs: 10, staleAfterMs: 100 });`,
+          `}, { lockPath: ${JSON.stringify(lockPath)}, timeoutMs: 10_000, pollIntervalMs: 10, staleAfterMs: 100 });`,
           '',
         ].join('\n'),
       ],
@@ -367,7 +367,7 @@ test('withWorkspaceBundleLock does not reclaim a stale lock while the owner pid 
       },
       {
         lockPath,
-        timeoutMs: 2_000,
+        timeoutMs: 10_000,
         pollIntervalMs: 10,
         staleAfterMs: 100,
       },

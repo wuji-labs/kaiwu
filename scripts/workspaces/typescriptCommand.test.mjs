@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import path from 'node:path';
 import test from 'node:test';
 
 import {
@@ -24,10 +25,10 @@ test('resolves the native TypeScript CLI from its exported package manifest', ()
   assert.deepEqual(resolutions, [
     {
       specifier: '@typescript/native/package.json',
-      options: { paths: ['/repo/apps/cli'] },
+      options: { paths: [path.resolve('/repo/apps/cli')] },
     },
   ]);
-  assert.equal(cliPath, '/repo/node_modules/@typescript/native/bin/tsc');
+  assert.equal(cliPath, path.resolve('/repo/node_modules/@typescript/native/bin/tsc'));
 });
 
 test('rejects a native TypeScript package without a tsc entrypoint', () => {
@@ -53,7 +54,7 @@ test('invokes the resolved native TypeScript CLI through the managed Node execut
   assert.deepEqual(invocation, {
     command: '/managed/node',
     args: [
-      '/repo/node_modules/@typescript/native/bin/tsc',
+      path.resolve('/repo/node_modules/@typescript/native/bin/tsc'),
       '--noEmit',
       '-p',
       'tsconfig.json',

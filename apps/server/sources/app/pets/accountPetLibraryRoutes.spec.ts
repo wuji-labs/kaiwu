@@ -56,24 +56,30 @@ function registerRoutesForTest(
 }
 
 describe("accountPetLibraryRoutes", () => {
-    const originalBuildFeaturesDeny = process.env.HAPPIER_BUILD_FEATURES_DENY;
-    const originalPetsSyncEnabled = process.env.HAPPIER_FEATURE_PETS_SYNC__ENABLED;
+    const originalBuildFeaturesDeny = process.env.KAIWU_BUILD_FEATURES_DENY ?? process.env.HAPPIER_BUILD_FEATURES_DENY;
+    const originalPetsSyncEnabled = process.env.KAIWU_FEATURE_PETS_SYNC__ENABLED ?? process.env.HAPPIER_FEATURE_PETS_SYNC__ENABLED;
 
     beforeEach(() => {
         vi.clearAllMocks();
+        delete process.env.KAIWU_BUILD_FEATURES_DENY;
         delete process.env.HAPPIER_BUILD_FEATURES_DENY;
+        process.env.KAIWU_FEATURE_PETS_SYNC__ENABLED = "true";
         process.env.HAPPIER_FEATURE_PETS_SYNC__ENABLED = "true";
     });
 
     afterEach(() => {
         if (originalBuildFeaturesDeny === undefined) {
+            delete process.env.KAIWU_BUILD_FEATURES_DENY;
             delete process.env.HAPPIER_BUILD_FEATURES_DENY;
         } else {
+            process.env.KAIWU_BUILD_FEATURES_DENY = originalBuildFeaturesDeny;
             process.env.HAPPIER_BUILD_FEATURES_DENY = originalBuildFeaturesDeny;
         }
         if (originalPetsSyncEnabled === undefined) {
+            delete process.env.KAIWU_FEATURE_PETS_SYNC__ENABLED;
             delete process.env.HAPPIER_FEATURE_PETS_SYNC__ENABLED;
         } else {
+            process.env.KAIWU_FEATURE_PETS_SYNC__ENABLED = originalPetsSyncEnabled;
             process.env.HAPPIER_FEATURE_PETS_SYNC__ENABLED = originalPetsSyncEnabled;
         }
     });
@@ -110,6 +116,7 @@ describe("accountPetLibraryRoutes", () => {
     });
 
     it("canonical-feature-gates account pet library routes behind pets.sync", async () => {
+        process.env.KAIWU_BUILD_FEATURES_DENY = "pets.sync";
         process.env.HAPPIER_BUILD_FEATURES_DENY = "pets.sync";
         listAccountPetsForAccount.mockResolvedValue([petMetadata()]);
         const { registerAccountPetLibraryRoutes } = await import("./accountPetLibraryRoutes");
@@ -130,6 +137,7 @@ describe("accountPetLibraryRoutes", () => {
     });
 
     it("canonical-feature-gates account pet asset routes behind pets.companion", async () => {
+        process.env.KAIWU_BUILD_FEATURES_DENY = "pets.companion";
         process.env.HAPPIER_BUILD_FEATURES_DENY = "pets.companion";
         readAccountPetAssetForAccount.mockResolvedValue({
             mediaType: "image/webp",

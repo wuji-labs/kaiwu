@@ -4,7 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import {
   rmDirSafeSync,
@@ -48,10 +48,10 @@ test('syncBundledWorkspacePackages derives the default bundled workspace set fro
   const cpCalls = [];
 
   syncBundledWorkspacePackages({
-    repoRoot: '/repo',
+    repoRoot: resolve('/repo'),
     hostApps: ['cli'],
     existsSync: (candidate) => {
-      const text = String(candidate);
+      const text = String(candidate).replaceAll('\\', '/');
       return (
         text.endsWith('/apps/cli/package.json') ||
         text.endsWith('/packages/custom-bundle/package.json') ||
@@ -65,7 +65,7 @@ test('syncBundledWorkspacePackages derives the default bundled workspace set fro
     cpSync: (...args) => cpCalls.push(args),
     renameSync: () => {},
     readFileSync: (path) => {
-      const text = String(path);
+      const text = String(path).replaceAll('\\', '/');
       if (text.endsWith('/apps/cli/package.json')) {
         return JSON.stringify({
           bundledDependencies: ['@happier-dev/custom-bundle', 'tweetnacl'],
@@ -87,7 +87,7 @@ test('syncBundledWorkspacePackages derives the default bundled workspace set fro
   });
 
   assert.equal(cpCalls.length, 1);
-  assert.equal(cpCalls[0][0], '/repo/packages/custom-bundle/dist');
+  assert.equal(cpCalls[0][0], resolve('/repo/packages/custom-bundle/dist'));
 });
 
 test('rmDirSafeSync retries transient ENOTEMPTY errors before removing a directory', () => {
@@ -116,17 +116,21 @@ test('syncBundledWorkspacePackages updates bundled copies for every configured h
   const writeCalls = [];
 
   syncBundledWorkspacePackages({
-    repoRoot: '/repo',
+    repoRoot: resolve('/repo'),
     syncId: 'sync-1',
     packages: ['protocol'],
     hostApps: ['cli', 'stack'],
-    existsSync: (candidate) =>
-      String(candidate).includes('/packages/protocol/package.json') ||
-      String(candidate).includes('/packages/protocol/dist') ||
-      String(candidate).includes('/apps/cli/node_modules/@happier-dev/protocol/dist') ||
-      String(candidate).includes('/apps/stack/node_modules/@happier-dev/protocol/dist') ||
-      String(candidate).endsWith('/apps/cli/node_modules/@happier-dev/protocol/package.json') ||
-      String(candidate).endsWith('/apps/stack/node_modules/@happier-dev/protocol/package.json'),
+    existsSync: (candidate) => {
+      const text = String(candidate).replaceAll('\\', '/');
+      return (
+        text.includes('/packages/protocol/package.json') ||
+        text.includes('/packages/protocol/dist') ||
+        text.includes('/apps/cli/node_modules/@happier-dev/protocol/dist') ||
+        text.includes('/apps/stack/node_modules/@happier-dev/protocol/dist') ||
+        text.endsWith('/apps/cli/node_modules/@happier-dev/protocol/package.json') ||
+        text.endsWith('/apps/stack/node_modules/@happier-dev/protocol/package.json')
+      );
+    },
     mkdirSync: () => {},
     rmSync: () => {},
     cpSync: (...args) => cpCalls.push(args),
@@ -142,35 +146,35 @@ test('syncBundledWorkspacePackages updates bundled copies for every configured h
   });
 
   assert.equal(cpCalls.length, 2);
-  assert.equal(cpCalls[0][0], '/repo/packages/protocol/dist');
-  assert.equal(String(cpCalls[0][1]), '/repo/apps/cli/node_modules/@happier-dev/protocol/dist.__sync_tmp__.sync-1');
+  assert.equal(cpCalls[0][0], resolve('/repo/packages/protocol/dist'));
+  assert.equal(String(cpCalls[0][1]), resolve('/repo/apps/cli/node_modules/@happier-dev/protocol/dist.__sync_tmp__.sync-1'));
   assert.deepEqual(cpCalls[0][2], { recursive: true, force: true });
-  assert.equal(cpCalls[1][0], '/repo/packages/protocol/dist');
-  assert.equal(String(cpCalls[1][1]), '/repo/apps/stack/node_modules/@happier-dev/protocol/dist.__sync_tmp__.sync-1');
+  assert.equal(cpCalls[1][0], resolve('/repo/packages/protocol/dist'));
+  assert.equal(String(cpCalls[1][1]), resolve('/repo/apps/stack/node_modules/@happier-dev/protocol/dist.__sync_tmp__.sync-1'));
   assert.deepEqual(cpCalls[1][2], { recursive: true, force: true });
 
   assert.deepEqual(renameCalls, [
     [
-      '/repo/apps/cli/node_modules/@happier-dev/protocol/dist',
-      '/repo/apps/cli/node_modules/@happier-dev/protocol/dist.__sync_backup__.sync-1',
+      resolve('/repo/apps/cli/node_modules/@happier-dev/protocol/dist'),
+      resolve('/repo/apps/cli/node_modules/@happier-dev/protocol/dist.__sync_backup__.sync-1'),
     ],
     [
-      '/repo/apps/cli/node_modules/@happier-dev/protocol/dist.__sync_tmp__.sync-1',
-      '/repo/apps/cli/node_modules/@happier-dev/protocol/dist',
+      resolve('/repo/apps/cli/node_modules/@happier-dev/protocol/dist.__sync_tmp__.sync-1'),
+      resolve('/repo/apps/cli/node_modules/@happier-dev/protocol/dist'),
     ],
     [
-      '/repo/apps/stack/node_modules/@happier-dev/protocol/dist',
-      '/repo/apps/stack/node_modules/@happier-dev/protocol/dist.__sync_backup__.sync-1',
+      resolve('/repo/apps/stack/node_modules/@happier-dev/protocol/dist'),
+      resolve('/repo/apps/stack/node_modules/@happier-dev/protocol/dist.__sync_backup__.sync-1'),
     ],
     [
-      '/repo/apps/stack/node_modules/@happier-dev/protocol/dist.__sync_tmp__.sync-1',
-      '/repo/apps/stack/node_modules/@happier-dev/protocol/dist',
+      resolve('/repo/apps/stack/node_modules/@happier-dev/protocol/dist.__sync_tmp__.sync-1'),
+      resolve('/repo/apps/stack/node_modules/@happier-dev/protocol/dist'),
     ],
   ]);
 
   assert.equal(writeCalls.length, 2);
-  assert.equal(writeCalls[0][0], '/repo/apps/cli/node_modules/@happier-dev/protocol/package.json');
-  assert.equal(writeCalls[1][0], '/repo/apps/stack/node_modules/@happier-dev/protocol/package.json');
+  assert.equal(writeCalls[0][0], resolve('/repo/apps/cli/node_modules/@happier-dev/protocol/package.json'));
+  assert.equal(writeCalls[1][0], resolve('/repo/apps/stack/node_modules/@happier-dev/protocol/package.json'));
 });
 
 test('syncBundledWorkspacePackages refreshes a complete existing dist directory in place when replaceExisting is false', () => {
@@ -178,12 +182,12 @@ test('syncBundledWorkspacePackages refreshes a complete existing dist directory 
   const renameCalls = [];
 
   syncBundledWorkspacePackages({
-    repoRoot: '/repo',
+    repoRoot: resolve('/repo'),
     packages: ['custom-bundle'],
     hostApps: ['cli'],
     replaceExisting: false,
     existsSync: (candidate) => {
-      const text = String(candidate);
+      const text = String(candidate).replaceAll('\\', '/');
       if (text.endsWith('/apps/cli/package.json')) return true;
       if (text.endsWith('/packages/custom-bundle/package.json')) return true;
       if (text.endsWith('/packages/custom-bundle/dist')) return true;
@@ -194,7 +198,7 @@ test('syncBundledWorkspacePackages refreshes a complete existing dist directory 
       return false;
     },
     readFileSync: (path) => {
-      const text = String(path);
+      const text = String(path).replaceAll('\\', '/');
       if (text.endsWith('/apps/cli/package.json')) {
         return JSON.stringify({
           bundledDependencies: ['@happier-dev/custom-bundle'],
@@ -219,8 +223,8 @@ test('syncBundledWorkspacePackages refreshes a complete existing dist directory 
 
   assert.deepEqual(cpCalls, [
     [
-      '/repo/packages/custom-bundle/dist',
-      '/repo/apps/cli/node_modules/@happier-dev/custom-bundle/dist',
+      resolve('/repo/packages/custom-bundle/dist'),
+      resolve('/repo/apps/cli/node_modules/@happier-dev/custom-bundle/dist'),
       { recursive: true, force: true },
     ],
   ]);
@@ -232,12 +236,12 @@ test('syncBundledWorkspacePackages repairs an incomplete existing dist directory
   const renameCalls = [];
 
   syncBundledWorkspacePackages({
-    repoRoot: '/repo',
+    repoRoot: resolve('/repo'),
     packages: ['custom-bundle'],
     hostApps: ['cli'],
     replaceExisting: false,
     existsSync: (candidate) => {
-      const text = String(candidate);
+      const text = String(candidate).replaceAll('\\', '/');
       if (text.endsWith('/apps/cli/package.json')) return true;
       if (text.endsWith('/packages/custom-bundle/package.json')) return true;
       if (text.endsWith('/packages/custom-bundle/dist')) return true;
@@ -246,7 +250,7 @@ test('syncBundledWorkspacePackages repairs an incomplete existing dist directory
       return false;
     },
     readFileSync: (path) => {
-      const text = String(path);
+      const text = String(path).replaceAll('\\', '/');
       if (text.endsWith('/apps/cli/package.json')) {
         return JSON.stringify({
           bundledDependencies: ['@happier-dev/custom-bundle'],
@@ -515,7 +519,7 @@ test('syncBundledWorkspacePackages vendors runtime dependencies when cli-common 
         "import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';",
         "import { tmpdir } from 'node:os';",
         "import { resolve } from 'node:path';",
-        `import { syncBundledWorkspacePackages } from ${JSON.stringify(modulePath)};`,
+        `import { syncBundledWorkspacePackages } from ${JSON.stringify(pathToFileURL(modulePath).href)};`,
         '',
         "const repoRoot = resolve(tmpdir(), `happier-sync-fallback-${process.pid}-${Date.now()}`);",
         'try {',
@@ -554,7 +558,7 @@ test('syncBundledWorkspacePackages vendors runtime dependencies when cli-common 
       'utf8',
     );
 
-    const result = spawnSync(process.execPath, ['--experimental-loader', loaderPath, runnerPath], {
+    const result = spawnSync(process.execPath, ['--experimental-loader', pathToFileURL(loaderPath).href, runnerPath], {
       cwd: dirname(modulePath),
       encoding: 'utf8',
     });
@@ -638,15 +642,19 @@ test('syncBundledWorkspacePackages refreshes existing bundled dist directories v
   const rmCalls = [];
 
   syncBundledWorkspacePackages({
-    repoRoot: '/repo',
+    repoRoot: resolve('/repo'),
     syncId: 'sync-1',
     packages: ['protocol'],
     hostApps: ['cli'],
-    existsSync: (candidate) =>
-      String(candidate).includes('/packages/protocol/package.json')
-      || String(candidate).includes('/packages/protocol/dist')
-      || String(candidate).includes('/apps/cli/node_modules/@happier-dev/protocol/dist')
-      || String(candidate).endsWith('/apps/cli/node_modules/@happier-dev/protocol/package.json'),
+    existsSync: (candidate) => {
+      const text = String(candidate).replaceAll('\\', '/');
+      return (
+        text.includes('/packages/protocol/package.json')
+        || text.includes('/packages/protocol/dist')
+        || text.includes('/apps/cli/node_modules/@happier-dev/protocol/dist')
+        || text.endsWith('/apps/cli/node_modules/@happier-dev/protocol/package.json')
+      );
+    },
     mkdirSync: () => {},
     rmSync: (...args) => rmCalls.push(args),
     renameSync: (...args) => renameCalls.push(args),
@@ -663,24 +671,24 @@ test('syncBundledWorkspacePackages refreshes existing bundled dist directories v
 
   assert.equal(cpCalls.length, 1);
   assert.deepEqual(cpCalls[0], [
-    '/repo/packages/protocol/dist',
-    '/repo/apps/cli/node_modules/@happier-dev/protocol/dist.__sync_tmp__.sync-1',
+    resolve('/repo/packages/protocol/dist'),
+    resolve('/repo/apps/cli/node_modules/@happier-dev/protocol/dist.__sync_tmp__.sync-1'),
     { recursive: true, force: true },
   ]);
   assert.deepEqual(renameCalls, [
     [
-      '/repo/apps/cli/node_modules/@happier-dev/protocol/dist',
-      '/repo/apps/cli/node_modules/@happier-dev/protocol/dist.__sync_backup__.sync-1',
+      resolve('/repo/apps/cli/node_modules/@happier-dev/protocol/dist'),
+      resolve('/repo/apps/cli/node_modules/@happier-dev/protocol/dist.__sync_backup__.sync-1'),
     ],
     [
-      '/repo/apps/cli/node_modules/@happier-dev/protocol/dist.__sync_tmp__.sync-1',
-      '/repo/apps/cli/node_modules/@happier-dev/protocol/dist',
+      resolve('/repo/apps/cli/node_modules/@happier-dev/protocol/dist.__sync_tmp__.sync-1'),
+      resolve('/repo/apps/cli/node_modules/@happier-dev/protocol/dist'),
     ],
   ]);
   assert.deepEqual(rmCalls, [
-    ['/repo/apps/cli/node_modules/@happier-dev/protocol/dist.__sync_tmp__.sync-1', { recursive: true, force: true }],
-    ['/repo/apps/cli/node_modules/@happier-dev/protocol/dist.__sync_backup__.sync-1', { recursive: true, force: true }],
-    ['/repo/apps/cli/node_modules/@happier-dev/protocol/dist.__sync_backup__.sync-1', { recursive: true, force: true }],
+    [resolve('/repo/apps/cli/node_modules/@happier-dev/protocol/dist.__sync_tmp__.sync-1'), { recursive: true, force: true }],
+    [resolve('/repo/apps/cli/node_modules/@happier-dev/protocol/dist.__sync_backup__.sync-1'), { recursive: true, force: true }],
+    [resolve('/repo/apps/cli/node_modules/@happier-dev/protocol/dist.__sync_backup__.sync-1'), { recursive: true, force: true }],
   ]);
 });
 
