@@ -4,6 +4,8 @@ import { dirname, join } from 'node:path';
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { patchPathForFakeCommands, writeFakeNodeCommand } from '../testing/writeFakeNodeCommand.js';
+
 const { preparePayloadMock, createRelayHostEngineMock } = vi.hoisted(() => ({
     preparePayloadMock: vi.fn(),
     createRelayHostEngineMock: vi.fn(),
@@ -41,16 +43,11 @@ function createFakeSsh(): Readonly<{
 }> {
     const rootDir = mkdtempSync(join(tmpdir(), 'hsetup-relay-fake-ssh-'));
     const binDir = join(rootDir, 'bin');
-    const sshPath = join(binDir, 'ssh');
-    const scpPath = join(binDir, 'scp');
     const logPath = join(rootDir, 'invocations.log');
 
     mkdirSync(binDir, { recursive: true });
     writeFileSync(logPath, '', 'utf8');
-    writeFileSync(
-        sshPath,
-        `#!/usr/bin/env node
-const { appendFileSync } = require('node:fs');
+    writeFakeNodeCommand(binDir, 'ssh', `const { appendFileSync } = require('node:fs');
 
 const logPath = process.env.KAIWU_FAKE_SSH_LOG_PATH;
 const argv = process.argv.slice(2);
@@ -88,22 +85,13 @@ const next = (() => {
 if (next.stdout) process.stdout.write(String(next.stdout));
 if (next.stderr) process.stderr.write(String(next.stderr));
 process.exit(Number(next.status ?? 0));
-`,
-        'utf8',
-    );
-    chmodSync(sshPath, 0o755);
-    writeFileSync(
-        scpPath,
-        `#!/usr/bin/env node
-const { appendFileSync } = require('node:fs');
+`);
+    writeFakeNodeCommand(binDir, 'scp', `const { appendFileSync } = require('node:fs');
 
 const logPath = process.env.KAIWU_FAKE_SSH_LOG_PATH;
 appendFileSync(logPath, JSON.stringify(['scp', ...process.argv.slice(2)]) + '\\n');
 process.exit(0);
-`,
-        'utf8',
-    );
-    chmodSync(scpPath, 0o755);
+`);
 
     return {
         binDir,
@@ -118,16 +106,11 @@ process.exit(0);
 }
 
 function withPatchedPath<T>(binDir: string, run: () => Promise<T>): Promise<T> {
-    const previousPath = process.env.PATH;
     const previousLogPath = process.env.KAIWU_FAKE_SSH_LOG_PATH;
-    process.env.PATH = `${binDir}:${previousPath ?? ''}`;
+    const restorePath = patchPathForFakeCommands(binDir);
     process.env.KAIWU_FAKE_SSH_LOG_PATH = join(binDir, '..', 'invocations.log');
     return run().finally(() => {
-        if (previousPath === undefined) {
-            delete process.env.PATH;
-        } else {
-            process.env.PATH = previousPath;
-        }
+        restorePath();
         if (previousLogPath === undefined) {
             delete process.env.KAIWU_FAKE_SSH_LOG_PATH;
         } else {
@@ -150,12 +133,14 @@ describe('installOrUpdateRelayRuntimeDefault', () => {
 
         try {
             mkdirSync(payloadRoot, { recursive: true });
+            // Release payloads ship the server binary under the host's executable name.
+            const serverBinaryName = process.platform === 'win32' ? 'happier-server.exe' : 'happier-server';
             writeFileSync(
-                join(payloadRoot, 'happier-server'),
+                join(payloadRoot, serverBinaryName),
                 '#!/bin/sh\nexit 0\n',
                 'utf8',
             );
-            chmodSync(join(payloadRoot, 'happier-server'), 0o755);
+            chmodSync(join(payloadRoot, serverBinaryName), 0o755);
 
             preparePayloadMock.mockImplementation(async ({ componentId }) => {
                 if (componentId === 'hstack') {

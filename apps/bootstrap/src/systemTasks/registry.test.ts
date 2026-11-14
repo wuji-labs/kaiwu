@@ -1,9 +1,11 @@
-import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { executeSystemTask } from '@happier-dev/cli-common/systemTasks';
 import { describe, expect, it, vi } from 'vitest';
+
+import { writeFakeNodeCommand } from '../testing/writeFakeNodeCommand.js';
 
 import { createHsetupSystemTaskRegistry } from './registry.js';
 
@@ -20,7 +22,6 @@ function createFakeHappierCli(scenario: Readonly<{
   readInvocations: () => string[][];
 }> {
   const rootDir = mkdtempSync(join(tmpdir(), 'hsetup-cli-'));
-  const cliPath = join(rootDir, 'fake-happier');
   const statePath = join(rootDir, 'scenario.json');
   const logPath = join(rootDir, 'invocations.log');
 
@@ -91,8 +92,7 @@ function createFakeHappierCli(scenario: Readonly<{
     ],
   }, null, 2));
 
-  writeFileSync(cliPath, `#!/usr/bin/env node
-const { appendFileSync, readFileSync, writeFileSync } = require('node:fs');
+  const cliPath = writeFakeNodeCommand(rootDir, 'fake-happier', `const { appendFileSync, readFileSync, writeFileSync } = require('node:fs');
 
 const statePath = process.env.KAIWU_FAKE_CLI_STATE_PATH;
 const logPath = process.env.KAIWU_FAKE_CLI_LOG_PATH;
@@ -210,7 +210,6 @@ if (argv[0] === 'daemon' && argv[1] === 'service' && (argv[2] === 'install' || a
 process.stderr.write('Unexpected fake happier args: ' + command + '\\n');
 process.exit(1);
 `);
-  chmodSync(cliPath, 0o755);
   writeFileSync(logPath, '');
 
   return {
@@ -248,7 +247,6 @@ function createFakeTailscaleCli(scenario: Readonly<{
   readInvocations: () => string[][];
 }> {
   const rootDir = mkdtempSync(join(tmpdir(), 'hsetup-tailscale-'));
-  const cliPath = join(rootDir, 'fake-tailscale');
   const statePath = join(rootDir, 'scenario.json');
   const logPath = join(rootDir, 'invocations.log');
 
@@ -273,8 +271,7 @@ function createFakeTailscaleCli(scenario: Readonly<{
     serveEnableOutputs: scenario.serveEnableOutputs ?? [],
   }, null, 2));
 
-  writeFileSync(cliPath, `#!/usr/bin/env node
-const { appendFileSync, readFileSync, writeFileSync } = require('node:fs');
+  const cliPath = writeFakeNodeCommand(rootDir, 'fake-tailscale', `const { appendFileSync, readFileSync, writeFileSync } = require('node:fs');
 
 const statePath = process.env.KAIWU_FAKE_TAILSCALE_STATE_PATH;
 const logPath = process.env.KAIWU_FAKE_TAILSCALE_LOG_PATH;
@@ -343,7 +340,6 @@ if (argv[0] === 'status' && argv[1] === '--json') {
   process.exit(1);
 }
 `);
-  chmodSync(cliPath, 0o755);
   writeFileSync(logPath, '');
 
   return {

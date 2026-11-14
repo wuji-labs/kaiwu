@@ -32,11 +32,13 @@ describe('managedJavaScriptRuntime binary-safe selection', () => {
         mkdirSync(binDir, { recursive: true });
 
     const nodePath = join(binDir, process.platform === 'win32' ? 'node.exe' : 'node');
-    const cliPath = join(binDir, 'codex');
+    // A JavaScript provider CLI: on Windows that is identified by its .js extension (shebangs are
+    // not consulted there), on Unix by its node shebang.
+    const cliPath = join(binDir, process.platform === 'win32' ? 'codex.js' : 'codex');
 
     if (process.platform === 'win32') {
       makeExecutableFile(nodePath, '');
-      makeExecutableFile(cliPath, '@echo off\r\n');
+      makeExecutableFile(cliPath, 'console.log("ok");\n');
     } else {
       makeExecutableFile(nodePath, '#!/bin/sh\nexit 0\n');
       makeExecutableFile(cliPath, '#!/usr/bin/env node\nconsole.log("ok");\n');

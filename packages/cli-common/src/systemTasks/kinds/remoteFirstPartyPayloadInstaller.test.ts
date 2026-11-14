@@ -1,7 +1,8 @@
 import { execFile } from 'node:child_process';
 import { lstat, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { basename, dirname, join } from 'node:path';
 import { promisify } from 'node:util';
 
 import { describe, expect, it } from 'vitest';
@@ -9,6 +10,21 @@ import { describe, expect, it } from 'vitest';
 import { installRemoteFirstPartyComponent } from './remoteFirstPartyPayloadInstaller.js';
 
 const execFileAsync = promisify(execFile);
+
+// File symlink fixtures need symlink privilege on Windows (admin or Developer Mode). Probe the
+// capability instead of assuming it so these tests run wherever symlinks can actually be created.
+const canCreateFileSymlinks = (() => {
+  const probeDir = mkdtempSync(join(tmpdir(), 'happier-symlink-probe-'));
+  try {
+    writeFileSync(join(probeDir, 'target'), '', 'utf8');
+    symlinkSync(join(probeDir, 'target'), join(probeDir, 'link'));
+    return true;
+  } catch {
+    return false;
+  } finally {
+    rmSync(probeDir, { recursive: true, force: true });
+  }
+})();
 
 async function createPayloadRootFixture(): Promise<Readonly<{
   payloadRoot: string;
@@ -32,7 +48,10 @@ async function extractTarFixture(params: Readonly<{ archivePath: string }>): Pro
 }>> {
   const extractRoot = await mkdtemp(join(tmpdir(), 'happier-remote-first-party-extract-'));
   try {
-    await execFileAsync('tar', ['-xf', params.archivePath, '-C', extractRoot]);
+    // Relative -f + cwd: GNU tar (e.g. Git for Windows) parses a drive-letter archive path as host:path.
+    await execFileAsync('tar', ['-xf', basename(params.archivePath), '-C', extractRoot], {
+      cwd: dirname(params.archivePath),
+    });
     return {
       extractRoot,
       cleanup: async () => {
@@ -226,7 +245,7 @@ describe('installRemoteFirstPartyComponent', () => {
     }
   });
 
-  it('materializes symlinked payload entries before copying them over scp', async () => {
+  it.skipIf(!canCreateFileSymlinks)('materializes symlinked payload entries before copying them over scp', async () => {
     const rootDir = await mkdtemp(join(tmpdir(), 'happier-remote-first-party-payload-'));
     const capturedLocalPaths: string[] = [];
 
@@ -290,7 +309,7 @@ describe('installRemoteFirstPartyComponent', () => {
     }
   });
 
-  it('drops dangling payload symlinks before copying them over scp', async () => {
+  it.skipIf(!canCreateFileSymlinks)('drops dangling payload symlinks before copying them over scp', async () => {
     const rootDir = await mkdtemp(join(tmpdir(), 'happier-remote-first-party-dangling-'));
     const capturedLocalPaths: string[] = [];
 

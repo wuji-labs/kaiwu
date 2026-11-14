@@ -257,7 +257,9 @@ describe('Windows scheduled task lifecycle PowerShell helpers', () => {
       const result = spawnSync(
         'powershell.exe',
         ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', wrapperPath],
-        { encoding: 'utf8', timeout: 15_000 },
+        // The wrapper sleeps 5s before its retry and launches three PowerShell processes; cold
+        // PowerShell start-up alone can take several seconds per process on a loaded Windows host.
+        { encoding: 'utf8', timeout: 60_000 },
       );
 
       expect(result.error).toBeUndefined();
@@ -266,7 +268,7 @@ describe('Windows scheduled task lifecycle PowerShell helpers', () => {
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
-  }, 20_000);
+  }, 90_000);
 
   it('stops only an existing running task through typed scheduler state', () => {
     const command = buildStopWindowsScheduledTaskIfRunningPowerShellCommand({

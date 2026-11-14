@@ -166,7 +166,7 @@ describe('RelayHostEngine remote installation ownership', () => {
     })).resolves.toBeUndefined();
 
     expect(commands).toHaveLength(1);
-    expect(commands[0]).toContain('$HOME/.happier/cli-preview/current/happier relay host uninstall');
+    expect(commands[0]).toContain('$HOME/.happier/cli-preview/current/kaiwu relay host uninstall');
     expect(commands[0]).toContain('--channel \'preview\'');
     expect(commands[0]).toContain('--mode system');
     expect(commands[0]).toContain('--yes');

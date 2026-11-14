@@ -1,6 +1,6 @@
-import { chmodSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, copyFileSync, linkSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { delimiter, join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
@@ -125,16 +125,41 @@ describe('service uninstall semantics', () => {
 
 async function withFakeServiceCommand(command: string, stderr: string, run: () => Promise<void>): Promise<void> {
   const tempRoot = mkdtempSync(join(tmpdir(), 'happier-service-uninstall-'));
-  const commandPath = join(tempRoot, command);
   const previousPath = process.env.PATH;
-  writeFileSync(commandPath, `#!/bin/sh\nprintf '%s\\n' ${JSON.stringify(stderr)} >&2\nexit 1\n`, 'utf8');
-  chmodSync(commandPath, 0o755);
-  process.env.PATH = `${tempRoot}:${previousPath ?? ''}`;
+  const previousNodeOptions = process.env.NODE_OPTIONS;
+  if (process.platform === 'win32') {
+    // applyServicePlan spawns the command directly (no shell), which on Windows only resolves real
+    // executables, so a shebang script cannot stand in. Use a link/copy of node.exe named after the
+    // command and inject the fake behaviour through NODE_OPTIONS --require.
+    const commandPath = join(tempRoot, `${command}.exe`);
+    try {
+      linkSync(process.execPath, commandPath);
+    } catch {
+      copyFileSync(process.execPath, commandPath);
+    }
+    const fakePath = join(tempRoot, 'fake-service-command.cjs');
+    writeFileSync(fakePath, `process.stderr.write(${JSON.stringify(`${stderr}\n`)});\nprocess.exit(1);\n`, 'utf8');
+    process.env.NODE_OPTIONS = `--require ${JSON.stringify(fakePath)}`;
+  } else {
+    const commandPath = join(tempRoot, command);
+    writeFileSync(commandPath, `#!/bin/sh\nprintf '%s\\n' ${JSON.stringify(stderr)} >&2\nexit 1\n`, 'utf8');
+    chmodSync(commandPath, 0o755);
+  }
+  process.env.PATH = [tempRoot, previousPath ?? ''].join(delimiter);
   try {
     await run();
   } finally {
     process.env.PATH = previousPath;
-    rmSync(tempRoot, { recursive: true, force: true });
+    if (previousNodeOptions === undefined) delete process.env.NODE_OPTIONS;
+    else process.env.NODE_OPTIONS = previousNodeOptions;
+    // Windows may keep the just-exited fake .exe locked for a while (process teardown / AV scan of
+    // the new executable). Retry, and on Windows leave a still-locked temp dir to the OS temp
+    // cleaner rather than failing an otherwise-passing assertion on fixture teardown.
+    try {
+      rmSync(tempRoot, { recursive: true, force: true, maxRetries: 50, retryDelay: 200 });
+    } catch (error) {
+      if (process.platform !== 'win32') throw error;
+    }
   }
 }
 

@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs';
-import { dirname, join, win32 as win32Path } from 'node:path';
+import * as hostPath from 'node:path';
+import { join, posix as posixPath, win32 as win32Path } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 export const DEFAULT_PRISMA_SQLITE_BUSY_TIMEOUT_MS = 30_000;
@@ -42,11 +43,15 @@ export function resolveSelfHostServerMigrationPlan(params: Readonly<{
         return { command: params.serverBinaryPath, args: ['--migrate-only'] };
     }
 
-    const serverBinDir = platform === 'win32' ? win32Path.dirname(params.serverBinaryPath) : dirname(params.serverBinaryPath);
+    // Use the target platform's path semantics: a POSIX target path such as /opt/happier/... must
+    // stay POSIX even when this runs on a Windows host. Host-native paths (local installs) keep the
+    // host semantics; on POSIX hosts hostPath === posixPath so behaviour there is unchanged.
+    const pathApi = platform === 'win32'
+        ? win32Path
+        : params.serverBinaryPath.startsWith('/') ? posixPath : hostPath;
+    const serverBinDir = pathApi.dirname(params.serverBinaryPath);
     return {
-        command: platform === 'win32'
-            ? win32Path.join(serverBinDir, 'happier-server-migrate.exe')
-            : join(serverBinDir, 'happier-server-migrate'),
+        command: pathApi.join(serverBinDir, platform === 'win32' ? 'happier-server-migrate.exe' : 'happier-server-migrate'),
         args: [],
     };
 }
@@ -198,7 +203,9 @@ function renderPrismaCompatibleSqliteFileUrl(params: Readonly<{
     platform: string;
 }>): string {
     if (params.platform !== 'win32') {
-        return pathToFileURL(params.dbPath).href;
+        // Render with POSIX semantics for non-Windows targets even when this code runs on a Windows host
+        // (otherwise Node resolves "/tmp/x" against the current drive and emits file:///D:/tmp/x).
+        return pathToFileURL(params.dbPath, { windows: false }).href;
     }
 
     const fileUrl = pathToFileURL(params.dbPath, { windows: true });
@@ -226,10 +233,12 @@ function resolvePrismaSqliteConnectionLimit(connectionLimit: number): number {
     return connectionLimit;
 }
 
-function firstConfiguredEnvValue(env: Readonly<Record<string, unknown>>, primaryKey: string, legacyKey: string): string {
-    const primary = String(env[primaryKey] ?? '').trim();
-    if (primary) return primary;
-    return String(env[legacyKey] ?? '').trim();
+function firstConfiguredEnvValue(env: Readonly<Record<string, unknown>>, ...keys: readonly string[]): string {
+    for (const key of keys) {
+        const value = String(env[key] ?? '').trim();
+        if (value) return value;
+    }
+    return '';
 }
 
 function parsePrismaSqliteIntegerEnv(params: Readonly<{
@@ -253,11 +262,13 @@ export function resolvePrismaSqliteDatabaseUrlOptionsFromEnv(
 ): PrismaSqliteDatabaseUrlOptions {
     const busyTimeoutRaw = firstConfiguredEnvValue(
         env,
+        'KAIWU_SQLITE_BUSY_TIMEOUT_MS',
         'HAPPIER_SQLITE_BUSY_TIMEOUT_MS',
         'HAPPY_SQLITE_BUSY_TIMEOUT_MS',
     );
     const connectionLimitRaw = firstConfiguredEnvValue(
         env,
+        'KAIWU_SQLITE_CONNECTION_LIMIT',
         'HAPPIER_SQLITE_CONNECTION_LIMIT',
         'HAPPY_SQLITE_CONNECTION_LIMIT',
     );
@@ -265,7 +276,7 @@ export function resolvePrismaSqliteDatabaseUrlOptionsFromEnv(
         busyTimeoutMs: busyTimeoutRaw
             ? parsePrismaSqliteIntegerEnv({
                 raw: busyTimeoutRaw,
-                name: 'HAPPIER_SQLITE_BUSY_TIMEOUT_MS/HAPPY_SQLITE_BUSY_TIMEOUT_MS',
+                name: 'KAIWU_SQLITE_BUSY_TIMEOUT_MS/HAPPIER_SQLITE_BUSY_TIMEOUT_MS/HAPPY_SQLITE_BUSY_TIMEOUT_MS',
                 min: 0,
                 max: PRISMA_SQLITE_BUSY_TIMEOUT_MS_MAX,
             })
@@ -273,7 +284,7 @@ export function resolvePrismaSqliteDatabaseUrlOptionsFromEnv(
         connectionLimit: connectionLimitRaw
             ? parsePrismaSqliteIntegerEnv({
                 raw: connectionLimitRaw,
-                name: 'HAPPIER_SQLITE_CONNECTION_LIMIT/HAPPY_SQLITE_CONNECTION_LIMIT',
+                name: 'KAIWU_SQLITE_CONNECTION_LIMIT/HAPPIER_SQLITE_CONNECTION_LIMIT/HAPPY_SQLITE_CONNECTION_LIMIT',
                 min: 1,
                 max: PRISMA_SQLITE_CONNECTION_LIMIT_MAX,
             })

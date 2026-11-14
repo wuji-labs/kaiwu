@@ -13,7 +13,7 @@ import {
 import { buildBackendTargetKey } from '@happier-dev/protocol';
 
 import { expandHomeDirPath, resolveHomeDirFromEnvironment } from '../path/expandHomeDirPath.js';
-import { resolveWindowsCommandOnPath, resolveWindowsCommandPath } from '../process/index.js';
+import { resolveWindowsCommandInvocation, resolveWindowsCommandOnPath, resolveWindowsCommandPath } from '../process/index.js';
 import { resolveJavaScriptRuntimeCommand } from './managedJavaScriptRuntime.js';
 import { resolveHappyHomeDirFromEnvironment } from './resolveHappyHomeDir.js';
 
@@ -311,8 +311,17 @@ function commandMatchesAlternativeIdentityProbe(
   const probe = runtimeSpec.alternativeBinaryIdentityProbe;
   if (!probe) return true;
 
-  const result = spawnSync(resolvedCommand.command, [...probe.args], {
+  // Windows .cmd/.bat shims cannot be spawned with shell:false (Node rejects them with EINVAL),
+  // so route them through cmd.exe with safe quoting; a no-op on other platforms.
+  const invocation = resolveWindowsCommandInvocation({
+    command: resolvedCommand.command,
+    args: [...probe.args],
     env: processEnv,
+    resolveCommandOnPath: false,
+  });
+  const result = spawnSync(invocation.command, invocation.args, {
+    env: processEnv,
+    windowsVerbatimArguments: invocation.windowsVerbatimArguments,
     encoding: 'utf8',
     maxBuffer: 1024 * 1024,
     shell: false,

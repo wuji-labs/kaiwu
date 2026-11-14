@@ -522,7 +522,7 @@ async function installPersistentPayload(params: Readonly<{
 
 async function prepareRelayRuntimePayloadForInstall(params: Readonly<{
     serverBinaryPath: string;
-    serverBinaryName: string;
+    platform: NodeJS.Platform;
 }>): Promise<Readonly<{
     payloadRoot: string;
     cleanupPath: string | null;
@@ -545,7 +545,7 @@ async function prepareRelayRuntimePayloadForInstall(params: Readonly<{
 
         await relocateServerRuntimeArtifactClosure({
             payloadRoot: stagingRoot,
-            platform: params.serverBinaryName.endsWith('.exe') ? 'win32' : process.platform,
+            platform: params.platform,
         });
     } catch (error) {
         await rm(stagingRoot, { recursive: true, force: true }).catch(() => undefined);
@@ -752,7 +752,7 @@ export async function installOrUpdateRelayRuntimeLocal(params: Readonly<{
 
     const preparedPayload = await prepareRelayRuntimePayloadForInstall({
         serverBinaryPath: params.serverBinaryPath,
-        serverBinaryName,
+        platform,
     });
     const desiredPayloadEntryNames = await listRelayRuntimeManagedRootEntries(preparedPayload.payloadRoot);
     let payloadEntryNames = desiredPayloadEntryNames;

@@ -6,6 +6,7 @@ import { dirname, join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import cliDistBuildManifest from '../../cliDistBuildManifest.cjs';
+import { CLI_BINARY_TARGETS, resolveCurrentBinaryTarget, resolveExecutableName } from './targets.js';
 
 const { renameMock, renameDelegate } = vi.hoisted(() => ({
     renameMock: vi.fn(),
@@ -152,7 +153,11 @@ module.exports = { unpackTools };
 
         await expect(readFile(join(payloadDir, 'package-dist', 'index.mjs'), 'utf8')).resolves.toBe('export const cli = "fresh";\n');
         await expect(readFile(join(cliDistDir, 'index.mjs'), 'utf8')).resolves.toBe('export const cli = "fresh";\n');
-        expect(existsSync(join(payloadDir, 'happier'))).toBe(true);
+        const executableName = resolveExecutableName({
+            baseName: 'kaiwu',
+            target: resolveCurrentBinaryTarget({ availableTargets: CLI_BINARY_TARGETS }),
+        });
+        expect(existsSync(join(payloadDir, executableName))).toBe(true);
         expect(existsSync(abandonedSnapshotDir)).toBe(false);
     });
 });

@@ -86,7 +86,13 @@ export type RunTailscaleLoginResult = Readonly<{
   actionUrl: string | null;
 }>;
 
-const TAILSCALE_CLI_ENV_KEYS = ['HAPPIER_TAILSCALE_BIN', 'HAPPIER_STACK_TAILSCALE_BIN'] as const;
+// KAIWU_* (post-rebrand) keys take precedence; HAPPIER_* remain supported as legacy aliases.
+const TAILSCALE_CLI_ENV_KEYS = [
+  'KAIWU_TAILSCALE_BIN',
+  'KAIWU_STACK_TAILSCALE_BIN',
+  'HAPPIER_TAILSCALE_BIN',
+  'HAPPIER_STACK_TAILSCALE_BIN',
+] as const;
 const MACOS_TAILSCALE_CLI_PATHS = [
   '/Applications/Tailscale.app/Contents/MacOS/tailscale',
   '/Applications/Tailscale.app/Contents/MacOS/Tailscale',
@@ -172,10 +178,17 @@ const runCommand: TailscaleCommandRunner = async (request) => {
   const command = String(request.command ?? '').trim();
   const args = Array.isArray(request.args) ? request.args.map((value) => String(value)) : [];
 
+  // Windows cannot execute JavaScript entrypoints directly (no shebangs); launch an explicitly
+  // configured .js/.cjs/.mjs tailscale override through the current Node binary. Real tailscale.exe
+  // and all POSIX hosts are unaffected.
+  const runViaNode = process.platform === 'win32' && /\.(?:mjs|cjs|js)$/i.test(command);
+  const execCommand = runViaNode ? process.execPath : command;
+  const execArgs = runViaNode ? [command, ...args] : args;
+
   return await new Promise<TailscaleCommandResult>((resolve, reject) => {
     execFile(
-      command,
-      args,
+      execCommand,
+      execArgs,
       {
         env,
         timeout: timeoutMs,

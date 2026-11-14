@@ -2,6 +2,8 @@ import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 
+import { resolveWindowsCommandInvocation, type CommandInvocation } from '@happier-dev/cli-common/process';
+
 export interface CommandExecutionResult {
   status: number;
   stdout: string;
@@ -22,6 +24,30 @@ export function normalizeBootstrapChannel(raw: unknown): Readonly<{
   return { commandChannel: 'stable', releaseChannel: 'stable' };
 }
 
+const NODE_SCRIPT_EXTENSION_PATTERN = /\.(?:mjs|cjs|js)$/i;
+
+/**
+ * Windows has neither shebangs nor exec bits: bare names are resolved through PATH/PATHEXT
+ * (so `.cmd` shims such as npm-installed CLIs work), and a command that is or resolves to a
+ * JavaScript entrypoint (e.g. the repo-local `apps/cli/bin/happier.mjs`) is launched through the
+ * current Node binary instead of being handed to the OS (which would fail or run it via WSH).
+ * On POSIX the command is spawned unchanged.
+ */
+function resolveCommandCaptureInvocation(
+  command: string,
+  args: readonly string[],
+  env: NodeJS.ProcessEnv | undefined,
+): CommandInvocation {
+  if (process.platform !== 'win32') {
+    return { command, args: [...args] };
+  }
+  const invocation = resolveWindowsCommandInvocation({ command, args, env: env ?? process.env });
+  if (NODE_SCRIPT_EXTENSION_PATTERN.test(invocation.command.trim())) {
+    return { command: process.execPath, args: [invocation.command, ...invocation.args] };
+  }
+  return invocation;
+}
+
 export async function runCommandCapture(params: Readonly<{
   command: string;
   args: readonly string[];
@@ -29,9 +55,12 @@ export async function runCommandCapture(params: Readonly<{
   timeoutMs?: number;
 }>): Promise<CommandExecutionResult> {
   return await new Promise((resolve, reject) => {
-    const child = spawn(params.command, [...params.args], {
+    const invocation = resolveCommandCaptureInvocation(params.command, params.args, params.env);
+    const child = spawn(invocation.command, invocation.args, {
       env: params.env,
       stdio: ['ignore', 'pipe', 'pipe'],
+      windowsHide: true,
+      ...(invocation.windowsVerbatimArguments ? { windowsVerbatimArguments: true } : {}),
     });
     const stdoutChunks: Buffer[] = [];
     const stderrChunks: Buffer[] = [];

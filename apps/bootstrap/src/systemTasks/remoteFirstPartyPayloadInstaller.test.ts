@@ -1,6 +1,6 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, sep } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
@@ -66,7 +66,8 @@ describe('installRemoteFirstPartyComponent', () => {
 
             expect(copiedPaths).toEqual([
                 {
-                    localPath: expect.stringContaining('/happier-first-party-scp-'),
+                    // localPath is a host path (host separator).
+                    localPath: expect.stringContaining(`${sep}happier-first-party-scp-`),
                     remotePath: '.happier/bootstrap-staging/happier-cli-1.2.3-1700000000000',
                 },
             ]);
@@ -74,7 +75,7 @@ describe('installRemoteFirstPartyComponent', () => {
             expect(remoteCommands.join('\n')).toContain('tar -xf');
             expect(remoteCommands.join('\n')).toContain('ln -sfn');
             expect(result).toEqual({
-                binaryPath: '$HOME/.happier/cli-preview/current/happier',
+                binaryPath: '$HOME/.happier/cli-preview/current/kaiwu',
                 versionId: '1.2.3',
                 source: 'https://example.test/happier.tgz',
             });

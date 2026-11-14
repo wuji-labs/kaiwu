@@ -1,9 +1,30 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { EventEmitter } from 'node:events';
 
 import { resolveRelayRuntimeDefaults } from '../firstPartyRuntime/relayRuntime.js';
 
+// The engine builds paths with the host path module while the linux-simulating tests match POSIX
+// paths in mocked fs predicates; normalise separators (identity on POSIX hosts and win32 simulations).
+const toPosixTestPath = (value: string): string =>
+  process.platform === 'win32' ? String(value) : String(value).replace(/\\/g, '/');
+
 describe('RelayHostEngine (local health control)', () => {
+  // systemd --user runtime dirs derive from the caller's uid. Windows hosts have no process.getuid,
+  // so give the linux-simulating tests a fixed uid instead of an empty /run/user/ expectation.
+  let installedGetuidStub = false;
+  beforeEach(() => {
+    if (typeof process.getuid !== 'function') {
+      Object.defineProperty(process, 'getuid', { value: () => 1000, configurable: true, writable: true });
+      installedGetuidStub = true;
+    }
+  });
+  afterEach(() => {
+    if (installedGetuidStub) {
+      delete (process as { getuid?: unknown }).getuid;
+      installedGetuidStub = false;
+    }
+  });
+
   it('treats localized Windows scheduled-task status as active when the task is running', async () => {
     const originalPlatform = process.platform;
     const originalFetch = globalThis.fetch;
@@ -164,7 +185,8 @@ describe('RelayHostEngine (local health control)', () => {
         const actual = await vi.importActual<typeof import('node:fs')>('node:fs');
         return {
           ...actual,
-          existsSync: (path: string) => path.includes('self-host-state.json') || path.endsWith('/bin/happier-server') || path.endsWith('/server.env'),
+          existsSync: (hostPath: string, path = toPosixTestPath(hostPath)) =>
+            path.includes('self-host-state.json') || path.endsWith('/bin/happier-server') || path.endsWith('/server.env'),
         };
       });
 
@@ -288,6 +310,17 @@ describe('RelayHostEngine (local health control)', () => {
             process.nextTick(() => socket.emit('connect'));
             return socket;
           },
+        };
+      });
+
+      // Declare the configured server.env explicitly instead of relying on the node:fs mock leaked
+      // from the previous test.
+      vi.doMock('node:fs', async () => {
+        const actual = await vi.importActual<typeof import('node:fs')>('node:fs');
+        return {
+          ...actual,
+          existsSync: (hostPath: string, path = toPosixTestPath(hostPath)) =>
+            path.includes('self-host-state.json') || path.endsWith('/bin/happier-server') || path.endsWith('/server.env'),
         };
       });
 

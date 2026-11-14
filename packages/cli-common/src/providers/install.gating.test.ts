@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { spawnSync as spawnLocalCommand } from 'node:child_process';
 import { chmodSync, mkdirSync, writeFileSync } from 'node:fs';
 import { chmod, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { delimiter, join } from 'node:path';
 import { tmpdir } from 'node:os';
 
 import { installProviderCli, resolvePlatformFromNodePlatform } from './install.js';
@@ -204,7 +204,11 @@ describe('installProviderCli vendor_recipe execution gating', () => {
     }
   });
 
-  it('materializes the Unix OpenCode package bin target so the managed launcher is runnable', async () => {
+  // POSIX-host only: the test fakes process.platform=darwin against the real filesystem and then
+  // executes the generated /bin/sh launcher. On a Windows host the darwin home-dir guard rejects the
+  // drive-letter temp paths and sh launchers are not executable. The Windows OpenCode install path
+  // is covered by 'installs Windows OpenCode through managed pnpm instead of system npm'.
+  it.skipIf(process.platform === 'win32')('materializes the Unix OpenCode package bin target so the managed launcher is runnable', async () => {
     if (!originalPlatformDescriptor || !originalArchDescriptor) {
       throw new Error('Expected process.platform to be configurable for this test');
     }
@@ -467,10 +471,12 @@ describe('installProviderCli vendor_recipe execution gating', () => {
         }))
         .mockName('spawnSync');
 
-      const bashPath = join(binDir, process.platform === 'win32' ? 'bash.cmd' : 'bash');
-      await writeFile(bashPath, process.platform === 'win32' ? '@echo off\r\nexit /b 0\r\n' : '#!/bin/sh\nexit 0\n', 'utf8');
+      // The recipe's entry command must exist on PATH (spawnSync itself is mocked): the Windows
+      // claude recipe runs through powershell, the Unix one through bash.
+      const recipeShellPath = join(binDir, process.platform === 'win32' ? 'powershell.cmd' : 'bash');
+      await writeFile(recipeShellPath, process.platform === 'win32' ? '@echo off\r\nexit /b 0\r\n' : '#!/bin/sh\nexit 0\n', 'utf8');
       if (process.platform !== 'win32') {
-        await chmod(bashPath, 0o755);
+        await chmod(recipeShellPath, 0o755);
       }
 
       const res = await installProviderCli({
@@ -482,7 +488,10 @@ describe('installProviderCli vendor_recipe execution gating', () => {
           HAPPIER_HOME_DIR: homeDir,
           KAIWU_HOME_DIR: homeDir,
           HOME: homeDir,
-          PATH: `${binDir}:/bin`,
+          // Windows resolves the home dir from USERPROFILE first; isolate it too so a real
+          // claude install on the host is not picked up by the post-failure availability probe.
+          USERPROFILE: homeDir,
+          PATH: [binDir, '/bin'].join(delimiter),
         },
         skipIfInstalled: false,
         allowVendorRecipeExecution: true,

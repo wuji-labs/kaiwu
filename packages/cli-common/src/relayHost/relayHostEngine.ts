@@ -456,7 +456,13 @@ function parseSystemctlShowOutput(stdout: string): Readonly<{ unitFileState: str
 
 function normalizeComparablePathKey(value: string | null | undefined): string | null {
   const trimmed = String(value ?? '').trim().replace(/[\\/]+$/, '');
-  return trimmed || null;
+  if (!trimmed) return null;
+  // Windows paths (drive-letter or UNC) are separator- and case-insensitive: a WorkingDirectory
+  // written as C:\x\y must match a computed C:\x/y or c:\x\y.
+  if (/^(?:[A-Za-z]:[\\/]|\\\\)/.test(trimmed)) {
+    return trimmed.replace(/[\\/]+/g, '/').toLowerCase();
+  }
+  return trimmed;
 }
 
 function resolveSystemdUnitDefinitionPath(params: Readonly<{
@@ -635,7 +641,8 @@ async function detectLocalRelayStrandedLegacyState(params: Readonly<{
   const legacyKey = normalizeComparablePathKey(legacyInstallRoot);
   const currentKey = normalizeComparablePathKey(params.defaults.installRoot);
   if (!legacyKey || !currentKey || legacyKey === currentKey) return null;
-  const resolvedLegacyInstallRoot = legacyKey;
+  // legacyKey is a comparison key (case/separator-folded on Windows); keep the real path for I/O and messages.
+  const resolvedLegacyInstallRoot = String(legacyInstallRoot ?? '').trim().replace(/[\\/]+$/, '');
 
   const legacyBaseUrl = resolveServiceDefinitionBaseUrl({
     backend: params.backend,

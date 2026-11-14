@@ -1,4 +1,5 @@
-import { dirname, join } from 'node:path';
+import * as hostPath from 'node:path';
+import { dirname, join, posix as posixPath } from 'node:path';
 import { chmod, mkdir, rename, writeFile } from 'node:fs/promises';
 import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
 import { userInfo } from 'node:os';
@@ -90,17 +91,26 @@ function normalizeSpec(spec: ServiceSpec): Required<ServiceSpec> {
   };
 }
 
+// systemd/launchd definitions always live on a POSIX filesystem, so POSIX-absolute paths must keep
+// POSIX separators even when planned from a Windows host. Host-native home dirs (e.g. local test
+// fixtures) keep host semantics; on POSIX hosts both choices are identical.
+function posixTargetPathApi(sample: string): typeof posixPath {
+  return sample.startsWith('/') ? posixPath : hostPath;
+}
+
 function systemdUnitPathForLabel(params: Readonly<{ homeDir: string; label: string; mode: ServiceMode }>): string {
   const unit = `${params.label}.service`;
-  if (params.mode === 'system') return join('/etc/systemd/system', unit);
-  return join(String(params.homeDir ?? '').trim() || '', '.config', 'systemd', 'user', unit);
+  if (params.mode === 'system') return posixPath.join('/etc/systemd/system', unit);
+  const homeDir = String(params.homeDir ?? '').trim() || '';
+  return posixTargetPathApi(homeDir).join(homeDir, '.config', 'systemd', 'user', unit);
 }
 
 function launchdPlistPathForLabel(params: Readonly<{ homeDir: string; label: string; mode: ServiceMode }>): string {
+  const homeDir = String(params.homeDir ?? '').trim() || '';
   const dir = params.mode === 'system'
     ? '/Library/LaunchDaemons'
-    : join(String(params.homeDir ?? '').trim() || '', 'Library', 'LaunchAgents');
-  return join(dir, `${params.label}.plist`);
+    : posixTargetPathApi(homeDir).join(homeDir, 'Library', 'LaunchAgents');
+  return posixTargetPathApi(dir).join(dir, `${params.label}.plist`);
 }
 
 function windowsWrapperPathForLabel(params: Readonly<{ homeDir: string; label: string; mode: ServiceMode }>): string {
@@ -165,12 +175,14 @@ export function buildServiceDefinition(params: Readonly<{ backend: ServiceBacken
   if (backend === 'launchd-user' || backend === 'launchd-system') {
     const mode: ServiceMode = backend === 'launchd-system' ? 'system' : 'user';
     const path = resolveServiceDefinitionPath({ platform: 'darwin', mode, homeDir: params.homeDir, label: s.label });
+    const homeDir = String(params.homeDir ?? '').trim() || '';
+    const userLogPath = (suffix: string) => posixTargetPathApi(homeDir).join(homeDir, '.happier', 'logs', `${s.label}.${suffix}.log`);
     const contents = buildLaunchdPlistXml({
       label: s.label,
       programArgs: s.programArgs,
       env: mergedEnv,
-      stdoutPath: s.stdoutPath || (mode === 'system' ? `/var/log/${s.label}.out.log` : join(String(params.homeDir ?? '').trim() || '', '.happier', 'logs', `${s.label}.out.log`)),
-      stderrPath: s.stderrPath || (mode === 'system' ? `/var/log/${s.label}.err.log` : join(String(params.homeDir ?? '').trim() || '', '.happier', 'logs', `${s.label}.err.log`)),
+      stdoutPath: s.stdoutPath || (mode === 'system' ? `/var/log/${s.label}.out.log` : userLogPath('out')),
+      stderrPath: s.stderrPath || (mode === 'system' ? `/var/log/${s.label}.err.log` : userLogPath('err')),
       workingDirectory: s.workingDirectory,
       keepAliveOnFailure: true,
     });
@@ -212,7 +224,9 @@ function resolveUid(uid: number | null | undefined): number | null {
   } catch {
     // ignore
   }
-  const envUid = Number(String(process.env.UID ?? '').trim());
+  // Number('') === 0: an unset/empty UID must not silently resolve to root's uid.
+  const envUidRaw = String(process.env.UID ?? '').trim();
+  const envUid = /^\d+$/.test(envUidRaw) ? Number(envUidRaw) : Number.NaN;
   if (Number.isFinite(envUid) && envUid >= 0) return Math.floor(envUid);
   return null;
 }

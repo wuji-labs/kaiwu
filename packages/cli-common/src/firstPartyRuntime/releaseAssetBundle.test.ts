@@ -74,7 +74,8 @@ describe('releaseAssetBundle', () => {
 
             const archiveName = `${stem}.tar.gz`;
             const archivePath = join(root, archiveName);
-            const tarRes = spawnSync('tar', ['-czf', archivePath, '-C', root, stem], { encoding: 'utf8' });
+            // Relative -f + cwd: GNU tar (e.g. Git for Windows) parses 'C:...' as a remote host:path.
+            const tarRes = spawnSync('tar', ['-czf', archiveName, stem], { cwd: root, encoding: 'utf8' });
             expect(tarRes.status).toBe(0);
 
             const extractedRoot = await extractReleasePayloadRootFromArchive({
@@ -106,7 +107,7 @@ describe('releaseAssetBundle', () => {
 
             const archiveName = `${stem}.tar.gz`;
             const archivePath = join(root, archiveName);
-            const tarRes = spawnSync('tar', ['-czf', archivePath, '-C', root, stem, 'README.txt'], { encoding: 'utf8' });
+            const tarRes = spawnSync('tar', ['-czf', archiveName, stem, 'README.txt'], { cwd: root, encoding: 'utf8' });
             expect(tarRes.status).toBe(0);
 
             const extractedRoot = await extractReleasePayloadRootFromArchive({
@@ -138,7 +139,7 @@ describe('releaseAssetBundle', () => {
 
             const archiveName = `${stem}.tar.gz`;
             const archivePath = join(root, archiveName);
-            const tarRes = spawnSync('tar', ['-czf', archivePath, '-C', root, stem, '__MACOSX'], { encoding: 'utf8' });
+            const tarRes = spawnSync('tar', ['-czf', archiveName, stem, '__MACOSX'], { cwd: root, encoding: 'utf8' });
             expect(tarRes.status).toBe(0);
 
             const extractedRoot = await extractReleasePayloadRootFromArchive({
@@ -167,7 +168,7 @@ describe('releaseAssetBundle', () => {
 
             const archiveName = `${stem}.tar.xz`;
             const archivePath = join(root, archiveName);
-            const tarRes = spawnSync('tar', ['-cJf', archivePath, '-C', root, stem, 'docs'], { encoding: 'utf8' });
+            const tarRes = spawnSync('tar', ['-cJf', archiveName, stem, 'docs'], { cwd: root, encoding: 'utf8' });
             expect(tarRes.status).toBe(0);
 
             const extractedRoot = await extractReleasePayloadRootFromArchive({

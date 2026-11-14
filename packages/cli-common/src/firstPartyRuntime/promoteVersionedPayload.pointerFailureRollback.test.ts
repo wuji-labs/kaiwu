@@ -56,7 +56,12 @@ async function createPayload(rootDir: string, versionId: string, contents: strin
 }
 
 describe('promoteVersionedPayload pointer swap atomicity', () => {
-    it('fails closed without breaking the existing current pointer when symlink creation fails', async () => {
+    // Exercises the POSIX pointer branch (relative 'dir' symlinks) against the real filesystem while
+    // process.platform is faked to linux. A Windows host cannot run it faithfully: the home-dir guard
+    // rejects the host's drive-letter temp paths on non-win32 platforms and unprivileged Windows
+    // accounts get EPERM for non-junction symlinks. The Windows pointer branch is covered by
+    // promoteVersionedPayload.windowsJunction.test.ts and promoteVersionedPayload.windowsCopyFallback.test.ts.
+    it.skipIf(process.platform === 'win32')('fails closed without breaking the existing current pointer when symlink creation fails', async () => {
         await withPlatform('linux', async () => {
             const homeDir = await mkdtemp(join(tmpdir(), 'happier-promote-pointer-failure-'));
             const env = { ...process.env, HAPPIER_HOME_DIR: homeDir, KAIWU_HOME_DIR: homeDir };

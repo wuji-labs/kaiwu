@@ -1,7 +1,29 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { EventEmitter } from 'node:events';
 
+// The engine builds paths with the host path module while these tests simulate a POSIX host via
+// mocked fs predicates; normalise separators so they match on Windows hosts too (identity on POSIX
+// hosts, and for the tests that simulate win32 itself).
+const toPosixTestPath = (value: string): string =>
+  process.platform === 'win32' ? String(value) : String(value).replace(/\\/g, '/');
+
 describe('RelayHostEngine (local legacy service name compatibility)', () => {
+  // launchd user domains derive from the caller's uid (gui/<uid>). Windows hosts have no
+  // process.getuid, so give the darwin/linux-simulating tests a fixed non-root uid.
+  let installedGetuidStub = false;
+  beforeEach(() => {
+    if (typeof process.getuid !== 'function') {
+      Object.defineProperty(process, 'getuid', { value: () => 501, configurable: true, writable: true });
+      installedGetuidStub = true;
+    }
+  });
+  afterEach(() => {
+    if (installedGetuidStub) {
+      delete (process as { getuid?: unknown }).getuid;
+      installedGetuidStub = false;
+    }
+  });
+
   it('falls back to the legacy unsuffixed systemd unit when the channel-suffixed unit is missing', async () => {
     const originalPlatform = process.platform;
     const originalFetch = globalThis.fetch;
@@ -54,7 +76,7 @@ describe('RelayHostEngine (local legacy service name compatibility)', () => {
         const actual = await vi.importActual<typeof import('node:fs')>('node:fs');
         return {
           ...actual,
-          existsSync: (path: string) =>
+          existsSync: (hostPath: string, path = toPosixTestPath(hostPath)) =>
             path.includes('self-host-state.json')
             || path.endsWith('/bin/happier-server')
             || path.endsWith('/server.env')
@@ -83,7 +105,8 @@ describe('RelayHostEngine (local legacy service name compatibility)', () => {
         const actual = await vi.importActual<typeof import('node:fs/promises')>('node:fs/promises');
         return {
           ...actual,
-          readFile: async (path: string) => {
+          readFile: async (hostPath: string) => {
+            const path = toPosixTestPath(hostPath);
             if (path.endsWith('self-host-state.json')) {
               return '{"version":"0.2.1"}\n';
             }
@@ -177,7 +200,7 @@ describe('RelayHostEngine (local legacy service name compatibility)', () => {
         const actual = await vi.importActual<typeof import('node:fs')>('node:fs');
         return {
           ...actual,
-          existsSync: (path: string) =>
+          existsSync: (hostPath: string, path = toPosixTestPath(hostPath)) =>
             path.includes('self-host-state.json')
             || path.endsWith('/bin/happier-server')
             || path.endsWith('/server.env')
@@ -206,7 +229,8 @@ describe('RelayHostEngine (local legacy service name compatibility)', () => {
         const actual = await vi.importActual<typeof import('node:fs/promises')>('node:fs/promises');
         return {
           ...actual,
-          readFile: async (path: string) => {
+          readFile: async (hostPath: string) => {
+            const path = toPosixTestPath(hostPath);
             if (path.endsWith('server.env')) {
               return 'PORT=3005\nHAPPIER_SERVER_HOST=127.0.0.1\n';
             }
@@ -287,7 +311,7 @@ describe('RelayHostEngine (local legacy service name compatibility)', () => {
         const actual = await vi.importActual<typeof import('node:fs')>('node:fs');
         return {
           ...actual,
-          existsSync: (path: string) =>
+          existsSync: (hostPath: string, path = toPosixTestPath(hostPath)) =>
             path.includes('self-host-state.json')
             || path.endsWith('/bin/happier-server')
             || path.endsWith('/server.env')
@@ -316,7 +340,8 @@ describe('RelayHostEngine (local legacy service name compatibility)', () => {
         const actual = await vi.importActual<typeof import('node:fs/promises')>('node:fs/promises');
         return {
           ...actual,
-          readFile: async (path: string) => {
+          readFile: async (hostPath: string) => {
+            const path = toPosixTestPath(hostPath);
             if (path.endsWith('self-host-state.json')) {
               return '{"version":"0.2.1"}\n';
             }
@@ -411,7 +436,7 @@ describe('RelayHostEngine (local legacy service name compatibility)', () => {
         const actual = await vi.importActual<typeof import('node:fs')>('node:fs');
         return {
           ...actual,
-          existsSync: (path: string) =>
+          existsSync: (hostPath: string, path = toPosixTestPath(hostPath)) =>
             path.endsWith('/server.env')
             || path.endsWith('/Library/LaunchAgents/happier-server.plist'),
         };
@@ -438,7 +463,8 @@ describe('RelayHostEngine (local legacy service name compatibility)', () => {
         const actual = await vi.importActual<typeof import('node:fs/promises')>('node:fs/promises');
         return {
           ...actual,
-          readFile: async (path: string) => {
+          readFile: async (hostPath: string) => {
+            const path = toPosixTestPath(hostPath);
             if (path.endsWith('server.env')) {
               return 'PORT=3005\nHAPPIER_SERVER_HOST=127.0.0.1\n';
             }
@@ -548,7 +574,7 @@ describe('RelayHostEngine (local legacy service name compatibility)', () => {
         const actual = await vi.importActual<typeof import('node:fs')>('node:fs');
         return {
           ...actual,
-          existsSync: (path: string) =>
+          existsSync: (hostPath: string, path = toPosixTestPath(hostPath)) =>
             path.includes('self-host-state.json')
             || path.endsWith('\\bin\\happier-server.exe')
             || path.endsWith('\\server.env')
@@ -560,7 +586,8 @@ describe('RelayHostEngine (local legacy service name compatibility)', () => {
         const actual = await vi.importActual<typeof import('node:fs/promises')>('node:fs/promises');
         return {
           ...actual,
-          readFile: async (path: string) => {
+          readFile: async (hostPath: string) => {
+            const path = toPosixTestPath(hostPath);
             if (path.endsWith('self-host-state.json')) {
               return '{"version":"0.2.1"}\n';
             }
@@ -664,7 +691,7 @@ describe('RelayHostEngine (local legacy service name compatibility)', () => {
         const actual = await vi.importActual<typeof import('node:fs')>('node:fs');
         return {
           ...actual,
-          existsSync: (path: string) =>
+          existsSync: (hostPath: string, path = toPosixTestPath(hostPath)) =>
             path.endsWith('\\server.env')
             || path.endsWith('\\.happier\\services\\happier-server.ps1'),
         };
@@ -691,7 +718,8 @@ describe('RelayHostEngine (local legacy service name compatibility)', () => {
         const actual = await vi.importActual<typeof import('node:fs/promises')>('node:fs/promises');
         return {
           ...actual,
-          readFile: async (path: string) => {
+          readFile: async (hostPath: string) => {
+            const path = toPosixTestPath(hostPath);
             if (path.endsWith('happier-server.ps1')) {
               return '$ErrorActionPreference = "Stop"\nSet-Location -LiteralPath "C:\\Users\\tester\\.happier\\self-host-preview"\n';
             }

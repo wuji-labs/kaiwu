@@ -1,3 +1,5 @@
+import { join } from 'node:path';
+
 import { describe, expect, it, vi } from 'vitest';
 
 import {
@@ -73,11 +75,13 @@ describe('resolveConfiguredRelayRuntimePaths', () => {
         HAPPIER_SELF_HOST_LOG_DIR: '~/relay/logs',
       },
     })).toEqual({
-      installRoot: '/scoped/home/relay/install',
-      binDir: '/scoped/home/relay/bin',
-      configDir: '/scoped/home/relay/config',
-      dataDir: '/scoped/home/relay/data',
-      logDir: '/scoped/home/relay/logs',
+      // Overrides are host paths, so ~/ expansion follows host path semantics
+      // (exactly '/scoped/home/relay/...' on POSIX hosts).
+      installRoot: join('/scoped/home', 'relay', 'install'),
+      binDir: join('/scoped/home', 'relay', 'bin'),
+      configDir: join('/scoped/home', 'relay', 'config'),
+      dataDir: join('/scoped/home', 'relay', 'data'),
+      logDir: join('/scoped/home', 'relay', 'logs'),
     });
   });
 
@@ -89,7 +93,7 @@ describe('resolveConfiguredRelayRuntimePaths', () => {
       HOME: '/scoped/home',
       USERPROFILE: '/scoped/home',
       HAPPIER_SELF_HOST_SERVER_BINARY: '~/bin/happier-server',
-    })).toBe('/scoped/home/bin/happier-server');
+    })).toBe(join('/scoped/home', 'bin', 'happier-server'));
   });
 });
 

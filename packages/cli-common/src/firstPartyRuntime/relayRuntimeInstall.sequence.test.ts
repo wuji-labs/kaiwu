@@ -1,4 +1,4 @@
-import { access, chmod, lstat, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { access, chmod, copyFile, lstat, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 
@@ -154,46 +154,71 @@ describe('installOrUpdateRelayRuntimeLocal sequencing', () => {
         try {
             const payloadRoot = join(homeDir, 'payload');
             await mkdir(payloadRoot, { recursive: true });
-            const serverBinaryPath = join(payloadRoot, 'happier-server');
+            // The migration binary is really spawned, so it must be executable on this host: a POSIX
+            // shell fixture for a linux target, or (Windows hosts cannot exec shebang scripts) a copy of
+            // node.exe for a win32 target whose behaviour is injected via NODE_OPTIONS --require.
+            const hostIsWindows = process.platform === 'win32';
+            const targetPlatform: NodeJS.Platform = hostIsWindows ? 'win32' : 'linux';
+            const exeSuffix = hostIsWindows ? '.exe' : '';
+            const serverBinaryPath = join(payloadRoot, `happier-server${exeSuffix}`);
             await writeFile(serverBinaryPath, '#!/bin/sh\n', 'utf8');
             await mkdir(join(payloadRoot, 'runtime'), { recursive: true });
             await mkdir(join(payloadRoot, 'prisma', 'migrations'), { recursive: true });
             await writeFile(join(payloadRoot, 'runtime', 'fixture.txt'), 'runtime\n', 'utf8');
             await writeFile(join(payloadRoot, 'prisma', 'migrations', 'fixture.sql'), '-- fixture\n', 'utf8');
             const migrationMarkerPath = join(homeDir, 'migration-ran.txt');
-            const migrationBinaryPath = join(payloadRoot, 'happier-server-migrate');
-            await writeFile(migrationBinaryPath, [
-                '#!/bin/sh',
-                'set -eu',
-                'root="$(dirname "$0")"',
-                'test -f "$root/runtime/fixture.txt"',
-                'test -f "$root/prisma/migrations/fixture.sql"',
-                'printf "%s\\n" "$HAPPIER_DB_PROVIDER" > "$MIGRATION_MARKER_PATH"',
-                '',
-            ].join('\n'), 'utf8');
-            await chmod(migrationBinaryPath, 0o755);
+            const migrationBinaryName = `happier-server-migrate${exeSuffix}`;
+            const migrationBinaryPath = join(payloadRoot, migrationBinaryName);
+            const hostEnv: Record<string, string> = {};
+            if (hostIsWindows) {
+                await copyFile(process.execPath, migrationBinaryPath);
+                const preloadPath = join(homeDir, 'migration-fixture.cjs');
+                await writeFile(preloadPath, [
+                    "const { existsSync, writeFileSync } = require('node:fs');",
+                    "const { dirname, join } = require('node:path');",
+                    'const root = dirname(process.execPath);',
+                    "if (!existsSync(join(root, 'runtime', 'fixture.txt'))) process.exit(11);",
+                    "if (!existsSync(join(root, 'prisma', 'migrations', 'fixture.sql'))) process.exit(12);",
+                    "writeFileSync(process.env.MIGRATION_MARKER_PATH, process.env.HAPPIER_DB_PROVIDER + '\\n');",
+                    'process.exit(0);',
+                    '',
+                ].join('\n'), 'utf8');
+                hostEnv.NODE_OPTIONS = `--require ${JSON.stringify(preloadPath)}`;
+            } else {
+                await writeFile(migrationBinaryPath, [
+                    '#!/bin/sh',
+                    'set -eu',
+                    'root="$(dirname "$0")"',
+                    'test -f "$root/runtime/fixture.txt"',
+                    'test -f "$root/prisma/migrations/fixture.sql"',
+                    'printf "%s\\n" "$HAPPIER_DB_PROVIDER" > "$MIGRATION_MARKER_PATH"',
+                    '',
+                ].join('\n'), 'utf8');
+                await chmod(migrationBinaryPath, 0o755);
+            }
 
             await installOrUpdateRelayRuntimeLocal({
                 serverBinaryPath,
                 channel: 'preview',
                 mode: 'user',
-                platform: 'linux',
+                platform: targetPlatform,
                 homeDir,
                 env: {
                     HAPPIER_DB_PROVIDER: 'postgres',
                     DATABASE_URL: 'postgresql://operator:secret@db.example.test/happier',
                     MIGRATION_MARKER_PATH: migrationMarkerPath,
+                    ...hostEnv,
                 },
                 runServiceCommands: false,
                 skipHealthCheck: true,
             });
 
-            const defaults = resolveRelayRuntimeDefaults({ platform: 'linux', mode: 'user', channel: 'preview', homeDir });
+            const defaults = resolveRelayRuntimeDefaults({ platform: targetPlatform, mode: 'user', channel: 'preview', homeDir });
             await expect(readFile(migrationMarkerPath, 'utf8')).resolves.toBe('postgres\n');
             await expect(readFile(join(defaults.installRoot, 'bin', 'runtime', 'fixture.txt'), 'utf8')).resolves.toBe('runtime\n');
             await expect(readFile(join(defaults.installRoot, 'bin', 'prisma', 'migrations', 'fixture.sql'), 'utf8'))
                 .resolves.toBe('-- fixture\n');
-            await expect(access(join(defaults.installRoot, 'happier-server-migrate'))).rejects.toMatchObject({ code: 'ENOENT' });
+            await expect(access(join(defaults.installRoot, migrationBinaryName))).rejects.toMatchObject({ code: 'ENOENT' });
         } finally {
             await rm(homeDir, { recursive: true, force: true });
         }

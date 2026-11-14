@@ -46,9 +46,9 @@ describe('server runtime artifact layout', () => {
             migrationBinaryPath: '/opt/happier/bin/happier-server-migrate',
         });
         expect(resolveManagedServerRuntimePaths({ installRoot: 'C:\\Happier', platform: 'win32' })).toEqual({
-            runtimeRoot: join('C:\\Happier', 'bin'),
-            serverBinaryPath: join('C:\\Happier', 'bin', 'happier-server.exe'),
-            migrationBinaryPath: join('C:\\Happier', 'bin', 'happier-server-migrate.exe'),
+            runtimeRoot: 'C:\\Happier\\bin',
+            serverBinaryPath: 'C:\\Happier\\bin\\happier-server.exe',
+            migrationBinaryPath: 'C:\\Happier\\bin\\happier-server-migrate.exe',
         });
     });
 });

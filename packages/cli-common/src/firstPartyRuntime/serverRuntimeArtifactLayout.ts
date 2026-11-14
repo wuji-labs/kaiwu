@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs';
 import { mkdir, rename, stat } from 'node:fs/promises';
-import { basename, dirname, join } from 'node:path';
+import * as hostPath from 'node:path';
+import { basename, dirname, join, posix as posixPath, win32 as win32Path } from 'node:path';
 
 export const SERVER_RUNTIME_DIRECTORY_ENTRY_NAMES = Object.freeze([
     'generated',
@@ -35,11 +36,18 @@ export function resolveManagedServerRuntimePaths(params: Readonly<{
     migrationBinaryPath: string;
 }> {
     const names = resolveServerRuntimeExecutableNames(params.platform);
-    const runtimeRoot = join(params.installRoot, 'bin');
+    // Target-platform path semantics: win32 targets always use win32 joins and POSIX-absolute
+    // targets always use POSIX joins, independent of the host running this code. Host-native
+    // relative/drive paths keep host semantics (identical to posix on POSIX hosts).
+    const platform = params.platform ?? process.platform;
+    const pathApi = platform === 'win32'
+        ? win32Path
+        : params.installRoot.startsWith('/') ? posixPath : hostPath;
+    const runtimeRoot = pathApi.join(params.installRoot, 'bin');
     return {
         runtimeRoot,
-        serverBinaryPath: join(runtimeRoot, names.server),
-        migrationBinaryPath: join(runtimeRoot, names.migrate),
+        serverBinaryPath: pathApi.join(runtimeRoot, names.server),
+        migrationBinaryPath: pathApi.join(runtimeRoot, names.migrate),
     };
 }
 

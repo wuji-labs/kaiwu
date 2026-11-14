@@ -20,13 +20,15 @@ export async function createScpReadyPayloadArchive(payloadRoot: string): Promise
   const archiveFileName = `${extractedPayloadDirName}.tar`;
 
   try {
+    // Write the archive relative to cwd: GNU tar (e.g. Git for Windows' tar on PATH) treats an
+    // `-f C:/...` archive argument as `host:path` and fails with "Cannot connect to C:".
     await execFileAsync('tar', [
       '-cf',
-      join(archiveStageRoot, archiveFileName),
+      archiveFileName,
       '-C',
       join(scpReadyPayload.payloadRoot, '..'),
       extractedPayloadDirName,
-    ]);
+    ], { cwd: archiveStageRoot });
     return {
       archiveStageRoot,
       archiveFileName,

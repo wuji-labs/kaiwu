@@ -1,9 +1,11 @@
-import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import type { RemoteBootstrapMachineParams } from '@happier-dev/cli-common/systemTasks';
 import { describe, expect, it, vi } from 'vitest';
+
+import { patchPathForFakeCommands, writeFakeNodeCommand } from '../testing/writeFakeNodeCommand.js';
 
 import {
     installRemoteCliDefault,
@@ -24,8 +26,6 @@ function createFakeSsh(scenario: Readonly<{
 }> {
     const rootDir = mkdtempSync(join(tmpdir(), 'hsetup-fake-ssh-'));
     const binDir = join(rootDir, 'bin');
-    const sshPath = join(binDir, 'ssh');
-    const scpPath = join(binDir, 'scp');
     const statePath = join(rootDir, 'scenario.json');
     const logPath = join(rootDir, 'invocations.log');
 
@@ -38,10 +38,7 @@ function createFakeSsh(scenario: Readonly<{
     );
     mkdirSync(binDir, { recursive: true });
     writeFileSync(logPath, '', 'utf8');
-    writeFileSync(
-        sshPath,
-        `#!/usr/bin/env node
-const { appendFileSync, readFileSync, writeFileSync } = require('node:fs');
+    writeFakeNodeCommand(binDir, 'ssh', `const { appendFileSync, readFileSync, writeFileSync } = require('node:fs');
 
 const statePath = process.env.KAIWU_FAKE_SSH_STATE_PATH;
 const logPath = process.env.KAIWU_FAKE_SSH_LOG_PATH;
@@ -57,22 +54,13 @@ writeFileSync(statePath, JSON.stringify(state), 'utf8');
 if (next.stdout) process.stdout.write(String(next.stdout));
 if (next.stderr) process.stderr.write(String(next.stderr));
 process.exit(Number(next.status ?? 0));
-`,
-        'utf8',
-    );
-    chmodSync(sshPath, 0o755);
-    writeFileSync(
-        scpPath,
-        `#!/usr/bin/env node
-const { appendFileSync } = require('node:fs');
+`);
+    writeFakeNodeCommand(binDir, 'scp', `const { appendFileSync } = require('node:fs');
 
 const logPath = process.env.KAIWU_FAKE_SSH_LOG_PATH;
 appendFileSync(logPath, JSON.stringify(['scp', ...process.argv.slice(2)]) + '\\n');
 process.exit(0);
-`,
-        'utf8',
-    );
-    chmodSync(scpPath, 0o755);
+`);
 
     return {
         binDir,
@@ -87,18 +75,13 @@ process.exit(0);
 }
 
 function withPatchedPath<T>(binDir: string, run: () => Promise<T>): Promise<T> {
-    const previousPath = process.env.PATH;
     const previousStatePath = process.env.KAIWU_FAKE_SSH_STATE_PATH;
     const previousLogPath = process.env.KAIWU_FAKE_SSH_LOG_PATH;
-    process.env.PATH = `${binDir}:${previousPath ?? ''}`;
+    const restorePath = patchPathForFakeCommands(binDir);
     process.env.KAIWU_FAKE_SSH_STATE_PATH = join(binDir, '..', 'scenario.json');
     process.env.KAIWU_FAKE_SSH_LOG_PATH = join(binDir, '..', 'invocations.log');
     return run().finally(() => {
-        if (previousPath === undefined) {
-            delete process.env.PATH;
-        } else {
-            process.env.PATH = previousPath;
-        }
+        restorePath();
         if (previousStatePath === undefined) {
             delete process.env.KAIWU_FAKE_SSH_STATE_PATH;
         } else {
@@ -122,13 +105,9 @@ function createFakeSshKeyscan(scenario: Readonly<{
 }> {
     const rootDir = mkdtempSync(join(tmpdir(), 'hsetup-fake-keyscan-'));
     const binDir = join(rootDir, 'bin');
-    const keyscanPath = join(binDir, 'ssh-keyscan');
 
     mkdirSync(binDir, { recursive: true });
-    writeFileSync(
-        keyscanPath,
-        `#!/usr/bin/env node
-const scenario = ${JSON.stringify({
+    writeFakeNodeCommand(binDir, 'ssh-keyscan', `const scenario = ${JSON.stringify({
     status: scenario.status ?? 0,
     stdout: scenario.stdout ?? '',
     stderr: scenario.stderr ?? '',
@@ -136,10 +115,7 @@ const scenario = ${JSON.stringify({
 if (scenario.stdout) process.stdout.write(String(scenario.stdout));
 if (scenario.stderr) process.stderr.write(String(scenario.stderr));
 process.exit(Number(scenario.status ?? 0));
-`,
-        'utf8',
-    );
-    chmodSync(keyscanPath, 0o755);
+`);
 
     return {
         binDir,
@@ -313,8 +289,10 @@ describe('runRemoteBootstrapCommandDefault', () => {
             });
 
             const remoteCommand = fakeSsh.readInvocations().at(-1)?.at(-1) ?? '';
-            expect(remoteCommand).toContain('$HOME/.happier/cli-preview/current/happier auth status --json');
+            // The managed CLI binary was rebranded to `kaiwu` (componentCatalog binaryRelativePath).
+            expect(remoteCommand).toContain('$HOME/.happier/cli-preview/current/kaiwu auth status --json');
             expect(remoteCommand).not.toContain('$HOME/.happier/bin/happier');
+            expect(remoteCommand).not.toContain('$HOME/.happier/bin/kaiwu');
         } finally {
             fakeSsh.cleanup();
         }

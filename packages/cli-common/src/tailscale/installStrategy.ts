@@ -98,8 +98,14 @@ export function extractTailscaleInstallerDownloadUrl(params: Readonly<{
   return null;
 }
 
+// Kaiwu rebrand: KAIWU_* overrides take precedence over the legacy HAPPIER_* keys.
+function readEnvWithKaiwuAlias(env: NodeJS.ProcessEnv, legacyKey: string): string {
+  const kaiwuValue = String(env[legacyKey.replace(/^HAPPIER_/, 'KAIWU_')] ?? '').trim();
+  return kaiwuValue || String(env[legacyKey] ?? '').trim();
+}
+
 function readInstallModeOverride(env: NodeJS.ProcessEnv): 'manual' | null {
-  const raw = String(env[INSTALL_MODE_ENV_KEY] ?? '').trim().toLowerCase();
+  const raw = readEnvWithKaiwuAlias(env, INSTALL_MODE_ENV_KEY).toLowerCase();
   return raw === 'manual' ? 'manual' : null;
 }
 
@@ -114,7 +120,7 @@ function resolveDocsUrl(platform: NodeJS.Platform, env: NodeJS.ProcessEnv): stri
 }
 
 function readUrlEnv(env: NodeJS.ProcessEnv, key: string): string | null {
-  const value = String(env[key] ?? '').trim();
+  const value = readEnvWithKaiwuAlias(env, key);
   if (!value) {
     return null;
   }

@@ -47,8 +47,16 @@ async function collectStaticRuntimeScriptAssetSegments(): Promise<string[][]> {
         .filter((file) => file.endsWith('.ts') || file.endsWith('.tsx'));
     const assetKeys = new Set<string>();
 
-    for (const file of cliSourceFiles) {
-        const source = await readFile(file, 'utf8');
+    // apps/cli/src has thousands of files; read them concurrently in bounded batches instead of one
+    // await per file, which is latency-bound (especially on Windows with real-time AV scanning).
+    const sources: string[] = [];
+    for (let index = 0; index < cliSourceFiles.length; index += 128) {
+        sources.push(...await Promise.all(
+            cliSourceFiles.slice(index, index + 128).map(async (file) => await readFile(file, 'utf8')),
+        ));
+    }
+
+    for (const source of sources) {
         const matches = source.matchAll(/resolveCliRuntimeAssetPath\(\s*['"]scripts['"]\s*,\s*([\s\S]*?)\)/g);
         for (const match of matches) {
             const argsSource = String(match[1] ?? '');
@@ -246,6 +254,8 @@ describe('buildCliBinaryArtifactPayload bundled workspace sync', () => {
         }
         await expect(readFile(join(payloadDir, 'tools', 'unpacked', '.happier-tools-manifest.json'), 'utf8'))
             .resolves.toContain('"zellij"');
-    });
+        // I/O-heavy (scans all of apps/cli/src and builds a payload tree): ~4-8s alone, but several
+        // times slower when the full suite saturates a Windows host, so give it more than the 60s default.
+    }, 180_000);
 
 });

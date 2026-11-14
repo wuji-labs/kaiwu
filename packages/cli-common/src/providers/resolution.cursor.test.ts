@@ -14,6 +14,12 @@ function makeTempDir(): string {
   return dir;
 }
 
+// Windows paths are case-insensitive and PATHEXT lookup may report e.g. `.CMD` for an on-disk `.cmd`.
+function normalizeResolvedCommand<T extends { command: string } | null>(resolved: T): T {
+  if (!resolved || process.platform !== 'win32') return resolved;
+  return { ...resolved, command: resolved.command.toLowerCase() };
+}
+
 function writeExecutable(dir: string, name: string, scriptBody = 'exit 0'): string {
   const path = join(dir, process.platform === 'win32' ? `${name}.cmd` : name);
   writeFileSync(
@@ -42,18 +48,18 @@ describe('Cursor provider CLI resolution', () => {
     writeExecutable(binDir, 'agent');
     const cursorAgent = writeExecutable(binDir, 'cursor-agent');
 
-    expect(resolveProviderCliCommand('cursor', {
+    expect(normalizeResolvedCommand(resolveProviderCliCommand('cursor', {
       processEnv: { ...process.env, PATH: binDir, HOME: binDir },
-    })).toEqual({ source: 'system', command: cursorAgent });
+    }))).toEqual(normalizeResolvedCommand({ source: 'system', command: cursorAgent }));
   });
 
   it('falls back to agent when cursor-agent is unavailable', () => {
     const binDir = makeTempDir();
     const agent = writeExecutable(binDir, 'agent', process.platform === 'win32' ? 'echo {"cliVersion":"2026.05.24-test"}\r\nexit /b 0' : 'echo \'{"cliVersion":"2026.05.24-test"}\'');
 
-    expect(resolveProviderCliCommand('cursor', {
+    expect(normalizeResolvedCommand(resolveProviderCliCommand('cursor', {
       processEnv: { ...process.env, PATH: binDir, HOME: binDir },
-    })).toEqual({ source: 'system', command: agent });
+    }))).toEqual(normalizeResolvedCommand({ source: 'system', command: agent }));
   });
 
   it('honors Cursor settings that disable the generic agent fallback binary', () => {

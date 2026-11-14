@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 
+// The engine builds paths with the host path module; these tests use POSIX-style fixture paths, so
+// compare with normalised separators to keep them valid on Windows hosts (identity on POSIX hosts).
+const toPosixTestPath = (value: string): string => String(value).replace(/\\/g, '/');
+
 describe('RelayHostEngine (local uninstall cleanup)', () => {
   it('preserves relay data and persistent configuration during uninstall', async () => {
     const originalPlatform = process.platform;
@@ -194,7 +198,7 @@ describe('RelayHostEngine (local uninstall cleanup)', () => {
         action: 'uninstall',
       });
 
-      expect(rmCalls.some((call) => call.path === statePath && call.force === true)).toBe(true);
+      expect(rmCalls.some((call) => toPosixTestPath(call.path) === statePath && call.force === true)).toBe(true);
     } finally {
       Object.defineProperty(process, 'platform', { value: originalPlatform });
       if (originalGetuid) (process as unknown as { getuid?: (() => number) | undefined }).getuid = originalGetuid;
@@ -356,7 +360,7 @@ describe('RelayHostEngine (local uninstall cleanup)', () => {
           ...actual,
           existsSync: (path: string) =>
             path.endsWith('happier-server.ps1')
-            || path === '/tmp/windows-system32/powershell.exe',
+            || toPosixTestPath(path) === '/tmp/windows-system32/powershell.exe',
         };
       });
 
