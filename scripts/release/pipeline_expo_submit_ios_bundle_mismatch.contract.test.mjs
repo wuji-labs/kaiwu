@@ -19,7 +19,7 @@ test('expo-submit fails when iOS archive bundle id does not match requested envi
     '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">',
     '<plist version="1.0"><dict>',
     '<key>CFBundleIdentifier</key><string>{bundle_id}</string>',
-    '<key>CFBundleDisplayName</key><string>Happier (preview)</string>',
+    '<key>CFBundleDisplayName</key><string>无极开物 (preview)</string>',
     '<key>CFBundleShortVersionString</key><string>0.1.0</string>',
     '<key>CFBundleVersion</key><string>48</string>',
     '</dict></plist>"""',
@@ -33,7 +33,7 @@ test('expo-submit fails when iOS archive bundle id does not match requested envi
       '-c',
       pythonScript,
       artifact,
-      'dev.happier.app.preview',
+      'com.wujilabs.kaiwu.preview',
     ],
     { cwd: repoRoot, stdio: 'ignore', timeout: 30_000 },
   );
@@ -66,7 +66,7 @@ test('expo-submit fails when iOS archive bundle id does not match requested envi
       assert.equal(typeof err, 'object');
       const stderr = /** @type {any} */ (err).stderr?.toString?.() ?? '';
       assert.match(stderr, /bundle identifier/i);
-      assert.match(stderr, /dev\.happier\.app\.preview/);
+      assert.match(stderr, /com\.wujilabs\.kaiwu\.preview/);
       assert.match(stderr, /production/);
       return true;
     },

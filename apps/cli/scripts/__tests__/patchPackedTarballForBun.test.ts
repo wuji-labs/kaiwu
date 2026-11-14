@@ -85,7 +85,9 @@ describe('patchPackedTarballForBun', () => {
     };
 
     expect(patchedPkg.bin).toEqual({
-      happier: './bin/happier.mjs',
+      kaiwu: './bin/kaiwu.mjs',
+      happier: './bin/kaiwu.mjs',
+      hprev: './bin/kaiwu.mjs',
       'happier-dev': './bin/happier-dev.mjs',
       'happier-mcp': './bin/happier-mcp.mjs',
     });

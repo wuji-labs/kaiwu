@@ -27,11 +27,11 @@ test('prepares a dependency-free Android submit project from canonical app ident
     const app = JSON.parse(fs.readFileSync(path.join(outputDir, 'app.json'), 'utf8'));
     const eas = JSON.parse(fs.readFileSync(path.join(outputDir, 'eas.json'), 'utf8'));
     assert.deepEqual(app.expo, {
-      name: 'Happier (preview)',
-      slug: 'happier',
-      owner: 'happier-dev',
-      android: { package: 'dev.happier.app.preview' },
-      extra: { eas: { projectId: '2a550bd7-e4d2-4f59-ab47-dcb778775cee' } },
+      name: '无极开物 (preview)',
+      slug: 'kaiwu',
+      owner: 'wujilabs',
+      android: { package: 'com.wujilabs.kaiwu.preview' },
+      extra: { eas: { projectId: 'fe8b4c48-acd5-40c8-8682-06e285dc28b5' } },
     });
     assert.deepEqual(eas, { submit: { preview: { android: { track: 'internal' } } } });
     assert.deepEqual(JSON.parse(fs.readFileSync(path.join(outputDir, 'package.json'), 'utf8')), {
@@ -93,7 +93,7 @@ test('static submit workspace normalizes the public dev profile to its canonical
     );
     const app = JSON.parse(fs.readFileSync(path.join(outputDir, 'app.json'), 'utf8'));
     const eas = JSON.parse(fs.readFileSync(path.join(outputDir, 'eas.json'), 'utf8'));
-    assert.equal(app.expo.android.package, 'dev.happier.app.publicdev');
+    assert.equal(app.expo.android.package, 'com.wujilabs.kaiwu.publicdev');
     assert.deepEqual(eas, {
       submit: { publicdev: { android: { track: 'internal', releaseStatus: 'draft' } } },
     });

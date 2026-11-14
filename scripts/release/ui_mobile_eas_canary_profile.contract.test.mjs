@@ -21,8 +21,8 @@ test('apps/ui/eas.json defines internalpreview profiles for release-like private
   assert.equal(internalpreview.channel, 'internalpreview');
   assert.equal(internalpreview?.env?.APP_ENV, 'internalpreview');
   assert.equal(internalpreview?.env?.EXPO_UPDATES_CHANNEL, 'internalpreview');
-  assert.equal(internalpreview?.env?.EXPO_APP_NAME, 'Happier (internal preview)');
-  assert.equal(internalpreview?.env?.EXPO_APP_BUNDLE_ID, 'dev.happier.app.internalpreview');
+  assert.equal(internalpreview?.env?.EXPO_APP_NAME, '无极开物 (internal preview)');
+  assert.equal(internalpreview?.env?.EXPO_APP_BUNDLE_ID, 'com.wujilabs.kaiwu.internalpreview');
   assert.equal(internalpreview?.env?.EXPO_APP_SCHEME, undefined);
 
   const internalpreviewApk = build?.['internalpreview-apk'] ?? null;
@@ -34,7 +34,7 @@ test('apps/ui/eas.json defines internalpreview profiles for release-like private
   assert.equal(internalpreviewApk?.android?.buildType, 'apk');
   assert.equal(internalpreviewApk?.env?.APP_ENV, 'internalpreview');
   assert.equal(internalpreviewApk?.env?.EXPO_UPDATES_CHANNEL, 'internalpreview');
-  assert.equal(internalpreviewApk?.env?.EXPO_APP_NAME, 'Happier (internal preview)');
-  assert.equal(internalpreviewApk?.env?.EXPO_APP_BUNDLE_ID, 'dev.happier.app.internalpreview');
+  assert.equal(internalpreviewApk?.env?.EXPO_APP_NAME, '无极开物 (internal preview)');
+  assert.equal(internalpreviewApk?.env?.EXPO_APP_BUNDLE_ID, 'com.wujilabs.kaiwu.internalpreview');
   assert.equal(internalpreviewApk?.env?.EXPO_APP_SCHEME, undefined);
 });

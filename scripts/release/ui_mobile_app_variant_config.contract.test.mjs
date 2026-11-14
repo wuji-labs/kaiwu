@@ -24,9 +24,9 @@ test('appVariantConfig treats publicdev as a preview-like public ring with its o
 
   assert.equal(publicdev.id, 'publicdev');
   assert.equal(publicdev.logicalVariant, 'preview');
-  assert.equal(publicdev.name, 'Happier (dev)');
-  assert.equal(publicdev.iosBundleId, 'dev.happier.app.publicdev');
-  assert.equal(publicdev.androidPackage, 'dev.happier.app.publicdev');
+  assert.equal(publicdev.name, '无极开物 (dev)');
+  assert.equal(publicdev.iosBundleId, 'com.wujilabs.kaiwu.publicdev');
+  assert.equal(publicdev.androidPackage, 'com.wujilabs.kaiwu.publicdev');
   assert.equal(publicdev.scheme, 'happier-dev');
   assert.equal(publicdev.scheme, getReleaseRingCatalogEntry('publicdev').appScheme);
   // User-facing OTA channel should be "dev" (internal lane is "publicdev").

@@ -21,8 +21,29 @@ test('ui tauri workflows build the bootstrap sidecar before dev/build and cargo 
 
     assert.equal(
         String(bootstrapPackageJson?.scripts?.['build:binary'] ?? ''),
-        'yarn -s build:shared && yarn -s build && node scripts/buildBinary.mjs',
+        'node scripts/buildBinaryWithDeps.mjs',
+        'bootstrap build:binary should route through the single ordered build owner',
+    );
+    // The ordered owner must build shared workspace dependencies first, then the bootstrap dist
+    // (the same steps as `build`), and only then compile the binary.
+    const bootstrapBuildBinaryWithDepsScript = await readFile(
+        join(repoRoot, 'apps', 'bootstrap', 'scripts', 'buildBinaryWithDeps.mjs'),
+        'utf8',
+    );
+    const orderedSteps = [
+        "'scripts/buildSharedDeps.mjs'",
+        "'../../scripts/workspaces/buildTypeScriptPackageDist.mjs', '-p', 'tsconfig.json'",
+        "'scripts/writeDistBinWrappers.mjs'",
+        "'scripts/buildBinary.mjs'",
+    ].map((step) => bootstrapBuildBinaryWithDepsScript.indexOf(step));
+    assert.ok(
+        orderedSteps.every((index, position) => index >= 0 && (position === 0 || index > orderedSteps[position - 1])),
         'bootstrap build:binary should build its shared workspace dependencies first',
+    );
+    assert.equal(
+        String(bootstrapPackageJson?.scripts?.build ?? ''),
+        'node ../../scripts/workspaces/buildTypeScriptPackageDist.mjs -p tsconfig.json && node scripts/writeDistBinWrappers.mjs',
+        'bootstrap build:binary must mirror the bootstrap build steps',
     );
     assert.equal(
         String(bootstrapPackageJson?.scripts?.['build:shared'] ?? ''),

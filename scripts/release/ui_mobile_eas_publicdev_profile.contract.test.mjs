@@ -23,8 +23,8 @@ test('apps/ui/eas.json defines publicdev profiles for the public nightly dev lan
   assert.equal(publicdev.channel, 'dev');
   assert.equal(publicdev?.env?.APP_ENV, 'publicdev');
   assert.equal(publicdev?.env?.EXPO_UPDATES_CHANNEL, 'dev');
-  assert.equal(publicdev?.env?.EXPO_APP_NAME, 'Happier (dev)');
-  assert.equal(publicdev?.env?.EXPO_APP_BUNDLE_ID, 'dev.happier.app.publicdev');
+  assert.equal(publicdev?.env?.EXPO_APP_NAME, '无极开物 (dev)');
+  assert.equal(publicdev?.env?.EXPO_APP_BUNDLE_ID, 'com.wujilabs.kaiwu.publicdev');
   assert.equal(publicdev?.env?.EXPO_APP_SCHEME, undefined);
 
   const publicdevApk = build?.['publicdev-apk'] ?? null;
@@ -36,8 +36,8 @@ test('apps/ui/eas.json defines publicdev profiles for the public nightly dev lan
   assert.equal(publicdevApk?.android?.buildType, 'apk');
   assert.equal(publicdevApk?.env?.APP_ENV, 'publicdev');
   assert.equal(publicdevApk?.env?.EXPO_UPDATES_CHANNEL, 'dev');
-  assert.equal(publicdevApk?.env?.EXPO_APP_NAME, 'Happier (dev)');
-  assert.equal(publicdevApk?.env?.EXPO_APP_BUNDLE_ID, 'dev.happier.app.publicdev');
+  assert.equal(publicdevApk?.env?.EXPO_APP_NAME, '无极开物 (dev)');
+  assert.equal(publicdevApk?.env?.EXPO_APP_BUNDLE_ID, 'com.wujilabs.kaiwu.publicdev');
   assert.equal(publicdevApk?.env?.EXPO_APP_SCHEME, undefined);
 
   const publicdevDevClient = build?.['publicdev-dev-client'] ?? null;
@@ -51,9 +51,9 @@ test('apps/ui/eas.json defines publicdev profiles for the public nightly dev lan
   assert.match(publicdevDevClient?.android?.gradleCommand ?? '', /assembleDebug/);
   assert.equal(publicdevDevClient?.env?.APP_ENV, 'publicdev');
   assert.equal(publicdevDevClient?.env?.EXPO_UPDATES_CHANNEL, 'dev');
-  assert.equal(publicdevDevClient?.env?.EXPO_APP_NAME, 'Happier (dev)');
-  assert.equal(publicdevDevClient?.env?.EXPO_APP_BUNDLE_ID, 'dev.happier.app.publicdev.devclient');
-  assert.equal(publicdevDevClient?.env?.EXPO_ANDROID_PACKAGE, 'dev.happier.app.publicdev.devclient');
+  assert.equal(publicdevDevClient?.env?.EXPO_APP_NAME, '无极开物 (dev)');
+  assert.equal(publicdevDevClient?.env?.EXPO_APP_BUNDLE_ID, 'com.wujilabs.kaiwu.publicdev.devclient');
+  assert.equal(publicdevDevClient?.env?.EXPO_ANDROID_PACKAGE, 'com.wujilabs.kaiwu.publicdev.devclient');
   assert.equal(publicdevDevClient?.env?.EXPO_APP_SCHEME, 'happier-dev-devclient');
   assert.equal(publicdevDevClient?.env?.HAPPIER_EXPO_USE_NATIVE_DEBUG, undefined);
   assert.equal(publicdevDevClient?.env?.EX_UPDATES_NATIVE_DEBUG, undefined);
@@ -89,7 +89,7 @@ test('publicdev dev-client local iOS builds cleanly regenerate native code under
     ['run:ios', '--device', 'test-device'],
   ]);
   assert.equal(plan.env.APP_ENV, 'publicdev');
-  assert.equal(plan.env.EXPO_APP_BUNDLE_ID, 'dev.happier.app.publicdev.devclient');
+  assert.equal(plan.env.EXPO_APP_BUNDLE_ID, 'com.wujilabs.kaiwu.publicdev.devclient');
   assert.equal(plan.env.EXPO_APP_SCHEME, 'happier-dev-devclient');
   assert.equal(plan.env.HAPPIER_EXPO_DEVCLIENT_LAUNCH_MODE, 'most-recent');
   assert.equal(plan.env.HAPPIER_EXPO_DEVCLIENT_SILENT_LAUNCH, 'true');

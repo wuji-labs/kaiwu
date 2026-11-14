@@ -30,9 +30,12 @@ test('appVariantConfig stays in sync with release ring catalog', () => {
       ring.embeddedPolicyEnv,
       `${environment}.featurePolicyEnv must match release ring ${ringId}.embeddedPolicyEnv`,
     );
-    assert.equal(
+    // Production registers the Kaiwu brand scheme first and keeps the ring's canonical scheme so
+    // previously issued happier:// deep links keep resolving to the store app.
+    const expectedScheme = environment === 'production' ? ['kaiwu', ring.appScheme] : ring.appScheme;
+    assert.deepEqual(
       config.scheme,
-      ring.appScheme,
+      expectedScheme,
       `${environment}.scheme must match release ring ${ringId}.appScheme`,
     );
 

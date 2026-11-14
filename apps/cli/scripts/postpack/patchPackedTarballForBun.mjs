@@ -66,8 +66,11 @@ function stripInternalWorkspaceDeps(pkgJson) {
   };
 }
 
+// Kaiwu is the primary command; `happier` stays as a legacy alias of the same entrypoint.
 const CLI_PUBLISHED_BIN_CONTRACT = Object.freeze({
-  happier: './bin/happier.mjs',
+  kaiwu: './bin/kaiwu.mjs',
+  happier: './bin/kaiwu.mjs',
+  hprev: './bin/kaiwu.mjs',
   'happier-dev': './bin/happier-dev.mjs',
   'happier-mcp': './bin/happier-mcp.mjs',
 });

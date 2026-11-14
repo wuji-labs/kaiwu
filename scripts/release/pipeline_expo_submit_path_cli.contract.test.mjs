@@ -19,7 +19,7 @@ test('pipeline CLI supports --path for expo-submit (dry-run)', () => {
     '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">',
     '<plist version="1.0"><dict>',
     '<key>CFBundleIdentifier</key><string>{bundle_id}</string>',
-    '<key>CFBundleDisplayName</key><string>Happier (preview)</string>',
+    '<key>CFBundleDisplayName</key><string>无极开物 (preview)</string>',
     '<key>CFBundleShortVersionString</key><string>0.1.0</string>',
     '<key>CFBundleVersion</key><string>48</string>',
     '</dict></plist>"""',
@@ -33,7 +33,7 @@ test('pipeline CLI supports --path for expo-submit (dry-run)', () => {
       '-c',
       pythonScript,
       artifact,
-      'dev.happier.app.preview',
+      'com.wujilabs.kaiwu.preview',
     ],
     { cwd: repoRoot, stdio: 'ignore', timeout: 30_000 },
   );

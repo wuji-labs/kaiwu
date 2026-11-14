@@ -38,9 +38,9 @@ jobs:
         env:
           YARN_PRODUCTION: "false"
           npm_config_production: "false"
-        run: |
-          set -euo pipefail
-          corepack yarn install --frozen-lockfile --network-concurrency 8 || corepack yarn install --network-concurrency 8
+        uses: ./.github/actions/install-yarn-dependencies
+        with:
+          args: --frozen-lockfile --ignore-engines --network-concurrency 8
 
       - name: Build internal packages
         run: |

@@ -23,7 +23,7 @@ test('apps/ui/eas.json defines production-preview profiles (preview runtime vari
   assert.equal(prodPreview?.env?.APP_ENV, 'production');
   assert.equal(prodPreview?.env?.HAPPIER_APP_VARIANT_OVERRIDE, 'preview');
   assert.equal(prodPreview?.env?.EXPO_UPDATES_CHANNEL, 'preview');
-  assert.equal(prodPreview?.env?.EXPO_APP_BUNDLE_ID, 'dev.happier.app');
+  assert.equal(prodPreview?.env?.EXPO_APP_BUNDLE_ID, 'com.wujilabs.kaiwu');
 
   const prodPreviewApk = build?.['production-preview-apk'] ?? null;
   assert.equal(typeof prodPreviewApk, 'object');
@@ -36,7 +36,7 @@ test('apps/ui/eas.json defines production-preview profiles (preview runtime vari
   assert.equal(prodPreviewApk?.env?.APP_ENV, 'production');
   assert.equal(prodPreviewApk?.env?.HAPPIER_APP_VARIANT_OVERRIDE, 'preview');
   assert.equal(prodPreviewApk?.env?.EXPO_UPDATES_CHANNEL, 'preview');
-  assert.equal(prodPreviewApk?.env?.EXPO_APP_BUNDLE_ID, 'dev.happier.app');
+  assert.equal(prodPreviewApk?.env?.EXPO_APP_BUNDLE_ID, 'com.wujilabs.kaiwu');
 });
 
 test('apps/ui/eas.json keeps canonical preview and production profiles on matching channels', () => {

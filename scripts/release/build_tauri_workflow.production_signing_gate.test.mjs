@@ -370,7 +370,7 @@ test('Tauri build and trusted finalizer share the complete Linux bundling depend
   assert.doesNotMatch(curlCommand, /--retry-all-errors/, 'linuxdeploy must not retry permanent HTTP failures');
 });
 
-test('build-tauri workflow sets Happier Cloud as explicit default server for desktop release builds', async () => {
+test('build-tauri workflow sets Kaiwu Cloud as explicit default server for desktop release builds', async () => {
   const workflow = await readFile(workflowPath, 'utf8');
   const parsed = parse(workflow);
   const buildJobEnv = parsed?.jobs?.build?.env;
@@ -378,17 +378,17 @@ test('build-tauri workflow sets Happier Cloud as explicit default server for des
 
   assert.equal(
     buildJobEnv.EXPO_PUBLIC_HAPPIER_SERVER_URL,
-    'https://api.happier.dev',
-    'desktop release builds should explicitly set EXPO_PUBLIC_HAPPIER_SERVER_URL to Happier Cloud',
+    'https://kaiwu.wujilabs.cn',
+    'desktop release builds should explicitly set EXPO_PUBLIC_HAPPIER_SERVER_URL to Kaiwu Cloud (kaiwu.wujilabs.cn)',
   );
   assert.equal(
     buildJobEnv.EXPO_PUBLIC_HAPPY_SERVER_URL,
-    'https://api.happier.dev',
+    'https://kaiwu.wujilabs.cn',
     'desktop release builds should keep EXPO_PUBLIC_HAPPY_SERVER_URL aligned with the canonical server URL',
   );
   assert.equal(
     buildJobEnv.EXPO_PUBLIC_SERVER_URL,
-    'https://api.happier.dev',
+    'https://kaiwu.wujilabs.cn',
     'desktop release builds should keep EXPO_PUBLIC_SERVER_URL aligned with the canonical server URL',
   );
 });

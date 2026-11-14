@@ -107,9 +107,9 @@ test('expo ota update passes the canonical EAS build-profile env that affects fi
   const envLog = fs.readFileSync(stub.envLogPath, 'utf8').replace(/\r/g, '');
   assert.match(envLog, /^APP_ENV=internaldev$/m);
   assert.match(envLog, /^EXPO_UPDATES_CHANNEL=internaldev$/m);
-  assert.match(envLog, /^EXPO_APP_NAME=Happier \(internal dev\)$/m);
-  assert.ok(envLog.split('\n').includes('EXPO_APP_BUNDLE_ID=dev.happier.app.dev.internal'));
-  assert.ok(envLog.split('\n').includes('EXPO_ANDROID_PACKAGE=dev.happier.app.internaldev'));
+  assert.match(envLog, /^EXPO_APP_NAME=无极开物 \(internal dev\)$/m);
+  assert.ok(envLog.split('\n').includes('EXPO_APP_BUNDLE_ID=com.wujilabs.kaiwu.dev.internal'));
+  assert.ok(envLog.split('\n').includes('EXPO_ANDROID_PACKAGE=com.wujilabs.kaiwu.internaldev'));
   assert.match(envLog, /^EXPO_APP_SCHEME=happier-internaldev$/m);
   assert.match(envLog, /^EXPO_UNSTABLE_WEB_MODAL=1$/m);
   assert.match(envLog, /^HAPPIER_EXPO_DEVCLIENT_LAUNCH_MODE=most-recent$/m);
@@ -146,9 +146,9 @@ test('expo ota update passes identity env for publicdev without forcing internal
   const envLog = fs.readFileSync(stub.envLogPath, 'utf8').replace(/\r/g, '');
   assert.match(envLog, /^APP_ENV=publicdev$/m);
   assert.match(envLog, /^EXPO_UPDATES_CHANNEL=dev$/m);
-  assert.match(envLog, /^EXPO_APP_NAME=Happier \(dev\)$/m);
-  assert.ok(envLog.split('\n').includes('EXPO_APP_BUNDLE_ID=dev.happier.app.publicdev'));
-  assert.ok(envLog.split('\n').includes('EXPO_ANDROID_PACKAGE=dev.happier.app.publicdev'));
+  assert.match(envLog, /^EXPO_APP_NAME=无极开物 \(dev\)$/m);
+  assert.ok(envLog.split('\n').includes('EXPO_APP_BUNDLE_ID=com.wujilabs.kaiwu.publicdev'));
+  assert.ok(envLog.split('\n').includes('EXPO_ANDROID_PACKAGE=com.wujilabs.kaiwu.publicdev'));
   assert.match(envLog, /^EXPO_APP_SCHEME=happier-dev$/m);
   assert.match(envLog, /^EXPO_UNSTABLE_WEB_MODAL=1$/m);
   assert.doesNotMatch(envLog, /^HAPPIER_EXPO_DEVCLIENT_LAUNCH_MODE=/m);

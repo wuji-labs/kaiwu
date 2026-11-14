@@ -1,12 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..', '..');
 const publishedVersionsFixture = JSON.stringify({ github: {}, npm: {} });
+// The publishers admit only versions on the current package base, so derive the fixtures from it.
+const readPackageVersion = (relativePath) =>
+  JSON.parse(readFileSync(resolve(repoRoot, relativePath, 'package.json'), 'utf8')).version;
+const cliPreviewVersion = `${readPackageVersion('apps/cli')}-preview.1`;
+const uiPreviewVersion = `${readPackageVersion('apps/ui')}-preview.1`;
 
 test('publish-cli-binaries defaults to run-contracts=auto (skips locally)', async () => {
   const out = execFileSync(
@@ -16,7 +22,7 @@ test('publish-cli-binaries defaults to run-contracts=auto (skips locally)', asyn
       '--channel',
       'preview',
       '--version',
-      '0.2.11-preview.1',
+      cliPreviewVersion,
       '--allow-stable',
       'false',
       '--check-installers',
@@ -47,7 +53,7 @@ test('publish-cli-binaries defaults to run-contracts=auto (runs on GitHub Action
       '--channel',
       'preview',
       '--version',
-      '0.2.11-preview.1',
+      cliPreviewVersion,
       '--allow-stable',
       'false',
       '--check-installers',
@@ -78,7 +84,7 @@ test('publish-ui-web defaults to run-contracts=auto (skips locally)', async () =
       '--channel',
       'preview',
       '--version',
-      '0.2.11-preview.1',
+      uiPreviewVersion,
       '--allow-stable',
       'false',
       '--check-installers',
