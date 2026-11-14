@@ -1,0 +1,38 @@
+[
+  {
+    "name": "server 类型检查（含 Prisma 客户端生成）",
+    "cmd": "$env:PATH = (($env:PATH -split ';') | Where-Object { $_ -and $_ -cnotmatch '\\P{IsBasicLatin}' }) -join ';'; yarn --cwd apps/server -s generate:providers; if ($LASTEXITCODE) { exit $LASTEXITCODE }; yarn --cwd apps/server -s build",
+    "cwd": ".",
+    "optional": false
+  },
+  {
+    "name": "cli 类型检查",
+    "cmd": "$env:PATH = (($env:PATH -split ';') | Where-Object { $_ -and $_ -cnotmatch '\\P{IsBasicLatin}' }) -join ';'; yarn --cwd apps/cli -s typecheck",
+    "cwd": ".",
+    "optional": false
+  },
+  {
+    "name": "ui 类型检查",
+    "cmd": "$env:PATH = (($env:PATH -split ';') | Where-Object { $_ -and $_ -cnotmatch '\\P{IsBasicLatin}' }) -join ';'; yarn --cwd apps/ui -s typecheck",
+    "cwd": ".",
+    "optional": false
+  },
+  {
+    "name": "工作区构建脚本测试 scripts/workspaces",
+    "cmd": "$env:PATH = (($env:PATH -split ';') | Where-Object { $_ -and $_ -cnotmatch '\\P{IsBasicLatin}' }) -join ';'; node --test 'scripts/workspaces/*.test.mjs'",
+    "cwd": ".",
+    "optional": false
+  },
+  {
+    "name": "protocol 包单测",
+    "cmd": "$env:PATH = (($env:PATH -split ';') | Where-Object { $_ -and $_ -cnotmatch '\\P{IsBasicLatin}' }) -join ';'; yarn --cwd packages/protocol -s test",
+    "cwd": ".",
+    "optional": false
+  },
+  {
+    "name": "server 全量单测（重，约 3 分钟）",
+    "cmd": "$env:PATH = (($env:PATH -split ';') | Where-Object { $_ -and $_ -cnotmatch '\\P{IsBasicLatin}' }) -join ';'; yarn --cwd apps/server -s test:unit",
+    "cwd": ".",
+    "optional": true
+  }
+]
