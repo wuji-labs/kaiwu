@@ -6,7 +6,7 @@ describe("resolveMtlsIdentityFromForwardedHeaders", () => {
     it("returns null when forwarded headers are not trusted", () => {
         const identity = resolveMtlsIdentityFromForwardedHeaders({
             env: {
-                HAPPIER_FEATURE_AUTH_MTLS__TRUST_FORWARDED_HEADERS: "0",
+                KAIWU_FEATURE_AUTH_MTLS__TRUST_FORWARDED_HEADERS: "0",
             } as any,
             headers: {
                 "x-happier-client-cert-email": "alice@example.com",
@@ -19,11 +19,11 @@ describe("resolveMtlsIdentityFromForwardedHeaders", () => {
     it("normalizes SAN email/UPN to lowercase and includes issuer in the profile", () => {
         const identity = resolveMtlsIdentityFromForwardedHeaders({
             env: {
-                HAPPIER_FEATURE_AUTH_MTLS__TRUST_FORWARDED_HEADERS: "1",
-                HAPPIER_FEATURE_AUTH_MTLS__IDENTITY_SOURCE: "san_email",
-                HAPPIER_FEATURE_AUTH_MTLS__FORWARDED_EMAIL_HEADER: "x-happier-client-cert-email",
-                HAPPIER_FEATURE_AUTH_MTLS__FORWARDED_UPN_HEADER: "x-happier-client-cert-upn",
-                HAPPIER_FEATURE_AUTH_MTLS__FORWARDED_ISSUER_HEADER: "x-happier-client-cert-issuer",
+                KAIWU_FEATURE_AUTH_MTLS__TRUST_FORWARDED_HEADERS: "1",
+                KAIWU_FEATURE_AUTH_MTLS__IDENTITY_SOURCE: "san_email",
+                KAIWU_FEATURE_AUTH_MTLS__FORWARDED_EMAIL_HEADER: "x-happier-client-cert-email",
+                KAIWU_FEATURE_AUTH_MTLS__FORWARDED_UPN_HEADER: "x-happier-client-cert-upn",
+                KAIWU_FEATURE_AUTH_MTLS__FORWARDED_ISSUER_HEADER: "x-happier-client-cert-issuer",
             } as any,
             headers: {
                 "x-happier-client-cert-email": " Alice@Example.com ",
@@ -48,9 +48,9 @@ describe("resolveMtlsIdentityFromForwardedHeaders", () => {
     it("extracts CN from the subject when identitySource=subject_cn", () => {
         const identity = resolveMtlsIdentityFromForwardedHeaders({
             env: {
-                HAPPIER_FEATURE_AUTH_MTLS__TRUST_FORWARDED_HEADERS: "1",
-                HAPPIER_FEATURE_AUTH_MTLS__IDENTITY_SOURCE: "subject_cn",
-                HAPPIER_FEATURE_AUTH_MTLS__FORWARDED_SUBJECT_HEADER: "x-happier-client-cert-subject",
+                KAIWU_FEATURE_AUTH_MTLS__TRUST_FORWARDED_HEADERS: "1",
+                KAIWU_FEATURE_AUTH_MTLS__IDENTITY_SOURCE: "subject_cn",
+                KAIWU_FEATURE_AUTH_MTLS__FORWARDED_SUBJECT_HEADER: "x-happier-client-cert-subject",
             } as any,
             headers: {
                 "x-happier-client-cert-subject": "CN=Alice Example,OU=Users,O=Example Corp",

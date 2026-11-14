@@ -25,7 +25,7 @@ describe("voiceRoutes (rate limit)", () => {
         dbMocks.reset();
         resetVoiceEnv({
             NODE_ENV: "production",
-            HAPPIER_FEATURE_VOICE__ENABLED: "1",
+            KAIWU_FEATURE_VOICE__ENABLED: "1",
             ELEVENLABS_API_KEY: "el_key",
             ELEVENLABS_AGENT_ID_PROD: "agent_prod",
             REVENUECAT_SECRET_KEY: "rc_secret",
@@ -78,14 +78,14 @@ describe("voiceRoutes (rate limit)", () => {
         );
     });
 
-    it("can force ip-only route keying strategy via HAPPIER_API_RATE_LIMITS_ROUTE_KEY_STRATEGY", async () => {
+    it("can force ip-only route keying strategy via KAIWU_API_RATE_LIMITS_ROUTE_KEY_STRATEGY", async () => {
         resetVoiceEnv({
             NODE_ENV: "production",
-            HAPPIER_FEATURE_VOICE__ENABLED: "1",
+            KAIWU_FEATURE_VOICE__ENABLED: "1",
             ELEVENLABS_API_KEY: "el_key",
             ELEVENLABS_AGENT_ID_PROD: "agent_prod",
             REVENUECAT_SECRET_KEY: "rc_secret",
-            HAPPIER_API_RATE_LIMITS_ROUTE_KEY_STRATEGY: "ip-only",
+            KAIWU_API_RATE_LIMITS_ROUTE_KEY_STRATEGY: "ip-only",
         });
 
         const { voiceRoutes } = await import("./voiceRoutes");
@@ -98,15 +98,15 @@ describe("voiceRoutes (rate limit)", () => {
         );
     });
 
-    it("allows overriding voice token max/window via HAPPIER_VOICE_TOKEN_RATE_LIMIT_*", async () => {
+    it("allows overriding voice token max/window via KAIWU_VOICE_TOKEN_RATE_LIMIT_*", async () => {
         resetVoiceEnv({
             NODE_ENV: "production",
-            HAPPIER_FEATURE_VOICE__ENABLED: "1",
+            KAIWU_FEATURE_VOICE__ENABLED: "1",
             ELEVENLABS_API_KEY: "el_key",
             ELEVENLABS_AGENT_ID_PROD: "agent_prod",
             REVENUECAT_SECRET_KEY: "rc_secret",
-            HAPPIER_VOICE_TOKEN_RATE_LIMIT_MAX: "7",
-            HAPPIER_VOICE_TOKEN_RATE_LIMIT_WINDOW: "30 seconds",
+            KAIWU_VOICE_TOKEN_RATE_LIMIT_MAX: "7",
+            KAIWU_VOICE_TOKEN_RATE_LIMIT_WINDOW: "30 seconds",
         });
 
         const { voiceRoutes } = await import("./voiceRoutes");

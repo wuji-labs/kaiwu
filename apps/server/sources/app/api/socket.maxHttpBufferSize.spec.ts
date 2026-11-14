@@ -17,15 +17,15 @@ describe('resolveSocketMaxHttpBufferSizeFromEnv', () => {
     });
 
     it('reads an explicit size from env', () => {
-        expect(resolveSocketMaxHttpBufferSizeFromEnv({ HAPPIER_SOCKET_MAX_HTTP_BUFFER_SIZE: '5000000' })).toBe(5_000_000);
+        expect(resolveSocketMaxHttpBufferSizeFromEnv({ KAIWU_SOCKET_MAX_HTTP_BUFFER_SIZE: '5000000' })).toBe(5_000_000);
         expect(resolveSocketMaxHttpBufferSizeFromEnv({ HAPPY_SOCKET_MAX_HTTP_BUFFER_SIZE: '6000000' })).toBe(6_000_000);
     });
 
     it('falls back to the default on invalid values', () => {
-        expect(resolveSocketMaxHttpBufferSizeFromEnv({ HAPPIER_SOCKET_MAX_HTTP_BUFFER_SIZE: 'nope' })).toBe(
+        expect(resolveSocketMaxHttpBufferSizeFromEnv({ KAIWU_SOCKET_MAX_HTTP_BUFFER_SIZE: 'nope' })).toBe(
             DEFAULT_SOCKET_MAX_HTTP_BUFFER_SIZE,
         );
-        expect(resolveSocketMaxHttpBufferSizeFromEnv({ HAPPIER_SOCKET_MAX_HTTP_BUFFER_SIZE: '-1' })).toBe(
+        expect(resolveSocketMaxHttpBufferSizeFromEnv({ KAIWU_SOCKET_MAX_HTTP_BUFFER_SIZE: '-1' })).toBe(
             DEFAULT_SOCKET_MAX_HTTP_BUFFER_SIZE,
         );
     });
@@ -38,18 +38,18 @@ describe('resolveSocketFastDisconnectLogThresholdMsFromEnv', () => {
     });
 
     it('reads an explicit threshold from env', () => {
-        expect(resolveSocketFastDisconnectLogThresholdMsFromEnv({ HAPPIER_SOCKET_FAST_DISCONNECT_LOG_THRESHOLD_MS: '250' }))
+        expect(resolveSocketFastDisconnectLogThresholdMsFromEnv({ KAIWU_SOCKET_FAST_DISCONNECT_LOG_THRESHOLD_MS: '250' }))
             .toBe(250);
         expect(resolveSocketFastDisconnectLogThresholdMsFromEnv({ HAPPY_SOCKET_FAST_DISCONNECT_LOG_THRESHOLD_MS: '500' }))
             .toBe(500);
-        expect(resolveSocketFastDisconnectLogThresholdMsFromEnv({ HAPPIER_SOCKET_FAST_DISCONNECT_LOG_THRESHOLD_MS: '0' }))
+        expect(resolveSocketFastDisconnectLogThresholdMsFromEnv({ KAIWU_SOCKET_FAST_DISCONNECT_LOG_THRESHOLD_MS: '0' }))
             .toBe(0);
     });
 
     it('falls back to the default on invalid values', () => {
-        expect(resolveSocketFastDisconnectLogThresholdMsFromEnv({ HAPPIER_SOCKET_FAST_DISCONNECT_LOG_THRESHOLD_MS: 'nope' }))
+        expect(resolveSocketFastDisconnectLogThresholdMsFromEnv({ KAIWU_SOCKET_FAST_DISCONNECT_LOG_THRESHOLD_MS: 'nope' }))
             .toBe(DEFAULT_SOCKET_FAST_DISCONNECT_LOG_THRESHOLD_MS);
-        expect(resolveSocketFastDisconnectLogThresholdMsFromEnv({ HAPPIER_SOCKET_FAST_DISCONNECT_LOG_THRESHOLD_MS: '-1' }))
+        expect(resolveSocketFastDisconnectLogThresholdMsFromEnv({ KAIWU_SOCKET_FAST_DISCONNECT_LOG_THRESHOLD_MS: '-1' }))
             .toBe(DEFAULT_SOCKET_FAST_DISCONNECT_LOG_THRESHOLD_MS);
     });
 });
@@ -61,16 +61,16 @@ describe('resolveSocketPlannedRestartRetryAfterMsFromEnv', () => {
     });
 
     it('reads an explicit retry window from env', () => {
-        expect(resolveSocketPlannedRestartRetryAfterMsFromEnv({ HAPPIER_SOCKET_PLANNED_RESTART_RETRY_AFTER_MS: '7000' }))
+        expect(resolveSocketPlannedRestartRetryAfterMsFromEnv({ KAIWU_SOCKET_PLANNED_RESTART_RETRY_AFTER_MS: '7000' }))
             .toBe(7_000);
         expect(resolveSocketPlannedRestartRetryAfterMsFromEnv({ HAPPY_SOCKET_PLANNED_RESTART_RETRY_AFTER_MS: '8000' }))
             .toBe(8_000);
     });
 
     it('falls back to the default on invalid values', () => {
-        expect(resolveSocketPlannedRestartRetryAfterMsFromEnv({ HAPPIER_SOCKET_PLANNED_RESTART_RETRY_AFTER_MS: 'nope' }))
+        expect(resolveSocketPlannedRestartRetryAfterMsFromEnv({ KAIWU_SOCKET_PLANNED_RESTART_RETRY_AFTER_MS: 'nope' }))
             .toBe(DEFAULT_SOCKET_PLANNED_RESTART_RETRY_AFTER_MS);
-        expect(resolveSocketPlannedRestartRetryAfterMsFromEnv({ HAPPIER_SOCKET_PLANNED_RESTART_RETRY_AFTER_MS: '-1' }))
+        expect(resolveSocketPlannedRestartRetryAfterMsFromEnv({ KAIWU_SOCKET_PLANNED_RESTART_RETRY_AFTER_MS: '-1' }))
             .toBe(DEFAULT_SOCKET_PLANNED_RESTART_RETRY_AFTER_MS);
     });
 });

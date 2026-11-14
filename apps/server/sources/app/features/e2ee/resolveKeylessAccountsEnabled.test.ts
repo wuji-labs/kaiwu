@@ -5,7 +5,7 @@ import { resolveKeylessAccountsAvailability, resolveKeylessAccountsEnabled } fro
 describe("resolveKeylessAccountsEnabled", () => {
     it("fails closed when keyless accounts env var is unset", () => {
         const env: NodeJS.ProcessEnv = {
-            HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional",
+            KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional",
         };
 
         expect(resolveKeylessAccountsAvailability(env)).toEqual({ ok: false, reason: "keyless-disabled" });
@@ -14,8 +14,8 @@ describe("resolveKeylessAccountsEnabled", () => {
 
     it("fails closed when storage policy requires E2EE", () => {
         const env: NodeJS.ProcessEnv = {
-            HAPPIER_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED: "1",
-            HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY: "required_e2ee",
+            KAIWU_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED: "1",
+            KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY: "required_e2ee",
         };
 
         expect(resolveKeylessAccountsAvailability(env)).toEqual({ ok: false, reason: "e2ee-required" });
@@ -24,8 +24,8 @@ describe("resolveKeylessAccountsEnabled", () => {
 
     it("allows keyless accounts when explicitly enabled and plaintext storage is allowed", () => {
         const env: NodeJS.ProcessEnv = {
-            HAPPIER_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED: "1",
-            HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional",
+            KAIWU_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED: "1",
+            KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional",
         };
 
         expect(resolveKeylessAccountsAvailability(env)).toEqual({ ok: true });

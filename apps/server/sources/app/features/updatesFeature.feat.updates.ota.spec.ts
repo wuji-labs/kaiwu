@@ -10,15 +10,15 @@ describe("features/updatesFeature", () => {
 
     it("respects explicit env overrides", () => {
         const result: any = resolveFeaturesFromEnv({
-            HAPPIER_FEATURE_UPDATES_OTA__ENABLED: "0",
+            KAIWU_FEATURE_UPDATES_OTA__ENABLED: "0",
         } as any);
         expect(result.features?.updates?.ota?.enabled).toBe(false);
     });
 
     it("hard-disables OTA updates when build policy denies the feature", () => {
         const result: any = resolveFeaturesFromEnv({
-            HAPPIER_BUILD_FEATURES_DENY: "updates.ota",
-            HAPPIER_FEATURE_UPDATES_OTA__ENABLED: "1",
+            KAIWU_BUILD_FEATURES_DENY: "updates.ota",
+            KAIWU_FEATURE_UPDATES_OTA__ENABLED: "1",
         } as any);
         expect(result.features?.updates?.ota?.enabled).toBe(false);
     });

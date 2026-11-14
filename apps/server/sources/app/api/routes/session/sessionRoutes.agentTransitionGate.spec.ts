@@ -13,7 +13,7 @@ import { registerSessionAgentTransitionRoute } from "./registerSessionAgentTrans
 const { applySessionAgentTransitionCutover } = mocks;
 
 const CUTOVER_PATH = "/v2/sessions/:sessionId/agent-transition/cutover";
-const AGENT_SWITCHING_ENV_KEY = "HAPPIER_FEATURE_SESSIONS_AGENT_SWITCHING__ENABLED";
+const AGENT_SWITCHING_ENV_KEY = "KAIWU_FEATURE_SESSIONS_AGENT_SWITCHING__ENABLED";
 
 /**
  * The server-side Agent-switching gate.

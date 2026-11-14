@@ -12,8 +12,8 @@ describe('writeStartupReceiptFromEnvironment', () => {
         try {
             const receiptPath = join(root, 'startup.json');
             await expect(writeStartupReceiptFromEnvironment({
-                HAPPIER_SERVER_STARTUP_RECEIPT_PATH: receiptPath,
-                HAPPIER_SERVER_STARTUP_RECEIPT_NONCE: 'activation-nonce-1',
+                KAIWU_SERVER_STARTUP_RECEIPT_PATH: receiptPath,
+                KAIWU_SERVER_STARTUP_RECEIPT_NONCE: 'activation-nonce-1',
             })).resolves.toBe(true);
             await expect(readFile(receiptPath, 'utf8').then(JSON.parse)).resolves.toEqual({
                 nonce: 'activation-nonce-1',
@@ -27,8 +27,8 @@ describe('writeStartupReceiptFromEnvironment', () => {
     it('does nothing unless both private activation values are valid', async () => {
         await expect(writeStartupReceiptFromEnvironment({})).resolves.toBe(false);
         await expect(writeStartupReceiptFromEnvironment({
-            HAPPIER_SERVER_STARTUP_RECEIPT_PATH: 'relative.json',
-            HAPPIER_SERVER_STARTUP_RECEIPT_NONCE: 'activation-nonce-1',
+            KAIWU_SERVER_STARTUP_RECEIPT_PATH: 'relative.json',
+            KAIWU_SERVER_STARTUP_RECEIPT_NONCE: 'activation-nonce-1',
         })).resolves.toBe(false);
     });
 });

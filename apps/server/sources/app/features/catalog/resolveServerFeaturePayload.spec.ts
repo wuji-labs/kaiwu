@@ -21,7 +21,7 @@ describe("resolveServerFeaturePayload", () => {
 
     it("forces server feature gates disabled when build policy denies a represented feature", () => {
         const env = {
-            HAPPIER_BUILD_FEATURES_DENY: "connectedServices",
+            KAIWU_BUILD_FEATURES_DENY: "connectedServices",
         } as NodeJS.ProcessEnv;
 
         const buildPolicy = resolveServerFeatureBuildPolicy(env);
@@ -44,7 +44,7 @@ describe("resolveServerFeaturePayload", () => {
 
     it("forces server feature gates disabled when build policy allowlist omits a represented feature", () => {
         const env = {
-            HAPPIER_BUILD_FEATURES_ALLOW: "connectedServices",
+            KAIWU_BUILD_FEATURES_ALLOW: "connectedServices",
         } as NodeJS.ProcessEnv;
 
         const buildPolicy = resolveServerFeatureBuildPolicy(env);
@@ -133,7 +133,7 @@ describe("resolveServerFeaturePayload", () => {
 
     it("annotates capabilities when build policy denies Happier Voice", () => {
         const env = {
-            HAPPIER_BUILD_FEATURES_DENY: "voice.happierVoice",
+            KAIWU_BUILD_FEATURES_DENY: "voice.happierVoice",
         } as NodeJS.ProcessEnv;
 
         const buildPolicy = resolveServerFeatureBuildPolicy(env);
@@ -208,7 +208,7 @@ describe("resolveServerFeaturePayload", () => {
 
     it("disables agent switching when the env opt-out is off", () => {
         const payload = resolveServerFeaturePayload({
-            HAPPIER_FEATURE_SESSIONS_AGENT_SWITCHING__ENABLED: "0",
+            KAIWU_FEATURE_SESSIONS_AGENT_SWITCHING__ENABLED: "0",
         } as NodeJS.ProcessEnv, serverFeatureRegistry);
 
         expect(payload.features.sessions.agentSwitching.enabled).toBe(false);
@@ -226,7 +226,7 @@ describe("resolveServerFeaturePayload", () => {
 
     it("disables session folders when the env toggle is off", () => {
         const payload = resolveServerFeaturePayload({
-            HAPPIER_FEATURE_SESSIONS_FOLDERS__ENABLED: "0",
+            KAIWU_FEATURE_SESSIONS_FOLDERS__ENABLED: "0",
         } as NodeJS.ProcessEnv, serverFeatureRegistry);
 
         expect(payload.features.sessions.folders.enabled).toBe(false);
@@ -241,7 +241,7 @@ describe("resolveServerFeaturePayload", () => {
     it("disables channel bridges (and all providers) when the env toggle is off", () => {
         const payload = resolveServerFeaturePayload(
             {
-                HAPPIER_FEATURE_CHANNEL_BRIDGES__ENABLED: "0",
+                KAIWU_FEATURE_CHANNEL_BRIDGES__ENABLED: "0",
             } as NodeJS.ProcessEnv,
             [resolveChannelBridgesFeature],
         );
@@ -253,7 +253,7 @@ describe("resolveServerFeaturePayload", () => {
     it("disables only telegram provider when the env toggle is off", () => {
         const payload = resolveServerFeaturePayload(
             {
-                HAPPIER_FEATURE_CHANNEL_BRIDGES_TELEGRAM__ENABLED: "0",
+                KAIWU_FEATURE_CHANNEL_BRIDGES_TELEGRAM__ENABLED: "0",
             } as NodeJS.ProcessEnv,
             [resolveChannelBridgesFeature],
         );
@@ -264,7 +264,7 @@ describe("resolveServerFeaturePayload", () => {
 
     it("disables only generic server-routed transfer when the env toggle is off", () => {
         const payload = resolveServerFeaturePayload({
-            HAPPIER_FEATURE_MACHINES_TRANSFER_SERVER_ROUTED__ENABLED: "0",
+            KAIWU_FEATURE_MACHINES_TRANSFER_SERVER_ROUTED__ENABLED: "0",
         } as NodeJS.ProcessEnv, [resolveSessionHandoffFeature, resolveMachineTransferFeature]);
 
         expect(payload.features.sessions.handoff.enabled).toBe(true);
@@ -274,7 +274,7 @@ describe("resolveServerFeaturePayload", () => {
 
     it("exposes server-routed transfer max-bytes capability when configured", () => {
         const payload = resolveServerFeaturePayload({
-            HAPPIER_FEATURE_MACHINES_TRANSFER_SERVER_ROUTED__MAX_BYTES: "16384",
+            KAIWU_FEATURE_MACHINES_TRANSFER_SERVER_ROUTED__MAX_BYTES: "16384",
         } as NodeJS.ProcessEnv, [resolveSessionHandoffFeature, resolveMachineTransferFeature]);
 
         expect(payload.features.machines.transfer.serverRouted.enabled).toBe(true);
@@ -284,7 +284,7 @@ describe("resolveServerFeaturePayload", () => {
     it("merges sibling capabilities.server fields from different resolvers", () => {
         const payload = resolveServerFeaturePayload(
             {
-                HAPPIER_PUBLIC_SERVER_URL: "https://stack.example.test/",
+                KAIWU_PUBLIC_SERVER_URL: "https://stack.example.test/",
             } as NodeJS.ProcessEnv,
             [
                 fromPartial({

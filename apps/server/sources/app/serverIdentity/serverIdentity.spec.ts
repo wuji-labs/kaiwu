@@ -22,12 +22,12 @@ describe("serverIdentity cache without initialized storage", () => {
         } = await import("./serverIdentity");
 
         const env = {
-            HAPPIER_SERVER_IDENTITY_ID: "srv_uninitializedPinned123",
+            KAIWU_SERVER_IDENTITY_ID: "srv_uninitializedPinned123",
         } as NodeJS.ProcessEnv;
 
         await expect(initializeServerIdentityCache(env)).resolves.toBe("srv_uninitializedPinned123");
         expect(readCachedServerIdentityIdForHotPath({
-            HAPPIER_SERVER_IDENTITY_ID: "srv_laterPinned123",
+            KAIWU_SERVER_IDENTITY_ID: "srv_laterPinned123",
         } as NodeJS.ProcessEnv)).toBe("srv_uninitializedPinned123");
     });
 
@@ -35,7 +35,7 @@ describe("serverIdentity cache without initialized storage", () => {
         const { initializeServerIdentityCache } = await import("./serverIdentity");
 
         await expect(initializeServerIdentityCache({
-            HAPPIER_SERVER_IDENTITY_ID: "srv/unsafe",
-        } as NodeJS.ProcessEnv)).rejects.toThrow("HAPPIER_SERVER_IDENTITY_ID");
+            KAIWU_SERVER_IDENTITY_ID: "srv/unsafe",
+        } as NodeJS.ProcessEnv)).rejects.toThrow("KAIWU_SERVER_IDENTITY_ID");
     });
 });

@@ -9,7 +9,7 @@ describe("presenceMode", () => {
 
     it("publishes to redis only in api role with adapter enabled", () => {
         const base: any = {
-            HAPPIER_SOCKET_ADAPTER: "redis-streams",
+            KAIWU_SOCKET_ADAPTER: "redis-streams",
             REDIS_URL: "redis://localhost:6379",
         };
         expect(shouldPublishPresenceToRedis({ ...base, SERVER_ROLE: "api" })).toBe(true);
@@ -19,7 +19,7 @@ describe("presenceMode", () => {
 
     it("consumes from redis only in worker role with adapter enabled", () => {
         const base: any = {
-            HAPPIER_SOCKET_ADAPTER: "redis-streams",
+            KAIWU_SOCKET_ADAPTER: "redis-streams",
             REDIS_URL: "redis://localhost:6379",
         };
         expect(shouldConsumePresenceFromRedis({ ...base, SERVER_ROLE: "worker" })).toBe(true);
@@ -29,7 +29,7 @@ describe("presenceMode", () => {
     it("disables local DB flush when publishing to redis in api role", () => {
         const env: any = {
             SERVER_ROLE: "api",
-            HAPPIER_SOCKET_ADAPTER: "redis-streams",
+            KAIWU_SOCKET_ADAPTER: "redis-streams",
             REDIS_URL: "redis://localhost:6379",
         };
         expect(shouldEnableLocalPresenceDbFlush(env)).toBe(false);

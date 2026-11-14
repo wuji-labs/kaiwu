@@ -28,7 +28,7 @@ describe("inTx", () => {
         restoreEnv(envSnapshot);
         applyEnvValues({
             HAPPY_DB_PROVIDER: undefined,
-            HAPPIER_DB_PROVIDER: undefined,
+            KAIWU_DB_PROVIDER: undefined,
         });
 
         const { inTx } = await import("./inTx");
@@ -63,8 +63,8 @@ describe("inTx", () => {
         restoreEnv(envSnapshot);
         applyEnvValues({
             HAPPY_DB_PROVIDER: "sqlite",
-            HAPPIER_DB_TX_TIMEOUT_MS: "12000",
-            HAPPIER_DB_TX_MAX_WAIT_MS: "7000",
+            KAIWU_DB_TX_TIMEOUT_MS: "12000",
+            KAIWU_DB_TX_MAX_WAIT_MS: "7000",
         });
 
         const { inTx } = await import("./inTx");
@@ -84,7 +84,7 @@ describe("inTx", () => {
         restoreEnv(envSnapshot);
         applyEnvValues({
             HAPPY_DB_PROVIDER: undefined,
-            HAPPIER_DB_PROVIDER: undefined,
+            KAIWU_DB_PROVIDER: undefined,
         });
         transaction
             .mockRejectedValueOnce(Object.assign(new Error("retry me"), { code: "P2034" }))
@@ -102,7 +102,7 @@ describe("inTx", () => {
         restoreEnv(envSnapshot);
         applyEnvValues({
             HAPPY_DB_PROVIDER: undefined,
-            HAPPIER_DB_PROVIDER: provider,
+            KAIWU_DB_PROVIDER: provider,
         });
         const acquisitionError = Object.assign(
             new Error("Transaction API error: Unable to start a transaction in the given time."),
@@ -126,7 +126,7 @@ describe("inTx", () => {
         restoreEnv(envSnapshot);
         applyEnvValues({
             HAPPY_DB_PROVIDER: undefined,
-            HAPPIER_DB_PROVIDER: provider,
+            KAIWU_DB_PROVIDER: provider,
         });
         const acquisitionError = Object.assign(
             new Error("Transaction API error: Unable to start a transaction in the given time."),
@@ -149,7 +149,7 @@ describe("inTx", () => {
         restoreEnv(envSnapshot);
         applyEnvValues({
             HAPPY_DB_PROVIDER: undefined,
-            HAPPIER_DB_PROVIDER: provider,
+            KAIWU_DB_PROVIDER: provider,
         });
         const operationError = Object.assign(
             new Error("Transaction API error: Unable to start a transaction in the given time."),
@@ -201,10 +201,10 @@ describe("inTx", () => {
         restoreEnv(envSnapshot);
         applyEnvValues({
             HAPPY_DB_PROVIDER: "sqlite",
-            HAPPIER_DB_TX_MAX_RETRIES: "8",
-            HAPPIER_DB_TX_TIMEOUT_MS: "10000",
-            HAPPIER_DB_TX_MAX_WAIT_MS: "5000",
-            HAPPIER_DB_TX_TOTAL_RETRY_BUDGET_MS: "15000",
+            KAIWU_DB_TX_MAX_RETRIES: "8",
+            KAIWU_DB_TX_TIMEOUT_MS: "10000",
+            KAIWU_DB_TX_MAX_WAIT_MS: "5000",
+            KAIWU_DB_TX_TOTAL_RETRY_BUDGET_MS: "15000",
         });
         const timeoutError = Object.assign(new Error("Socket timeout"), { code: "P1008" });
         transaction.mockRejectedValue(timeoutError);

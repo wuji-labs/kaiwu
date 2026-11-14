@@ -9,10 +9,10 @@ describe('resolveMigrationDeployArgs', () => {
         ['pglite', ['-s', 'migrate:light:deploy']],
         ['sqlite', ['-s', 'migrate:sqlite:deploy']],
     ])('maps %s to the existing migration implementation', (provider, args) => {
-        expect(resolveMigrationDeployArgs({ HAPPIER_DB_PROVIDER: provider })).toEqual(args);
+        expect(resolveMigrationDeployArgs({ KAIWU_DB_PROVIDER: provider })).toEqual(args);
     });
 
     it('rejects an explicit unsupported provider instead of migrating the fallback database', () => {
-        expect(() => resolveMigrationDeployArgs({ HAPPIER_DB_PROVIDER: 'postgress' })).toThrow(/Unsupported/);
+        expect(() => resolveMigrationDeployArgs({ KAIWU_DB_PROVIDER: 'postgress' })).toThrow(/Unsupported/);
     });
 });

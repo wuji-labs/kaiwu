@@ -25,13 +25,13 @@ describe("resolveGeneratedClientEntrypoint", () => {
 
     it("resolves packaged generated client entrypoints next to executable", () => {
         expect(resolvePackagedGeneratedClientEntrypoint("sqlite", "/opt/happier/happier-server")).toBe(
-            "/opt/happier/generated/sqlite-client/index.js",
+            join("/opt/happier", "generated", "sqlite-client", "index.js"),
         );
         expect(resolvePackagedGeneratedClientEntrypoint("mysql", "/opt/happier/happier-server")).toBe(
-            "/opt/happier/generated/mysql-client/index.js",
+            join("/opt/happier", "generated", "mysql-client", "index.js"),
         );
         expect(resolvePackagedDefaultPrismaClientEntrypoint("/opt/happier/happier-server")).toBe(
-            "/opt/happier/node_modules/.prisma/client/index.js",
+            join("/opt/happier", "node_modules", ".prisma", "client", "index.js"),
         );
     });
 

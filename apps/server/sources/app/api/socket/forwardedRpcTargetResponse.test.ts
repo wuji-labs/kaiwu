@@ -6,7 +6,7 @@ import { forwardedRpcTargetResponse } from './forwardedRpcTargetResponse';
 const publicFailure = {
     type: 'socket-rpc-target-failure-v1',
     errorCode: 'STRUCTURED_QUESTION_RECEIVER_NOT_OWNER',
-    error: 'This answer could not be handled safely. Update or reconnect Happier, then try again.',
+    error: 'This answer could not be handled safely. Update or reconnect Kaiwu, then try again.',
 } as const;
 
 describe('forwardedRpcTargetResponse', () => {

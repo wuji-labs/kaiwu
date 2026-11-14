@@ -3,11 +3,11 @@ import { describe, expect, it } from 'vitest';
 import { resolveWebAppOAuthReturnUrlFromEnv, resolveWebAppOAuthReturnUrlFromRequestHeaders } from './oauthExternalConfig';
 
 describe('resolveWebAppOAuthReturnUrlFromEnv', () => {
-  it('derives the web app base URL from the canonical public server URL when local UI is served and HAPPIER_WEBAPP_URL is unset', () => {
+  it('derives the web app base URL from the canonical public server URL when local UI is served and KAIWU_WEBAPP_URL is unset', () => {
     expect(resolveWebAppOAuthReturnUrlFromEnv({
-      HAPPIER_PUBLIC_SERVER_URL: 'https://stack.example.test/base/',
-      HAPPIER_SERVER_UI_DIR: '/tmp/ui',
-      HAPPIER_SERVER_UI_PREFIX: '/ui/',
+      KAIWU_PUBLIC_SERVER_URL: 'https://stack.example.test/base/',
+      KAIWU_SERVER_UI_DIR: '/tmp/ui',
+      KAIWU_SERVER_UI_PREFIX: '/ui/',
     }, 'github')).toBe('https://stack.example.test/base/ui/oauth/github');
   });
 });
@@ -16,8 +16,8 @@ describe('resolveWebAppOAuthReturnUrlFromRequestHeaders', () => {
   it('preserves the UI base path when the loopback referer is nested under a reverse-proxy base', () => {
     const resolved = resolveWebAppOAuthReturnUrlFromRequestHeaders({
       env: {
-        HAPPIER_SERVER_UI_DIR: '/tmp/ui',
-        HAPPIER_SERVER_UI_PREFIX: '/ui',
+        KAIWU_SERVER_UI_DIR: '/tmp/ui',
+        KAIWU_SERVER_UI_PREFIX: '/ui',
       },
       providerId: 'github',
       headers: {
@@ -30,8 +30,8 @@ describe('resolveWebAppOAuthReturnUrlFromRequestHeaders', () => {
   it('uses the configured UI prefix for loopback origins without a referer path', () => {
     const resolved = resolveWebAppOAuthReturnUrlFromRequestHeaders({
       env: {
-        HAPPIER_SERVER_UI_DIR: '/tmp/ui',
-        HAPPIER_SERVER_UI_PREFIX: '/ui',
+        KAIWU_SERVER_UI_DIR: '/tmp/ui',
+        KAIWU_SERVER_UI_PREFIX: '/ui',
       },
       providerId: 'github',
       headers: {
@@ -44,9 +44,9 @@ describe('resolveWebAppOAuthReturnUrlFromRequestHeaders', () => {
   it('preserves the configured reverse-proxy base path for loopback origins without a referer path', () => {
     const resolved = resolveWebAppOAuthReturnUrlFromRequestHeaders({
       env: {
-        HAPPIER_PUBLIC_SERVER_URL: 'https://stack.example.test/base/',
-        HAPPIER_SERVER_UI_DIR: '/tmp/ui',
-        HAPPIER_SERVER_UI_PREFIX: '/ui',
+        KAIWU_PUBLIC_SERVER_URL: 'https://stack.example.test/base/',
+        KAIWU_SERVER_UI_DIR: '/tmp/ui',
+        KAIWU_SERVER_UI_PREFIX: '/ui',
       },
       providerId: 'github',
       headers: {
@@ -59,9 +59,9 @@ describe('resolveWebAppOAuthReturnUrlFromRequestHeaders', () => {
   it('preserves the configured reverse-proxy base path when the UI is root-mounted', () => {
     const resolved = resolveWebAppOAuthReturnUrlFromRequestHeaders({
       env: {
-        HAPPIER_PUBLIC_SERVER_URL: 'https://stack.example.test/base/',
-        HAPPIER_SERVER_UI_DIR: '/tmp/ui',
-        HAPPIER_SERVER_UI_PREFIX: '/',
+        KAIWU_PUBLIC_SERVER_URL: 'https://stack.example.test/base/',
+        KAIWU_SERVER_UI_DIR: '/tmp/ui',
+        KAIWU_SERVER_UI_PREFIX: '/',
       },
       providerId: 'github',
       headers: {
@@ -74,9 +74,9 @@ describe('resolveWebAppOAuthReturnUrlFromRequestHeaders', () => {
   it('preserves the configured reverse-proxy base path for root-mounted UI when only the loopback origin is available', () => {
     const resolved = resolveWebAppOAuthReturnUrlFromRequestHeaders({
       env: {
-        HAPPIER_PUBLIC_SERVER_URL: 'https://stack.example.test/base/',
-        HAPPIER_SERVER_UI_DIR: '/tmp/ui',
-        HAPPIER_SERVER_UI_PREFIX: '/',
+        KAIWU_PUBLIC_SERVER_URL: 'https://stack.example.test/base/',
+        KAIWU_SERVER_UI_DIR: '/tmp/ui',
+        KAIWU_SERVER_UI_PREFIX: '/',
       },
       providerId: 'github',
       headers: {

@@ -24,16 +24,18 @@ is_false() {
   esac
 }
 
+# Env precedence follows the server's brand aliasing: canonical KAIWU_* wins, then legacy
+# HAPPIER_*, then HAPPY_*. Resolved values are re-exported under all three spellings.
 migrations_enabled=1
-if is_false "${RUN_MIGRATIONS:-1}" || is_false "${HAPPIER_STACK_PRISMA_MIGRATE:-1}"; then
+if is_false "${RUN_MIGRATIONS:-1}" || is_false "${KAIWU_STACK_PRISMA_MIGRATE:-${HAPPIER_STACK_PRISMA_MIGRATE:-1}}"; then
   migrations_enabled=0
 fi
 if [ "$migrate_only" = "1" ]; then
   migrations_enabled=1
 fi
 
-provider="$(printf "%s" "${HAPPIER_DB_PROVIDER:-${HAPPY_DB_PROVIDER:-postgres}}" | tr '[:upper:]' '[:lower:]' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
-flavor="$(printf "%s" "${HAPPIER_SERVER_FLAVOR:-${HAPPY_SERVER_FLAVOR:-full}}" | tr '[:upper:]' '[:lower:]' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+provider="$(printf "%s" "${KAIWU_DB_PROVIDER:-${HAPPIER_DB_PROVIDER:-${HAPPY_DB_PROVIDER:-postgres}}}" | tr '[:upper:]' '[:lower:]' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+flavor="$(printf "%s" "${KAIWU_SERVER_FLAVOR:-${HAPPIER_SERVER_FLAVOR:-${HAPPY_SERVER_FLAVOR:-full}}}" | tr '[:upper:]' '[:lower:]' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
 start_script="start"
 if [ "$flavor" = "light" ]; then
   start_script="start:light"
@@ -49,7 +51,7 @@ case "$provider" in
     ;;
   "pglite") schema="prisma/schema.prisma" ;;
   *)
-    echo "[entrypoint] Unsupported HAPPY_DB_PROVIDER/HAPPIER_DB_PROVIDER: $provider"
+    echo "[entrypoint] Unsupported KAIWU_DB_PROVIDER/HAPPIER_DB_PROVIDER/HAPPY_DB_PROVIDER: $provider"
     exit 1
     ;;
 esac
@@ -59,8 +61,10 @@ if [ "$migrate_only" = "1" ] && [ "$should_migrate" = "0" ]; then
   exit 1
 fi
 
+export KAIWU_DB_PROVIDER="$provider"
 export HAPPIER_DB_PROVIDER="$provider"
 export HAPPY_DB_PROVIDER="$provider"
+export KAIWU_SERVER_FLAVOR="$flavor"
 export HAPPIER_SERVER_FLAVOR="$flavor"
 export HAPPY_SERVER_FLAVOR="$flavor"
 
@@ -70,11 +74,12 @@ if [ "$provider" = "sqlite" ]; then
   else
     sqlite_auto_migrate="1"
   fi
+  export KAIWU_SQLITE_AUTO_MIGRATE="$sqlite_auto_migrate"
   export HAPPIER_SQLITE_AUTO_MIGRATE="$sqlite_auto_migrate"
   export HAPPY_SQLITE_AUTO_MIGRATE="$sqlite_auto_migrate"
 
   if [ -z "$server_binary" ]; then
-    sqlite_migrations_dir="$(printf "%s" "${HAPPIER_SQLITE_MIGRATIONS_DIR:-${HAPPY_SQLITE_MIGRATIONS_DIR:-}}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+    sqlite_migrations_dir="$(printf "%s" "${KAIWU_SQLITE_MIGRATIONS_DIR:-${HAPPIER_SQLITE_MIGRATIONS_DIR:-${HAPPY_SQLITE_MIGRATIONS_DIR:-}}}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
     if [ -z "$sqlite_migrations_dir" ]; then
       if [ -d "$(pwd)/apps/server/prisma/sqlite/migrations" ]; then
         sqlite_migrations_dir="$(pwd)/apps/server/prisma/sqlite/migrations"
@@ -82,6 +87,7 @@ if [ "$provider" = "sqlite" ]; then
         sqlite_migrations_dir="$(pwd)/prisma/sqlite/migrations"
       fi
     fi
+    export KAIWU_SQLITE_MIGRATIONS_DIR="$sqlite_migrations_dir"
     export HAPPIER_SQLITE_MIGRATIONS_DIR="$sqlite_migrations_dir"
     export HAPPY_SQLITE_MIGRATIONS_DIR="$sqlite_migrations_dir"
   fi

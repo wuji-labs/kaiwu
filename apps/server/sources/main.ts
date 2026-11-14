@@ -1,3 +1,4 @@
+import '@/utils/env/brandEnvAliases.bootstrap';
 import 'reflect-metadata';
 import { initializeServerSentry } from '@/app/monitoring/sentry';
 import { resolveServerFlavorFromEnv } from '@/config/backends';

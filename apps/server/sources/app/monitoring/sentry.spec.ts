@@ -32,7 +32,7 @@ describe("app/monitoring/sentry", () => {
         const resolved = resolveServerSentryConfig({
             SENTRY_DSN: "https://examplePublicKey@o0.ingest.sentry.io/0",
             NODE_ENV: "production",
-            HAPPIER_SERVER_FLAVOR: "full",
+            KAIWU_SERVER_FLAVOR: "full",
         } as NodeJS.ProcessEnv);
 
         expect(resolved?.environment).toBe("production:full");
@@ -71,8 +71,8 @@ describe("app/monitoring/sentry", () => {
 
     it("uses central DSN when opted in and explicit DSN is missing", () => {
         const resolved = resolveServerSentryConfig({
-            HAPPIER_SENTRY_USE_CENTRAL_DSN: "1",
-            HAPPIER_SENTRY_CENTRAL_DSN: "https://central@o0.ingest.sentry.io/1",
+            KAIWU_SENTRY_USE_CENTRAL_DSN: "1",
+            KAIWU_SENTRY_CENTRAL_DSN: "https://central@o0.ingest.sentry.io/1",
         } as NodeJS.ProcessEnv);
 
         expect(resolved?.dsn).toBe("https://central@o0.ingest.sentry.io/1");
@@ -81,8 +81,8 @@ describe("app/monitoring/sentry", () => {
     it("prefers explicit DSN over central DSN", () => {
         const resolved = resolveServerSentryConfig({
             SENTRY_DSN: "https://explicit@o0.ingest.sentry.io/0",
-            HAPPIER_SENTRY_USE_CENTRAL_DSN: "1",
-            HAPPIER_SENTRY_CENTRAL_DSN: "https://central@o0.ingest.sentry.io/1",
+            KAIWU_SENTRY_USE_CENTRAL_DSN: "1",
+            KAIWU_SENTRY_CENTRAL_DSN: "https://central@o0.ingest.sentry.io/1",
         } as NodeJS.ProcessEnv);
 
         expect(resolved?.dsn).toBe("https://explicit@o0.ingest.sentry.io/0");
@@ -90,7 +90,7 @@ describe("app/monitoring/sentry", () => {
 
     it("returns null when opted into central DSN but central DSN is missing", () => {
         const resolved = resolveServerSentryConfig({
-            HAPPIER_SENTRY_USE_CENTRAL_DSN: "1",
+            KAIWU_SENTRY_USE_CENTRAL_DSN: "1",
         } as NodeJS.ProcessEnv);
 
         expect(resolved).toBeNull();

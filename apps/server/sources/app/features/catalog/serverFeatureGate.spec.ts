@@ -10,7 +10,9 @@ describe("serverFeatureGate", () => {
             path: "/v1/test",
             registerRoutes: (app) => {
                 const gated = createServerFeatureGatedRouteApp(app, "bugReports", {
-                    HAPPIER_FEATURE_BUG_REPORTS__ENABLED: "1",
+                    KAIWU_FEATURE_BUG_REPORTS__ENABLED: "1",
+                    // Bug reports have no default provider (6c75b2fb11); the gate only opens once one is configured.
+                    KAIWU_FEATURE_BUG_REPORTS__PROVIDER_URL: "https://reports.enterprise.local",
                 } as NodeJS.ProcessEnv);
                 gated.get("/v1/test", async () => ({ ok: true }));
             },

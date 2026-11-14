@@ -557,8 +557,8 @@ describe("session folder assignment routes", () => {
     });
 
     it("registers assignment routes behind the sessions.folders feature gate", async () => {
-        const previous = process.env.HAPPIER_BUILD_FEATURES_DENY;
-        process.env.HAPPIER_BUILD_FEATURES_DENY = "sessions.folders";
+        const previous = process.env.KAIWU_BUILD_FEATURES_DENY;
+        process.env.KAIWU_BUILD_FEATURES_DENY = "sessions.folders";
         try {
             const route = await createSessionRouteTestBuilder("GET", "/v2/session-folder-assignments");
             const { response, reply } = await route.invoke({ query: { sessionIds: "s1" } });
@@ -568,9 +568,9 @@ describe("session folder assignment routes", () => {
             expect(sessionFolderAssignmentFindMany).not.toHaveBeenCalled();
         } finally {
             if (typeof previous === "undefined") {
-                delete process.env.HAPPIER_BUILD_FEATURES_DENY;
+                delete process.env.KAIWU_BUILD_FEATURES_DENY;
             } else {
-                process.env.HAPPIER_BUILD_FEATURES_DENY = previous;
+                process.env.KAIWU_BUILD_FEATURES_DENY = previous;
             }
         }
     });

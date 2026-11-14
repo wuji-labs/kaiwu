@@ -246,8 +246,8 @@ describe('light sqlite migrations (unit)', () => {
   it('resolveSqliteMigrationsDir expands ~/ overrides against HOME', () => {
     expect(resolveSqliteMigrationsDir({
       HOME: '/scoped/home',
-      HAPPIER_SQLITE_MIGRATIONS_DIR: '~/migrations/sqlite',
-    }, '/fallback')).toBe('/scoped/home/migrations/sqlite');
+      KAIWU_SQLITE_MIGRATIONS_DIR: '~/migrations/sqlite',
+    }, '/fallback')).toBe(join('/scoped/home', 'migrations', 'sqlite'));
   });
 
   it('applySqliteMigrationsIfNeeded applies missing migrations when auto-migrate is enabled', async () => {
@@ -263,8 +263,8 @@ describe('light sqlite migrations (unit)', () => {
     const dataDir = await mkdtemp(join(tmpdir(), 'happier-sqlite-data-'));
     const dbPath = join(dataDir, 'happier.sqlite');
     const env = {
-      HAPPIER_SQLITE_AUTO_MIGRATE: '1',
-      HAPPIER_SQLITE_MIGRATIONS_DIR: dir,
+      KAIWU_SQLITE_AUTO_MIGRATE: '1',
+      KAIWU_SQLITE_MIGRATIONS_DIR: dir,
       DATABASE_URL: `file:${dbPath}?socket_timeout=7`,
     };
 
@@ -288,8 +288,8 @@ describe('light sqlite migrations (unit)', () => {
     const dataDir = await mkdtemp(join(tmpdir(), 'happier-sqlite-data-disabled-'));
     const dbPath = join(dataDir, 'happier.sqlite');
     const env = {
-      HAPPIER_SQLITE_AUTO_MIGRATE: '0',
-      HAPPIER_SQLITE_MIGRATIONS_DIR: dir,
+      KAIWU_SQLITE_AUTO_MIGRATE: '0',
+      KAIWU_SQLITE_MIGRATIONS_DIR: dir,
       DATABASE_URL: `file:${dbPath}`,
     };
 
@@ -309,8 +309,8 @@ describe('light sqlite migrations (unit)', () => {
     const dataDir = await mkdtemp(join(tmpdir(), 'happier-sqlite-data-explicit-'));
     const dbPath = join(dataDir, 'happier.sqlite');
     const env = {
-      HAPPIER_SQLITE_AUTO_MIGRATE: '0',
-      HAPPIER_SQLITE_MIGRATIONS_DIR: dir,
+      KAIWU_SQLITE_AUTO_MIGRATE: '0',
+      KAIWU_SQLITE_MIGRATIONS_DIR: dir,
       DATABASE_URL: `file:${dbPath}`,
     };
 
@@ -330,8 +330,8 @@ describe('light sqlite migrations (unit)', () => {
     const dataDir = await mkdtemp(join(tmpdir(), 'happier-sqlite-data-close-'));
     const dbPath = join(dataDir, 'happier.sqlite');
     const env = {
-      HAPPIER_SQLITE_AUTO_MIGRATE: '1',
-      HAPPIER_SQLITE_MIGRATIONS_DIR: dir,
+      KAIWU_SQLITE_AUTO_MIGRATE: '1',
+      KAIWU_SQLITE_MIGRATIONS_DIR: dir,
       DATABASE_URL: `file:${dbPath}`,
     };
 
@@ -360,8 +360,8 @@ describe('light sqlite migrations (unit)', () => {
     );
 
     const env = {
-      HAPPIER_SQLITE_AUTO_MIGRATE: '1',
-      HAPPIER_SQLITE_MIGRATIONS_DIR: dir,
+      KAIWU_SQLITE_AUTO_MIGRATE: '1',
+      KAIWU_SQLITE_MIGRATIONS_DIR: dir,
       DATABASE_URL: `file:${dbPath}`,
     };
 
@@ -387,8 +387,8 @@ describe('light sqlite migrations (unit)', () => {
     state.tables.add('Account');
 
     const env = {
-      HAPPIER_SQLITE_AUTO_MIGRATE: '1',
-      HAPPIER_SQLITE_MIGRATIONS_DIR: dir,
+      KAIWU_SQLITE_AUTO_MIGRATE: '1',
+      KAIWU_SQLITE_MIGRATIONS_DIR: dir,
       DATABASE_URL: `file:${dbPath}`,
     };
 

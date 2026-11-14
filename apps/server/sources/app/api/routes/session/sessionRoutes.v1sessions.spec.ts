@@ -549,7 +549,7 @@ describe("sessionRoutes v1 sessions snapshot", () => {
     });
 
     it("POST /v1/sessions forwards encryptionMode=plain when plaintext storage is optional", async () => {
-        resetStoragePolicyEnv({ HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional" });
+        resetStoragePolicyEnv({ KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional" });
 
         const now = new Date(1);
         txSessionFindFirst.mockResolvedValue(null);
@@ -586,7 +586,7 @@ describe("sessionRoutes v1 sessions snapshot", () => {
     });
 
     it("POST /v1/sessions defaults encryptionMode to the account mode when not specified", async () => {
-        resetStoragePolicyEnv({ HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional" });
+        resetStoragePolicyEnv({ KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional" });
 
         const now = new Date(1);
         txSessionFindFirst.mockResolvedValue(null);
@@ -659,7 +659,7 @@ describe("sessionRoutes v1 sessions snapshot", () => {
     });
 
     it("POST /v1/sessions returns a stable error code when the requested encryptionMode is disallowed by storage policy", async () => {
-        resetStoragePolicyEnv({ HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY: "required_e2ee" });
+        resetStoragePolicyEnv({ KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY: "required_e2ee" });
 
         const route = await createSessionRouteTestBuilder("POST", "/v1/sessions");
         const { reply } = await route.invoke({

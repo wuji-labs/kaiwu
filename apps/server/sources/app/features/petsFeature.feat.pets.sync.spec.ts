@@ -13,8 +13,8 @@ describe("features/petsFeature", () => {
 
     it("allows servers to disable pets.companion without disabling pets.sync", () => {
         const result = resolveFeaturesFromEnv({
-            HAPPIER_FEATURE_PETS_COMPANION__ENABLED: "0",
-            HAPPIER_FEATURE_PETS_SYNC__ENABLED: "1",
+            KAIWU_FEATURE_PETS_COMPANION__ENABLED: "0",
+            KAIWU_FEATURE_PETS_SYNC__ENABLED: "1",
         } as NodeJS.ProcessEnv);
 
         expect(result.features?.pets?.companion?.enabled).toBe(false);
@@ -23,7 +23,7 @@ describe("features/petsFeature", () => {
 
     it("exposes pets.sync as a server-represented feature gate when enabled by env", () => {
         const result = resolveFeaturesFromEnv({
-            HAPPIER_FEATURE_PETS_SYNC__ENABLED: "1",
+            KAIWU_FEATURE_PETS_SYNC__ENABLED: "1",
         } as NodeJS.ProcessEnv);
 
         expect(result.features?.pets?.companion?.enabled).toBe(true);
@@ -32,8 +32,8 @@ describe("features/petsFeature", () => {
 
     it("keeps pets.sync enabled when companion is build-policy denied", () => {
         const result = resolveFeaturesFromEnv({
-            HAPPIER_BUILD_FEATURES_DENY: "pets.companion",
-            HAPPIER_FEATURE_PETS_SYNC__ENABLED: "1",
+            KAIWU_BUILD_FEATURES_DENY: "pets.companion",
+            KAIWU_FEATURE_PETS_SYNC__ENABLED: "1",
         } as NodeJS.ProcessEnv);
 
         expect(result.features?.pets?.companion?.enabled).toBe(false);
@@ -42,12 +42,12 @@ describe("features/petsFeature", () => {
 
     it("surfaces bounded pets import limits as capabilities without using them as gates", () => {
         const result = resolveFeaturesFromEnv({
-            HAPPIER_FEATURE_PETS_SYNC__ENABLED: "1",
-            HAPPIER_FEATURE_PETS_SYNC__MAX_MANIFEST_BYTES: "16384",
-            HAPPIER_FEATURE_PETS_SYNC__MAX_CANONICAL_SPRITESHEET_BYTES: "5242880",
-            HAPPIER_FEATURE_PETS_SYNC__MAX_CANONICAL_PACKAGE_BYTES: "6291456",
-            HAPPIER_FEATURE_PETS_SYNC__MAX_IMPORTED_PETS_PER_ACCOUNT: "20",
-            HAPPIER_FEATURE_PETS_SYNC__MAX_IMPORTED_PET_BYTES_PER_ACCOUNT: "104857600",
+            KAIWU_FEATURE_PETS_SYNC__ENABLED: "1",
+            KAIWU_FEATURE_PETS_SYNC__MAX_MANIFEST_BYTES: "16384",
+            KAIWU_FEATURE_PETS_SYNC__MAX_CANONICAL_SPRITESHEET_BYTES: "5242880",
+            KAIWU_FEATURE_PETS_SYNC__MAX_CANONICAL_PACKAGE_BYTES: "6291456",
+            KAIWU_FEATURE_PETS_SYNC__MAX_IMPORTED_PETS_PER_ACCOUNT: "20",
+            KAIWU_FEATURE_PETS_SYNC__MAX_IMPORTED_PET_BYTES_PER_ACCOUNT: "104857600",
         } as NodeJS.ProcessEnv);
 
         expect(result.capabilities?.pets?.limits).toEqual(expect.objectContaining({
@@ -61,7 +61,7 @@ describe("features/petsFeature", () => {
 
     it("surfaces companion and conservative sync capability details without using them as gates", () => {
         const result = resolveFeaturesFromEnv({
-            HAPPIER_FEATURE_PETS_SYNC__ENABLED: "1",
+            KAIWU_FEATURE_PETS_SYNC__ENABLED: "1",
         } as NodeJS.ProcessEnv);
 
         expect(result.features?.pets?.sync?.enabled).toBe(true);
@@ -84,8 +84,8 @@ describe("features/petsFeature", () => {
 
     it("publishes the configured encrypted custom pet sync policy in sync capabilities", () => {
         const result = resolveFeaturesFromEnv({
-            HAPPIER_FEATURE_PETS_SYNC__ENABLED: "1",
-            HAPPIER_FEATURE_PETS_SYNC__ENCRYPTED_CUSTOM_PET_SYNC_POLICY: "allowedWithClientValidation",
+            KAIWU_FEATURE_PETS_SYNC__ENABLED: "1",
+            KAIWU_FEATURE_PETS_SYNC__ENCRYPTED_CUSTOM_PET_SYNC_POLICY: "allowedWithClientValidation",
         } as NodeJS.ProcessEnv);
 
         expect(result.features?.pets?.sync?.enabled).toBe(true);

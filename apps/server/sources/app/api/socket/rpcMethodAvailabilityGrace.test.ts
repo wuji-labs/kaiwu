@@ -12,9 +12,9 @@ describe("resolveRpcMethodAvailabilityGraceMs", () => {
     });
 
     it("uses a longer startup grace for scoped direct-session daemon RPC registration", async () => {
-        vi.stubEnv("HAPPIER_RPC_METHOD_AVAILABILITY_GRACE_MS", "750");
-        vi.stubEnv("HAPPIER_DIRECT_SESSIONS_RPC_METHOD_AVAILABILITY_GRACE_MS", "");
-        vi.stubEnv("HAPPIER_STOP_SESSION_RPC_METHOD_AVAILABILITY_GRACE_MS", "");
+        vi.stubEnv("KAIWU_RPC_METHOD_AVAILABILITY_GRACE_MS", "750");
+        vi.stubEnv("KAIWU_DIRECT_SESSIONS_RPC_METHOD_AVAILABILITY_GRACE_MS", "");
+        vi.stubEnv("KAIWU_STOP_SESSION_RPC_METHOD_AVAILABILITY_GRACE_MS", "");
 
         const { resolveRpcMethodAvailabilityGraceMs } = await importSubject();
 
@@ -29,8 +29,8 @@ describe("resolveRpcMethodAvailabilityGraceMs", () => {
     });
 
     it("allows the machine Stop registration grace to be tuned independently", async () => {
-        vi.stubEnv("HAPPIER_RPC_METHOD_AVAILABILITY_GRACE_MS", "750");
-        vi.stubEnv("HAPPIER_STOP_SESSION_RPC_METHOD_AVAILABILITY_GRACE_MS", "1500");
+        vi.stubEnv("KAIWU_RPC_METHOD_AVAILABILITY_GRACE_MS", "750");
+        vi.stubEnv("KAIWU_STOP_SESSION_RPC_METHOD_AVAILABILITY_GRACE_MS", "1500");
 
         const { resolveRpcMethodAvailabilityGraceMs } = await importSubject();
 

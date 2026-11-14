@@ -323,7 +323,7 @@ describe("exchangeConnectedServiceOauthTokens", () => {
     });
 
     it("passes an AbortSignal to token exchange fetch requests", async () => {
-        resetOauthExchangeEnv({ HAPPIER_CONNECTED_SERVICES_OAUTH_EXCHANGE_TIMEOUT_MS: "5000" });
+        resetOauthExchangeEnv({ KAIWU_CONNECTED_SERVICES_OAUTH_EXCHANGE_TIMEOUT_MS: "5000" });
         const fetchMock = vi.fn(async (_url: any, init: any) => ({
             ok: true,
             status: 200,
@@ -355,7 +355,7 @@ describe("exchangeConnectedServiceOauthTokens", () => {
     });
 
     it("aborts token exchange when the timeout elapses", async () => {
-        resetOauthExchangeEnv({ HAPPIER_CONNECTED_SERVICES_OAUTH_EXCHANGE_TIMEOUT_MS: "1000" });
+        resetOauthExchangeEnv({ KAIWU_CONNECTED_SERVICES_OAUTH_EXCHANGE_TIMEOUT_MS: "1000" });
         vi.useFakeTimers();
         try {
             const fetchMock = vi.fn(async (_url: any, init: any) => {

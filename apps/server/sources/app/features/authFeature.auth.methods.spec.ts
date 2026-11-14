@@ -13,12 +13,12 @@ describe("resolveAuthFeature (auth.methods)", () => {
     it("exposes key_challenge + mtls as auth methods when enabled", () => {
         const feature = resolveAuthFeature({
             AUTH_ANONYMOUS_SIGNUP_ENABLED: "1",
-            HAPPIER_FEATURE_AUTH_LOGIN__KEY_CHALLENGE_ENABLED: "1",
-            HAPPIER_FEATURE_AUTH_MTLS__ENABLED: "1",
-            HAPPIER_FEATURE_AUTH_MTLS__MODE: "forwarded",
-            HAPPIER_FEATURE_AUTH_MTLS__TRUST_FORWARDED_HEADERS: "1",
-            HAPPIER_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED: "1",
-            HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional",
+            KAIWU_FEATURE_AUTH_LOGIN__KEY_CHALLENGE_ENABLED: "1",
+            KAIWU_FEATURE_AUTH_MTLS__ENABLED: "1",
+            KAIWU_FEATURE_AUTH_MTLS__MODE: "forwarded",
+            KAIWU_FEATURE_AUTH_MTLS__TRUST_FORWARDED_HEADERS: "1",
+            KAIWU_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED: "1",
+            KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional",
         } as NodeJS.ProcessEnv);
 
         const keyChallenge = getMethod(feature, "key_challenge");
@@ -40,7 +40,7 @@ describe("resolveAuthFeature (auth.methods)", () => {
     it("disables key_challenge provisioning when key-challenge login is disabled", () => {
         const feature = resolveAuthFeature({
             AUTH_ANONYMOUS_SIGNUP_ENABLED: "1",
-            HAPPIER_FEATURE_AUTH_LOGIN__KEY_CHALLENGE_ENABLED: "0",
+            KAIWU_FEATURE_AUTH_LOGIN__KEY_CHALLENGE_ENABLED: "0",
         } as NodeJS.ProcessEnv);
 
         const keyChallenge = getMethod(feature, "key_challenge");
@@ -56,13 +56,13 @@ describe("resolveAuthFeature (auth.methods)", () => {
     it("disables mTLS provisioning when keyless auto-provision eligibility is not satisfied", () => {
         const feature = resolveAuthFeature({
             AUTH_ANONYMOUS_SIGNUP_ENABLED: "0",
-            HAPPIER_FEATURE_AUTH_MTLS__ENABLED: "1",
-            HAPPIER_FEATURE_AUTH_MTLS__MODE: "forwarded",
-            HAPPIER_FEATURE_AUTH_MTLS__TRUST_FORWARDED_HEADERS: "1",
-            HAPPIER_FEATURE_AUTH_MTLS__AUTO_PROVISION: "1",
-            HAPPIER_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED: "1",
-            HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY: "required_e2ee",
-            HAPPIER_FEATURE_ENCRYPTION__DEFAULT_ACCOUNT_MODE: "e2ee",
+            KAIWU_FEATURE_AUTH_MTLS__ENABLED: "1",
+            KAIWU_FEATURE_AUTH_MTLS__MODE: "forwarded",
+            KAIWU_FEATURE_AUTH_MTLS__TRUST_FORWARDED_HEADERS: "1",
+            KAIWU_FEATURE_AUTH_MTLS__AUTO_PROVISION: "1",
+            KAIWU_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED: "1",
+            KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY: "required_e2ee",
+            KAIWU_FEATURE_ENCRYPTION__DEFAULT_ACCOUNT_MODE: "e2ee",
         } as NodeJS.ProcessEnv);
 
         const mtls = getMethod(feature, "mtls");
@@ -75,12 +75,12 @@ describe("resolveAuthFeature (auth.methods)", () => {
     it("reports a misconfig when mTLS is enabled but keyless accounts are unavailable due to required_e2ee storage policy", () => {
         const feature = resolveAuthFeature({
             AUTH_ANONYMOUS_SIGNUP_ENABLED: "0",
-            HAPPIER_FEATURE_AUTH_MTLS__ENABLED: "1",
-            HAPPIER_FEATURE_AUTH_MTLS__MODE: "forwarded",
-            HAPPIER_FEATURE_AUTH_MTLS__TRUST_FORWARDED_HEADERS: "1",
-            HAPPIER_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED: "1",
-            HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY: "required_e2ee",
-            HAPPIER_FEATURE_ENCRYPTION__DEFAULT_ACCOUNT_MODE: "e2ee",
+            KAIWU_FEATURE_AUTH_MTLS__ENABLED: "1",
+            KAIWU_FEATURE_AUTH_MTLS__MODE: "forwarded",
+            KAIWU_FEATURE_AUTH_MTLS__TRUST_FORWARDED_HEADERS: "1",
+            KAIWU_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED: "1",
+            KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY: "required_e2ee",
+            KAIWU_FEATURE_ENCRYPTION__DEFAULT_ACCOUNT_MODE: "e2ee",
         } as NodeJS.ProcessEnv);
 
         const misconfig = feature?.capabilities?.auth?.misconfig ?? [];
@@ -91,13 +91,13 @@ describe("resolveAuthFeature (auth.methods)", () => {
         const feature = resolveAuthFeature({
             AUTH_ANONYMOUS_SIGNUP_ENABLED: "0",
             AUTH_SIGNUP_PROVIDERS: "",
-            HAPPIER_FEATURE_AUTH_LOGIN__KEY_CHALLENGE_ENABLED: "0",
-            HAPPIER_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED: "1",
-            HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional",
-            HAPPIER_FEATURE_ENCRYPTION__DEFAULT_ACCOUNT_MODE: "e2ee",
-            HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_ENABLED: "1",
-            HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_PROVIDERS: "github",
-            HAPPIER_FEATURE_AUTH_OAUTH__KEYLESS_AUTO_PROVISION: "1",
+            KAIWU_FEATURE_AUTH_LOGIN__KEY_CHALLENGE_ENABLED: "0",
+            KAIWU_FEATURE_E2EE__KEYLESS_ACCOUNTS_ENABLED: "1",
+            KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional",
+            KAIWU_FEATURE_ENCRYPTION__DEFAULT_ACCOUNT_MODE: "e2ee",
+            KAIWU_FEATURE_AUTH_OAUTH__KEYLESS_ENABLED: "1",
+            KAIWU_FEATURE_AUTH_OAUTH__KEYLESS_PROVIDERS: "github",
+            KAIWU_FEATURE_AUTH_OAUTH__KEYLESS_AUTO_PROVISION: "1",
             GITHUB_CLIENT_ID: "id",
             GITHUB_CLIENT_SECRET: "secret",
             GITHUB_REDIRECT_URL: "https://example.test/v1/oauth/github/callback",

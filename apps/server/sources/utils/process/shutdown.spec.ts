@@ -6,7 +6,7 @@ async function loadShutdownModule() {
 }
 
 describe("shutdown", () => {
-    const originalShutdownDeadlineMs = process.env.HAPPIER_SERVER_SHUTDOWN_DEADLINE_MS;
+    const originalShutdownDeadlineMs = process.env.KAIWU_SERVER_SHUTDOWN_DEADLINE_MS;
 
     beforeEach(() => {
         vi.resetModules();
@@ -14,9 +14,9 @@ describe("shutdown", () => {
 
     afterEach(() => {
         if (originalShutdownDeadlineMs === undefined) {
-            delete process.env.HAPPIER_SERVER_SHUTDOWN_DEADLINE_MS;
+            delete process.env.KAIWU_SERVER_SHUTDOWN_DEADLINE_MS;
         } else {
-            process.env.HAPPIER_SERVER_SHUTDOWN_DEADLINE_MS = originalShutdownDeadlineMs;
+            process.env.KAIWU_SERVER_SHUTDOWN_DEADLINE_MS = originalShutdownDeadlineMs;
         }
         vi.useRealTimers();
         vi.restoreAllMocks();
@@ -104,7 +104,7 @@ describe("shutdown", () => {
 
     it("forces process exit when shutdown handlers exceed the configured deadline", async () => {
         vi.useFakeTimers();
-        process.env.HAPPIER_SERVER_SHUTDOWN_DEADLINE_MS = "25";
+        process.env.KAIWU_SERVER_SHUTDOWN_DEADLINE_MS = "25";
         const exitSpy = vi.spyOn(process, "exit").mockImplementation((() => undefined) as never);
 
         const { initiateShutdown, onShutdown } = await loadShutdownModule();
@@ -122,7 +122,7 @@ describe("shutdown", () => {
 
     it("clears the shutdown deadline when handlers finish before it fires", async () => {
         vi.useFakeTimers();
-        process.env.HAPPIER_SERVER_SHUTDOWN_DEADLINE_MS = "50";
+        process.env.KAIWU_SERVER_SHUTDOWN_DEADLINE_MS = "50";
         const exitSpy = vi.spyOn(process, "exit").mockImplementation((() => undefined) as never);
 
         const { initiateShutdown, onShutdown } = await loadShutdownModule();

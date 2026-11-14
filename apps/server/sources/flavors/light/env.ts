@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, join, win32 as win32Path } from 'node:path';
+import { dirname, join, posix as posixPath, win32 as win32Path } from 'node:path';
 import { homedir as defaultHomedir, tmpdir } from 'node:os';
 import { renderPrismaCompatibleSqliteDatabaseUrl } from '@happier-dev/cli-common/firstPartyRuntime';
 import { expandHomeDirPath, resolveHomeDirFromEnvironment } from '@/utils/path/expandHomeDirPath';
@@ -52,9 +52,11 @@ export function resolveLightSqliteDatabaseUrl(
     if (!trimmed) {
         return '';
     }
+    // Join with the target platform's separator rules, not the host's: a native win32 join would turn a
+    // POSIX target dir into "\tmp\..." and corrupt the rendered file URL.
     const dbPath = platform === 'win32'
         ? win32Path.join(trimmed, 'happier-server-light.sqlite')
-        : join(trimmed, 'happier-server-light.sqlite');
+        : posixPath.join(trimmed, 'happier-server-light.sqlite');
     return renderPrismaCompatibleSqliteDatabaseUrl({
         dbPath,
         platform,

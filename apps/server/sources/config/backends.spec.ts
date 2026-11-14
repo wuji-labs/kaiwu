@@ -21,26 +21,26 @@ describe("config/backends", () => {
     });
 
     it("resolves an explicit server flavor and otherwise preserves the entrypoint default", () => {
-        expect(resolveServerFlavorFromEnv({ HAPPIER_SERVER_FLAVOR: " full " }, "light")).toBe("full");
+        expect(resolveServerFlavorFromEnv({ KAIWU_SERVER_FLAVOR: " full " }, "light")).toBe("full");
         expect(resolveServerFlavorFromEnv({ HAPPY_SERVER_FLAVOR: "LIGHT" }, "full")).toBe("light");
-        expect(resolveServerFlavorFromEnv({ HAPPIER_SERVER_FLAVOR: "invalid" }, "light")).toBe("light");
+        expect(resolveServerFlavorFromEnv({ KAIWU_SERVER_FLAVOR: "invalid" }, "light")).toBe("light");
         expect(resolveServerFlavorFromEnv({}, "full")).toBe("full");
     });
 
     it("parses files backend from env", () => {
-        expect(getFilesBackendFromEnv({ HAPPIER_FILES_BACKEND: "local" }, "s3")).toBe("local");
-        expect(getFilesBackendFromEnv({ HAPPIER_FILES_BACKEND: "S3" }, "local")).toBe("s3");
-        expect(getFilesBackendFromEnv({ HAPPIER_FILES_BACKEND: "nope" }, "local")).toBe("local");
+        expect(getFilesBackendFromEnv({ KAIWU_FILES_BACKEND: "local" }, "s3")).toBe("local");
+        expect(getFilesBackendFromEnv({ KAIWU_FILES_BACKEND: "S3" }, "local")).toBe("s3");
+        expect(getFilesBackendFromEnv({ KAIWU_FILES_BACKEND: "nope" }, "local")).toBe("local");
     });
 
     it("parses socket adapter from env", () => {
-        expect(getSocketAdapterFromEnv({ HAPPIER_SOCKET_ADAPTER: "memory" }, "redis-streams")).toBe("memory");
-        expect(getSocketAdapterFromEnv({ HAPPIER_SOCKET_ADAPTER: "redis" }, "memory")).toBe("redis-streams");
-        expect(getSocketAdapterFromEnv({ HAPPIER_SOCKET_ADAPTER: "nope" }, "memory")).toBe("memory");
+        expect(getSocketAdapterFromEnv({ KAIWU_SOCKET_ADAPTER: "memory" }, "redis-streams")).toBe("memory");
+        expect(getSocketAdapterFromEnv({ KAIWU_SOCKET_ADAPTER: "redis" }, "memory")).toBe("redis-streams");
+        expect(getSocketAdapterFromEnv({ KAIWU_SOCKET_ADAPTER: "nope" }, "memory")).toBe("memory");
     });
 
     it("supports legacy boolean redis adapter flags when adapter is unset", () => {
-        expect(getSocketAdapterFromEnv({ HAPPIER_SOCKET_REDIS_ADAPTER: "1" }, "memory")).toBe("redis-streams");
+        expect(getSocketAdapterFromEnv({ KAIWU_SOCKET_REDIS_ADAPTER: "1" }, "memory")).toBe("redis-streams");
         expect(getSocketAdapterFromEnv({ HAPPY_SOCKET_REDIS_ADAPTER: "true" }, "memory")).toBe("redis-streams");
     });
 

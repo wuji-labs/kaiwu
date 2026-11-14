@@ -1,6 +1,6 @@
 import Fastify from 'fastify';
 import { type ZodTypeProvider } from 'fastify-type-provider-zod';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Fastify as HappierFastify } from '../types';
 
 const mockQueryRaw = vi.fn();
@@ -31,7 +31,13 @@ function createMonitoringApp(): HappierFastify {
 }
 
 describe('enableMonitoring (unit)', () => {
-    const originalDbReadinessTimeoutMs = process.env.HAPPIER_DB_READINESS_TIMEOUT_MS;
+    const originalDbReadinessTimeoutMs = process.env.KAIWU_DB_READINESS_TIMEOUT_MS;
+
+    // Cold-transform the module graph once outside the per-test budget (~10s on Windows, enough
+    // to breach testTimeout under parallel load); tests below still import it as before.
+    beforeAll(async () => {
+        await import('./enableMonitoring');
+    }, 120_000);
 
     beforeEach(() => {
         mockQueryRaw.mockReset();
@@ -44,9 +50,9 @@ describe('enableMonitoring (unit)', () => {
 
     afterEach(() => {
         if (originalDbReadinessTimeoutMs === undefined) {
-            delete process.env.HAPPIER_DB_READINESS_TIMEOUT_MS;
+            delete process.env.KAIWU_DB_READINESS_TIMEOUT_MS;
         } else {
-            process.env.HAPPIER_DB_READINESS_TIMEOUT_MS = originalDbReadinessTimeoutMs;
+            process.env.KAIWU_DB_READINESS_TIMEOUT_MS = originalDbReadinessTimeoutMs;
         }
         vi.useRealTimers();
     });
@@ -217,7 +223,7 @@ describe('enableMonitoring (unit)', () => {
 
     it('returns 503 when database readiness exceeds the configured timeout', async () => {
         vi.useFakeTimers();
-        process.env.HAPPIER_DB_READINESS_TIMEOUT_MS = '25';
+        process.env.KAIWU_DB_READINESS_TIMEOUT_MS = '25';
         mockQueryRaw.mockReturnValueOnce(new Promise(() => {}));
 
         const { enableMonitoring } = await import('./enableMonitoring');
@@ -249,7 +255,7 @@ describe('enableMonitoring (unit)', () => {
 
     it('uses a 15s default database readiness timeout', async () => {
         vi.useFakeTimers();
-        delete process.env.HAPPIER_DB_READINESS_TIMEOUT_MS;
+        delete process.env.KAIWU_DB_READINESS_TIMEOUT_MS;
         mockQueryRaw.mockReturnValueOnce(new Promise(() => {}));
 
         const { enableMonitoring } = await import('./enableMonitoring');

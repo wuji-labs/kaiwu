@@ -11,19 +11,19 @@ describe("social/friendsPolicy", () => {
     });
 
     it("disables friends when canonical feature env is false-ish", () => {
-        expect(resolveFriendsPolicyFromEnv({ HAPPIER_FEATURE_SOCIAL_FRIENDS__ENABLED: "0" }).enabled).toBe(false);
-        expect(resolveFriendsPolicyFromEnv({ HAPPIER_FEATURE_SOCIAL_FRIENDS__ENABLED: "false" }).enabled).toBe(false);
-        expect(resolveFriendsPolicyFromEnv({ HAPPIER_FEATURE_SOCIAL_FRIENDS__ENABLED: "off" }).enabled).toBe(false);
+        expect(resolveFriendsPolicyFromEnv({ KAIWU_FEATURE_SOCIAL_FRIENDS__ENABLED: "0" }).enabled).toBe(false);
+        expect(resolveFriendsPolicyFromEnv({ KAIWU_FEATURE_SOCIAL_FRIENDS__ENABLED: "false" }).enabled).toBe(false);
+        expect(resolveFriendsPolicyFromEnv({ KAIWU_FEATURE_SOCIAL_FRIENDS__ENABLED: "off" }).enabled).toBe(false);
     });
 
     it("allows username identity when canonical allow-username env is on", () => {
-        const policy = resolveFriendsPolicyFromEnv({ HAPPIER_FEATURE_SOCIAL_FRIENDS__ALLOW_USERNAME: "1" });
+        const policy = resolveFriendsPolicyFromEnv({ KAIWU_FEATURE_SOCIAL_FRIENDS__ALLOW_USERNAME: "1" });
         expect(policy.allowUsername).toBe(true);
         expect(policy.requiredIdentityProviderId).toBeNull();
     });
 
     it("requires an identity provider when allow-username is explicitly disabled", () => {
-        const policy = resolveFriendsPolicyFromEnv({ HAPPIER_FEATURE_SOCIAL_FRIENDS__ALLOW_USERNAME: "0" });
+        const policy = resolveFriendsPolicyFromEnv({ KAIWU_FEATURE_SOCIAL_FRIENDS__ALLOW_USERNAME: "0" });
         expect(policy.allowUsername).toBe(false);
         expect(policy.requiredIdentityProviderId).toBe("github");
     });

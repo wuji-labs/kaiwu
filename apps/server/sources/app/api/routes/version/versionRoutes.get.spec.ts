@@ -17,8 +17,8 @@ describe("versionRoutes GET /v1/version", () => {
     });
 
     it("reports an exact deployed source revision when the release environment provides one", async () => {
-        const prior = process.env.HAPPIER_RELEASE_SOURCE_SHA;
-        process.env.HAPPIER_RELEASE_SOURCE_SHA = "a".repeat(40);
+        const prior = process.env.KAIWU_RELEASE_SOURCE_SHA;
+        process.env.KAIWU_RELEASE_SOURCE_SHA = "a".repeat(40);
         try {
             const route = createRouteTestBuilder({
                 method: "GET",
@@ -30,8 +30,8 @@ describe("versionRoutes GET /v1/version", () => {
             const { response } = await route.invoke();
             expect(response).toEqual({ ok: true, source_sha: "a".repeat(40) });
         } finally {
-            if (prior === undefined) delete process.env.HAPPIER_RELEASE_SOURCE_SHA;
-            else process.env.HAPPIER_RELEASE_SOURCE_SHA = prior;
+            if (prior === undefined) delete process.env.KAIWU_RELEASE_SOURCE_SHA;
+            else process.env.KAIWU_RELEASE_SOURCE_SHA = prior;
         }
     });
 });

@@ -64,13 +64,21 @@ describe('migrate.light.new.ts', () => {
         await waitForSpawnCount(2);
 
         const prismaCall = spawnMock.mock.calls.find(([, args]) => {
-            const argv = Array.isArray(args) ? args : [];
-            return argv.includes('prisma') && argv.includes('migrate') && argv.includes('dev');
+            // On Windows yarn.cmd is wrapped as `cmd.exe /d /s /c "<escaped command line>"`, so match tokens
+            // inside the joined command line rather than as discrete argv entries.
+            const commandLine = (Array.isArray(args) ? args : []).map(String).join(' ');
+            const tokens = new Set(commandLine.split(/[^A-Za-z0-9_-]+/));
+            return tokens.has('prisma') && tokens.has('migrate') && tokens.has('dev');
         });
 
         expect(prismaCall).toBeDefined();
         const env = (prismaCall?.[2] as { env?: NodeJS.ProcessEnv } | undefined)?.env;
-        const expected = `${pathToFileURL(join(tmpDir, 'happy server #light.sqlite')).href}?socket_timeout=30`;
+        const tmpDbUrl = pathToFileURL(join(tmpDir, 'happy server #light.sqlite'));
+        // Prisma-compatible drive-letter form on Windows (file:C:/...), standard file:/// elsewhere.
+        const tmpDbFileUrl = process.platform === 'win32'
+            ? `file:${tmpDbUrl.pathname.replace(/^\//, '')}`
+            : tmpDbUrl.href;
+        const expected = `${tmpDbFileUrl}?socket_timeout=30`;
         expect(env?.DATABASE_URL).toBe(expected);
     });
 });

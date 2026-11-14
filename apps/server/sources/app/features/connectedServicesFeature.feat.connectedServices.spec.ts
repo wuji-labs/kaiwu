@@ -19,10 +19,10 @@ describe("resolveConnectedServicesFeature", () => {
 
     it("reads child enablement independently from connected services enablement", () => {
         const feature = resolveConnectedServicesFeature({
-            HAPPIER_FEATURE_CONNECTED_SERVICES__ENABLED: "0",
-            HAPPIER_FEATURE_CONNECTED_SERVICES_QUOTAS__ENABLED: "1",
-            HAPPIER_FEATURE_CONNECTED_SERVICES_ACCOUNT_GROUPS__ENABLED: "1",
-            HAPPIER_FEATURE_CONNECTED_SERVICES_ACCOUNT_FALLBACK__ENABLED: "1",
+            KAIWU_FEATURE_CONNECTED_SERVICES__ENABLED: "0",
+            KAIWU_FEATURE_CONNECTED_SERVICES_QUOTAS__ENABLED: "1",
+            KAIWU_FEATURE_CONNECTED_SERVICES_ACCOUNT_GROUPS__ENABLED: "1",
+            KAIWU_FEATURE_CONNECTED_SERVICES_ACCOUNT_FALLBACK__ENABLED: "1",
         } as NodeJS.ProcessEnv);
 
         expect(feature.features?.connectedServices).toEqual({
@@ -35,8 +35,8 @@ describe("resolveConnectedServicesFeature", () => {
 
     it("reads disabled account group env values", () => {
         const feature = resolveConnectedServicesFeature({
-            HAPPIER_FEATURE_CONNECTED_SERVICES_ACCOUNT_GROUPS__ENABLED: "0",
-            HAPPIER_FEATURE_CONNECTED_SERVICES_ACCOUNT_FALLBACK__ENABLED: "0",
+            KAIWU_FEATURE_CONNECTED_SERVICES_ACCOUNT_GROUPS__ENABLED: "0",
+            KAIWU_FEATURE_CONNECTED_SERVICES_ACCOUNT_FALLBACK__ENABLED: "0",
         } as NodeJS.ProcessEnv);
 
         expect(feature.features?.connectedServices).toEqual({

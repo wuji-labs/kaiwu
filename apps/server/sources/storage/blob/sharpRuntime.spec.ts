@@ -55,7 +55,10 @@ describe("sharpRuntime", () => {
             "semver",
             "@img/colour",
             `@img/sharp-${runtimePlatform}`,
-            `@img/sharp-libvips-${runtimePlatform}`,
+            // Sharp's win32 platform packages bundle the libvips DLLs next to the addon; only the
+            // non-Windows targets ship libvips as a separate @img/sharp-libvips-* package. This mirrors
+            // requiredSharpRuntimePackages() in packages/cli-common/src/componentArtifacts/serverSidecars.ts.
+            ...(process.platform === "win32" ? [] : [`@img/sharp-libvips-${runtimePlatform}`]),
         ]) {
             const packageJsonPath = requireFromTest.resolve(`${packageName}/package`);
             const targetDir = join(root, "node_modules", ...packageName.split("/"));

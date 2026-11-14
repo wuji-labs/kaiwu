@@ -7,6 +7,13 @@ import { pathToFileURL } from "node:url";
 
 import { runSqliteMigrationDeploy } from "./migrate.sqlite.deploy";
 
+// Prisma-compatible sqlite file URL for the host platform: drive-letter form (file:C:/...) on Windows,
+// standard file:///... elsewhere. Spaces and "#" stay percent-encoded either way.
+function expectedSqliteFileUrl(filePath: string): string {
+    const url = pathToFileURL(filePath);
+    return process.platform === "win32" ? `file:${url.pathname.replace(/^\//, "")}` : url.href;
+}
+
 type NodeSqliteDatabase = Readonly<{
     exec: (sql: string) => void;
     prepare: (sql: string) => Readonly<{
@@ -55,7 +62,7 @@ describe("migrate.sqlite.deploy.ts", () => {
 
         const env: NodeJS.ProcessEnv = {
             HAPPY_SERVER_LIGHT_DATA_DIR: lightDataDir,
-            HAPPIER_SERVER_LIGHT_DATA_DIR: lightDataDir,
+            KAIWU_SERVER_LIGHT_DATA_DIR: lightDataDir,
         };
         const schemaSyncCalls: string[] = [];
 
@@ -71,7 +78,7 @@ describe("migrate.sqlite.deploy.ts", () => {
 
         const databasePath = join(lightDataDir, "happier-server-light.sqlite");
         expect(env.DATABASE_URL).toBe(
-            `${pathToFileURL(databasePath).href}?socket_timeout=30&connection_limit=1`,
+            `${expectedSqliteFileUrl(databasePath)}?socket_timeout=30&connection_limit=1`,
         );
         expect(schemaSyncCalls).toEqual([serverRoot]);
 
@@ -117,7 +124,7 @@ describe("migrate.sqlite.deploy.ts", () => {
             runSqliteMigrationDeploy({
                 env: {
                     HAPPY_SERVER_LIGHT_DATA_DIR: lightDataDir,
-                    HAPPIER_SERVER_LIGHT_DATA_DIR: lightDataDir,
+                    KAIWU_SERVER_LIGHT_DATA_DIR: lightDataDir,
                     DATABASE_URL: pathToFileURL(databasePath).href,
                 },
                 serverRoot,
@@ -149,7 +156,7 @@ describe("migrate.sqlite.deploy.ts", () => {
             runSqliteMigrationDeploy({
                 env: {
                     HAPPY_SERVER_LIGHT_DATA_DIR: lightDataDir,
-                    HAPPIER_SERVER_LIGHT_DATA_DIR: lightDataDir,
+                    KAIWU_SERVER_LIGHT_DATA_DIR: lightDataDir,
                     DATABASE_URL: "postgresql://db.example.invalid/happier",
                 },
                 serverRoot,

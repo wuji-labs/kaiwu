@@ -60,9 +60,9 @@ describe("presence timeout config", () => {
     it("accepts env overrides", async () => {
         const { resolvePresenceTimeoutConfig } = await importTimeoutModule();
         const config = resolvePresenceTimeoutConfig({
-            HAPPIER_PRESENCE_SESSION_TIMEOUT_MS: "35000",
-            HAPPIER_PRESENCE_MACHINE_TIMEOUT_MS: "45000",
-            HAPPIER_PRESENCE_TIMEOUT_TICK_MS: "1000",
+            KAIWU_PRESENCE_SESSION_TIMEOUT_MS: "35000",
+            KAIWU_PRESENCE_MACHINE_TIMEOUT_MS: "45000",
+            KAIWU_PRESENCE_TIMEOUT_TICK_MS: "1000",
         });
         expect(config).toEqual({ sessionTimeoutMs: 35_000, machineTimeoutMs: 45_000, tickMs: 1_000 });
     });
@@ -70,9 +70,9 @@ describe("presence timeout config", () => {
     it("falls back when env is invalid", async () => {
         const { resolvePresenceTimeoutConfig } = await importTimeoutModule();
         const config = resolvePresenceTimeoutConfig({
-            HAPPIER_PRESENCE_SESSION_TIMEOUT_MS: "nope",
-            HAPPIER_PRESENCE_MACHINE_TIMEOUT_MS: "0",
-            HAPPIER_PRESENCE_TIMEOUT_TICK_MS: "-1",
+            KAIWU_PRESENCE_SESSION_TIMEOUT_MS: "nope",
+            KAIWU_PRESENCE_MACHINE_TIMEOUT_MS: "0",
+            KAIWU_PRESENCE_TIMEOUT_TICK_MS: "-1",
         });
         expect(config).toEqual({
             sessionTimeoutMs: 10 * 60 * 1000,

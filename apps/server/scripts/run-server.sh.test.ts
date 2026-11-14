@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { mkdtemp, readFile, rm, writeFile, chmod } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { delimiter, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
 
@@ -13,7 +13,13 @@ async function writeFakeYarn(params: Readonly<{ dir: string; logPath: string }>)
   const content = `#!/bin/sh
 set -e
 echo "YARN $@" >> "${params.logPath}"
-echo "ENV DATABASE_URL=$DATABASE_URL SQLITE_AUTO=$HAPPIER_SQLITE_AUTO_MIGRATE SQLITE_MIGRATIONS_DIR=$HAPPIER_SQLITE_MIGRATIONS_DIR" >> "${params.logPath}"
+sqlite_migrations_dir="\${KAIWU_SQLITE_MIGRATIONS_DIR:-}"
+# Under Git Bash/MSYS the script sees POSIX paths (/d/...); a native consumer such as node.exe
+# receives them converted to Windows form, so log the path the real consumer would see.
+if [ -n "$sqlite_migrations_dir" ] && command -v cygpath >/dev/null 2>&1; then
+  sqlite_migrations_dir="$(cygpath -w "$sqlite_migrations_dir")"
+fi
+echo "ENV DATABASE_URL=$DATABASE_URL SQLITE_AUTO=$KAIWU_SQLITE_AUTO_MIGRATE SQLITE_MIGRATIONS_DIR=$sqlite_migrations_dir" >> "${params.logPath}"
 if echo "$*" | grep -q "migrate:deploy"; then
   echo "migrated"
   exit 0
@@ -30,7 +36,7 @@ async function writeFakePackagedRuntime(params: Readonly<{ dir: string; logPath:
   const migrationPath = join(params.dir, 'happier-server-migrate');
   await writeFile(
     serverPath,
-    `#!/bin/sh\nset -e\nif [ "\${1:-}" = "--migrate-only" ]; then\n  echo "SQLITE_MIGRATE provider=$HAPPIER_DB_PROVIDER url=$DATABASE_URL" >> "${params.logPath}"\n  exit 0\nfi\necho "SERVER flavor=$HAPPIER_SERVER_FLAVOR provider=$HAPPIER_DB_PROVIDER url=$DATABASE_URL sqlite_auto=$HAPPIER_SQLITE_AUTO_MIGRATE args=$*" >> "${params.logPath}"\n`,
+    `#!/bin/sh\nset -e\nif [ "\${1:-}" = "--migrate-only" ]; then\n  echo "SQLITE_MIGRATE provider=$KAIWU_DB_PROVIDER url=$DATABASE_URL" >> "${params.logPath}"\n  exit 0\nfi\necho "SERVER flavor=$KAIWU_SERVER_FLAVOR provider=$KAIWU_DB_PROVIDER url=$DATABASE_URL sqlite_auto=$KAIWU_SQLITE_AUTO_MIGRATE args=$*" >> "${params.logPath}"\n`,
     { mode: 0o755 },
   );
   await writeFile(
@@ -42,7 +48,7 @@ if [ -n "\${MIGRATION_FAIL_ONCE_FILE:-}" ] && [ ! -f "$MIGRATION_FAIL_ONCE_FILE"
   echo "P1001: Can't reach database server"
   exit 1
 fi
-echo "MIGRATE provider=$HAPPIER_DB_PROVIDER url=$DATABASE_URL" >> "${params.logPath}"
+echo "MIGRATE provider=$KAIWU_DB_PROVIDER url=$DATABASE_URL" >> "${params.logPath}"
 `,
     { mode: 0o755 },
   );
@@ -78,13 +84,13 @@ describe('run-server.sh', () => {
     await rm(tmpDir, { recursive: true, force: true });
   });
 
-  it('starts the light flavor when HAPPIER_SERVER_FLAVOR=light', async () => {
+  it('starts the light flavor when KAIWU_SERVER_FLAVOR=light', async () => {
     const res = spawnSync('sh', [getScriptPath()], {
       env: {
         ...process.env,
-        PATH: `${binDir}:${process.env.PATH ?? ''}`,
-        HAPPIER_SERVER_FLAVOR: 'light',
-        HAPPIER_DB_PROVIDER: 'postgres',
+        PATH: `${binDir}${delimiter}${process.env.PATH ?? ''}`,
+        KAIWU_SERVER_FLAVOR: 'light',
+        KAIWU_DB_PROVIDER: 'postgres',
         RUN_MIGRATIONS: '0',
       },
       stdio: 'pipe',
@@ -100,8 +106,8 @@ describe('run-server.sh', () => {
     const res = spawnSync('sh', [getScriptPath()], {
       env: {
         ...process.env,
-        PATH: `${binDir}:${process.env.PATH ?? ''}`,
-        HAPPIER_DB_PROVIDER: 'postgres',
+        PATH: `${binDir}${delimiter}${process.env.PATH ?? ''}`,
+        KAIWU_DB_PROVIDER: 'postgres',
         RUN_MIGRATIONS: '1',
         MIGRATIONS_MAX_ATTEMPTS: '1',
         MIGRATIONS_RETRY_DELAY_SECONDS: '0',
@@ -116,12 +122,12 @@ describe('run-server.sh', () => {
     expect(yarnLines[yarnLines.length - 1]).toContain('YARN --cwd apps/server start');
   });
 
-  it('runs migrate deploy with the mysql schema when HAPPIER_DB_PROVIDER=mysql', async () => {
+  it('runs migrate deploy with the mysql schema when KAIWU_DB_PROVIDER=mysql', async () => {
     const res = spawnSync('sh', [getScriptPath()], {
       env: {
         ...process.env,
-        PATH: `${binDir}:${process.env.PATH ?? ''}`,
-        HAPPIER_DB_PROVIDER: 'mysql',
+        PATH: `${binDir}${delimiter}${process.env.PATH ?? ''}`,
+        KAIWU_DB_PROVIDER: 'mysql',
         RUN_MIGRATIONS: '1',
         MIGRATIONS_MAX_ATTEMPTS: '1',
         MIGRATIONS_RETRY_DELAY_SECONDS: '0',
@@ -139,11 +145,11 @@ describe('run-server.sh', () => {
     const res = spawnSync('sh', [getScriptPath()], {
       env: {
         ...process.env,
-        PATH: `${binDir}:${process.env.PATH ?? ''}`,
-        HAPPIER_SERVER_FLAVOR: 'light',
-        HAPPIER_DB_PROVIDER: 'sqlite',
-        HAPPIER_SERVER_LIGHT_DATA_DIR: '/data/server-light',
-        HAPPIER_SQLITE_AUTO_MIGRATE: '0',
+        PATH: `${binDir}${delimiter}${process.env.PATH ?? ''}`,
+        KAIWU_SERVER_FLAVOR: 'light',
+        KAIWU_DB_PROVIDER: 'sqlite',
+        KAIWU_SERVER_LIGHT_DATA_DIR: '/data/server-light',
+        KAIWU_SQLITE_AUTO_MIGRATE: '0',
         RUN_MIGRATIONS: '1',
         MIGRATIONS_MAX_ATTEMPTS: '1',
         MIGRATIONS_RETRY_DELAY_SECONDS: '0',
@@ -167,8 +173,8 @@ describe('run-server.sh', () => {
     const res = spawnSync('sh', [getScriptPath(), serverPath], {
       env: {
         ...process.env,
-        HAPPIER_SERVER_FLAVOR: 'full',
-        HAPPIER_DB_PROVIDER: 'postgres',
+        KAIWU_SERVER_FLAVOR: 'full',
+        KAIWU_DB_PROVIDER: 'postgres',
         DATABASE_URL: 'postgresql://postgres@db/happier',
         RUN_MIGRATIONS: '1',
         MIGRATIONS_MAX_ATTEMPTS: '1',
@@ -190,8 +196,8 @@ describe('run-server.sh', () => {
     const res = spawnSync('sh', [getScriptPath(), '--migrate-only', serverPath], {
       env: {
         ...process.env,
-        HAPPIER_SERVER_FLAVOR: 'full',
-        HAPPIER_DB_PROVIDER: 'postgres',
+        KAIWU_SERVER_FLAVOR: 'full',
+        KAIWU_DB_PROVIDER: 'postgres',
         DATABASE_URL: 'postgresql://postgres@db/happier',
         RUN_MIGRATIONS: '0',
         MIGRATIONS_MAX_ATTEMPTS: '1',
@@ -211,9 +217,9 @@ describe('run-server.sh', () => {
     const res = spawnSync('sh', [getScriptPath(), '--migrate-only'], {
       env: {
         ...process.env,
-        PATH: `${binDir}:${process.env.PATH ?? ''}`,
-        HAPPIER_SERVER_FLAVOR: 'full',
-        HAPPIER_DB_PROVIDER: 'postgres',
+        PATH: `${binDir}${delimiter}${process.env.PATH ?? ''}`,
+        KAIWU_SERVER_FLAVOR: 'full',
+        KAIWU_DB_PROVIDER: 'postgres',
         DATABASE_URL: 'postgresql://postgres@db/happier',
         RUN_MIGRATIONS: '0',
         MIGRATIONS_MAX_ATTEMPTS: '1',
@@ -233,8 +239,8 @@ describe('run-server.sh', () => {
     const res = spawnSync('sh', [getScriptPath(), '--migrate-only', serverPath], {
       env: {
         ...process.env,
-        HAPPIER_SERVER_FLAVOR: 'light',
-        HAPPIER_DB_PROVIDER: 'sqlite',
+        KAIWU_SERVER_FLAVOR: 'light',
+        KAIWU_DB_PROVIDER: 'sqlite',
         RUN_MIGRATIONS: '0',
       },
       stdio: 'pipe',
@@ -251,9 +257,9 @@ describe('run-server.sh', () => {
     const res = spawnSync('sh', [getScriptPath(), serverPath], {
       env: {
         ...process.env,
-        HAPPIER_SERVER_FLAVOR: 'light',
-        HAPPIER_DB_PROVIDER: 'sqlite',
-        HAPPIER_SERVER_LIGHT_DATA_DIR: '/data/server-light',
+        KAIWU_SERVER_FLAVOR: 'light',
+        KAIWU_DB_PROVIDER: 'sqlite',
+        KAIWU_SERVER_LIGHT_DATA_DIR: '/data/server-light',
         RUN_MIGRATIONS: '1',
       },
       stdio: 'pipe',
@@ -272,7 +278,7 @@ describe('run-server.sh', () => {
     const res = spawnSync('sh', [getScriptPath(), serverPath], {
       env: {
         ...process.env,
-        HAPPIER_DB_PROVIDER: 'postgres',
+        KAIWU_DB_PROVIDER: 'postgres',
         DATABASE_URL: 'postgresql://postgres@db/happier',
         RUN_MIGRATIONS: '1',
         MIGRATIONS_MAX_ATTEMPTS: '2',
@@ -296,9 +302,9 @@ describe('run-server.sh', () => {
     const res = spawnSync('sh', [getScriptPath(), serverPath], {
       env: {
         ...process.env,
-        HAPPIER_SERVER_FLAVOR: 'full',
-        HAPPIER_DB_PROVIDER: 'pglite',
-        HAPPIER_SERVER_LIGHT_DB_DIR: '/data/pglite',
+        KAIWU_SERVER_FLAVOR: 'full',
+        KAIWU_DB_PROVIDER: 'pglite',
+        KAIWU_SERVER_LIGHT_DB_DIR: '/data/pglite',
         RUN_MIGRATIONS: '1',
         MIGRATIONS_MAX_ATTEMPTS: '1',
       },
@@ -318,10 +324,10 @@ describe('run-server.sh', () => {
     const res = spawnSync('sh', [getScriptPath(), serverPath], {
       env: {
         ...process.env,
-        HAPPIER_SERVER_FLAVOR: 'light',
-        HAPPIER_DB_PROVIDER: 'sqlite',
-        HAPPIER_SERVER_LIGHT_DATA_DIR: '/data/server-light',
-        HAPPIER_SQLITE_AUTO_MIGRATE: '1',
+        KAIWU_SERVER_FLAVOR: 'light',
+        KAIWU_DB_PROVIDER: 'sqlite',
+        KAIWU_SERVER_LIGHT_DATA_DIR: '/data/server-light',
+        KAIWU_SQLITE_AUTO_MIGRATE: '1',
         RUN_MIGRATIONS: '0',
       },
       stdio: 'pipe',
@@ -339,8 +345,8 @@ describe('run-server.sh', () => {
     const res = spawnSync('sh', [getScriptPath(), serverPath], {
       env: {
         ...process.env,
-        HAPPIER_SERVER_FLAVOR: 'full',
-        HAPPIER_DB_PROVIDER: 'postgres',
+        KAIWU_SERVER_FLAVOR: 'full',
+        KAIWU_DB_PROVIDER: 'postgres',
         DATABASE_URL: 'postgresql://postgres@db/happier',
         RUN_MIGRATIONS: '0',
       },

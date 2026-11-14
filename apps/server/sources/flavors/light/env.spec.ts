@@ -1,6 +1,7 @@
 import { mkdtemp, mkdir, rm, readFile, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   applyLightDefaultEnv,
@@ -40,9 +41,9 @@ describe("light env helpers", () => {
 
     applyLightDefaultEnv(env);
 
-    expect(env.HAPPY_SERVER_LIGHT_DATA_DIR).toBe("/scoped/home/custom/data");
-    expect(env.HAPPY_SERVER_LIGHT_FILES_DIR).toBe("/scoped/home/custom/files");
-    expect(env.HAPPY_SERVER_LIGHT_DB_DIR).toBe("/scoped/home/custom/db");
+    expect(env.HAPPY_SERVER_LIGHT_DATA_DIR).toBe(join("/scoped/home", "custom", "data"));
+    expect(env.HAPPY_SERVER_LIGHT_FILES_DIR).toBe(join("/scoped/home", "custom", "files"));
+    expect(env.HAPPY_SERVER_LIGHT_DB_DIR).toBe(join("/scoped/home", "custom", "db"));
   });
 
   it("resolveLightSqliteDatabaseUrl renders Windows sqlite URLs in Prisma-compatible drive-letter form", () => {
@@ -69,7 +70,7 @@ describe("light env helpers", () => {
       env?: NodeJS.ProcessEnv,
     ) => string;
 
-    expect(render("/tmp/happier-data", "linux", { HAPPIER_SQLITE_CONNECTION_LIMIT: "2" })).toBe(
+    expect(render("/tmp/happier-data", "linux", { KAIWU_SQLITE_CONNECTION_LIMIT: "2" })).toBe(
       "file:///tmp/happier-data/happier-server-light.sqlite?socket_timeout=30&connection_limit=2",
     );
   });
@@ -81,7 +82,7 @@ describe("light env helpers", () => {
       env?: NodeJS.ProcessEnv,
     ) => string;
 
-    expect(render("/tmp/happier-data", "linux", { HAPPIER_SQLITE_BUSY_TIMEOUT_MS: "500" })).toBe(
+    expect(render("/tmp/happier-data", "linux", { KAIWU_SQLITE_BUSY_TIMEOUT_MS: "500" })).toBe(
       "file:///tmp/happier-data/happier-server-light.sqlite?socket_timeout=1&connection_limit=1",
     );
   });
@@ -93,8 +94,8 @@ describe("light env helpers", () => {
       env?: NodeJS.ProcessEnv,
     ) => string;
 
-    expect(() => render("/tmp/happier-data", "linux", { HAPPIER_SQLITE_CONNECTION_LIMIT: "0" })).toThrow(
-      /HAPPIER_SQLITE_CONNECTION_LIMIT/i,
+    expect(() => render("/tmp/happier-data", "linux", { KAIWU_SQLITE_CONNECTION_LIMIT: "0" })).toThrow(
+      /KAIWU_SQLITE_CONNECTION_LIMIT/i,
     );
   });
 
@@ -103,13 +104,13 @@ describe("light env helpers", () => {
     applyLightDefaultEnv(env, { homedir: "/home/test" });
 
     expect(env.HAPPY_SERVER_LIGHT_DATA_DIR).toBe(
-      "/home/test/.happy/server-light",
+      join("/home/test", ".happy", "server-light"),
     );
     expect(env.HAPPY_SERVER_LIGHT_FILES_DIR).toBe(
-      "/home/test/.happy/server-light/files",
+      join("/home/test", ".happy", "server-light", "files"),
     );
     expect(env.HAPPY_SERVER_LIGHT_DB_DIR).toBe(
-      "/home/test/.happy/server-light/pglite",
+      join("/home/test", ".happy", "server-light", "pglite"),
     );
     expect(env.DATABASE_URL).toBeUndefined();
     expect(env.PUBLIC_URL).toBe("http://localhost:4000");
@@ -138,14 +139,19 @@ describe("light env helpers", () => {
       const executablePath = join(binDir, "happier-server");
       await writeFile(executablePath, "", "utf8");
       const env: NodeJS.ProcessEnv = {
-        HAPPIER_SERVER_LIGHT_DATA_DIR: "/tmp/happier-data",
+        KAIWU_SERVER_LIGHT_DATA_DIR: "/tmp/happier-data",
       };
 
       applyPackagedLightRuntimeSqliteDefaults(env, { executablePath });
 
-      expect(env.DATABASE_URL).toBe("file:///tmp/happier-data/happier-server-light.sqlite?socket_timeout=30&connection_limit=1");
-      expect(env.HAPPIER_SQLITE_AUTO_MIGRATE).toBe("1");
-      expect(env.HAPPIER_SQLITE_MIGRATIONS_DIR).toBe(migrationsDir);
+      // Packaged runtimes render for the host platform: drive-letter form on Windows, file:/// on POSIX.
+      const dbPath = resolve("/tmp/happier-data", "happier-server-light.sqlite");
+      const expectedFileUrl = process.platform === "win32"
+        ? `file:${pathToFileURL(dbPath).pathname.replace(/^\//, "")}`
+        : pathToFileURL(dbPath).href;
+      expect(env.DATABASE_URL).toBe(`${expectedFileUrl}?socket_timeout=30&connection_limit=1`);
+      expect(env.KAIWU_SQLITE_AUTO_MIGRATE).toBe("1");
+      expect(env.KAIWU_SQLITE_MIGRATIONS_DIR).toBe(migrationsDir);
     } finally {
       await rm(root, { recursive: true, force: true });
     }
@@ -160,17 +166,17 @@ describe("light env helpers", () => {
       const executablePath = join(binDir, "happier-server");
       await writeFile(executablePath, "", "utf8");
       const env: NodeJS.ProcessEnv = {
-        HAPPIER_SERVER_LIGHT_DATA_DIR: "/tmp/happier-data",
+        KAIWU_SERVER_LIGHT_DATA_DIR: "/tmp/happier-data",
         DATABASE_URL: "file:/custom.sqlite",
-        HAPPIER_SQLITE_AUTO_MIGRATE: "0",
-        HAPPIER_SQLITE_MIGRATIONS_DIR: "/custom/migrations",
+        KAIWU_SQLITE_AUTO_MIGRATE: "0",
+        KAIWU_SQLITE_MIGRATIONS_DIR: "/custom/migrations",
       };
 
       applyPackagedLightRuntimeSqliteDefaults(env, { executablePath });
 
       expect(env.DATABASE_URL).toBe("file:/custom.sqlite");
-      expect(env.HAPPIER_SQLITE_AUTO_MIGRATE).toBe("0");
-      expect(env.HAPPIER_SQLITE_MIGRATIONS_DIR).toBe("/custom/migrations");
+      expect(env.KAIWU_SQLITE_AUTO_MIGRATE).toBe("0");
+      expect(env.KAIWU_SQLITE_MIGRATIONS_DIR).toBe("/custom/migrations");
     } finally {
       await rm(root, { recursive: true, force: true });
     }

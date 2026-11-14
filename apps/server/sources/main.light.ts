@@ -1,3 +1,4 @@
+import '@/utils/env/brandEnvAliases.bootstrap';
 import { runLightServerMain } from '@/flavors/light/main';
 
 void runLightServerMain().catch((error) => {

@@ -11,7 +11,8 @@ export type LightDevPlan = Readonly<{
 }>;
 
 function resolveMigrateMode(env: NodeJS.ProcessEnv): LightMigrateMode {
-    return String(env.HAPPIER_STACK_MIGRATE_MODE ?? "").trim().toLowerCase() === "skip"
+    // Canonical KAIWU_* wins; the Stack dev orchestrator still emits the legacy HAPPIER_* name.
+    return String(env.KAIWU_STACK_MIGRATE_MODE ?? env.HAPPIER_STACK_MIGRATE_MODE ?? "").trim().toLowerCase() === "skip"
         ? "skip"
         : "always";
 }

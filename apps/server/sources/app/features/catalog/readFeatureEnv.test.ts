@@ -18,7 +18,7 @@ describe('readSessionDraftsFeatureEnv', () => {
   it('defaults the server capability on and honors an explicit disable', () => {
     expect(readSessionDraftsFeatureEnv({}).draftsEnabled).toBe(true);
     expect(readSessionDraftsFeatureEnv({
-      HAPPIER_FEATURE_SESSIONS_DRAFTS__ENABLED: '0',
+      KAIWU_FEATURE_SESSIONS_DRAFTS__ENABLED: '0',
     }).draftsEnabled).toBe(false);
   });
 });
@@ -34,8 +34,8 @@ describe('readConnectedServicesFeatureEnv', () => {
 
   it('reads account group and fallback gates independently', () => {
     const env: NodeJS.ProcessEnv = {
-      HAPPIER_FEATURE_CONNECTED_SERVICES_ACCOUNT_GROUPS__ENABLED: '0',
-      HAPPIER_FEATURE_CONNECTED_SERVICES_ACCOUNT_FALLBACK__ENABLED: '1',
+      KAIWU_FEATURE_CONNECTED_SERVICES_ACCOUNT_GROUPS__ENABLED: '0',
+      KAIWU_FEATURE_CONNECTED_SERVICES_ACCOUNT_FALLBACK__ENABLED: '1',
     };
     const res = readConnectedServicesFeatureEnv(env);
     expect(res.accountGroupsEnabled).toBe(false);
@@ -60,7 +60,7 @@ describe('readChannelBridgesFeatureEnv', () => {
 describe('readPetsFeatureEnv', () => {
   it('reads the encrypted custom pet sync policy from env', () => {
     const env: NodeJS.ProcessEnv = {
-      HAPPIER_FEATURE_PETS_SYNC__ENCRYPTED_CUSTOM_PET_SYNC_POLICY: 'allowedWithClientValidation',
+      KAIWU_FEATURE_PETS_SYNC__ENCRYPTED_CUSTOM_PET_SYNC_POLICY: 'allowedWithClientValidation',
     };
     const res = readPetsFeatureEnv(env);
 
@@ -79,12 +79,12 @@ describe('readAuthFeatureEnv', () => {
     expect(res.uiAutoRedirectProviderId).toBe('mtls');
   });
 
-  it('prefers HAPPIER_FEATURE_AUTH_UI__* env vars over legacy AUTH_UI_* aliases', () => {
+  it('prefers KAIWU_FEATURE_AUTH_UI__* env vars over legacy AUTH_UI_* aliases', () => {
     const env: NodeJS.ProcessEnv = {
       AUTH_UI_AUTO_REDIRECT: 'true',
       AUTH_UI_AUTO_REDIRECT_PROVIDER_ID: 'mtls',
-      HAPPIER_FEATURE_AUTH_UI__AUTO_REDIRECT_ENABLED: 'false',
-      HAPPIER_FEATURE_AUTH_UI__AUTO_REDIRECT_PROVIDER_ID: 'github',
+      KAIWU_FEATURE_AUTH_UI__AUTO_REDIRECT_ENABLED: 'false',
+      KAIWU_FEATURE_AUTH_UI__AUTO_REDIRECT_PROVIDER_ID: 'github',
     };
     const res = readAuthFeatureEnv(env);
     expect(res.uiAutoRedirectEnabled).toBe(false);
@@ -103,11 +103,11 @@ describe('readAuthFeatureEnv', () => {
 });
 
 describe('readAuthMtlsFeatureEnv', () => {
-  it('derives the default return-to allow prefixes from the local served web UI when HAPPIER_WEBAPP_URL is unset', () => {
+  it('derives the default return-to allow prefixes from the local served web UI when KAIWU_WEBAPP_URL is unset', () => {
     const env: NodeJS.ProcessEnv = {
-      HAPPIER_PUBLIC_SERVER_URL: 'https://stack.example.test/base/',
-      HAPPIER_SERVER_UI_DIR: '/tmp/ui',
-      HAPPIER_SERVER_UI_PREFIX: '/ui/',
+      KAIWU_PUBLIC_SERVER_URL: 'https://stack.example.test/base/',
+      KAIWU_SERVER_UI_DIR: '/tmp/ui',
+      KAIWU_SERVER_UI_PREFIX: '/ui/',
     };
 
     const res = readAuthMtlsFeatureEnv(env);
@@ -145,7 +145,7 @@ describe('readSessionUsageLimitRecoveryFeatureEnv', () => {
 
   it('reads disabled usage-limit recovery env values', () => {
     const env: NodeJS.ProcessEnv = {
-      HAPPIER_FEATURE_SESSIONS_USAGE_LIMIT_RECOVERY__ENABLED: '0',
+      KAIWU_FEATURE_SESSIONS_USAGE_LIMIT_RECOVERY__ENABLED: '0',
     };
     const res = readSessionUsageLimitRecoveryFeatureEnv(env);
 
@@ -164,7 +164,7 @@ describe('readSessionAgentSwitchingFeatureEnv', () => {
   it('reads the opt-out env value', () => {
     for (const raw of ['0', 'false', 'no', 'off']) {
       const res = readSessionAgentSwitchingFeatureEnv({
-        HAPPIER_FEATURE_SESSIONS_AGENT_SWITCHING__ENABLED: raw,
+        KAIWU_FEATURE_SESSIONS_AGENT_SWITCHING__ENABLED: raw,
       });
 
       expect(res.agentSwitchingEnabled).toBe(false);
@@ -173,7 +173,7 @@ describe('readSessionAgentSwitchingFeatureEnv', () => {
 
   it('falls back to the default for an unparseable env value', () => {
     const env: NodeJS.ProcessEnv = {
-      HAPPIER_FEATURE_SESSIONS_AGENT_SWITCHING__ENABLED: 'maybe',
+      KAIWU_FEATURE_SESSIONS_AGENT_SWITCHING__ENABLED: 'maybe',
     };
     const res = readSessionAgentSwitchingFeatureEnv(env);
 
@@ -194,7 +194,7 @@ describe('readMachineTransferFeatureEnv', () => {
 
   it('reads server-routed transfer max-bytes when configured', () => {
     const env: NodeJS.ProcessEnv = {
-      HAPPIER_FEATURE_MACHINES_TRANSFER_SERVER_ROUTED__MAX_BYTES: '8192',
+      KAIWU_FEATURE_MACHINES_TRANSFER_SERVER_ROUTED__MAX_BYTES: '8192',
     };
     const res = readMachineTransferFeatureEnv(env);
 
@@ -203,7 +203,7 @@ describe('readMachineTransferFeatureEnv', () => {
 
   it('hard-clamps server-routed max-bytes to a bounded ceiling', () => {
     const env: NodeJS.ProcessEnv = {
-      HAPPIER_FEATURE_MACHINES_TRANSFER_SERVER_ROUTED__MAX_BYTES: String(999 * 1024 * 1024 * 1024),
+      KAIWU_FEATURE_MACHINES_TRANSFER_SERVER_ROUTED__MAX_BYTES: String(999 * 1024 * 1024 * 1024),
     };
     const res = readMachineTransferFeatureEnv(env);
 

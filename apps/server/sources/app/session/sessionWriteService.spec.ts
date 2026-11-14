@@ -38,7 +38,7 @@ let reassertSessionLatestTurnStatus: typeof import("./sessionWriteService").reas
 
 describe("sessionWriteService", () => {
     const storagePolicyEnv = createEnvPatcher([
-        "HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY",
+        "KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY",
     ]);
 
     beforeAll(async () => {
@@ -720,7 +720,7 @@ describe("sessionWriteService", () => {
 
         it("derives non-unread attention for owner-authored plaintext maintenance events", async () => {
             const createdAt = new Date("2020-01-01T00:00:00.000Z");
-            storagePolicyEnv.set("HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
+            storagePolicyEnv.set("KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
             const content = {
                 t: "plain",
                 v: {
@@ -1153,7 +1153,7 @@ describe("sessionWriteService", () => {
 
         it("persists a ready-event projection for owner-authored plaintext ready events without a trusted hint", async () => {
             const createdAt = new Date("2020-01-01T00:00:00.000Z");
-            storagePolicyEnv.set("HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
+            storagePolicyEnv.set("KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
             const readyContent = {
                 t: "plain",
                 v: {
@@ -1703,7 +1703,7 @@ describe("sessionWriteService", () => {
 
         it("rejects encrypted writes when the session encryptionMode is plain (with a stable code)", async () => {
             const createdAt = new Date("2020-01-01T00:00:00.000Z");
-            storagePolicyEnv.set("HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
+            storagePolicyEnv.set("KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
             currentTx.sessionMessage.findUnique.mockResolvedValue(null);
             currentTx.session.findUnique.mockResolvedValue({ accountId: "u1", encryptionMode: "plain" });
             currentTx.sessionShare.findUnique.mockResolvedValue(null);
@@ -1733,7 +1733,7 @@ describe("sessionWriteService", () => {
 
         it("stores plain content when the session encryptionMode is plain and storagePolicy is optional", async () => {
             const createdAt = new Date("2020-01-01T00:00:00.000Z");
-            storagePolicyEnv.set("HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
+            storagePolicyEnv.set("KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
 
             currentTx.sessionMessage.findUnique.mockResolvedValue(null);
             currentTx.session.findUnique.mockResolvedValue({ accountId: "u1", encryptionMode: "plain" });
@@ -1779,7 +1779,7 @@ describe("sessionWriteService", () => {
                     },
                 },
             } satisfies PrismaJson.SessionMessageContent;
-            storagePolicyEnv.set("HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
+            storagePolicyEnv.set("KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
 
             currentTx.sessionMessage.findUnique.mockResolvedValue(null);
             currentTx.session.findUnique.mockResolvedValue({ accountId: "u1", encryptionMode: "plain" });

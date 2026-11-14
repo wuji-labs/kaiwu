@@ -39,13 +39,13 @@ describe('createLoggingTransportTargets', () => {
   it('honors explicit server log level env overrides', async () => {
     const mod = await import('./log');
 
-    expect(mod.resolveServerLogLevelFromEnv({ HAPPIER_SERVER_LOG_LEVEL: 'debug' } as NodeJS.ProcessEnv)).toBe('debug');
+    expect(mod.resolveServerLogLevelFromEnv({ KAIWU_SERVER_LOG_LEVEL: 'debug' } as NodeJS.ProcessEnv)).toBe('debug');
     expect(mod.resolveServerLogLevelFromEnv({ LOG_LEVEL: 'warn' } as NodeJS.ProcessEnv)).toBe('warn');
   });
 
   it('falls back to info for invalid server log levels', async () => {
     const mod = await import('./log');
 
-    expect(mod.resolveServerLogLevelFromEnv({ HAPPIER_SERVER_LOG_LEVEL: 'verbose' } as NodeJS.ProcessEnv)).toBe('info');
+    expect(mod.resolveServerLogLevelFromEnv({ KAIWU_SERVER_LOG_LEVEL: 'verbose' } as NodeJS.ProcessEnv)).toBe('info');
   });
 });

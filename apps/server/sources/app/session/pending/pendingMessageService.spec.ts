@@ -58,10 +58,10 @@ const resolveAcceptedPendingDelivery = (
 
 describe("pendingMessageService", () => {
     const storagePolicyEnv = createEnvPatcher([
-        "HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY",
+        "KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY",
     ]);
     const transactionProviderEnv = createEnvPatcher([
-        "HAPPIER_DB_PROVIDER",
+        "KAIWU_DB_PROVIDER",
         "HAPPY_DB_PROVIDER",
     ]);
 
@@ -153,7 +153,7 @@ describe("pendingMessageService", () => {
 
     it("stores plain content when session encryptionMode is plain and storagePolicy is optional", async () => {
         const createdAt = new Date("2020-01-01T00:00:00.000Z");
-        storagePolicyEnv.set("HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
+        storagePolicyEnv.set("KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
 
         currentTx.session.findUnique.mockResolvedValue({ encryptionMode: "plain", pendingCount: 0, pendingVersion: 0 });
         currentTx.sessionPendingMessage.findUnique.mockResolvedValue(null);
@@ -274,7 +274,7 @@ describe("pendingMessageService", () => {
 
     it("rejects encrypted writes when session encryptionMode is plain", async () => {
         const createdAt = new Date("2020-01-01T00:00:00.000Z");
-        storagePolicyEnv.set("HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
+        storagePolicyEnv.set("KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
 
         currentTx.session.findUnique.mockResolvedValue({ encryptionMode: "plain", pendingCount: 0, pendingVersion: 0 });
         currentTx.sessionPendingMessage.findUnique.mockResolvedValue(null);
@@ -304,7 +304,7 @@ describe("pendingMessageService", () => {
     });
 
     it("rejects encrypted update writes when session encryptionMode is plain (with a stable code)", async () => {
-        storagePolicyEnv.set("HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
+        storagePolicyEnv.set("KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
 
         currentTx.session.findUnique.mockResolvedValue({ encryptionMode: "plain", pendingCount: 1, pendingVersion: 1 });
         currentTx.sessionPendingMessage.findUnique.mockResolvedValue({ id: "p1", status: "queued" });
@@ -322,7 +322,7 @@ describe("pendingMessageService", () => {
     });
 
     it("updates pending content using plain envelopes when session encryptionMode is plain and storagePolicy is optional", async () => {
-        storagePolicyEnv.set("HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
+        storagePolicyEnv.set("KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
 
         currentTx.session.findUnique.mockResolvedValue({ encryptionMode: "plain", pendingCount: 1, pendingVersion: 1 });
         currentTx.sessionPendingMessage.findUnique.mockResolvedValue({ id: "p1", status: "queued" });
@@ -344,7 +344,7 @@ describe("pendingMessageService", () => {
     });
 
     it("updates pending content in place without changing queue position", async () => {
-        storagePolicyEnv.set("HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
+        storagePolicyEnv.set("KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
 
         currentTx.session.findUnique.mockResolvedValue({ encryptionMode: "plain", pendingCount: 3, pendingVersion: 7 });
         currentTx.sessionPendingMessage.findUnique.mockResolvedValue({ id: "p2", status: "queued" });
@@ -597,7 +597,7 @@ describe("pendingMessageService", () => {
     });
 
     it("does not reset the canonical SQLite retry budget after acquisition P2028", async () => {
-        transactionProviderEnv.set("HAPPIER_DB_PROVIDER", "sqlite");
+        transactionProviderEnv.set("KAIWU_DB_PROVIDER", "sqlite");
         const error = Object.assign(
             new Error("Transaction API error: Unable to start a transaction in the given time."),
             { code: "P2028", meta: { error: "Unable to start a transaction in the given time." } },

@@ -17,6 +17,10 @@ vi.mock("@/utils/logging/log", () => ({ log: vi.fn() }));
 
 describe("accountRoutes pets.sync routes", () => {
     const tempDirs: string[] = [];
+    // Tests that call vi.resetModules() initialize a fresh "@/storage/db" module instance with its own
+    // Prisma client. Those clients must be disconnected before the harness deletes the SQLite file,
+    // otherwise Windows keeps the file locked (EBUSY on unlink).
+    const freshDbModuleShutdowns = new Set<() => Promise<void>>();
     let harness: LightSqliteHarness;
 
     type OptionalAccountPetDb = Readonly<{
@@ -32,13 +36,17 @@ describe("accountRoutes pets.sync routes", () => {
     }, 120_000);
 
     afterAll(async () => {
+        for (const shutdown of freshDbModuleShutdowns) {
+            await shutdown().catch(() => {});
+        }
+        freshDbModuleShutdowns.clear();
         await harness.close();
     });
 
     beforeEach(() => {
         harness.resetEnv({
-            HAPPIER_FEATURE_PETS_SYNC__ENABLED: undefined,
-            HAPPIER_SERVER_LIGHT_PRIVATE_FILES_DIR: join(harness.baseDir, "private-files"),
+            KAIWU_FEATURE_PETS_SYNC__ENABLED: undefined,
+            KAIWU_SERVER_LIGHT_PRIVATE_FILES_DIR: join(harness.baseDir, "private-files"),
         });
     });
 
@@ -117,13 +125,14 @@ describe("accountRoutes pets.sync routes", () => {
     }
 
     async function initializeCurrentDbModule(): Promise<void> {
-        const { initDbSqlite } = await import("@/storage/db");
+        const { initDbSqlite, shutdownDbClient } = await import("@/storage/db");
         await initDbSqlite();
+        freshDbModuleShutdowns.add(shutdownDbClient);
     }
 
     it("registers account pet library routes under /v1/account/pets", async () => {
         harness.resetEnv({
-            HAPPIER_FEATURE_PETS_SYNC__ENABLED: "1",
+            KAIWU_FEATURE_PETS_SYNC__ENABLED: "1",
         });
         const { accountRoutes } = await import("./accountRoutes");
         const route = createRouteTestBuilder({
@@ -139,7 +148,7 @@ describe("accountRoutes pets.sync routes", () => {
 
     it("returns the canonical disabled-route shape when pets.sync is denied", async () => {
         harness.resetEnv({
-            HAPPIER_FEATURE_PETS_SYNC__ENABLED: "0",
+            KAIWU_FEATURE_PETS_SYNC__ENABLED: "0",
         });
         const { accountRoutes } = await import("./accountRoutes");
         const route = createRouteTestBuilder({
@@ -162,9 +171,9 @@ describe("accountRoutes pets.sync routes", () => {
         const privateFilesDir = await mkdtemp(join(tmpdir(), "happier-account-pets-routes-"));
         tempDirs.push(privateFilesDir);
         harness.resetEnv({
-            HAPPIER_FEATURE_PETS_SYNC__ENABLED: "1",
-            HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional",
-            HAPPIER_SERVER_LIGHT_PRIVATE_FILES_DIR: privateFilesDir,
+            KAIWU_FEATURE_PETS_SYNC__ENABLED: "1",
+            KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional",
+            KAIWU_SERVER_LIGHT_PRIVATE_FILES_DIR: privateFilesDir,
         });
         await createAccount("account-1");
         const { accountRoutes } = await import("./accountRoutes");
@@ -223,9 +232,9 @@ describe("accountRoutes pets.sync routes", () => {
         const privateFilesDir = await mkdtemp(join(tmpdir(), "happier-account-pets-routes-"));
         tempDirs.push(privateFilesDir);
         harness.resetEnv({
-            HAPPIER_FEATURE_PETS_SYNC__ENABLED: "1",
-            HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional",
-            HAPPIER_SERVER_LIGHT_PRIVATE_FILES_DIR: privateFilesDir,
+            KAIWU_FEATURE_PETS_SYNC__ENABLED: "1",
+            KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional",
+            KAIWU_SERVER_LIGHT_PRIVATE_FILES_DIR: privateFilesDir,
         });
         const spritesheet = await createSpritesheetPng();
 
@@ -292,9 +301,9 @@ describe("accountRoutes pets.sync routes", () => {
         const spritesheet = await createSpritesheetPng();
 
         harness.resetEnv({
-            HAPPIER_FEATURE_PETS_SYNC__ENABLED: "1",
-            HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional",
-            HAPPIER_SERVER_LIGHT_PRIVATE_FILES_DIR: firstPrivateFilesDir,
+            KAIWU_FEATURE_PETS_SYNC__ENABLED: "1",
+            KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional",
+            KAIWU_SERVER_LIGHT_PRIVATE_FILES_DIR: firstPrivateFilesDir,
         });
 
         const firstModule = await import("./accountRoutes");
@@ -333,9 +342,9 @@ describe("accountRoutes pets.sync routes", () => {
         }
 
         harness.resetEnv({
-            HAPPIER_FEATURE_PETS_SYNC__ENABLED: "1",
-            HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional",
-            HAPPIER_SERVER_LIGHT_PRIVATE_FILES_DIR: secondPrivateFilesDir,
+            KAIWU_FEATURE_PETS_SYNC__ENABLED: "1",
+            KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional",
+            KAIWU_SERVER_LIGHT_PRIVATE_FILES_DIR: secondPrivateFilesDir,
         });
 
         const secondModule = await import("./accountRoutes");
@@ -379,9 +388,9 @@ describe("accountRoutes pets.sync routes", () => {
         const privateFilesDir = await mkdtemp(join(tmpdir(), "happier-account-pets-routes-"));
         tempDirs.push(privateFilesDir);
         harness.resetEnv({
-            HAPPIER_FEATURE_PETS_SYNC__ENABLED: "1",
-            HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional",
-            HAPPIER_SERVER_LIGHT_PRIVATE_FILES_DIR: privateFilesDir,
+            KAIWU_FEATURE_PETS_SYNC__ENABLED: "1",
+            KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional",
+            KAIWU_SERVER_LIGHT_PRIVATE_FILES_DIR: privateFilesDir,
         });
         await createAccount("account-1", "e2ee");
         const { accountRoutes } = await import("./accountRoutes");
@@ -432,9 +441,9 @@ describe("accountRoutes pets.sync routes", () => {
         const privateFilesDir = await mkdtemp(join(tmpdir(), "happier-account-pets-routes-"));
         tempDirs.push(privateFilesDir);
         harness.resetEnv({
-            HAPPIER_FEATURE_PETS_SYNC__ENABLED: "1",
-            HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY: "required_e2ee",
-            HAPPIER_SERVER_LIGHT_PRIVATE_FILES_DIR: privateFilesDir,
+            KAIWU_FEATURE_PETS_SYNC__ENABLED: "1",
+            KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY: "required_e2ee",
+            KAIWU_SERVER_LIGHT_PRIVATE_FILES_DIR: privateFilesDir,
         });
         await createAccount("account-1", "plain");
         const { accountRoutes } = await import("./accountRoutes");
@@ -485,9 +494,9 @@ describe("accountRoutes pets.sync routes", () => {
         const privateFilesDir = await mkdtemp(join(tmpdir(), "happier-account-pets-routes-"));
         tempDirs.push(privateFilesDir);
         harness.resetEnv({
-            HAPPIER_FEATURE_PETS_SYNC__ENABLED: "1",
-            HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional",
-            HAPPIER_SERVER_LIGHT_PRIVATE_FILES_DIR: privateFilesDir,
+            KAIWU_FEATURE_PETS_SYNC__ENABLED: "1",
+            KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional",
+            KAIWU_SERVER_LIGHT_PRIVATE_FILES_DIR: privateFilesDir,
         });
         await createAccount("account-1");
         const { accountRoutes } = await import("./accountRoutes");

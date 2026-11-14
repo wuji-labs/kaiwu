@@ -84,7 +84,7 @@ function workflowRunPayload(overrides: Record<string, unknown> = {}) {
 }
 
 describe("sessionSystemRecordService", () => {
-    const storagePolicyEnv = createEnvPatcher(["HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY"]);
+    const storagePolicyEnv = createEnvPatcher(["KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY"]);
 
     beforeAll(async () => {
         ({
@@ -285,7 +285,7 @@ describe("sessionSystemRecordService", () => {
 
     it("writes a plain activity workflow record for a plain session", async () => {
         const createdAt = new Date("2026-06-26T10:00:00.000Z");
-        storagePolicyEnv.set("HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
+        storagePolicyEnv.set("KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
         currentTx.session.findUnique.mockResolvedValue({ encryptionMode: "plain" });
         currentTx.sessionSystemRecord.findUnique.mockResolvedValue(null);
         currentTx.sessionSystemRecord.create.mockResolvedValue({
@@ -314,7 +314,7 @@ describe("sessionSystemRecordService", () => {
     });
 
     it("rejects plain activity workflow content for an e2ee session exactly like memory records", async () => {
-        storagePolicyEnv.set("HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY", "required_e2ee");
+        storagePolicyEnv.set("KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY", "required_e2ee");
         currentTx.session.findUnique.mockResolvedValue({ encryptionMode: "e2ee" });
 
         const result = await upsertSessionSystemRecord({
@@ -331,7 +331,7 @@ describe("sessionSystemRecordService", () => {
     });
 
     it("rejects plain activity content that does not match the workflow_run.v1 payload schema", async () => {
-        storagePolicyEnv.set("HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
+        storagePolicyEnv.set("KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
         currentTx.session.findUnique.mockResolvedValue({ encryptionMode: "plain" });
 
         const result = await upsertSessionSystemRecord({
@@ -527,7 +527,7 @@ describe("sessionSystemRecordService", () => {
             createdAt,
             updatedAt,
         });
-        storagePolicyEnv.set("HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
+        storagePolicyEnv.set("KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
 
         const result = await upsertSessionSystemRecord({
             actorUserId: "u1",
@@ -562,7 +562,7 @@ describe("sessionSystemRecordService", () => {
     });
 
     it("rejects plain content for an e2ee session", async () => {
-        storagePolicyEnv.set("HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY", "required_e2ee");
+        storagePolicyEnv.set("KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY", "required_e2ee");
         currentTx.session.findUnique.mockResolvedValue({ encryptionMode: "e2ee" });
 
         const result = await upsertSessionSystemRecord({
@@ -579,7 +579,7 @@ describe("sessionSystemRecordService", () => {
     });
 
     it("rejects plain content that does not match the registered memory payload schema", async () => {
-        storagePolicyEnv.set("HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
+        storagePolicyEnv.set("KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
         currentTx.session.findUnique.mockResolvedValue({ encryptionMode: "plain" });
 
         const result = await upsertSessionSystemRecord({
@@ -598,7 +598,7 @@ describe("sessionSystemRecordService", () => {
     });
 
     it("rejects encrypted content for a plain session", async () => {
-        storagePolicyEnv.set("HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
+        storagePolicyEnv.set("KAIWU_FEATURE_ENCRYPTION__STORAGE_POLICY", "optional");
         currentTx.session.findUnique.mockResolvedValue({ encryptionMode: "plain" });
 
         const result = await upsertSessionSystemRecord({

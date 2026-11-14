@@ -222,7 +222,18 @@ export function resolveSqliteDatabaseFilePath(databaseUrl: string): string {
     return fileURLToPath(url);
   } catch {
     // Prisma accepts file:/path and file:relative forms; treat them as best-effort paths.
-    return valueWithoutQuery.startsWith('//') ? valueWithoutQuery.replace(/^\/+/, '/') : valueWithoutQuery;
+    // fileURLToPath rejects drive-less absolute URLs on Windows (file:///tmp/x), so this branch must
+    // still percent-decode like fileURLToPath does; malformed escapes are kept verbatim.
+    const bestEffort = valueWithoutQuery.startsWith('//') ? valueWithoutQuery.replace(/^\/+/, '/') : valueWithoutQuery;
+    return safeDecodeUriComponent(bestEffort);
+  }
+}
+
+function safeDecodeUriComponent(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
   }
 }
 

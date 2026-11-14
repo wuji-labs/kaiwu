@@ -10,9 +10,9 @@ describe("resolveFriendsFeature", () => {
 
     it("treats friends as disabled when username identity is disabled and the required identity provider is not registered", () => {
         const feature = resolveFriendsFeature({
-            HAPPIER_FEATURE_SOCIAL_FRIENDS__ENABLED: "1",
-            HAPPIER_FEATURE_SOCIAL_FRIENDS__ALLOW_USERNAME: "0",
-            HAPPIER_FEATURE_SOCIAL_FRIENDS__IDENTITY_PROVIDER: "custom",
+            KAIWU_FEATURE_SOCIAL_FRIENDS__ENABLED: "1",
+            KAIWU_FEATURE_SOCIAL_FRIENDS__ALLOW_USERNAME: "0",
+            KAIWU_FEATURE_SOCIAL_FRIENDS__IDENTITY_PROVIDER: "custom",
         } as unknown as NodeJS.ProcessEnv);
         expect(feature.features?.social?.friends?.enabled).toBe(false);
     });

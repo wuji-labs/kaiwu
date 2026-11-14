@@ -34,12 +34,12 @@ describe('runLightServerMain', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     delete process.env.HAPPY_SERVER_FLAVOR;
-    delete process.env.HAPPIER_SERVER_FLAVOR;
+    delete process.env.KAIWU_SERVER_FLAVOR;
   });
 
   afterEach(() => {
     delete process.env.HAPPY_SERVER_FLAVOR;
-    delete process.env.HAPPIER_SERVER_FLAVOR;
+    delete process.env.KAIWU_SERVER_FLAVOR;
   });
 
   it('runs canonical SQLite migration only and returns for --migrate-only', async () => {
@@ -66,12 +66,12 @@ describe('runLightServerMain', () => {
   });
 
   it('honors an explicit full flavor in the packaged relay runtime', async () => {
-    process.env.HAPPIER_SERVER_FLAVOR = 'full';
+    process.env.KAIWU_SERVER_FLAVOR = 'full';
 
     await runLightServerMain([]);
 
     expect(mocks.startServer).toHaveBeenCalledWith('full');
     expect(process.env.HAPPY_SERVER_FLAVOR).toBe('full');
-    expect(process.env.HAPPIER_SERVER_FLAVOR).toBe('full');
+    expect(process.env.KAIWU_SERVER_FLAVOR).toBe('full');
   });
 });

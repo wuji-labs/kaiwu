@@ -4,6 +4,24 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+/**
+ * Creates a directory link at `path` pointing to `target`.
+ *
+ * Unprivileged Windows accounts cannot create directory symlinks (EPERM), but can create NTFS
+ * junctions, which are the realistic attacker primitive there and which Node's lstat() reports as
+ * symbolic links. Falling back to a junction keeps the symlink-rejection test meaningful on Windows.
+ */
+async function linkDirectory(target: string, path: string): Promise<void> {
+    try {
+        await symlink(target, path, "dir");
+    } catch (error) {
+        if (process.platform !== "win32" || (error as NodeJS.ErrnoException).code !== "EPERM") {
+            throw error;
+        }
+        await symlink(target, path, "junction");
+    }
+}
+
 describe("privateFilesLocal", () => {
     it("writes and reads account-private bytes without exposing a public URL contract", async () => {
         const { createLocalPrivateFilesBackend } = await import("./privateFilesLocal");
@@ -49,7 +67,8 @@ describe("privateFilesLocal", () => {
                 rootDir: dir,
             });
             await backend.init();
-            await symlink(outsideDir, join(dir, "private"), "dir");
+            await linkDirectory(outsideDir, join(dir, "private"));
+            expect((await lstat(join(dir, "private"))).isSymbolicLink()).toBe(true);
 
             await expect(
                 backend.writePrivateFile("private/accounts/acct-1/pets/pet-1/sheet.webp", new Uint8Array([9])),

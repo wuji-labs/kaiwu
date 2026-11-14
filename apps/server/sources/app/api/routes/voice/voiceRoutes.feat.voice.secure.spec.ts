@@ -1,4 +1,4 @@
-import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 
 import { createDbMocks, createDbTransactionMock, installDbModuleMock } from "../../testkit/dbMocks";
 import { createEnvReset } from "../../testkit/env";
@@ -29,6 +29,13 @@ describe("voiceRoutes (secure)", () => {
     const resetVoiceEnv = createEnvReset();
     const originalFetch = globalThis.fetch;
 
+    // Cold-transform the route module graph once outside the per-test budget; each test still
+    // re-imports a fresh instance after vi.resetModules(), but no longer pays the first-load cost
+    // (~10s on Windows, enough to breach testTimeout under parallel load).
+    beforeAll(async () => {
+        await import("./voiceRoutes");
+    }, 120_000);
+
     beforeEach(() => {
         vi.resetModules();
         vi.useFakeTimers();
@@ -38,7 +45,7 @@ describe("voiceRoutes (secure)", () => {
         dbTransaction.transaction.mockClear();
         resetVoiceEnv({
             NODE_ENV: "production",
-            HAPPIER_FEATURE_VOICE__ENABLED: "1",
+            KAIWU_FEATURE_VOICE__ENABLED: "1",
             ELEVENLABS_API_KEY: "el_key",
             ELEVENLABS_AGENT_ID_PROD: "agent_prod",
             REVENUECAT_SECRET_KEY: "rc_secret",
@@ -65,7 +72,7 @@ describe("voiceRoutes (secure)", () => {
     it("returns 403 when voice is disabled", async () => {
         resetVoiceEnv({
             NODE_ENV: "production",
-            HAPPIER_FEATURE_VOICE__ENABLED: "0",
+            KAIWU_FEATURE_VOICE__ENABLED: "0",
             ELEVENLABS_API_KEY: "el_key",
             ELEVENLABS_AGENT_ID_PROD: "agent_prod",
             REVENUECAT_SECRET_KEY: "rc_secret",
@@ -91,8 +98,8 @@ describe("voiceRoutes (secure)", () => {
     it("returns 403 when build policy denies voice even if voice is requested but misconfigured", async () => {
         resetVoiceEnv({
             NODE_ENV: "production",
-            HAPPIER_FEATURE_VOICE__ENABLED: "1",
-            HAPPIER_BUILD_FEATURES_DENY: "voice,voice.happierVoice",
+            KAIWU_FEATURE_VOICE__ENABLED: "1",
+            KAIWU_BUILD_FEATURES_DENY: "voice,voice.happierVoice",
             ELEVENLABS_API_KEY: undefined,
             ELEVENLABS_AGENT_ID_PROD: undefined,
             REVENUECAT_SECRET_KEY: "rc_secret",
@@ -118,7 +125,7 @@ describe("voiceRoutes (secure)", () => {
     it("returns 503 when ElevenLabs is not configured", async () => {
         resetVoiceEnv({
             NODE_ENV: "production",
-            HAPPIER_FEATURE_VOICE__ENABLED: "1",
+            KAIWU_FEATURE_VOICE__ENABLED: "1",
             ELEVENLABS_API_KEY: undefined,
             ELEVENLABS_AGENT_ID_PROD: "agent_prod",
             REVENUECAT_SECRET_KEY: "rc_secret",
@@ -165,7 +172,7 @@ describe("voiceRoutes (secure)", () => {
     it("returns 403 quota_exceeded when user is not subscribed and free minutes are exhausted", async () => {
         resetVoiceEnv({
             NODE_ENV: "production",
-            HAPPIER_FEATURE_VOICE__ENABLED: "1",
+            KAIWU_FEATURE_VOICE__ENABLED: "1",
             ELEVENLABS_API_KEY: "el_key",
             ELEVENLABS_AGENT_ID_PROD: "agent_prod",
             REVENUECAT_SECRET_KEY: "rc_secret",
@@ -374,11 +381,11 @@ describe("voiceRoutes (secure)", () => {
     it("returns 403 when max minutes per day is exceeded", async () => {
         resetVoiceEnv({
             NODE_ENV: "production",
-            HAPPIER_FEATURE_VOICE__ENABLED: "1",
+            KAIWU_FEATURE_VOICE__ENABLED: "1",
             ELEVENLABS_API_KEY: "el_key",
             ELEVENLABS_AGENT_ID_PROD: "agent_prod",
             REVENUECAT_SECRET_KEY: "rc_secret",
-            HAPPIER_FEATURE_VOICE__REQUIRE_SUBSCRIPTION: "0",
+            KAIWU_FEATURE_VOICE__REQUIRE_SUBSCRIPTION: "0",
             VOICE_MAX_MINUTES_PER_DAY: "1",
             VOICE_FREE_SESSIONS_PER_MONTH: "0",
             VOICE_MAX_CONCURRENT_SESSIONS: "1",
@@ -408,11 +415,11 @@ describe("voiceRoutes (secure)", () => {
     it("returns 403 when max minutes per day is exceeded by pending leases", async () => {
         resetVoiceEnv({
             NODE_ENV: "production",
-            HAPPIER_FEATURE_VOICE__ENABLED: "1",
+            KAIWU_FEATURE_VOICE__ENABLED: "1",
             ELEVENLABS_API_KEY: "el_key",
             ELEVENLABS_AGENT_ID_PROD: "agent_prod",
             REVENUECAT_SECRET_KEY: "rc_secret",
-            HAPPIER_FEATURE_VOICE__REQUIRE_SUBSCRIPTION: "0",
+            KAIWU_FEATURE_VOICE__REQUIRE_SUBSCRIPTION: "0",
             VOICE_MAX_MINUTES_PER_DAY: "1",
             VOICE_FREE_SESSIONS_PER_MONTH: "0",
             VOICE_MAX_CONCURRENT_SESSIONS: "1",
@@ -439,7 +446,7 @@ describe("voiceRoutes (secure)", () => {
     it("returns 403 quota_exceeded when free minutes are exhausted by pending leases", async () => {
         resetVoiceEnv({
             NODE_ENV: "production",
-            HAPPIER_FEATURE_VOICE__ENABLED: "1",
+            KAIWU_FEATURE_VOICE__ENABLED: "1",
             ELEVENLABS_API_KEY: "el_key",
             ELEVENLABS_AGENT_ID_PROD: "agent_prod",
             REVENUECAT_SECRET_KEY: "rc_secret",

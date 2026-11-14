@@ -34,8 +34,8 @@ describe("connectRoutes (oauth external) rate limit", () => {
         expect(await callback.opts.config?.rateLimit?.keyGenerator?.({ headers: {}, ip: "203.0.113.9" })).toBe("ip:203.0.113.9");
     });
 
-    it("can force ip-only route keying strategy via HAPPIER_API_RATE_LIMITS_ROUTE_KEY_STRATEGY", async () => {
-        resetRouteKeyStrategyEnv({ HAPPIER_API_RATE_LIMITS_ROUTE_KEY_STRATEGY: "ip-only" });
+    it("can force ip-only route keying strategy via KAIWU_API_RATE_LIMITS_ROUTE_KEY_STRATEGY", async () => {
+        resetRouteKeyStrategyEnv({ KAIWU_API_RATE_LIMITS_ROUTE_KEY_STRATEGY: "ip-only" });
         const { connectOAuthExternalRoutes } = await import("./connectRoutes.oauthExternal");
         const app = createFakeRouteApp();
         connectOAuthExternalRoutes(app as any);

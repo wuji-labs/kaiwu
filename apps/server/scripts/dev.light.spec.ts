@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { chmod, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
-import { join, resolve } from 'node:path';
+import { delimiter, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 
 function getScriptPath(): string {
@@ -21,6 +21,26 @@ exit 0
 `;
     await writeFile(yarnPath, content, { mode: 0o755 });
     await chmod(yarnPath, 0o755);
+    if (process.platform === 'win32') {
+        // dev.light.ts launches yarn through runCommand(), which on Windows resolves `yarn.cmd`
+        // via cmd.exe (a shebang script is not executable for native processes). Each argument
+        // arrives quoted, so %~1 strips the quotes to log the same line as the POSIX fake.
+        const cmdContent = [
+            '@echo off',
+            'setlocal EnableExtensions DisableDelayedExpansion',
+            'set "line=YARN"',
+            ':next',
+            'if "%~1"=="" goto done',
+            'set "line=%line% %~1"',
+            'shift',
+            'goto next',
+            ':done',
+            `>>"${params.logPath}" echo %line%`,
+            'exit /b 0',
+            '',
+        ].join('\r\n');
+        await writeFile(join(params.dir, 'yarn.cmd'), cmdContent, 'utf8');
+    }
 }
 
 async function readLogLines(path: string): Promise<string[]> {
@@ -40,22 +60,25 @@ function runDevLightScript(params: Readonly<{
     return spawnSync('sh', ['-c', `
             set -eu
             cd "${getServerDir()}"
-            PATH="${params.binDir}:${process.env.PATH ?? ''}" \
+\
             HOME="${process.env.HOME ?? params.tmpDir}" \
             TMPDIR="${process.env.TMPDIR ?? params.tmpDir}" \
             NODE_OPTIONS="" \
             TSX_TSCONFIG_PATH="" \
-            HAPPIER_SERVER_LIGHT_DATA_DIR="${params.lightDataDir}" \
+            KAIWU_SERVER_LIGHT_DATA_DIR="${params.lightDataDir}" \
             HAPPY_SERVER_LIGHT_DATA_DIR="${params.lightDataDir}" \
-            HAPPIER_SERVER_LIGHT_FILES_DIR="${join(params.lightDataDir, 'files')}" \
+            KAIWU_SERVER_LIGHT_FILES_DIR="${join(params.lightDataDir, 'files')}" \
             HAPPY_SERVER_LIGHT_FILES_DIR="${join(params.lightDataDir, 'files')}" \
-            HAPPIER_SERVER_LIGHT_DB_DIR="${join(params.lightDataDir, 'db')}" \
+            KAIWU_SERVER_LIGHT_DB_DIR="${join(params.lightDataDir, 'db')}" \
             HAPPY_SERVER_LIGHT_DB_DIR="${join(params.lightDataDir, 'db')}" \
-            HAPPIER_STACK_MIGRATE_MODE="${params.migrateMode ?? ''}" \
+            KAIWU_STACK_MIGRATE_MODE="${params.migrateMode ?? ''}" \
             node --import tsx "${getScriptPath()}"
         `], {
         env: {
-            PATH: process.env.PATH ?? '',
+            // Prepend the fake-yarn dir here rather than inside the sh script: process.env.PATH uses
+            // the host delimiter (";" with drive letters on Windows), which a POSIX `PATH=...:...`
+            // assignment would corrupt. Git Bash converts the Windows-form PATH at startup.
+            PATH: `${params.binDir}${delimiter}${process.env.PATH ?? ''}`,
             HOME: process.env.HOME ?? params.tmpDir,
             TMPDIR: process.env.TMPDIR ?? params.tmpDir,
         },
@@ -91,7 +114,7 @@ describe('dev.light.ts', () => {
         expect(result.stdout).toContain('{"happierStackTransition":"migration_completed"}');
         const lines = await readLogLines(logPath);
         expect(lines).toEqual(['YARN -s migrate:deploy', 'YARN -s start:light']);
-    });
+    }, 60_000);
 
     it('does not let a previous local run authorize skipping migrations', async () => {
         const lightDataDir = join(tmpDir, 'server-light-repeat');

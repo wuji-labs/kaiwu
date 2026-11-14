@@ -82,13 +82,13 @@ describe("storage/prisma", () => {
     it("parses DB provider from env with a fallback", () => {
         expect(getDbProviderFromEnv({}, "postgres")).toBe("postgres");
         expect(getDbProviderFromEnv({ HAPPY_DB_PROVIDER: "mysql" }, "postgres")).toBe("mysql");
-        expect(getDbProviderFromEnv({ HAPPIER_DB_PROVIDER: " sqlite " }, "postgres")).toBe("sqlite");
+        expect(getDbProviderFromEnv({ KAIWU_DB_PROVIDER: " sqlite " }, "postgres")).toBe("sqlite");
         expect(getDbProviderFromEnv({ HAPPY_DB_PROVIDER: "nope" }, "postgres")).toBe("postgres");
     });
 
     it("can require an explicitly configured DB provider", () => {
         expect(requireDbProviderFromEnv({}, "sqlite")).toBe("sqlite");
-        expect(requireDbProviderFromEnv({ HAPPIER_DB_PROVIDER: "postgresql" }, "sqlite")).toBe("postgres");
+        expect(requireDbProviderFromEnv({ KAIWU_DB_PROVIDER: "postgresql" }, "sqlite")).toBe("postgres");
         expect(() => requireDbProviderFromEnv({ HAPPY_DB_PROVIDER: "postgress" }, "sqlite")).toThrow(/Unsupported/);
     });
 });

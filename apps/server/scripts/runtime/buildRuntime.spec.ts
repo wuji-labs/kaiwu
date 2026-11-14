@@ -33,8 +33,8 @@ describe('buildServerRuntime', () => {
     const full = await readFile(result.entrypoints.full, 'utf-8');
     const light = await readFile(result.entrypoints.light, 'utf-8');
 
-    expect(full).toContain('HAPPIER_SERVER_FLAVOR');
-    expect(light).toContain('HAPPIER_SERVER_FLAVOR');
+    expect(full).toContain('KAIWU_SERVER_FLAVOR');
+    expect(light).toContain('KAIWU_SERVER_FLAVOR');
   });
 
   it('leaves pino runtime loading to installed node_modules instead of bundling dynamic require shims', async () => {
