@@ -7,6 +7,6 @@ test('the production Worker owns the kaiwu.wujilabs.cn/docs custom domain', asyn
 
     assert.match(
         config,
-        /\[\[routes\]\]\s+pattern\s*=\s*"docs\.KAIWU\.dev"\s+custom_domain\s*=\s*true/,
+        /\[\[routes\]\]\s+pattern\s*=\s*"kaiwu\.wujilabs\.cn\/docs"\s+custom_domain\s*=\s*true/,
     );
 });

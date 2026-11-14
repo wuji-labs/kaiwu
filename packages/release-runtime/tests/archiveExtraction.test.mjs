@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { chmod, link, mkdir, mkdtemp, readFile, readdir, rename, rm, stat, symlink, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, mkdtemp, readFile, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { deflateRawSync, gzipSync } from 'node:zlib';
@@ -1024,22 +1024,24 @@ test('extractArchivePayloadToDirectory closes ZIP census resources before report
   }
 });
 
+// The link fixtures below are synthesized as tar headers rather than packed from
+// real filesystem links: creating a symlink needs SeCreateSymbolicLinkPrivilege
+// on Windows, and these are exactly the safety checks that must keep running
+// on every platform the release runtime extracts on.
 test('extractArchivePayloadToDirectory rejects tar symlink smuggling outside the destination', async () => {
   const rootDir = await mkdtemp(join(tmpdir(), 'release-runtime-extract-symlink-'));
-  const payloadDir = join(rootDir, 'payload');
   const outsideDir = join(rootDir, 'outside');
   const archivePath = join(rootDir, 'payload.tar.gz');
   const extractDir = join(rootDir, 'extract');
   try {
-    await mkdir(payloadDir, { recursive: true });
     await mkdir(outsideDir, { recursive: true });
     const outsideTargetPath = join(outsideDir, 'pwned.txt');
-    await writeFile(outsideTargetPath, 'malicious', 'utf8');
-    await symlink(outsideDir, join(payloadDir, 'escape'));
-    await tar.c(
-      { cwd: rootDir, file: archivePath, gzip: true, portable: true },
-      ['payload/escape', 'payload/escape/pwned.txt'],
-    );
+    // extract/payload/escape -> ../../outside resolves to the real outsideDir.
+    await writeFile(archivePath, createTarGzip([
+      { name: 'payload/', type: '5', mode: 0o755 },
+      { name: 'payload/escape', type: '2', linkpath: '../../outside' },
+      { name: 'payload/escape/pwned.txt', contents: 'malicious' },
+    ]));
     await writeFile(outsideTargetPath, 'original', 'utf8');
 
     await assert.rejects(
@@ -1054,16 +1056,11 @@ test('extractArchivePayloadToDirectory rejects tar symlink smuggling outside the
 
 test('extractArchivePayloadToDirectory rejects standalone tar symlinks and hardlinks', async () => {
   const rootDir = await mkdtemp(join(tmpdir(), 'release-runtime-extract-links-'));
-  const payloadDir = join(rootDir, 'payload');
   try {
-    await mkdir(payloadDir, { recursive: true });
-    await writeFile(join(payloadDir, 'target'), 'payload', 'utf8');
-    await symlink('target', join(payloadDir, 'symlink'));
     const symlinkArchivePath = join(rootDir, 'symlink.tar.gz');
-    await tar.c(
-      { cwd: payloadDir, file: symlinkArchivePath, gzip: true, portable: true },
-      ['symlink'],
-    );
+    await writeFile(symlinkArchivePath, createTarGzip([
+      { name: 'symlink', type: '2', linkpath: 'target' },
+    ]));
     await assert.rejects(
       extractArchivePayloadToDirectory({
         archiveName: 'symlink.tar.gz',
@@ -1073,12 +1070,11 @@ test('extractArchivePayloadToDirectory rejects standalone tar symlinks and hardl
       /link/iu,
     );
 
-    await link(join(payloadDir, 'target'), join(payloadDir, 'hardlink'));
     const hardlinkArchivePath = join(rootDir, 'hardlink.tar.gz');
-    await tar.c(
-      { cwd: payloadDir, file: hardlinkArchivePath, gzip: true, portable: true },
-      ['target', 'hardlink'],
-    );
+    await writeFile(hardlinkArchivePath, createTarGzip([
+      { name: 'target', contents: 'payload' },
+      { name: 'hardlink', type: '1', linkpath: 'target' },
+    ]));
     await assert.rejects(
       extractArchivePayloadToDirectory({
         archiveName: 'hardlink.tar.gz',
@@ -1094,17 +1090,15 @@ test('extractArchivePayloadToDirectory rejects standalone tar symlinks and hardl
 
 test('extractArchivePayloadToDirectory can skip tar links for a verified runtime archive while retaining regular files', async () => {
   const rootDir = await mkdtemp(join(tmpdir(), 'release-runtime-extract-skip-links-'));
-  const payloadDir = join(rootDir, 'payload');
   const archivePath = join(rootDir, 'payload.tar.gz');
   const extractDir = join(rootDir, 'extract');
   try {
-    await mkdir(join(payloadDir, 'bin'), { recursive: true });
-    await writeFile(join(payloadDir, 'bin', 'node'), 'runtime', 'utf8');
-    await symlink('node', join(payloadDir, 'bin', 'corepack'));
-    await tar.c(
-      { cwd: rootDir, file: archivePath, gzip: true, portable: true },
-      ['payload'],
-    );
+    await writeFile(archivePath, createTarGzip([
+      { name: 'payload/', type: '5', mode: 0o755 },
+      { name: 'payload/bin/', type: '5', mode: 0o755 },
+      { name: 'payload/bin/corepack', type: '2', linkpath: 'node' },
+      { name: 'payload/bin/node', contents: 'runtime' },
+    ]));
 
     await extractArchivePayloadToDirectory({
       archiveName: 'payload.tar.gz',
@@ -1125,17 +1119,16 @@ test('extractArchivePayloadToDirectory can skip tar links for a verified runtime
 
 test('extractFirstPartyReleaseArchiveToDirectory skips links from checksum-verified release payloads', async () => {
   const rootDir = await mkdtemp(join(tmpdir(), 'release-runtime-extract-first-party-links-'));
-  const payloadDir = join(rootDir, 'payload');
   const archivePath = join(rootDir, 'payload.tar.gz');
   const extractDir = join(rootDir, 'extract');
   try {
-    await mkdir(join(payloadDir, 'node_modules', '.bin'), { recursive: true });
-    await writeFile(join(payloadDir, 'tool.js'), 'console.log("tool")\n', 'utf8');
-    await symlink('../../tool.js', join(payloadDir, 'node_modules', '.bin', 'tool'));
-    await tar.c(
-      { cwd: rootDir, file: archivePath, gzip: true, portable: true },
-      ['payload'],
-    );
+    await writeFile(archivePath, createTarGzip([
+      { name: 'payload/', type: '5', mode: 0o755 },
+      { name: 'payload/node_modules/', type: '5', mode: 0o755 },
+      { name: 'payload/node_modules/.bin/', type: '5', mode: 0o755 },
+      { name: 'payload/node_modules/.bin/tool', type: '2', linkpath: '../../tool.js' },
+      { name: 'payload/tool.js', contents: 'console.log("tool")\n' },
+    ]));
 
     await extractFirstPartyReleaseArchiveToDirectory({
       archiveName: 'payload.tar.gz',

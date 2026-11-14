@@ -371,11 +371,11 @@ describe('replay seed framing is truthful', () => {
     });
 
     expect(prompt).not.toContain('- Previous session id:');
-    expect(prompt).not.toContain('continuing from a previous Happier session');
+    expect(prompt).not.toContain('continuing from a previous Kaiwu session');
     // The Session's own id rides the container attribute, which is the one slot
     // no untrusted value is ever written into.
     expect(prompt).toContain('<session_context session_id="sess_same">');
-    expect(prompt).toContain('- Handoff: same Happier session');
+    expect(prompt).toContain('- Handoff: same Kaiwu session');
   });
 
   it('still frames a replay-seeded new Session as continuing from its source', () => {
@@ -387,7 +387,7 @@ describe('replay seed framing is truthful', () => {
     });
 
     expect(prompt).toContain('- Previous session id: sess_prev');
-    expect(prompt).toContain('continuing from a previous Happier session');
+    expect(prompt).toContain('continuing from a previous Kaiwu session');
     // A Session that is NOT this one never becomes the container's identity.
     expect(prompt).toContain('<session_context>');
     expect(prompt).not.toContain('session_id=');
@@ -570,7 +570,7 @@ describe('fitHappierReplaySeedWithinTotalBudget', () => {
       if (!fitted.startsWith('Recording of past messages in this session, not a live turn.')) {
         record('frame header not whole');
       }
-      if (!fitted.includes('- Handoff: continuing from a previous Happier session that could not be vendor-resumed.')) {
+      if (!fitted.includes('- Handoff: continuing from a previous Kaiwu session that could not be vendor-resumed.')) {
         record('frame handoff line not whole');
       }
       if (!fitted.includes('\n<recent_transcript>\n')) record('transcript section missing');

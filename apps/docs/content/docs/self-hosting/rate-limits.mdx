@@ -19,7 +19,7 @@ The window accepts the same duration strings the defaults use (`1 minute`,
 per signed-in account, so one busy user cannot exhaust another's budget.
 `IP address` limits apply before Kaiwu knows who is calling — they protect
 unauthenticated routes, and behind a reverse proxy they are only as accurate as
-the forwarded client address your proxy sets. 27 of the 33 limits are
+the forwarded client address your proxy sets. 28 of the 35 limits are
 per-account.
 
 Two clusters are worth knowing about before a rollout, because they throttle
@@ -29,6 +29,7 @@ account from a headless machine.
 
 | Endpoint | Default | Counted per | Environment variables |
 | --- | --- | --- | --- |
+| `account.delete` | 10 / 1 minute | Account | `KAIWU_ACCOUNT_DELETE_RATE_LIMIT_MAX`<br />`KAIWU_ACCOUNT_DELETE_RATE_LIMIT_WINDOW` |
 | `account.profile` | 300 / 1 minute | Account | `KAIWU_ACCOUNT_PROFILE_RATE_LIMIT_MAX`<br />`KAIWU_ACCOUNT_PROFILE_RATE_LIMIT_WINDOW` |
 | `account.settings` | 300 / 1 minute | Account | `KAIWU_ACCOUNT_SETTINGS_RATE_LIMIT_MAX`<br />`KAIWU_ACCOUNT_SETTINGS_RATE_LIMIT_WINDOW` |
 | `artifacts` | 300 / 1 minute | Account | `KAIWU_ARTIFACTS_RATE_LIMIT_MAX`<br />`KAIWU_ARTIFACTS_RATE_LIMIT_WINDOW` |
@@ -59,6 +60,7 @@ account from a headless machine.
 | `share.public.manage` | 10 / 1 minute | Account | `KAIWU_SHARE_PUBLIC_MANAGE_RATE_LIMIT_MAX`<br />`KAIWU_SHARE_PUBLIC_MANAGE_RATE_LIMIT_WINDOW` |
 | `share.public.messages` | 20 / 1 minute | IP address | `KAIWU_SHARE_PUBLIC_MESSAGES_RATE_LIMIT_MAX`<br />`KAIWU_SHARE_PUBLIC_MESSAGES_RATE_LIMIT_WINDOW` |
 | `share.public.read` | 10 / 1 minute | IP address | `KAIWU_SHARE_PUBLIC_READ_RATE_LIMIT_MAX`<br />`KAIWU_SHARE_PUBLIC_READ_RATE_LIMIT_WINDOW` |
+| `share.public.report` | 30 / 1 minute | IP address | `KAIWU_SHARE_PUBLIC_REPORT_RATE_LIMIT_MAX`<br />`KAIWU_SHARE_PUBLIC_REPORT_RATE_LIMIT_WINDOW` |
 | `share.session.create` | 20 / 1 minute | Account | `KAIWU_SHARE_SESSION_CREATE_RATE_LIMIT_MAX`<br />`KAIWU_SHARE_SESSION_CREATE_RATE_LIMIT_WINDOW` |
 | `voice.sessionComplete` | 60 / 1 minute | Account | `KAIWU_VOICE_SESSION_COMPLETE_RATE_LIMIT_MAX`<br />`KAIWU_VOICE_SESSION_COMPLETE_RATE_LIMIT_WINDOW` |
 | `voice.token` | 10 / 1 minute | Account | `KAIWU_VOICE_TOKEN_RATE_LIMIT_MAX`<br />`KAIWU_VOICE_TOKEN_RATE_LIMIT_WINDOW` |
