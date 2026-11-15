@@ -13,7 +13,7 @@ ENV REDISMS_DISABLE_POSTINSTALL=1
 ENV YARN_CACHE_FOLDER=/tmp/.yarn-cache
 
  COPY package.json yarn.lock ./
-RUN mkdir -p apps/ui apps/server apps/cli apps/website apps/docs packages/agents packages/cli-common packages/connection-supervisor packages/privacy-kit packages/protocol packages/release-runtime packages/transfers packages/audio-stream-native packages/sherpa-native scripts/pipeline/expo
+RUN mkdir -p apps/ui apps/server apps/cli apps/website apps/docs packages/agents packages/cli-common packages/connection-supervisor packages/privacy-kit packages/protocol packages/release-runtime packages/transfers scripts/pipeline/expo
  COPY apps/ui/package.json apps/ui/
  COPY apps/server/package.json apps/server/
  COPY apps/cli/package.json apps/cli/
@@ -26,9 +26,7 @@ RUN mkdir -p apps/ui apps/server apps/cli apps/website apps/docs packages/agents
  COPY packages/protocol/package.json packages/protocol/
  COPY packages/release-runtime/package.json packages/release-runtime/
  COPY packages/transfers/package.json packages/transfers/
- COPY packages/audio-stream-native/package.json packages/audio-stream-native/
- COPY packages/sherpa-native/package.json packages/sherpa-native/
-COPY apps/ui/tools/postinstall ./apps/ui/tools/postinstall
+ COPY apps/ui/tools/postinstall ./apps/ui/tools/postinstall
 COPY scripts/pipeline/expo/eas-postinstall.mjs scripts/pipeline/expo/
 
 COPY scripts/ci/yarn-install-with-retry.sh /usr/local/bin/yarn-install-with-retry
@@ -51,7 +49,7 @@ ENV REDISMS_DISABLE_POSTINSTALL=1
 ENV YARN_CACHE_FOLDER=/tmp/.yarn-cache
 
  COPY package.json yarn.lock ./
-RUN mkdir -p apps/ui apps/server apps/cli apps/website apps/docs packages/agents packages/cli-common packages/connection-supervisor packages/privacy-kit packages/protocol packages/release-runtime packages/transfers packages/audio-stream-native packages/sherpa-native scripts/pipeline/expo
+RUN mkdir -p apps/ui apps/server apps/cli apps/website apps/docs packages/agents packages/cli-common packages/connection-supervisor packages/privacy-kit packages/protocol packages/release-runtime packages/transfers scripts/pipeline/expo
  COPY apps/ui/package.json apps/ui/
  COPY apps/server/package.json apps/server/
  COPY apps/cli/package.json apps/cli/
@@ -64,9 +62,7 @@ RUN mkdir -p apps/ui apps/server apps/cli apps/website apps/docs packages/agents
  COPY packages/protocol/package.json packages/protocol/
  COPY packages/release-runtime/package.json packages/release-runtime/
  COPY packages/transfers/package.json packages/transfers/
- COPY packages/audio-stream-native/package.json packages/audio-stream-native/
- COPY packages/sherpa-native/package.json packages/sherpa-native/
-COPY apps/ui/tools/postinstall ./apps/ui/tools/postinstall
+ COPY apps/ui/tools/postinstall ./apps/ui/tools/postinstall
 COPY scripts/pipeline/expo/eas-postinstall.mjs scripts/pipeline/expo/
 
 COPY scripts/ci/yarn-install-with-retry.sh /usr/local/bin/yarn-install-with-retry
@@ -87,7 +83,7 @@ ENV REDISMS_DISABLE_POSTINSTALL=1
 ENV YARN_CACHE_FOLDER=/tmp/.yarn-cache
 
  COPY package.json yarn.lock ./
-RUN mkdir -p apps/ui apps/server apps/cli apps/website apps/docs packages/agents packages/cli-common packages/connection-supervisor packages/privacy-kit packages/protocol packages/release-runtime packages/transfers packages/audio-stream-native packages/sherpa-native scripts/pipeline/expo
+RUN mkdir -p apps/ui apps/server apps/cli apps/website apps/docs packages/agents packages/cli-common packages/connection-supervisor packages/privacy-kit packages/protocol packages/release-runtime packages/transfers scripts/pipeline/expo
  COPY apps/ui/package.json apps/ui/
  COPY apps/server/package.json apps/server/
  COPY apps/cli/package.json apps/cli/
@@ -100,9 +96,7 @@ RUN mkdir -p apps/ui apps/server apps/cli apps/website apps/docs packages/agents
  COPY packages/protocol/package.json packages/protocol/
  COPY packages/release-runtime/package.json packages/release-runtime/
  COPY packages/transfers/package.json packages/transfers/
- COPY packages/audio-stream-native/package.json packages/audio-stream-native/
- COPY packages/sherpa-native/package.json packages/sherpa-native/
-COPY apps/ui/tools/postinstall ./apps/ui/tools/postinstall
+ COPY apps/ui/tools/postinstall ./apps/ui/tools/postinstall
 COPY scripts/pipeline/expo/eas-postinstall.mjs scripts/pipeline/expo/
 
 COPY scripts/ci/yarn-install-with-retry.sh /usr/local/bin/yarn-install-with-retry

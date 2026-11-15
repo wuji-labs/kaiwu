@@ -8,7 +8,7 @@
       "node": "22.14.0",
       "env": {
         "HAPPIER_EAS_ENSURE_UI_WORKSPACES_BUILT": "1",
-        "HAPPIER_INSTALL_SCOPE": "ui,protocol,agents,cli-common,release-runtime,transfers,connection-supervisor,audio-stream-native,sherpa-native",
+        "HAPPIER_INSTALL_SCOPE": "ui,protocol,agents,cli-common,release-runtime,transfers,connection-supervisor",
         "HAPPIER_ANDROID_GRADLE_JVMARGS": "-Xmx4096m -XX:MaxMetaspaceSize=1024m -Dfile.encoding=UTF-8",
         "YARN_PRODUCTION": "false",
         "npm_config_production": "false",

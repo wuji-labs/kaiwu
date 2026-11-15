@@ -35,6 +35,4 @@ apps/cli/.runner-snapshots
 apps/cli/package-dist
 apps/cli/tmp
 apps/cli/*.tgz
-packages/sherpa-native/android/build
-packages/sherpa-native/ios/vendor
 packages/tests/playwright-report

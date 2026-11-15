@@ -17,7 +17,6 @@ apps/*/dist/
 
 # Native
 .kotlin/
-/packages/sherpa-native/ios/vendor/
 *.orig.*
 *.jks
 *.p8
