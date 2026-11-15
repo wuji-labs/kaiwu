@@ -5,27 +5,15 @@ type KokoroSupportOverrides = {
   hasNativeModule?: boolean;
 };
 
-function getHasNativeKokoroModule(): boolean {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const mod = require('@happier-dev/sherpa-native') as any;
-    const getter = mod?.getOptionalHappierSherpaNativeModule;
-    if (typeof getter !== 'function') return false;
-    return Boolean(getter());
-  } catch {
-    return false;
-  }
-}
-
 export function isKokoroRuntimeSupported(
   globals: Partial<typeof globalThis> = globalThis,
   overrides: KokoroSupportOverrides = {},
 ): boolean {
   const platformOs = overrides.platformOs ?? Platform.OS;
 
-  // On native, Kokoro is supported only through the Sherpa-backed native module.
+  // On native, Kokoro has no first-party runtime implementation; only an injected native module is supported.
   if (platformOs !== 'web') {
-    return typeof overrides.hasNativeModule === 'boolean' ? overrides.hasNativeModule : getHasNativeKokoroModule();
+    return overrides.hasNativeModule === true;
   }
 
   // On web, Kokoro (via transformers + onnxruntime-web) requires fetch/Response and WebAssembly for the default WASM backend.

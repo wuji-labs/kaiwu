@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto';
+
 import type { ScmRepoDetection, ScmBackendContext } from '../../types';
 import type {
     ScmStatusSnapshotRequest,
@@ -17,6 +19,7 @@ import { defaultPrStatusCache } from '../../hostingProviders/prStatusCache';
 import { resolveHostingAuthProfileKey } from './operations/pullRequestOperationHelpers';
 import { enrichGitWorktreesWithStatus, readWorktreeStatusEnrichmentForPaths } from './worktreeStatusEnricher';
 import { parseGitWorktreeListPorcelain } from './worktreeListParser';
+import { createFingerprintThrottle } from './fingerprintThrottle';
 import { readFile, realpath, stat } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
@@ -33,6 +36,74 @@ const GIT_STATUS_MAX_OUTPUT_BYTES = 4 * 1024 * 1024;
 const GIT_READ_ONLY_ENV = {
     GIT_OPTIONAL_LOCKS: '0',
 };
+
+/**
+ * Enrichment is a progressive background augmentation of the worktree picker;
+ * the fresh per-repo status snapshot remains the foreground read. Throttling a
+ * full per-worktree scan to five minutes keeps repeated pollers from forcing a
+ * rescan while still refreshing the augmentation regularly. Override with
+ * `HAPPIER_SCM_WORKTREES_ENRICHMENT_MIN_INTERVAL_MS` (0 probes on every request).
+ */
+const DEFAULT_GIT_WORKTREES_ENRICHMENT_MIN_INTERVAL_MS = 300_000;
+
+function readNonNegativeIntEnv(name: string, fallback: number): number {
+    const raw = (process.env[name] ?? '').trim();
+    if (!raw) return fallback;
+    const parsed = Number.parseInt(raw, 10);
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
+}
+
+const gitWorktreesEnrichmentThrottle = createFingerprintThrottle({
+    minIntervalMs: readNonNegativeIntEnv(
+        'HAPPIER_SCM_WORKTREES_ENRICHMENT_MIN_INTERVAL_MS',
+        readNonNegativeIntEnv(
+            'HAPPIER_SCM_WORKTREES_ENRICHMENT_CACHE_TTL_MS',
+            DEFAULT_GIT_WORKTREES_ENRICHMENT_MIN_INTERVAL_MS,
+        ),
+    ),
+});
+
+function hashWorktreeState(input: Readonly<{
+    worktreesOutput: string;
+    statuses: ReadonlyArray<Readonly<{ path: string; stdout: string; stderr: string; success: boolean; timedOut?: boolean }>>;
+}>): string {
+    const hash = createHash('sha256');
+    // NUL cannot appear in git's path or numeric fields, so it is an unambiguous
+    // field separator (a literal "\0" spelled with a backslash would be two chars
+    // that CAN appear in a path).
+    hash.update(input.worktreesOutput);
+    for (const status of input.statuses) {
+        hash.update('\0');
+        hash.update(status.path);
+        hash.update('\0');
+        hash.update(status.success ? 'ok' : 'failed');
+        hash.update(status.timedOut ? 'timeout' : 'settled');
+        hash.update('\0');
+        hash.update(status.stdout);
+        hash.update('\0');
+        hash.update(status.stderr);
+    }
+    return hash.digest('hex');
+}
+
+async function readWorktreeStateFingerprint(input: Readonly<{
+    worktreesOutput: string;
+    worktreePaths: ReadonlyArray<string>;
+}>): Promise<string | null> {
+    const statuses = await Promise.all(input.worktreePaths.map(async (path) => {
+        const result = await runScmCommand({
+            bin: 'git',
+            cwd: path,
+            args: ['status', '--porcelain=v2', '-z', '--branch', '--untracked-files=normal', '--no-ahead-behind'],
+            timeoutMs: GIT_STATUS_TIMEOUT_MS,
+            maxOutputBytes: GIT_STATUS_MAX_OUTPUT_BYTES,
+            env: GIT_READ_ONLY_ENV,
+        });
+        return { path, ...result };
+    }));
+    if (statuses.some((status) => !status.success)) return null;
+    return hashWorktreeState({ worktreesOutput: input.worktreesOutput, statuses });
+}
 
 function countTextLines(buffer: Buffer): number {
     if (buffer.length === 0) return 0;
@@ -409,8 +480,20 @@ export async function getGitWorktreesEnrichment(input: {
         return { success: true, worktrees: [] };
     }
 
-    const worktrees = await readWorktreeStatusEnrichmentForPaths({
-        worktreePaths: allowedPaths,
-    });
-    return { success: true, worktrees };
+    // Sort so the same worktree set requested in a different order reuses one
+    // throttle entry (the fingerprint covers the actual state, not request order).
+    const cacheKey = JSON.stringify([repoRoot, [...allowedPaths].sort()]);
+    return await gitWorktreesEnrichmentThrottle.run(
+        cacheKey,
+        () => readWorktreeStateFingerprint({
+            worktreesOutput: worktreesList.stdout ?? '',
+            worktreePaths: allowedPaths,
+        }),
+        async () => {
+            const worktrees = await readWorktreeStatusEnrichmentForPaths({
+                worktreePaths: allowedPaths,
+            });
+            return { success: true, worktrees };
+        },
+    );
 }

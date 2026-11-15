@@ -325,6 +325,8 @@ export async function probeTcpPortBinding(port, { host = '127.0.0.1', timeoutMs 
   });
 }
 
+const DEADLINE_EXCEEDED_REASON = 'port-availability-deadline-exceeded';
+
 export async function waitForTcpPortFree(
   port,
   {
@@ -338,17 +340,27 @@ export async function waitForTcpPortFree(
   } = {},
 ) {
   const deadline = nowImpl() + Math.max(0, Number(timeoutMs) || 0);
-  let lastObservation = { status: 'inconclusive', reason: 'port-availability-deadline-exceeded' };
+  let lastObservation = { status: 'inconclusive', reason: DEADLINE_EXCEEDED_REASON };
+  let hasObservation = false;
   while (nowImpl() < deadline) {
     const remaining = Math.max(0, deadline - nowImpl());
     // eslint-disable-next-line no-await-in-loop
-    lastObservation = await observeTcpPortAvailabilityImpl(port, {
+    const observation = await observeTcpPortAvailabilityImpl(port, {
       host,
       timeoutMs: remaining,
       deadline,
       nowImpl,
       ...availabilityOptions,
     });
+    // A probe that found the deadline already spent observed nothing; it must not replace typed
+    // evidence from an earlier probe (e.g. turn a proven `occupied` into an inconclusive result
+    // just because the final poll started a few milliseconds before the deadline).
+    const observedNothing =
+      observation?.status === 'inconclusive' && observation?.reason === DEADLINE_EXCEEDED_REASON;
+    if (!observedNothing || !hasObservation) {
+      lastObservation = observation;
+      hasObservation = true;
+    }
     if (lastObservation.status === 'free') {
       return lastObservation;
     }
@@ -491,7 +503,7 @@ export async function observeTcpPortAvailability(
     if (remainingMs() <= 0) {
       return {
         status: 'inconclusive',
-        reason: incompleteReason ?? 'port-availability-deadline-exceeded',
+        reason: incompleteReason ?? DEADLINE_EXCEEDED_REASON,
       };
     }
     // eslint-disable-next-line no-await-in-loop

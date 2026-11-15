@@ -175,6 +175,27 @@ test('waitForTcpPortFree returns typed final evidence under one absolute deadlin
   assert.equal(now, 100);
 });
 
+test('waitForTcpPortFree keeps earlier occupied evidence when the final poll finds the deadline spent', async () => {
+  let now = 0;
+  const evidence = [
+    { status: 'occupied', reason: 'address-in-use' },
+    { status: 'inconclusive', reason: 'port-availability-deadline-exceeded' },
+  ];
+
+  const result = await waitForTcpPortFree(34567, {
+    timeoutMs: 100,
+    intervalMs: 25,
+    nowImpl: () => now,
+    delayImpl: async (milliseconds) => { now += milliseconds; },
+    observeTcpPortAvailabilityImpl: async () => {
+      now += 30;
+      return evidence.shift() ?? { status: 'inconclusive', reason: 'port-availability-deadline-exceeded' };
+    },
+  });
+
+  assert.deepEqual(result, { status: 'occupied', reason: 'address-in-use' });
+});
+
 test('waitForTcpPortFree re-observes transient evidence and returns as soon as free is proven', async () => {
   let now = 0;
   const evidence = [

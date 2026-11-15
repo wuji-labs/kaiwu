@@ -38,16 +38,10 @@ export function createVoiceSessionBindingManager(deps: Readonly<{
     controlSessionId: string;
     requestedTargetSessionId?: string | null;
   }>) => Promise<VoiceConversationBindingResolution | null>;
-  appendTargetSwitchNote?: (params: Readonly<{
-    conversationSessionId: string;
-    previousTargetSessionId: string | null;
-    targetSessionId: string | null;
-  }>) => void;
   persistBinding?: (binding: VoiceSessionBinding) => Promise<void> | void;
 }>) {
   const store = deps.store ?? voiceSessionBindingStore;
   const nowMs = deps.nowMs ?? (() => Date.now());
-  const appendTargetSwitchNote = deps.appendTargetSwitchNote ?? (() => {});
   const persistBinding = deps.persistBinding ?? (() => {});
 
   const ensureBound = async (params: Readonly<{
@@ -62,7 +56,6 @@ export function createVoiceSessionBindingManager(deps: Readonly<{
       return existing;
     }
 
-    const previous = store.getState().getByConversationSessionId(resolution.conversationSessionId);
     const nextBinding: VoiceSessionBinding = {
       adapterId: params.adapterId,
       controlSessionId: resolution.controlSessionId,
@@ -74,18 +67,6 @@ export function createVoiceSessionBindingManager(deps: Readonly<{
 
     store.getState().bind(nextBinding);
     await Promise.resolve(persistBinding(nextBinding)).catch(() => {});
-
-    if (
-      previous &&
-      previous.conversationSessionId === nextBinding.conversationSessionId &&
-      previous.targetSessionId !== nextBinding.targetSessionId
-    ) {
-      appendTargetSwitchNote({
-        conversationSessionId: nextBinding.conversationSessionId,
-        previousTargetSessionId: previous.targetSessionId,
-        targetSessionId: nextBinding.targetSessionId,
-      });
-    }
 
     return nextBinding;
   };
@@ -105,11 +86,6 @@ export function createVoiceSessionBindingManager(deps: Readonly<{
     };
     store.getState().bind(nextBinding);
     Promise.resolve(persistBinding(nextBinding)).catch(() => {});
-    appendTargetSwitchNote({
-      conversationSessionId: nextBinding.conversationSessionId,
-      previousTargetSessionId: previous.targetSessionId,
-      targetSessionId: nextBinding.targetSessionId,
-    });
     return nextBinding;
   };
 

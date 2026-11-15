@@ -1579,6 +1579,18 @@ export async function stopLocalDaemon({
         error.code = 'ETIMEDOUT';
         error.childPid = proc.pid ?? null;
         error.processGroupTerminated = termination.ok === true;
+        if (termination.ok !== true) {
+          // Never let an unkillable stop child pin this process: its stdout/stderr pipes would
+          // otherwise keep the event loop alive and turn a bounded timeout into a hung `hstack`.
+          try {
+            proc.kill('SIGKILL');
+          } catch {
+            // ignore
+          }
+          proc.stdout?.destroy();
+          proc.stderr?.destroy();
+          proc.unref?.();
+        }
         daemonStopCommandError = error;
       }
     } catch {
@@ -2518,7 +2530,8 @@ function isMissingDistStatusError({ error, distEntrypoint }) {
   ];
   if (!loadFailureMarkers.some((marker) => text.includes(marker))) return false;
   if (distEntrypoint && text.includes(distEntrypoint)) return true;
-  return text.includes('/dist/index.mjs') || text.includes('/package-dist/index.mjs');
+  // Node reports win32 module paths with `\` separators.
+  return /[\\/](?:package-)?dist[\\/]index\.mjs/.test(text);
 }
 
 function buildDistMissingStatusFallback({ cliHomeDir, internalServerUrl, env, distEntrypoint }) {

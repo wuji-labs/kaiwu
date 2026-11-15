@@ -6,7 +6,6 @@ describe('createVoiceSessionBindingManager', () => {
   });
 
   it('stores a binding returned by the resolver', async () => {
-    const appendNote = vi.fn();
     const { createVoiceSessionBindingStore } = await import('./voiceSessionBindingStore');
     const { createVoiceSessionBindingManager } = await import('./voiceSessionBindingManager');
 
@@ -20,7 +19,6 @@ describe('createVoiceSessionBindingManager', () => {
         transcriptMode: 'synthetic' as const,
         targetSessionId: 's1',
       })),
-      appendTargetSwitchNote: appendNote,
     });
 
     const binding = await manager.ensureBound({
@@ -32,11 +30,9 @@ describe('createVoiceSessionBindingManager', () => {
     expect(binding?.conversationSessionId).toBe('carrier-s1');
     expect(store.getState().getByConversationSessionId('carrier-s1')?.adapterId).toBe('realtime_elevenlabs');
     expect(store.getState().getByControlSessionId('voice-global')?.conversationSessionId).toBe('carrier-s1');
-    expect(appendNote).not.toHaveBeenCalled();
   });
 
-  it('appends a target-switch note when the target session changes within the same conversation session', async () => {
-    const appendNote = vi.fn();
+  it('updates the target session when it changes within the same conversation session', async () => {
     const { createVoiceSessionBindingStore } = await import('./voiceSessionBindingStore');
     const { createVoiceSessionBindingManager } = await import('./voiceSessionBindingManager');
 
@@ -66,7 +62,6 @@ describe('createVoiceSessionBindingManager', () => {
       store,
       nowMs: () => 123,
       resolveBinding,
-      appendTargetSwitchNote: appendNote,
     });
 
     await manager.ensureBound({
@@ -80,15 +75,10 @@ describe('createVoiceSessionBindingManager', () => {
       requestedTargetSessionId: 's2',
     });
 
-    expect(appendNote).toHaveBeenCalledWith({
-      conversationSessionId: 'carrier-s1',
-      previousTargetSessionId: 's1',
-      targetSessionId: 's2',
-    });
+    expect(store.getState().getByControlSessionId('voice-global')?.targetSessionId).toBe('s2');
   });
 
   it('updates the tracked target session without re-resolving the conversation session', async () => {
-    const appendNote = vi.fn();
     const { createVoiceSessionBindingStore } = await import('./voiceSessionBindingStore');
     const { createVoiceSessionBindingManager } = await import('./voiceSessionBindingManager');
 
@@ -104,7 +94,6 @@ describe('createVoiceSessionBindingManager', () => {
       store,
       nowMs: () => 456,
       resolveBinding,
-      appendTargetSwitchNote: appendNote,
     });
 
     await manager.ensureBound({
@@ -126,11 +115,6 @@ describe('createVoiceSessionBindingManager', () => {
         updatedAt: 456,
       }),
     );
-    expect(appendNote).toHaveBeenCalledWith({
-      conversationSessionId: 'carrier-s1',
-      previousTargetSessionId: 's1',
-      targetSessionId: 's2',
-    });
   });
 
   it('reuses an existing binding when re-resolution returns the same binding semantics', async () => {

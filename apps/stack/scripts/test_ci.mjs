@@ -4,7 +4,7 @@ import { join } from 'node:path';
 
 import { collectTestFiles } from './utils/test/collect_test_files.mjs';
 import { collectStackUnitTestFiles } from './utils/test/test_collection.mjs';
-import { runNodeTestFilesSync } from './utils/test/test_process.mjs';
+import { resolveStackUnitTestTimeoutMs, runNodeTestFilesSync } from './utils/test/test_process.mjs';
 import { sanitizeStackTestRunnerEnv } from './utils/test/test_env.mjs';
 import { ensureWorkspacePackagesBuiltForComponent } from './utils/proc/pm.mjs';
 import { coerceHappyMonorepoRootFromPath } from './utils/paths/paths.mjs';
@@ -43,6 +43,10 @@ async function main() {
       repoDir: monorepoRoot || packageRoot,
     }),
     serial: true,
+    // Bound every test and force each file process to exit once its tests settle, so a hung
+    // subprocess fixture fails its own test instead of blocking the remaining files indefinitely.
+    testTimeoutMs: resolveStackUnitTestTimeoutMs(process.env),
+    forceExit: true,
   });
   process.exit(res.status ?? 1);
 }

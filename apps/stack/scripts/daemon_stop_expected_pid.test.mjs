@@ -191,7 +191,13 @@ setInterval(() => {}, 1000);
   }
 });
 
-test('stopLocalDaemon signals only the expected daemon pid from current scoped state', async () => {
+test('stopLocalDaemon signals only the expected daemon pid from current scoped state', async (t) => {
+  if (process.platform === 'win32') {
+    // Real killPidOwnedByStack proves ownership from the process environment (ps eww); win32 only
+    // accepts a persisted process-instance fingerprint, which this fixture intentionally omits.
+    t.skip('requires a POSIX ps environment ownership boundary');
+    return;
+  }
   const tmp = await mkdtemp(join(tmpdir(), 'hstack-stop-daemon-expected-pid-'));
   let daemonPid = null;
   try {
@@ -232,7 +238,13 @@ test('stopLocalDaemon signals only the expected daemon pid from current scoped s
   }
 });
 
-test('stopLocalDaemon stops a live daemon from daemon.state.json when cli dist is missing', async () => {
+test('stopLocalDaemon stops a live daemon from daemon.state.json when cli dist is missing', async (t) => {
+  if (process.platform === 'win32') {
+    // Real killPidOwnedByStack proves ownership from the process environment (ps eww); win32 only
+    // accepts a persisted process-instance fingerprint, which this fixture intentionally omits.
+    t.skip('requires a POSIX ps environment ownership boundary');
+    return;
+  }
   const tmp = await mkdtemp(join(tmpdir(), 'hstack-stop-daemon-missing-dist-'));
   try {
     const cliDir = join(tmp, 'apps', 'cli');

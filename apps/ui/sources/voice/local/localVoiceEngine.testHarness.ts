@@ -29,26 +29,6 @@ export const speechRecStart = vi.fn();
 export const speechRecStop = vi.fn();
 export const speechRecAbort = vi.fn();
 export const speechRecRequestPermissionsAsync = vi.fn(async () => ({ granted: true }));
-export const audioStreamStart = vi.fn<(...args: any[]) => Promise<{ streamId: string }>>().mockResolvedValue({ streamId: 'audio-stream-1' });
-export const audioStreamStop = vi.fn(async () => {});
-export const sherpaStreamingCreate = vi.fn(async () => {});
-export const sherpaStreamingPushFrame = vi.fn<(...args: any[]) => Promise<{ text: string; isEndpoint: boolean }>>().mockResolvedValue({
-  text: '',
-  isEndpoint: false,
-});
-export const sherpaStreamingFinish = vi.fn<(...args: any[]) => Promise<{ text: string }>>().mockResolvedValue({ text: '' });
-export const sherpaStreamingCancel = vi.fn(async () => {});
-export const ensureModelPackInstalled = vi.fn(async () => ({
-    packDirUri: 'file:///docs/happier/voice/modelPacks/dummy-pack',
-    manifest: {
-        packId: 'dummy-pack',
-        kind: 'stt_sherpa',
-        model: 'zipformer',
-        version: '1.0.0',
-        files: [{ path: 'tokens.txt', url: 'https://example.com/tokens.txt', sha256: 'a'.repeat(64), sizeBytes: 1 }],
-    },
-}));
-export const resolveModelPackManifestUrl = vi.fn(() => 'https://example.com/manifest.json');
 export const setActiveServerAndSwitch = vi.fn(async (_params?: any) => false);
 export const refreshFromActiveServer = vi.fn(async () => {});
 export const routerNavigate = vi.fn();
@@ -72,7 +52,6 @@ let speechRecRecognitionAvailable = true;
 
 const EXPO_SPEECH_STATE_KEY = Symbol.for('happier.vitest.expoSpeechStub.state');
 const EXPO_SPEECH_REC_STATE_KEY = Symbol.for('happier.vitest.expoSpeechRecognitionStub.state');
-const AUDIO_STREAM_STATE_KEY = Symbol.for('happier.vitest.audioStreamStub.state');
 
 function setExpoSpeechStubState(next: { speakImpl: ((text: string, options?: any) => void) | null; stopImpl: (() => void) | null }) {
     (globalThis as any)[EXPO_SPEECH_STATE_KEY] = next;
@@ -99,13 +78,6 @@ export function setSpeechRecRecognitionAvailable(next: boolean) {
 
 export function emitSpeechRecEvent(eventName: string, event: any = {}) {
     const state = (globalThis as any)[EXPO_SPEECH_REC_STATE_KEY];
-    const set: Set<(event: any) => void> | undefined = state?.listeners?.get?.(eventName);
-    if (!set) return;
-    for (const cb of set) cb(event);
-}
-
-export function emitAudioStreamEvent(eventName: string, event: any = {}) {
-    const state = (globalThis as any)[AUDIO_STREAM_STATE_KEY];
     const set: Set<(event: any) => void> | undefined = state?.listeners?.get?.(eventName);
     if (!set) return;
     for (const cb of set) cb(event);
@@ -354,14 +326,6 @@ vi.mock('@/utils/platform/microphonePermissions', () => ({
     showMicrophonePermissionDeniedAlert: vi.fn(),
 }));
 
-vi.mock('@/voice/modelPacks/installer.native', () => ({
-    ensureModelPackInstalled: (params: any, overrides?: any) => (ensureModelPackInstalled as any)(params, overrides),
-}));
-
-vi.mock('@/voice/modelPacks/manifests', () => ({
-    resolveModelPackManifestUrl: (params: any) => (resolveModelPackManifestUrl as any)(params),
-}));
-
 vi.mock('react-native', async () => {
     const { createReactNativeWebMock } = await import('@/dev/testkit/mocks/reactNative');
     return createReactNativeWebMock(
@@ -428,38 +392,6 @@ vi.mock('expo-file-system', () => ({
         write(_content: any) { }
         delete = fileDelete;
     },
-}));
-
-vi.mock(
-    '@happier-dev/audio-stream-native',
-    () => {
-        const listeners = new Map<string, Set<(event: any) => void>>();
-        (globalThis as any)[AUDIO_STREAM_STATE_KEY] = { listeners };
-
-        const addListener = (eventName: string, cb: (event: any) => void) => {
-            const set = listeners.get(eventName) ?? new Set();
-            set.add(cb);
-            listeners.set(eventName, set);
-            return { remove: () => set.delete(cb) };
-        };
-
-        return {
-            getOptionalHappierAudioStreamNativeModule: () => ({
-                start: (...args: any[]) => (audioStreamStart as any)(...args),
-                stop: (...args: any[]) => (audioStreamStop as any)(...args),
-                addListener,
-            }),
-        };
-    },
-);
-
-vi.mock('@happier-dev/sherpa-native', () => ({
-    getOptionalHappierSherpaNativeModule: () => ({
-        createStreamingRecognizer: (...args: any[]) => (sherpaStreamingCreate as any)(...args),
-        pushAudioFrame: (...args: any[]) => (sherpaStreamingPushFrame as any)(...args),
-        finishStreaming: (...args: any[]) => (sherpaStreamingFinish as any)(...args),
-        cancel: (...args: any[]) => (sherpaStreamingCancel as any)(...args),
-    }),
 }));
 
 vi.mock('@/sync/domains/state/storage', () => {
@@ -538,31 +470,6 @@ export function registerLocalVoiceEngineHarnessHooks() {
         speechRecStop.mockReset();
         speechRecAbort.mockReset();
         speechRecRequestPermissionsAsync.mockReset();
-        audioStreamStart.mockReset();
-        audioStreamStop.mockReset();
-        sherpaStreamingCreate.mockReset();
-        sherpaStreamingPushFrame.mockReset();
-        sherpaStreamingFinish.mockReset();
-        sherpaStreamingCancel.mockReset();
-        ensureModelPackInstalled.mockReset();
-        resolveModelPackManifestUrl.mockReset();
-        audioStreamStart.mockResolvedValue({ streamId: 'audio-stream-1' });
-        audioStreamStop.mockResolvedValue(undefined);
-        sherpaStreamingPushFrame.mockResolvedValue({ text: '', isEndpoint: false });
-        sherpaStreamingFinish.mockResolvedValue({ text: '' });
-        sherpaStreamingCreate.mockResolvedValue(undefined);
-        sherpaStreamingCancel.mockResolvedValue(undefined);
-        ensureModelPackInstalled.mockResolvedValue({
-            packDirUri: 'file:///docs/happier/voice/modelPacks/dummy-pack',
-            manifest: {
-                packId: 'dummy-pack',
-                kind: 'stt_sherpa',
-                model: 'zipformer',
-                version: '1.0.0',
-                files: [{ path: 'tokens.txt', url: 'https://example.com/tokens.txt', sha256: 'a'.repeat(64), sizeBytes: 1 }],
-            },
-        });
-        resolveModelPackManifestUrl.mockReturnValue('https://example.com/manifest.json');
         isRuntimeFeatureEnabled.mockReset();
         isRuntimeFeatureEnabled.mockResolvedValue(true);
         speechRecRecognitionAvailable = true;

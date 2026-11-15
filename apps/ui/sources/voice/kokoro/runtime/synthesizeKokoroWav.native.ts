@@ -94,16 +94,8 @@ async function getSpeakerCountForAssetsDir(opts: {
   return promise;
 }
 
-function getOptionalNativeModuleFromWorkspace(): KokoroNativeModuleLike | null {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const mod = require('@happier-dev/sherpa-native') as any;
-    const getter = mod?.getOptionalHappierSherpaNativeModule;
-    if (typeof getter !== 'function') return null;
-    return (getter() as KokoroNativeModuleLike | null) ?? null;
-  } catch {
-    return null;
-  }
+function getNativeModule(overrides: NativeOverrides): KokoroNativeModuleLike | null {
+  return overrides.kokoroNativeModule ?? null;
 }
 
 async function getFs(overrides: NativeOverrides): Promise<NonNullable<NativeOverrides['fs']>> {
@@ -136,7 +128,7 @@ export async function synthesizeKokoroWav(
   },
   overrides: NativeOverrides = {},
 ): Promise<ArrayBuffer> {
-  const native = overrides.kokoroNativeModule ?? getOptionalNativeModuleFromWorkspace();
+  const native = getNativeModule(overrides);
   if (!native) {
     throw new Error('kokoro_native_module_unavailable');
   }
@@ -229,7 +221,7 @@ export async function prepareKokoroTts(
   },
   overrides: NativeOverrides = {},
 ): Promise<void> {
-  const native = overrides.kokoroNativeModule ?? getOptionalNativeModuleFromWorkspace();
+  const native = getNativeModule(overrides);
   if (!native) {
     throw new Error('kokoro_native_module_unavailable');
   }

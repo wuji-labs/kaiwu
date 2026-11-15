@@ -13,11 +13,6 @@ export type KokoroVoiceSummary = Readonly<{
 
 type InstallSummary = Awaited<ReturnType<typeof getModelPackInstallSummary>>;
 
-function uriToFilePath(uri: string): string {
-  if (uri.startsWith('file://')) return uri.slice('file://'.length);
-  return uri;
-}
-
 function normalizeManifestVoiceRow(row: unknown): KokoroVoiceSummary | null {
   if (!row || typeof row !== 'object') return null;
   const id = (row as any).id;
@@ -47,34 +42,6 @@ export function useLocalNeuralKokoroVoiceCatalog(params: {
         const rows = manifestVoices.map(normalizeManifestVoiceRow).filter((row): row is KokoroVoiceSummary => Boolean(row));
         if (!canceled) setVoices(rows);
         return;
-      }
-
-      if ((params.installSummary as any)?.installed && typeof (params.installSummary as any)?.packDirUri === 'string') {
-        const assetsDirUri = String((params.installSummary as any).packDirUri);
-        const assetsDirPath = uriToFilePath(assetsDirUri);
-
-        try {
-          // eslint-disable-next-line @typescript-eslint/no-var-requires
-          const pkg = require('@happier-dev/sherpa-native') as any;
-          const native =
-            typeof pkg?.getOptionalHappierSherpaNativeModule === 'function' ? pkg.getOptionalHappierSherpaNativeModule() : null;
-
-          if (native && typeof native.listVoices === 'function') {
-            const nativeVoices = await native.listVoices({ assetsDir: assetsDirPath });
-            const speakerCount = Array.isArray(nativeVoices) ? nativeVoices.length : null;
-            const catalog = getKokoroSherpaVoiceCatalogForSpeakerCount(speakerCount);
-            if (catalog) {
-              if (!canceled) setVoices(catalog.map((v) => ({ id: v.id, title: v.title, subtitle: v.subtitle })));
-              return;
-            }
-            if (speakerCount && speakerCount > 0) {
-              if (!canceled) setVoices(Array.from({ length: speakerCount }).map((_, i) => ({ id: `sid:${i}`, title: `Speaker ${i}` })));
-              return;
-            }
-          }
-        } catch {
-          // ignore
-        }
       }
 
       // Fallback: show a stable catalog so the dropdown is never empty.

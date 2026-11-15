@@ -177,6 +177,8 @@ function isTargetAlive(pid, boundary) {
   }
 }
 
+const WINDOWS_TREE_KILL_MIN_TIMEOUT_MS = 5_000;
+
 function normalizeStartSignal(signal) {
   const s = String(signal ?? '').trim().toUpperCase();
   if (s === 'SIGINT' || s === 'SIGTERM' || s === 'SIGKILL') return s;
@@ -219,8 +221,14 @@ export async function terminateProcessGroup(
   if (boundary.platform === 'win32') {
     // A leader-only soft signal cannot prove that its descendants exited. Windows taskkill /T /F
     // is the process-tree boundary, so invoke it while the observed leader is still alive.
-    const treeKilled = await forceKillWindowsProcessTree(n, Math.min(2_000, perSignalMs), boundary);
-    const exited = await waitForExit(n, Math.min(400, perSignalMs), boundary);
+    // The taskkill bound is independent of the soft-signal grace: graceMs only describes how long
+    // a cooperative shutdown may take, while taskkill /T /F is a forced tree walk whose own startup
+    // routinely exceeds a short grace (e.g. 50ms) on a loaded host. Tying the two together killed
+    // taskkill before it could act, left the whole tree alive, and pinned callers that hold the
+    // leader's stdio pipes (e.g. `daemon stop` timeouts hung forever on win32).
+    const treeKillTimeoutMs = Math.max(WINDOWS_TREE_KILL_MIN_TIMEOUT_MS, perSignalMs);
+    const treeKilled = await forceKillWindowsProcessTree(n, treeKillTimeoutMs, boundary);
+    const exited = await waitForExit(n, Math.max(400, Math.min(2_000, perSignalMs)), boundary);
     const finalIdentity = observeGroupIdentity();
     if (!exited && (finalIdentity.status === 'mismatch' || finalIdentity.status === 'inconclusive')) {
       return { ok: false, reason: finalIdentity.reason, signal: 'SIGKILL' };

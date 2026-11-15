@@ -4,7 +4,6 @@ import { sync } from '@/sync/sync';
 import { ensureVoiceConversationBindingResolution } from './resolveVoiceConversationSessionId';
 import { writeVoiceConversationBindingMetadata } from './voiceConversationBindingMetadata';
 import { createVoiceSessionBindingManager } from './voiceSessionBindingManager';
-import { appendVoiceTargetSessionSwitchNote } from './voiceSessionTargetAnnotations';
 
 export const voiceSessionBindingManager = createVoiceSessionBindingManager({
   resolveBinding: ({ adapterId, controlSessionId, requestedTargetSessionId }) =>
@@ -19,5 +18,4 @@ export const voiceSessionBindingManager = createVoiceSessionBindingManager({
       writeVoiceConversationBindingMetadata(metadata, binding),
     );
   },
-  appendTargetSwitchNote: appendVoiceTargetSessionSwitchNote,
 });
