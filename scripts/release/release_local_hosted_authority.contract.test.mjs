@@ -4,8 +4,9 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const repoRoot = resolve(new URL('../..', import.meta.url).pathname);
+const repoRoot = resolve(fileURLToPath(new URL('../..', import.meta.url)));
 const AUTHORIZED_DEV_SHA = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
 function executable(path, source) {

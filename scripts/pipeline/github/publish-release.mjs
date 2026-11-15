@@ -1,7 +1,7 @@
 // @ts-check
 
 import { parseArgs } from 'node:util';
-import { execFileSync } from 'node:child_process';
+import { execFileSync } from '../lib/portable-child-process.mjs';
 import { createHash } from 'node:crypto';
 import { createReadStream } from 'node:fs';
 import fs from 'node:fs';

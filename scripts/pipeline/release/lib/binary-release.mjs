@@ -3,7 +3,7 @@
 import { createReadStream, createWriteStream, readFileSync } from 'node:fs';
 import { cp, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, relative, resolve } from 'node:path';
-import { spawnSync } from 'node:child_process';
+import { spawnSync } from '../../lib/portable-child-process.mjs';
 import { fileURLToPath } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
 import { pipeline } from 'node:stream/promises';

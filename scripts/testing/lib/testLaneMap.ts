@@ -99,7 +99,6 @@ const ROOT_UNIT_PREFIXES = [
   'packages/cli-common/',
   'packages/connection-supervisor/',
   'packages/relay-server/',
-  'packages/sherpa-native/',
 ];
 
 export function resolveFeatureTagIssue(relativePath: string): string | null {

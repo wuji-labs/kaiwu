@@ -1,6 +1,6 @@
 // @ts-check
 
-import { execFileSync } from 'node:child_process';
+import { execFileSync } from '../lib/portable-child-process.mjs';
 
 /**
  * @typedef {(cmd: string, args: string[]) => unknown} ExecFn

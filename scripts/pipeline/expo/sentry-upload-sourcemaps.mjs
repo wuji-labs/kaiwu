@@ -1,7 +1,7 @@
 // @ts-check
 
 import fs from 'node:fs';
-import { spawnSync } from 'node:child_process';
+import { spawnSync } from '../lib/portable-child-process.mjs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

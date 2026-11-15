@@ -4,8 +4,9 @@ import { join } from 'node:path';
 import test from 'node:test';
 
 import YAML from 'yaml';
+import { fileURLToPath } from 'node:url';
 
-const repoRoot = new URL('../..', import.meta.url).pathname;
+const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
 
 function loadWorkflow() {
   return YAML.parse(readFileSync(join(repoRoot, '.github', 'workflows', 'extended-db-tests.yml'), 'utf8'), {

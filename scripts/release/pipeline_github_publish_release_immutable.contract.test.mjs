@@ -11,8 +11,9 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const repoRoot = resolve(new URL('../..', import.meta.url).pathname);
+const repoRoot = resolve(fileURLToPath(new URL('../..', import.meta.url)));
 const scriptPath = resolve(repoRoot, 'scripts/pipeline/github/publish-release.mjs');
 const targetSha = '0123456789abcdef0123456789abcdef01234567';
 

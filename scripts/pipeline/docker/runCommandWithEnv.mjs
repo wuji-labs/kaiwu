@@ -1,6 +1,6 @@
 // @ts-check
 
-import { execFileSync as nodeExecFileSync } from 'node:child_process';
+import { execFileSync as nodeExecFileSync } from '../lib/portable-child-process.mjs';
 
 import { resolveWindowsCommandInvocation } from '../lib/windows/resolveWindowsCommandInvocation.mjs';
 

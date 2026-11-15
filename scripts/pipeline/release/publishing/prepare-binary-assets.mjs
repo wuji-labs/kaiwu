@@ -1,6 +1,6 @@
 // @ts-check
 
-import { execFileSync } from 'node:child_process';
+import { execFileSync } from '../../lib/portable-child-process.mjs';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { copyFile, lstat, mkdir, readdir, rm } from 'node:fs/promises';
 import path from 'node:path';
@@ -13,6 +13,7 @@ import { resolveArtifactVerifyExecution, resolveArtifactVerifyTarget } from './a
 import { getBinaryPublishProductSpec } from './product-specs.mjs';
 import { finalizeServerRuntimeCandidate } from './server-runtime-candidate.mjs';
 import { maybeSignFile } from '../lib/minisign-signing.mjs';
+import { fileURLToPath } from 'node:url';
 
 const MANIFEST_PUBLISH_SCRIPT_RELATIVE_PATH = 'scripts/pipeline/release/publish-manifests.mjs';
 
@@ -467,7 +468,7 @@ export async function prepareBinaryAssetsMain(options = {}) {
   });
 }
 
-const isDirectEntry = process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname);
+const isDirectEntry = process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url));
 
 if (isDirectEntry) {
   prepareBinaryAssetsMain().catch((error) => {

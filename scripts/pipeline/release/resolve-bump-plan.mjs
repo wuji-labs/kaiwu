@@ -1,7 +1,7 @@
 // @ts-check
 
 import fs from 'node:fs';
-import { execFileSync } from 'node:child_process';
+import { execFileSync } from '../lib/portable-child-process.mjs';
 import { resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';

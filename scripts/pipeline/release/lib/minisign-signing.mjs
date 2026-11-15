@@ -1,6 +1,6 @@
 // @ts-check
 
-import { spawnSync } from 'node:child_process';
+import { spawnSync } from '../../lib/portable-child-process.mjs';
 import { rm } from 'node:fs/promises';
 
 import { prepareMinisignSecretKeyFile } from './minisign-secret-key.mjs';

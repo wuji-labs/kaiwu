@@ -3,7 +3,7 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { createHash } from 'node:crypto';
-import { execFileSync } from 'node:child_process';
+import { execFileSync } from '../lib/portable-child-process.mjs';
 import { parseArgs } from 'node:util';
 import { maybeUploadSentryExpoSourceMaps } from './sentry-upload-sourcemaps.mjs';
 import { withEasGitCaseSensitiveEnv } from './eas-git-case-sensitive-env.mjs';

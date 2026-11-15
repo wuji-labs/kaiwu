@@ -4,12 +4,39 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
 import test from 'node:test';
 
 const repoRoot = path.resolve(import.meta.dirname, '..', '..');
 
+// The distribution script resolves apps/ui/eas.json from its working directory. These tests
+// exercise ASC request mechanics against a mocked fetch, so they pin their own submit profile
+// instead of coupling to the product's real App Store Connect app (which may legitimately be
+// unprovisioned and fail closed for non-production lanes).
+const fixtureAscAppId = '6761304097';
+
+function writeFixtureSubmitProfile(fixtureRoot) {
+  const uiDir = path.join(fixtureRoot, 'apps', 'ui');
+  fs.mkdirSync(uiDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(uiDir, 'eas.json'),
+    JSON.stringify({
+      submit: {
+        publicdev: {
+          ios: {
+            ascAppId: fixtureAscAppId,
+            ascApiKeyId: 'FIXTUREKEY',
+            ascApiKeyIssuerId: '00000000-0000-4000-8000-000000000000',
+          },
+        },
+      },
+    }, null, 2),
+  );
+}
+
 test('TestFlight distribution mints a fresh App Store Connect token for every request', () => {
   const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'happier-testflight-token-refresh-'));
+  writeFixtureSubmitProfile(fixtureRoot);
   const preloadPath = path.join(fixtureRoot, 'mock-asc.mjs');
   const observedTokensPath = path.join(fixtureRoot, 'observed-tokens.jsonl');
   const { privateKey } = crypto.generateKeyPairSync('ec', { namedCurve: 'P-256' });
@@ -61,8 +88,8 @@ globalThis.fetch = async (url, init = {}) => {
       process.execPath,
       [
         '--import',
-        preloadPath,
-        'scripts/pipeline/expo/testflight-distribute.mjs',
+        pathToFileURL(preloadPath).href,
+        path.join(repoRoot, 'scripts', 'pipeline', 'expo', 'testflight-distribute.mjs'),
         '--environment=dev',
         '--external-groups=78315e16-c539-43ae-a65e-4f465dccaf68',
         '--build-number=271',
@@ -71,7 +98,7 @@ globalThis.fetch = async (url, init = {}) => {
         '--submit-beta-review=true',
       ],
       {
-        cwd: repoRoot,
+        cwd: fixtureRoot,
         encoding: 'utf8',
         env: {
           ...process.env,

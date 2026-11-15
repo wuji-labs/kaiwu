@@ -2,7 +2,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { execFileSync, spawn } from 'node:child_process';
+import { execFileSync, spawn } from '../lib/portable-child-process.mjs';
 import { parseArgs } from 'node:util';
 
 import { stageRepoForDagger } from './stage-repo-for-dagger.mjs';

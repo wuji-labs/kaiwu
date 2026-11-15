@@ -1,7 +1,7 @@
 // @ts-check
 
 import { parseArgs } from 'node:util';
-import { execFileSync } from 'node:child_process';
+import { execFileSync } from '../lib/portable-child-process.mjs';
 import fs from 'node:fs';
 
 const FULL_GIT_SHA = /^[a-f0-9]{40}$/;

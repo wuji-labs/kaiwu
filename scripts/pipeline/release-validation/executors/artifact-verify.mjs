@@ -1,6 +1,6 @@
 // @ts-check
 
-import { execFileSync } from 'node:child_process';
+import { execFileSync } from '../../lib/portable-child-process.mjs';
 import { existsSync } from 'node:fs';
 import { resolveArtifactVerifyExecution, resolveArtifactVerifyTarget } from '../../release/publishing/artifact-verify-target.mjs';
 

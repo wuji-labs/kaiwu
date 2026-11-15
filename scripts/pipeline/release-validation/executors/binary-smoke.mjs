@@ -1,6 +1,6 @@
 // @ts-check
 
-import { execFileSync } from 'node:child_process';
+import { execFileSync } from '../../lib/portable-child-process.mjs';
 import { resolve } from 'node:path';
 
 const BINARY_SMOKE_TIMEOUT_ARGS = ['--signal=KILL', '--kill-after=30s'];

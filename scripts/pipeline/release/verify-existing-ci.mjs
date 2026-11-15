@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // @ts-check
 
-import { spawnSync } from 'node:child_process';
+import { spawnSync } from '../lib/portable-child-process.mjs';
 import { appendFile, mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';

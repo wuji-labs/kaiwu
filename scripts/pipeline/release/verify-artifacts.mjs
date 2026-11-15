@@ -5,7 +5,7 @@
 import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { basename, join, resolve } from 'node:path';
-import { spawn, spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from '../lib/portable-child-process.mjs';
 
 import { fileSha256 } from './lib/release-files.mjs';
 import { parseArtifactFilename } from './lib/manifests.mjs';

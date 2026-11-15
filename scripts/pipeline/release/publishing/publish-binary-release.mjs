@@ -2,7 +2,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { execFileSync } from 'node:child_process';
+import { execFileSync } from '../../lib/portable-child-process.mjs';
 import { readdir, rm } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 
@@ -24,6 +24,7 @@ import { withCurrentVersionLine } from '../lib/rolling-release-notes.mjs';
 import { resolveGitHubRepoSlug } from '../../github/resolve-github-repo-slug.mjs';
 import { getBinaryPublishProductSpec } from './product-specs.mjs';
 import { inspectServerRuntimeCandidate } from './server-runtime-candidate.mjs';
+import { fileURLToPath } from 'node:url';
 
 const GITHUB_RELEASE_SCRIPT_RELATIVE_PATH = 'scripts/pipeline/github/publish-release.mjs';
 const ROLLING_PROMOTION_SCRIPT_RELATIVE_PATH = 'scripts/pipeline/github/promote-rolling-release.mjs';
@@ -423,7 +424,7 @@ export async function publishBinaryReleaseMain(options = {}) {
   }
 }
 
-const isDirectEntry = process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname);
+const isDirectEntry = process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url));
 
 if (isDirectEntry) {
   publishBinaryReleaseMain().catch((error) => {

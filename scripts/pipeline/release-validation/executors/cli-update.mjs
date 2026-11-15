@@ -1,6 +1,6 @@
 // @ts-check
 
-import { execFileSync } from 'node:child_process';
+import { execFileSync } from '../../lib/portable-child-process.mjs';
 import { existsSync, mkdirSync, readdirSync, statSync } from 'node:fs';
 import { basename, dirname, resolve } from 'node:path';
 

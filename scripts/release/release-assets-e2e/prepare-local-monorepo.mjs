@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { spawnSync } from 'node:child_process';
+import { spawnSync } from '../../pipeline/lib/portable-child-process.mjs';
 import fs from 'node:fs';
 import { dirname, join } from 'node:path';
 

@@ -1,6 +1,6 @@
 // @ts-check
 
-import { execFileSync, spawn } from 'node:child_process';
+import { execFileSync, spawn } from '../lib/portable-child-process.mjs';
 import { parseArgs } from 'node:util';
 import { resolveOptionalDockerBuildArgs } from './resolve-build-args.mjs';
 import { resolveDockerTagSpec } from './resolve-tag-spec.mjs';

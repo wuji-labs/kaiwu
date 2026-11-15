@@ -1,6 +1,6 @@
 // @ts-check
 
-import { execFileSync } from 'node:child_process';
+import { execFileSync } from '../../lib/portable-child-process.mjs';
 
 import { resolveGitHubRepoSlug } from '../../github/resolve-github-repo-slug.mjs';
 import { resolveRollingReleaseTagSuffix } from './public-release-rings.mjs';

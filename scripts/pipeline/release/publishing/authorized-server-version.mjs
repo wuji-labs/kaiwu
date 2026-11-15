@@ -4,6 +4,7 @@ import { lstat, readFile } from 'node:fs/promises';
 import { appendFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
+import { fileURLToPath } from 'node:url';
 
 const VERSION = /^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z][0-9A-Za-z.-]*)?$/;
 
@@ -45,7 +46,7 @@ async function main() {
   else process.stdout.write(`${version}\n`);
 }
 
-const isDirectEntry = process.argv[1] && resolve(process.argv[1]) === resolve(new URL(import.meta.url).pathname);
+const isDirectEntry = process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url));
 if (isDirectEntry) main().catch((error) => {
   console.error(error instanceof Error ? error.message : String(error));
   process.exit(1);

@@ -1,7 +1,8 @@
 #!/bin/sh
 set -eu
 
-providers_raw="${KAIWU_PROVIDER_CLIS:-}"
+# KAIWU_* is canonical since the rebrand; HAPPIER_* stays as the legacy fallback (same as the CLI/server).
+providers_raw="${KAIWU_PROVIDER_CLIS:-${HAPPIER_PROVIDER_CLIS:-}}"
 providers="$(printf "%s" "$providers_raw" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')"
 
 if [ -n "$providers" ]; then

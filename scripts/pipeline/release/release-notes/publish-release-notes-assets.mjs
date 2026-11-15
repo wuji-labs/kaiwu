@@ -19,10 +19,11 @@
  *   --dry-run                Print commands without executing.
  */
 
-import { execFileSync } from 'node:child_process';
+import { execFileSync } from '../../lib/portable-child-process.mjs';
 import { readFile, readdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const REQUIRED_BUNDLE_FILES = Object.freeze([
     'release-notes__manifest.json',
@@ -85,7 +86,7 @@ function run(cmd, args, opts) {
 
 async function main() {
     const { map } = parseFlags(process.argv.slice(2));
-    const repoRoot = resolve(new URL('../../../..', import.meta.url).pathname);
+    const repoRoot = resolve(fileURLToPath(new URL('../../../..', import.meta.url)));
     const inDir = resolve(map.get('in-dir') ?? join(repoRoot, 'dist/release-notes-assets'));
     const repo = map.get('repo') ?? 'happier-dev/happier-assets';
     const tag = map.get('tag') ?? 'release-notes';

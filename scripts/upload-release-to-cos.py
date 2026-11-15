@@ -4,8 +4,42 @@
 import os
 import sys
 import hashlib
+import subprocess
 from pathlib import Path
 from qcloud_cos import CosConfig, CosS3Client
+
+
+def trigger_post_publish_prune(repo_root: Path, keep: int = 2) -> bool:
+    """Post-publish hook: 就地触发开物制品生命周期裁剪，收敛至发版尾部。
+
+    契约去外化：消除宿主机周计划任务与倒挂长期密钥，由发布流水线当次鉴权上下文执行裁剪。
+    可通过环境变量 KAIWU_POST_PUBLISH_PRUNE=0 关闭。
+    """
+    flag = os.environ.get("KAIWU_POST_PUBLISH_PRUNE", "1").strip().lower()
+    if flag in ("0", "false", "no", "disable", "off"):
+        print("[HOOK] KAIWU_POST_PUBLISH_PRUNE is disabled, skipping post-publish prune.")
+        return False
+
+    print("\n--- [HOOK] Triggering Post-Publish Lifecycle Prune ---")
+    script = repo_root / "scripts" / "cos-prune-releases.py"
+    if not script.exists():
+        print(f"[HOOK WARN] Prune script not found at {script}, skipping.")
+        return False
+
+    try:
+        cmd = [sys.executable, str(script), "--keep", str(keep), "--apply"]
+        res = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        if res.stdout:
+            print(res.stdout.strip())
+        if res.returncode == 0:
+            print("[HOOK] Post-publish prune hook succeeded.")
+            return True
+        else:
+            print(f"[HOOK WARN] Post-publish prune hook exited with code {res.returncode}: {res.stderr}")
+            return False
+    except Exception as e:
+        print(f"[HOOK WARN] Post-publish prune hook encountered exception: {e}")
+        return False
 
 
 def calculate_sha256(filepath: Path) -> str:
@@ -161,6 +195,9 @@ def main():
     for r in results:
         print(f"- {r['key']}: {r['size']} bytes | sha256: {r['sha256']}")
         print(f"  URL: {r['url']}")
+
+    # 后置生命周期钩子：就地触发旧版本制品清理，复用发布当次环境与凭据
+    trigger_post_publish_prune(repo_root, keep=2)
 
 
 if __name__ == '__main__':

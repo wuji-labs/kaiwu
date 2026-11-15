@@ -2,7 +2,7 @@
 
 import path from 'node:path';
 import fs from 'node:fs';
-import { execFileSync } from 'node:child_process';
+import { execFileSync } from '../lib/portable-child-process.mjs';
 import { parseArgs } from 'node:util';
 
 import { ensureAscApiKeyFile } from './ensure-asc-api-key-file.mjs';

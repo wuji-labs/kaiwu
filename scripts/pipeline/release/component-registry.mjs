@@ -46,14 +46,6 @@ export const components = Object.freeze({
     id: 'releaseRuntime',
     changedPrefixes: ['packages/release-runtime/'],
   },
-  audioStreamNative: {
-    id: 'audioStreamNative',
-    changedPrefixes: ['packages/audio-stream-native/'],
-  },
-  sherpaNative: {
-    id: 'sherpaNative',
-    changedPrefixes: ['packages/sherpa-native/'],
-  },
   server: {
     id: 'server',
     changedPrefixes: ['apps/server/', 'packages/relay-server/', 'packages/privacy-kit/'],
@@ -86,7 +78,7 @@ export const versionedComponents = Object.freeze({
   app: {
     id: 'app',
     baselineTagPrefix: 'ui-web-v',
-    changedWhen: ['ui', 'bootstrap', 'shared', 'workspaceGraph', 'cliCommon', 'connectionSupervisor', 'transfers', 'releaseRuntime', 'audioStreamNative', 'sherpaNative'],
+    changedWhen: ['ui', 'bootstrap', 'shared', 'workspaceGraph', 'cliCommon', 'connectionSupervisor', 'transfers', 'releaseRuntime'],
   },
   cli: {
     id: 'cli',

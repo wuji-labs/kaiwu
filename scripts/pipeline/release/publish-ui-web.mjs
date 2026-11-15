@@ -3,7 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { rm } from 'node:fs/promises';
-import { execFileSync } from 'node:child_process';
+import { execFileSync } from '../lib/portable-child-process.mjs';
 import { parseArgs } from 'node:util';
 
 import {

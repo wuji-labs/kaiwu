@@ -4,6 +4,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const script = new URL('./resolve-server-promotion-inputs.mjs', import.meta.url);
 
@@ -13,7 +14,7 @@ function run(environment, sourceRef, allowCrossPromote) {
   const result = spawnSync(
     process.execPath,
     [
-      script.pathname,
+      fileURLToPath(script),
       '--environment', environment,
       '--source-ref', sourceRef,
       '--allow-cross-promote', String(allowCrossPromote),
@@ -42,7 +43,7 @@ test('auto resolves to the environment default source', () => {
     const root = mkdtempSync(join(tmpdir(), 'server-promotion-inputs-auto-'));
     const output = join(root, 'output');
     execFileSync(process.execPath, [
-      script.pathname,
+      fileURLToPath(script),
       '--environment', environment,
       '--source-ref', 'auto',
       '--allow-cross-promote', 'false',

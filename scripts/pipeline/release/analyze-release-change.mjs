@@ -2,7 +2,7 @@
 
 // @ts-check
 
-import { spawnSync } from 'node:child_process';
+import { spawnSync } from '../lib/portable-child-process.mjs';
 import { appendFile } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 import { pathToFileURL } from 'node:url';

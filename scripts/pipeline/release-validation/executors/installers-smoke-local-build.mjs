@@ -1,6 +1,6 @@
 // @ts-check
 
-import { execFileSync, spawnSync } from 'node:child_process';
+import { execFileSync, spawnSync } from '../../lib/portable-child-process.mjs';
 import { copyFile, mkdtemp, mkdir, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { delimiter, join, resolve } from 'node:path';

@@ -2,7 +2,7 @@
 
 import { parseArgs } from 'node:util';
 import { randomUUID } from 'node:crypto';
-import { execFileSync } from 'node:child_process';
+import { execFileSync } from '../lib/portable-child-process.mjs';
 
 function fail(message) {
   console.error(message);

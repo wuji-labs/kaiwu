@@ -14,8 +14,11 @@ import {
 import { tmpdir } from 'node:os';
 import { basename, join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
+import { writeFakeExecutable } from './fakeExecutableTestkit.mjs';
+import { fileURLToPath } from 'node:url';
+import { delimiter as pathDelimiter } from 'node:path';
 
-const repoRoot = resolve(new URL('../..', import.meta.url).pathname);
+const repoRoot = resolve(fileURLToPath(new URL('../..', import.meta.url)));
 const scriptPath = resolve(repoRoot, 'scripts/pipeline/github/promote-rolling-release.mjs');
 const nodeArchiveScript = resolve(repoRoot, 'scripts/pipeline/release/node-archive.mjs');
 const targetSha = '0123456789abcdef0123456789abcdef01234567';
@@ -26,8 +29,7 @@ function sha256(value) {
 }
 
 function writeExecutable(filePath, source) {
-  writeFileSync(filePath, source, { encoding: 'utf8', mode: 0o755 });
-  chmodSync(filePath, 0o755);
+  writeFakeExecutable(filePath, source);
 }
 
 function fixture({ missingRolling = false } = {}) {
@@ -449,7 +451,7 @@ test('rolling promotion removes an abandoned staging draft from an older target 
       cwd: repoRoot,
       env: {
         ...process.env,
-        PATH: `${testFixture.bin}:${process.env.PATH ?? ''}`,
+        PATH: `${testFixture.bin}${pathDelimiter}${process.env.PATH ?? ''}`,
       },
       encoding: 'utf8',
     });
@@ -479,7 +481,7 @@ test('rolling promotion sends release assets to the exact GitHub upload API host
       cwd: repoRoot,
       env: {
         ...process.env,
-        PATH: `${testFixture.bin}:${process.env.PATH ?? ''}`,
+        PATH: `${testFixture.bin}${pathDelimiter}${process.env.PATH ?? ''}`,
       },
       encoding: 'utf8',
     });
@@ -513,7 +515,7 @@ test('rolling promotion audits release assets without buffering their bytes in t
       cwd: repoRoot,
       env: {
         ...process.env,
-        PATH: `${testFixture.bin}:${process.env.PATH ?? ''}`,
+        PATH: `${testFixture.bin}${pathDelimiter}${process.env.PATH ?? ''}`,
       },
       encoding: 'utf8',
     });
@@ -535,7 +537,7 @@ test('rolling promotion rejects a channel alias whose downloaded bytes differ fr
       cwd: repoRoot,
       env: {
         ...process.env,
-        PATH: `${testFixture.bin}:${process.env.PATH ?? ''}`,
+        PATH: `${testFixture.bin}${pathDelimiter}${process.env.PATH ?? ''}`,
         HAPPIER_TEST_CORRUPT_ALIAS: '1',
       },
       encoding: 'utf8',
@@ -556,7 +558,7 @@ test('existing rolling replacement stages privately, restores after publish fail
   try {
     const env = {
       ...process.env,
-      PATH: `${testFixture.bin}:${process.env.PATH ?? ''}`,
+      PATH: `${testFixture.bin}${pathDelimiter}${process.env.PATH ?? ''}`,
       HAPPIER_TEST_FAIL_UPLOAD_NUMBER: '2',
     };
     const failed = spawnSync(process.execPath, args(), {
@@ -654,7 +656,7 @@ test('rolling promotion retries a transient GitHub asset upload connectivity fai
       cwd: repoRoot,
       env: {
         ...process.env,
-        PATH: `${testFixture.bin}:${process.env.PATH ?? ''}`,
+        PATH: `${testFixture.bin}${pathDelimiter}${process.env.PATH ?? ''}`,
         HAPPIER_TEST_TRANSIENT_UPLOAD_NUMBER: '1',
       },
       encoding: 'utf8',
@@ -678,7 +680,7 @@ test('rolling promotion outlasts four consecutive GitHub asset upload connection
       cwd: repoRoot,
       env: {
         ...process.env,
-        PATH: `${testFixture.bin}:${process.env.PATH ?? ''}`,
+        PATH: `${testFixture.bin}${pathDelimiter}${process.env.PATH ?? ''}`,
         HAPPIER_TEST_TRANSIENT_UPLOADS: '4',
         HAPPIER_PIPELINE_GH_ROLLING_UPLOAD_RETRY_DELAY_MS: '0',
       },
@@ -702,7 +704,7 @@ test('rolling promotion keeps repeated GitHub upload connection retries bounded'
       cwd: repoRoot,
       env: {
         ...process.env,
-        PATH: `${testFixture.bin}:${process.env.PATH ?? ''}`,
+        PATH: `${testFixture.bin}${pathDelimiter}${process.env.PATH ?? ''}`,
         HAPPIER_TEST_TRANSIENT_UPLOADS: '99',
         HAPPIER_PIPELINE_GH_ROLLING_UPLOAD_RETRY_DELAY_MS: '0',
       },
@@ -734,7 +736,7 @@ test('rolling promotion rejects an immutable tag whose SHA differs from the auth
         cwd: repoRoot,
         env: {
           ...process.env,
-          PATH: `${testFixture.bin}:${process.env.PATH ?? ''}`,
+          PATH: `${testFixture.bin}${pathDelimiter}${process.env.PATH ?? ''}`,
         },
         encoding: 'utf8',
       },
@@ -759,7 +761,7 @@ test('rolling promotion rejects an immutable release whose asset identity change
       cwd: repoRoot,
       env: {
         ...process.env,
-        PATH: `${testFixture.bin}:${process.env.PATH ?? ''}`,
+        PATH: `${testFixture.bin}${pathDelimiter}${process.env.PATH ?? ''}`,
         HAPPIER_TEST_SWAP_SOURCE_ASSET_ID: '1',
       },
       encoding: 'utf8',
@@ -779,7 +781,7 @@ test('a non-404 predecessor read failure aborts before any release or tag mutati
       cwd: repoRoot,
       env: {
         ...process.env,
-        PATH: `${testFixture.bin}:${process.env.PATH ?? ''}`,
+        PATH: `${testFixture.bin}${pathDelimiter}${process.env.PATH ?? ''}`,
         HAPPIER_TEST_FAIL_ROLLING_RELEASE_READ: '1',
       },
       encoding: 'utf8',
@@ -801,7 +803,7 @@ test('a transport failure while confirming deletion is not accepted as successfu
   try {
     const env = {
       ...process.env,
-      PATH: `${testFixture.bin}:${process.env.PATH ?? ''}`,
+      PATH: `${testFixture.bin}${pathDelimiter}${process.env.PATH ?? ''}`,
       HAPPIER_TEST_FAIL_DELETE_CONFIRM_READ: '1',
     };
     const result = spawnSync(process.execPath, args(), {
@@ -830,7 +832,7 @@ test('rolling promotion tolerates delayed visibility after a successful temporar
       cwd: repoRoot,
       env: {
         ...process.env,
-        PATH: `${testFixture.bin}:${process.env.PATH ?? ''}`,
+        PATH: `${testFixture.bin}${pathDelimiter}${process.env.PATH ?? ''}`,
         HAPPIER_TEST_STALE_DELETE_CONFIRM_READS: '2',
         HAPPIER_PIPELINE_GH_MUTATION_CONFIRM_RETRY_DELAY_MS: '0',
       },
@@ -861,7 +863,7 @@ test('retry restores a predecessor stranded under the deterministic backup tag b
       cwd: repoRoot,
       env: {
         ...process.env,
-        PATH: `${testFixture.bin}:${process.env.PATH ?? ''}`,
+        PATH: `${testFixture.bin}${pathDelimiter}${process.env.PATH ?? ''}`,
         HAPPIER_TEST_FAIL_UPLOAD_NUMBER: '1',
       },
       encoding: 'utf8',
@@ -883,7 +885,7 @@ test('an initially missing rolling release retries one private draft before publ
       cwd: repoRoot,
       env: {
         ...process.env,
-        PATH: `${testFixture.bin}:${process.env.PATH ?? ''}`,
+        PATH: `${testFixture.bin}${pathDelimiter}${process.env.PATH ?? ''}`,
         HAPPIER_TEST_FAIL_UPLOAD_NUMBER: '2',
       },
       encoding: 'utf8',
@@ -904,7 +906,7 @@ test('an initially missing rolling release retries one private draft before publ
       cwd: repoRoot,
       env: {
         ...process.env,
-        PATH: `${testFixture.bin}:${process.env.PATH ?? ''}`,
+        PATH: `${testFixture.bin}${pathDelimiter}${process.env.PATH ?? ''}`,
         HAPPIER_TEST_FAIL_UPLOAD_NUMBER: '0',
       },
       encoding: 'utf8',
@@ -932,7 +934,7 @@ test('draft creation uses the mutation response while GitHub release listings ar
       cwd: repoRoot,
       env: {
         ...process.env,
-        PATH: `${testFixture.bin}:${process.env.PATH ?? ''}`,
+        PATH: `${testFixture.bin}${pathDelimiter}${process.env.PATH ?? ''}`,
         HAPPIER_TEST_DELAY_DRAFT_VISIBILITY: '1',
       },
       encoding: 'utf8',

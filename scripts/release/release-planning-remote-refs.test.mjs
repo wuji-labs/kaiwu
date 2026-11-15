@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { delimiter, join, resolve } from 'node:path';
 
 import { resolveRemoteReleasePlanningRefs } from '../pipeline/release/lib/release-planning-remote-refs.mjs';
+import { fileURLToPath } from 'node:url';
 
 function git(cwd, args) {
   return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
@@ -123,7 +124,7 @@ test('remote release planning resolves and fetches immutable objects without cha
 });
 
 test('public deploy-plan command resolves current remote objects without changing heads, remotes, or tags', () => {
-  const sourceRepo = resolve(new URL('../..', import.meta.url).pathname);
+  const sourceRepo = resolve(fileURLToPath(new URL('../..', import.meta.url)));
   const root = mkdtempSync(join(tmpdir(), 'release-deploy-plan-refs-'));
   const remote = join(root, 'remote.git');
   const seed = join(root, 'seed');

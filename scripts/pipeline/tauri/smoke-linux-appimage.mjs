@@ -2,7 +2,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { spawn } from 'node:child_process';
+import { spawn } from '../lib/portable-child-process.mjs';
 import { parseArgs } from 'node:util';
 
 import { observeTauriStartup } from './linux-appimage-smoke-process.mjs';

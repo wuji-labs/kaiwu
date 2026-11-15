@@ -38,9 +38,6 @@ test('classifies package-local unit and contract tests through their existing ro
     'packages/privacy-kit/src/modules/tokens/ephemeral.spec.ts',
     'packages/privacy-kit/src/modules/tokens/persistent.spec.ts',
     'packages/privacy-kit/src/modules/tree/keyTree.spec.ts',
-    'packages/sherpa-native/scripts/resolve-sherpa-checksum.test.mjs',
-    'packages/sherpa-native/scripts/sherpa-checksum-integration.test.mjs',
-    'packages/sherpa-native/scripts/sherpa-native-build-configuration.test.mjs',
   ];
 
   for (const filePath of rootUnitTests) {

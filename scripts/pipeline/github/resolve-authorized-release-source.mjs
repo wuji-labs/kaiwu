@@ -1,9 +1,10 @@
 // @ts-check
 
-import { execFileSync } from 'node:child_process';
+import { execFileSync } from '../lib/portable-child-process.mjs';
 import { appendFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parseArgs } from 'node:util';
+import { fileURLToPath } from 'node:url';
 
 const FULL_SHA = /^[a-f0-9]{40}$/;
 const SAFE_REF = /^(?!.*(?:\.\.|@\{|\/\/))[A-Za-z0-9][A-Za-z0-9._/-]*[A-Za-z0-9]$|^[A-Za-z0-9]$/;
@@ -97,7 +98,7 @@ async function main() {
   }
 }
 
-const isDirectEntry = process.argv[1] && resolve(process.argv[1]) === resolve(new URL(import.meta.url).pathname);
+const isDirectEntry = process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url));
 if (isDirectEntry) {
   main().catch((error) => {
     console.error(error instanceof Error ? error.message : String(error));

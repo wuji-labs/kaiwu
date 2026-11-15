@@ -20,8 +20,9 @@ import { createHash } from 'node:crypto';
 import { copyFile, mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, resolve, relative, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const REPO_ROOT = resolve(new URL('../../../..', import.meta.url).pathname);
+const REPO_ROOT = resolve(fileURLToPath(new URL('../../../..', import.meta.url)));
 const MANIFEST_PATH = join(REPO_ROOT, 'apps/ui/sources/changelog/releaseNotes/manifest.generated.json');
 const AUTHORED_ASSETS_DIR = join(REPO_ROOT, 'apps/ui/release-notes/assets');
 

@@ -3,8 +3,9 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import test from 'node:test';
 import YAML from 'yaml';
+import { fileURLToPath } from 'node:url';
 
-const repoRoot = resolve(new URL('../..', import.meta.url).pathname);
+const repoRoot = resolve(fileURLToPath(new URL('../..', import.meta.url)));
 
 function workflow(name) {
   return YAML.parse(readFileSync(resolve(repoRoot, '.github/workflows', name), 'utf8'));

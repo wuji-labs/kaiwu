@@ -1,7 +1,7 @@
 // @ts-check
 
 import { access, chmod, copyFile, mkdtemp } from 'node:fs/promises';
-import { execFileSync } from 'node:child_process';
+import { execFileSync } from '../../lib/portable-child-process.mjs';
 import { delimiter, join, resolve, win32 as pathWin32 } from 'node:path';
 import { tmpdir } from 'node:os';
 

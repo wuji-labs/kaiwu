@@ -1,6 +1,6 @@
 // @ts-check
 
-import { execFileSync, spawnSync } from 'node:child_process';
+import { execFileSync, spawnSync } from '../lib/portable-child-process.mjs';
 
 /** @param {string} token */
 export function buildGitHubGitAuthorizationHeader(token) {

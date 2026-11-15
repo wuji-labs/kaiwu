@@ -31,13 +31,14 @@ mkdir -p squashfs-root
 cat > squashfs-root/AppRun <<'APP_RUN'
 #!/usr/bin/env node
 import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 setTimeout(() => fs.writeFileSync(process.env.HAPPIER_TAURI_STARTUP_MARKER, '{"phase":"ready"}\\n'), 200);
 setInterval(() => {}, 30_000);
 APP_RUN
 chmod +x squashfs-root/AppRun
 `);
 
-  const output = execFileSync(process.execPath, [smokeScript.pathname, '--appimage', appImage, '--duration', '3'], {
+  const output = execFileSync(process.execPath, [fileURLToPath(smokeScript), '--appimage', appImage, '--duration', '3'], {
     env: { ...process.env, PATH: `${binDir}${path.delimiter}${process.env.PATH ?? ''}` },
     encoding: 'utf8',
     timeout: 10_000,

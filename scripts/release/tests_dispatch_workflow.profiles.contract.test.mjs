@@ -5,8 +5,9 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
 import YAML from 'yaml';
+import { fileURLToPath } from 'node:url';
 
-const repoRoot = new URL('../..', import.meta.url).pathname;
+const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
 const workflow = YAML.parse(readFileSync(join(repoRoot, '.github', 'workflows', 'tests-dispatch.yml'), 'utf8'));
 const resolver = workflow.jobs.resolve.steps.find((step) => step.id === 'flags');
 

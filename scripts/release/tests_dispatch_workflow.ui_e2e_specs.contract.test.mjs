@@ -2,8 +2,9 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import test from 'node:test';
+import { fileURLToPath } from 'node:url';
 
-const repoRoot = new URL('../..', import.meta.url).pathname;
+const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
 
 test('manual tests dispatch can run an exact bounded UI E2E spec selection', async () => {
   const dispatch = await readFile(join(repoRoot, '.github', 'workflows', 'tests-dispatch.yml'), 'utf8');

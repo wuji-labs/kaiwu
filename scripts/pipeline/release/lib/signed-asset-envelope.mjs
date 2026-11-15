@@ -2,7 +2,7 @@
 
 import { existsSync } from 'node:fs';
 import { lstat, rm, writeFile } from 'node:fs/promises';
-import { spawnSync } from 'node:child_process';
+import { spawnSync } from '../../lib/portable-child-process.mjs';
 import { basename, join, resolve } from 'node:path';
 
 import { fileSha256 } from './release-files.mjs';

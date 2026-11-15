@@ -4,13 +4,40 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
 import test from 'node:test';
 
 const repoRoot = path.resolve(import.meta.dirname, '..', '..');
+
+// The distribution script resolves apps/ui/eas.json from its working directory. These tests
+// exercise ASC request mechanics against a mocked fetch, so they pin their own submit profile
+// instead of coupling to the product's real App Store Connect app (which may legitimately be
+// unprovisioned and fail closed for non-production lanes).
+const fixtureAscAppId = '6761304097';
+
+function writeFixtureSubmitProfile(fixtureRoot) {
+  const uiDir = path.join(fixtureRoot, 'apps', 'ui');
+  fs.mkdirSync(uiDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(uiDir, 'eas.json'),
+    JSON.stringify({
+      submit: {
+        publicdev: {
+          ios: {
+            ascAppId: fixtureAscAppId,
+            ascApiKeyId: 'FIXTUREKEY',
+            ascApiKeyIssuerId: '00000000-0000-4000-8000-000000000000',
+          },
+        },
+      },
+    }, null, 2),
+  );
+}
 const validGroupId = '11111111-2222-4333-8444-555555555555';
 
 function runValidation(selection) {
   const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'happier-testflight-groups-'));
+  writeFixtureSubmitProfile(fixtureRoot);
   const preloadPath = path.join(fixtureRoot, 'mock-asc.mjs');
   const { privateKey } = crypto.generateKeyPairSync('ec', { namedCurve: 'P-256' });
   const privateKeyPem = privateKey.export({ format: 'pem', type: 'pkcs8' }).toString();
@@ -37,14 +64,14 @@ function runValidation(selection) {
     process.execPath,
     [
       '--import',
-      preloadPath,
-      'scripts/pipeline/expo/testflight-distribute.mjs',
+      pathToFileURL(preloadPath).href,
+      path.join(repoRoot, 'scripts', 'pipeline', 'expo', 'testflight-distribute.mjs'),
       '--environment=dev',
       `--external-groups=${selection}`,
       '--validate-groups-only',
     ],
     {
-      cwd: repoRoot,
+      cwd: fixtureRoot,
       encoding: 'utf8',
       env: { ...process.env, APPLE_API_PRIVATE_KEY: privateKeyPem },
     },

@@ -1,6 +1,6 @@
 // @ts-check
 
-import { spawnSync } from 'node:child_process';
+import { spawnSync } from '../lib/portable-child-process.mjs';
 
 export function assertSecurityCliAvailable() {
   const res = spawnSync('security', [], { stdio: 'ignore' });

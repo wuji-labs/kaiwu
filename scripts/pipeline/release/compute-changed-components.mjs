@@ -1,6 +1,6 @@
 // @ts-check
 
-import { spawnSync } from 'node:child_process';
+import { spawnSync } from '../lib/portable-child-process.mjs';
 import fs from 'node:fs';
 import { classifyChangedPaths, deriveVersionedComponentChanges } from './component-registry.mjs';
 import { classifyReleaseValidationRisks } from '../release-validation/release-risk.mjs';

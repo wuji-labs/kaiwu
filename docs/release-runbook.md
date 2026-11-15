@@ -25,8 +25,8 @@ node scripts/release-web.mjs
 3. **上传前先核对包内容**：解开 `kaiwu-v<X>-windows-x64.tar.gz`，确认 `package-dist/.build-manifest.json` 里的 `buildVersion` 正确，并在打包后的代码里 grep 出本次改动的特征字符串。
 4. 手写 `dist/release-assets/cli/latest.json`（`version`、`tgz`、`windows_x64` 以及两个 sha256），先备份旧文件。
 5. 把 `apps/website/public/install.ps1` / `install.sh` 里的兜底版本（`DEFAULT_VERSION` 和 sha256）改成新版本，然后提交。
-6. `python scripts/upload-release-to-cos.py`：上传产物、`latest.json` 和安装脚本，并逐个校验。
-7. 清理旧版本：`python scripts/cos-prune-releases.py --apply`（见第 4 节）。
+6. `python scripts/upload-release-to-cos.py`：上传产物、`latest.json` 和安装脚本，逐个校验，并自动触发 post-publish hook 就地执行 COS 旧版本清理（复用当次鉴权凭据）。
+7. （可选）手动复核旧版本清理状态：`python scripts/cos-prune-releases.py`（见第 4 节）。
 
 **安装到本机**：`pwsh -File apps/website/public/install.ps1`。安装脚本会先把被后台服务锁住的 `kaiwu.exe` 改名挪开，robocopy 的重试次数也有上限。随后用 `kaiwu service restart`（0.2.22 起会确认守护进程已起来且版本一致，否则自动回滚服务脚本）。
 - 重启会结束开物后台及其会话进程树。如果要从开物会话里触发重启，必须把重启脚本放到会话进程树**之外**运行（例如用 `Win32_Process.Create` 启动），否则脚本会和会话一起被结束。
@@ -41,10 +41,11 @@ gh run watch <id> --exit-status; gh run download <id> -D dist/ios/<版本>
 - **不能用 COS 默认域名分发 IPA/APK**（COS 会返回 `DownloadForbidden`）。IPA 放到服务器 `/opt/wuji-kaiwu/docs/html/releases/mobile/kaiwu.ipa`，经 `https://kaiwu.wujilabs.cn/download/ios` 下载（Caddy `chengqiyun-caddy-1` 里配置的 302 跳转）。APK 同理：`/download/android`。
 - 修改 Caddyfile 前先备份，然后在 `chengqiyun-caddy-1` 里依次执行 `caddy validate` 和 `caddy reload`。**注意**：`huaxu-baoguang-web-1` 也用 Caddy 镜像，按镜像名匹配容器会选错。
 
-## 4. COS 旧包清理
+## 4. COS 旧包清理（发版流水线后置内聚）
+- 机制：制品生命周期已收敛内聚至发布脚本 `scripts/upload-release-to-cos.py` 的 post-publish hook，发版完成自动清理历史旧版本，无须等待宿主机周任务，彻底消除 7 天滞留窗口与母体倒挂密钥。
 - 规则：只保留最新 2 个版本。`latest.json` 指向的版本和安装脚本里的兜底版本永远不删。
 - 手动执行：`python scripts/cos-prune-releases.py`（默认只列出将删除的内容），加 `--apply` 才真正删除。
-- 定期执行：Windows 计划任务 `WUJI-Kaiwu-COS-Prune`，每周日 03:30，运行 `scripts/cos-prune-releases.ps1`；日志在 `~\.kaiwu-ops\cos-prune.log`。
+- 宿主机计划任务：母体 Windows 计划任务 `WUJI-Kaiwu-COS-Prune` 已在 FixedTask 登记与收敛台账中声明 `retired` 退役。
 
 ## 5. 文档站（kaiwu.wujilabs.cn/docs）
 1. 构建：`yarn --cwd apps/docs build`，输出目录 `apps/docs/out`。

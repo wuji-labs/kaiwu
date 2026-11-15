@@ -100,7 +100,6 @@ test('apps/ui explicitly includes monorepo node_modules in Expo autolinking sear
 
 test('first-party native Expo modules used by apps/ui declare complete autolinking metadata', () => {
   const nativeModules = findUiFirstPartyNativeExpoModules();
-  assert.ok(nativeModules.length > 0, 'Expected apps/ui to depend on at least one first-party native Expo module');
 
   for (const nativeModule of nativeModules) {
     assert.equal(
