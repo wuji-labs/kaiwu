@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { db } from "@/storage/db";
 import { Context } from "@/context";
-import { UsernameTakenError, usernameUpdate } from "@/app/social/usernameUpdate";
-import { resolveFriendsPolicyFromServerFeatures } from "@/app/social/resolveFriendsPolicyFromServerFeatures";
-import { validateUsername } from "@/app/social/usernamePolicy";
+import { UsernameTakenError, usernameUpdate } from "@/app/account/username/usernameUpdate";
+import { isServerFeatureEnabledForRequest } from "@/app/features/catalog/serverFeatureGate";
+import { validateUsername } from "@/app/account/username/usernamePolicy";
 import { type Fastify } from "../../types";
 
 export function registerAccountUsernameRoute(app: Fastify): void {
@@ -20,27 +20,8 @@ export function registerAccountUsernameRoute(app: Fastify): void {
             },
         },
     }, async (request, reply) => {
-        const friendsPolicy = resolveFriendsPolicyFromServerFeatures(process.env);
-        if (!friendsPolicy.enabled) {
+        if (!isServerFeatureEnabledForRequest("social.friends", process.env)) {
             return reply.code(400).send({ error: 'friends-disabled' });
-        }
-        if (!friendsPolicy.allowUsername) {
-            if (!friendsPolicy.requiredIdentityProviderId) {
-                return reply.code(400).send({ error: 'username-disabled' });
-            }
-            const current = await db.account.findUnique({
-                where: { id: request.userId },
-                select: {
-                    AccountIdentity: {
-                        where: { provider: friendsPolicy.requiredIdentityProviderId },
-                        select: { id: true },
-                        take: 1,
-                    },
-                },
-            });
-            if (!current || current.AccountIdentity.length === 0) {
-                return reply.code(400).send({ error: 'username-disabled' });
-            }
         }
 
         const validation = validateUsername(request.body.username, process.env);

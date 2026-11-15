@@ -1,5 +1,4 @@
 import { getPublicUrl, ImageRef } from "@/storage/blob/files";
-import type { RelationshipStatus } from "@/storage/prisma";
 import * as privacyKit from "privacy-kit";
 import type { UserProfile } from "@happier-dev/protocol";
 import { findIdentityProviderById } from "@/app/auth/providers/identityProviders/registry";
@@ -68,7 +67,7 @@ export function buildUserProfile(
         contentPublicKey: Uint8Array<ArrayBuffer> | null;
         contentPublicKeySig: Uint8Array<ArrayBuffer> | null;
     },
-    status: RelationshipStatus,
+    status: UserProfile["status"],
     identities: readonly SocialIdentity[]
 ): UserProfile {
     const avatarJson = account.avatar;

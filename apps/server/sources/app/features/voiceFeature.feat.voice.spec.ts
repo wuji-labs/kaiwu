@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { resolveVoiceFeature } from './voiceFeature';
 
 describe('features/voiceFeature', () => {
-  it('keeps voice enabled while marking Happier Voice unavailable when ElevenLabs is not configured', () => {
+  it('keeps removed voice disabled while marking Happier Voice unavailable when ElevenLabs is not configured', () => {
     const res = resolveVoiceFeature({
       NODE_ENV: 'production',
       KAIWU_FEATURE_VOICE__ENABLED: 'true',
@@ -11,13 +11,13 @@ describe('features/voiceFeature', () => {
       // Missing ELEVENLABS_* env vars
     } as any);
 
-    expect(res.features?.voice?.enabled).toBe(true);
+    expect(res.features?.voice?.enabled).toBe(false);
     expect((res.features as any)?.voice?.happierVoice?.enabled).toBe(false);
     expect(res.capabilities?.voice?.configured).toBe(false);
     expect(res.capabilities?.voice?.provider).toBe(null);
   });
 
-  it('treats ELEVENLABS_AGENT_ID as configured in non-production', () => {
+  it('keeps the removed voice gate disabled when configured in non-production', () => {
     const res = resolveVoiceFeature({
       NODE_ENV: 'development',
       KAIWU_FEATURE_VOICE__ENABLED: 'true',
@@ -27,8 +27,8 @@ describe('features/voiceFeature', () => {
     } as any);
 
     expect(res.capabilities?.voice?.configured).toBe(true);
-    expect(res.features?.voice?.enabled).toBe(true);
-    expect((res.features as any)?.voice?.happierVoice?.enabled).toBe(true);
+    expect(res.features?.voice?.enabled).toBe(false);
+    expect((res.features as any)?.voice?.happierVoice?.enabled).toBe(false);
     expect(res.capabilities?.voice?.provider).toBe('elevenlabs');
   });
 
@@ -42,8 +42,8 @@ describe('features/voiceFeature', () => {
     } as any);
 
     expect(res.capabilities?.voice?.configured).toBe(true);
-    expect(res.features?.voice?.enabled).toBe(true);
-    expect((res.features as any)?.voice?.happierVoice?.enabled).toBe(true);
+    expect(res.features?.voice?.enabled).toBe(false);
+    expect((res.features as any)?.voice?.happierVoice?.enabled).toBe(false);
   });
 
   it('prefers ELEVENLABS_AGENT_ID_PROD in production when set', () => {
@@ -57,8 +57,8 @@ describe('features/voiceFeature', () => {
     } as any);
 
     expect(res.capabilities?.voice?.configured).toBe(true);
-    expect(res.features?.voice?.enabled).toBe(true);
-    expect((res.features as any)?.voice?.happierVoice?.enabled).toBe(true);
+    expect(res.features?.voice?.enabled).toBe(false);
+    expect((res.features as any)?.voice?.happierVoice?.enabled).toBe(false);
   });
 
   it('falls back to ELEVENLABS_AGENT_ID in production when prod override is missing', () => {
@@ -71,7 +71,7 @@ describe('features/voiceFeature', () => {
     } as any);
 
     expect(res.capabilities?.voice?.configured).toBe(true);
-    expect(res.features?.voice?.enabled).toBe(true);
-    expect((res.features as any)?.voice?.happierVoice?.enabled).toBe(true);
+    expect(res.features?.voice?.enabled).toBe(false);
+    expect((res.features as any)?.voice?.happierVoice?.enabled).toBe(false);
   });
 });

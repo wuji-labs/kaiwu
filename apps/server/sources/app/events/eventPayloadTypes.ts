@@ -134,32 +134,6 @@ export type UpdateEvent = {
     changedByAccountId?: string;
     pendingActivationAuthorization?: import('@happier-dev/protocol').PendingActivationAuthorizationV1 | null;
 } | {
-    type: 'automation-upsert';
-    automationId: string;
-    version: number;
-    enabled: boolean;
-    updatedAt: number;
-} | {
-    type: 'automation-delete';
-    automationId: string;
-    deletedAt: number;
-} | {
-    type: 'automation-run-updated';
-    runId: string;
-    automationId: string;
-    state: 'queued' | 'claimed' | 'running' | 'succeeded' | 'failed' | 'cancelled' | 'expired';
-    scheduledAt: number;
-    startedAt?: number | null;
-    finishedAt?: number | null;
-    updatedAt: number;
-    machineId?: string | null;
-} | {
-    type: 'automation-assignment-updated';
-    machineId: string;
-    automationId: string;
-    enabled: boolean;
-    updatedAt: number;
-} | {
     type: 'update-account';
     userId: string;
     settings?: {
@@ -211,44 +185,8 @@ export type UpdateEvent = {
     replacementSource?: string | null;
     replacementActorUserId?: string | null;
 } | {
-    type: 'new-artifact';
-    artifactId: string;
-    seq: number;
-    header: string;
-    headerVersion: number;
-    body: string;
-    bodyVersion: number;
-    dataEncryptionKey: string | null;
-    createdAt: number;
-    updatedAt: number;
-} | {
-    type: 'update-artifact';
-    artifactId: string;
-    header?: {
-        value: string;
-        version: number;
-    };
-    body?: {
-        value: string;
-        version: number;
-    };
-} | {
-    type: 'delete-artifact';
-    artifactId: string;
-} | {
     type: 'delete-session';
     sessionId: string;
-} | {
-    type: 'relationship-updated';
-    uid: string;
-    status: 'none' | 'requested' | 'pending' | 'friend' | 'rejected';
-    timestamp: number;
-} | {
-    type: 'new-feed-post';
-    id: string;
-    body: any;
-    cursor: string;
-    createdAt: number;
 } | {
     type: 'kv-batch-update';
     changes: Array<{

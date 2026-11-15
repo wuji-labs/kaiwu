@@ -24,7 +24,6 @@ import {
     deleteProviderAccountUsageRecordsForAccount,
 } from "@/app/api/routes/connect/providerAccountUsage";
 import { recordConnectedServiceAccountProfileChange } from "@/app/api/routes/connect/connectedServicesAccountProfileChange";
-import { AutomationValidationError, parseAutomationPatchInput } from "@/app/automations/automationValidation";
 import { markAccountChanged } from "@/app/changes/markAccountChanged";
 import { eventRouter } from "@/app/events/eventRouter";
 import { buildAccountSettingsChangedUpdate } from "@/app/events/eventPayloadBuilders";
@@ -194,19 +193,6 @@ export function registerAccountEncryptionMigrateRoutes(app: Fastify): void {
                     }
                     for (const id of existingIds) {
                         if (!incomingIds.has(id)) return { type: "automations-migration-incomplete" as const };
-                    }
-                    for (const item of automations.templates) {
-                        try {
-                            parseAutomationPatchInput(
-                                { templateCiphertext: item.templateCiphertext },
-                                { accountMode: toMode },
-                            );
-                        } catch (error) {
-                            if (error instanceof AutomationValidationError) {
-                                return { type: "invalid-params" as const };
-                            }
-                            throw error;
-                        }
                     }
                 }
 

@@ -14,22 +14,18 @@ import { startSocket } from "./socket";
 import { machinesRoutes } from "./routes/machines/machinesRoutes";
 import { devRoutes } from "./routes/dev/devRoutes";
 import { versionRoutes } from "./routes/version/versionRoutes";
-import { voiceRoutes } from "./routes/voice/voiceRoutes";
-import { artifactsRoutes } from "./routes/artifacts/artifactsRoutes";
 import { accessKeysRoutes } from "./routes/accessKeys/accessKeysRoutes";
 import { enableMonitoring } from "./utils/enableMonitoring";
 import { enableErrorHandlers } from "./utils/enableErrorHandlers";
 import { enableAuthentication } from "./utils/enableAuthentication";
 import { enableOptionalStatics } from "./utils/enableOptionalStatics";
 import { userRoutes } from "./routes/user/userRoutes";
-import { feedRoutes } from "./routes/feed/feedRoutes";
 import { kvRoutes } from "./routes/kv/kvRoutes";
 import { shareRoutes } from "./routes/share/shareRoutes";
 import { publicShareRoutes } from "./routes/share/publicShareRoutes";
 import { featuresRoutes } from "./routes/features/featuresRoutes";
 import { sessionPendingRoutes } from "./routes/session/pendingRoutes";
 import { bugReportDiagnosticsRoutes } from "./routes/diagnostics/bugReportDiagnosticsRoutes";
-import { automationRoutes } from "./routes/automations/automationRoutes";
 import { V2_SESSION_LIST_SERVER_TIMING_REQUEST_HEADER } from "./routes/session/v2SessionListServerTiming";
 import { resolveApiRateLimitPluginOptions, resolveApiTrustProxy } from "./utils/apiRateLimitPolicy";
 
@@ -115,20 +111,16 @@ export async function startApi() {
     changesRoutes(typed);
     connectRoutes(typed);
     machinesRoutes(typed);
-    artifactsRoutes(typed);
     accessKeysRoutes(typed);
     devRoutes(typed);
     versionRoutes(typed);
     featuresRoutes(typed);
     bugReportDiagnosticsRoutes(typed);
     sessionPendingRoutes(typed);
-    voiceRoutes(typed);
     userRoutes(typed);
-    feedRoutes(typed);
     kvRoutes(typed);
     shareRoutes(typed);
     publicShareRoutes(typed);
-    automationRoutes(typed);
 
     // Start HTTP 
     const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3005;

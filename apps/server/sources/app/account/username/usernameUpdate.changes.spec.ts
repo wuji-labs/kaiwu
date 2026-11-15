@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { createDbMocks, installDbModuleMock } from "../api/testkit/dbMocks";
-import { createInTxHarness } from "../api/testkit/txHarness";
+import { createDbMocks, installDbModuleMock } from "../../api/testkit/dbMocks";
+import { createInTxHarness } from "../../api/testkit/txHarness";
 
 const emitUpdate = vi.fn();
 const buildUpdateAccountUpdate = vi.fn((_userId: string, _profile: any, updSeq: number, updId: string) => ({

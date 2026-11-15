@@ -5,7 +5,6 @@ import { createLightSqliteHarness, type LightSqliteHarness } from "@/testkit/lig
 import { withAuthenticatedTestApp } from "../../testkit/sqliteFastify";
 import { registerConnectedServiceCredentialRoutesV2 } from "../connect/connectedServicesV2/registerConnectedServiceCredentialRoutesV2";
 import { registerConnectedServiceCredentialRoutesV3 } from "../connect/connectedServicesV3/registerConnectedServiceCredentialRoutesV3";
-import { registerAutomationCrudRoutes } from "../automations/registerAutomationCrudRoutes";
 import { accountRoutes } from "./accountRoutes";
 
 function deferred(): Readonly<{ promise: Promise<void>; resolve: () => void }> {
@@ -377,70 +376,6 @@ describe("accountRoutes (encryption mode integration)", () => {
         } else {
             expect(storedCredential?.metadata).toMatchObject({ v: 2, format: "account_scoped_v1" });
         }
-    });
-
-    it("serializes a plain automation create against a plain-to-e2ee mode PATCH", async () => {
-        harness.resetEnv({
-            HAPPIER_FEATURE_ENCRYPTION__STORAGE_POLICY: "optional",
-            HAPPIER_FEATURE_ENCRYPTION__ALLOW_ACCOUNT_OPTOUT: "1",
-        });
-        const account = await db.account.create({
-            data: { publicKey: "pk-account-automation-mode-race", encryptionMode: "plain" },
-            select: { id: true },
-        });
-        const plainTemplateCiphertext = JSON.stringify({
-            kind: "happier_automation_template_plain_v1",
-            payload: { prompt: "must not survive an e2ee flip" },
-        });
-
-        await withAuthenticatedTestApp(
-            (app) => {
-                accountRoutes(app as any);
-                registerAutomationCrudRoutes(app as any);
-            },
-            async (app) => {
-                const barrier = installAccountModeReadBarrier(account.id);
-                try {
-                    const automationCreate = app.inject({
-                        method: "POST",
-                        url: "/v2/automations",
-                        headers: { "content-type": "application/json", "x-test-user-id": account.id },
-                        payload: {
-                            name: "Plain snapshot race",
-                            enabled: false,
-                            schedule: { kind: "interval", everyMs: 60_000 },
-                            targetType: "new_session",
-                            templateCiphertext: plainTemplateCiphertext,
-                            assignments: [],
-                        },
-                    });
-                    await barrier.modeObserved;
-
-                    const modePatch = await app.inject({
-                        method: "PATCH",
-                        url: "/v1/account/encryption",
-                        headers: { "content-type": "application/json", "x-test-user-id": account.id },
-                        payload: { mode: "e2ee" },
-                    });
-                    expect(modePatch.statusCode).toBe(200);
-
-                    barrier.release();
-                    const automationResult = await automationCreate;
-                    expect(automationResult.statusCode).toBe(400);
-                    expect(automationResult.json()).toEqual({
-                        error: "templateCiphertext: expected encrypted template envelope",
-                    });
-                } finally {
-                    barrier.restore();
-                }
-            },
-        );
-
-        await expect(db.account.findUniqueOrThrow({
-            where: { id: account.id },
-            select: { encryptionMode: true },
-        })).resolves.toEqual({ encryptionMode: "e2ee" });
-        await expect(db.automation.count({ where: { accountId: account.id } })).resolves.toBe(0);
     });
 
     it("rejects a mode PATCH after a first V3 credential write wins", async () => {

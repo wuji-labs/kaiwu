@@ -10,7 +10,7 @@ import { encryptString } from "@/modules/encrypt";
 import { findOAuthProviderById } from "@/app/oauth/providers/registry";
 import { db } from "@/storage/db";
 import { randomKeyNaked } from "@/utils/keys/randomKeyNaked";
-import { validateUsername } from "@/app/social/usernamePolicy";
+import { validateUsername } from "@/app/account/username/usernamePolicy";
 import { deleteOAuthStateAttemptBestEffort, loadValidOAuthStateAttempt } from "../connectRoutes.oauthStateAttempt";
 import { log } from "@/utils/logging/log";
 import { isServerFeatureEnabledForRequest } from "@/app/features/catalog/serverFeatureGate";

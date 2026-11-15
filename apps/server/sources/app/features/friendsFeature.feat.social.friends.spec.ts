@@ -3,9 +3,9 @@ import { describe, expect, it } from "vitest";
 import { resolveFriendsFeature } from "./friendsFeature";
 
 describe("resolveFriendsFeature", () => {
-    it("defaults to friends enabled when username identity is allowed", () => {
+    it("defaults to friends disabled after route removal", () => {
         const feature = resolveFriendsFeature({} as NodeJS.ProcessEnv);
-        expect(feature.features?.social?.friends?.enabled).toBe(true);
+        expect(feature.features?.social?.friends?.enabled).toBe(false);
     });
 
     it("treats friends as disabled when username identity is disabled and the required identity provider is not registered", () => {

@@ -16,7 +16,6 @@ import { pingHandler } from "./socket/pingHandler";
 import { sessionUpdateHandler } from "./socket/sessionUpdateHandler";
 import { machineUpdateHandler } from "./socket/machineUpdateHandler";
 import { machineTransferHandler } from "./socket/machineTransferHandler";
-import { artifactUpdateHandler } from "./socket/artifactUpdateHandler";
 import { accessKeyHandler } from "./socket/accessKeyHandler";
 import { getSocketRooms } from "./socketRooms";
 import { createAdapter } from "@socket.io/redis-streams-adapter";
@@ -504,7 +503,6 @@ export function startSocket(app: Fastify) {
             serverRoutedTransferMaxBytes: machineTransferFeatureEnv.serverRoutedMaxBytes,
             serverRoutedTransferMaxActiveTransfersPerSocket: machineTransferFeatureEnv.serverRoutedMaxActiveTransfersPerSocket,
         });
-        artifactUpdateHandler(userId, socket);
         accessKeyHandler(userId, socket);
         // Ready
         log(

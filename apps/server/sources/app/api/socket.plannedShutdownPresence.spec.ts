@@ -97,7 +97,6 @@ vi.mock("@/app/api/socket/pingHandler", () => ({ pingHandler: vi.fn() }));
 vi.mock("@/app/api/socket/sessionUpdateHandler", () => ({ sessionUpdateHandler: vi.fn() }));
 vi.mock("@/app/api/socket/machineUpdateHandler", () => ({ machineUpdateHandler: vi.fn() }));
 vi.mock("@/app/api/socket/machineTransferHandler", () => ({ machineTransferHandler: vi.fn() }));
-vi.mock("@/app/api/socket/artifactUpdateHandler", () => ({ artifactUpdateHandler: vi.fn() }));
 vi.mock("@/app/api/socket/accessKeyHandler", () => ({ accessKeyHandler: vi.fn() }));
 
 vi.mock("@/app/monitoring/metrics2", () => ({

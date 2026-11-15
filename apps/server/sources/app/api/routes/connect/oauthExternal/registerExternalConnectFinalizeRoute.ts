@@ -7,7 +7,7 @@ import { Context } from "@/context";
 import { decryptString } from "@/modules/encrypt";
 import { findOAuthProviderById } from "@/app/oauth/providers/registry";
 import { db } from "@/storage/db";
-import { validateUsername } from "@/app/social/usernamePolicy";
+import { validateUsername } from "@/app/account/username/usernamePolicy";
 import { deleteOAuthPendingBestEffort, loadValidOAuthPending } from "../connectRoutes.oauthPending";
 import { PROVIDER_ALREADY_LINKED_ERROR } from "./oauthExternalErrors";
 import { connectPendingSchema } from "./oauthExternalSchemas";

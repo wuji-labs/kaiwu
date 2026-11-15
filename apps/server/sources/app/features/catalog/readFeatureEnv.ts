@@ -217,7 +217,7 @@ function parseIssuerAllowlist(raw: string | undefined): string[] {
 
 export function readAutomationsFeatureEnv(env: NodeJS.ProcessEnv): AutomationsFeatureEnv {
   return {
-    enabled: parseBooleanEnv(env[FEATURE_ENV_KEYS.automationsEnabled], true),
+    enabled: false,
   };
 }
 
@@ -242,7 +242,7 @@ export function readBugReportsFeatureEnv(env: NodeJS.ProcessEnv): BugReportsFeat
 export function readVoiceFeatureEnv(env: NodeJS.ProcessEnv): VoiceFeatureEnv {
   const isProduction = env.NODE_ENV === 'production';
   return {
-    enabled: parseBooleanEnv(env[FEATURE_ENV_KEYS.voiceEnabled], true),
+    enabled: false,
     requireSubscription: parseBooleanEnv(env[FEATURE_ENV_KEYS.voiceRequireSubscription], isProduction),
   };
 }
@@ -281,8 +281,8 @@ export function readPetsFeatureEnv(env: NodeJS.ProcessEnv): PetsFeatureEnv {
   );
 
   return {
-    companionEnabled: parseBooleanEnv(env[FEATURE_ENV_KEYS.petsCompanionEnabled], true),
-    syncEnabled: parseBooleanEnv(env[FEATURE_ENV_KEYS.petsSyncEnabled], false),
+    companionEnabled: false,
+    syncEnabled: false,
     maxManifestBytes: parseIntEnv(env[FEATURE_ENV_KEYS.petsSyncMaxManifestBytes], PET_PACKAGE_LIMITS_V1.maxManifestBytes, { min: 1 }),
     maxCanonicalSpritesheetBytes: parseIntEnv(
       env[FEATURE_ENV_KEYS.petsSyncMaxCanonicalSpritesheetBytes],
@@ -377,8 +377,8 @@ export function readSocialFriendsFeatureEnv(env: NodeJS.ProcessEnv): SocialFrien
       : 'github';
 
   return {
-    enabled: parseBooleanEnv(env[FEATURE_ENV_KEYS.socialFriendsEnabled], true),
-    allowUsername: parseBooleanEnv(env[FEATURE_ENV_KEYS.socialFriendsAllowUsername], true),
+    enabled: false,
+    allowUsername: false,
     identityProvider: rawIdentityProvider,
   };
 }

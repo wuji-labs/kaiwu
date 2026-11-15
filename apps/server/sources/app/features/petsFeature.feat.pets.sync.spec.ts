@@ -5,39 +5,39 @@ import { BUILT_IN_PET_IDS_V1, PET_SYNC_SUPPORTED_MEDIA_TYPES_V1 } from "@happier
 import { resolveFeaturesFromEnv } from "./registry";
 
 describe("features/petsFeature", () => {
-    it("exposes pets.companion as enabled by default", () => {
+    it("defaults removed pets gates to disabled", () => {
         const result = resolveFeaturesFromEnv({} as NodeJS.ProcessEnv);
 
-        expect(result.features?.pets?.companion?.enabled).toBe(true);
+        expect(result.features?.pets?.companion?.enabled).toBe(false);
     });
 
-    it("allows servers to disable pets.companion without disabling pets.sync", () => {
+    it("ignores removed pets env opt-ins", () => {
         const result = resolveFeaturesFromEnv({
             KAIWU_FEATURE_PETS_COMPANION__ENABLED: "0",
             KAIWU_FEATURE_PETS_SYNC__ENABLED: "1",
         } as NodeJS.ProcessEnv);
 
         expect(result.features?.pets?.companion?.enabled).toBe(false);
-        expect(result.features?.pets?.sync?.enabled).toBe(true);
+        expect(result.features?.pets?.sync?.enabled).toBe(false);
     });
 
-    it("exposes pets.sync as a server-represented feature gate when enabled by env", () => {
+    it("keeps pets.sync disabled when env requests it", () => {
         const result = resolveFeaturesFromEnv({
             KAIWU_FEATURE_PETS_SYNC__ENABLED: "1",
         } as NodeJS.ProcessEnv);
 
-        expect(result.features?.pets?.companion?.enabled).toBe(true);
-        expect(result.features?.pets?.sync?.enabled).toBe(true);
+        expect(result.features?.pets?.companion?.enabled).toBe(false);
+        expect(result.features?.pets?.sync?.enabled).toBe(false);
     });
 
-    it("keeps pets.sync enabled when companion is build-policy denied", () => {
+    it("keeps pets gates disabled when companion is build-policy denied", () => {
         const result = resolveFeaturesFromEnv({
             KAIWU_BUILD_FEATURES_DENY: "pets.companion",
             KAIWU_FEATURE_PETS_SYNC__ENABLED: "1",
         } as NodeJS.ProcessEnv);
 
         expect(result.features?.pets?.companion?.enabled).toBe(false);
-        expect(result.features?.pets?.sync?.enabled).toBe(true);
+        expect(result.features?.pets?.sync?.enabled).toBe(false);
     });
 
     it("surfaces bounded pets import limits as capabilities without using them as gates", () => {
@@ -64,7 +64,7 @@ describe("features/petsFeature", () => {
             KAIWU_FEATURE_PETS_SYNC__ENABLED: "1",
         } as NodeJS.ProcessEnv);
 
-        expect(result.features?.pets?.sync?.enabled).toBe(true);
+        expect(result.features?.pets?.sync?.enabled).toBe(false);
         expect(result.capabilities?.pets?.companion).toEqual({
             builtInPetIds: [...BUILT_IN_PET_IDS_V1],
         });
@@ -88,7 +88,7 @@ describe("features/petsFeature", () => {
             KAIWU_FEATURE_PETS_SYNC__ENCRYPTED_CUSTOM_PET_SYNC_POLICY: "allowedWithClientValidation",
         } as NodeJS.ProcessEnv);
 
-        expect(result.features?.pets?.sync?.enabled).toBe(true);
+        expect(result.features?.pets?.sync?.enabled).toBe(false);
         expect(result.capabilities?.pets?.sync?.encryptedCustomPetSyncPolicy).toBe("allowedWithClientValidation");
     });
 });
