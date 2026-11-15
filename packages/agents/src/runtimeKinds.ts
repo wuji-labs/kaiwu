@@ -1,5 +1,4 @@
 import type { CodexBackendMode } from './providerSettings/definitions/codex.js';
-import type { OpenCodeBackendMode } from './providerSettings/definitions/opencode.js';
 import { AGENTS_CORE } from './manifest.js';
 import type { AgentCore, AgentCoreRuntimeControlSurface, AgentId } from './types.js';
 
@@ -14,7 +13,6 @@ export type PartialDeep<T> =
 
 export type AgentRuntimeKindsByAgentId = Readonly<{
     codex: CodexBackendMode;
-    opencode: OpenCodeBackendMode;
 }>;
 
 export type AgentRuntimeKindCapableAgentId = keyof AgentRuntimeKindsByAgentId;

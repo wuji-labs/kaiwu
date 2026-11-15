@@ -15,7 +15,7 @@ const baseSettings = {
             command: 'kiro-cli',
             args: ['acp'],
             env: {},
-            transportProfile: 'kiro' as const,
+            transportProfile: 'generic' as const,
             capabilities: {
                 supportsLoadSession: true,
                 supportsModes: 'yes' as const,

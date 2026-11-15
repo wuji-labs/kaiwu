@@ -1,5 +1,4 @@
 import {
-    buildOpenCodeAgentRuntimeDescriptor,
     readSessionMetadataRuntimeDescriptor,
     resolveVendorHandoffIdFromSessionMetadata,
     type AgentId,
@@ -26,36 +25,11 @@ export type SessionHandoffSourceResumePlan = Readonly<{
     environmentVariables?: Record<string, string>;
 }>;
 
-function buildSourceResumeEnvironmentVariables(metadata: Metadata): Record<string, string> | undefined {
-    const openCodeRuntime = readSessionMetadataRuntimeDescriptor(metadata, 'opencode');
-    const legacyBackendMode = metadata.opencodeBackendMode === 'server' || metadata.opencodeBackendMode === 'acp'
-        ? metadata.opencodeBackendMode
-        : null;
-    const backendMode = openCodeRuntime?.backendMode ?? legacyBackendMode;
-    if (backendMode === 'server') {
-        const serverBaseUrl = openCodeRuntime?.serverBaseUrl ?? (typeof metadata.opencodeServerBaseUrl === 'string' ? metadata.opencodeServerBaseUrl : null);
-        const serverBaseUrlExplicit = openCodeRuntime?.serverBaseUrlExplicit ?? Boolean(metadata.opencodeServerBaseUrlExplicit);
-        const env: Record<string, string> = {
-            HAPPIER_OPENCODE_BACKEND_MODE: 'server',
-        };
-        if (serverBaseUrl) {
-            env.HAPPIER_OPENCODE_SERVER_URL = serverBaseUrl;
-            if (serverBaseUrlExplicit) {
-                env.HAPPIER_OPENCODE_SERVER_URL_EXPLICIT = '1';
-            }
-        }
-        return env;
-    }
-    return undefined;
-}
-
 function resolveRecoveryAgentId(metadata: Metadata): AgentId | null {
     const byFlavor = resolveAgentIdFromFlavor(metadata.flavor);
     if (byFlavor) return byFlavor;
 
     if (readSessionMetadataRuntimeDescriptor(metadata, 'codex')) return 'codex';
-    if (readSessionMetadataRuntimeDescriptor(metadata, 'opencode')) return 'opencode';
-    if (readSessionMetadataRuntimeDescriptor(metadata, 'pi')) return 'pi';
     return null;
 }
 
@@ -134,9 +108,6 @@ export function buildSessionHandoffRecoveryPlan(input: Readonly<{
             serverId: typeof input.serverId === 'string' ? input.serverId.trim() || null : null,
             ...(input.sourceMetadata.agentRuntimeDescriptorV1 ? { agentRuntimeDescriptorV1: input.sourceMetadata.agentRuntimeDescriptorV1 } : {}),
             ...(codexBackendMode ? { codexBackendMode } : {}),
-            ...(buildSourceResumeEnvironmentVariables(input.sourceMetadata)
-                ? { environmentVariables: buildSourceResumeEnvironmentVariables(input.sourceMetadata)! }
-                : {}),
         },
     };
 }

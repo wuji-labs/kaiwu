@@ -21,39 +21,6 @@ export {
   resolveCodexSpawnExtrasFromSettings,
 } from './definitions/codex.js';
 
-export type { OpenCodeBackendMode } from './definitions/opencode.js';
-export {
-  OPENCODE_PROVIDER_SETTINGS_DEFINITION,
-  OPENCODE_PROVIDER_FIELDS,
-  OPENCODE_PROVIDER_SETTINGS_DEFAULTS,
-  buildOpenCodeProviderSettingsShape,
-  normalizeOpenCodeBackendMode,
-  normalizeOpenCodeServerBaseUrl,
-  normalizeOpenCodeServerBaseUrlExplicit,
-  readOpenCodeExplicitServerBaseUrl,
-} from './definitions/opencode.js';
-
-export {
-  CURSOR_PROVIDER_SETTINGS_DEFINITION,
-  CURSOR_PROVIDER_FIELDS,
-  CURSOR_PROVIDER_SETTINGS_DEFAULTS,
-  buildCursorProviderSettingsShape,
-  normalizeCursorAgentFallbackEnabled,
-  normalizeCursorApiEndpoint,
-  normalizeCursorBinaryPath,
-  resolveCursorSpawnExtrasFromSettings,
-} from './definitions/cursor.js';
-
-export type { KimiAcpPythonSelector } from './definitions/kimi.js';
-export {
-  KIMI_PROVIDER_SETTINGS_DEFINITION,
-  KIMI_PROVIDER_FIELDS,
-  KIMI_PROVIDER_SETTINGS_DEFAULTS,
-  buildKimiProviderSettingsShape,
-  normalizeKimiAcpPythonSelector,
-  resolveKimiSpawnExtrasFromSettings,
-} from './definitions/kimi.js';
-
 export {
   type ClaudeUnifiedTerminalHost,
   type ClaudeUnifiedTerminalResumeChoice,

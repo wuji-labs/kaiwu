@@ -42,13 +42,6 @@ export const FeatureGatesSchema = z.object({
     })
     .optional()
     .default({ media: { generated: DEFAULT_GATE_DISABLED } }),
-  pets: z
-    .object({
-      companion: FeatureGateSchema.optional().default(DEFAULT_GATE_DISABLED),
-      sync: FeatureGateSchema.optional().default(DEFAULT_GATE_DISABLED),
-    })
-    .optional()
-    .default({ companion: DEFAULT_GATE_DISABLED, sync: DEFAULT_GATE_DISABLED }),
   automations: z
     .object({
       enabled: z.boolean(),

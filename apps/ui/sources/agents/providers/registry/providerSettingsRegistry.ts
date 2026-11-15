@@ -3,20 +3,10 @@ import type { AgentId } from '@/agents/registry/registryCore';
 
 import type { ProviderSettingsPlugin } from '../shared/providerSettingsPlugin';
 import { buildProviderSettingArtifactEntries } from './buildProviderSettingArtifactEntries';
-import { AUGGIE_PROVIDER_SETTINGS_PLUGIN } from '../auggie/settings/plugin';
 import { CLAUDE_PROVIDER_SETTINGS_PLUGIN } from '../claude/settings/plugin';
 import { CODEX_PROVIDER_SETTINGS_PLUGIN } from '../codex/settings/plugin';
 import { GEMINI_PROVIDER_SETTINGS_PLUGIN } from '../gemini/settings/plugin';
-import { KILO_PROVIDER_SETTINGS_PLUGIN } from '../kilo/settings/plugin';
-import { KIMI_PROVIDER_SETTINGS_PLUGIN } from '../kimi/settings/plugin';
-import { KIRO_PROVIDER_SETTINGS_PLUGIN } from '../kiro/settings/plugin';
 import { CUSTOM_ACP_PROVIDER_SETTINGS_PLUGIN } from '../customAcp/settings/plugin';
-import { OPENCODE_PROVIDER_SETTINGS_PLUGIN } from '../opencode/settings/plugin';
-import { PI_PROVIDER_SETTINGS_PLUGIN } from '../pi/settings/plugin';
-import { QWEN_PROVIDER_SETTINGS_PLUGIN } from '../qwen/settings/plugin';
-import { COPILOT_PROVIDER_SETTINGS_PLUGIN } from '../copilot/settings/plugin';
-import { CURSOR_PROVIDER_SETTINGS_PLUGIN } from '../cursor/settings/plugin';
-import { GROK_PROVIDER_SETTINGS_PLUGIN } from '../grok/settings/plugin';
 
 function isTranslationRef(value: unknown): value is Readonly<{ key: string }> {
     return Boolean(
@@ -140,18 +130,8 @@ export function assertProviderSettingsPluginsValid(plugins: readonly ProviderSet
 export const PROVIDER_SETTINGS_PLUGINS = [
     CLAUDE_PROVIDER_SETTINGS_PLUGIN,
     CODEX_PROVIDER_SETTINGS_PLUGIN,
-    OPENCODE_PROVIDER_SETTINGS_PLUGIN,
     GEMINI_PROVIDER_SETTINGS_PLUGIN,
-    AUGGIE_PROVIDER_SETTINGS_PLUGIN,
-    QWEN_PROVIDER_SETTINGS_PLUGIN,
-    KIMI_PROVIDER_SETTINGS_PLUGIN,
-    KILO_PROVIDER_SETTINGS_PLUGIN,
-    KIRO_PROVIDER_SETTINGS_PLUGIN,
     CUSTOM_ACP_PROVIDER_SETTINGS_PLUGIN,
-    PI_PROVIDER_SETTINGS_PLUGIN,
-    COPILOT_PROVIDER_SETTINGS_PLUGIN,
-    CURSOR_PROVIDER_SETTINGS_PLUGIN,
-    GROK_PROVIDER_SETTINGS_PLUGIN,
 ] as const satisfies readonly ProviderSettingsPlugin[];
 
 assertProviderSettingsPluginsValid(PROVIDER_SETTINGS_PLUGINS);

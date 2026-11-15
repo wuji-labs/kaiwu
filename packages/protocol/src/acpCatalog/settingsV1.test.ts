@@ -8,22 +8,22 @@ describe('AcpCatalogSettingsV1Schema', () => {
       v: 2,
       backends: [
         {
-          id: 'custom-kiro',
-          name: 'custom-kiro',
-          title: 'Custom Kiro',
-          command: 'kiro-cli',
+          id: 'custom-agent',
+          name: 'custom-agent',
+          title: 'Custom Agent',
+          command: 'custom-acp',
           args: ['acp'],
           env: {
-            KIRO_REGION: { t: 'literal', v: 'eu' },
+            CUSTOM_REGION: { t: 'literal', v: 'eu' },
           },
           auth: {
             support: 'login_terminal',
-            machineLoginKey: 'kiro-cli',
-            loginCommand: { command: 'kiro-cli', args: ['login'] },
+            machineLoginKey: 'custom-acp',
+            loginCommand: { command: 'custom-acp', args: ['login'] },
             statusCommand: ['whoami', '--format', 'json'],
-            parser: 'kiroWhoamiJson',
+            parser: 'stdoutNonEmpty',
           },
-          transportProfile: 'kiro',
+          transportProfile: 'generic',
           defaultMode: 'default',
           defaultModel: 'kiro-pro',
           capabilities: {

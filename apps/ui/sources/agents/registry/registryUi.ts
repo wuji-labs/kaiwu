@@ -5,18 +5,8 @@ import type { AgentId } from './registryCore';
 
 import { CLAUDE_UI } from '@/agents/providers/claude/ui';
 import { CODEX_UI } from '@/agents/providers/codex/ui';
-import { OPENCODE_UI } from '@/agents/providers/opencode/ui';
 import { GEMINI_UI } from '@/agents/providers/gemini/ui';
-import { AUGGIE_UI } from '@/agents/providers/auggie/ui';
-import { QWEN_UI } from '@/agents/providers/qwen/ui';
-import { KIMI_UI } from '@/agents/providers/kimi/ui';
-import { KILO_UI } from '@/agents/providers/kilo/ui';
-import { KIRO_UI } from '@/agents/providers/kiro/ui';
 import { CUSTOM_ACP_UI } from '@/agents/providers/customAcp/ui';
-import { PI_UI } from '@/agents/providers/pi/ui';
-import { COPILOT_UI } from '@/agents/providers/copilot/ui';
-import { CURSOR_UI } from '@/agents/providers/cursor/ui';
-import { GROK_UI } from '@/agents/providers/grok/ui';
 
 export type AgentIconSvgXmlResolver = (
     theme: UnistylesThemes[keyof UnistylesThemes],
@@ -51,18 +41,8 @@ export type AgentUiConfig = Readonly<{
 export const AGENTS_UI: Readonly<Record<AgentId, AgentUiConfig>> = Object.freeze({
     claude: CLAUDE_UI,
     codex: CODEX_UI,
-    opencode: OPENCODE_UI,
     gemini: GEMINI_UI,
-    auggie: AUGGIE_UI,
-    qwen: QWEN_UI,
-    kimi: KIMI_UI,
-    kilo: KILO_UI,
-    kiro: KIRO_UI,
     customAcp: CUSTOM_ACP_UI,
-    pi: PI_UI,
-    copilot: COPILOT_UI,
-    cursor: CURSOR_UI,
-    grok: GROK_UI,
 });
 
 export function getAgentIconSource(agentId: AgentId): ImageSourcePropType | null {

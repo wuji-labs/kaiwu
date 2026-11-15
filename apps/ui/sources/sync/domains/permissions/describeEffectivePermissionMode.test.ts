@@ -57,7 +57,7 @@ describe('describeEffectivePermissionMode', () => {
 
     it('emits codex-like read-only enforcement reason', () => {
         const res = describeEffectivePermissionMode({
-            agentType: 'opencode',
+            agentType: 'opencode' as never,
             selectedMode: 'read-only',
             metadata: buildMetadata(),
             applyTiming: 'immediate',
@@ -91,7 +91,7 @@ describe('describeEffectivePermissionMode', () => {
 
     it('keeps default for pi (tool gating handled at spawn)', () => {
         const res = describeEffectivePermissionMode({
-            agentType: 'pi',
+            agentType: 'pi' as never,
             selectedMode: 'default',
             metadata: buildMetadata(),
             applyTiming: 'immediate',

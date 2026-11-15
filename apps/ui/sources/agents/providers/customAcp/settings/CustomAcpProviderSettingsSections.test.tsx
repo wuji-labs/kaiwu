@@ -89,8 +89,6 @@ describe('CustomAcpProviderSettingsSections', () => {
         const { CustomAcpProviderSettingsSections } = await import('./CustomAcpProviderSettingsSections');
         const screen = await renderSettingsView(React.createElement(CustomAcpProviderSettingsSections));
 
-        expect(screen.findRow('settings.acpCatalog.builtIn.kiro')).toBeTruthy();
-        expect(screen.findRow('settings.acpCatalog.builtIn.customAcp')).toBeNull();
         expect(screen.findRow('settings.acpCatalog.backend.backend-1')).toBeTruthy();
         expect(screen.findRow('settings.acpCatalog.addBackend')).toBeTruthy();
         expect(screen.findGroup('settings.acpCatalogPresets')).toBeNull();

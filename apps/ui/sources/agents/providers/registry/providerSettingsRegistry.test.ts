@@ -157,25 +157,6 @@ describe('getProviderSettingsPlugin', () => {
         }
     });
 
-    it('exposes Cursor API endpoint override in provider settings UI sections', () => {
-        const cursorPlugin = getProviderSettingsPlugin('cursor');
-        const visibleFieldKeys = new Set(
-            cursorPlugin?.uiSections.flatMap((section) => section.fields.map((field) => field.key)) ?? [],
-        );
-
-        expect(visibleFieldKeys.has('cursorApiEndpoint')).toBe(true);
-    });
-
-    it('exposes Kimi ACP Python selector in provider settings UI sections', () => {
-        const kimiPlugin = getProviderSettingsPlugin('kimi');
-        const visibleFieldKeys = new Set(
-            kimiPlugin?.uiSections.flatMap((section) => section.fields.map((field) => field.key)) ?? [],
-        );
-
-        expect(PROVIDER_SETTINGS_DEFAULTS.kimiAcpPythonSelector).toBe('auto');
-        expect(visibleFieldKeys.has('kimiAcpPythonSelector')).toBe(true);
-    });
-
     it('exposes Claude unified terminal provider settings in UI sections', () => {
         const claudePlugin = getProviderSettingsPlugin('claude');
         const visibleFields = claudePlugin?.uiSections.flatMap((section) => section.fields) ?? [];

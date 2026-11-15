@@ -5,18 +5,9 @@ import {
   type DirectSessionsProviderId,
 } from '@happier-dev/protocol';
 import { BUILT_IN_CATALOG_DEFINED_ACP_AGENTS } from '@/agent/acp/catalog';
-import { agent as auggie } from '@/backends/auggie';
 import { agent as claude } from '@/backends/claude';
 import { agent as codex } from '@/backends/codex';
-import { agent as copilot } from '@/backends/copilot';
-import { agent as cursor } from '@/backends/cursor';
 import { agent as gemini } from '@/backends/gemini';
-import { agent as grok } from '@/backends/grok';
-import { agent as kimi } from '@/backends/kimi';
-import { agent as kilo } from '@/backends/kilo';
-import { agent as opencode } from '@/backends/opencode';
-import { agent as pi } from '@/backends/pi';
-import { agent as qwen } from '@/backends/qwen';
 import { DEFAULT_CATALOG_AGENT_ID } from './types';
 import type {
   AcpForkContinuationHandler,
@@ -58,16 +49,7 @@ export const AGENTS: Partial<Record<CatalogAgentId, AgentCatalogEntry>> = {
   claude,
   codex,
   gemini,
-  opencode,
-  auggie,
-  qwen,
-  kimi,
-  kilo,
-  grok,
   ...BUILT_IN_CATALOG_DEFINED_ACP_AGENTS,
-  pi,
-  copilot,
-  cursor,
 };
 
 export function requireCatalogEntry(agentId: CatalogAgentId): AgentCatalogEntry {

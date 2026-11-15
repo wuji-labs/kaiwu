@@ -12,7 +12,6 @@ import { ACCOUNT_FEATURE_TOGGLE_SETTING_DEFINITIONS } from './accountFeatureTogg
 import { ACCOUNT_LEGACY_SETTING_DEFINITIONS } from './accountLegacySettingDefinitions';
 import { ACCOUNT_KEYBOARD_SHORTCUT_SETTING_DEFINITIONS } from './accountKeyboardShortcutSettingDefinitions';
 import { ACCOUNT_MCP_SETTING_DEFINITIONS } from './accountMcpSettingDefinitions';
-import { ACCOUNT_PET_SETTING_DEFINITIONS } from './accountPetSettingDefinitions';
 import { ACCOUNT_PERMISSION_SETTING_DEFINITIONS } from './accountPermissionSettingDefinitions';
 import { ACCOUNT_PROFILES_SETTING_DEFINITIONS } from './accountProfilesSettingDefinitions';
 import { ACCOUNT_PROMPT_LIBRARY_SETTING_DEFINITIONS } from './accountPromptLibrarySettingDefinitions';
@@ -37,7 +36,6 @@ export const ACCOUNT_SETTING_DEFINITIONS = defineSettingDefinitions({
     ...ACCOUNT_KEYBOARD_SHORTCUT_SETTING_DEFINITIONS,
     ...ACCOUNT_LEGACY_SETTING_DEFINITIONS,
     ...ACCOUNT_MCP_SETTING_DEFINITIONS,
-    ...ACCOUNT_PET_SETTING_DEFINITIONS,
     ...ACCOUNT_PERMISSION_SETTING_DEFINITIONS,
     ...ACCOUNT_PROFILES_SETTING_DEFINITIONS,
     ...ACCOUNT_PROMPT_LIBRARY_SETTING_DEFINITIONS,

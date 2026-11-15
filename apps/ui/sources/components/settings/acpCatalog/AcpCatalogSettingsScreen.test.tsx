@@ -102,14 +102,14 @@ describe('AcpCatalogSettingsScreen', () => {
             v: 2,
             backends: [
                 {
-                    id: 'custom-kiro',
-                    name: 'custom-kiro',
-                    title: 'Custom Kiro',
+                    id: 'custom-agent',
+                    name: 'custom-agent',
+                    title: 'Custom Agent',
                     description: 'ACP backend',
-                    command: 'kiro-cli',
+                    command: 'my-agent',
                     args: ['acp', '--agent', 'spec'],
                     env: {},
-                    transportProfile: 'kiro',
+                    transportProfile: 'generic',
                     defaultMode: 'plan',
                     defaultModel: 'sonnet',
                     capabilities: {
@@ -136,31 +136,27 @@ describe('AcpCatalogSettingsScreen', () => {
         const { AcpCatalogSettingsScreen } = await import('./AcpCatalogSettingsScreen');
         const screen = await renderSettingsView(React.createElement(AcpCatalogSettingsScreen));
 
-        const builtInKiroRow = screen.findRow('settings.acpCatalog.builtIn.kiro');
-        const builtInCustomAcpRow = screen.findRow('settings.acpCatalog.builtIn.customAcp');
-        const backendRow = screen.findRow('settings.acpCatalog.backend.custom-kiro');
+        const backendRow = screen.findRow('settings.acpCatalog.backend.custom-agent');
         const addBackendRow = screen.findRow('settings.acpCatalog.addBackend');
         const addPresetRow = screen.findRow('settings.acpCatalog.addPreset');
         const emptyBackendsRow = screen.findRow('settings.acpCatalog.backends.empty');
 
-        expect(builtInKiroRow).toBeTruthy();
-        expect(builtInCustomAcpRow).toBeNull();
         expect(backendRow).toBeTruthy();
-        expect(backendRow?.props.title).toBe('Custom Kiro');
+        expect(backendRow?.props.title).toBe('Custom Agent');
         expect(addBackendRow).toBeTruthy();
         expect(addPresetRow).toBeNull();
         expect(emptyBackendsRow).toBeNull();
         expect(screen.findAllByTestId('settings.acpCatalog.itemGroup.untitled')).toHaveLength(1);
 
         screen.pressRow('settings.acpCatalog.addBackend');
-        screen.pressRow('settings.acpCatalog.backend.custom-kiro');
+        screen.pressRow('settings.acpCatalog.backend.custom-agent');
 
         expect(shared.routerPushSpy).toHaveBeenNthCalledWith(1, '/settings/acp-backend');
         expect(shared.routerPushSpy).toHaveBeenNthCalledWith(
             2,
             expect.objectContaining({
                 pathname: '/settings/acp-backend',
-                params: { backendId: 'custom-kiro' },
+                params: { backendId: 'custom-agent' },
             }),
         );
     });

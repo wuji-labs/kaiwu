@@ -18,18 +18,8 @@ import {
 
 import { CLAUDE_CORE } from '@/agents/providers/claude/core';
 import { CODEX_CORE } from '@/agents/providers/codex/core';
-import { OPENCODE_CORE } from '@/agents/providers/opencode/core';
 import { GEMINI_CORE } from '@/agents/providers/gemini/core';
-import { AUGGIE_CORE } from '@/agents/providers/auggie/core';
-import { QWEN_CORE } from '@/agents/providers/qwen/core';
-import { KIMI_CORE } from '@/agents/providers/kimi/core';
-import { KILO_CORE } from '@/agents/providers/kilo/core';
-import { KIRO_CORE } from '@/agents/providers/kiro/core';
 import { CUSTOM_ACP_CORE } from '@/agents/providers/customAcp/core';
-import { PI_CORE } from '@/agents/providers/pi/core';
-import { COPILOT_CORE } from '@/agents/providers/copilot/core';
-import { CURSOR_CORE } from '@/agents/providers/cursor/core';
-import { GROK_CORE } from '@/agents/providers/grok/core';
 
 export type { AgentId };
 
@@ -213,18 +203,8 @@ export type AgentCoreConfig = Readonly<{
 export const AGENTS_CORE = Object.freeze({
     claude: CLAUDE_CORE,
     codex: CODEX_CORE,
-    opencode: OPENCODE_CORE,
     gemini: GEMINI_CORE,
-    auggie: AUGGIE_CORE,
-    qwen: QWEN_CORE,
-    kimi: KIMI_CORE,
-    kilo: KILO_CORE,
-    kiro: KIRO_CORE,
     customAcp: CUSTOM_ACP_CORE,
-    pi: PI_CORE,
-    copilot: COPILOT_CORE,
-    cursor: CURSOR_CORE,
-    grok: GROK_CORE,
 }) satisfies Readonly<Record<string, AgentCoreConfig>>;
 
 export const AGENT_IDS = Object.freeze(

@@ -9,7 +9,7 @@ import {
 describe('effectiveRuntimeControlSurface', () => {
     it('uses the persisted OpenCode runtime kind to disable local control for ACP sessions', () => {
         expect(supportsEffectiveLocalControlForSession({
-            agentId: 'opencode',
+            agentId: 'opencode' as never,
             metadata: { opencodeBackendMode: 'acp' },
             accountSettings: { opencodeBackendMode: 'server' },
         })).toBe(false);
@@ -17,7 +17,7 @@ describe('effectiveRuntimeControlSurface', () => {
 
     it('keeps the base OpenCode local-control surface when the session has no persisted runtime identity', () => {
         expect(resolveEffectiveSessionRuntimeControlSurface({
-            agentId: 'opencode',
+            agentId: 'opencode' as never,
             metadata: {},
             accountSettings: { opencodeBackendMode: 'acp' },
         }).localControl).toMatchObject({ supported: true, topology: 'shared' });
@@ -35,7 +35,7 @@ describe('effectiveRuntimeControlSurface', () => {
 
     it('uses the configured OpenCode runtime kind to disable direct storage for ACP new sessions', () => {
         expect(resolveEffectiveConfiguredRuntimeControlSurface({
-            agentId: 'opencode',
+            agentId: 'opencode' as never,
             accountSettings: { opencodeBackendMode: 'acp' },
         }).sessionStorage).toMatchObject({ direct: false, persisted: true });
     });

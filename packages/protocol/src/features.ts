@@ -43,25 +43,6 @@ export {
   type MachineTransferServerRoutedCapabilities,
 } from './features/payload/capabilities/machineTransferCapabilities.js';
 export {
-  DEFAULT_PETS_COMPANION_CAPABILITIES,
-  DEFAULT_PETS_CAPABILITIES,
-  DEFAULT_PETS_PACKAGE_LIMITS_CAPABILITIES,
-  DEFAULT_PETS_SYNC_CAPABILITIES,
-  PetsCapabilitiesSchema,
-  PetsCompanionCapabilitiesSchema,
-  PetsEncryptedCustomPetSyncPolicySchema,
-  PetsPackageLimitsCapabilitiesSchema,
-  PetsSyncCapabilitiesSchema,
-  PetsSyncSupportedMediaTypeSchema,
-  type PetsCapabilities,
-  type PetsCompanionCapabilities,
-  type PetsEncryptedCustomPetSyncPolicy,
-  type PetsPackageLimitsCapabilities,
-  type PetsSyncCapabilities,
-  type PetsSyncSupportedMediaType,
-} from './features/payload/capabilities/petsCapabilities.js';
-
-export {
   DEFAULT_SERVER_IDENTITY_CAPABILITIES,
   SERVER_IDENTITY_ID_PATTERN,
   ServerIdentityCapabilitiesSchema,

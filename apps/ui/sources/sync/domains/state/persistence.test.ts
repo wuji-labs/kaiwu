@@ -80,8 +80,6 @@ import {
     saveWorkspaceReviewCommentsDrafts,
     loadSessionActionDrafts,
     saveSessionActionDrafts,
-    loadLocalPetSourcesBySourceKey,
-    saveLocalPetSourcesBySourceKey,
     loadThemeRuntimeLocalState,
     type ChangesCursorScope,
 } from './persistence';
@@ -1529,83 +1527,4 @@ describe('persistence', () => {
         });
     });
 
-    describe('local pet sources', () => {
-        it('returns an empty object when nothing is persisted', () => {
-            expect(loadLocalPetSourcesBySourceKey()).toEqual({});
-        });
-
-        it('roundtrips validated local pet source metadata', () => {
-            saveLocalPetSourcesBySourceKey({
-                'managed:blink': {
-                    kind: 'happierManagedLocal',
-                    sourceKey: 'managed:blink',
-                    petId: 'blink',
-                    displayName: 'Blink',
-                    mediaType: 'image/webp',
-                    digest: 'sha256:managed',
-                    sizeBytes: 128,
-                    daemonTarget: {
-                        machineId: 'machine-pets',
-                        serverId: 'server-pets',
-                    },
-                },
-            });
-
-            expect(loadLocalPetSourcesBySourceKey()).toEqual({
-                'managed:blink': expect.objectContaining({
-                    kind: 'happierManagedLocal',
-                    sourceKey: 'managed:blink',
-                    petId: 'blink',
-                    displayName: 'Blink',
-                    mediaType: 'image/webp',
-                    daemonTarget: {
-                        machineId: 'machine-pets',
-                        serverId: 'server-pets',
-                    },
-                }),
-            });
-        });
-
-        it('salvages valid pet sources and drops invalid unsafe persisted entries', () => {
-            store.set('local-pet-sources-v1', JSON.stringify({
-                valid: {
-                    kind: 'happierManagedLocal',
-                    sourceKey: 'valid',
-                    petId: 'blink',
-                    displayName: 'Blink',
-                    mediaType: 'image/webp',
-                    digest: 'sha256:managed',
-                    sizeBytes: 128,
-                    daemonTarget: {
-                        machineId: 'machine-pets',
-                        serverId: 'server-pets',
-                    },
-                    packagePath: '/Users/tester/.codex/pets/blink',
-                    dataBase64: 'not-allowed',
-                },
-                invalid: {
-                    kind: 'happierManagedLocal',
-                    sourceKey: '',
-                    petId: 'blink',
-                    displayName: 'Blink',
-                    daemonTarget: {
-                        machineId: 'machine-pets',
-                        serverId: 'server-pets',
-                    },
-                },
-            }));
-
-            const loaded = loadLocalPetSourcesBySourceKey();
-
-            expect(Object.keys(loaded)).toEqual(['valid']);
-            expect(JSON.stringify(loaded)).not.toContain('/Users/tester');
-            expect(JSON.stringify(loaded)).not.toContain('dataBase64');
-            expect(JSON.parse(store.get('local-pet-sources-v1') ?? '{}')).toEqual({
-                valid: expect.not.objectContaining({
-                    packagePath: expect.anything(),
-                    dataBase64: expect.anything(),
-                }),
-            });
-        });
-    });
 });

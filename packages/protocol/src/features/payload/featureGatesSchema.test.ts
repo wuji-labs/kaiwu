@@ -4,21 +4,6 @@ import { readServerEnabledBit } from '../serverEnabledBit.js';
 import { FeaturesResponseSchema } from './featuresResponseSchema.js';
 
 describe('FeatureGatesSchema', () => {
-  it('preserves pets companion and sync gates', () => {
-    const parsed = FeaturesResponseSchema.parse({
-      features: {
-        pets: {
-          companion: { enabled: true },
-          sync: { enabled: true },
-        },
-      },
-      capabilities: {},
-    });
-
-    expect(readServerEnabledBit(parsed, 'pets.companion')).toBe(true);
-    expect(readServerEnabledBit(parsed, 'pets.sync')).toBe(true);
-  });
-
   it('preserves channel bridge gates', () => {
     const parsed = FeaturesResponseSchema.parse({
       features: {

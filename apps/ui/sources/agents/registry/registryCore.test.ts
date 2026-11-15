@@ -82,53 +82,14 @@ describe('agents/registryCore', () => {
         expect(claude.cli.detectKey).toBeTruthy();
     });
 
-    it('provides core config for kilo', () => {
-        const kilo = getAgentCore('kilo');
-        expect(kilo.id).toBe('kilo');
-        expect(kilo.cli.detectKey).toBeTruthy();
-    });
-
-    it('provides core config for pi', () => {
-        const pi = getAgentCore('pi');
-        expect(pi.id).toBe('pi');
-        expect(pi.cli.detectKey).toBeTruthy();
-        expect(Reflect.get(pi, 'runtimeInput')).toBeUndefined();
-    });
-
-    it('provides core config for kiro', () => {
-        const kiro = getAgentCore('kiro');
-        expect(kiro.id).toBe('kiro');
-        expect(kiro.cli.detectKey).toBe('kiro-cli');
-    });
-
     it('provides core config for custom ACP', () => {
         const customAcp = getAgentCore('customAcp');
         expect(customAcp.id).toBe('customAcp');
         expect(customAcp.cli.detectKey).toBe('custom-acp');
     });
 
-    it('provides a conservative first-class Grok core config', () => {
-        const grok = getAgentCore('grok');
-        expect(grok).toMatchObject({
-            id: 'grok',
-            displayNameKey: 'agentInput.agent.grok',
-            subtitleKey: 'profiles.aiBackend.grokSubtitleExperimental',
-            availability: { experimental: true },
-            cli: { detectKey: 'grok', machineLoginKey: 'grok', spawnAgent: 'grok' },
-            sessionModes: { kind: 'none' },
-            model: { supportsSelection: true, supportsFreeform: false },
-            resume: {
-                vendorResumeIdField: 'grokSessionId',
-                uiVendorResumeIdLabelKey: 'sessionInfo.grokSessionId',
-                uiVendorResumeIdCopiedKey: 'sessionInfo.grokSessionIdCopied',
-                supportsVendorResume: true,
-                experimental: true,
-            },
-        });
-    });
-
     it('uses generic installer guidance instead of hardcoded package-manager commands', () => {
-        for (const agentId of ['codex', 'opencode', 'qwen', 'kilo', 'kiro', 'customAcp', 'pi', 'copilot', 'grok'] as const) {
+        for (const agentId of ['codex', 'customAcp'] as const) {
             const core = getAgentCore(agentId);
             expect(core.cli.installBanner.installKind).toBe('ifAvailable');
             expect(core.cli.installBanner.installCommand).toBeUndefined();
@@ -136,7 +97,7 @@ describe('agents/registryCore', () => {
     });
 
     it('uses centralized setup guide URLs for provider install banners', () => {
-        for (const agentId of ['claude', 'opencode', 'kimi', 'qwen', 'pi'] as const) {
+        for (const agentId of ['claude'] as const) {
             expect(getAgentCore(agentId).cli.installBanner.guideUrl).toBe(getProviderCliInstallGuideUrl(agentId));
         }
     });
@@ -161,11 +122,6 @@ describe('agents/registryCore', () => {
             label: 'Claude Code',
             connectRoute: '/settings/connect/claude',
         });
-        expect(getAgentCore('opencode').uiConnectedService).toEqual({
-            serviceId: null,
-            label: 'OpenCode',
-            connectRoute: null,
-        });
     });
 
     it('reads model selection config from @happier-dev/agents', () => {
@@ -179,25 +135,10 @@ describe('agents/registryCore', () => {
         const codex = getAgentModelConfig('codex');
         expect(codex.supportsSelection).toBe(true);
 
-        const opencode = getAgentModelConfig('opencode');
-        expect(opencode.supportsSelection).toBe(true);
+        const gemini = getAgentModelConfig('gemini');
+        expect(gemini.supportsSelection).toBe(true);
 
-        const kilo = getAgentModelConfig('kilo');
-        expect(kilo.supportsSelection).toBe(true);
-
-        const kiro = getAgentModelConfig('kiro');
-        expect(kiro.supportsSelection).toBe(true);
-
-        const auggie = getAgentModelConfig('auggie');
-        expect(auggie.supportsSelection).toBe(true);
-
-        const qwen = getAgentModelConfig('qwen');
-        expect(qwen.supportsSelection).toBe(true);
-
-        const kimi = getAgentModelConfig('kimi');
-        expect(kimi.supportsSelection).toBe(true);
-
-        const pi = getAgentModelConfig('pi');
-        expect(pi.supportsSelection).toBe(true);
+        const customAcp = getAgentModelConfig('customAcp');
+        expect(customAcp.supportsSelection).toBe(true);
     });
 });

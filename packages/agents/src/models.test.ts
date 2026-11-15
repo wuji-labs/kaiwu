@@ -1,11 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import { AGENT_IDS } from './types.js';
-import type { AgentId } from './types.js';
 import { AGENT_MODEL_CONFIG, getAgentModelConfig, getAgentStaticModels } from './models.js';
 import { CURRENT_FLAGSHIP_CLAUDE_MODEL_ID } from './providers/claude/flagshipModel.js';
-
-const cursorAgentId = 'cursor' as AgentId;
 
 describe('agent model config', () => {
   it('covers every canonical agent', () => {
@@ -171,43 +168,4 @@ describe('agent model config', () => {
     expect(codexModels).toEqual([{ id: 'default', name: 'default' }]);
   });
 
-  it('uses only provider-advertised Grok models without inventing a static fallback', () => {
-    const grok = getAgentModelConfig('grok');
-    const grokModels = getAgentStaticModels('grok');
-
-    expect(grok.supportsSelection).toBe(true);
-    expect(grok.supportsFreeform).toBe(false);
-    expect(grok.acpApplyBehavior).toBe('set_model');
-    expect(grok.acpModelConfigOptionId).toBeUndefined();
-    expect(grok.defaultMode).toBe('default');
-    expect(grok.allowedModes).toEqual([]);
-    expect(grok.staticModels).toBeUndefined();
-    expect(grokModels).toEqual([]);
-  });
-
-  it('treats Cursor models as dynamic ACP/CLI controls without freeform fallback', () => {
-    expect(getAgentModelConfig(cursorAgentId)).toMatchObject({
-      supportsSelection: true,
-      supportsFreeform: false,
-      nonAcpApplyScope: 'next_prompt',
-      acpModelConfigOptionId: 'model',
-      acpModelSetMethod: 'config_option',
-      dynamicProbe: 'auto',
-      defaultMode: 'default',
-      allowedModes: ['default'],
-    });
-  });
-
-  it('treats Kimi models as dynamically probed ACP controls', () => {
-    const kimi = getAgentModelConfig('kimi');
-    expect(kimi).toMatchObject({
-      supportsSelection: true,
-      nonAcpApplyScope: 'next_prompt',
-      acpModelConfigOptionId: 'model',
-      dynamicProbe: 'auto',
-      defaultMode: 'default',
-      allowedModes: ['default'],
-    });
-    expect(kimi.supportsFreeform).not.toBe(true);
-  });
 });

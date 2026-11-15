@@ -5,7 +5,7 @@ import { settingsParse } from '@/sync/domains/settings/settings';
 import { addProviderMessageMetaExtras } from '@/sync/domains/messages/messageMetaProviders';
 
 describe('addProviderMessageMetaExtras', () => {
-    it('returns the original meta for providers without settings plugins', () => {
+    it('returns the original meta when the provider adds no extras', () => {
         const base = buildOutgoingMessageMeta({
             sentFrom: 'e2e',
             permissionMode: 'default',
@@ -14,7 +14,7 @@ describe('addProviderMessageMetaExtras', () => {
 
         const merged = addProviderMessageMetaExtras({
             meta: base,
-            agentId: 'qwen',
+            agentId: 'gemini',
             settings: {},
             session: { id: 's1' },
         });

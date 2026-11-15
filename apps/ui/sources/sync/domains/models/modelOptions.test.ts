@@ -53,8 +53,8 @@ describe('modelOptions', () => {
     });
 
     it('returns a default-only option for selection-capable agents without static lists', () => {
-        expect(getModelOptionsForAgentType('qwen').map((o) => o.value)).toEqual(['default']);
-        expect(getModelOptionsForAgentType('kimi').map((o) => o.value)).toEqual(['default']);
+        expect(getModelOptionsForAgentType('qwen' as never).map((o) => o.value)).toEqual(['default']);
+        expect(getModelOptionsForAgentType('kimi' as never).map((o) => o.value)).toEqual(['default']);
     });
 
     it('returns default-only static options for codex so preflight can provide account-specific models', () => {
@@ -113,11 +113,11 @@ describe('modelOptions', () => {
 
     it('prefers ACP session models when present', () => {
         const out = getModelOptionsForSession(
-            'opencode',
+            'opencode' as never,
             withMetadata({
                 sessionModelsV1: {
                     v: 1,
-                    provider: 'opencode',
+                    provider: 'opencode' as never,
                     updatedAt: 1,
                     currentModelId: 'model-a',
                     availableModels: [
@@ -188,13 +188,13 @@ describe('modelOptions', () => {
     });
 
     it('ignores stale dynamic session model rows for static-only providers and uses the static catalog', () => {
-        const staticKiroValues = getModelOptionsForAgentType('kiro').map((option) => option.value);
+        const staticKiroValues = getModelOptionsForAgentType('kiro' as never).map((option) => option.value);
         const out = getModelOptionsForSession(
-            'kiro',
+            'kiro' as never,
             withMetadata({
                 sessionModelsV1: {
                     v: 1,
-                    provider: 'kiro',
+                    provider: 'kiro' as never,
                     updatedAt: 1,
                     currentModelId: 'kiro-from-session',
                     availableModels: [
@@ -286,17 +286,17 @@ describe('modelOptions', () => {
         const metadata = withMetadata({
             sessionModelsV1: {
                 v: 1,
-                provider: 'opencode',
+                provider: 'opencode' as never,
                 updatedAt: 1,
                 currentModelId: 'model-a',
                 availableModels: [{ id: 'model-a', name: 'Model A' }],
             },
         });
 
-        expect(isModelSelectableForSession('opencode', metadata, 'model-a')).toBe(true);
-        expect(isModelSelectableForSession('opencode', metadata, 'default')).toBe(true);
+        expect(isModelSelectableForSession('opencode' as never, metadata, 'model-a')).toBe(true);
+        expect(isModelSelectableForSession('opencode' as never, metadata, 'default')).toBe(true);
         // Some providers accept custom model IDs even when a dynamic list is available.
-        expect(isModelSelectableForSession('opencode', metadata, 'not-a-model')).toBe(true);
+        expect(isModelSelectableForSession('opencode' as never, metadata, 'not-a-model')).toBe(true);
     });
 
     it('treats static Gemini models as selectable', () => {
@@ -324,13 +324,13 @@ describe('modelOptions', () => {
     });
 
     it('appends custom metadata override models after the static catalog for static-only providers', () => {
-        const staticKiroValues = getModelOptionsForAgentType('kiro').map((option) => option.value);
+        const staticKiroValues = getModelOptionsForAgentType('kiro' as never).map((option) => option.value);
         const out = getModelOptionsForSession(
-            'kiro',
+            'kiro' as never,
             withMetadata({
                 sessionModelsV1: {
                     v: 1,
-                    provider: 'kiro',
+                    provider: 'kiro' as never,
                     updatedAt: 1,
                     currentModelId: 'kiro-from-session',
                     availableModels: [
@@ -348,11 +348,11 @@ describe('modelOptions', () => {
     });
 
     it('derives selectable ids from the same static-only session model policy for freeform providers', () => {
-        const staticKiroValues = getModelOptionsForAgentType('kiro').map((option) => option.value);
+        const staticKiroValues = getModelOptionsForAgentType('kiro' as never).map((option) => option.value);
         const metadata = withMetadata({
             sessionModelsV1: {
                 v: 1,
-                provider: 'kiro',
+                provider: 'kiro' as never,
                 updatedAt: 1,
                 currentModelId: 'kiro-from-session',
                 availableModels: [
@@ -362,7 +362,7 @@ describe('modelOptions', () => {
             modelOverrideV1: { v: 1, updatedAt: 100, modelId: 'kiro-custom-model' },
         });
 
-        expect(getSelectableModelIdsForSession('kiro', metadata)).toEqual([
+        expect(getSelectableModelIdsForSession('kiro' as never, metadata)).toEqual([
             ...staticKiroValues,
             'kiro-custom-model',
         ]);
@@ -381,7 +381,7 @@ describe('modelOptions', () => {
 
     it('falls back to static options when dynamic list provider does not match agent', () => {
         const out = getModelOptionsForSession(
-            'opencode',
+            'opencode' as never,
             withMetadata({
                 sessionModelsV1: {
                     v: 1,
@@ -399,11 +399,11 @@ describe('modelOptions', () => {
     it('detects dynamic list support only for matching provider metadata', () => {
         expect(
             hasDynamicModelListForSession(
-                'opencode',
+                'opencode' as never,
                 withMetadata({
                     sessionModelsV1: {
                         v: 1,
-                        provider: 'opencode',
+                        provider: 'opencode' as never,
                         updatedAt: 1,
                         currentModelId: 'model-a',
                         availableModels: [{ id: 'model-a', name: 'Model A' }],
@@ -414,7 +414,7 @@ describe('modelOptions', () => {
 
         expect(
             hasDynamicModelListForSession(
-                'opencode',
+                'opencode' as never,
                 withMetadata({
                     sessionModelsV1: {
                         v: 1,
@@ -431,11 +431,11 @@ describe('modelOptions', () => {
     it('does not treat static-only provider metadata as dynamic list support', () => {
         expect(
             hasDynamicModelListForSession(
-                'kiro',
+                'kiro' as never,
                 withMetadata({
                     sessionModelsV1: {
                         v: 1,
-                        provider: 'kiro',
+                        provider: 'kiro' as never,
                         updatedAt: 1,
                         currentModelId: 'kiro-from-session',
                         availableModels: [{ id: 'kiro-from-session', name: 'Kiro (From Session)' }],
@@ -464,11 +464,11 @@ describe('modelOptions', () => {
 
     it('falls back to legacy ACP session models when canonical key is absent', () => {
         const out = getModelOptionsForSession(
-            'opencode',
+            'opencode' as never,
             withMetadata({
                 acpSessionModelsV1: {
                     v: 1,
-                    provider: 'opencode',
+                    provider: 'opencode' as never,
                     updatedAt: 1,
                     currentModelId: 'model-a',
                     availableModels: [{ id: 'model-a', name: 'Model A' }],
@@ -481,18 +481,18 @@ describe('modelOptions', () => {
 
     it('uses the newest valid model-state alias when canonical and legacy values diverge', () => {
         const out = getModelOptionsForSession(
-            'grok',
+            'grok' as never,
             withMetadata({
                 sessionModelsV1: {
                     v: 1,
-                    provider: 'grok',
+                    provider: 'grok' as never,
                     updatedAt: 10,
                     currentModelId: 'stale-model',
                     availableModels: [{ id: 'stale-model', name: 'Stale model' }],
                 },
                 acpSessionModelsV1: {
                     v: 1,
-                    provider: 'grok',
+                    provider: 'grok' as never,
                     updatedAt: 20,
                     currentModelId: 'grok-4.5',
                     availableModels: [{ id: 'grok-4.5', name: 'Grok 4.5' }],
@@ -505,7 +505,7 @@ describe('modelOptions', () => {
 
     it('reuses a uniquely matching provider-qualified model for an unqualified persisted selection', () => {
         const out = getModelOptionsForSession(
-            'pi',
+            'pi' as never,
             withMetadata({
                 modelOverrideV1: {
                     v: 1,
@@ -514,7 +514,7 @@ describe('modelOptions', () => {
                 },
                 sessionModelsV1: {
                     v: 1,
-                    provider: 'pi',
+                    provider: 'pi' as never,
                     updatedAt: 10,
                     currentModelId: 'openai-codex/gpt-5.6-luna',
                     availableModels: [{

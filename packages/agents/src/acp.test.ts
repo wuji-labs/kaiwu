@@ -5,12 +5,7 @@ import { getProviderCliRuntimeSpec } from './providers/providerCliRuntime.js';
 
 describe('built-in ACP config', () => {
   it('keeps the built-in ACP allowlist explicit and drift-free', () => {
-    expect(Object.keys(BUILT_IN_ACP_CONFIG).sort()).toEqual(['customAcp', 'kiro']);
-  });
-
-  it('keeps first-class Grok provider wiring out of the generic ACP catalog', () => {
-    expect(hasBuiltInAcpConfig('grok')).toBe(false);
-    expect(getBuiltInAcpConfig('grok')).toBeNull();
+    expect(Object.keys(BUILT_IN_ACP_CONFIG).sort()).toEqual(['customAcp']);
   });
 
   it('exposes Custom ACP as a built-in generic ACP agent family', () => {
@@ -29,24 +24,7 @@ describe('built-in ACP config', () => {
     });
   });
 
-  it('exposes Kiro as a built-in generic ACP agent', () => {
-    expect(hasBuiltInAcpConfig('kiro')).toBe(true);
-    expect(getBuiltInAcpConfig('kiro')).toMatchObject({
-      agentId: 'kiro',
-      launcher: {
-        command: getProviderCliRuntimeSpec('kiro').binaryName,
-        args: ['acp'],
-      },
-      transportProfile: 'kiro',
-      supportsLoadSession: true,
-      supportsModes: 'yes',
-      supportsModels: 'yes',
-      promptImageSupport: 'yes',
-    });
-  });
-
-  it('does not mark non-ACP shell-bridge providers as built-in ACP', () => {
+  it('does not mark non-ACP built-in agents as built-in ACP', () => {
     expect(hasBuiltInAcpConfig('gemini')).toBe(false);
-    expect(hasBuiltInAcpConfig('pi')).toBe(false);
   });
 });

@@ -1,14 +1,6 @@
 import { buildSettingArtifacts, defineSettingDefinitions } from '@happier-dev/protocol';
 import { z } from 'zod';
 import {
-    PET_COMPANION_POSITION_DEFAULT,
-    PetCompanionStoredPositionSchema,
-} from '@/sync/domains/pets/companionPosition/companionPosition';
-import {
-    PET_COMPANION_SIZE_SCALE_DEFAULT,
-    normalizePetCompanionSizeScale,
-} from '@/sync/domains/pets/companionSizeScale';
-import {
     DEFAULT_THEME_PROFILES_LOCAL_STATE,
     ThemeProfilesLocalStateSchema,
 } from '@/theme/profiles/themeProfilePersistence';
@@ -48,38 +40,6 @@ function objectKeyCount(value: unknown): number {
     return Object.keys(value as Record<string, unknown>).length;
 }
 
-function serializePetCompanionSizeScaleBucket(value: number): 'small' | 'default' | 'large' | 'xlarge' {
-    const scale = normalizePetCompanionSizeScale(value);
-    if (scale < 0.95) return 'small';
-    if (scale <= 1.05) return 'default';
-    if (scale <= 1.25) return 'large';
-    return 'xlarge';
-}
-
-const PetEnabledOverrideSchema = z.enum(['inherit', 'enabled', 'disabled']);
-const PetSelectedOverrideSchema = z.discriminatedUnion('kind', [
-    z.object({ kind: z.literal('inherit') }),
-    z.object({
-        kind: z.literal('detectedCodexHome'),
-        sourceKey: z.string().min(1),
-    }),
-    z.object({
-        kind: z.literal('happierManagedLocal'),
-        sourceKey: z.string().min(1),
-    }),
-]);
-const DesktopPetOverlayVisibilityModeOverrideSchema = z.enum([
-    'inherit',
-    'attentionOrActive',
-    'alwaysWhenEnabled',
-    'attentionOnly',
-]);
-const DesktopPetOverlayAnchorSchema = z.enum(['bottomRight', 'bottomLeft', 'topRight', 'topLeft']);
-const DesktopPetOverlayOffsetSchema = z.object({
-    x: z.number(),
-    y: z.number(),
-});
-const PetCompanionSizeScaleSchema = z.number().catch(PET_COMPANION_SIZE_SCALE_DEFAULT);
 const SessionMruOrderSchema = z.array(z.unknown())
     .transform((ids) => ids.filter((id): id is string => typeof id === 'string' && id.trim().length > 0).map((id) => id.trim()))
     .catch([]);
@@ -338,86 +298,6 @@ export const LOCAL_SETTING_DEFINITIONS = defineSettingDefinitions({
         default: 'full',
         description: 'Foreground notification presentation on this device',
         storageScope: 'local',
-    },
-    petsEnabledOverride: {
-        schema: PetEnabledOverrideSchema,
-        default: 'inherit',
-        description: 'Device override for pet companion enablement',
-        storageScope: 'local',
-        analytics: { trackCurrentState: true, trackChanges: true, valueKind: 'enum', privacy: 'safe', identityScope: 'device_user' },
-    },
-    petsSelectedPetOverride: {
-        schema: PetSelectedOverrideSchema,
-        default: { kind: 'inherit' },
-        description: 'Device-only pet package override',
-        storageScope: 'local',
-    },
-    petsCompanionPosition: {
-        schema: PetCompanionStoredPositionSchema,
-        default: PET_COMPANION_POSITION_DEFAULT,
-        description: 'Versioned normalized app-shell pet companion position on this device',
-        storageScope: 'local',
-    },
-    petsDismissedCompanionTrayItemKeys: {
-        schema: z.array(z.string().min(1)).catch([]),
-        default: [],
-        description: 'Device-local dismissed pet companion activity bubble keys',
-        storageScope: 'local',
-    },
-    petsCompanionSizeScale: {
-        schema: PetCompanionSizeScaleSchema,
-        default: PET_COMPANION_SIZE_SCALE_DEFAULT,
-        description: 'Device-local size multiplier for pet companion surfaces',
-        storageScope: 'local',
-        analytics: {
-            trackCurrentState: true,
-            trackChanges: true,
-            valueKind: 'bucket',
-            privacy: 'bucketed',
-            identityScope: 'device_user',
-            serializeCurrent: serializePetCompanionSizeScaleBucket,
-        },
-    },
-    petsDetectCodexPets: {
-        schema: z.boolean(),
-        default: true,
-        description: 'Discover Codex pet packages from local Codex homes on this device',
-        storageScope: 'local',
-        analytics: { trackCurrentState: true, trackChanges: true, valueKind: 'boolean', privacy: 'safe', identityScope: 'device_user' },
-    },
-    desktopPetOverlayEnabledOverride: {
-        schema: PetEnabledOverrideSchema,
-        default: 'inherit',
-        description: 'Device override for desktop pet overlay enablement',
-        storageScope: 'local',
-        analytics: { trackCurrentState: true, trackChanges: true, valueKind: 'enum', privacy: 'safe', identityScope: 'device_user' },
-    },
-    desktopPetOverlayVisibilityModeOverride: {
-        schema: DesktopPetOverlayVisibilityModeOverrideSchema,
-        default: 'inherit',
-        description: 'Device override for desktop pet overlay visibility mode',
-        storageScope: 'local',
-        analytics: { trackCurrentState: true, trackChanges: true, valueKind: 'enum', privacy: 'safe', identityScope: 'device_user' },
-    },
-    desktopPetOverlayAnchor: {
-        schema: DesktopPetOverlayAnchorSchema,
-        default: 'bottomRight',
-        description: 'Desktop pet overlay anchor on this device',
-        storageScope: 'local',
-        analytics: { trackCurrentState: true, trackChanges: true, valueKind: 'enum', privacy: 'safe', identityScope: 'device_user' },
-    },
-    desktopPetOverlayOffset: {
-        schema: DesktopPetOverlayOffsetSchema,
-        default: { x: 0, y: 0 },
-        description: 'Desktop pet overlay offset from the selected anchor on this device',
-        storageScope: 'local',
-    },
-    desktopPetOverlayLocked: {
-        schema: z.boolean(),
-        default: false,
-        description: 'Lock desktop pet overlay dragging on this device',
-        storageScope: 'local',
-        analytics: { trackCurrentState: true, trackChanges: true, valueKind: 'boolean', privacy: 'safe', identityScope: 'device_user' },
     },
     rightPaneWidthPx: {
         schema: z.number(),

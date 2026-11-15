@@ -125,19 +125,19 @@ describe('describeEffectiveModelMode', () => {
 
     it('keeps the requested model selected while exposing the last provider-applied model separately', () => {
         const out = describeEffectiveModelMode({
-            agentType: 'grok',
+            agentType: 'grok' as never,
             selectedModelId: 'model-b',
             metadata: buildMetadata({
                 sessionModelsV1: {
                     v: 1,
-                    provider: 'grok',
+                    provider: 'grok' as never,
                     updatedAt: 5,
                     currentModelId: 'model-a',
                     availableModels: [{ id: 'model-a', name: 'A' }, { id: 'model-b', name: 'B' }],
                 },
                 sessionAppliedModelV1: {
                     v: 1,
-                    provider: 'grok',
+                    provider: 'grok' as never,
                     updatedAt: 4,
                     modelId: 'model-a',
                 },
@@ -149,15 +149,15 @@ describe('describeEffectiveModelMode', () => {
 
     it('does not treat configured-next model state as proof that a model was applied', () => {
         const out = describeEffectiveModelMode({
-            agentType: 'grok',
+            agentType: 'grok' as never,
             selectedModelId: 'pending-model',
             metadata: buildMetadata({
                 sessionModelsV1: {
-                    v: 1, provider: 'grok', updatedAt: 5, currentModelId: 'model-a',
+                    v: 1, provider: 'grok' as never, updatedAt: 5, currentModelId: 'model-a',
                     availableModels: [{ id: 'model-a', name: 'A' }],
                 },
                 acpSessionModelsV1: {
-                    v: 1, provider: 'grok', updatedAt: 6, currentModelId: 'model-b',
+                    v: 1, provider: 'grok' as never, updatedAt: 6, currentModelId: 'model-b',
                     availableModels: [{ id: 'model-b', name: 'B' }],
                 },
             }),
@@ -173,14 +173,14 @@ describe('describeEffectiveModelMode', () => {
             metadata: buildMetadata({
                 sessionModelsV1: {
                     v: 1,
-                    provider: 'grok',
+                    provider: 'grok' as never,
                     updatedAt: 5,
                     currentModelId: 'grok-build',
                     availableModels: [{ id: 'grok-build', name: 'Grok Build' }],
                 },
                 sessionAppliedModelV1: {
                     v: 1,
-                    provider: 'grok',
+                    provider: 'grok' as never,
                     updatedAt: 6,
                     modelId: 'grok-build',
                 },

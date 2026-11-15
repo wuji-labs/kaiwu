@@ -7,11 +7,9 @@ import {
 } from './runtimeKinds.js';
 
 describe('runtimeKinds', () => {
-  it('exposes Codex and OpenCode runtime kind manifests from the shared catalog', () => {
+  it('exposes the Codex runtime kind manifest from the shared catalog', () => {
     expect(getAgentRuntimeKindsManifest('codex')).toMatchObject({ defaultKind: 'appServer' });
-    expect(getAgentRuntimeKindsManifest('opencode')).toMatchObject({ defaultKind: 'server' });
     expect(resolveDefaultAgentRuntimeKind('codex')).toBe('appServer');
-    expect(resolveDefaultAgentRuntimeKind('opencode')).toBe('server');
     expect(resolveDefaultAgentRuntimeKind('claude')).toBeNull();
   });
 
@@ -37,31 +35,6 @@ describe('runtimeKinds', () => {
       },
       media: { emitsSessionMedia: 'supported', nativeImageGeneration: 'unsupported' },
       handoff: { vendorStateTransfer: 'unsupported', requiresExplicitSessionId: true },
-      localControl: null,
-    });
-  });
-
-  it('resolves effective OpenCode runtime capabilities from the same shared shapes', () => {
-    expect(resolveAgentRuntimeControlSurface('opencode', 'server')).toMatchObject({
-      sessionStorage: { direct: true, persisted: true },
-      sessionCapabilities: {
-        sessionFork: { conversation: 'supported', fromMessage: 'supported' },
-        usageLimitRecovery: { checkNow: 'supported' },
-      },
-      localControl: {
-        supported: true,
-        topology: 'shared',
-        attachStrategy: 'provider_attach',
-      },
-      runtimeInput: null,
-    });
-
-    expect(resolveAgentRuntimeControlSurface('opencode', 'acp')).toMatchObject({
-      sessionStorage: { direct: false, persisted: true },
-      sessionCapabilities: {
-        sessionFork: { conversation: 'supported', fromMessage: 'unsupported' },
-        usageLimitRecovery: { checkNow: 'unsupported' },
-      },
       localControl: null,
     });
   });

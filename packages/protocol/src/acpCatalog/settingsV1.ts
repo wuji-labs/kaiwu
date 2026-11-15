@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
 import { McpValueRefV1Schema, type McpValueRefV1 } from '../mcpServers/settingsV1.js';
-import { KIRO_ACP_CATALOG_AUTH_PARSER_ID, KIRO_ACP_CATALOG_TRANSPORT_PROFILE_ID } from '../providers/kiro/acpCatalog.js';
 
 const ACP_CATALOG_ID_REGEX = /^[a-z0-9][a-z0-9._-]*$/;
 const ACP_ENV_KEY_REGEX = /^[A-Z_][A-Z0-9_]*$/;
@@ -16,11 +15,10 @@ export const AcpCatalogAuthParserV1Schema = z.enum([
   'unknown',
   'exitCodeOnly',
   'stdoutNonEmpty',
-  KIRO_ACP_CATALOG_AUTH_PARSER_ID,
 ]);
 export type AcpCatalogAuthParserV1 = z.infer<typeof AcpCatalogAuthParserV1Schema>;
 
-export const AcpCatalogTransportProfileV1Schema = z.enum(['generic', KIRO_ACP_CATALOG_TRANSPORT_PROFILE_ID]);
+export const AcpCatalogTransportProfileV1Schema = z.enum(['generic']);
 export type AcpCatalogTransportProfileV1 = z.infer<typeof AcpCatalogTransportProfileV1Schema>;
 
 export const AcpCatalogSupportHintV1Schema = z.enum(['unknown', 'yes', 'no']);

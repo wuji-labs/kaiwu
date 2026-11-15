@@ -35,7 +35,13 @@ export {
     type VendorResumeIdField,
     type VendorResumeSupportLevel,
 } from './types.js';
-export { AGENTS_CORE, DEFAULT_AGENT_ID } from './manifest.js';
+export {
+  AGENTS_CORE,
+  DEFAULT_ACTIVE_AGENT_IDS,
+  DEFAULT_AGENT_ID,
+  isDefaultActiveAgentId,
+  type DefaultActiveAgentId,
+} from './manifest.js';
 export {
   getAgentMediaCapabilities,
   getAgentMediaCapability,
@@ -180,15 +186,12 @@ export {
 export {
   CLAUDE_UNIFIED_TERMINAL_HOSTS,
   CLAUDE_UNIFIED_TERMINAL_RESUME_CHOICES,
-  KIMI_PROVIDER_FIELDS,
   type ClaudeUnifiedTerminalHost,
   type ClaudeUnifiedTerminalResumeChoice,
   type ClaudeUnifiedTerminalWorkspaceTrust,
   type ClaudeUnifiedTerminalWorkspaceTrustPolicy,
   normalizeCodexBackendMode,
-  normalizeKimiAcpPythonSelector,
   type CodexBackendMode,
-  type KimiAcpPythonSelector,
   getAllProviderSettingsDefinitions,
   getProviderSettingsDefinition,
   type ProviderSettingsDefinition,
@@ -313,30 +316,16 @@ export {
 } from './sessionControls/codexRuntimeDescriptorExtra.js';
 export {
   buildCodexAgentRuntimeDescriptor,
-  buildOpenCodeAgentRuntimeDescriptor,
   readSessionMetadataRuntimeDescriptor,
   type SessionMetadataConnectedServiceBinding,
 } from './sessionControls/agentRuntimeDescriptor.js';
 export { readSessionMetadataConnectedServiceBindings } from './providers/readSessionMetadataConnectedServiceBindings.js';
-export {
-  readOpenCodeSessionAffinityFromMetadata,
-  readOpenCodeSessionRuntimeHandleFromMetadata,
-  type OpenCodeSessionAffinity,
-  type OpenCodeSessionRuntimeHandle,
-} from './sessionControls/opencodeSessionRuntimeHandle.js';
-export {
-  buildOpenCodeRuntimeDescriptorProviderExtra,
-  readOpenCodeRuntimeDescriptorProviderExtra,
-  type OpenCodeRuntimeDescriptorProviderExtra,
-  type OpenCodeRuntimeDescriptorProviderExtraRuntimeHandle,
-} from './sessionControls/opencodeRuntimeDescriptorExtra.js';
 export {
   applyAgentRuntimeKindOverrideToAccountSettings,
   normalizeAgentRuntimeKindOverride,
   resolveAgentConfiguredRuntimeKind,
   resolveAgentRuntimeControlSurfaceForSession,
   resolveCodexSessionBackendMode,
-  resolveOpenCodeSessionBackendMode,
 } from './sessionControls/providerSessionBackends.js';
 export {
   parseSessionAppliedModelMetadataStateV1,

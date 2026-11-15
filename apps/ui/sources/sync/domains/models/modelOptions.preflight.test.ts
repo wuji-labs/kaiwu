@@ -10,7 +10,7 @@ import { getModelOptionsForAgentTypeOrPreflight } from './modelOptions';
 describe('modelOptions preflight', () => {
     it('treats Grok non-freeform preflight models as authoritative', () => {
         const out = getModelOptionsForAgentTypeOrPreflight({
-            agentType: 'grok',
+            agentType: 'grok' as never,
             preflight: {
                 availableModels: [{ id: 'grok-4.5', name: 'Grok 4.5' }],
                 supportsFreeform: false,
@@ -99,7 +99,7 @@ describe('modelOptions preflight', () => {
 
     it('prefers preflight model list and always includes Default first', () => {
         const out = getModelOptionsForAgentTypeOrPreflight({
-            agentType: 'opencode',
+            agentType: 'opencode' as never,
             preflight: {
                 availableModels: [
                     { id: 'model-a', name: 'Model A' },
@@ -123,7 +123,7 @@ describe('modelOptions preflight', () => {
 
     it('drops malformed preflight entries and still keeps Default first', () => {
         const out = getModelOptionsForAgentTypeOrPreflight({
-            agentType: 'opencode',
+            agentType: 'opencode' as never,
             preflight: {
                 availableModels: [
                     { id: 'default', name: 'Default (Agent)' },

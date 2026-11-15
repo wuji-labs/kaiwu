@@ -30,54 +30,8 @@ describe('provider local auth registry', () => {
         }]);
     });
 
-    it('returns a Copilot launch strategy that runs the direct login command', () => {
-        const plugin = getProviderLocalAuthPlugin('copilot');
-        const launches = plugin?.buildAuthLaunches?.({ resolvedPath: '/usr/local/bin/copilot' }) ?? [];
-
-        expect(launches).toEqual([{
-            kind: 'primary',
-            initialCommand: '/usr/local/bin/copilot login',
-        }]);
-    });
-
-    it('returns a Kilo launch strategy that starts the CLI and submits /connect as terminal input', () => {
-        const plugin = getProviderLocalAuthPlugin('kilo');
-        const launches = plugin?.buildAuthLaunches?.({ resolvedPath: '/usr/local/bin/kilo' }) ?? [];
-
-        expect(launches).toEqual([{
-            kind: 'primary',
-            initialCommand: '/usr/local/bin/kilo',
-            initialInput: '/connect\r',
-        }]);
-    });
-
-    it('returns a Kiro launch strategy that runs the direct login command', () => {
-        const plugin = getProviderLocalAuthPlugin('kiro');
-        const launches = plugin?.buildAuthLaunches?.({ resolvedPath: '/usr/local/bin/kiro-cli' }) ?? [];
-
-        expect(launches).toEqual([{
-            kind: 'primary',
-            initialCommand: '/usr/local/bin/kiro-cli login',
-        }]);
-    });
-
-    it('projects Grok primary and device-code actions through the generic ordered contract', () => {
-        const plugin = getProviderLocalAuthPlugin('grok');
-
-        expect(plugin?.buildAuthLaunches?.({ resolvedPath: '/Applications/Grok Build/grok' })).toEqual([
-            {
-                kind: 'primary',
-                initialCommand: "'/Applications/Grok Build/grok' login",
-            },
-            {
-                kind: 'device_code',
-                initialCommand: "'/Applications/Grok Build/grok' login --device-auth",
-            },
-        ]);
-    });
-
     it('uses centralized provider setup guide URLs for local auth plugins', () => {
-        for (const providerId of ['claude', 'codex', 'opencode', 'kiro', 'copilot'] as const) {
+        for (const providerId of ['claude', 'codex'] as const) {
             expect(getProviderLocalAuthPlugin(providerId)?.docsUrl ?? null).toBe(getProviderCliInstallGuideUrl(providerId));
         }
     });

@@ -26,13 +26,13 @@ describe('agents/enabled', () => {
                 expected: true,
             },
             {
-                agentId: 'auggie' as const,
-                backendEnabledByTargetKey: { [buildBackendTargetKey({ kind: 'builtInAgent', agentId: 'auggie' })]: false } as Record<string, boolean>,
+                agentId: 'codex' as const,
+                backendEnabledByTargetKey: { [buildBackendTargetKey({ kind: 'builtInAgent', agentId: 'codex' })]: false } as Record<string, boolean>,
                 expected: false,
             },
             {
-                agentId: 'auggie' as const,
-                backendEnabledByTargetKey: { [buildBackendTargetKey({ kind: 'builtInAgent', agentId: 'auggie' })]: true } as Record<string, boolean>,
+                agentId: 'codex' as const,
+                backendEnabledByTargetKey: { [buildBackendTargetKey({ kind: 'builtInAgent', agentId: 'codex' })]: true } as Record<string, boolean>,
                 expected: true,
             },
         ];
@@ -47,16 +47,16 @@ describe('agents/enabled', () => {
     });
 
     it('returns enabled agent ids in display order', () => {
-        expect(getEnabledAgentIds({ backendEnabledByTargetKey: {} })).toEqual(['claude', 'codex', 'opencode', 'gemini', 'auggie', 'qwen', 'kimi', 'kilo', 'kiro', 'customAcp', 'pi', 'copilot', 'cursor', 'grok']);
+        expect(getEnabledAgentIds({ backendEnabledByTargetKey: {} })).toEqual(['claude', 'codex', 'gemini', 'customAcp']);
         expect(getEnabledAgentIds({
             backendEnabledByTargetKey: {
                 [buildBackendTargetKey({ kind: 'builtInAgent', agentId: 'gemini' })]: false,
-                [buildBackendTargetKey({ kind: 'builtInAgent', agentId: 'auggie' })]: false,
+                [buildBackendTargetKey({ kind: 'builtInAgent', agentId: 'codex' })]: false,
             },
-        })).toEqual(['claude', 'codex', 'opencode', 'qwen', 'kimi', 'kilo', 'kiro', 'customAcp', 'pi', 'copilot', 'cursor', 'grok']);
+        })).toEqual(['claude', 'customAcp']);
     });
 
     it('ignores unknown backend ids in the toggle map', () => {
-        expect(getEnabledAgentIds({ backendEnabledByTargetKey: { unknownAgent: false } })).toEqual(['claude', 'codex', 'opencode', 'gemini', 'auggie', 'qwen', 'kimi', 'kilo', 'kiro', 'customAcp', 'pi', 'copilot', 'cursor', 'grok']);
+        expect(getEnabledAgentIds({ backendEnabledByTargetKey: { unknownAgent: false } })).toEqual(['claude', 'codex', 'gemini', 'customAcp']);
     });
 });

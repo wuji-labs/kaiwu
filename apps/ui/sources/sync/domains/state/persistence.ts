@@ -41,7 +41,6 @@ import {
     serverAccountScopeKeySuffix,
     type ServerAccountScope,
 } from '../scope/serverAccountScope';
-import type { LocalPetSourceMetadata } from '../pets/localPetSourceMetadata';
 import { readNonBlankSessionControlIdentifier } from '@/sync/domains/sessionControl/opaqueIdentifiers';
 var persistedStorage: MMKV | null = null;
 
@@ -68,10 +67,6 @@ function sessionModelModesKey(scope?: ServerAccountScope | null): string {
 
 function syncReliabilityEventsKey(): string {
     return 'sync-reliability-events-v1';
-}
-
-function localPetSourcesKey(): string {
-    return 'local-pet-sources-v1';
 }
 
 function lastChangesCursorByAccountIdKey(): string {
@@ -517,71 +512,6 @@ export function loadThemeRuntimeLocalState(): ThemeRuntimeLocalState {
     };
 }
 
-const LocalPetSourceMetadataSchema = z
-    .object({
-        kind: z.enum(['detectedCodexHome', 'happierManagedLocal']),
-        sourceKey: z.string().min(1).max(500),
-        petId: z.string().min(1).max(200),
-        displayName: z.string().min(1).max(200),
-        mediaType: z.enum(['image/png', 'image/webp']).optional(),
-        digest: z.string().min(1).max(500).optional(),
-        sizeBytes: z.number().int().min(0).optional(),
-        daemonTarget: z.object({
-            machineId: z.string().min(1).max(500),
-            serverId: z.string().min(1).max(500),
-        }),
-    })
-    .strip();
-
-export function loadLocalPetSourcesBySourceKey(): Record<string, LocalPetSourceMetadata> {
-    const mmkv = getPersistenceStorage();
-    const key = localPetSourcesKey();
-    const raw = mmkv.getString(key);
-    if (!raw) return {};
-    try {
-        const parsed = JSON.parse(raw) as unknown;
-        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-            mmkv.delete(key);
-            return {};
-        }
-
-        const out: Record<string, LocalPetSourceMetadata> = {};
-        for (const [key, value] of Object.entries(parsed as Record<string, unknown>)) {
-            const result = LocalPetSourceMetadataSchema.safeParse(value);
-            if (!result.success) continue;
-            if (result.data.sourceKey !== key) continue;
-            out[key] = result.data;
-        }
-        const nextRaw = JSON.stringify(out);
-        if (Object.keys(out).length === 0) {
-            mmkv.delete(key);
-        } else if (nextRaw !== raw) {
-            mmkv.set(key, nextRaw);
-        }
-        return out;
-    } catch (e) {
-        console.error('Failed to parse local pet sources', e);
-        mmkv.delete(key);
-        return {};
-    }
-}
-
-export function saveLocalPetSourcesBySourceKey(sources: Record<string, LocalPetSourceMetadata>): void {
-    const mmkv = getPersistenceStorage();
-    const safeSources: Record<string, LocalPetSourceMetadata> = {};
-    for (const [key, source] of Object.entries(sources)) {
-        const result = LocalPetSourceMetadataSchema.safeParse(source);
-        if (!result.success) continue;
-        if (result.data.sourceKey !== key) continue;
-        safeSources[key] = result.data;
-    }
-    if (Object.keys(safeSources).length === 0) {
-        mmkv.delete(localPetSourcesKey());
-        return;
-    }
-    mmkv.set(localPetSourcesKey(), JSON.stringify(safeSources));
-}
-
 export function loadThemePreference(): 'light' | 'dark' | 'adaptive' {
     return loadThemeRuntimeLocalState().themePreference;
 }
@@ -810,9 +740,6 @@ export function loadNewSessionDraft(scope?: ServerAccountScope | null): NewSessi
         const agentNewSessionOptionStateByAgentId = parseDraftAgentNewSessionOptionStateByAgentId(
             (parsed as any).agentNewSessionOptionStateByAgentId,
         );
-        const legacyAuggieAllowIndexing = typeof (parsed as any).auggieAllowIndexing === 'boolean'
-            ? (parsed as any).auggieAllowIndexing
-            : undefined;
         const automationDraft = sanitizeNewSessionAutomationDraft((parsed as any).automationDraft);
         const codexBackendMode = parseDraftCodexBackendMode((parsed as any).codexBackendMode);
         const updatedAt = typeof parsed.updatedAt === 'number' ? parsed.updatedAt : Date.now();
@@ -820,14 +747,6 @@ export function loadNewSessionDraft(scope?: ServerAccountScope | null): NewSessi
         const migratedAgentOptions: Record<string, Record<string, unknown>> = {
             ...(agentNewSessionOptionStateByAgentId ?? {}),
         };
-        // Legacy migration: older drafts stored `auggieAllowIndexing` at top-level.
-        // Keep reading it so users don't lose their local draft state.
-        if (typeof legacyAuggieAllowIndexing === 'boolean') {
-            migratedAgentOptions.auggie = {
-                ...(migratedAgentOptions.auggie ?? {}),
-                allowIndexing: legacyAuggieAllowIndexing,
-            };
-        }
 
         return {
             input,

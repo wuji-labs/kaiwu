@@ -25,7 +25,6 @@ import { upsertAcpBackendDefinitionV1 } from '@/sync/domains/acpCatalog/acpCatal
 import { useSettingMutable } from '@/sync/domains/state/storage';
 import { createDraftAcpBackend } from './createDraftAcpBackend';
 import { parseMultilineField, stringifyMultilineField } from './multilineFields';
-import { resolveAcpBackendTransportProfile } from './resolveAcpBackendTransportProfile';
 import { Icon } from '@/components/ui/icons/Icon';
 
 const authSupportOptions: DropdownMenuItem[] = [
@@ -39,7 +38,6 @@ const authParserOptions: DropdownMenuItem[] = [
     { id: 'unknown', title: 'Unknown' },
     { id: 'exitCodeOnly', title: 'Exit code only' },
     { id: 'stdoutNonEmpty', title: 'Stdout non-empty' },
-    { id: 'kiroWhoamiJson', title: 'Kiro whoami JSON' },
 ];
 
 const supportHintOptions: DropdownMenuItem[] = [
@@ -107,10 +105,6 @@ export const AcpBackendEditorScreen = React.memo(function AcpBackendEditorScreen
             title: draft.title.trim(),
             description: draft.description?.trim() ? draft.description.trim() : undefined,
             command: draft.command.trim(),
-            transportProfile: resolveAcpBackendTransportProfile({
-                command: draft.command,
-                auth: draft.auth,
-            }),
             auth: draft.auth
                 ? {
                     ...draft.auth,

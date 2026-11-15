@@ -64,14 +64,6 @@ export const AGENT_LOCAL_CLI_CONFIG: Readonly<Record<AgentId, AgentLocalCliConfi
       args: ['login'],
     }],
   }),
-  opencode: createAgentLocalCliConfig('opencode', {
-    machineLoginKey: 'opencode',
-    authSupport: 'login_terminal',
-    authLaunches: [{
-      kind: 'primary',
-      args: ['auth', 'login'],
-    }],
-  }),
   gemini: createAgentLocalCliConfig('gemini', {
     machineLoginKey: 'gemini-cli',
     authSupport: 'login_terminal',
@@ -80,82 +72,10 @@ export const AGENT_LOCAL_CLI_CONFIG: Readonly<Record<AgentId, AgentLocalCliConfi
       args: ['auth'],
     }],
   }),
-  auggie: createAgentLocalCliConfig('auggie', {
-    machineLoginKey: 'auggie',
-    authSupport: 'login_terminal',
-    authLaunches: [{
-      kind: 'primary',
-      args: ['login'],
-    }],
-  }),
-  qwen: createAgentLocalCliConfig('qwen', {
-    machineLoginKey: 'qwen',
-    authSupport: 'login_terminal',
-    authLaunches: [{
-      kind: 'primary',
-      args: [],
-      initialInput: '/auth\r',
-    }],
-  }),
-  kimi: createAgentLocalCliConfig('kimi', {
-    machineLoginKey: 'kimi',
-    authSupport: 'login_terminal',
-    authLaunches: [{
-      kind: 'primary',
-      args: [],
-      initialInput: '/setup\r',
-    }],
-  }),
-  kilo: createAgentLocalCliConfig('kilo', {
-    machineLoginKey: 'kilo',
-    authSupport: 'login_terminal',
-    authLaunches: [{
-      kind: 'primary',
-      args: [],
-      initialInput: '/connect\r',
-    }],
-  }),
-  kiro: createAgentLocalCliConfig('kiro', {
-    machineLoginKey: 'kiro-cli',
-    authSupport: 'login_terminal',
-    authLaunches: [{
-      kind: 'primary',
-      args: ['login'],
-    }],
-  }),
   customAcp: createAgentLocalCliConfig('customAcp', {
     machineLoginKey: 'custom-acp',
     authSupport: 'unsupported',
     authLaunches: [],
-  }),
-  pi: createAgentLocalCliConfig('pi', {
-    machineLoginKey: 'pi',
-    authSupport: 'status_only',
-    authLaunches: [],
-  }),
-  copilot: createAgentLocalCliConfig('copilot', {
-    machineLoginKey: 'copilot',
-    authSupport: 'login_terminal',
-    authLaunches: [{
-      kind: 'primary',
-      args: ['login'],
-    }],
-  }),
-  cursor: createAgentLocalCliConfig('cursor', {
-    machineLoginKey: 'cursor-agent',
-    authSupport: 'login_terminal',
-    authLaunches: [{
-      kind: 'primary',
-      args: ['login'],
-    }],
-  }),
-  grok: createAgentLocalCliConfig('grok', {
-    machineLoginKey: 'grok',
-    authSupport: 'login_terminal',
-    authLaunches: [
-      { kind: 'primary', args: ['login'] },
-      { kind: 'device_code', args: ['login', '--device-auth'] },
-    ],
   }),
 });
 

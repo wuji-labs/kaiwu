@@ -7,9 +7,9 @@ import { filterConnectedServiceV2ProfilesForAgent } from './filterConnectedServi
 describe('filterConnectedServiceV2ProfilesForAgent', () => {
   it('filters connected profiles by allowed kinds when configured', () => {
     const agentCore: AgentCore = {
-      id: 'pi',
-      cliSubcommand: 'pi',
-      detectKey: 'pi',
+      id: 'gemini',
+      cliSubcommand: 'gemini',
+      detectKey: 'gemini',
       cloudConnect: null,
       connectedServices: {
         supportedServiceIds: ['openai-codex', 'anthropic'],
@@ -22,7 +22,7 @@ describe('filterConnectedServiceV2ProfilesForAgent', () => {
       sessionCapabilities: UNSUPPORTED_AGENT_SESSION_CAPABILITIES,
       handoff: { vendorStateTransfer: 'unsupported' },
       tools: { delivery: 'shell_bridge', support: 'experimental' },
-      media: getAgentMediaCapabilities('pi'),
+      media: getAgentMediaCapabilities('gemini'),
     };
 
     const profiles = [
@@ -42,9 +42,9 @@ describe('filterConnectedServiceV2ProfilesForAgent', () => {
 
   it('does not filter when no allowed-kinds mapping exists for the service', () => {
     const agentCore: AgentCore = {
-      id: 'pi',
-      cliSubcommand: 'pi',
-      detectKey: 'pi',
+      id: 'gemini',
+      cliSubcommand: 'gemini',
+      detectKey: 'gemini',
       cloudConnect: null,
       connectedServices: {
         supportedServiceIds: ['openai-codex', 'anthropic'],
@@ -54,7 +54,7 @@ describe('filterConnectedServiceV2ProfilesForAgent', () => {
       sessionCapabilities: UNSUPPORTED_AGENT_SESSION_CAPABILITIES,
       handoff: { vendorStateTransfer: 'unsupported' },
       tools: { delivery: 'shell_bridge', support: 'experimental' },
-      media: getAgentMediaCapabilities('pi'),
+      media: getAgentMediaCapabilities('gemini'),
     };
 
     const profiles = [

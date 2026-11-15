@@ -16,28 +16,28 @@ function createMetadata(overrides: Partial<Metadata> = {}): Metadata {
 
 describe('computeSessionConfigOptionControls', () => {
     it('returns null when ACP config options are missing', () => {
-        expect(computeSessionConfigOptionControls({ agentId: 'opencode', metadata: null })).toBeNull();
-        expect(computeSessionConfigOptionControls({ agentId: 'opencode', metadata: createMetadata() })).toBeNull();
+        expect(computeSessionConfigOptionControls({ agentId: 'opencode' as never, metadata: null })).toBeNull();
+        expect(computeSessionConfigOptionControls({ agentId: 'opencode' as never, metadata: createMetadata() })).toBeNull();
     });
 
     it('returns null when provider does not match the session agent', () => {
         const metadata = createMetadata({
             acpConfigOptionsV1: {
                 v: 1,
-                provider: 'qwen',
+                provider: 'qwen' as never,
                 updatedAt: 1,
                 configOptions: [{ id: 'telemetry', name: 'Telemetry', type: 'boolean', currentValue: 'false' }],
             },
         });
 
-        expect(computeSessionConfigOptionControls({ agentId: 'opencode', metadata })).toBeNull();
+        expect(computeSessionConfigOptionControls({ agentId: 'opencode' as never, metadata })).toBeNull();
     });
 
     it('returns config options with pending state when override differs from currentValue', () => {
         const metadata = createMetadata({
             sessionConfigOptionsV1: {
                 v: 1,
-                provider: 'opencode',
+                provider: 'opencode' as never,
                 updatedAt: 1,
                 configOptions: [{ id: 'telemetry', name: 'Telemetry', type: 'boolean', currentValue: 'false' }],
             },
@@ -48,7 +48,7 @@ describe('computeSessionConfigOptionControls', () => {
             },
         });
 
-        const res = computeSessionConfigOptionControls({ agentId: 'opencode', metadata });
+        const res = computeSessionConfigOptionControls({ agentId: 'opencode' as never, metadata });
         expect(res).not.toBeNull();
         expect(res?.[0]).toMatchObject({
             option: { id: 'telemetry', currentValue: 'false' },
@@ -62,7 +62,7 @@ describe('computeSessionConfigOptionControls', () => {
         const metadata = createMetadata({
             sessionConfigOptionsV1: {
                 v: 1,
-                provider: 'opencode',
+                provider: 'opencode' as never,
                 updatedAt: 1,
                 configOptions: [{
                     id: 'reasoning_effort',
@@ -83,7 +83,7 @@ describe('computeSessionConfigOptionControls', () => {
             },
         });
 
-        const res = computeSessionConfigOptionControls({ agentId: 'opencode', metadata });
+        const res = computeSessionConfigOptionControls({ agentId: 'opencode' as never, metadata });
         expect(res?.[0]).toMatchObject({
             option: { id: 'reasoning_effort', currentValue: 'medium' },
             effectiveValue: 'medium',
@@ -96,7 +96,7 @@ describe('computeSessionConfigOptionControls', () => {
         const metadata = createMetadata({
             sessionConfigOptionsV1: {
                 v: 1,
-                provider: 'opencode',
+                provider: 'opencode' as never,
                 updatedAt: 1,
                 configOptions: [{
                     id: 'reasoning_effort',
@@ -116,7 +116,7 @@ describe('computeSessionConfigOptionControls', () => {
             },
         });
 
-        const res = computeSessionConfigOptionControls({ agentId: 'opencode', metadata });
+        const res = computeSessionConfigOptionControls({ agentId: 'opencode' as never, metadata });
         expect(res?.[0]).toMatchObject({
             requestedValue: 'high',
             effectiveValue: 'high',
@@ -128,7 +128,7 @@ describe('computeSessionConfigOptionControls', () => {
         const metadata = createMetadata({
             sessionConfigOptionsV1: {
                 v: 1,
-                provider: 'cursor',
+                provider: 'cursor' as never,
                 updatedAt: 1,
                 configOptions: [{
                     id: ' effort ',
@@ -148,7 +148,7 @@ describe('computeSessionConfigOptionControls', () => {
             },
         });
 
-        expect(computeSessionConfigOptionControls({ agentId: 'cursor', metadata })?.[0]).toMatchObject({
+        expect(computeSessionConfigOptionControls({ agentId: 'cursor' as never, metadata })?.[0]).toMatchObject({
             option: {
                 id: ' effort ',
                 currentValue: ' high ',
@@ -166,7 +166,7 @@ describe('computeSessionConfigOptionControls', () => {
         const metadata = createMetadata({
             sessionConfigOptionsV1: {
                 v: 1,
-                provider: 'cursor',
+                provider: 'cursor' as never,
                 updatedAt: 1,
                 configOptions: [{
                     id: 'reasoning_effort',
@@ -181,7 +181,7 @@ describe('computeSessionConfigOptionControls', () => {
             },
         });
 
-        const res = computeSessionConfigOptionControls({ agentId: 'cursor', metadata });
+        const res = computeSessionConfigOptionControls({ agentId: 'cursor' as never, metadata });
 
         expect(res?.[0]?.option.options).toEqual([
             { value: 'high', name: 'High' },
@@ -193,7 +193,7 @@ describe('computeSessionConfigOptionControls', () => {
         const metadata = createMetadata({
             sessionConfigOptionsV1: {
                 v: 1,
-                provider: 'cursor',
+                provider: 'cursor' as never,
                 updatedAt: 1,
                 configOptions: [{
                     id: 'fast',
@@ -208,7 +208,7 @@ describe('computeSessionConfigOptionControls', () => {
             },
         });
 
-        const res = computeSessionConfigOptionControls({ agentId: 'cursor', metadata });
+        const res = computeSessionConfigOptionControls({ agentId: 'cursor' as never, metadata });
 
         expect(res?.[0]?.option.options).toEqual([
             { value: 'false', name: 'Off' },
@@ -220,21 +220,21 @@ describe('computeSessionConfigOptionControls', () => {
         const metadata = createMetadata({
             sessionModesV1: {
                 v: 1,
-                provider: 'opencode',
+                provider: 'opencode' as never,
                 updatedAt: 1,
                 currentModeId: 'build',
                 availableModes: [{ id: 'build', name: 'Build' }, { id: 'plan', name: 'Plan' }],
             },
             sessionModelsV1: {
                 v: 1,
-                provider: 'opencode',
+                provider: 'opencode' as never,
                 updatedAt: 1,
                 currentModelId: 'm1',
                 availableModels: [{ id: 'm1', name: 'Model 1' }],
             },
             sessionConfigOptionsV1: {
                 v: 1,
-                provider: 'opencode',
+                provider: 'opencode' as never,
                 updatedAt: 1,
                 configOptions: [
                     { id: 'mode', name: 'Mode', type: 'select', currentValue: 'build', options: [{ value: 'build', name: 'Build' }] },
@@ -244,13 +244,13 @@ describe('computeSessionConfigOptionControls', () => {
             },
         });
 
-        const res = computeSessionConfigOptionControls({ agentId: 'opencode', metadata });
+        const res = computeSessionConfigOptionControls({ agentId: 'opencode' as never, metadata });
         expect(res?.map((control) => control.option.id)).toEqual(['telemetry']);
     });
 
     it('hides model config options from override controls when model options own them', () => {
         const res = computeSessionConfigOptionControlsForProvider({
-            providerId: 'cursor',
+            providerId: 'cursor' as never,
             hideModeOption: true,
             hideModelOption: true,
             configOptions: [
@@ -296,7 +296,7 @@ describe('computeSessionConfigOptionControls', () => {
         const metadata = createMetadata({
             sessionConfigOptionsV1: {
                 v: 1,
-                provider: 'opencode',
+                provider: 'opencode' as never,
                 updatedAt: 1,
                 configOptions: [
                     { id: 'good', name: 'Good', type: 'string', currentValue: 'enabled' },
@@ -312,7 +312,7 @@ describe('computeSessionConfigOptionControls', () => {
             },
         });
 
-        const res = computeSessionConfigOptionControls({ agentId: 'opencode', metadata });
+        const res = computeSessionConfigOptionControls({ agentId: 'opencode' as never, metadata });
         expect(res).toHaveLength(1);
         expect(res?.[0]).toMatchObject({
             option: { id: 'good', currentValue: 'enabled' },
@@ -325,7 +325,7 @@ describe('computeSessionConfigOptionControls', () => {
         const metadata = createMetadata({
             sessionConfigOptionsV1: {
                 v: 1,
-                provider: 'opencode',
+                provider: 'opencode' as never,
                 updatedAt: 1,
                 configOptions: [
                     { id: 'booleanFlag', name: 'Boolean flag', type: 'boolean', currentValue: false },
@@ -342,7 +342,7 @@ describe('computeSessionConfigOptionControls', () => {
             },
         });
 
-        const res = computeSessionConfigOptionControls({ agentId: 'opencode', metadata });
+        const res = computeSessionConfigOptionControls({ agentId: 'opencode' as never, metadata });
         expect(res).toEqual([
             expect.objectContaining({
                 option: expect.objectContaining({ id: 'booleanFlag', currentValue: 'false' }),
@@ -363,7 +363,7 @@ describe('computeSessionConfigOptionControls', () => {
         const metadata = createMetadata({
             acpConfigOptionsV1: {
                 v: 1,
-                provider: 'opencode',
+                provider: 'opencode' as never,
                 updatedAt: 1,
                 configOptions: [{ id: 'telemetry', name: 'Telemetry', type: 'boolean', currentValue: 'false' }],
             },
@@ -374,7 +374,7 @@ describe('computeSessionConfigOptionControls', () => {
             },
         });
 
-        const res = computeSessionConfigOptionControls({ agentId: 'opencode', metadata });
+        const res = computeSessionConfigOptionControls({ agentId: 'opencode' as never, metadata });
         expect(res?.[0]?.effectiveValue).toBe('true');
     });
 
@@ -382,13 +382,13 @@ describe('computeSessionConfigOptionControls', () => {
         const metadata = createMetadata({
             sessionConfigOptionsV1: {
                 v: 1,
-                provider: 'opencode',
+                provider: 'opencode' as never,
                 updatedAt: 10,
                 configOptions: [{ id: 'telemetry', name: 'Telemetry', type: 'boolean', currentValue: 'false' }],
             },
             acpConfigOptionsV1: {
                 v: 1,
-                provider: 'opencode',
+                provider: 'opencode' as never,
                 updatedAt: 20,
                 configOptions: [{ id: 'telemetry', name: 'Telemetry', type: 'boolean', currentValue: 'true' }],
             },
@@ -404,7 +404,7 @@ describe('computeSessionConfigOptionControls', () => {
             },
         });
 
-        expect(computeSessionConfigOptionControls({ agentId: 'opencode', metadata })?.[0]).toMatchObject({
+        expect(computeSessionConfigOptionControls({ agentId: 'opencode' as never, metadata })?.[0]).toMatchObject({
             option: { currentValue: 'true' },
             requestedValue: 'false',
             effectiveValue: 'false',

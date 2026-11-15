@@ -44,11 +44,7 @@ export type SessionMetadataAgentIdentityV1 = Readonly<{
 
 function resolveDeclaredAgentId(record: Record<string, unknown>): AgentId | null {
   const runtimeDescriptor = readAgentRuntimeDescriptorV1(record.agentRuntimeDescriptorV1);
-  if (
-    runtimeDescriptor?.providerId === 'codex'
-    || runtimeDescriptor?.providerId === 'opencode'
-    || runtimeDescriptor?.providerId === 'pi'
-  ) {
+  if (runtimeDescriptor?.providerId === 'codex') {
     return runtimeDescriptor.providerId;
   }
   return null;

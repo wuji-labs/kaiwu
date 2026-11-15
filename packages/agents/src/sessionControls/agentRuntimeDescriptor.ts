@@ -5,17 +5,7 @@ import {
   buildCodexRuntimeDescriptorProviderExtra,
   readCodexRuntimeDescriptorProviderExtra,
 } from './codexRuntimeDescriptorExtra.js';
-import {
-  normalizeOpenCodeBackendMode,
-  normalizeOpenCodeServerBaseUrl,
-  normalizeOpenCodeServerBaseUrlExplicit,
-  type OpenCodeBackendMode,
-} from '../providerSettings/definitions/opencode.js';
-import {
-  readOpenCodeRuntimeDescriptorProviderExtra,
-} from './opencodeRuntimeDescriptorExtra.js';
-
-type SupportedRuntimeDescriptorProviderId = 'codex' | 'opencode' | 'pi';
+type SupportedRuntimeDescriptorProviderId = 'codex';
 
 export type SessionMetadataConnectedServiceBinding = Readonly<
   | { source: 'native' }
@@ -43,18 +33,6 @@ type SharedRuntimeDescriptorByProviderId = {
     connectedServiceGroupId: string | null;
     homePath: string | null;
     sqliteHomePath: string | null;
-  }>;
-  opencode: Readonly<{
-    providerId: 'opencode';
-    backendMode: OpenCodeBackendMode | null;
-    vendorSessionId: string | null;
-    serverBaseUrl: string | null;
-    serverBaseUrlExplicit: boolean;
-  }>;
-  pi: Readonly<{
-    providerId: 'pi';
-    vendorSessionId: string | null;
-    sessionFile: string | null;
   }>;
 };
 
@@ -151,60 +129,6 @@ export function buildCodexAgentRuntimeDescriptor(params: Readonly<{
   };
 }
 
-export function buildOpenCodeAgentRuntimeDescriptor(params: Readonly<{
-  backendMode: OpenCodeBackendMode;
-  vendorSessionId?: string | null;
-  serverBaseUrl?: string | null;
-  serverBaseUrlExplicit?: boolean;
-}>): Readonly<{
-  v: 1;
-  providerId: 'opencode';
-  provider: {
-    backendMode: OpenCodeBackendMode;
-    vendorSessionId?: string;
-    serverBaseUrl?: string;
-    serverBaseUrlExplicit?: true;
-    providerExtra: {
-      owner: 'opencode';
-      schemaId: 'opencode.agentRuntimeDescriptorExtra';
-      v: 1;
-      runtimeHandle?: {
-        backendMode?: OpenCodeBackendMode;
-        vendorSessionId?: string;
-        serverBaseUrl?: string;
-        serverBaseUrlExplicit?: true;
-      };
-  };
-};
-}> {
-  const vendorSessionId = normalizeTrimmedString(params.vendorSessionId);
-  const rawServerBaseUrl = normalizeTrimmedString(params.serverBaseUrl);
-  const serverBaseUrlExplicit = normalizeOpenCodeServerBaseUrlExplicit(params.serverBaseUrlExplicit);
-  const serverBaseUrl = serverBaseUrlExplicit ? rawServerBaseUrl : null;
-
-  return {
-    v: 1,
-    providerId: 'opencode',
-    provider: {
-      backendMode: params.backendMode,
-      ...(vendorSessionId ? { vendorSessionId } : {}),
-      ...(serverBaseUrl ? { serverBaseUrl } : {}),
-      ...(serverBaseUrl && serverBaseUrlExplicit ? { serverBaseUrlExplicit: true } : {}),
-      providerExtra: {
-        owner: 'opencode',
-        schemaId: 'opencode.agentRuntimeDescriptorExtra',
-        v: 1,
-        runtimeHandle: {
-          backendMode: params.backendMode,
-          ...(vendorSessionId ? { vendorSessionId } : {}),
-          ...(serverBaseUrl ? { serverBaseUrl } : {}),
-          ...(serverBaseUrl && serverBaseUrlExplicit ? { serverBaseUrlExplicit: true } : {}),
-        },
-      },
-    },
-  };
-}
-
 function normalizeCodexConnectedServiceFields(params: Readonly<{
   home: 'user' | 'connectedService' | null;
   connectedServiceId: string | null;
@@ -239,16 +163,8 @@ export function readSessionMetadataRuntimeDescriptor(
 ): SharedRuntimeDescriptorByProviderId['codex'] | null;
 export function readSessionMetadataRuntimeDescriptor(
   metadata: unknown,
-  providerId: 'opencode',
-): SharedRuntimeDescriptorByProviderId['opencode'] | null;
-export function readSessionMetadataRuntimeDescriptor(
-  metadata: unknown,
-  providerId: 'pi',
-): SharedRuntimeDescriptorByProviderId['pi'] | null;
-export function readSessionMetadataRuntimeDescriptor(
-  metadata: unknown,
   providerId: SupportedRuntimeDescriptorProviderId,
-): SharedRuntimeDescriptorByProviderId[SupportedRuntimeDescriptorProviderId] | null {
+  ): SharedRuntimeDescriptorByProviderId[SupportedRuntimeDescriptorProviderId] | null {
   const metadataRecord = asRecord(metadata);
   if (!metadataRecord) return null;
 
@@ -280,31 +196,6 @@ export function readSessionMetadataRuntimeDescriptor(
         connectedServiceGroupId: codexConnectedServiceFields.connectedServiceGroupId,
         homePath: codexConnectedServiceFields.homePath,
         sqliteHomePath: providerExtra?.sqliteHomePath ?? normalizeTrimmedString(rawProvider?.sqliteHomePath),
-      };
-    }
-    case 'opencode': {
-      const rawDescriptor = asRecord(metadataRecord.agentRuntimeDescriptorV1);
-      const rawProvider = rawDescriptor?.providerId === 'opencode' ? asRecord(rawDescriptor.provider) : null;
-      const descriptor = readAgentRuntimeDescriptorV1ForProvider(metadataRecord.agentRuntimeDescriptorV1, 'opencode');
-      const providerExtra = readOpenCodeRuntimeDescriptorProviderExtra(rawProvider?.providerExtra);
-      const provider = descriptor?.provider ?? rawProvider;
-      if (!provider) return null;
-
-      return {
-        providerId: 'opencode',
-        backendMode: providerExtra?.backendMode ?? normalizeOpenCodeBackendMode(provider.backendMode),
-        vendorSessionId: providerExtra?.vendorSessionId ?? normalizeTrimmedString(provider.vendorSessionId),
-        serverBaseUrl: providerExtra?.serverBaseUrl ?? normalizeOpenCodeServerBaseUrl(provider.serverBaseUrl),
-        serverBaseUrlExplicit: providerExtra?.serverBaseUrlExplicit ?? normalizeOpenCodeServerBaseUrlExplicit(provider.serverBaseUrlExplicit),
-      };
-    }
-    case 'pi': {
-      const descriptor = readAgentRuntimeDescriptorV1ForProvider(metadataRecord.agentRuntimeDescriptorV1, 'pi');
-      if (!descriptor) return null;
-      return {
-        providerId: 'pi',
-        vendorSessionId: normalizeTrimmedString(descriptor.provider.vendorSessionId),
-        sessionFile: normalizeTrimmedString(descriptor.provider.sessionFile),
       };
     }
   }

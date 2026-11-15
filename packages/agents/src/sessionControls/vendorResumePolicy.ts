@@ -37,19 +37,6 @@ export function resolveVendorResumeIdFromSessionMetadata(agentId: AgentId, metad
     if (runtimeDescriptor?.vendorSessionId) return runtimeDescriptor.vendorSessionId;
   }
 
-  if (agentId === 'opencode') {
-    const runtimeDescriptor = readSessionMetadataRuntimeDescriptor(record, 'opencode');
-    if (runtimeDescriptor?.vendorSessionId) return runtimeDescriptor.vendorSessionId;
-  }
-
-  if (agentId === 'pi') {
-    const runtimeDescriptor = readSessionMetadataRuntimeDescriptor(record, 'pi');
-    if (runtimeDescriptor?.sessionFile && isAbsolutePathLike(runtimeDescriptor.sessionFile)) {
-      return runtimeDescriptor.sessionFile;
-    }
-    if (runtimeDescriptor?.vendorSessionId) return runtimeDescriptor.vendorSessionId;
-  }
-
   const resume = AGENTS_CORE[agentId]?.resume;
   const field = resume && 'vendorResumeIdField' in resume ? resume.vendorResumeIdField ?? null : null;
   if (!field) return null;

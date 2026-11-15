@@ -75,7 +75,7 @@ describe('buildImportedMcpServerFromDetectedV1', () => {
     it('maps detected env keys to machine-env templates by default', () => {
         const settings = createEmptySettings();
         const detected: DetectedMcpServerV1 = {
-            provider: 'opencode',
+            provider: 'opencode' as never,
             name: 'tooling',
             transport: 'stdio',
             stdio: { command: 'bash', args: ['-lc', 'echo ok'] },
@@ -150,7 +150,7 @@ describe('buildImportedMcpServerFromDetectedV1', () => {
     it('creates a workspace binding when the detected config is project-scoped', () => {
         const settings = createEmptySettings();
         const detected: DetectedMcpServerV1 = {
-            provider: 'opencode',
+            provider: 'opencode' as never,
             name: 'project-tools',
             transport: 'stdio',
             stdio: { command: 'node', args: ['server.js'] },

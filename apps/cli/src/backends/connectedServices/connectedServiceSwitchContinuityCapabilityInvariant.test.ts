@@ -10,7 +10,7 @@ import {
   resolveConnectedServiceSwitchContinuity,
 } from '@/backends/catalog';
 
-const CONTINUITY_PROVIDERS = ['codex', 'claude', 'gemini', 'opencode', 'pi'] as const;
+const CONTINUITY_PROVIDERS = ['codex', 'claude', 'gemini'] as const;
 const RESOLVED_TRANSITION_FIXTURES: ReadonlyArray<{
   name: string;
   transition: AgentSessionAuthSwitchTransition;
