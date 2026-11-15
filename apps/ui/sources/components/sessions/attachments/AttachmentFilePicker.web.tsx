@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import type { AttachmentFilePickerHandle, AttachmentFilePickerProps, PickedAttachment } from './AttachmentFilePicker.types';
+import { compressPickedWebImageFile } from './webImageCompression';
 
 export const AttachmentFilePicker = React.forwardRef<AttachmentFilePickerHandle, AttachmentFilePickerProps>(
     function AttachmentFilePicker(props, ref) {
@@ -34,12 +35,15 @@ export const AttachmentFilePicker = React.forwardRef<AttachmentFilePickerHandle,
                 multiple={props.multiple !== false}
                 onChange={(e) => {
                     const files = Array.from(e.target.files ?? []);
-                    if (files.length > 0) {
-                        const picked: PickedAttachment[] = files.map((file) => ({ kind: 'web', file }));
-                        props.onAttachmentsPicked(picked);
-                    }
-                    // Reset so picking the same file again still triggers onChange.
+                    // Reset immediately so picking the same file again still triggers onChange.
                     e.target.value = '';
+                    if (files.length === 0) return;
+
+                    void Promise.all(files.map((file) => compressPickedWebImageFile(file)))
+                        .then((pickedFiles) => {
+                            const picked: PickedAttachment[] = pickedFiles.map((file) => ({ kind: 'web', file }));
+                            props.onAttachmentsPicked(picked);
+                        });
                 }}
             />
         );

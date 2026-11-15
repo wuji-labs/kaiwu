@@ -37,7 +37,9 @@ export async function nativePickImages(params?: Readonly<{ multiple?: boolean }>
     const result = await launchImageLibraryAsync({
         mediaTypes: mediaTypeImages,
         allowsMultipleSelection: multiple,
-        quality: 1,
+        // Ask the picker to re-encode JPEGs before they ever reach the upload path. Native photos
+        // are commonly several MB at quality 1; 0.8 keeps visual fidelity while shrinking the file.
+        quality: 0.8,
     });
     if (!result || result.canceled) return [];
 

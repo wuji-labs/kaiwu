@@ -78,6 +78,8 @@ function createAttachmentUploadFailureError(input: Readonly<{
     return normalizedCode ? new RpcError(input.error, normalizedCode) : new Error(input.error);
 }
 
+const ATTACHMENT_UPLOAD_CONCURRENCY = 3;
+
 export async function uploadAttachmentDraftsToSession(args: Readonly<{
     sessionId: string;
     drafts: readonly AttachmentDraft[];
@@ -89,11 +91,17 @@ export async function uploadAttachmentDraftsToSession(args: Readonly<{
     uploaded: readonly UploadedAttachment[];
 }>> {
     const messageLocalId = args.messageLocalId ?? randomUUID();
-    const uploaded: UploadedAttachment[] = [];
+    const uploadedByPosition: Array<UploadedAttachment | undefined> = new Array(args.drafts.length).fill(undefined);
+    let nextPosition = 0;
+    // Held in an object so the worker closures share one observed value instead of TS narrowing a
+    // `let` that is only assigned inside callbacks.
+    const failure: { current: Readonly<{ position: number; error: unknown }> | null } = { current: null };
+    const getFailure = (): Readonly<{ position: number; error: unknown }> | null => failure.current;
 
-    for (const draft of args.drafts) {
+    const uploadDraftAt = async (position: number): Promise<void> => {
+        const draft = args.drafts[position];
         const stillPresent = args.drafts.find((d) => d.id === draft.id);
-        if (!stillPresent) continue;
+        if (!stillPresent) return;
 
         const described = describeSource(stillPresent.source);
         if (stillPresent.uploadedPath) {
@@ -107,11 +115,11 @@ export async function uploadAttachmentDraftsToSession(args: Readonly<{
                 ...(stillPresent.sha256 ? { sha256: stillPresent.sha256 } : {}),
             };
             const structuredInput = buildStructuredInputForUploadedAttachment(uploadedAttachment);
-            uploaded.push({
+            uploadedByPosition[position] = {
                 ...uploadedAttachment,
                 ...(structuredInput ? { structuredInput } : {}),
-            });
-            continue;
+            };
+            return;
         }
 
         const initialProgress =
@@ -151,13 +159,41 @@ export async function uploadAttachmentDraftsToSession(args: Readonly<{
             ...(uploadRes.sha256 ? { sha256: uploadRes.sha256 } : {}),
         };
         const structuredInput = buildStructuredInputForUploadedAttachment(uploadedAttachment);
-        uploaded.push({
+        uploadedByPosition[position] = {
             ...uploadedAttachment,
             ...(structuredInput ? { structuredInput } : {}),
-        });
-    }
+        };
+    };
 
-    return { messageLocalId, uploaded };
+    const worker = async (): Promise<void> => {
+        while (true) {
+            // Stop scheduling new uploads once one has failed; uploads already in flight finish and
+            // keep reporting their own progress patches.
+            if (getFailure()) return;
+            const position = nextPosition;
+            nextPosition += 1;
+            if (position >= args.drafts.length) return;
+            try {
+                await uploadDraftAt(position);
+            } catch (error) {
+                const current = getFailure();
+                if (!current || position < current.position) {
+                    failure.current = { position, error };
+                }
+            }
+        }
+    };
+
+    const workerCount = Math.min(ATTACHMENT_UPLOAD_CONCURRENCY, args.drafts.length);
+    await Promise.all(Array.from({ length: workerCount }, () => worker()));
+
+    const firstFailure = getFailure();
+    if (firstFailure) throw firstFailure.error;
+
+    return {
+        messageLocalId,
+        uploaded: uploadedByPosition.filter((entry): entry is UploadedAttachment => entry !== undefined),
+    };
 }
 
 export function formatAttachmentsBlock(uploaded: readonly UploadedAttachment[]): string {

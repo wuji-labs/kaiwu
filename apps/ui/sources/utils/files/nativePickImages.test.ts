@@ -50,6 +50,20 @@ describe('nativePickImages', () => {
         expect(picked).toEqual([{ kind: 'web', file }]);
     });
 
+    it('asks the picker to compress picked photos before upload', async () => {
+        const ImagePicker = await import('expo-image-picker');
+        vi.mocked(ImagePicker.launchImageLibraryAsync).mockResolvedValueOnce({ canceled: true, assets: null });
+
+        const { nativePickImages } = await import('./nativePickImages');
+        await nativePickImages({ multiple: true });
+
+        const launchParams = vi.mocked(ImagePicker.launchImageLibraryAsync).mock.calls[0]?.[0] as
+            | { quality?: number }
+            | undefined;
+        expect(launchParams?.quality).toBeGreaterThan(0);
+        expect(launchParams?.quality).toBeLessThan(1);
+    });
+
     it('returns no files when the native image picker module is unavailable', async () => {
         nativeImagePickerModule.current = null;
         const ImagePicker = await import('expo-image-picker');

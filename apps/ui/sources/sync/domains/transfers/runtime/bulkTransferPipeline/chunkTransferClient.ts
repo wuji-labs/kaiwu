@@ -245,6 +245,18 @@ async function uploadInChunksOnce<
                 return relayFailure;
             }
         } else {
+            const prepareChunk = (index: number) => {
+                const pending = encryptChunk(index);
+                // A prefetched chunk can be discarded before it is awaited (cancellation, a failed
+                // send, or an earlier encryption failure); swallow the rejection so it is not reported
+                // as an unhandled rejection. Awaiting the same promise still observes the error.
+                pending.catch(() => undefined);
+                return pending;
+            };
+
+            let prefetched: Promise<Awaited<ReturnType<typeof encryptChunk>>> | null =
+                chunkCount > 0 ? prepareChunk(0) : null;
+
             for (let index = 0; index < chunkCount; index += 1) {
                 if (params.signal?.aborted) {
                     return done({ success: false, error: 'Upload canceled' });
@@ -252,10 +264,14 @@ async function uploadInChunksOnce<
 
                 let prepared: Awaited<ReturnType<typeof encryptChunk>>;
                 try {
-                    prepared = await encryptChunk(index);
+                    prepared = await prefetched!;
                 } catch (error) {
                     return done({ success: false, error: error instanceof Error ? error.message : 'Upload chunk failed' });
                 }
+
+                // Read + encrypt the next chunk while this chunk's RPC round trip is in flight, so
+                // encryption latency and network latency overlap instead of stacking per chunk.
+                prefetched = index + 1 < chunkCount ? prepareChunk(index + 1) : null;
 
                 const chunk = await runUploadRpcWithLifecycleRecovery(() => params.sendChunk({
                     uploadId: currentUploadId,

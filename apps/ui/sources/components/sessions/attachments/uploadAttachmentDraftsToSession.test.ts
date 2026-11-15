@@ -231,6 +231,72 @@ describe('uploadAttachmentDraftsToSession', () => {
         ]);
     });
 
+    it('uploads multiple drafts with bounded concurrency while preserving draft order', async () => {
+        const { uploadAttachmentDraftsToSession } = await import('./uploadAttachmentDraftsToSession');
+
+        sessionAttachmentsUploadFileSpy.mockReset();
+
+        const pending: Array<{ name: string; resolve: (value: any) => void }> = [];
+        let inFlight = 0;
+        let peakInFlight = 0;
+
+        sessionAttachmentsUploadFileSpy.mockImplementation(({ file }: any) => new Promise((resolve) => {
+            inFlight += 1;
+            peakInFlight = Math.max(peakInFlight, inFlight);
+            pending.push({
+                name: file.name,
+                resolve: (value: any) => {
+                    inFlight -= 1;
+                    resolve(value);
+                },
+            });
+        }));
+
+        const drafts: any[] = ['a.md', 'b.md', 'c.md', 'd.md'].map((name, index) => ({
+            id: `d${index}`,
+            source: {
+                kind: 'native',
+                name,
+                mimeType: 'text/markdown',
+                uri: `file:///tmp/${name}`,
+                sizeBytes: 1,
+            },
+            status: 'pending',
+        }));
+
+        const uploadPromise = uploadAttachmentDraftsToSession({
+            sessionId: 's1',
+            drafts,
+            messageLocalId: 'm1',
+            config: {
+                uploadLocation: 'workspace',
+                workspaceRelativeDir: '.happier/uploads',
+                vcsIgnoreStrategy: 'git_info_exclude',
+                vcsIgnoreWritesEnabled: true,
+                maxFileBytes: 25 * 1024 * 1024,
+            },
+            applyDraftPatch: () => {},
+        });
+
+        // At most three uploads may be in flight, and the fourth must not start yet.
+        await vi.waitFor(() => expect(pending).toHaveLength(3));
+        expect(peakInFlight).toBe(3);
+        expect(pending.map((entry) => entry.name)).toEqual(['a.md', 'b.md', 'c.md']);
+
+        // Resolve out of order: the summary must still follow draft order.
+        pending[2]!.resolve({ success: true, path: 'p-c.md', sizeBytes: 1, sha256: 'c' });
+        pending[1]!.resolve({ success: true, path: 'p-b.md', sizeBytes: 1, sha256: 'b' });
+        pending[0]!.resolve({ success: true, path: 'p-a.md', sizeBytes: 1, sha256: 'a' });
+
+        await vi.waitFor(() => expect(pending).toHaveLength(4));
+        pending[3]!.resolve({ success: true, path: 'p-d.md', sizeBytes: 1, sha256: 'd' });
+
+        const res = await uploadPromise;
+        expect(res.uploaded.map((entry) => entry.name)).toEqual(['a.md', 'b.md', 'c.md', 'd.md']);
+        expect(res.uploaded.map((entry) => entry.path)).toEqual(['p-a.md', 'p-b.md', 'p-c.md', 'p-d.md']);
+        expect(peakInFlight).toBe(3);
+    });
+
     it('preserves the upload failure error code on the thrown error', async () => {
         const { uploadAttachmentDraftsToSession } = await import('./uploadAttachmentDraftsToSession');
 

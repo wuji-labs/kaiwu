@@ -95,6 +95,51 @@ describe('chunkTransferClient', () => {
         ]);
     });
 
+    it('encrypts the next chunk while the current chunk RPC is in flight', async () => {
+        const bytes = new TextEncoder().encode('abcdef');
+        const initSpy = vi.fn(async () => ({
+            success: true as const,
+            uploadId: 'u1',
+            chunkSizeBytes: 2,
+            recipientPublicKeyBase64: Buffer.alloc(32, 9).toString('base64'),
+        }));
+        const readOffsets: number[] = [];
+        const readBytesSpy = vi.fn(async (offset: number, length: number) => {
+            readOffsets.push(offset);
+            return bytes.slice(offset, offset + length);
+        });
+        let releaseFirstSend: (() => void) | null = null;
+        const chunkSpy = vi.fn(async (req: { index: number }) => {
+            if (req.index === 0) {
+                await new Promise<void>((resolve) => {
+                    releaseFirstSend = resolve;
+                });
+            }
+            return { success: true as const };
+        });
+        const finalizeSpy = vi.fn(async (_req: { uploadId: string }) => ({ success: true as const, path: 'file.txt' }));
+        const abortSpy = vi.fn(async (_req: { uploadId: string }) => ({ success: true as const }));
+
+        const uploadPromise = uploadInChunks({
+            totalBytes: bytes.byteLength,
+            readBytes: readBytesSpy,
+            init: initSpy,
+            sendChunk: chunkSpy,
+            finalize: finalizeSpy,
+            abort: abortSpy,
+        });
+
+        await vi.waitFor(() => expect(chunkSpy).toHaveBeenCalledTimes(1));
+        // The first chunk RPC is still pending, but the second chunk must already be read+encrypted.
+        // Only one chunk is prefetched, so the third chunk must not have been read yet.
+        await vi.waitFor(() => expect(readOffsets).toEqual([0, 2]));
+
+        releaseFirstSend!();
+        await expect(uploadPromise).resolves.toMatchObject({ success: true, path: 'file.txt' });
+        expect(readOffsets).toEqual([0, 2, 4]);
+        expect(chunkSpy.mock.calls.map((call) => call[0].index)).toEqual([0, 1, 2]);
+    });
+
     it('aborts uploads when the signal is canceled', async () => {
         const bytes = new TextEncoder().encode('hello');
         const initSpy = vi.fn(async () => ({

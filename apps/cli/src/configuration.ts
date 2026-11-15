@@ -487,9 +487,11 @@ class Configuration {
       min: 1, max: 10_000_000, default: 2_500_000,
     });
 
-    // Default: 256KB. Defensive min: 1KB; max: 5MB.
+    // Default: 1MiB (matches the transfer chunk hard ceiling). Defensive min: 1KB; max: 5MB.
+    // The client now encrypts the next chunk while the current chunk RPC is in flight, so larger
+    // chunks cut the number of round trips without serializing encryption and transport latency.
     this.filesTransferChunkBytes = resolveIntEnvWithBounds('HAPPIER_FILES_TRANSFER_CHUNK_BYTES', {
-      min: 1024, max: 5_000_000, default: 256_000,
+      min: 1024, max: 5_000_000, default: 1_048_576,
     });
 
     // Default: 60 minutes. Defensive min: 1s; max: 60 minutes.
