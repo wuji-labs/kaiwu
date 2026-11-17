@@ -135,3 +135,29 @@ test('local target: copies the update directory and swaps the pointer', () => {
     fs.rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('local target: --pause sets the pointer aside and --resume restores it', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'kaiwu-ota-pause-'));
+  try {
+    const runtimeDir = path.join(root, RUNTIME);
+    fs.mkdirSync(runtimeDir, { recursive: true });
+    const pointerPath = path.join(runtimeDir, 'current-ios-production.json');
+    const original = JSON.stringify(update('live', '2026-11-17T11:00:00.000Z'));
+    fs.writeFileSync(pointerPath, original);
+    const run = (flag) =>
+      spawnSync(process.execPath, [SCRIPT, '--platform', 'ios', '--runtime-version', RUNTIME, '--target', root, flag], {
+        encoding: 'utf8',
+      });
+
+    assert.equal(run('--pause').status, 0);
+    // No pointer file is what makes the server answer 204 (no update).
+    assert.equal(fs.existsSync(pointerPath), false);
+    assert.notEqual(run('--pause').status, 0, 'pausing twice must not silently succeed');
+
+    assert.equal(run('--resume').status, 0);
+    assert.equal(fs.readFileSync(pointerPath, 'utf8'), original);
+    assert.notEqual(run('--resume').status, 0, 'resuming with nothing paused must fail');
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});

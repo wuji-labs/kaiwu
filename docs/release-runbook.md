@@ -75,6 +75,8 @@ gh run watch <id> --exit-status; gh run download <id> -D dist/ios/<版本>
   ```
   每次发布会生成新的 updateId，写入 `<runtime>/<updateId>/`，并原子替换 `current-<platform>-<channel>.json`，旧指针记入 `history-*.json`。
 - **回滚**：`node scripts/ota/rollback-ota.mjs --platform <ios|android> --target ubuntu@150.158.55.6:/opt/wuji-kaiwu/ota/data`，把上一个内容不同的更新**以新的 updateId 重新发布**；加 `--to-update-id <id>` 可指定要重新发布的版本。客户端只运行自己持有的最新更新，所以把指针指回旧 updateId 不会生效，必须换新编号和新时间。回滚后跑 `node scripts/ota/verify-production.mjs --platform <平台>`。
+  - **暂停下发**：加 `--pause` 把当前指针挪成 `paused-<平台>-<渠道>.json`，服务端对该平台返回 204（无更新），已装的 App 继续跑手里已有的版本；`--resume` 恢复。出事时先暂停再查，暂停不会向手机下发任何东西。
+  - **2026-11-17 事故留底**：iOS 0.2.25 吃到瘦身热更新 38 分钟后，退回内置版、重新发布新版两种回滚都没能救回手机，最后靠删除重装恢复。网关日志里该手机对 67MB 主包的下载请求全部中断（当晚 61 次无一完成），所以新包一直没换上；中断原因未查明。热更新上生产前必须先在真机上走通「应用更新 → 回滚」。
   - **不要用 `--to-embedded`**（退回安装包内置版）。2026-11-17 对 iOS 0.2.25 两次下发该指令，之后手机都在启动约 5 秒后崩溃（`EXC_BAD_ACCESS`，JS 线程），改回下发正常更新后崩溃记录消失。原生层具体原因未查明，脚本默认拒绝该模式，真机验证通过前不要加 `--allow-embedded-directive`。
 - **重打原生包后必须重发一次热更新**：客户端只会采用发布时间晚于安装包内置版本的更新，比内置版本旧的一律静默忽略（2026-09-30：00:49 发的更新比之后重打的 `204b24b` 原生包早，手机拿到清单却不应用）。
 - **注意**：iOS 的 JS 包约 67MB，源站带宽只有 6 Mbps。热更新只会下载变化过的资源，但 JS 包每次都要整个重新下载。

@@ -25,6 +25,8 @@ function parseArgs(args) {
     toEmbedded: false,
     allowEmbeddedDirective: false,
     toUpdateId: '',
+    pause: false,
+    resume: false,
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -41,6 +43,10 @@ function parseArgs(args) {
       options.toEmbedded = true;
     } else if (arg === '--allow-embedded-directive') {
       options.allowEmbeddedDirective = true;
+    } else if (arg === '--pause') {
+      options.pause = true;
+    } else if (arg === '--resume') {
+      options.resume = true;
     } else if (arg === '--to-update-id' && i + 1 < args.length) {
       options.toUpdateId = args[++i];
     } else if (arg === '--help' || arg === '-h') {
@@ -66,6 +72,9 @@ Options:
   --runtime-version <version>    Runtime version (default: from apps/ui/package.json)
   --target <path_or_ssh>         Target storage (local dir or user@host:/path)
   --to-update-id <id>            Republish this update (default: the previous distinct update)
+  --pause                        Stop serving any update (server answers 204); installed apps keep
+                                 running what they already have. Reversible with --resume.
+  --resume                       Serve the update that --pause set aside
   --to-embedded                  Serve a rollBackToEmbedded directive (refused, see below)
   --allow-embedded-directive     Required with --to-embedded; the directive crashed iOS 0.2.25
   --help, -h                     Show this help message
@@ -178,6 +187,8 @@ function createLocalStore(runtimeDir) {
       fs.writeFileSync(`${filePath}.tmp`, text);
       fs.renameSync(`${filePath}.tmp`, filePath);
     },
+    exists: (name) => fs.existsSync(path.join(runtimeDir, name)),
+    rename: (from, to) => fs.renameSync(path.join(runtimeDir, from), path.join(runtimeDir, to)),
   };
 }
 
@@ -203,7 +214,27 @@ function createSshStore(host, remoteRuntimeDir) {
     readText: (name) => run(`test -f ${remote(name)} && cat ${remote(name)} || true`),
     copyUpdate: (fromId, toId) => run(`test -d ${remote(fromId)} && cp -a ${remote(fromId)} ${remote(toId)}`),
     writeText: (name, text) => run(`cat > ${remote(name)}.tmp && mv ${remote(name)}.tmp ${remote(name)}`, text),
+    exists: (name) => run(`test -f ${remote(name)} && echo yes || echo no`).trim() === 'yes',
+    rename: (from, to) => run(`mv ${remote(from)} ${remote(to)}`),
   };
+}
+
+/**
+ * Pausing moves the pointer aside so the server answers 204. Unlike a rollback it sends nothing to
+ * installed apps: they keep running whatever they already hold.
+ */
+function setPaused(store, options, platform, paused) {
+  const pointerName = `current-${platform}-${options.channel}.json`;
+  const pausedName = `paused-${platform}-${options.channel}.json`;
+  const [from, to] = paused ? [pointerName, pausedName] : [pausedName, pointerName];
+  if (!store.exists(from)) {
+    throw new Error(paused ? `Nothing to pause: ${pointerName} does not exist` : `Nothing to resume: ${pausedName} does not exist`);
+  }
+  if (store.exists(to)) {
+    throw new Error(`Refusing to overwrite ${to}; resolve it by hand first`);
+  }
+  store.rename(from, to);
+  console.log(`[rollback-ota] ${from} -> ${to}`);
 }
 
 function rollbackPlatform(store, options, runtimeVersion, platform) {
@@ -250,7 +281,16 @@ async function main() {
     }
   }
 
-  const mode = options.toEmbedded
+  if (options.pause && options.resume) {
+    console.error('Error: --pause and --resume are mutually exclusive');
+    process.exit(1);
+  }
+
+  const mode = options.pause
+    ? 'Pause serving updates'
+    : options.resume
+      ? 'Resume serving updates'
+      : options.toEmbedded
     ? 'Rollback to embedded'
     : options.toUpdateId
       ? `Republish updateId ${options.toUpdateId}`
@@ -273,9 +313,13 @@ async function main() {
   }
 
   for (const platform of platforms) {
-    console.log(`\n--- Rolling back for ${platform} ---`);
-    rollbackPlatform(store, options, runtimeVersion, platform);
-    console.log(`✓ Rollback completed for ${platform}`);
+    console.log(`\n--- ${mode}: ${platform} ---`);
+    if (options.pause || options.resume) {
+      setPaused(store, options, platform, options.pause);
+    } else {
+      rollbackPlatform(store, options, runtimeVersion, platform);
+    }
+    console.log(`✓ Done for ${platform}`);
   }
 
   console.log('\n[rollback-ota] All platforms processed successfully.');
