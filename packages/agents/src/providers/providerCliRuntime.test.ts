@@ -31,8 +31,8 @@ describe('PROVIDER_CLI_RUNTIME_SPECS', () => {
           },
         },
         archiveExtractionLimits: {
-          maxFileBytes: 384 * 1024 * 1024,
-          maxExpandedBytes: 384 * 1024 * 1024,
+          maxFileBytes: 512 * 1024 * 1024,
+          maxExpandedBytes: 512 * 1024 * 1024,
         },
       },
     });
