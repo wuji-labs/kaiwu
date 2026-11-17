@@ -52,6 +52,7 @@ describe('createConnectedServiceContinuationMessageDispatcher', () => {
     const dispatcher = createConnectedServiceContinuationMessageDispatcher({
       credentials,
       sendMessage: sendMessage as typeof import('@/session/services/sendSessionMessage').sendSessionMessage,
+      sleep: async () => {},
     });
 
     const first = await dispatcher.enqueueInterruptedOriginContinuation({
@@ -108,6 +109,7 @@ describe('createConnectedServiceContinuationMessageDispatcher', () => {
     const dispatcher = createConnectedServiceContinuationMessageDispatcher({
       credentials,
       sendMessage: sendMessage as typeof import('@/session/services/sendSessionMessage').sendSessionMessage,
+      sleep: async () => {},
     });
 
     const first = await dispatcher.enqueueInterruptedOriginContinuation({
@@ -234,5 +236,49 @@ describe('createConnectedServiceContinuationMessageDispatcher', () => {
       resumePromptMode: 'standard',
     })).resolves.toEqual({ status: 'suppressed_newer_user_input' });
     expect(sendMessage).toHaveBeenCalledTimes(1);
+  });
+
+  it('stops an infrastructure-failure continuation storm after three attempts', async () => {
+    const sendMessage = vi.fn(async (input: Readonly<{ localId?: string }>) => ({
+      ok: true as const,
+      sessionId: 'session-1',
+      localId: input.localId ?? 'missing',
+      waited: false,
+    }));
+    let nowMs = 0;
+    const sleep = vi.fn(async (delayMs: number) => {
+      nowMs += delayMs;
+    });
+    const onCircuitOpen = vi.fn();
+    const dispatcher = createConnectedServiceContinuationMessageDispatcher({
+      credentials,
+      sendMessage,
+      nowMs: () => nowMs,
+      sleep,
+      onCircuitOpen,
+    });
+
+    const results = [];
+    for (const attemptId of ['switch-attempt-1', 'switch-attempt-2', 'switch-attempt-3', 'switch-attempt-4']) {
+      results.push(await dispatcher.enqueueInterruptedOriginContinuation({
+        sessionId: 'session-1',
+        attemptId,
+        interruptedOriginId: 'same-failure-boundary',
+        interruption: 'provider_failed_turn',
+        resumePromptMode: 'standard',
+        recoveryKind: 'dependency_failure',
+      }));
+    }
+
+    expect(results.at(-1)).toEqual({ status: 'circuit_open' });
+    expect(sendMessage).toHaveBeenCalledTimes(3);
+    expect(sleep).toHaveBeenNthCalledWith(1, 30_000);
+    expect(sleep).toHaveBeenNthCalledWith(2, 120_000);
+    expect(onCircuitOpen).toHaveBeenCalledWith({
+      sessionId: 'session-1',
+      interruptedOriginId: 'same-failure-boundary',
+      track: 'infrastructure',
+      attemptCount: 3,
+    });
   });
 });

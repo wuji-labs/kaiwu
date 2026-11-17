@@ -6,9 +6,55 @@ import {
 } from '@happier-dev/protocol';
 import type { Credentials } from '@/persistence';
 import { sendSessionMessage } from '@/session/services/sendSessionMessage';
+import { logger } from '@/ui/logger';
 
 import { buildContinuationResumePrompt } from './continuationResumePrompt';
 import type { ConnectedServiceRuntimeAuthFailureKind } from '../runtimeAuth/types';
+
+const DEFAULT_INFRASTRUCTURE_CONTINUATION_MAX_ATTEMPTS = 3;
+const DEFAULT_USAGE_LIMIT_CONTINUATION_MAX_ATTEMPTS = 5;
+const CONTINUATION_BACKOFF_MS = [30_000, 120_000, 600_000] as const;
+
+type ContinuationRecoveryTrack = 'infrastructure' | 'usage_limit';
+
+type ContinuationCircuitState = Readonly<{
+  interruptedOriginId: string;
+  attemptCount: number;
+  nextAllowedAtMs: number;
+  open: boolean;
+}>;
+
+type ContinuationCircuitOpenEvent = Readonly<{
+  sessionId: string;
+  interruptedOriginId: string;
+  track: ContinuationRecoveryTrack;
+  attemptCount: number;
+}>;
+
+type ContinuationCircuitRegistry = Map<string, Map<ContinuationRecoveryTrack, ContinuationCircuitState>>;
+
+const continuationCircuitRegistry: ContinuationCircuitRegistry = new Map();
+
+function resolveContinuationRecoveryTrack(
+  recoveryKind: ConnectedServiceRuntimeAuthFailureKind | null | undefined,
+): ContinuationRecoveryTrack {
+  return recoveryKind === 'usage_limit' ? 'usage_limit' : 'infrastructure';
+}
+
+function resolveContinuationMaxAttempts(track: ContinuationRecoveryTrack): number {
+  return track === 'usage_limit'
+    ? DEFAULT_USAGE_LIMIT_CONTINUATION_MAX_ATTEMPTS
+    : DEFAULT_INFRASTRUCTURE_CONTINUATION_MAX_ATTEMPTS;
+}
+
+function resolveContinuationBackoffMs(attemptCount: number): number {
+  return CONTINUATION_BACKOFF_MS[Math.min(Math.max(attemptCount - 1, 0), CONTINUATION_BACKOFF_MS.length - 1)] ?? 0;
+}
+
+function sleepForContinuationBackoff(delayMs: number): Promise<void> {
+  if (delayMs <= 0) return Promise.resolve();
+  return new Promise((resolve) => setTimeout(resolve, delayMs));
+}
 
 export type ConnectedServiceContinuationInterruption =
   | 'none'
@@ -19,6 +65,9 @@ export type ConnectedServiceContinuationInterruption =
 type ConnectedServiceContinuationMessageDispatcherDeps = Readonly<{
   credentials: Credentials;
   sendMessage?: typeof sendSessionMessage;
+  nowMs?: () => number;
+  sleep?: (delayMs: number) => Promise<void>;
+  onCircuitOpen?: (event: ContinuationCircuitOpenEvent) => void;
 }>;
 
 function createContinuationLocalId(sessionId: string, attemptId: string, interruptedOriginId: string): string {
@@ -41,6 +90,77 @@ export function createConnectedServiceContinuationMessageDispatcher(
   deps: ConnectedServiceContinuationMessageDispatcherDeps,
 ) {
   const sendMessage = deps.sendMessage ?? sendSessionMessage;
+  const nowMs = deps.nowMs ?? Date.now;
+  const sleep = deps.sleep ?? sleepForContinuationBackoff;
+  const onCircuitOpen = deps.onCircuitOpen ?? ((event: ContinuationCircuitOpenEvent) => {
+    logger.warn('[DAEMON RUN] Automatic continuation circuit opened; manual recovery is required', event);
+  });
+
+  function getTrackState(
+    sessionId: string,
+    track: ContinuationRecoveryTrack,
+  ): ContinuationCircuitState | null {
+    return continuationCircuitRegistry.get(sessionId)?.get(track) ?? null;
+  }
+
+  function setTrackState(
+    sessionId: string,
+    track: ContinuationRecoveryTrack,
+    state: ContinuationCircuitState,
+  ): void {
+    const stateByTrack = continuationCircuitRegistry.get(sessionId) ?? new Map();
+    stateByTrack.set(track, state);
+    continuationCircuitRegistry.set(sessionId, stateByTrack);
+  }
+
+  function resetTrackState(sessionId: string, track: ContinuationRecoveryTrack): void {
+    const stateByTrack = continuationCircuitRegistry.get(sessionId);
+    if (!stateByTrack) return;
+    stateByTrack.delete(track);
+    if (stateByTrack.size === 0) continuationCircuitRegistry.delete(sessionId);
+  }
+
+  async function reserveContinuation(input: Readonly<{
+    sessionId: string;
+    interruptedOriginId: string;
+    track: ContinuationRecoveryTrack;
+  }>): Promise<Readonly<{ allowed: true; delayMs: number }> | Readonly<{ allowed: false }>> {
+    const previous = getTrackState(input.sessionId, input.track);
+    const current = previous?.interruptedOriginId === input.interruptedOriginId
+      ? previous
+      : null;
+    const attemptCount = current?.attemptCount ?? 0;
+    const maxAttempts = resolveContinuationMaxAttempts(input.track);
+    if (current?.open === true || attemptCount >= maxAttempts) {
+      if (!current?.open) {
+        const opened: ContinuationCircuitState = {
+          interruptedOriginId: input.interruptedOriginId,
+          attemptCount,
+          nextAllowedAtMs: current?.nextAllowedAtMs ?? nowMs(),
+          open: true,
+        };
+        setTrackState(input.sessionId, input.track, opened);
+        onCircuitOpen({
+          sessionId: input.sessionId,
+          interruptedOriginId: input.interruptedOriginId,
+          track: input.track,
+          attemptCount,
+        });
+      }
+      return { allowed: false };
+    }
+
+    const now = nowMs();
+    const scheduledAtMs = Math.max(now, current?.nextAllowedAtMs ?? now);
+    const nextAttemptCount = attemptCount + 1;
+    setTrackState(input.sessionId, input.track, {
+      interruptedOriginId: input.interruptedOriginId,
+      attemptCount: nextAttemptCount,
+      nextAllowedAtMs: scheduledAtMs + resolveContinuationBackoffMs(nextAttemptCount),
+      open: false,
+    });
+    return { allowed: true, delayMs: Math.max(0, scheduledAtMs - now) };
+  }
 
   return {
     async sendContinuationPrompt(input: Readonly<{
@@ -76,6 +196,7 @@ export function createConnectedServiceContinuationMessageDispatcher(
     }>): Promise<
       | Readonly<{ status: 'not_interrupted' | 'disabled' | 'suppressed_newer_user_input' }>
       | Readonly<{ status: 'enqueued'; localId: string }>
+      | Readonly<{ status: 'circuit_open' }>
     > {
       if (input.interruption === 'none' || input.interruption === 'clean_boundary') {
         return { status: 'not_interrupted' };
@@ -83,6 +204,14 @@ export function createConnectedServiceContinuationMessageDispatcher(
       if (input.resumePromptMode === 'off') {
         return { status: 'disabled' };
       }
+      const track = resolveContinuationRecoveryTrack(input.recoveryKind);
+      const reservation = await reserveContinuation({
+        sessionId: input.sessionId,
+        interruptedOriginId: input.interruptedOriginId,
+        track,
+      });
+      if (!reservation.allowed) return { status: 'circuit_open' };
+      if (reservation.delayMs > 0) await sleep(reservation.delayMs);
       const prompt = buildContinuationResumePrompt({
         resumePromptMode: input.resumePromptMode,
         customResumePrompt: input.customResumePrompt,
@@ -91,6 +220,7 @@ export function createConnectedServiceContinuationMessageDispatcher(
       const localId = createContinuationLocalId(input.sessionId, input.attemptId, input.interruptedOriginId);
       const sent = await this.sendContinuationPrompt({ sessionId: input.sessionId, prompt, localId });
       if (sent.suppressed) {
+        resetTrackState(input.sessionId, track);
         return { status: 'suppressed_newer_user_input' };
       }
       return { status: 'enqueued', localId };
