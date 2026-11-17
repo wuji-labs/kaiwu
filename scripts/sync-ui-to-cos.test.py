@@ -5,6 +5,7 @@ import gzip
 import hashlib
 from pathlib import Path
 import sys
+import tempfile
 
 # Import functions from main script
 import importlib.util
@@ -176,6 +177,46 @@ def test_header_lookup_case_insensitive():
     return all_pass
 
 
+def test_well_known_paths_are_excluded_from_sync_and_verification():
+    """Source-hosted .well-known files are excluded from upload and COS checks."""
+    print("Testing .well-known exclusion from sync and verification...")
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        src_dir = Path(temp_dir)
+        (src_dir / ".well-known").mkdir()
+        (src_dir / ".well-known" / "asset.txt").write_text("source hosted")
+        (src_dir / "asset.png").write_bytes(b"uploaded")
+        (src_dir / "not-.well-known" / "nested.png").parent.mkdir()
+        (src_dir / "not-.well-known" / "nested.png").write_bytes(b"must upload")
+
+        collected = sync_module.collect_sync_files(src_dir)
+        collected_paths = [path.relative_to(src_dir).as_posix() for path in collected]
+        expected_paths = ["asset.png", "not-.well-known/nested.png"]
+        if collected_paths != expected_paths:
+            print(f"  [FAIL] collected paths: {collected_paths}")
+            return False
+        print(f"  [OK] collected paths exclude .well-known/: {collected_paths}")
+
+        class FakeCosClient:
+            def __init__(self):
+                self.headed_keys = []
+
+            def head_object(self, *, Bucket, Key):
+                self.headed_keys.append(Key)
+                local_path = src_dir / Key.removeprefix("web/")
+                return {"x-cos-meta-sha256": sync_module.calculate_sha256(local_path.read_bytes())}
+
+        client = FakeCosClient()
+        verified = sync_module.verify_cos_files(client, "bucket", src_dir, "web/")
+        expected_keys = [f"web/{path}" for path in expected_paths]
+        if not verified or client.headed_keys != expected_keys:
+            print(f"  [FAIL] verified={verified}, headed keys={client.headed_keys}")
+            return False
+        print(f"  [OK] verification skips .well-known/: {client.headed_keys}")
+
+    return True
+
+
 def test_strict_sha256_verification_rule():
     """Test that strict verification requires x-cos-meta-sha256 on every file.
 
@@ -273,6 +314,7 @@ def main():
         ("Gzip roundtrip & SHA256", test_gzip_roundtrip_sha256),
         ("Cache-Control assignment", test_cache_control),
         ("Case-insensitive header lookup", test_header_lookup_case_insensitive),
+        (".well-known sync exclusion", test_well_known_paths_are_excluded_from_sync_and_verification),
         ("Strict SHA256 verification rule", test_strict_sha256_verification_rule),
     ]
 

@@ -91,6 +91,22 @@ def calculate_sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def is_well_known_path(rel_path: str) -> bool:
+    """Return whether a relative path belongs to the source-hosted .well-known directory."""
+    normalized = rel_path.replace("\\", "/").lstrip("/")
+    return normalized == ".well-known" or normalized.startswith(".well-known/")
+
+
+def collect_sync_files(src_dir: Path) -> list[Path]:
+    """Collect files that are owned by COS rather than the source web server."""
+    src_dir = Path(src_dir)
+    return sorted(
+        path
+        for path in src_dir.rglob("*")
+        if path.is_file() and not is_well_known_path(path.relative_to(src_dir).as_posix())
+    )
+
+
 def upload_file(client, bucket: str, local_path: Path, cos_key: str, prefix: str, dry_run: bool = False):
     """Upload a single file to COS."""
     with open(local_path, 'rb') as f:
@@ -168,10 +184,7 @@ def verify_cos_files(client, bucket: str, src_dir: Path, prefix: str):
     verified = 0
     compressible_count = 0
 
-    for local_path in sorted(src_dir.rglob('*')):
-        if not local_path.is_file():
-            continue
-
+    for local_path in collect_sync_files(src_dir):
         total += 1
         rel_path = local_path.relative_to(src_dir).as_posix()
         cos_key = f"{prefix}{rel_path}"
@@ -248,8 +261,8 @@ def main():
         success = verify_cos_files(client, bucket, src_dir, args.prefix)
         return 0 if success else 1
 
-    # Collect all files
-    files = sorted([p for p in src_dir.rglob('*') if p.is_file()])
+    # Collect all files owned by COS; .well-known is served by the source web server.
+    files = collect_sync_files(src_dir)
     print(f"Total files to sync: {len(files)}")
 
     # Upload with threading
