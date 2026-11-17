@@ -262,8 +262,15 @@ function resolveIdleWithoutAssistantMessageTimeoutMs(transport: TransportHandler
  * Retry configuration for ACP operations
  */
 const RETRY_CONFIG = {
-  /** Maximum number of retry attempts for init/newSession */
-  maxAttempts: 3,
+  /**
+   * Maximum attempts for init/newSession.
+   *
+   * 2026-11-17: lowered from 3 to 2 — one retry, not a retry storm. Every extra
+   * attempt re-opens a provider session and can bill again; the user-visible cost
+   * of a repeated init (backoff 1s→5s plus a fresh handshake) outweighed the rare
+   * case a third attempt would have succeeded.
+   */
+  maxAttempts: 2,
   /** Base delay between retries in ms */
   baseDelayMs: 1000,
   /** Maximum delay between retries in ms */

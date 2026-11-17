@@ -60,7 +60,10 @@ export async function sendGeminiPromptWithRetry(params: {
   onProviderPromptEffectMayHaveOccurred?: () => void;
   beforeProviderPromptAttempt?: () => void | Promise<void>;
 }): Promise<AcpTurnOutcome | void> {
-  const maxRetries = typeof params.maxRetries === 'number' ? params.maxRetries : 3;
+  // 2026-11-17: default lowered from 3 to 2 attempts — one retry, not three.
+  // Each attempt re-sends the prompt to the provider; retry storms multiplied both
+  // the wait (2s backoff + up to 120s response timeout per attempt) and the bill.
+  const maxRetries = typeof params.maxRetries === 'number' ? params.maxRetries : 2;
   const retryDelayMs = typeof params.retryDelayMs === 'number' ? params.retryDelayMs : 2_000;
   const waitForResponseTimeoutMs: number | null = typeof params.waitForResponseTimeoutMs === 'number'
     ? params.waitForResponseTimeoutMs

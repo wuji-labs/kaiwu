@@ -1109,7 +1109,7 @@ export async function runGemini(opts: {
               messageBuffer,
               session,
               onDebug: (msg) => logger.debug(msg),
-              maxRetries: 3,
+              maxRetries: 2,
               retryDelayMs: 2_000,
               waitForResponseTimeoutMs: 120_000,
               onProviderPromptAccepted: confirmProviderAccepted,
