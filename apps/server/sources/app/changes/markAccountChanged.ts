@@ -55,12 +55,6 @@ export async function markAccountChanged(
         if (kind === "machine") {
             return { machineId: entityId };
         }
-        if (kind === "artifact") {
-            return { artifactId: entityId };
-        }
-        if (kind === "pet") {
-            return { accountPetPackageId: entityId };
-        }
         return {};
     })();
 

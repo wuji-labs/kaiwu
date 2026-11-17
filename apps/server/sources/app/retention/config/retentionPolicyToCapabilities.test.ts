@@ -15,7 +15,6 @@ function createPolicy(overrides?: Partial<RetentionPolicy>): RetentionPolicy {
             sessionMessages: { mode: 'keep_forever' },
             sessionSidechainMessages: { mode: 'keep_forever' },
             accountChanges: { mode: 'keep_forever' },
-            voiceSessionLeases: { mode: 'keep_forever' },
             userFeedItems: { mode: 'keep_forever' },
             sessionShareAccessLogs: { mode: 'keep_forever' },
             publicShareAccessLogs: { mode: 'keep_forever' },
@@ -40,7 +39,6 @@ describe('retention/retentionPolicyToCapabilities', () => {
                 sessionMessages: { mode: 'delete_older_than', days: 30 },
                 sessionSidechainMessages: { mode: 'delete_older_than', days: 7 },
                 accountChanges: { mode: 'delete_older_than', days: 14 },
-                voiceSessionLeases: { mode: 'keep_forever' },
                 userFeedItems: { mode: 'keep_forever' },
                 sessionShareAccessLogs: { mode: 'keep_forever' },
                 publicShareAccessLogs: { mode: 'keep_forever' },
@@ -70,7 +68,6 @@ describe('retention/retentionPolicyToCapabilities', () => {
                 sessionMessages: { mode: 'delete_older_than', days: 30 },
                 sessionSidechainMessages: { mode: 'keep_forever' },
                 accountChanges: { mode: 'delete_older_than', days: 14 },
-                voiceSessionLeases: { mode: 'delete_older_than', days: 7 },
                 userFeedItems: { mode: 'keep_forever' },
                 sessionShareAccessLogs: { mode: 'delete_older_than', days: 21 },
                 publicShareAccessLogs: { mode: 'keep_forever' },
@@ -93,7 +90,9 @@ describe('retention/retentionPolicyToCapabilities', () => {
                 requires: ['updatedAt', 'lastActiveAt'],
             },
             accountChanges: { mode: 'delete_older_than', days: 14 },
-            voiceSessionLeases: { mode: 'delete_older_than', days: 7 },
+            // Legacy capability key: the VoiceSessionLease table is gone, so it always reports
+            // keep_forever while released clients still require the key to be present.
+            voiceSessionLeases: { mode: 'keep_forever' },
             automationRuns: { mode: 'delete_older_than', days: 45 },
             automationRunEvents: { mode: 'delete_older_than', days: 45 },
         });

@@ -17,23 +17,17 @@ export async function deleteAccountTree(
         ownedMachines,
         ownedAutomations,
         ownedAuthGroups,
-        ownedPetPackages,
-        ownedArtifacts,
     ] = await Promise.all([
         tx.session.findMany({ where: { accountId }, select: { id: true } }),
         tx.machine.findMany({ where: { accountId }, select: { id: true } }),
         tx.automation.findMany({ where: { accountId }, select: { id: true } }),
         tx.connectedServiceAuthGroup.findMany({ where: { accountId }, select: { id: true } }),
-        tx.accountPetPackage.findMany({ where: { accountId }, select: { id: true } }),
-        tx.artifact.findMany({ where: { accountId }, select: { id: true } }),
     ]);
 
     const ownedSessionIds = ownedSessions.map((s) => s.id);
     const ownedMachineIds = ownedMachines.map((m) => m.id);
     const ownedAutomationIds = ownedAutomations.map((a) => a.id);
     const ownedAuthGroupIds = ownedAuthGroups.map((g) => g.id);
-    const ownedPetPackageIds = ownedPetPackages.map((p) => p.id);
-    const ownedArtifactIds = ownedArtifacts.map((a) => a.id);
 
     const [
         ownedAutomationRuns,
@@ -256,19 +250,6 @@ export async function deleteAccountTree(
         },
     });
 
-    await tx.voiceConversation.deleteMany({
-        where: { accountId },
-    });
-
-    await tx.voiceSessionLease.deleteMany({
-        where: {
-            OR: [
-                { accountId },
-                ...(ownedSessionIds.length > 0 ? [{ sessionId: { in: ownedSessionIds } }] : []),
-            ],
-        },
-    });
-
     // 7. Organization entities
     await tx.sessionOrganizationOrderEntry.deleteMany({
         where: { accountId },
@@ -293,8 +274,6 @@ export async function deleteAccountTree(
                 { accountId },
                 ...(ownedSessionIds.length > 0 ? [{ sessionId: { in: ownedSessionIds } }] : []),
                 ...(ownedMachineIds.length > 0 ? [{ machineId: { in: ownedMachineIds } }] : []),
-                ...(ownedArtifactIds.length > 0 ? [{ artifactId: { in: ownedArtifactIds } }] : []),
-                ...(ownedPetPackageIds.length > 0 ? [{ accountPetPackageId: { in: ownedPetPackageIds } }] : []),
             ],
         },
     });
@@ -308,28 +287,12 @@ export async function deleteAccountTree(
         where: { accountId },
     });
 
-    // 10. Pets
-    await tx.accountPetAsset.deleteMany({
-        where: {
-            OR: [
-                { accountId },
-                ...(ownedPetPackageIds.length > 0 ? [{ petPackageId: { in: ownedPetPackageIds } }] : []),
-            ],
-        },
-    });
-    await tx.accountPetPackage.deleteMany({
-        where: { accountId },
-    });
-
-    // 11. Artifacts & uploads
-    await tx.artifact.deleteMany({
-        where: { accountId },
-    });
+    // 10. Uploads
     await tx.uploadedFile.deleteMany({
         where: { accountId },
     });
 
-    // 12. Social & KV
+    // 11. Social & KV
     await tx.userRelationship.deleteMany({
         where: {
             OR: [
@@ -345,7 +308,7 @@ export async function deleteAccountTree(
         where: { accountId },
     });
 
-    // 13. Auth tokens & pairing & identities & snapshots
+    // 12. Auth tokens & pairing & identities & snapshots
     await tx.terminalAuthRequest.deleteMany({
         where: { responseAccountId: accountId },
     });
@@ -365,7 +328,7 @@ export async function deleteAccountTree(
         where: { accountId },
     });
 
-    // 14. Root Account row
+    // 13. Root Account row
     await tx.account.delete({
         where: { id: accountId },
     });

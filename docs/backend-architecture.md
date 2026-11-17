@@ -130,13 +130,11 @@ HTTP routes are organized by domain:
 - Auth (`authRoutes`)
 - Sessions + messages (`sessionRoutes`)
 - Machines (`machinesRoutes`)
-- Artifacts (`artifactsRoutes`)
 - Access keys (`accessKeysRoutes`)
 - Key-value store (`kvRoutes`)
 - Account + usage (`accountRoutes`)
-- Social + feed (`userRoutes`, `feedRoutes`)
 - Push tokens (`pushRoutes`)
-- Integrations (`connectRoutes`, `voiceRoutes`)
+- Integrations (`connectRoutes`)
 - Version checks (`versionRoutes`)
 - Dev-only logging (`devRoutes`)
 
@@ -262,7 +260,6 @@ Prisma models live in `prisma/schema.prisma`. Key tables:
 erDiagram
     Account ||--o{ Session : owns
     Account ||--o{ Machine : owns
-    Account ||--o{ Artifact : owns
     Account ||--o{ UserKVStore : owns
     Account ||--o{ UsageReport : tracks
     Account ||--o{ UserRelationship : has
@@ -288,18 +285,11 @@ erDiagram
         string metadata
         string daemonState
     }
-
-    Artifact {
-        string header
-        bytes body
-        string key
-    }
 ```
 
 - `Account`: public key identity, profile, settings, seq counters.
 - `Session` + `SessionMessage`: encrypted session metadata and message blobs.
 - `Machine`: encrypted machine metadata + daemon state.
-- `Artifact`: encrypted header/body + per-artifact key.
 - `AccessKey`: encrypted per-session-per-machine access keys.
 - `UserKVStore`: encrypted values with optimistic versions.
 - `UsageReport`: usage aggregation per session/key.
@@ -347,7 +337,6 @@ graph TB
         C2[Agent state]
         C3[Daemon state]
         C4[Message content]
-        C5[Artifacts]
         C6[KV values]
     end
 
@@ -358,7 +347,7 @@ graph TB
         S4[Gemini tokens]
     end
 
-    C1 & C2 & C3 & C4 & C5 & C6 --> |opaque blobs| DB[(Postgres)]
+    C1 & C2 & C3 & C4 & C6 --> |opaque blobs| DB[(Postgres)]
     S1 & S2 & S3 & S4 --> |KeyTree from HANDY_MASTER_SECRET| DB
 
     style C1 fill:#e1f5fe
@@ -374,7 +363,7 @@ graph TB
 ```
 
 - Session metadata, agent state, daemon state, and message content are stored as opaque encrypted strings or blobs.
-- Artifacts and KV values are stored encrypted and encoded as base64 on the wire.
+- KV values are stored encrypted and encoded as base64 on the wire.
 - The server only encrypts/decrypts **service tokens** (GitHub OAuth tokens, vendor tokens) using the KeyTree derived from `HANDY_MASTER_SECRET`.
 
 ## Integrations

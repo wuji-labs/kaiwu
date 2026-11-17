@@ -38,8 +38,6 @@ describe("Account Deletion (integration)", () => {
         await db.sessionAttentionStanding.deleteMany().catch(() => {});
         await db.usageReport.deleteMany().catch(() => {});
         await db.accessKey.deleteMany().catch(() => {});
-        await db.voiceConversation.deleteMany().catch(() => {});
-        await db.voiceSessionLease.deleteMany().catch(() => {});
         await db.sessionOrganizationOrderEntry.deleteMany().catch(() => {});
         await db.sessionOrganizationLabel.deleteMany().catch(() => {});
         await db.sessionOrganizationCheckpoint.deleteMany().catch(() => {});
@@ -57,9 +55,6 @@ describe("Account Deletion (integration)", () => {
         await db.connectedServiceUsageSource.deleteMany().catch(() => {});
         await db.providerAccountUsageRecord.deleteMany().catch(() => {});
         await db.serviceAccountToken.deleteMany().catch(() => {});
-        await db.accountPetAsset.deleteMany().catch(() => {});
-        await db.accountPetPackage.deleteMany().catch(() => {});
-        await db.artifact.deleteMany().catch(() => {});
         await db.uploadedFile.deleteMany().catch(() => {});
         await db.userRelationship.deleteMany().catch(() => {});
         await db.userFeedItem.deleteMany().catch(() => {});
@@ -160,16 +155,6 @@ describe("Account Deletion (integration)", () => {
                 },
             });
 
-            await db.artifact.create({
-                data: {
-                    id: "art-delete-1",
-                    accountId: userId,
-                    header: Buffer.from("test-header"),
-                    body: Buffer.from("test-body"),
-                    dataEncryptionKey: Buffer.from("test-key"),
-                },
-            });
-
             await db.userRelationship.create({
                 data: {
                     fromUserId: userId,
@@ -196,7 +181,7 @@ describe("Account Deletion (integration)", () => {
                 },
             });
 
-            // Add automation and pet records to verify cascading cleanup
+            // Add automation records to verify cascading cleanup
             const automation = await db.automation.create({
                 data: {
                     id: "auto-delete-1",
@@ -224,32 +209,6 @@ describe("Account Deletion (integration)", () => {
                     id: "autoevent-delete-1",
                     runId: autoRun.id,
                     type: "started",
-                },
-            });
-
-            const petPkg = await db.accountPetPackage.create({
-                data: {
-                    id: "petpkg-delete-1",
-                    accountId: userId,
-                    packageFormat: "zip",
-                    contentMode: "plain",
-                    manifest: "{}",
-                    digest: "sha256-abc",
-                    sizeBytes: 100,
-                    origin: "{}",
-                },
-            });
-
-            await db.accountPetAsset.create({
-                data: {
-                    id: "petasset-delete-1",
-                    accountId: userId,
-                    petPackageId: petPkg.id,
-                    storageKind: "file",
-                    objectKey: "key-1",
-                    byteLength: 50,
-                    mediaType: "image/png",
-                    digest: "sha256-def",
                 },
             });
 
@@ -290,14 +249,11 @@ describe("Account Deletion (integration)", () => {
             expect(await db.machine.count({ where: { accountId: userId } })).toBe(0);
             expect(await db.userKVStore.count({ where: { accountId: userId } })).toBe(0);
             expect(await db.accountPushToken.count({ where: { accountId: userId } })).toBe(0);
-            expect(await db.artifact.count({ where: { accountId: userId } })).toBe(0);
             expect(await db.publicSessionShare.count({ where: { createdByUserId: userId } })).toBe(0);
             expect(await db.publicShareReport.count({ where: { accountId: userId } })).toBe(0);
             expect(await db.automation.count({ where: { accountId: userId } })).toBe(0);
             expect(await db.automationRun.count({ where: { accountId: userId } })).toBe(0);
             expect(await db.automationRunEvent.count({ where: { runId: autoRun.id } })).toBe(0);
-            expect(await db.accountPetPackage.count({ where: { accountId: userId } })).toBe(0);
-            expect(await db.accountPetAsset.count({ where: { accountId: userId } })).toBe(0);
             expect(await db.accountChange.count({ where: { accountId: userId } })).toBe(0);
             expect(
                 await db.userRelationship.count({

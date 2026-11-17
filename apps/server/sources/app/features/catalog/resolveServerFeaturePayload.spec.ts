@@ -112,25 +112,6 @@ describe("resolveServerFeaturePayload", () => {
         expect(payload.features.connectedServices.accountGroups.enabled).toBe(true);
     });
 
-    it("keeps pets sync independent from the companion client feature", () => {
-        const payload = resolveServerFeaturePayload(
-            {} as NodeJS.ProcessEnv,
-            [
-                fromPartial({
-                    features: {
-                        pets: {
-                            companion: { enabled: false },
-                            sync: { enabled: true },
-                        },
-                    },
-                }),
-            ],
-        );
-
-        expect(payload.features.pets.companion.enabled).toBe(false);
-        expect(payload.features.pets.sync.enabled).toBe(true);
-    });
-
     it("annotates capabilities when build policy denies Happier Voice", () => {
         const env = {
             KAIWU_BUILD_FEATURES_DENY: "voice.happierVoice",

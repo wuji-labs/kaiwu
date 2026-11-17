@@ -28,7 +28,11 @@ export function retentionPolicyToCapabilities(policy: RetentionPolicy): ServerRe
         enabled,
         sessions,
         accountChanges: toAgePolicyCapability(domains.accountChanges),
-        voiceSessionLeases: toAgePolicyCapability(domains.voiceSessionLeases),
+        // Legacy key retained for released clients, whose strict capability schema requires it.
+        // The VoiceSessionLease table was dropped with the removed voice module, so there is
+        // nothing left for retention to delete; drop this projection when the capability version
+        // becomes incompatible anyway.
+        voiceSessionLeases: { mode: 'keep_forever' },
         userFeedItems: toAgePolicyCapability(domains.userFeedItems),
         sessionShareAccessLogs: toAgePolicyCapability(domains.sessionShareAccessLogs),
         publicShareAccessLogs: toAgePolicyCapability(domains.publicShareAccessLogs),

@@ -27,7 +27,6 @@ function createPolicy(): RetentionPolicy {
             sessionMessages: { mode: 'keep_forever' },
             sessionSidechainMessages: { mode: 'keep_forever' },
             accountChanges: { mode: 'keep_forever' },
-            voiceSessionLeases: { mode: 'keep_forever' },
             userFeedItems: { mode: 'keep_forever' },
             sessionShareAccessLogs: { mode: 'keep_forever' },
             publicShareAccessLogs: { mode: 'keep_forever' },

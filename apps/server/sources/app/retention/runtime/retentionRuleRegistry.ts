@@ -21,7 +21,6 @@ import { runSessionRetentionRule } from '@/app/retention/rules/sessionRetentionR
 import { createTerminalAuthRequestRetentionRule } from '@/app/retention/rules/terminalAuthRequestRetentionRule';
 import { createAccountAuthRequestRetentionRule } from '@/app/retention/rules/accountAuthRequestRetentionRule';
 import { createUserFeedItemRetentionRule } from '@/app/retention/rules/userFeedItemRetentionRule';
-import { createVoiceSessionLeaseRetentionRule } from '@/app/retention/rules/voiceSessionLeaseRetentionRule';
 
 export type RetentionRuleResult = Readonly<{
     id: string;
@@ -161,7 +160,6 @@ const RETENTION_DOMAIN_DEFINITIONS = Object.freeze({
             };
         },
     },
-    voiceSessionLeases: { id: 'voiceSessionLeases', policyConfig: ageConfig('VOICE_SESSION_LEASES'), createRule: createVoiceSessionLeaseRetentionRule },
     userFeedItems: { id: 'userFeedItems', policyConfig: ageConfig('USER_FEED_ITEMS'), createRule: createUserFeedItemRetentionRule },
     sessionShareAccessLogs: { id: 'sessionShareAccessLogs', policyConfig: ageConfig('SESSION_SHARE_ACCESS_LOGS'), createRule: createSessionShareAccessLogRetentionRule },
     publicShareAccessLogs: { id: 'publicShareAccessLogs', policyConfig: ageConfig('PUBLIC_SHARE_ACCESS_LOGS'), createRule: createPublicShareAccessLogRetentionRule },

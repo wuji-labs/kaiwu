@@ -11,7 +11,6 @@ import { resolveConnectedServicesFeature } from '../connectedServicesFeature';
 import { resolveChannelBridgesFeature } from '../channelBridgesFeature';
 import { resolveUpdatesFeature } from '../updatesFeature';
 import { resolveAttachmentsUploadsFeature } from '../attachmentsUploadsFeature';
-import { resolvePetsFeature } from '../petsFeature';
 import { resolveMachineTransferFeature } from '../machineTransferFeature';
 import { resolveSessionFoldersFeature } from '../sessionFoldersFeature';
 import { resolveSessionDraftsFeature } from '../sessionDraftsFeature';
@@ -39,7 +38,6 @@ const serverFeatureResolvers = [
     (env) => resolveChannelBridgesFeature(env),
     (env) => resolveUpdatesFeature(env),
     (env) => resolveAttachmentsUploadsFeature(env),
-    (env) => resolvePetsFeature(env),
     (env) => resolveMachineTransferFeature(env),
     (env) => resolveSessionFoldersFeature(env),
     (env) => resolveSessionDraftsFeature(env),

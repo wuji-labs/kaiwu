@@ -7,7 +7,6 @@ import {
   readConnectedServicesFeatureEnv,
   readAutomationsFeatureEnv,
   readMachineTransferFeatureEnv,
-  readPetsFeatureEnv,
   readSessionAgentSwitchingFeatureEnv,
   readSocialFriendsFeatureEnv,
   readVoiceFeatureEnv,
@@ -62,31 +61,12 @@ describe('readChannelBridgesFeatureEnv', () => {
 
 describe('removed feature gates', () => {
   it('defaults removed server features to disabled regardless of env opt-ins', () => {
-    expect(readPetsFeatureEnv({
-      KAIWU_FEATURE_PETS_COMPANION__ENABLED: '1',
-      KAIWU_FEATURE_PETS_SYNC__ENABLED: '1',
-    }).companionEnabled).toBe(false);
-    expect(readPetsFeatureEnv({
-      KAIWU_FEATURE_PETS_COMPANION__ENABLED: '1',
-      KAIWU_FEATURE_PETS_SYNC__ENABLED: '1',
-    }).syncEnabled).toBe(false);
     expect(readSocialFriendsFeatureEnv({
       KAIWU_FEATURE_SOCIAL_FRIENDS__ENABLED: '1',
       KAIWU_FEATURE_SOCIAL_FRIENDS__ALLOW_USERNAME: '1',
     }).enabled).toBe(false);
     expect(readAutomationsFeatureEnv({ KAIWU_FEATURE_AUTOMATIONS__ENABLED: '1' }).enabled).toBe(false);
     expect(readVoiceFeatureEnv({ KAIWU_FEATURE_VOICE__ENABLED: '1' }).enabled).toBe(false);
-  });
-});
-
-describe('readPetsFeatureEnv', () => {
-  it('reads the encrypted custom pet sync policy from env', () => {
-    const env: NodeJS.ProcessEnv = {
-      KAIWU_FEATURE_PETS_SYNC__ENCRYPTED_CUSTOM_PET_SYNC_POLICY: 'allowedWithClientValidation',
-    };
-    const res = readPetsFeatureEnv(env);
-
-    expect(res.encryptedCustomPetSyncPolicy).toBe('allowedWithClientValidation');
   });
 });
 
