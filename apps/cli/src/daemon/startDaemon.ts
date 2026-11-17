@@ -295,8 +295,6 @@ import { ConnectedServiceAuthGroupGenerationConsumer } from './connectedServices
 import { createConnectedServiceCurrentGroupTruthNotifier } from './connectedServices/accountGroups/generation/createConnectedServiceCurrentGroupTruthNotifier';
 import {
   getBrokerBridgeEffectiveSelection,
-  isBrokerBridgeCurrentGroupTruthCompatible,
-  markBrokerBridgeEffectiveSelectionUnavailable,
 } from './connectedServices/broker/brokerBridgeEffectiveSelectionRegistry';
 import {
   reconcileConnectedServiceAuthGroupGenerationForRuntimeTarget,
@@ -388,7 +386,6 @@ import {
 import { resolveCurrentSessionRunnerLaunchIdentity } from './sessionRunnerRuntime/resolveRunnerEntrypointIdentity';
 import { resolveSessionRunnerRuntimeState } from './sessionRunnerRuntime/resolveRuntimeState';
 import { resolveSessionRunnerActivityDisabledReason as resolveSessionRunnerActivityDisabledReasonFromReaders } from './sessionRunnerRuntime/resolveActivityDisabledReason';
-import { setOpenCodeConnectedServiceInFlightTurnProvider } from './connectedServices/sessionAuthSwitch/openCodeConnectedServiceInFlightTurnRegistry';
 import { requestConnectedServiceSwitchBeforeTurnWithDeferral } from './connectedServices/sessionAuthSwitch/connectedServiceSwitchBeforeTurnDeferral';
 import { logConnectedServiceDaemonRestartDiagnostic } from './connectedServices/sessionAuthSwitch/logConnectedServiceDaemonRestartDiagnostic';
 import { logConnectedServiceAuthSwitchResult } from './connectedServices/sessionAuthSwitch/logConnectedServiceAuthSwitchResult';
@@ -4851,13 +4848,6 @@ export async function startDaemon(options: Readonly<{ takeover?: boolean }> = {}
           },
         });
 
-        // Lane F prevention: expose per-session turn-in-flight state to the OpenCode managed-server
-        // auth-switch release path (a pure module that cannot import the daemon queue directly). The
-        // release refuses to kill a server whose sole claimant is still mid-turn (closes the OQ-2
-        // sole-claimant mid-turn-kill window). Cleared on shutdown (see cleanupAndShutdown).
-        setOpenCodeConnectedServiceInFlightTurnProvider(
-          (sessionId) => connectedServiceTurnDeferralQueue.isTurnInFlight(sessionId),
-        );
         const resolveSessionRunnerActivityDisabledReason = (
           sessionId: string,
         ): SessionRunnerRestartDisabledReason | null => resolveSessionRunnerActivityDisabledReasonFromReaders(sessionId, {
@@ -7884,32 +7874,6 @@ export async function startDaemon(options: Readonly<{ takeover?: boolean }> = {}
 
       connectedServiceAuthGroupGenerationConsumer = new ConnectedServiceAuthGroupGenerationConsumer({
         notifyCurrentGroupTruth: createConnectedServiceCurrentGroupTruthNotifier({
-          applyRequestTimeBrokerCurrentTruth: async (input) => {
-            if (input.applicationOwnerId !== 'opencode' && input.applicationOwnerId !== 'pi') return null;
-            const runtimeTarget = connectedServiceRuntimeRegistry.getBySessionId(input.sessionId);
-            const selectionIdentity = runtimeTarget?.brokerSelectionIdentity ?? null;
-            if (!selectionIdentity || input.isCurrent?.() === false) {
-              return { ok: false, errorCode: 'broker_selection_identity_unavailable' };
-            }
-            if (input.currentTruth.kind === 'current_auth_group_unavailable') {
-              markBrokerBridgeEffectiveSelectionUnavailable({
-                selectionIdentity,
-                serviceId: input.serviceId,
-                groupId: input.currentTruth.groupId,
-                unavailableReason: input.currentTruth.unavailableReason,
-              });
-              return { ok: true };
-            }
-            return isBrokerBridgeCurrentGroupTruthCompatible({
-              selectionIdentity,
-              serviceId: input.serviceId,
-              groupId: input.currentTruth.groupId,
-              generation: input.currentTruth.generation,
-              credentialRevision: input.currentTruth.credentialRevision,
-            })
-              ? { ok: true }
-              : { ok: false, errorCode: 'broker_current_truth_not_applied' };
-          },
           resolveTransport: async (sessionId) => {
             const transport = await resolveSessionTransportContext({ credentials, idOrPrefix: sessionId });
             return transport.ok ? transport : null;
@@ -8644,9 +8608,6 @@ export async function startDaemon(options: Readonly<{ takeover?: boolean }> = {}
           shutdownInitiated = true;
           eventLoopStallMonitor.stop();
           connectedServiceTurnDeferralQueue.cancelAll('daemon_shutdown');
-          // Lane F: stop exposing turn-in-flight state once the queue is torn down so a tearing-down
-          // daemon never reports a stale in-flight turn to the managed-server release path.
-          setOpenCodeConnectedServiceInFlightTurnProvider(null);
           // Stop runtime-auth recovery timers so live-daemon recovery work cannot fire a
           // switch/restart into a tearing-down daemon. Daemon restart intentionally drops these
           // in-memory recovery intents.
@@ -8741,20 +8702,6 @@ export async function startDaemon(options: Readonly<{ takeover?: boolean }> = {}
       }
       if (memoryWorker) {
         memoryWorker.stop();
-      }
-
-      // Best-effort cleanup for provider-managed background processes (e.g. shared OpenCode server).
-      // Important: do not tear down shared provider background processes while session runners are still
-      // tracked by this daemon. Some harnesses stop the daemon while externally-started sessions are
-      // still live (e.g. in-flight provider tests). Killing the shared OpenCode server in that state
-      // can wedge or abort those sessions mid-turn.
-      if (pidToTrackedSession.size === 0) {
-        try {
-          const { stopSharedManagedOpenCodeServerFromEnvBestEffort } = await import('@/backends/opencode/server/sharedManagedServer');
-          await stopSharedManagedOpenCodeServerFromEnvBestEffort();
-        } catch {
-          // best-effort only
-        }
       }
 
       await stopDirectPeerServer();

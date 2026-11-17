@@ -7,7 +7,6 @@ import { expandHomeDirPath } from '@happier-dev/cli-common/providers';
 import {
   resolveConfiguredClaudeConfigDir,
 } from '@/backends/claude/directSessions/resolveClaudeConfigDir';
-import { resolvePiAgentDir } from '@/backends/pi/directSessions/resolvePiAgentDir';
 
 type DirectSourceValidationResult =
   | Readonly<{ ok: true; source: DirectSessionsSource }>
@@ -24,14 +23,6 @@ function canonicalizePath(raw: string, env: NodeJS.ProcessEnv): string {
   } catch {
     return resolved;
   }
-}
-
-function normalizeUrl(raw: string): string {
-  const url = new URL(raw.trim());
-  url.hash = '';
-  url.search = '';
-  const normalized = url.toString().replace(/\/+$/, '');
-  return normalized || raw.trim();
 }
 
 function isSafeConnectedServiceId(raw: unknown): raw is string {
@@ -71,52 +62,6 @@ export function validateDirectMachineSource(params: Readonly<{
           ...source,
           configDir: configuredConfigDir,
         },
-      };
-    }
-    case 'pi': {
-      if (source.kind !== 'piAgentDir') return err('provider/source mismatch');
-      const requestedAgentDir =
-        typeof source.agentDir === 'string' && source.agentDir.trim().length > 0
-          ? canonicalizePath(source.agentDir, env)
-          : null;
-      // The configured dir is daemon-controlled (env PI_CODING_AGENT_DIR or default ~/.pi/agent).
-      // A client may omit agentDir; if supplied it must match the configured dir (path-traversal guard,
-      // mirroring the claude configDir policy).
-      const configuredAgentDir = canonicalizePath(resolvePiAgentDir({ source: { kind: 'piAgentDir' }, env }), env);
-      if (requestedAgentDir && requestedAgentDir !== configuredAgentDir) {
-        return err('source agentDir override is not allowed');
-      }
-      return {
-        ok: true,
-        source: {
-          ...source,
-          agentDir: configuredAgentDir,
-        },
-      };
-    }
-    case 'opencode': {
-      if (source.kind !== 'opencodeServer') return err('provider/source mismatch');
-      const requestedBaseUrl = typeof source.baseUrl === 'string' && source.baseUrl.trim().length > 0 ? normalizeUrl(source.baseUrl) : null;
-      const configuredBaseUrl =
-        typeof env.HAPPIER_OPENCODE_SERVER_URL === 'string' && env.HAPPIER_OPENCODE_SERVER_URL.trim().length > 0
-          ? normalizeUrl(env.HAPPIER_OPENCODE_SERVER_URL)
-          : null;
-
-      if (requestedBaseUrl && !configuredBaseUrl) {
-        return err('source baseUrl override is not allowed');
-      }
-      if (requestedBaseUrl && configuredBaseUrl && requestedBaseUrl !== configuredBaseUrl) {
-        return err('source baseUrl override is not allowed');
-      }
-
-      return {
-        ok: true,
-        source: configuredBaseUrl
-          ? {
-              ...source,
-              baseUrl: configuredBaseUrl,
-            }
-          : source,
       };
     }
     default: {

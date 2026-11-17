@@ -48,13 +48,13 @@ vi.mock('@/agents/catalog/catalog', async (importOriginal) => {
     const actual = await importOriginal<typeof import('@/agents/catalog/catalog')>();
     return {
         ...actual,
-        AGENT_IDS: ['codex', 'customAcp', 'kiro'],
+        AGENT_IDS: ['codex', 'customAcp', 'gemini'],
         getAgentCore: (agentId: Parameters<typeof actual.getAgentCore>[0]) => {
             const core = actual.getAgentCore(agentId);
             return {
                 ...core,
                 displayNameKey: `agent.${agentId}`,
-                availability: { ...core.availability, experimental: agentId === 'kiro' },
+                availability: { ...core.availability, experimental: agentId === 'gemini' },
                 ui: { ...core.ui, agentPickerIconName: 'code-slash-outline' },
             };
         },
@@ -72,7 +72,7 @@ describe('ProviderSettingsIndexScreen', () => {
         const screen = await renderSettingsView(React.createElement(Screen));
 
         expect(screen.findRowByTitle('agent.codex')).toBeTruthy();
-        expect(screen.findRowByTitle('agent.kiro')).toBeTruthy();
+        expect(screen.findRowByTitle('agent.gemini')).toBeTruthy();
         expect(screen.findRowByTitle('agent.customAcp')).toBeFalsy();
 
         const acpSections = screen.findAllByType('AcpCatalogSettingsSections' as any);

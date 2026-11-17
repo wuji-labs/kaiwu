@@ -1,5 +1,5 @@
 import type { AgentId } from '@happier-dev/agents';
-import { getProviderSettingsDefinition, normalizeKimiAcpPythonSelector, type KimiAcpPythonSelector } from '@happier-dev/agents';
+import { getProviderSettingsDefinition } from '@happier-dev/agents';
 import { normalizeCodexBackendMode, type CodexBackendMode } from '@happier-dev/protocol';
 
 export function resolveProviderOutgoingMessageMetaExtras(params: Readonly<{
@@ -47,9 +47,6 @@ function readExplicitCodexBackendModeFromEnv(processEnv: NodeJS.ProcessEnv): Cod
   return normalizeCodexBackendMode(processEnv.HAPPIER_CODEX_BACKEND_MODE);
 }
 
-function readExplicitKimiAcpPythonSelectorFromEnv(processEnv: NodeJS.ProcessEnv): KimiAcpPythonSelector | null {
-  return normalizeKimiAcpPythonSelector(processEnv.HAPPIER_KIMI_ACP_SELECTOR);
-}
 
 export function resolveProviderSpawnExtrasForRuntime(params: Readonly<{
   agentId: AgentId;
@@ -60,13 +57,6 @@ export function resolveProviderSpawnExtrasForRuntime(params: Readonly<{
     const explicitCodexBackendMode = readExplicitCodexBackendModeFromEnv(params.processEnv);
     if (explicitCodexBackendMode) {
       return { codexBackendMode: explicitCodexBackendMode };
-    }
-  }
-
-  if (params.agentId === 'kimi') {
-    const explicitKimiAcpPythonSelector = readExplicitKimiAcpPythonSelectorFromEnv(params.processEnv);
-    if (explicitKimiAcpPythonSelector) {
-      return { kimiAcpPythonSelector: explicitKimiAcpPythonSelector };
     }
   }
 

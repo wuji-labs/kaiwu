@@ -102,26 +102,18 @@ import type {
   RetryTemporaryThrottleNow,
   ScheduleInactiveSessionUsageLimitRecoveryCheck,
 } from '@/session/actions/createCliActionDeps';
-import { registerPetRpcHandlers } from '@/pets/rpc/registerPetRpcHandlers';
 import { runReplaySummaryForDialog } from '@/session/replay/summary/runReplaySummaryForDialog';
 import { configuration } from '@/configuration';
 import type { FilesystemAccessPolicy } from '@/rpc/handlers/fileSystem/accessPolicy/filesystemAccessPolicy';
 import { resolveFilesystemPolicyDefaultDirectory } from '@/rpc/handlers/fileSystem/accessPolicy/filesystemAccessPolicy';
 import { isAcpForkEligibleForProvider } from '@/agent/acp/acpForkEligibility';
 import type {
-  AccountPetCreateRequestV1,
-  AccountPetCreateResponseV1,
   ActionOperationSnapshotV1,
   DirectSessionTranscriptDeltaEphemeral,
   MachineTransferReceiveEnvelope,
   MachineTransferSendEnvelope,
   TransferEndpointCandidate,
 } from '@happier-dev/protocol';
-import {
-  applyOpenCodeSessionAffinityMetadata,
-  buildOpenCodeSessionEnvironmentVariables,
-  readOpenCodeSessionAffinityFromMetadata,
-} from '@/backends/opencode/utils/opencodeSessionAffinity';
 import { inferAgentIdFromSessionMetadata, resolveVendorResumeIdFromSessionMetadata } from '@happier-dev/agents';
 import { getAcpForkContinuationHandler } from '@/backends/catalog';
 import {
@@ -256,7 +248,6 @@ export type MachineRpcHandlerDeps = Readonly<{
   filesystemAccessPolicy?: FilesystemAccessPolicy;
   emitDirectSessionTranscriptUpdate?: (payload: DirectSessionTranscriptDeltaEphemeral) => void;
   emitActionOperationRevision?: (snapshot: ActionOperationSnapshotV1) => void;
-  createAccountPet?: (request: AccountPetCreateRequestV1) => Promise<AccountPetCreateResponseV1>;
   resumeInactiveSessionWhenUsageLimitReady?: ResumeInactiveSessionWhenUsageLimitReady;
   scheduleInactiveSessionUsageLimitRecoveryCheck?: ScheduleInactiveSessionUsageLimitRecoveryCheck;
   cancelInactiveSessionUsageLimitRecoveryCheck?: CancelInactiveSessionUsageLimitRecoveryCheck;
@@ -1187,10 +1178,6 @@ export function registerMachineRpcHandlers(params: Readonly<{
         : {}),
     },
   });
-  registerPetRpcHandlers({
-    rpcHandlerManager,
-    createAccountPet: params.deps?.createAccountPet,
-  });
   registerMachineSessionHandoffRpcHandlers({
     rpcHandlerManager,
     ...(actionOperationRuntime ? {
@@ -1517,10 +1504,6 @@ export function registerMachineRpcHandlers(params: Readonly<{
       };
     }
 
-    const openCodeParentAffinity =
-      agentRaw === 'opencode'
-        ? readOpenCodeSessionAffinityFromMetadata(parentMetadata)
-        : null;
     const inheritedForkOverrides = resolveForkInheritedOverridesFromMetadata(parentMetadata, agentRaw);
     const connectedServiceForkLaunchContext = createConnectedServiceForkLaunchContext({
       inherited: inheritedForkOverrides,
@@ -1946,13 +1929,6 @@ export function registerMachineRpcHandlers(params: Readonly<{
         : {}),
       extraMetadata: {
         ...inheritedForkMetadataOverrides,
-        ...(agentRaw === 'opencode'
-          ? applyOpenCodeSessionAffinityMetadata({
-            backendMode: openCodeParentAffinity?.backendMode ?? 'server',
-            serverBaseUrl: openCodeParentAffinity?.serverBaseUrl ?? null,
-            serverBaseUrlExplicit: openCodeParentAffinity?.serverBaseUrlExplicit ?? false,
-          })
-          : {}),
       },
     });
     throwIfTrackedActionAborted(signal);
@@ -1996,15 +1972,6 @@ export function registerMachineRpcHandlers(params: Readonly<{
             approvedNewDirectoryCreation: true,
             spawnNonce: `${baseSpawnNonce}:replay`,
             existingSessionId: request.existingSessionId,
-            ...(agentRaw === 'opencode'
-              ? {
-                environmentVariables: buildOpenCodeSessionEnvironmentVariables({
-                  backendMode: openCodeParentAffinity?.backendMode ?? 'server',
-                  serverBaseUrl: openCodeParentAffinity?.serverBaseUrl ?? null,
-                  serverBaseUrlExplicit: openCodeParentAffinity?.serverBaseUrlExplicit ?? false,
-                }),
-              }
-              : {}),
             ...inheritedForkSpawnOverrides,
           } satisfies SpawnSessionOptions),
         },

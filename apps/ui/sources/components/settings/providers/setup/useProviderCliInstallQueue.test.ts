@@ -52,15 +52,15 @@ describe('useProviderCliInstallQueue', () => {
         expect(hook.getCurrent().resolveStatus('gemini').status).toBe('installed');
     });
 
-    it('uses the provider id for Cursor install capability instead of its detect key', async () => {
+    it('uses the provider id for Custom ACP install capability instead of its detect key', async () => {
         capabilitiesState.invoke.mockResolvedValueOnce({ supported: true, response: { ok: true, result: null } });
 
         const hook = await renderHook(() => useProviderCliInstallQueue({
             machineId: 'machine-1',
             serverId: 'server-a',
-            providerIds: ['cursor'],
-            providerDetectKeys: { cursor: 'cursor-agent' },
-            installedByProviderId: { cursor: false },
+            providerIds: ['customAcp'],
+            providerDetectKeys: { customAcp: 'custom-acp' },
+            installedByProviderId: { customAcp: false },
         }));
 
         await act(async () => {
@@ -68,7 +68,7 @@ describe('useProviderCliInstallQueue', () => {
         });
 
         expect(capabilitiesState.invoke).toHaveBeenCalledTimes(1);
-        expect(capabilitiesState.invoke.mock.calls[0]?.[1]?.id).toBe('cli.cursor');
+        expect(capabilitiesState.invoke.mock.calls[0]?.[1]?.id).toBe('cli.customAcp');
     });
 
     it('can retry a failed provider without rerunning the full queue', async () => {

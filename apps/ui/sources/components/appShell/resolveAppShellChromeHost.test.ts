@@ -9,7 +9,6 @@ describe('resolveAppShellChromeHost', () => {
     it('returns none for terminal-connect routes', () => {
         expect(resolveAppShellChromeHost({
             isAuthenticated: true,
-            isDesktopPetOverlayWindow: false,
             isWeb: true,
             isTauriDesktop: true,
             isTablet: true,
@@ -17,21 +16,9 @@ describe('resolveAppShellChromeHost', () => {
         })).toBe('none');
     });
 
-    it('returns none for the desktop pet overlay window', () => {
-        expect(resolveAppShellChromeHost({
-            isAuthenticated: true,
-            isDesktopPetOverlayWindow: true,
-            isWeb: true,
-            isTauriDesktop: true,
-            isTablet: false,
-            isTerminalConnectRoute: false,
-        })).toBe('none');
-    });
-
     it('returns web-top-right for non-Tauri browser shells', () => {
         expect(resolveAppShellChromeHost({
             isAuthenticated: true,
-            isDesktopPetOverlayWindow: false,
             isWeb: true,
             isTauriDesktop: false,
             isTablet: true,
@@ -42,7 +29,6 @@ describe('resolveAppShellChromeHost', () => {
     it('does not place root update chrome over native mobile headers', () => {
         const params = {
             isAuthenticated: true,
-            isDesktopPetOverlayWindow: false,
             isWeb: false,
             isTauriDesktop: false,
             isTablet: false,
@@ -55,7 +41,6 @@ describe('resolveAppShellChromeHost', () => {
     it('returns unauth-shell for unauthenticated Tauri desktop flows', () => {
         expect(resolveAppShellChromeHost({
             isAuthenticated: false,
-            isDesktopPetOverlayWindow: false,
             isWeb: true,
             isTauriDesktop: true,
             isTablet: true,
@@ -66,7 +51,6 @@ describe('resolveAppShellChromeHost', () => {
     it('returns narrow-desktop-fallback when authenticated Tauri desktop has no permanent sidebar host', () => {
         expect(resolveAppShellChromeHost({
             isAuthenticated: true,
-            isDesktopPetOverlayWindow: false,
             isWeb: true,
             isTauriDesktop: true,
             isTablet: false,
@@ -77,7 +61,6 @@ describe('resolveAppShellChromeHost', () => {
     it('returns none for authenticated wide Tauri desktop because the sidebar hosts chrome', () => {
         expect(resolveAppShellChromeHost({
             isAuthenticated: true,
-            isDesktopPetOverlayWindow: false,
             isWeb: true,
             isTauriDesktop: true,
             isTablet: true,

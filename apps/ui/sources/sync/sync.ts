@@ -403,7 +403,6 @@ import { fetchAndApplyFriends } from './engine/social/syncFriends';
 import { fetchAndApplyProfile, handleUpdateAccountSocketUpdate, registerPushTokenIfAvailable } from './engine/account/syncAccount';
 import { buildMachineFromMachineActivityEphemeralUpdate, buildUpdatedMachineFromSocketUpdate, fetchAndApplyMachines, type MachineDataKeyCacheEntry } from './engine/machines/syncMachines';
 import { fetchAndApplyAutomationRuns, fetchAndApplyAutomations } from './engine/automations/syncAutomations';
-import { fetchAndApplyAccountPets } from './engine/pets/syncAccountPets';
 import { applyTodoSocketUpdates as applyTodoSocketUpdatesEngine, fetchTodos as fetchTodosEngine } from './engine/todos/syncTodos';
 import { planSyncActionsFromChanges } from './runtime/orchestration/changesPlanner';
 import { applyPlannedChangeActions } from './runtime/orchestration/changesApplier';
@@ -1869,7 +1868,6 @@ class Sync {
         this.readyNotificationProgressBySessionId = {};
         storage.getState().clearSettingsScope();
         storage.getState().clearProfileScope();
-        storage.getState().clearPetsScope();
         storage.getState().clearSessionLocalStateScope();
         storage.getState().resetAccountSettingsSyncStatus();
     }
@@ -1897,7 +1895,6 @@ class Sync {
         migratePendingNotificationNavScopes(scope, legacyScopes);
         storage.getState().activateSettingsScope(scope, legacyScopes);
         storage.getState().activateProfileScope(scope, legacyScopes);
-        storage.getState().activatePetsScope(scope, legacyScopes);
         storage.getState().activateSessionLocalStateScope(scope, legacyScopes);
         this.pendingSettings = loadPendingAccountSettings(scope);
         this.pendingSettingsScope = scope;
@@ -7927,13 +7924,6 @@ class Sync {
                             friendRequests: () => this.friendRequestsSync.invalidateAndAwait(),
                             feed: () => this.feedSync.invalidateAndAwait(),
                             automations: () => this.automationsSync.invalidateAndAwait(),
-                            pets: () => fetchAndApplyAccountPets({
-                                credentials: this.credentials,
-                                readScope: () => storage.getState().petsScope,
-                                applyAccountPets: (pets) => storage.getState().applyAccountPets(pets),
-                                applyAccountPetsForScope: (scope, pets) =>
-                                    storage.getState().applyAccountPetsForScope(scope, pets),
-                            }),
                             sessions: async ({ requiredHydrationSessionIds, prioritizeSessionIds }) => {
                                 await this.fetchSessions({
                                     awaitSessionListHydration: true,

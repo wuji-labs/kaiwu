@@ -371,69 +371,6 @@ describe('ConnectedServicesDefaultAuthRow', () => {
         expect(trigger.subtitle).toBe('connectedServices.defaultAuth.warning.connected_group_unavailable');
     });
 
-    it('offers Claude subscription OAuth, setup-token, and Anthropic API key as selectable options for OpenCode', async () => {
-        const { ConnectedServicesDefaultAuthRow } = await import('./ConnectedServicesDefaultAuthRow');
-        const setDefaultAuthSettings = vi.fn();
-
-        const { tree } = await renderScreen(
-            <ConnectedServicesDefaultAuthRow
-                agentId="opencode"
-                agentTitle="OpenCode"
-                agentCore={{ connectedServices: AGENTS_CORE.opencode.connectedServices }}
-                connectedServicesEnabled={true}
-                accountGroupsEnabled={false}
-                accountProfileConnectedServicesV2={[
-                    {
-                        serviceId: 'claude-subscription' as ConnectedServiceId,
-                        profiles: [
-                            { profileId: 'claude-oauth', status: 'connected', kind: 'oauth', providerEmail: 'oauth@example.com' },
-                            { profileId: 'claude-setup', status: 'connected', kind: 'token', providerEmail: 'setup@example.com' },
-                        ],
-                    },
-                    {
-                        serviceId: 'anthropic' as ConnectedServiceId,
-                        profiles: [
-                            { profileId: 'api', status: 'connected', kind: 'token', providerEmail: 'api@example.com' },
-                        ],
-                    },
-                ]}
-                settings={{
-                    connectedServicesProfileLabelByKey: {},
-                    connectedServicesDefaultProfileByServiceId: {},
-                    connectedServicesDefaultAuthByAgentIdV1: { v: 1, bindingsByAgentId: {} },
-                }}
-                setDefaultAuthSettings={setDefaultAuthSettings}
-                onOpenConnectedServiceSettings={vi.fn()}
-            />,
-        );
-
-        const modalTree = await openPickerModal(tree, 'opencode');
-        const optionIds = findSelectionListProps(modalTree).rootStep.sections
-            .flatMap((section) => section.options.map((option) => option.id));
-
-        // All three Anthropic auth options surface as real selectable connected profiles:
-        // browser-login OAuth + setup-token (claude-subscription) and Console API key (anthropic).
-        expect(optionIds).toContain('connected-service:claude-subscription:profile:claude-oauth');
-        expect(optionIds).toContain('connected-service:claude-subscription:profile:claude-setup');
-        expect(optionIds).toContain('connected-service:anthropic:profile:api');
-
-        await act(async () => {
-            findSelectionOption(modalTree, 'connected-service:claude-subscription:profile:claude-oauth').onSelect();
-        });
-
-        expect(setDefaultAuthSettings).toHaveBeenCalledWith({
-            v: 1,
-            bindingsByAgentId: {
-                opencode: {
-                    v: 1,
-                    bindingsByServiceId: {
-                        'claude-subscription': { source: 'connected', selection: 'profile', profileId: 'claude-oauth' },
-                    },
-                },
-            },
-        });
-    });
-
     function renderProfileDefaultInReadyPool(overrides: Readonly<{
         dismissedPoolAdoptionSuggestionKeys?: Record<string, boolean>;
         onDismissPoolAdoptionSuggestion?: (key: string) => void;

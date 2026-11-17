@@ -5,7 +5,6 @@ import {
   normalizeCodexBackendMode,
 } from '@happier-dev/protocol';
 import {
-  readOpenCodeSessionRuntimeHandleFromMetadata,
   readSessionMetadataRuntimeDescriptor,
   resolvePersistedCodexRuntimeIdentity,
   type CodexBackendMode,
@@ -57,18 +56,12 @@ type CanonicalCodexRuntimeDescriptor = Readonly<{
   backendMode?: CodexBackendMode | null;
 }>; 
 
-type CanonicalOpenCodeRuntimeDescriptor = Readonly<{
-  vendorSessionId: string | null;
-  serverBaseUrl: string | null;
-}> | null;
-
 function readNestedDirectSessionRuntimeDescriptor(metadata: Record<string, unknown>) {
   const directSession = typeof metadata.directSessionV1 === 'object' && metadata.directSessionV1 && !Array.isArray(metadata.directSessionV1)
     ? metadata.directSessionV1 as Record<string, unknown>
     : null;
   return {
     codex: readSessionMetadataRuntimeDescriptor({ agentRuntimeDescriptorV1: directSession?.agentRuntimeDescriptorV1 }, 'codex'),
-    opencode: readOpenCodeSessionRuntimeHandleFromMetadata({ agentRuntimeDescriptorV1: directSession?.agentRuntimeDescriptorV1 }),
   };
 }
 
@@ -76,7 +69,6 @@ function resolveCanonicalDirectSource(params: Readonly<{
   providerId: z.infer<typeof DirectSessionsProviderIdSchema>;
   source: z.infer<typeof DirectSessionsSourceSchema>;
   codexRuntimeDescriptor: CanonicalCodexRuntimeDescriptor | null;
-  openCodeRuntimeDescriptor: CanonicalOpenCodeRuntimeDescriptor;
 }>): z.infer<typeof DirectSessionsSourceSchema> {
   if (params.providerId === 'codex' && params.source.kind === 'codexHome') {
     const runtime = params.codexRuntimeDescriptor;
@@ -88,16 +80,6 @@ function resolveCanonicalDirectSource(params: Readonly<{
       ...(runtime.connectedServiceProfileId ? { connectedServiceProfileId: runtime.connectedServiceProfileId } : {}),
       ...(runtime.connectedServiceGroupId ? { connectedServiceGroupId: runtime.connectedServiceGroupId } : {}),
       ...(runtime.homePath ? { homePath: runtime.homePath } : {}),
-    };
-  }
-
-  if (params.providerId === 'opencode' && params.source.kind === 'opencodeServer') {
-    const runtime = params.openCodeRuntimeDescriptor;
-    if (!runtime) return params.source;
-    return {
-      kind: 'opencodeServer',
-      ...(runtime.serverBaseUrl ? { baseUrl: runtime.serverBaseUrl } : {}),
-      ...(typeof params.source.directory === 'string' ? { directory: params.source.directory } : {}),
     };
   }
 
@@ -135,12 +117,9 @@ export async function loadLinkedDirectSession(params: Readonly<{
   const sessionPath = typeof parsed.data.path === 'string' && parsed.data.path.trim().length > 0 ? parsed.data.path.trim() : null;
   const nestedRuntimeDescriptor = readNestedDirectSessionRuntimeDescriptor(parsed.data);
   const codexRuntimeDescriptor = (nestedRuntimeDescriptor.codex ?? readSessionMetadataRuntimeDescriptor(parsed.data, 'codex')) as CanonicalCodexRuntimeDescriptor | null;
-  const openCodeRuntimeDescriptor = (nestedRuntimeDescriptor.opencode ?? readOpenCodeSessionRuntimeHandleFromMetadata(parsed.data)) as CanonicalOpenCodeRuntimeDescriptor;
   const remoteSessionId = direct.providerId === 'codex'
     ? (codexRuntimeDescriptor?.vendorSessionId ?? direct.remoteSessionId)
-    : direct.providerId === 'opencode'
-      ? (openCodeRuntimeDescriptor?.vendorSessionId ?? direct.remoteSessionId)
-      : direct.remoteSessionId;
+    : direct.remoteSessionId;
   const persistedCodexBackendMode = codexRuntimeDescriptor?.backendMode ?? resolvePersistedCodexRuntimeIdentity(parsed.data)?.backendMode ?? null;
   return {
     ok: true,
@@ -155,7 +134,6 @@ export async function loadLinkedDirectSession(params: Readonly<{
         providerId: direct.providerId,
         source: direct.source,
         codexRuntimeDescriptor,
-        openCodeRuntimeDescriptor,
       }),
       codexBackendMode:
         persistedCodexBackendMode

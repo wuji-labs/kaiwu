@@ -21,9 +21,6 @@ export function isPublicRouteForUnauthenticated(segments: string[]): boolean {
     // Account-connect links must reach their route so signed-out users get recovery guidance.
     if (first === 'account') return true;
 
-    // The transparent desktop pet overlay window is shell-owned and must not be redirected into setup.
-    if (first === 'desktop' && normalized[1] === 'pet-overlay') return true;
-
     // Restore / link account flows must work unauthenticated.
     if (first === 'restore') return true;
 

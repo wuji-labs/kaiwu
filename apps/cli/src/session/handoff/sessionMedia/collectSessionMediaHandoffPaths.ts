@@ -120,19 +120,6 @@ function parseJsonLines(text: string): readonly unknown[] {
   return records;
 }
 
-function parseOpenCodeExportRecords(text: string): readonly unknown[] {
-  try {
-    const parsed = JSON.parse(text) as unknown;
-    if (Array.isArray(parsed)) return parsed;
-
-    const record = asRecord(parsed);
-    const messages = Array.isArray(record?.messages) ? record.messages : [];
-    return record ? [record, ...messages] : messages;
-  } catch {
-    return [];
-  }
-}
-
 async function collectJsonLineMediaPathsFromFileSlice(file: Readonly<{
   filePath: string;
   offsetBytes: number;
@@ -186,18 +173,6 @@ export async function collectSessionMediaHandoffPathsFromProviderBundle(
         }
         return [...paths].sort((left, right) => left.localeCompare(right));
       }
-    case 'opencode':
-      if (providerBundle.exportJsonFile) {
-        const chunks: Buffer[] = [];
-        for await (const chunk of createReadStream(providerBundle.exportJsonFile.filePath, {
-          start: providerBundle.exportJsonFile.offsetBytes,
-          end: providerBundle.exportJsonFile.offsetBytes + providerBundle.exportJsonFile.sizeBytes - 1,
-        })) {
-          chunks.push(Buffer.from(chunk));
-        }
-        return collectSessionMediaHandoffPaths(parseOpenCodeExportRecords(Buffer.concat(chunks).toString('utf8')));
-      }
-      return collectSessionMediaHandoffPaths(parseOpenCodeExportRecords(decodeBase64Utf8(providerBundle.exportJsonBase64)));
     default:
       return [];
   }

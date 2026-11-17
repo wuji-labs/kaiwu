@@ -2,8 +2,6 @@ import * as React from 'react';
 import { Platform } from 'react-native';
 import * as safeAreaContext from 'react-native-safe-area-context';
 import type { EdgeInsets } from 'react-native-safe-area-context';
-import { isDesktopPetOverlayWindowContext } from '@/components/pets/desktop/runtime/isDesktopPetOverlayWindowContext';
-
 const CSS_SAFE_AREA_VAR_PREFIX = '--happier-safe-area-';
 
 function parseCssPx(value: string): number {
@@ -105,7 +103,6 @@ function readInitialWindowInsets(): EdgeInsets {
 }
 
 export function useChromeSafeAreaInsets(): EdgeInsets {
-    const isDesktopPetOverlayWindow = isDesktopPetOverlayWindowContext();
     const insets = safeAreaContext.useSafeAreaInsets();
     const nativeFallback = React.useMemo<EdgeInsets>(() => {
         if (Platform.OS === 'web') {
@@ -114,13 +111,13 @@ export function useChromeSafeAreaInsets(): EdgeInsets {
         return readInitialWindowInsets();
     }, []);
     const [webFallback, setWebFallback] = React.useState<EdgeInsets>(() => (
-        Platform.OS === 'web' && !isDesktopPetOverlayWindow
+        Platform.OS === 'web'
             ? readWebSafeAreaInsetsFromCss()
             : { top: 0, bottom: 0, left: 0, right: 0 }
     ));
 
     React.useEffect(() => {
-        if (Platform.OS !== 'web' || isDesktopPetOverlayWindow) return undefined;
+        if (Platform.OS !== 'web') return undefined;
         const update = () => setWebFallback(readWebSafeAreaInsetsFromCss());
         update();
         if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
@@ -132,11 +129,7 @@ export function useChromeSafeAreaInsets(): EdgeInsets {
             };
         }
         return undefined;
-    }, [isDesktopPetOverlayWindow]);
-
-    if (isDesktopPetOverlayWindow) {
-        return { top: 0, bottom: 0, left: 0, right: 0 };
-    }
+    }, []);
 
     if (Platform.OS !== 'web') {
         return mergeSafeAreaInsets(insets, nativeFallback);

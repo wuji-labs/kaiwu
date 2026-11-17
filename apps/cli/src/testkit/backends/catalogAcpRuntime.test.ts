@@ -12,13 +12,13 @@ describe('catalog ACP runtime testkit', () => {
         const createCalls: CatalogAcpRuntimeCreateCall[] = [];
         createCatalogAcpBackendSpy(createCalls);
 
-        const result = await acpModule.createCatalogAcpBackend('kimi', {
+        const result = await acpModule.createCatalogAcpBackend('codex', {
             permissionMode: 'read-only',
         });
 
         expect(createCalls).toEqual([
             {
-                agentId: 'kimi',
+                agentId: 'codex',
                 permissionMode: 'read-only',
             },
         ]);

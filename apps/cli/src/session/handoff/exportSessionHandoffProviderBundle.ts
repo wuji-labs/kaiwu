@@ -2,7 +2,6 @@ import type { SessionHandoffProviderBundle } from './types';
 
 import { exportClaudeSessionBundle } from '../../backends/claude/handoff/exportClaudeSessionBundle';
 import { exportCodexSessionBundle } from '../../backends/codex/handoff/exportCodexSessionBundle';
-import { exportOpenCodeSessionBundle } from '../../backends/opencode/handoff/exportOpenCodeSessionBundle';
 import { resolveSessionHandoffEligibility } from './resolveSessionHandoffEligibility';
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -58,14 +57,6 @@ export async function exportSessionHandoffProviderBundle(params: Readonly<{
           targetPath,
         };
       }
-    case 'opencode':
-      return {
-        providerBundle: await exportOpenCodeSessionBundle({
-          metadata,
-          remoteSessionId: eligibility.vendorHandoffId,
-        }),
-        targetPath,
-      };
     default:
       throw new Error(`Unsupported handoff provider: ${eligibility.agentId}`);
   }

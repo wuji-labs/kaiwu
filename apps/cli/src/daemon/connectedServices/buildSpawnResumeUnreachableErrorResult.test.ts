@@ -11,10 +11,10 @@ import { buildSpawnResumeUnreachableErrorResult } from './buildSpawnResumeUnreac
 
 function makeError() {
   return new ConnectedServiceSpawnResumeUnreachableError({
-    agentId: 'pi',
-    vendorResumeId: 'pi-session-missing',
+    agentId: 'gemini',
+    vendorResumeId: 'gemini-session-missing',
     cwd: '/tmp/project',
-    targetMaterializedRoot: '/tmp/materialized/pi-agent-dir',
+    targetMaterializedRoot: '/tmp/materialized/gemini-agent-dir',
     reason: 'no_resumable_session_file',
   });
 }
@@ -30,9 +30,9 @@ describe('buildSpawnResumeUnreachableErrorResult', () => {
     // copy-based surfaces keep working.
     expect(result.errorMessage).toContain('provider_session_state_unavailable_for_resume');
     expect(result.errorMessage).toContain('continuity');
-    expect(result.errorMessage).not.toContain('pi-session-missing');
+    expect(result.errorMessage).not.toContain('gemini-session-missing');
     expect(result.errorMessage).not.toContain('/tmp/project');
-    expect(result.errorMessage).not.toContain('/tmp/materialized/pi-agent-dir');
+    expect(result.errorMessage).not.toContain('/tmp/materialized/gemini-agent-dir');
   });
 
   it('attaches a UI-safe connected-service resume-unreachable detail', () => {
@@ -44,7 +44,7 @@ describe('buildSpawnResumeUnreachableErrorResult', () => {
       kind: SPAWN_SESSION_ERROR_DETAIL_KINDS.CONNECTED_SERVICE_RESUME_UNREACHABLE,
       continuityErrorCode: 'provider_session_state_unavailable_for_resume',
       failurePhase: 'continuity',
-      agentId: 'pi',
+      agentId: 'gemini',
       reason: 'no_resumable_session_file',
     });
     expect(result.errorDetail).not.toHaveProperty('vendorResumeId');

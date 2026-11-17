@@ -8,7 +8,7 @@ describe('getPreferredDirectBrowseProviderId', () => {
     });
 
     it('falls back to the first available provider without hardcoded defaults', () => {
-        expect(getPreferredDirectBrowseProviderId(['claude', 'opencode'], 'codex')).toBe('claude');
+        expect(getPreferredDirectBrowseProviderId(['claude', 'codex'], null)).toBe('claude');
         expect(getPreferredDirectBrowseProviderId([], 'codex')).toBe(null);
     });
 });

@@ -2,6 +2,7 @@ import type { AgentCatalogEntry } from '@/backends/catalog';
 import { AGENTS } from '@/backends/catalog';
 import { CATALOG_AGENT_IDS } from '@/backends/types';
 import type { CatalogAgentId } from '@/backends/types';
+import { DEFAULT_ACTIVE_AGENT_IDS } from '@happier-dev/agents';
 import { CODEX_ACP_DEP_ID } from '@happier-dev/protocol/installables';
 
 import { CHECKLIST_IDS, resumeChecklistId, type ChecklistId } from './checklistIds';
@@ -10,9 +11,13 @@ import type { CapabilityDetectRequest } from './types';
 let cachedChecklists: Record<ChecklistId, CapabilityDetectRequest[]> | null = null;
 
 function createCliAgentRequests(): CapabilityDetectRequest[] {
-    return (Object.values(AGENTS) as AgentCatalogEntry[]).map((entry) => ({
-        id: `cli.${entry.id}`,
-    }));
+    // Default checklists probe only the default-active Agents; cold adapters are
+    // still requestable explicitly and keep their generic capability entries.
+    return DEFAULT_ACTIVE_AGENT_IDS
+        .filter((agentId) => Object.prototype.hasOwnProperty.call(AGENTS, agentId))
+        .map((agentId) => ({
+            id: `cli.${agentId}`,
+        }));
 }
 
 function mergeChecklistContributions(

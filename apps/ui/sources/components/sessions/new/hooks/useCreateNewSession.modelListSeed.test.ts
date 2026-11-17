@@ -14,7 +14,7 @@ import type { BackendTargetRefV1 } from '@happier-dev/protocol';
 
 vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true);
 
-const PI_PREFLIGHT_MODELS: PreflightModelList = {
+const PREFLIGHT_MODELS: PreflightModelList = {
     availableModels: [
         { id: 'default', name: 'Default' },
         { id: 'zai/glm-5.3', name: 'GLM-5.3' },
@@ -40,7 +40,7 @@ async function setupUseCreateNewSessionHarness(params: Readonly<{
     const syncSendMessageSpy = vi.fn<(...args: unknown[]) => Promise<void>>(async (..._args: unknown[]) => {});
     const machineSpawnNewSessionSpy = vi.fn<(...args: unknown[]) => Promise<any>>(async () => ({
         type: 'success',
-        sessionId: 'sess_pi_1',
+        sessionId: 'sess_codex_1',
     }));
     const materializeNewSessionCheckoutSpy = vi.fn(async () => ({
         success: true as const,
@@ -277,18 +277,18 @@ describe('useCreateNewSession model list seeding', () => {
         const harness = await setupUseCreateNewSessionHarness();
 
         await runCreateSession(harness, {
-            agentType: 'pi',
+            agentType: 'codex',
             modelMode: 'lmstudio/hadees/lfm2.5-2.6b@q8_0' as ModelMode,
-            preflightModels: PI_PREFLIGHT_MODELS,
+            preflightModels: PREFLIGHT_MODELS,
         });
 
         expect(harness.publishModelsSeedSpy).toHaveBeenCalledTimes(1);
         expect(harness.publishModelsSeedSpy).toHaveBeenCalledWith(expect.objectContaining({
-            sessionId: 'sess_pi_1',
+            sessionId: 'sess_codex_1',
             serverId: 'server-b',
-            agentId: 'pi',
+            agentId: 'codex',
             currentModelId: 'lmstudio/hadees/lfm2.5-2.6b@q8_0',
-            availableModels: PI_PREFLIGHT_MODELS.availableModels,
+            availableModels: PREFLIGHT_MODELS.availableModels,
             updatedAt: expect.any(Number),
         }));
     });
@@ -299,8 +299,8 @@ describe('useCreateNewSession model list seeding', () => {
         vi.spyOn(console, 'error').mockImplementation(() => {});
 
         await runCreateSession(harness, {
-            agentType: 'pi',
-            preflightModels: PI_PREFLIGHT_MODELS,
+            agentType: 'codex',
+            preflightModels: PREFLIGHT_MODELS,
         });
 
         expect(harness.captureExceptionSpy).toHaveBeenCalledWith(seedError);
@@ -311,9 +311,9 @@ describe('useCreateNewSession model list seeding', () => {
         const harness = await setupUseCreateNewSessionHarness();
 
         await runCreateSession(harness, {
-            agentType: 'pi',
+            agentType: 'codex',
             modelMode: 'default' as ModelMode,
-            preflightModels: PI_PREFLIGHT_MODELS,
+            preflightModels: PREFLIGHT_MODELS,
         });
 
         expect(harness.publishModelsSeedSpy).toHaveBeenCalledWith(expect.objectContaining({
@@ -325,7 +325,7 @@ describe('useCreateNewSession model list seeding', () => {
         const harness = await setupUseCreateNewSessionHarness();
 
         await runCreateSession(harness, {
-            agentType: 'pi',
+            agentType: 'codex',
             preflightModels: null,
         });
 
@@ -339,18 +339,7 @@ describe('useCreateNewSession model list seeding', () => {
 
         await runCreateSession(harness, {
             agentType: 'claude',
-            preflightModels: PI_PREFLIGHT_MODELS,
-        });
-
-        expect(harness.publishModelsSeedSpy).not.toHaveBeenCalled();
-    });
-
-    it('does not seed for static-only probe agents', async () => {
-        const harness = await setupUseCreateNewSessionHarness();
-
-        await runCreateSession(harness, {
-            agentType: 'qwen',
-            preflightModels: PI_PREFLIGHT_MODELS,
+            preflightModels: PREFLIGHT_MODELS,
         });
 
         expect(harness.publishModelsSeedSpy).not.toHaveBeenCalled();
@@ -362,7 +351,7 @@ describe('useCreateNewSession model list seeding', () => {
         await runCreateSession(harness, {
             agentType: 'customAcp',
             backendTarget: { kind: 'configuredAcpBackend', backendId: 'backend-1' },
-            preflightModels: PI_PREFLIGHT_MODELS,
+            preflightModels: PREFLIGHT_MODELS,
         });
 
         expect(harness.machineSpawnNewSessionSpy).toHaveBeenCalledTimes(1);

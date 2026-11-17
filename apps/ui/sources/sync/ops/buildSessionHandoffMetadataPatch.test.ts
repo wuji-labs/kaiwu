@@ -228,7 +228,7 @@ describe('buildSessionHandoffMetadataPatch', () => {
     it('rebuilds opencode runtime descriptor metadata with target server affinity', () => {
         const updated = buildSessionHandoffMetadataPatch({
             metadata: {
-                flavor: 'opencode',
+                flavor: 'opencode' as never,
                 path: '/repo/source',
                 host: 'source-host',
                 machineId: 'machine_source',
@@ -237,7 +237,7 @@ describe('buildSessionHandoffMetadataPatch', () => {
                 opencodeServerBaseUrl: 'http://old.example',
                 opencodeServerBaseUrlExplicit: true,
             },
-            providerId: 'opencode',
+            providerId: 'opencode' as never,
             sourceMachineId: 'machine_source',
             targetMachineId: 'machine_target',
             sessionStorageBefore: 'direct',
@@ -255,14 +255,14 @@ describe('buildSessionHandoffMetadataPatch', () => {
         expect(updated.opencodeServerBaseUrlExplicit).toBe(true);
         expect(updated.agentRuntimeDescriptorV1).toMatchObject({
             v: 1,
-            providerId: 'opencode',
+            providerId: 'opencode' as never,
             provider: {
                 backendMode: 'server',
                 vendorSessionId: 'sess_new',
                 serverBaseUrl: 'http://new.example',
                 serverBaseUrlExplicit: true,
                 providerExtra: {
-                    owner: 'opencode',
+                    owner: 'opencode' as never,
                     schemaId: 'opencode.agentRuntimeDescriptorExtra',
                     v: 1,
                     runtimeHandle: {
@@ -279,14 +279,14 @@ describe('buildSessionHandoffMetadataPatch', () => {
     it('preserves the imported OpenCode runtime descriptor when provided', () => {
         const updated = buildSessionHandoffMetadataPatch({
             metadata: {
-                flavor: 'opencode',
+                flavor: 'opencode' as never,
                 path: '/repo/source',
                 host: 'source-host',
                 machineId: 'machine_source',
                 opencodeSessionId: 'sess_old',
                 opencodeBackendMode: 'acp',
             },
-            providerId: 'opencode',
+            providerId: 'opencode' as never,
             sourceMachineId: 'machine_source',
             targetMachineId: 'machine_target',
             sessionStorageBefore: 'direct',
@@ -298,7 +298,7 @@ describe('buildSessionHandoffMetadataPatch', () => {
             targetDirectSource: { kind: 'opencodeServer', baseUrl: 'http://new.example', directory: '/repo/target' },
             targetRuntimeDescriptor: {
                 v: 1,
-                providerId: 'opencode',
+                providerId: 'opencode' as never,
                 provider: {
                     backendMode: 'server',
                     vendorSessionId: 'sess_new',
@@ -312,7 +312,7 @@ describe('buildSessionHandoffMetadataPatch', () => {
         expect(updated.opencodeServerBaseUrl).toBe('http://canonical.example');
         expect(updated.agentRuntimeDescriptorV1).toMatchObject({
             v: 1,
-            providerId: 'opencode',
+            providerId: 'opencode' as never,
             provider: {
                 backendMode: 'server',
                 vendorSessionId: 'sess_new',
@@ -325,19 +325,19 @@ describe('buildSessionHandoffMetadataPatch', () => {
     it('clears stale externalHistoryImportV1 when a later handoff lands in direct mode', () => {
         const updated = buildSessionHandoffMetadataPatch({
             metadata: {
-                flavor: 'opencode',
+                flavor: 'opencode' as never,
                 host: 'source-host',
                 machineId: 'machine_source',
                 path: '/repo/source',
                 externalHistoryImportV1: {
                     v: 1,
-                    providerId: 'opencode',
+                    providerId: 'opencode' as never,
                     remoteSessionId: 'old_remote',
                     importedAtMs: 1,
                     source: { kind: 'opencodeServer', baseUrl: 'http://old.example' },
                 },
             },
-            providerId: 'opencode',
+            providerId: 'opencode' as never,
             sourceMachineId: 'machine_source',
             targetMachineId: 'machine_target',
             sessionStorageBefore: 'persisted',
@@ -438,14 +438,14 @@ describe('buildSessionHandoffMetadataPatch', () => {
     it('prefers target OpenCode server affinity over stale legacy backend metadata when no runtime descriptor is imported', () => {
         const updated = buildSessionHandoffMetadataPatch({
             metadata: {
-                flavor: 'opencode',
+                flavor: 'opencode' as never,
                 path: '/repo/source',
                 host: 'source-host',
                 machineId: 'machine_source',
                 opencodeSessionId: 'sess_old',
                 opencodeBackendMode: 'acp',
             },
-            providerId: 'opencode',
+            providerId: 'opencode' as never,
             sourceMachineId: 'machine_source',
             targetMachineId: 'machine_target',
             sessionStorageBefore: 'direct',
@@ -461,14 +461,14 @@ describe('buildSessionHandoffMetadataPatch', () => {
         expect(updated.opencodeServerBaseUrl).toBe('http://new.example');
         expect(updated.agentRuntimeDescriptorV1).toMatchObject({
             v: 1,
-            providerId: 'opencode',
+            providerId: 'opencode' as never,
             provider: {
                 backendMode: 'server',
                 vendorSessionId: 'sess_new',
                 serverBaseUrl: 'http://new.example',
                 serverBaseUrlExplicit: true,
                 providerExtra: {
-                    owner: 'opencode',
+                    owner: 'opencode' as never,
                     schemaId: 'opencode.agentRuntimeDescriptorExtra',
                     v: 1,
                     runtimeHandle: {

@@ -4,7 +4,6 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { OpenCodeTransport } from '@/backends/opencode/acp/transport';
 import { AcpBackend } from '../AcpBackend';
 import type { ToolPattern, TransportHandler } from '@/agent/transport/TransportHandler';
 import { createAcpTestTransportHandler } from '../testkit/subprocessHarness';
@@ -1924,62 +1923,6 @@ describe('AcpBackend.waitForResponseComplete', () => {
     });
   }, 20_000);
 
-  it('does not resolve before staggered post-tool chunks that match OpenCode idle timing', async () => {
-    await withTempDir('happier-acp-opencode-staggered-post-tool-', async (dir) => {
-      const scriptPath = writeFakeAcpToolCompletionThenStaggeredMessageChunksAgentScript({
-        dir,
-        chunkDelaysMs: [100, 1_250, 2_450],
-        chunks: ['{"summary":"Open', 'Code delayed ', 'tail"}'],
-      });
-      let backendForCleanup: AcpBackend | undefined;
-
-      try {
-        const transport = new OpenCodeTransport();
-        transport.getInitTimeout = () => 5_000;
-        transport.getToolPatterns = () => [] as ToolPattern[];
-        const backend = new AcpBackend({
-          agentName: 'opencode',
-          cwd: dir,
-          command: process.execPath,
-          args: [scriptPath],
-          transportHandler: transport satisfies TransportHandler,
-        });
-        backendForCleanup = backend;
-
-        const chunks: string[] = [];
-        let resolveFirstChunk!: () => void;
-        const firstChunkSeen = new Promise<void>((resolve) => {
-          resolveFirstChunk = resolve;
-        });
-        let sawFirstChunk = false;
-
-        backend.onMessage((msg) => {
-          if (msg.type !== 'model-output' || typeof msg.textDelta !== 'string') return;
-          chunks.push(msg.textDelta);
-          if (!sawFirstChunk) {
-            sawFirstChunk = true;
-            resolveFirstChunk();
-          }
-        });
-
-        const started = await backend.startSession();
-        await backend.sendPrompt(started.sessionId, 'hi');
-        const waiting = backend.waitForResponseComplete(8_000);
-
-        await firstChunkSeen;
-        const settledBeforeLateChunk = await Promise.race([
-          waiting.then(() => 'resolved' as const),
-          new Promise<'timer'>((resolve) => setTimeout(() => resolve('timer'), 700)),
-        ]);
-
-        expect(settledBeforeLateChunk).toBe('timer');
-        await waiting;
-        expect(chunks.join('')).toBe('{"summary":"OpenCode delayed tail"}');
-      } finally {
-        await backendForCleanup?.dispose().catch(() => {});
-      }
-    });
-  }, 20_000);
 
   it('does not resolve on a transient idle before a later tool phase resumes the turn', async () => {
     await withTempDir('happier-acp-late-tool-phase-', async (dir) => {
@@ -2054,67 +1997,6 @@ describe('AcpBackend.waitForResponseComplete', () => {
     });
   }, 20_000);
 
-  it('does not resolve on a transient post-tool idle before a later OpenCode tool phase resumes the turn', async () => {
-    await withTempDir('happier-acp-opencode-late-tool-phase-', async (dir) => {
-      const scriptPath = writeFakeAcpToolPhasesWithLateUpdatesAgentScript({
-        dir,
-        secondPhaseDelayMs: 1_200,
-      });
-      let backendForCleanup: AcpBackend | undefined;
-
-      try {
-        const transport = new OpenCodeTransport();
-        transport.getInitTimeout = () => 5_000;
-        transport.getToolPatterns = () => [] as ToolPattern[];
-
-        const backend = new AcpBackend({
-          agentName: 'opencode',
-          cwd: dir,
-          command: process.execPath,
-          args: [scriptPath],
-          transportHandler: transport satisfies TransportHandler,
-        });
-        backendForCleanup = backend;
-
-        let resolveFirstIdle!: () => void;
-        const firstIdleSeen = new Promise<void>((resolve) => {
-          resolveFirstIdle = resolve;
-        });
-        let resolveSecondPhase!: () => void;
-        const secondPhaseSeen = new Promise<void>((resolve) => {
-          resolveSecondPhase = resolve;
-        });
-
-        backend.onMessage((msg) => {
-          if (msg.type === 'status') {
-            if (msg.status === 'idle') resolveFirstIdle();
-            return;
-          }
-          if (msg.type !== 'model-output' || typeof msg.textDelta !== 'string') return;
-          if (msg.textDelta.includes('"summary":"Ok"')) {
-            resolveSecondPhase();
-          }
-        });
-
-        const started = await backend.startSession();
-        await backend.sendPrompt(started.sessionId, 'hi');
-
-        const waiting = backend.waitForResponseComplete(5_000).then(() => 'resolved' as const);
-        await firstIdleSeen;
-
-        const firstOutcome = await Promise.race([
-          waiting,
-          secondPhaseSeen.then(() => 'phase2' as const),
-          new Promise<'timeout'>((resolve) => setTimeout(() => resolve('timeout'), 2_500)),
-        ]);
-
-        expect(firstOutcome).toBe('phase2');
-        await expect(waiting).resolves.toBe('resolved');
-      } finally {
-        await backendForCleanup?.dispose().catch(() => {});
-      }
-    });
-  }, 20_000);
 
   it('rejects waitForResponseComplete when ACP process exits non-zero after prompt', async () => {
     await withTempDir('happier-acp-exit-', async (dir) => {

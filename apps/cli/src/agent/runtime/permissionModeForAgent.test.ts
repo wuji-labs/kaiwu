@@ -11,7 +11,4 @@ describe('normalizePermissionModeForAgent', () => {
     expect(normalizePermissionModeForAgent({ agentId: 'claude', mode: 'yolo' })).toBe('yolo');
   });
 
-  it('maps bypassPermissions to opencode yolo', () => {
-    expect(normalizePermissionModeForAgent({ agentId: 'opencode', mode: 'bypassPermissions' })).toBe('yolo');
-  });
 });

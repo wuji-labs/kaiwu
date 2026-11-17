@@ -218,12 +218,12 @@ describe('ProviderSetupFlow', () => {
     it('renders provider setup rows through AgentIcon', async () => {
         const { ProviderSetupFlow } = await import('./ProviderSetupFlow');
         const screen = await renderScreen(React.createElement(ProviderSetupFlow, {
-            providerIds: ['cursor'],
+            providerIds: ['gemini'],
         }));
 
-        const option = screen.findByTestId('provider-setup-option-cursor');
+        const option = screen.findByTestId('provider-setup-option-gemini');
         const icon = option?.props.icon as React.ReactElement<Record<string, unknown>>;
         expect(typeof icon.type === 'function' ? icon.type.name : icon.type).toBe('AgentIcon');
-        expect(icon.props.agentId).toBe('cursor');
+        expect(icon.props.agentId).toBe('gemini');
     });
 });

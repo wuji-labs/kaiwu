@@ -10,7 +10,6 @@ import type { ConnectedServiceRuntimeRegistry as ConnectedServiceRuntimeRegistry
 import { HAPPIER_CONNECTED_SERVICE_SELECTIONS_ENV_KEY } from './connectedServices/connectedServiceChildEnvironment';
 import { DEFAULT_CONNECTED_SERVICE_AUTH_GROUP_POLICY_V1 } from './connectedServices/accountGroups/selection/selectConnectedServiceAuthGroupCandidate';
 import type { TrackedSession } from './types';
-import { PI_BROKER_SELECTION_IDENTITY_ENV } from '@/backends/pi/brokerExtension';
 
 type ShutdownSource = 'happier-app' | 'happier-cli' | 'os-signal' | 'exception';
 type BuildHappyCliSubprocessLaunchSpec = typeof import('@/utils/spawnHappyCLI').buildHappyCliSubprocessLaunchSpec;
@@ -843,44 +842,6 @@ function createDaemonClaudeReadinessMetadata(pid: number): Metadata {
   };
 }
 
-function createDaemonGroupBoundPiTrackedSession(pid: number, selectionIdentity: string): TrackedSession {
-  return {
-    pid,
-    startedBy: 'daemon',
-    spawnOptions: {
-      directory: '/tmp/pi-readiness',
-      backendTarget: { kind: 'builtInAgent', agentId: 'pi' },
-      connectedServiceMaterializationIdentityV1: {
-        v: 1,
-        id: `csm_pi_readiness_${pid}`,
-        createdAtMs: 1_000,
-      },
-      connectedServices: {
-        v: 1,
-        bindingsByServiceId: {
-          'openai-codex': {
-            source: 'connected',
-            selection: 'group',
-            groupId: 'happier',
-            profileId: 'batiplus',
-          },
-        },
-      },
-      environmentVariables: {
-        [PI_BROKER_SELECTION_IDENTITY_ENV]: selectionIdentity,
-        [HAPPIER_CONNECTED_SERVICE_SELECTIONS_ENV_KEY]: JSON.stringify([{
-          kind: 'group',
-          serviceId: 'openai-codex',
-          groupId: 'happier',
-          activeProfileId: 'batiplus',
-          fallbackProfileId: 'batiplus',
-          generation: 1_203,
-          credentialRevision: 'csr_aaaaaaaaaaaaaaaaaaaaaa',
-        }]),
-      },
-    },
-  };
-}
 
 function createDaemonPiReadinessMetadata(pid: number): Metadata {
   return {
@@ -938,37 +899,6 @@ async function installActualDaemonClaudeReadinessWebhook(pid: number): Promise<R
   };
 }
 
-async function installActualDaemonPiReadinessWebhook(
-  tracked: TrackedSession,
-): Promise<Readonly<{ installTrackedSession: (next: TrackedSession) => void }>> {
-  let trackedSessionsByPid: Map<number, TrackedSession> | null = null;
-  const catalog = await import('@/backends/catalog');
-  const actualPi = await vi.importActual<typeof import('@/backends/pi/index')>('@/backends/pi/index');
-  const lifecycleDescriptor = await actualPi.agent.getConnectedServiceCredentialLifecycleDescriptor();
-  vi.mocked(catalog.resolveCatalogAgentId).mockReturnValue('pi');
-  vi.spyOn(catalog, 'resolveConnectedServiceCredentialLifecycleDescriptor').mockResolvedValue(lifecycleDescriptor);
-  const webhookModule = await import('./sessions/onHappySessionWebhook');
-  const actualWebhookModule = await vi.importActual<typeof import('./sessions/onHappySessionWebhook')>(
-    './sessions/onHappySessionWebhook',
-  );
-  vi.mocked(webhookModule.createOnHappySessionWebhook).mockImplementation((params) => {
-    trackedSessionsByPid = params.pidToTrackedSession;
-    params.pidToTrackedSession.set(tracked.pid, tracked);
-    return actualWebhookModule.createOnHappySessionWebhook({
-      ...params,
-      findHappyProcessByPidFn: async () => null,
-      writeSessionMarkerFn: async () => {},
-      readCredentialsFn: async () => automationCredentials,
-    });
-  });
-  return {
-    installTrackedSession: (next) => {
-      if (!trackedSessionsByPid) throw new Error('Expected daemon Pi tracked-session registry composition');
-      trackedSessionsByPid.set(next.pid, next);
-    },
-  };
-}
-
 async function createCapturedDaemonControlApp() {
   const params = harness.getDaemonControlServerParams();
   if (!params) throw new Error('Expected daemon control-server composition');
@@ -1020,42 +950,6 @@ describe('startDaemon automation wiring (integration)', () => {
     }
     return { run, spawnSession: handlers.spawnSession };
   }
-
-  it('rejects static-unavailable native selections before daemon spawn effects', async () => {
-    const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never);
-    harness.setAutoShutdownAfterAutomationStart(false);
-    let run: Promise<void> | null = null;
-
-    try {
-      const { SPAWN_SESSION_ERROR_CODES } = await import('@happier-dev/protocol');
-      const { ensureSessionDirectory } = await import('./startup/ensureSessionDirectory');
-      const { resolveSpawnChildEnvironment } = await import('./spawn/resolveSpawnChildEnvironment');
-      const { spawnHappyCLI } = await import('@/utils/spawnHappyCLI');
-      const { resolveCatalogAgentId } = await import('@/backends/catalog');
-      vi.mocked(resolveCatalogAgentId).mockReturnValue('qwen');
-
-      const started = await startDaemonAndGetSpawnSessionHandler();
-      run = started.run;
-      const result = await started.spawnSession({
-        machineId: 'machine-automation',
-        directory: '/tmp/project',
-        backendTarget: { kind: 'builtInAgent', agentId: 'qwen' },
-        modelId: 'not-a-qwen-static-model',
-      });
-
-      expect(result).toEqual(expect.objectContaining({
-        type: 'error',
-        errorCode: SPAWN_SESSION_ERROR_CODES.SPAWN_VALIDATION_FAILED,
-      }));
-      expect(ensureSessionDirectory).not.toHaveBeenCalled();
-      expect(resolveSpawnChildEnvironment).not.toHaveBeenCalled();
-      expect(spawnHappyCLI).not.toHaveBeenCalled();
-    } finally {
-      harness.requestShutdown('happier-cli');
-      if (run) await run;
-      exitSpy.mockRestore();
-    }
-  });
 
   it('fails closed before child launch when connected-service resume reachability is unavailable', async () => {
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never);
@@ -1857,9 +1751,9 @@ describe('startDaemon automation wiring (integration)', () => {
   it('indexes a terminal-started broker runtime from its first durable session report', async () => {
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never);
     const pid = 7429;
-    const sessionId = 'session-terminal-opencode-broker';
+    const sessionId = 'session-terminal-gemini-broker';
     const brokerSelectionIdentity =
-      'opencode|connected|broker:1|openai-codex:work:account-1|group:team';
+      'gemini|connected|broker:1|openai-codex:work:account-1|group:team';
     let run: Promise<void> | null = null;
     let app: Awaited<ReturnType<typeof createCapturedDaemonControlApp>> | null = null;
     let runtimeRegistry: ConnectedServiceRuntimeRegistryType | null = null;
@@ -1868,7 +1762,7 @@ describe('startDaemon automation wiring (integration)', () => {
 
     try {
       const catalog = await import('@/backends/catalog');
-      vi.mocked(catalog.resolveCatalogAgentId).mockReturnValue('opencode');
+      vi.mocked(catalog.resolveCatalogAgentId).mockReturnValue('gemini');
       const { ConnectedServiceRuntimeRegistry } = await import(
         './connectedServices/runtimeRegistry/registry'
       );
@@ -1912,7 +1806,7 @@ describe('startDaemon automation wiring (integration)', () => {
         payload: {
           sessionId,
           metadata: {
-            path: '/tmp/terminal-opencode',
+            path: '/tmp/terminal-gemini',
             host: 'test-host',
             homeDir: '/tmp',
             happyHomeDir: '/tmp/home',
@@ -1921,7 +1815,7 @@ describe('startDaemon automation wiring (integration)', () => {
             hostPid: pid,
             startedBy: 'happy directly - likely by user from terminal',
             machineId: 'machine-automation',
-            flavor: 'opencode',
+            flavor: 'gemini',
             connectedServices: {
               v: 1,
               bindingsByServiceId: {
@@ -1945,7 +1839,7 @@ describe('startDaemon automation wiring (integration)', () => {
       );
       expect(getRuntimeRegistry()?.getByBrokerSelectionIdentity(brokerSelectionIdentity)).toMatchObject({
         pid,
-        agentId: 'opencode',
+        agentId: 'gemini',
         sessionId,
       });
     } finally {
@@ -2340,139 +2234,6 @@ describe('startDaemon automation wiring (integration)', () => {
     }
   });
 
-  it('returns retryable Pi startup failures while preserving conflicting request-time broker truth', async () => {
-    const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never);
-    const startupPid = 7430;
-    const conflictPid = 7431;
-    const unavailablePid = 7432;
-    const startupIdentity = 'pi|connected|broker:1|openai-codex:batiplus:startup';
-    const conflictIdentity = 'pi|connected|broker:1|openai-codex:batiplus:conflict';
-    const unavailableIdentity = 'pi|connected|broker:1|openai-codex:batiplus:unavailable';
-    const startupTracked = createDaemonGroupBoundPiTrackedSession(startupPid, startupIdentity);
-    let run: Promise<void> | null = null;
-    let app: Awaited<ReturnType<typeof createCapturedDaemonControlApp>> | null = null;
-    harness.setAutoShutdownAfterAutomationStart(false);
-
-    try {
-      const webhook = await installActualDaemonPiReadinessWebhook(startupTracked);
-      const { fetchAccountProfile } = await import('@/api/accountProfile');
-      const brokerSelections = await import(
-        './connectedServices/broker/brokerBridgeEffectiveSelectionRegistry'
-      );
-      brokerSelections.resetBrokerBridgeEffectiveSelectionsForTests();
-      vi.mocked(fetchAccountProfile).mockResolvedValue({
-        connectedServicesV2: [{
-          serviceId: 'openai-codex',
-          profiles: [],
-          groups: [{
-            groupId: 'happier',
-            activeProfileId: 'batiplus',
-            generation: 1_203,
-            memberProfileIds: ['batiplus'],
-          }],
-        }],
-        connectedServiceCredentialRevisionsV1: [{
-          serviceId: 'openai-codex',
-          profileId: 'batiplus',
-          credentialRevision: 'csr_aaaaaaaaaaaaaaaaaaaaaa',
-        }],
-      } as unknown as Awaited<ReturnType<typeof fetchAccountProfile>>);
-
-      const { startDaemon } = await import('./startDaemon');
-      run = startDaemon();
-      await waitForCondition(
-        () => harness.connectedServicesProjectionChangeListeners.length === 1
-          && harness.getDaemonControlServerParams() !== null,
-        'Expected canonical Pi generation and control-server composition',
-      );
-      app = await createCapturedDaemonControlApp();
-      const controlToken = readCapturedDaemonControlToken();
-      const report = async (sessionId: string, pid: number) => await app!.inject({
-        method: 'POST',
-        url: '/session-started',
-        headers: { 'x-happier-daemon-token': controlToken },
-        payload: { sessionId, metadata: createDaemonPiReadinessMetadata(pid) },
-      });
-
-      await expect(report('session-pi-empty-broker-cache', startupPid)).resolves.toMatchObject({ statusCode: 200 });
-      expect(brokerSelections.getBrokerBridgeEffectiveSelection({
-        selectionIdentity: startupIdentity,
-        serviceId: 'openai-codex',
-      })).toBeNull();
-
-      brokerSelections.updateBrokerBridgeEffectiveSelection({
-        selectionIdentity: conflictIdentity,
-        serviceId: 'openai-codex',
-        selection: {
-          kind: 'group',
-          serviceId: 'openai-codex',
-          groupId: 'happier',
-          activeProfileId: 'stale',
-          fallbackProfileId: 'batiplus',
-          generation: 1_202,
-          credentialRevision: 'csr_bbbbbbbbbbbbbbbbbbbbbb',
-          credentialFingerprint: 'sha256:deadbeef',
-        },
-      });
-      webhook.installTrackedSession(createDaemonGroupBoundPiTrackedSession(conflictPid, conflictIdentity));
-      const { logger } = await import('@/ui/logger');
-      const conflictWarningBaseline = vi.mocked(logger.warn).mock.calls.length;
-      const conflictResponse = await report('session-pi-conflicting-broker-cache', conflictPid);
-      expect(conflictResponse.statusCode).toBe(503);
-      expect(conflictResponse.json()).toEqual({
-        status: 'error',
-        errorCode: 'session_startup_reconciliation_failed',
-      });
-      await waitForCondition(
-        () => vi.mocked(logger.warn).mock.calls.length > conflictWarningBaseline,
-        'Expected conflicting broker truth to remain retryable after startup failure',
-      );
-      expect(brokerSelections.getBrokerBridgeEffectiveSelection({
-        selectionIdentity: conflictIdentity,
-        serviceId: 'openai-codex',
-      })).toMatchObject({
-        availability: 'available',
-        selection: expect.objectContaining({
-          groupId: 'happier',
-          activeProfileId: 'stale',
-          generation: 1_202,
-          credentialRevision: 'csr_bbbbbbbbbbbbbbbbbbbbbb',
-        }),
-      });
-
-      brokerSelections.markBrokerBridgeEffectiveSelectionUnavailable({
-        selectionIdentity: unavailableIdentity,
-        serviceId: 'openai-codex',
-        groupId: 'happier',
-        unavailableReason: 'active_profile_missing',
-      });
-      webhook.installTrackedSession(createDaemonGroupBoundPiTrackedSession(unavailablePid, unavailableIdentity));
-      const unavailableWarningBaseline = vi.mocked(logger.warn).mock.calls.length;
-      const unavailableResponse = await report('session-pi-unavailable-broker-cache', unavailablePid);
-      expect(unavailableResponse.statusCode).toBe(503);
-      expect(unavailableResponse.json()).toEqual({
-        status: 'error',
-        errorCode: 'session_startup_reconciliation_failed',
-      });
-      await waitForCondition(
-        () => vi.mocked(logger.warn).mock.calls.length > unavailableWarningBaseline,
-        'Expected unavailable broker truth to remain retryable after startup failure',
-      );
-      expect(brokerSelections.getBrokerBridgeEffectiveSelection({
-        selectionIdentity: unavailableIdentity,
-        serviceId: 'openai-codex',
-      })).toMatchObject({
-        availability: 'unavailable',
-        groupId: 'happier',
-        unavailableReason: 'active_profile_missing',
-      });
-    } finally {
-      if (app) await app.close();
-      harness.requestShutdown('happier-cli');
-      if (run) await run;
-      exitSpy.mockRestore();
-    }
-  });
 
   it('fences a same-session replacement during awaited Claude shared proof and reconciles the exact replacement once', async () => {
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never);

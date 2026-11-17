@@ -173,8 +173,6 @@ async function setupHarness() {
     saveWorkspaceReviewCommentsDrafts: vi.fn(),
     loadSessionActionDrafts: () => ({}),
     saveSessionActionDrafts: vi.fn(),
-    loadLocalPetSourcesBySourceKey: () => ({}),
-    saveLocalPetSourcesBySourceKey: vi.fn(),
     loadNewSessionDraft: () => null,
     saveNewSessionDraft: vi.fn(),
     loadSessionPermissionModes: () => ({}),

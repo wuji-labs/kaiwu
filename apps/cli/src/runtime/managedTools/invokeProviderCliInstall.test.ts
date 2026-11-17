@@ -177,13 +177,13 @@ describe('invokeProviderCliInstall', () => {
     const installProviderCli = vi.fn<(...args: any[]) => Promise<InstallProviderCliResult>>().mockResolvedValue({
       ok: false,
       errorCode: 'no-recipe',
-      errorMessage: 'No auto-install recipe available for kiro on linux.',
+      errorMessage: 'No auto-install recipe available for gemini on linux.',
       plan: null,
       logPath: null,
     });
 
     const result = await invokeProviderCliInstall({
-      agentId: 'kiro',
+      agentId: 'gemini',
       nodePlatform: 'linux',
       installProviderCli,
     });
@@ -191,7 +191,7 @@ describe('invokeProviderCliInstall', () => {
     expect(result).toEqual({
       ok: false,
       errorCode: 'install-not-available',
-      errorMessage: 'No auto-install recipe available for kiro on linux.',
+      errorMessage: 'No auto-install recipe available for gemini on linux.',
       logPath: null,
     });
   });

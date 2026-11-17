@@ -26,7 +26,7 @@ describe('createCatalogProviderAcpRuntime host-owned backend options', () => {
     }));
 
     const runtime = createCatalogProviderAcpRuntime<Record<string, unknown>>({
-      provider: 'pi',
+      provider: 'gemini',
       loggerLabel: '[test]',
       directory: '/host/repo',
       session: Object.assign(createApiSessionClientFixture(), { sessionId: 'happy-session-hostopts' }),

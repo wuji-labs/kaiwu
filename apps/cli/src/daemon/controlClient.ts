@@ -790,30 +790,6 @@ export async function releaseDaemonConnectedServicesForExecutionRun(
   return parsed.success ? parsed.data.released : false;
 }
 
-/**
- * Query the daemon whether the OpenCode broker plugin reported its load handshake (F4) for a given
- * connected-service selection identity. Uses the broad daemon control token (Happier's own trusted
- * query — distinct from the broker's scoped registration). Returns false on any error/unreachable.
- */
-export async function queryDaemonOpenCodeBrokerLoadHandshake(
-  selectionIdentity: string,
-  loadNonce: string,
-  providers: readonly string[],
-  pluginVersion: string,
-  runtimeKind: 'opencode_managed_server' | 'pi_rpc_process',
-  options: DaemonControlRequestOptions = {},
-): Promise<boolean> {
-  const result = await daemonPost('/connected-service-auth/opencode-broker/loaded-status', {
-    selectionIdentity,
-    loadNonce,
-    providers,
-    pluginVersion,
-    runtimeKind,
-  }, options);
-  if (!result || typeof result !== 'object' || (result as { error?: unknown }).error) return false;
-  return (result as { observed?: unknown }).observed === true;
-}
-
 export async function listDaemonSessions(): Promise<any[]> {
   const result = await daemonPost('/list');
   return result.children || [];

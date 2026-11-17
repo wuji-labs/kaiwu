@@ -45,7 +45,6 @@ import {
 } from '@/agent/runtime/session/errors/surfacePrimarySessionRuntimeIssue';
 import {
   classifyPrimarySessionRuntimeIssue,
-  PI_PROVIDER_SESSION_FAILURE_AFTER_PROMPT_ACCEPTANCE_DIAGNOSTIC,
 } from '@/agent/runtime/session/errors/classifyPrimarySessionRuntimeIssue';
 import {
   collectAcpModelScopedConfigOptions,
@@ -91,7 +90,6 @@ import { applyProviderSessionInfoUpdate } from '@/agent/acp/runtime/providerSess
 import { createSessionMediaTurnState } from '@/agent/acp/runtime/sessionMediaTurnState';
 
 const DEFAULT_SESSION_CONTROL_TIMEOUT_MS = 15_000;
-const ACP_FAILURE_TRACE_ENV = 'HAPPIER_ACP_FAILURE_TRACE';
 
 type RuntimeSessionMediaMessage = Extract<AgentMessage, { type: 'session-media' }>;
 type RuntimeSessionMediaSource = RuntimeSessionMediaMessage['media'][number];
@@ -138,105 +136,6 @@ function resolveSessionControlTimeoutMs(): number {
   const parsed = Number(raw);
   if (!Number.isFinite(parsed) || parsed <= 0) return DEFAULT_SESSION_CONTROL_TIMEOUT_MS;
   return Math.trunc(parsed);
-}
-
-function readAcpPromptFailureErrorMessage(error: unknown): string {
-  return error instanceof Error
-    ? error.message
-    : typeof error === 'string'
-      ? error
-      : '';
-}
-
-function classifyAcpPromptFailureErrorMessageKind(error: unknown): string {
-  const message = readAcpPromptFailureErrorMessage(error).trim();
-  if (!message) return 'empty';
-  if (/^provider session failed$/iu.test(message)) return 'generic_provider_session_failed';
-  if (message.startsWith('Pi provider reported ')) return 'pi_provider_diagnostic';
-  return 'other';
-}
-
-function readAcpPromptFailureErrorMessageLength(error: unknown): number {
-  return readAcpPromptFailureErrorMessage(error).length;
-}
-
-function isGenericProviderSessionFailureRuntimeIssue(issue: SessionRuntimeIssueV1): boolean {
-  return issue.source === 'provider_session_error'
-    && issue.code === 'provider_session_error'
-    && issue.sanitizedPreview === 'Provider session failed';
-}
-
-function findPiRuntimeIssueCarrier(
-  error: unknown,
-  property: 'piBrokerReadinessFailure' | 'piProviderFailure',
-): unknown | null {
-  const seen = new Set<object>();
-  let current: unknown = error;
-  for (let depth = 0; depth < 8; depth += 1) {
-    if (!current || typeof current !== 'object' || seen.has(current)) return null;
-    seen.add(current);
-    const record = current as Record<string, unknown>;
-    if (record[property] && typeof record[property] === 'object') return current;
-    current = record.cause;
-  }
-  return null;
-}
-
-function normalizeAcpPromptFailureRuntimeIssueError(params: Readonly<{
-  provider: string;
-  error: unknown;
-  turnInFlight: boolean;
-}>): unknown {
-  if (params.provider !== 'pi') return params.error;
-  const brokerReadinessCarrier = findPiRuntimeIssueCarrier(params.error, 'piBrokerReadinessFailure');
-  if (brokerReadinessCarrier) return brokerReadinessCarrier;
-  if (!params.turnInFlight) return params.error;
-  const providerFailureCarrier = findPiRuntimeIssueCarrier(params.error, 'piProviderFailure');
-  if (providerFailureCarrier) return providerFailureCarrier;
-  const issue = classifyPrimarySessionRuntimeIssue({
-    cause: 'session_error',
-    provider: params.provider,
-    error: params.error,
-  });
-  return isGenericProviderSessionFailureRuntimeIssue(issue)
-    ? PI_PROVIDER_SESSION_FAILURE_AFTER_PROMPT_ACCEPTANCE_DIAGNOSTIC
-    : params.error;
-}
-
-function classifyAcpRuntimeIssuePreviewKind(issue: SessionRuntimeIssueV1 | null): string {
-  const preview = issue?.sanitizedPreview?.trim() ?? '';
-  if (!preview) return 'none';
-  if (preview === 'Provider session failed') return 'generic_provider_session_failed';
-  if (preview.startsWith('Pi provider reported ')) return 'pi_provider_diagnostic';
-  return 'other';
-}
-
-function traceAcpPromptFailureBoundary(params: Readonly<{
-  provider: string;
-  error: unknown;
-  issue: SessionRuntimeIssueV1 | null;
-  turnInFlight: boolean;
-  lifecycleAvailable: boolean;
-  compatibilityMarkerSent: boolean;
-}>): void {
-  if (params.provider !== 'pi') return;
-  if (process.env[ACP_FAILURE_TRACE_ENV] !== '1') return;
-  logger.debug('[acp] prompt failure trace', {
-    provider: params.provider,
-    branch: 'surface_prompt_failure',
-    cause: 'session_error',
-    errorMessageKind: classifyAcpPromptFailureErrorMessageKind(params.error),
-    errorMessageLength: readAcpPromptFailureErrorMessageLength(params.error),
-    issueSource: params.issue?.source ?? null,
-    issueCode: params.issue?.code ?? null,
-    issuePreviewKind: classifyAcpRuntimeIssuePreviewKind(params.issue),
-    issuePreviewLength: typeof params.issue?.sanitizedPreview === 'string'
-      ? params.issue.sanitizedPreview.length
-      : 0,
-    turnInFlight: params.turnInFlight,
-    lifecycleAvailable: params.lifecycleAvailable,
-    compatibilityMarkerSent: params.compatibilityMarkerSent,
-  });
 }
 
 function normalizeSessionConfigOptionValue(value: string | number | boolean | null): string | number | boolean | null {
@@ -1171,16 +1070,11 @@ export function createAcpRuntime(params: {
 
     const failedTurn = captureTerminalTurn();
     const compatibilityMarkerId = beginCapturedLifecycleTurn(failedTurn);
-    const issueError = normalizeAcpPromptFailureRuntimeIssueError({
-      provider: params.provider,
-      error: detailRaw,
-      turnInFlight: failedTurn.turnInFlight,
-    });
     const issuePromise = surfacePrimarySessionRuntimeIssue({
       cause: 'session_error',
       provider: params.provider,
       providerTurnId: failedTurn.providerTurnId,
-      error: issueError,
+      error: detailRaw,
       session: params.session,
     });
     turnAborted = true;
@@ -1202,23 +1096,13 @@ export function createAcpRuntime(params: {
     );
 
     const [markerId, issue] = await Promise.all([compatibilityMarkerId, issuePromise]);
-    let compatibilityMarkerSent = false;
     if (failedTurn.turnInFlight && markerId && params.session.sessionTurnLifecycle) {
       publishTerminalCompatibilityMarker({
         type: 'turn_failed',
         id: markerId,
         ...(issue ? { issue } : {}),
       });
-      compatibilityMarkerSent = true;
     }
-    traceAcpPromptFailureBoundary({
-      provider: params.provider,
-      error: detailRaw,
-      issue: issue ?? null,
-      turnInFlight: failedTurn.turnInFlight,
-      lifecycleAvailable: !!params.session.sessionTurnLifecycle,
-      compatibilityMarkerSent,
-    });
     return true;
   };
 

@@ -11,7 +11,7 @@ const directBrowseModulePromise = import('./resolveDirectBrowseSourceOptions');
 describe('resolveDirectBrowseSourceOptions', () => {
     it('lists browse providers from registered provider behavior order', async () => {
         const { listDirectBrowseProviderIds } = await directBrowseModulePromise;
-        expect(listDirectBrowseProviderIds()).toEqual(['codex', 'claude', 'opencode', 'pi']);
+        expect(listDirectBrowseProviderIds()).toEqual(['codex']);
     });
 
     it('returns the codex user home and per-profile connected-service sources when codex profiles exist', async () => {
@@ -126,10 +126,5 @@ describe('resolveDirectBrowseSourceOptions', () => {
             sqliteHomePath: null,
         });
 
-        expect(resolveDirectBrowseLinkEnsureRequestExtras({
-            providerId: 'opencode',
-            source: { kind: 'opencodeServer', baseUrl: 'http://127.0.0.1:4096' },
-            candidate: { details: { codexBackendMode: 'appServer' } },
-        })).toEqual({});
     });
 });

@@ -58,7 +58,6 @@ import { DesktopShellUpdateIndicatorHost } from '@/components/navigation/shell/d
 import { DesktopShellWindowControlsHost } from '@/components/navigation/shell/desktopChrome/DesktopShellWindowControlsHost';
 import { useResolvedDesktopWindowControls } from '@/components/navigation/shell/desktopChrome/useResolvedDesktopWindowControls';
 import { resolveAppShellChromeHost } from '@/components/appShell/resolveAppShellChromeHost';
-import { isDesktopPetOverlayWindowContext } from '@/components/pets/desktop/runtime/isDesktopPetOverlayWindowContext';
 import { isTauriDesktop } from '@/utils/platform/tauri';
 import { useIsTablet } from '@/utils/platform/responsive';
 import { ThemePreferenceTransitionHost } from '@/components/settings/appearance/ThemePreferenceTransitionHost';
@@ -575,10 +574,9 @@ async function loadFonts() {
 
 function RootLayout() {
     const { theme } = useUnistyles();
-    const isDesktopPetOverlayWindow = isDesktopPetOverlayWindowContext();
     useWebUiFontScale();
     useWebBackdropBlurPreference();
-    const background = isDesktopPetOverlayWindow ? 'transparent' : theme.colors.background.canvas;
+    const background = theme.colors.background.canvas;
     const navigationTheme = React.useMemo(() => {
         if (theme.dark) {
             return {
@@ -636,11 +634,7 @@ function AppBoot(props: {
     const pathname = usePathname();
     const safeArea = useSafeAreaInsets();
     const isTablet = useIsTablet();
-    const isDesktopPetOverlayWindow = isDesktopPetOverlayWindowContext();
-    useTauriMainWindowBackgroundColor(
-        props.desktopWindowBackgroundColor,
-        !isDesktopPetOverlayWindow,
-    );
+    useTauriMainWindowBackgroundColor(props.desktopWindowBackgroundColor, true);
     const isTerminalConnectRoute = isTerminalConnectWebPathname(pathname);
     const [initState, setInitState] = React.useState<AppBootReadyState | null>(null);
     const restartBugReportCheckedRef = React.useRef(false);
@@ -665,7 +659,7 @@ function AppBoot(props: {
         return () => {
             cancelled = true;
         };
-    }, [isDesktopPetOverlayWindow]);
+    }, []);
 
     React.useEffect(() => {
         if (!initState) return;
@@ -732,7 +726,6 @@ function AppBoot(props: {
                                         <ThemePreferenceTransitionHost>
                                             <HorizontalSafeAreaWrapper>
                                                 <RootAppShell
-                                                    isDesktopPetOverlayWindow={isDesktopPetOverlayWindow}
                                                     isTablet={isTablet}
                                                     isTerminalConnectRoute={isTerminalConnectRoute}
                                                     safeArea={safeArea}
@@ -775,7 +768,6 @@ function AppBoot(props: {
 }
 
 function RootAppShell(props: Readonly<{
-    isDesktopPetOverlayWindow: boolean;
     isTablet: boolean;
     isTerminalConnectRoute: boolean;
     safeArea: Readonly<{ top: number; right: number; left: number }>;
@@ -784,7 +776,6 @@ function RootAppShell(props: Readonly<{
     const tauriDesktop = isTauriDesktop();
     const appShellChromeHost = resolveAppShellChromeHost({
         isAuthenticated: auth.isAuthenticated,
-        isDesktopPetOverlayWindow: props.isDesktopPetOverlayWindow,
         isWeb: Platform.OS === 'web',
         isTauriDesktop: tauriDesktop,
         isTablet: props.isTablet,
@@ -796,7 +787,6 @@ function RootAppShell(props: Readonly<{
         && tauriDesktop
         && props.isTablet
         && !props.isTerminalConnectRoute
-        && !props.isDesktopPetOverlayWindow
             ? <AppUpdateStatusTag testID="sidebar-shell-app-update-status-tag" />
             : undefined;
     const shouldUseRootDesktopDragSurface =
@@ -805,8 +795,8 @@ function RootAppShell(props: Readonly<{
 
     const shellContent = (
         <View style={{ flex: 1, position: 'relative' }}>
-            <ActionOperationRuntime enabled={auth.isAuthenticated && !props.isDesktopPetOverlayWindow} />
-            {!props.isDesktopPetOverlayWindow ? <OnboardingShowcaseAutoShowMount /> : null}
+            <ActionOperationRuntime enabled={auth.isAuthenticated} />
+            <OnboardingShowcaseAutoShowMount />
             {appShellChromeHost === 'narrow-desktop-fallback' || appShellChromeHost === 'unauth-shell' ? (
                 <DesktopFallbackShellChrome safeArea={props.safeArea} />
             ) : appShellChromeHost === 'web-top-right' ? (

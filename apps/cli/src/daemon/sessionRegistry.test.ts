@@ -670,21 +670,21 @@ describe('sessionRegistry', () => {
     );
   });
 
-  it('supports opencode flavor markers', async () => {
+  it('supports gemini flavor markers', async () => {
     const { listSessionMarkers, writeSessionMarker } = await import('./sessionRegistry');
 
     await writeSessionMarker({
       pid: 777,
-      happySessionId: 'sess-opencode',
+      happySessionId: 'sess-gemini',
       startedBy: 'terminal',
-      flavor: 'opencode',
+      flavor: 'gemini',
       cwd: '/tmp',
     });
 
     const markers = await listSessionMarkers();
     expect(markers).toHaveLength(1);
     expect(markers[0].pid).toBe(777);
-    expect(markers[0].flavor).toBe('opencode');
+    expect(markers[0].flavor).toBe('gemini');
   });
 
   it('writes markers into a channel-scoped tmp dir for the dev public ring', async () => {

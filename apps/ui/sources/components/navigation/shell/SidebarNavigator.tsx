@@ -15,7 +15,6 @@ import { useAppPaneContext } from '@/components/appShell/panes/AppPaneProvider';
 import { resolvePaneFocusModeRouteScopeId } from '@/components/appShell/panes/focusMode/resolvePaneFocusModeRouteScopeId';
 import { isTauriDesktop } from '@/utils/platform/tauri';
 import { DesktopMainContentDragSurface } from '@/components/navigation/desktopWindowChrome/DesktopMainContentDragSurface';
-import { isDesktopPetOverlayWindowContext } from '@/components/pets/desktop/runtime/isDesktopPetOverlayWindowContext';
 
 const TERMINAL_CONNECT_ROUTE = '/terminal/connect';
 const EXPANDED_SIDEBAR_MIN_WINDOW_WIDTH_PX = SIDEBAR_DOCK_MIN_WIDTH_PX + PANE_SIZING_DEFAULTS.mainMinPx;
@@ -81,9 +80,8 @@ export const SidebarNavigator = React.memo((props: SidebarNavigatorProps) => {
     const auth = useAuth();
     const isTablet = useIsTablet();
     const pathname = usePathname();
-    const isDesktopPetOverlayWindow = isDesktopPetOverlayWindowContext();
     const bypassDesktopDrawerShell = Platform.OS === 'web' && isTerminalConnectWebPathname(pathname);
-    const desktopDrawerEnabled = auth.isAuthenticated && isTablet && !isDesktopPetOverlayWindow;
+    const desktopDrawerEnabled = auth.isAuthenticated && isTablet;
     const showPermanentDrawer = desktopDrawerEnabled;
     const routeScopeId = React.useMemo(() => resolvePaneFocusModeRouteScopeId(pathname), [pathname]);
     const { state: paneState, dispatch: dispatchPaneAction } = useAppPaneContext();

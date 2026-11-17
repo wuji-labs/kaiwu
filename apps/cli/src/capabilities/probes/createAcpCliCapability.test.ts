@@ -30,7 +30,6 @@ vi.mock('@/runtime/managedTools/requireProviderCliLaunchSpec', () => ({
 }));
 
 import { createAcpCliCapability } from './createAcpCliCapability';
-import { cliCapability as kimiCliCapability } from '@/backends/kimi/cli/capability';
 
 describe('createAcpCliCapability', () => {
   beforeEach(() => {
@@ -93,27 +92,27 @@ describe('createAcpCliCapability', () => {
 
   it('allows provider-owned ACP probes to augment the child environment', async () => {
     const capability = createAcpCliCapability({
-      agentId: 'kimi' as const,
-      title: 'Kimi CLI',
+      agentId: 'customAcp' as const,
+      title: 'Custom ACP',
       acpArgs: ['acp'],
       transport: {
-        agentName: 'kimi',
+        agentName: 'customAcp',
         getInitTimeout: () => 500,
         getToolPatterns: () => [],
       },
       resolveAcpProbeEnv: ({ defaultEnv }) => ({
         ...defaultEnv,
-        PYTHONPATH: '/tmp/kimi-selector-shim',
+        PYTHONPATH: '/tmp/custom-acp-selector-shim',
       }),
     });
 
     await capability.detect?.({
-      request: { id: 'cli.kimi', params: { includeAcpCapabilities: true } },
+      request: { id: 'cli.customAcp', params: { includeAcpCapabilities: true } },
       context: {
         cliSnapshot: {
           path: process.env.PATH ?? null,
           clis: {
-            kimi: { available: true, resolvedPath: '/tmp/gemini.js' },
+            customAcp: { available: true, resolvedPath: '/tmp/gemini.js' },
           },
         },
       },
@@ -121,64 +120,9 @@ describe('createAcpCliCapability', () => {
 
     expect(probeAcpAgentCapabilities).toHaveBeenCalledWith(expect.objectContaining({
       env: expect.objectContaining({
-        PYTHONPATH: '/tmp/kimi-selector-shim',
+        PYTHONPATH: '/tmp/custom-acp-selector-shim',
       }),
     }));
   });
 
-  it('preserves inherited PYTHONPATH when Kimi ACP capability probing uses poll mode', async () => {
-    const originalPlatformDescriptor = Object.getOwnPropertyDescriptor(process, 'platform');
-    const originalSelector = process.env.HAPPIER_KIMI_ACP_SELECTOR;
-    const originalPythonPath = process.env.PYTHONPATH;
-    const originalSecret = process.env.HAPPIER_TEST_SECRET;
-    expect(originalPlatformDescriptor).toBeDefined();
-
-    try {
-      Object.defineProperty(process, 'platform', { ...originalPlatformDescriptor, value: 'linux' });
-      process.env.HAPPIER_KIMI_ACP_SELECTOR = 'poll';
-      process.env.PYTHONPATH = '/inherited/pythonpath';
-      process.env.HAPPIER_TEST_SECRET = 'do-not-forward';
-
-      await kimiCliCapability.detect?.({
-        request: { id: 'cli.kimi', params: { includeAcpCapabilities: true } },
-        context: {
-          cliSnapshot: {
-            path: process.env.PATH ?? null,
-            clis: {
-              kimi: { available: true, resolvedPath: '/tmp/gemini.js' },
-            },
-          },
-        },
-      } as never);
-
-      const env = probeAcpAgentCapabilities.mock.calls.at(-1)?.[0]?.env;
-      const pythonPathEntries = env?.PYTHONPATH?.split(delimiter) ?? [];
-      expect(pythonPathEntries[0]).toContain('kimi-acp-poll-selector-');
-      expect(pythonPathEntries).toContain('/inherited/pythonpath');
-      expect(env).toMatchObject({
-        NODE_ENV: 'production',
-        DEBUG: '',
-      });
-      expect(env?.HAPPIER_TEST_SECRET).toBeUndefined();
-    } finally {
-      if (originalPlatformDescriptor) {
-        Object.defineProperty(process, 'platform', originalPlatformDescriptor);
-      }
-      if (originalSelector === undefined) {
-        delete process.env.HAPPIER_KIMI_ACP_SELECTOR;
-      } else {
-        process.env.HAPPIER_KIMI_ACP_SELECTOR = originalSelector;
-      }
-      if (originalPythonPath === undefined) {
-        delete process.env.PYTHONPATH;
-      } else {
-        process.env.PYTHONPATH = originalPythonPath;
-      }
-      if (originalSecret === undefined) {
-        delete process.env.HAPPIER_TEST_SECRET;
-      } else {
-        process.env.HAPPIER_TEST_SECRET = originalSecret;
-      }
-    }
-  });
 });

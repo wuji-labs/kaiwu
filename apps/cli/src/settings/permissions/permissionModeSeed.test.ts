@@ -27,9 +27,9 @@ describe('resolvePermissionModeSeedForAgentStart', () => {
   });
 
   it('uses account defaults when explicit and inferred are missing', () => {
-    const targetKey = buildBackendTargetKey({ kind: 'builtInAgent', agentId: 'opencode' });
+    const targetKey = buildBackendTargetKey({ kind: 'builtInAgent', agentId: 'gemini' });
     const res = resolvePermissionModeSeedForAgentStart({
-      agentId: 'opencode',
+      agentId: 'gemini',
       explicitPermissionMode: undefined,
       inferredPermissionMode: undefined,
       accountSettings: { sessionDefaultPermissionModeByTargetKey: { [targetKey]: 'safe-yolo' } },

@@ -135,20 +135,20 @@ describe('useProviderAuthenticationState', () => {
 
     it('preserves ordered primary and device-code actions from the provider contribution', async () => {
         const authPlugin: ProviderLocalAuthPlugin = {
-            providerId: 'grok',
+            providerId: 'codex',
             support: 'login_terminal',
             buildAuthLaunches: () => [
-                { kind: 'primary', initialCommand: 'grok login' },
-                { kind: 'device_code', initialCommand: 'grok login --device-auth' },
+                { kind: 'primary', initialCommand: 'codex login' },
+                { kind: 'device_code', initialCommand: 'codex login --device-auth' },
             ],
         };
         const cliAvailability: CLIAvailability = {
-            available: { grok: true } as never,
-            login: { grok: null } as never,
-            authStatus: { grok: null } as never,
-            resolvedPath: { grok: '/opt/grok' } as never,
-            resolvedCommand: { grok: '/opt/grok' } as never,
-            resolutionSource: { grok: 'system' } as never,
+            available: { codex: true } as never,
+            login: { codex: null } as never,
+            authStatus: { codex: null } as never,
+            resolvedPath: { codex: '/opt/codex' } as never,
+            resolvedCommand: { codex: '/opt/codex' } as never,
+            resolutionSource: { codex: 'system' } as never,
             tmux: null,
             isDetecting: false,
             timestamp: 123,
@@ -156,7 +156,7 @@ describe('useProviderAuthenticationState', () => {
         };
 
         const hook = await renderHook(() => useProviderAuthenticationState({
-            providerId: 'grok',
+            providerId: 'codex',
             cliAvailability,
             authPlugin,
             primaryMachine: { id: 'm1', metadata: { homeDir: '/home/user' } },

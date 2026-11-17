@@ -89,23 +89,6 @@ vi.mock('@/sync/runtime/orchestration/serverScopedRpc/resolveServerIdForSessionI
     resolveServerIdForSessionIdFromLocalCache: () => null,
 }));
 
-vi.mock('@/sync/store/settingsWriters', () => ({
-    useApplyLocalSettings: () => vi.fn(),
-    useApplySettings: () => vi.fn(),
-}));
-
-vi.mock('@/utils/platform/tauri', () => ({
-    isTauriDesktop: () => false,
-}));
-
-vi.mock('@/components/pets/desktop/bridge/desktopPetOverlayBridge', () => ({
-    resetDesktopPetOverlayPosition: vi.fn(async () => {}),
-}));
-
-vi.mock('@/components/settings/pets/petSettingsCommandEvents', () => ({
-    requestCodexPetRefresh: vi.fn(),
-}));
-
 describe('CommandPaletteProvider native', () => {
     beforeEach(() => {
         vi.resetModules();

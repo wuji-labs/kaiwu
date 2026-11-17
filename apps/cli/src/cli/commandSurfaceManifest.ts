@@ -41,15 +41,20 @@ const COMMAND_SURFACE_MANIFEST: readonly CliCommandSurfaceEntry[] = [
     allowTmux: false,
   },
   {
+    command: 'claude',
+    rootHelpLabel: 'kaiwu claude',
+    rootHelpDescription: '启动 Claude 模式',
+    allowTmux: true,
+  },
+  {
     command: 'codex',
     rootHelpLabel: 'kaiwu codex',
     rootHelpDescription: '启动 Codex 模式',
     allowTmux: true,
   },
   {
+    // Cold adapter: intentionally accepted but omitted from root help.
     command: 'opencode',
-    rootHelpLabel: 'kaiwu opencode',
-    rootHelpDescription: '启动 OpenCode 模式 (ACP)',
     allowTmux: true,
   },
   {

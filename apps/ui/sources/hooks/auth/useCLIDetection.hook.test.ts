@@ -19,15 +19,14 @@ installAuthHookCommonModuleMocks({
 });
 
 vi.mock('@/agents/catalog/catalog', () => ({
-    AGENT_IDS: ['claude', 'codex', 'gemini', 'kiro', 'cursor'],
+    AGENT_IDS: ['claude', 'codex', 'gemini', 'customAcp'],
     getAgentCore: (agentId: string) => ({
         cli: {
             detectKey: ({
                 claude: 'claude',
                 codex: 'codex',
                 gemini: 'gemini',
-                kiro: 'kiro-cli',
-                cursor: 'cursor-agent',
+                customAcp: 'custom-acp',
             } as Record<string, string>)[agentId] ?? agentId,
         },
     }),
@@ -209,7 +208,7 @@ describe('useCLIDetection (hook)', () => {
         expect(firstCall?.request?.checklistId).toBeDefined();
         expect(firstCall?.request?.overrides).toBeTruthy();
         expect(firstCall?.request?.overrides?.['cli.codex']?.params?.includeLoginStatus).toBe(true);
-        expect(firstCall?.request?.overrides?.['cli.kiro']?.params?.includeLoginStatus).toBeUndefined();
+        expect(firstCall?.request?.overrides?.['cli.customAcp']?.params?.includeLoginStatus).toBeUndefined();
         expect(latest?.isDetecting).toBe(true);
         expect(Object.values(latest?.login ?? {}).every((value) => value === null)).toBe(true);
     });
@@ -259,11 +258,11 @@ describe('useCLIDetection (hook)', () => {
 
         await renderHookState(() => useCLIDetection('m1', {
             autoDetect: false,
-            agentIds: ['cursor'],
+            agentIds: ['customAcp'],
         }));
 
         const firstCall = useMachineCapabilitiesCacheMock.mock.calls.at(-1)?.[0];
-        expect(firstCall?.request?.requests).toEqual([{ id: 'cli.cursor' }]);
+        expect(firstCall?.request?.requests).toEqual([{ id: 'cli.customAcp' }]);
     });
 
     it('returns structured auth status details when the capability payload includes them', async () => {
@@ -340,12 +339,12 @@ describe('useCLIDetection (hook)', () => {
 
         const latest = await renderHookState(() => useCLIDetection('m1', { autoDetect: false }));
 
-        latest?.refresh?.({ bypassCache: true, includeLoginStatusForAgentIds: ['kiro'] });
+        latest?.refresh?.({ bypassCache: true, includeLoginStatusForAgentIds: ['customAcp'] });
 
         expect(refresh).toHaveBeenCalledWith(expect.objectContaining({
             request: expect.objectContaining({
                 overrides: expect.objectContaining({
-                    'cli.kiro': {
+                    'cli.customAcp': {
                         params: {
                             includeLoginStatus: true,
                             bypassCache: true,
@@ -369,20 +368,20 @@ describe('useCLIDetection (hook)', () => {
         });
 
         let latest: any = null;
-        function Test(props: { agentIds: readonly ('codex' | 'kiro')[] }) {
+        function Test(props: { agentIds: readonly ('codex' | 'gemini')[] }) {
             latest = useCLIDetection('m1', { autoDetect: false, agentIds: props.agentIds });
             return React.createElement('View');
         }
 
         const screen = await renderScreen(React.createElement(Test, { agentIds: ['codex'] }));
 
-        await screen.update(React.createElement(Test, { agentIds: ['kiro'] }));
+        await screen.update(React.createElement(Test, { agentIds: ['gemini'] }));
 
         latest?.refresh?.({ bypassCache: true });
 
         expect(refresh).toHaveBeenLastCalledWith(expect.objectContaining({
             request: expect.objectContaining({
-                requests: [{ id: 'cli.kiro', params: { bypassCache: true } }],
+                requests: [{ id: 'cli.customAcp', params: { bypassCache: true } }],
             }),
         }));
 
@@ -397,7 +396,7 @@ describe('useCLIDetection (hook)', () => {
                     response: {
                         protocolVersion: 1,
                         results: {
-                            'cli.kiro': {
+                            'cli.customAcp': {
                                 ok: true,
                                 checkedAt: 123,
                                 data: {
@@ -420,8 +419,8 @@ describe('useCLIDetection (hook)', () => {
 
         const latest = await renderHookState(() => useCLIDetection('m1', { autoDetect: false }));
 
-        expect(latest?.login?.kiro).toBe(false);
-        expect(latest?.authStatus?.kiro).toMatchObject({
+        expect(latest?.login?.customAcp).toBe(false);
+        expect(latest?.authStatus?.customAcp).toMatchObject({
             state: 'logged_out',
             source: 'command',
             reason: 'missing_credentials',

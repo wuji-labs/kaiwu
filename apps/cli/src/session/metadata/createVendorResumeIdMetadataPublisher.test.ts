@@ -11,7 +11,7 @@ describe('createVendorResumeIdMetadataPublisher', () => {
     let metadata = createTestMetadata({ name: 'keep-me' });
     const write = createDeferred<void>();
     const publisher = createVendorResumeIdMetadataPublisher({
-      agentId: 'qwen',
+      agentId: 'gemini',
       getMetadataSnapshot: () => metadata,
       updateMetadata: async (updater) => {
         metadata = updater(metadata);
@@ -23,11 +23,11 @@ describe('createVendorResumeIdMetadataPublisher', () => {
     const publishing = publisher.persistBound({
       generation: 3,
       operation: 'create',
-      vendorSessionId: ' qwen-1 ',
+      vendorSessionId: ' gemini-1 ',
     }).then(() => { settled = true; });
 
     await Promise.resolve();
-    expect(metadata).toEqual(createTestMetadata({ name: 'keep-me', qwenSessionId: 'qwen-1' }));
+    expect(metadata).toEqual(createTestMetadata({ name: 'keep-me', geminiSessionId: 'gemini-1' }));
     expect(settled).toBe(false);
 
     write.resolve(undefined);
@@ -41,11 +41,11 @@ describe('createVendorResumeIdMetadataPublisher', () => {
       await write.promise;
     });
     const publisher = createVendorResumeIdMetadataPublisher({
-      agentId: 'kimi',
+      agentId: 'gemini',
       getMetadataSnapshot: () => createTestMetadata(),
       updateMetadata,
     });
-    const event = { generation: 0, operation: 'resume' as const, vendorSessionId: 'kimi-1' };
+    const event = { generation: 0, operation: 'resume' as const, vendorSessionId: 'gemini-1' };
 
     const first = publisher.persistBound(event);
     const second = publisher.persistBound(event);
@@ -62,11 +62,11 @@ describe('createVendorResumeIdMetadataPublisher', () => {
       .mockRejectedValueOnce(new Error('write failed'))
       .mockResolvedValueOnce(undefined);
     const publisher = createVendorResumeIdMetadataPublisher({
-      agentId: 'kilo',
+      agentId: 'gemini',
       getMetadataSnapshot: () => createTestMetadata(),
       updateMetadata,
     });
-    const event = { generation: 1, operation: 'create' as const, vendorSessionId: 'kilo-1' };
+    const event = { generation: 1, operation: 'create' as const, vendorSessionId: 'gemini-1' };
 
     await expect(publisher.persistBound(event)).rejects.toThrow('write failed');
     await expect(publisher.persistBound(event)).resolves.toBeUndefined();
@@ -74,12 +74,12 @@ describe('createVendorResumeIdMetadataPublisher', () => {
   });
 
   it('does not rewrite an exact resume identity that is already durable in metadata', async () => {
-    const metadata = createTestMetadata({ qwenSessionId: 'resume-1' });
+    const metadata = createTestMetadata({ geminiSessionId: 'resume-1' });
     const updateMetadata = vi.fn(async () => {
       throw new Error('metadata unavailable');
     });
     const publisher = createVendorResumeIdMetadataPublisher({
-      agentId: 'qwen',
+      agentId: 'gemini',
       getMetadataSnapshot: () => metadata,
       updateMetadata,
     });
@@ -97,7 +97,7 @@ describe('createVendorResumeIdMetadataPublisher', () => {
       .mockRejectedValueOnce(new Error('write failed'))
       .mockResolvedValueOnce(undefined);
     const publisher = createVendorResumeIdMetadataPublisher({
-      agentId: 'qwen',
+      agentId: 'gemini',
       getMetadataSnapshot: () => createTestMetadata(),
       updateMetadata,
     });
@@ -111,8 +111,8 @@ describe('createVendorResumeIdMetadataPublisher', () => {
   it('still requires an acknowledged write for created identities even when the local snapshot matches', async () => {
     const updateMetadata = vi.fn().mockRejectedValue(new Error('write failed'));
     const publisher = createVendorResumeIdMetadataPublisher({
-      agentId: 'qwen',
-      getMetadataSnapshot: () => createTestMetadata({ qwenSessionId: 'created-1' }),
+      agentId: 'gemini',
+      getMetadataSnapshot: () => createTestMetadata({ geminiSessionId: 'created-1' }),
       updateMetadata,
     });
 
@@ -127,7 +127,7 @@ describe('createVendorResumeIdMetadataPublisher', () => {
   it('writes again for a new generation even when the opaque id is unchanged', async () => {
     const updateMetadata = vi.fn(async () => {});
     const publisher = createVendorResumeIdMetadataPublisher({
-      agentId: 'copilot',
+      agentId: 'gemini',
       getMetadataSnapshot: () => createTestMetadata(),
       updateMetadata,
     });
@@ -141,7 +141,7 @@ describe('createVendorResumeIdMetadataPublisher', () => {
   it('rejects an empty bound identity and an agent without a vendor resume field', async () => {
     const updateMetadata = vi.fn(async () => {});
     const publisher = createVendorResumeIdMetadataPublisher({
-      agentId: 'qwen',
+      agentId: 'gemini',
       getMetadataSnapshot: () => createTestMetadata(),
       updateMetadata,
     });

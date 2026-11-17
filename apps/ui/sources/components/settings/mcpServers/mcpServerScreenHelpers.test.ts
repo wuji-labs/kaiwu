@@ -6,18 +6,18 @@ import { getPreferredMcpPreviewAgentId, listDetectedMcpProviderIds, listMcpPrevi
 
 describe('mcpServerScreenHelpers', () => {
     it('lists detected MCP providers from the protocol contract without screen-local hardcoding', () => {
-        expect(listDetectedMcpProviderIds()).toEqual(['claude', 'codex', 'opencode']);
+        expect(listDetectedMcpProviderIds()).toEqual(['claude', 'codex', 'gemini']);
     });
 
     it('lists preview-capable MCP agents from the agent registry without screen-local hardcoding', () => {
         expect(listMcpPreviewAgentIds()).toEqual(
-            expect.arrayContaining(['claude', 'codex', 'opencode', 'gemini', 'auggie', 'kilo', 'kiro', 'customAcp', 'pi', 'kimi', 'qwen', 'copilot']),
+            expect.arrayContaining(['claude', 'codex', 'gemini', 'gemini', 'auggie', 'kilo', 'kiro', 'customAcp', 'pi', 'kimi', 'qwen', 'copilot']),
         );
     });
 
     it('prefers the current preview agent when still available and otherwise falls back to the first supported agent', () => {
-        expect(getPreferredMcpPreviewAgentId(['codex', 'opencode'], 'opencode')).toBe('opencode');
-        expect(getPreferredMcpPreviewAgentId(['codex', 'opencode'], 'claude')).toBe('codex');
+        expect(getPreferredMcpPreviewAgentId(['codex', 'gemini'], 'gemini')).toBe('gemini');
+        expect(getPreferredMcpPreviewAgentId(['codex', 'gemini'], 'claude')).toBe('codex');
         expect(getPreferredMcpPreviewAgentId([], 'claude')).toBe(DEFAULT_AGENT_ID);
     });
 });

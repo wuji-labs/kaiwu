@@ -38,8 +38,8 @@ describe('runCatalogDefinedAcpAgent', () => {
     getProviderCliRuntimeSpecMock.mockReset();
     runStandardAcpProviderMock.mockReset();
     getProviderCliRuntimeSpecMock.mockReturnValue({
-      title: 'Kiro CLI',
-      binaryName: 'kiro',
+      title: 'Custom ACP',
+      binaryName: 'customAcp',
     });
   });
 
@@ -52,7 +52,7 @@ describe('runCatalogDefinedAcpAgent', () => {
     const runtime = { kind: 'runtime' };
     createCatalogProviderAcpRuntimeMock.mockReturnValue(runtime);
 
-    await runCatalogDefinedAcpAgent('kiro', {
+    await runCatalogDefinedAcpAgent('customAcp', {
       credentials: { token: 'token' } as any,
     });
 
@@ -76,7 +76,7 @@ describe('runCatalogDefinedAcpAgent', () => {
 
     expect(createdRuntime).toBe(runtime);
     expect(createCatalogProviderAcpRuntimeMock).toHaveBeenCalledWith(expect.objectContaining({
-      provider: 'kiro',
+      provider: 'customAcp',
       directory: '/repo',
       session: { id: 'session-1' },
       memoryRecallGuidance: {
@@ -86,41 +86,4 @@ describe('runCatalogDefinedAcpAgent', () => {
     }));
   });
 
-  it('lets the Grok catalog entry attach its live-session notification adapter without a shared provider branch', async () => {
-    let capturedConfig: null | Readonly<{ createRuntime: (args: any) => unknown }> = null;
-    runStandardAcpProviderMock.mockImplementation(async (_opts: unknown, config: unknown) => {
-      capturedConfig = config as Readonly<{ createRuntime: (args: any) => unknown }>;
-    });
-    createCatalogProviderAcpRuntimeMock.mockReturnValue({ kind: 'runtime' });
-
-    await runCatalogDefinedAcpAgent('grok', {
-      credentials: { token: 'token' } as any,
-    });
-    if (!capturedConfig) throw new Error('Expected ACP runtime config to be captured');
-    const session = {
-      sessionId: 'happier-session',
-      updateMetadata: vi.fn(),
-      upsertSessionSystemRecord: vi.fn(),
-      fetchSessionSystemRecord: vi.fn(),
-      getStoredContentEncryptionContext: vi.fn(() => ({ mode: 'plain' })),
-    };
-    (capturedConfig as Readonly<{ createRuntime: (args: any) => unknown }>).createRuntime({
-      directory: '/repo',
-      machineId: 'machine-123',
-      session,
-      messageBuffer: {},
-      mcpServers: {},
-      permissionHandler: { handleToolCall: vi.fn() },
-      setThinking: vi.fn(),
-      getPermissionMode: () => 'default',
-      memoryRecallGuidanceEnabled: false,
-    });
-
-    expect(createCatalogProviderAcpRuntimeMock).toHaveBeenCalledWith(expect.objectContaining({
-      provider: 'grok',
-      backendOptions: {
-        sessionNotificationObserver: expect.any(Function),
-      },
-    }));
-  });
 });

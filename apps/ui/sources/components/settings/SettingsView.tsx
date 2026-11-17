@@ -70,8 +70,6 @@ export const SettingsView = React.memo(function SettingsView() {
     const attachmentsUploadsEnabled = useFeatureEnabled('attachments.uploads');
     const promptsLibraryEnabled = useFeatureEnabled('prompts.library');
     const mcpServersEnabled = useFeatureEnabled('mcp.servers');
-    const petsCompanionEnabled = useFeatureEnabled('pets.companion');
-    const petsSyncEnabled = useFeatureEnabled('pets.sync');
     const showChangelog = getFeatureBuildPolicyDecision('app.ui.changelog' as const satisfies FeatureId) !== 'deny';
     const [showRateUs, setShowRateUs] = React.useState(false);
     const useProfiles = useSetting('useProfiles');
@@ -283,19 +281,8 @@ export const SettingsView = React.memo(function SettingsView() {
                 icon={<Icon name="squares-four" size={29} color={theme.colors.accent.blue} />}
                 onPress={() => pushRoute('/settings/keyboard')}
             />
-            {petsCompanionEnabled || petsSyncEnabled ? (
-                <Item
-                    testID="settings-pets-row"
-                    title={t('settings.pets')}
-                    subtitle={t('settings.petsSubtitle')}
-                    icon={<Icon name="paw-print" size={29} color={theme.colors.accent.green} />}
-                    onPress={() => pushRoute('/settings/pets')}
-                />
-            ) : null}
         </ItemGroup>
     ), [
-        petsCompanionEnabled,
-        petsSyncEnabled,
         pushRoute,
         theme.colors.accent.blue,
         theme.colors.accent.green,

@@ -13,15 +13,8 @@ describe('profileListModel', () => {
         agentLabelById: {
             claude: 'Claude',
             codex: 'Codex',
-            opencode: 'OpenCode',
             gemini: 'Gemini',
-            auggie: 'Auggie',
-            qwen: 'Qwen',
-            kimi: 'Kimi',
-            kilo: 'Kilo',
-            kiro: 'Kiro',
-            pi: 'Pi',
-            copilot: 'Copilot',
+            customAcp: 'Custom ACP',
         } as Record<AgentId, string>,
     };
 
@@ -39,40 +32,40 @@ describe('profileListModel', () => {
 
     it('builds backend subtitle for enabled compatible agents', () => {
         const profile = buildProfile({
-            compatibility: { claude: true, codex: true, opencode: true, gemini: true, auggie: true, qwen: false, kimi: false },
+            compatibility: { claude: true, codex: true, gemini: true, customAcp: false },
         });
         expect(getProfileBackendSubtitle({ profile, enabledAgentIds: ['claude', 'codex'], strings })).toBe('Claude • Codex');
     });
 
     it('skips disabled agents even if compatible', () => {
         const profile = buildProfile({
-            compatibility: { claude: true, codex: true, opencode: true, gemini: true, auggie: true, qwen: false, kimi: false },
+            compatibility: { claude: true, codex: true, gemini: true, customAcp: false },
         });
         expect(getProfileBackendSubtitle({ profile, enabledAgentIds: ['claude', 'gemini'], strings })).toBe('Claude • Gemini');
     });
 
     it('returns empty backend subtitle when no enabled compatible agents exist', () => {
         const profile = buildProfile({
-            compatibility: { claude: false, codex: false, opencode: false, gemini: false, auggie: false, qwen: false, kimi: false, kilo: false },
+            compatibility: { claude: false, codex: false, gemini: false, customAcp: false },
         });
-        expect(getProfileBackendSubtitle({ profile, enabledAgentIds: ['claude', 'codex', 'kilo'], strings })).toBe('');
+        expect(getProfileBackendSubtitle({ profile, enabledAgentIds: ['claude', 'codex', 'customAcp'], strings })).toBe('');
     });
 
     it('ignores compatible agents when display labels are missing', () => {
         const profile = buildProfile({
-            compatibility: { kilo: true },
+            compatibility: { customAcp: true },
         });
-        const stringsWithMissingKilo = {
+        const stringsWithMissingCustomAcp = {
             ...strings,
-            agentLabelById: { ...strings.agentLabelById, kilo: '' },
+            agentLabelById: { ...strings.agentLabelById, customAcp: '' },
         };
-        expect(getProfileBackendSubtitle({ profile, enabledAgentIds: ['kilo'], strings: stringsWithMissingKilo })).toBe('');
+        expect(getProfileBackendSubtitle({ profile, enabledAgentIds: ['customAcp'], strings: stringsWithMissingCustomAcp })).toBe('');
     });
 
     it('builds built-in subtitle with backend', () => {
         const profile = buildProfile({
             isBuiltIn: true,
-            compatibility: { claude: true, codex: false, opencode: false, gemini: false, auggie: false, qwen: false, kimi: false },
+            compatibility: { claude: true, codex: false, gemini: false, customAcp: false },
         });
         expect(getProfileSubtitle({ profile, enabledAgentIds: ['claude', 'codex'], strings })).toBe('Built-in · Claude');
     });

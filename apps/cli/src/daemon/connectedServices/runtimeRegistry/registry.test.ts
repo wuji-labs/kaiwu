@@ -127,11 +127,11 @@ describe('ConnectedServiceRuntimeRegistry', () => {
 
   it('indexes and evicts targets by broker selection identity (R3-6)', () => {
     const registry = new ConnectedServiceRuntimeRegistry();
-    const identity = 'opencode|connected|broker:1|openai-codex:codex-a:acct';
+    const identity = 'codex|connected|broker:1|openai-codex:codex-a:acct';
 
     registry.registerTarget({
       pid: 70,
-      agentId: 'opencode',
+      agentId: 'codex',
       sessionId: 'sess-broker-a',
       brokerSelectionIdentity: identity,
       connectedServicesBindingsRaw,
@@ -140,7 +140,7 @@ describe('ConnectedServiceRuntimeRegistry', () => {
     });
     registry.registerTarget({
       pid: 71,
-      agentId: 'opencode',
+      agentId: 'codex',
       sessionId: 'sess-broker-b',
       brokerSelectionIdentity: identity,
       connectedServicesBindingsRaw,
@@ -490,18 +490,18 @@ describe('ConnectedServiceRuntimeRegistry', () => {
   it('resolves a broker selection identity from a RUN target with no live session sharing it (NF-1)', () => {
     const registry = new ConnectedServiceRuntimeRegistry();
 
-    // An OpenCode run bound to a pool that no live session uses. Its broker token refresh authorizes
+    // A Codex run bound to a pool that no live session uses. Its broker token refresh authorizes
     // via getByBrokerSelectionIdentity — which must fold in the run keyspace, not just session targets.
     registry.registerRunTarget({
       runKey: 'execution_run:run_oc_1',
       pid: 5150,
-      agentId: 'opencode',
+      agentId: 'codex',
       materializationKey: 'execution_run:run_oc_1',
       brokerSelectionIdentity: 'oc-pool-x',
       connectedServicesBindingsRaw: {
         v: 1,
         bindingsByServiceId: {
-          'opencode-zen': { source: 'connected', selection: 'group', groupId: 'pool-x', profileId: 'oc-a' },
+          'openai': { source: 'connected', selection: 'group', groupId: 'pool-x', profileId: 'oc-a' },
         },
       },
     });
@@ -520,13 +520,13 @@ describe('ConnectedServiceRuntimeRegistry', () => {
     registry.registerRunTarget({
       runKey: 'execution_run:run_pi_1',
       pid: 6200,
-      agentId: 'pi',
+      agentId: 'codex',
       materializationKey: 'execution_run:run_pi_1',
       brokerSelectionIdentity: 'pi-pool-y',
       connectedServicesBindingsRaw: {
         v: 1,
         bindingsByServiceId: {
-          'pi-managed': { source: 'connected', selection: 'group', groupId: 'pool-y', profileId: 'pi-a' },
+          'openai-codex': { source: 'connected', selection: 'group', groupId: 'pool-y', profileId: 'pi-a' },
         },
       },
     });

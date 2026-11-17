@@ -10,8 +10,6 @@ function resolveAgentDetectedProvider(agentId: string): DetectedMcpServerV1['pro
       return 'claude';
     case 'codex':
       return 'codex';
-    case 'opencode':
-      return 'opencode';
     default:
       return null;
   }

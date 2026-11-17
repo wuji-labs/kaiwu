@@ -1,6 +1,6 @@
 import { getConfig } from '@expo/config';
 import { describe, expect, it } from 'vitest';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -15,17 +15,6 @@ function readUiPackageJson(): any {
     return JSON.parse(readFileSync(join(getUiDir(), 'package.json'), 'utf8'));
 }
 
-function listFirstPartyExpoNativeWorkspaceDeps(): string[] {
-    const pkg = readUiPackageJson();
-    return Object.keys(pkg?.dependencies ?? {})
-        .filter((name) => name.startsWith('@happier-dev/'))
-        .map((name) => name.split('/')[1])
-        .filter((workspace): workspace is string => typeof workspace === 'string' && workspace.length > 0)
-        .filter((workspace) =>
-            existsSync(join(getUiDir(), '..', '..', 'packages', workspace, 'expo-module.config.json'))
-        )
-        .sort();
-}
 
 function getPublicConfig() {
     return getConfig(getUiDir(), { skipSDKVersionRequirement: true, isPublicConfig: true }).exp;
@@ -368,13 +357,6 @@ describe('app.config.js', () => {
         expect(exp.runtimeVersion).toBe(pkg.happierExpoRuntimeVersion);
     });
 
-    it('bumps the non-publicdev runtime train when first-party Expo native modules are part of the shipped app surface', () => {
-        const pkg = readUiPackageJson();
-        const nativeWorkspaceDeps = listFirstPartyExpoNativeWorkspaceDeps();
-
-        expect(nativeWorkspaceDeps).toEqual(expect.arrayContaining(['audio-stream-native', 'sherpa-native']));
-        expect(pkg.happierExpoRuntimeVersion).not.toBe('0.2.6-native');
-    });
 
     it('allows forcing an Expo runtime policy for development diagnostics', () => {
         const exp = withCleanEnv(() => {

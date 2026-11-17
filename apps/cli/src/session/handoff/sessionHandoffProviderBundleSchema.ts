@@ -37,12 +37,6 @@ const CodexSessionHandoffFileSchema = z.union([
   }).strict(),
 ]);
 
-const OpenCodeAffinitySchema = z.object({
-  backendMode: z.enum(['server', 'acp']).nullable(),
-  serverBaseUrl: z.string().nullable(),
-  serverBaseUrlExplicit: z.boolean(),
-}).strict();
-
 // Internal (CLI-only) contract for the provider bundle file transferred during session handoff.
 // This is intentionally not part of the shared protocol surface.
 export const SessionHandoffProviderBundleSchema = z.union([
@@ -52,19 +46,5 @@ export const SessionHandoffProviderBundleSchema = z.union([
     remoteSessionId: z.string().min(1),
     affinity: SessionHandoffCodexAffinitySchema.optional(),
     files: z.array(CodexSessionHandoffFileSchema),
-  }).strict(),
-  z.object({
-    providerId: z.literal('opencode'),
-    remoteSessionId: z.string().min(1),
-    affinity: OpenCodeAffinitySchema,
-    exportJsonBase64: z.string().min(1),
-    exportJsonFile: z.undefined().optional(),
-  }).strict(),
-  z.object({
-    providerId: z.literal('opencode'),
-    remoteSessionId: z.string().min(1),
-    affinity: OpenCodeAffinitySchema,
-    exportJsonBase64: z.undefined().optional(),
-    exportJsonFile: SessionHandoffFileSliceSchema,
   }).strict(),
 ]);

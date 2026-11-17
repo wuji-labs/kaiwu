@@ -8,8 +8,8 @@ import { createCatalogProviderAcpRuntime } from './createCatalogProviderAcpRunti
 
 function createParams() {
   return {
-    provider: 'qwen' as const,
-    loggerLabel: 'QwenACP',
+    provider: 'gemini' as const,
+    loggerLabel: 'GeminiACP',
     directory: '/tmp',
     session: createApiSessionClientFixture(),
     messageBuffer: new MessageBuffer(),
@@ -55,8 +55,8 @@ describe('createCatalogProviderAcpRuntime session identity ownership', () => {
     });
     const runtime = createCatalogProviderAcpRuntime({
       ...createParams(),
-      provider: 'grok',
-      loggerLabel: 'GrokACP',
+      provider: 'codex',
+      loggerLabel: 'CodexACP',
       providerInputConsumer: {
         ...createParams().providerInputConsumer,
         pumpPendingWhileActive,

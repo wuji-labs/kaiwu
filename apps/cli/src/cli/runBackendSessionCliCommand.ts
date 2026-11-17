@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import { randomUUID } from 'node:crypto';
 
-import type { AgentId, CodexBackendMode, KimiAcpPythonSelector } from '@happier-dev/agents';
+import type { AgentId, CodexBackendMode } from '@happier-dev/agents';
 
 import type { Credentials } from '@/persistence';
 import { readCredentials } from '@/persistence';
@@ -46,19 +46,12 @@ type CommonBackendRunOptions = ParsedSessionStartArgs & {
   accountSettingsContext: AccountSettingsContext | null;
   experimentalCodexAcp?: boolean;
   codexBackendMode?: CodexBackendMode;
-  cursorBinaryPath?: string;
-  cursorAgentFallbackEnabled?: boolean;
-  cursorApiEndpoint?: string;
-  kimiAcpPythonSelector?: KimiAcpPythonSelector;
 };
 
 type ProviderRunOptionKeys =
   | 'experimentalCodexAcp'
   | 'codexBackendMode'
-  | 'cursorBinaryPath'
-  | 'cursorAgentFallbackEnabled'
-  | 'cursorApiEndpoint'
-  | 'kimiAcpPythonSelector';
+;
 
 function pickProviderRunOptions(extras: Record<string, unknown>): Pick<CommonBackendRunOptions, ProviderRunOptionKeys> {
   const out: Pick<CommonBackendRunOptions, ProviderRunOptionKeys> = {};
@@ -74,24 +67,6 @@ function pickProviderRunOptions(extras: Record<string, unknown>): Pick<CommonBac
 
   if (extras.experimentalCodexAcp === true || extras.experimentalCodexAcp === false) {
     out.experimentalCodexAcp = extras.experimentalCodexAcp;
-  }
-
-  if (typeof extras.cursorBinaryPath === 'string') {
-    const cursorBinaryPath = extras.cursorBinaryPath.trim();
-    if (cursorBinaryPath) out.cursorBinaryPath = cursorBinaryPath;
-  }
-
-  if (extras.cursorAgentFallbackEnabled === false) {
-    out.cursorAgentFallbackEnabled = false;
-  }
-
-  if (typeof extras.cursorApiEndpoint === 'string') {
-    const cursorApiEndpoint = extras.cursorApiEndpoint.trim();
-    if (cursorApiEndpoint) out.cursorApiEndpoint = cursorApiEndpoint;
-  }
-
-  if (extras.kimiAcpPythonSelector === 'auto' || extras.kimiAcpPythonSelector === 'poll') {
-    out.kimiAcpPythonSelector = extras.kimiAcpPythonSelector;
   }
 
   return out;

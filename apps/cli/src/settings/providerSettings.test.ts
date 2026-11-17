@@ -96,59 +96,8 @@ describe('providerSettings', () => {
     ).toEqual({ codexBackendMode: 'acp' });
   });
 
-  it('resolves Cursor runtime spawn extras from local provider settings', () => {
-    expect(
-      resolveProviderSpawnExtrasForRuntime({
-        agentId: 'cursor',
-        settings: {
-          cursorBinaryPath: '  /opt/cursor/cursor-agent  ',
-          cursorAgentFallbackEnabled: false,
-          cursorApiEndpoint: '  https://cursor.example.test  ',
-        },
-        processEnv: {},
-      }),
-    ).toEqual({
-      cursorBinaryPath: '/opt/cursor/cursor-agent',
-      cursorAgentFallbackEnabled: false,
-      cursorApiEndpoint: 'https://cursor.example.test',
-    });
-  });
 
-  it('resolves Kimi ACP Python selector runtime extras from account settings', () => {
-    expect(
-      resolveProviderSpawnExtrasForRuntime({
-        agentId: 'kimi',
-        settings: { kimiAcpPythonSelector: 'poll' },
-        processEnv: {},
-      }),
-    ).toEqual({ kimiAcpPythonSelector: 'poll' });
 
-    expect(
-      resolveProviderSpawnExtrasForRuntime({
-        agentId: 'kimi',
-        settings: { kimiAcpPythonSelector: 'auto' },
-        processEnv: {},
-      }),
-    ).toEqual({});
-  });
-
-  it('lets an explicit Kimi ACP Python selector env override win over account settings', () => {
-    expect(
-      resolveProviderSpawnExtrasForRuntime({
-        agentId: 'kimi',
-        settings: { kimiAcpPythonSelector: 'poll' },
-        processEnv: { HAPPIER_KIMI_ACP_SELECTOR: 'auto' },
-      }),
-    ).toEqual({ kimiAcpPythonSelector: 'auto' });
-
-    expect(
-      resolveProviderSpawnExtrasForRuntime({
-        agentId: 'kimi',
-        settings: { kimiAcpPythonSelector: 'auto' },
-        processEnv: { HAPPIER_KIMI_ACP_SELECTOR: 'poll' },
-      }),
-    ).toEqual({ kimiAcpPythonSelector: 'poll' });
-  });
 
   it('builds Claude outgoing meta defaults from account settings', () => {
     const extras = resolveProviderOutgoingMessageMetaExtras({

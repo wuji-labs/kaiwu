@@ -12,12 +12,7 @@ import { useSegments } from 'expo-router';
 import { useFeatureEnabled } from '@/hooks/server/useFeatureEnabled';
 import { createDefaultActionExecutor } from '@/sync/ops/actions/defaultActionExecutor';
 import { resolveServerIdForSessionIdFromLocalCache } from '@/sync/runtime/orchestration/serverScopedRpc/resolveServerIdForSessionIdFromLocalCache';
-import { resetDesktopPetOverlayPosition } from '@/components/pets/desktop/bridge/desktopPetOverlayBridge';
-import { requestCodexPetRefresh } from '@/components/settings/pets/petSettingsCommandEvents';
-import { useApplyLocalSettings, useApplySettings } from '@/sync/store/settingsWriters';
-import { fireAndForget } from '@/utils/system/fireAndForget';
-import { isTauriDesktop } from '@/utils/platform/tauri';
-import { buildCommandPaletteCommands, type PetCommandControls } from './buildCommandPaletteCommands';
+import { buildCommandPaletteCommands } from './buildCommandPaletteCommands';
 import { KeyboardShortcutProvider, buildKeyboardShortcutLabels, resolveKeyboardPlatform } from '@/keyboard';
 import { useResolveNewSessionOrdinaryEntryRoute } from '@/components/sessions/new/navigation/newSessionOrdinaryEntryRoute';
 
@@ -67,9 +62,6 @@ function WebCommandPaletteProvider({ children }: { children: React.ReactNode }) 
     const executionRunsEnabled = useFeatureEnabled('execution.runs');
     const voiceEnabled = useFeatureEnabled('voice');
     const memorySearchEnabled = useFeatureEnabled('memory.search');
-    const petsCompanionEnabled = useFeatureEnabled('pets.companion');
-    const applySettings = useApplySettings();
-    const applyLocalSettings = useApplyLocalSettings();
     const actionExecutor = useMemo(
         () => createDefaultActionExecutor({
             resolveServerIdForSessionId: resolveServerIdForSessionIdFromLocalCache,
@@ -99,39 +91,6 @@ function WebCommandPaletteProvider({ children }: { children: React.ReactNode }) 
             keyboardSingleKeyShortcutsEnabled,
         ],
     );
-    const petControls = useMemo<PetCommandControls>(() => {
-        const desktop = isTauriDesktop();
-        const surface = desktop ? 'desktopOverlay' : Platform.OS === 'web' ? 'appShell' : 'none';
-        return {
-            surface,
-            wake: () => {
-                applySettings({ petsEnabled: true });
-                applyLocalSettings(desktop
-                    ? { petsEnabledOverride: 'enabled', desktopPetOverlayEnabledOverride: 'enabled' }
-                    : { petsEnabledOverride: 'enabled' });
-            },
-            tuck: () => {
-                applyLocalSettings(desktop
-                    ? { desktopPetOverlayEnabledOverride: 'disabled' }
-                    : { petsEnabledOverride: 'disabled' });
-            },
-            resetPosition: desktop
-                ? () => {
-                    applyLocalSettings({
-                        desktopPetOverlayOffset: { x: 0, y: 0 },
-                        desktopPetOverlayAnchor: 'bottomRight',
-                    });
-                    fireAndForget(resetDesktopPetOverlayPosition(), {
-                        tag: 'CommandPaletteProvider.resetDesktopPetOverlayPosition',
-                    });
-                }
-                : undefined,
-            refreshCodexPets: () => {
-                router.push('/settings/pets' as any);
-                requestCodexPetRefresh();
-            },
-        };
-    }, [applyLocalSettings, applySettings, router]);
     const openNewSession = useCallback(() => {
         const { draftId, draftOrigin } = resolveNewSessionOrdinaryEntryRoute();
         router.push({ pathname: '/new', params: { draftId, draftOrigin } });
@@ -145,9 +104,8 @@ function WebCommandPaletteProvider({ children }: { children: React.ReactNode }) 
             sessionsById: sessions as any,
             isDev: __DEV__ === true,
             activeSessionId,
-            features: { executionRunsEnabled, voiceEnabled, memorySearchEnabled, petsCompanionEnabled },
+            features: { executionRunsEnabled, voiceEnabled, memorySearchEnabled },
             shortcutLabels,
-            petControls,
             nav: {
                 push: (path) => router.push(path as any),
                 openNewSession,
@@ -161,7 +119,7 @@ function WebCommandPaletteProvider({ children }: { children: React.ReactNode }) 
                 await Modal.alertAsync(title, message);
             },
         });
-    }, [segments, executionRunsEnabled, voiceEnabled, memorySearchEnabled, petsCompanionEnabled, shortcutLabels, petControls, router, openNewSession, navigateToSession, logout, actionExecutor]);
+    }, [segments, executionRunsEnabled, voiceEnabled, memorySearchEnabled, shortcutLabels, router, openNewSession, navigateToSession, logout, actionExecutor]);
 
     const showCommandPalette = useCallback(() => {
         if (Platform.OS !== 'web' || !commandPaletteEnabled) return;

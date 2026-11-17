@@ -175,34 +175,34 @@ describe('maybePassthroughProviderCliInfoRequest', () => {
     } as any);
     resolveWindowsCommandInvocationMock.mockReturnValueOnce({
       command: 'C:\\Windows\\System32\\cmd.exe',
-      args: ['/d', '/s', '/c', '"C:\\Users\\natan\\AppData\\Roaming\\npm\\opencode.CMD --help"'],
+      args: ['/d', '/s', '/c', '"C:\\Users\\natan\\AppData\\Roaming\\npm\\gemini.CMD --help"'],
       windowsVerbatimArguments: true,
     });
     requireProviderCliLaunchSpecMock.mockReturnValueOnce({
       source: 'override',
-      resolvedPath: 'C:\\Users\\natan\\AppData\\Roaming\\npm\\opencode.CMD',
-      command: 'C:\\Users\\natan\\AppData\\Roaming\\npm\\opencode.CMD',
+      resolvedPath: 'C:\\Users\\natan\\AppData\\Roaming\\npm\\gemini.CMD',
+      command: 'C:\\Users\\natan\\AppData\\Roaming\\npm\\gemini.CMD',
       args: [],
     });
 
     const handled = maybePassthroughProviderCliInfoRequest({
-      agentId: 'opencode',
+      agentId: 'gemini',
       args: ['--help'],
       processEnv: {
         ...process.env,
-        HAPPIER_OPENCODE_PATH: 'C:\\Users\\natan\\AppData\\Roaming\\npm\\opencode.CMD',
+        HAPPIER_GEMINI_PATH: 'C:\\Users\\natan\\AppData\\Roaming\\npm\\gemini.CMD',
         ComSpec: 'C:\\Windows\\System32\\cmd.exe',
       },
     });
 
     expect(handled).toBe(true);
     expect(resolveWindowsCommandInvocationMock).toHaveBeenCalledWith(expect.objectContaining({
-      command: 'C:\\Users\\natan\\AppData\\Roaming\\npm\\opencode.CMD',
+      command: 'C:\\Users\\natan\\AppData\\Roaming\\npm\\gemini.CMD',
       args: ['--help'],
     }));
     expect(spawnSyncMock).toHaveBeenCalledWith(
       'C:\\Windows\\System32\\cmd.exe',
-      ['/d', '/s', '/c', '"C:\\Users\\natan\\AppData\\Roaming\\npm\\opencode.CMD --help"'],
+      ['/d', '/s', '/c', '"C:\\Users\\natan\\AppData\\Roaming\\npm\\gemini.CMD --help"'],
       expect.objectContaining({ windowsHide: true, windowsVerbatimArguments: true }),
     );
   });

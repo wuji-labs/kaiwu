@@ -106,12 +106,6 @@ vi.mock('@/components/navigation/Header', () => ({
     createHeader: () => null,
 }));
 
-vi.mock('@/components/pets/runtime/PetAppShellCompanionMount', () => ({
-    PetAppShellCompanionMount: () => React.createElement('PetAppShellCompanionMount', {
-        testID: 'pet-app-shell-companion-mount',
-    }),
-}));
-
 vi.mock('@/sync/domains/state/storageStore', () => {
     const storage = (
         selector: (state: { profile: { linkedProviders: []; username: null }; localSettings: LocalSettings }) => unknown,

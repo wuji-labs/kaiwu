@@ -5,7 +5,7 @@ import type {
   SessionHandoffCodexBackendMode,
 } from '@happier-dev/protocol';
 
-export type HandoffProviderId = 'claude' | 'codex' | 'opencode';
+export type HandoffProviderId = 'claude' | 'codex';
 
 export type SessionHandoffFileSlice = Readonly<{
   t: 'happier.handoff.file.v1';
@@ -44,20 +44,7 @@ export type CodexSessionBundle = Readonly<{
   )>[];
 }>;
 
-export type OpenCodeSessionBundle = Readonly<{
-  providerId: 'opencode';
-  remoteSessionId: string;
-  affinity: Readonly<{
-    backendMode: 'server' | 'acp' | null;
-    serverBaseUrl: string | null;
-    serverBaseUrlExplicit: boolean;
-  }>;
-}> & (
-  | Readonly<{ exportJsonBase64: string; exportJsonFile?: never }>
-  | Readonly<{ exportJsonFile: SessionHandoffFileSlice; exportJsonBase64?: never }>
-);
-
-export type SessionHandoffProviderBundle = ClaudeSessionBundle | CodexSessionBundle | OpenCodeSessionBundle;
+export type SessionHandoffProviderBundle = ClaudeSessionBundle | CodexSessionBundle;
 
 export type ImportedSessionHandoffBundle = Readonly<{
   remoteSessionId: string;

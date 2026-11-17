@@ -179,18 +179,6 @@ vi.mock('@/components/navigation/mobile/chrome/MobileBottomChromeHost', () => ({
     MobileBottomChromeHost: () => React.createElement('MobileBottomChromeHost'),
 }));
 
-vi.mock('@/components/pets/runtime/DesktopPetOverlayRuntimeMount', () => ({
-    DesktopPetOverlayRuntimeMount: () => React.createElement('DesktopPetOverlayRuntimeMount'),
-}));
-
-vi.mock('@/components/pets/runtime/PetAppShellCompanionMount', () => ({
-    PetAppShellCompanionMount: () => React.createElement('PetAppShellCompanionMount'),
-}));
-
-vi.mock('@/components/pets/desktop/runtime/isDesktopPetOverlayWindowContext', () => ({
-    isDesktopPetOverlayWindowContext: () => false,
-}));
-
 vi.mock('@/components/workspaceCockpit/session/SessionCockpitChromeRegistry', () => ({
     SessionCockpitChromeRegistryProvider: (props: { children?: React.ReactNode }) => React.createElement('SessionCockpitChromeRegistryProvider', null, props.children),
 }));

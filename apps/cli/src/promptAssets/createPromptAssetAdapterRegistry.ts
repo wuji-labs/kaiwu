@@ -3,9 +3,6 @@ import { createAgentsSkillPromptAssetAdapter } from './adapters/agentsSkill/crea
 import { createClaudeSkillPromptAssetAdapter } from '@/backends/claude/promptAssets/createClaudeSkillPromptAssetAdapter';
 import { createClaudeCommandPromptAssetAdapter } from '@/backends/claude/promptAssets/createClaudeCommandPromptAssetAdapter';
 import { createGeminiSkillPromptAssetAdapter } from '@/backends/gemini/promptAssets/createGeminiSkillPromptAssetAdapter';
-import { createCopilotSkillPromptAssetAdapter } from '@/backends/copilot/promptAssets/createCopilotSkillPromptAssetAdapter';
-import { createOpenCodeCommandPromptAssetAdapter } from '@/backends/opencode/promptAssets/createOpenCodeCommandPromptAssetAdapter';
-import { createOpenCodeSkillPromptAssetAdapter } from '@/backends/opencode/promptAssets/createOpenCodeSkillPromptAssetAdapter';
 
 export function createPromptAssetAdapterRegistry(params?: Readonly<{
   homedir?: () => string;
@@ -24,17 +21,6 @@ export function createPromptAssetAdapterRegistry(params?: Readonly<{
       homedir: params?.homedir,
     }),
     createGeminiSkillPromptAssetAdapter({
-      homedir: params?.homedir,
-      happierHomeDir: params?.happierHomeDir,
-    }),
-    createCopilotSkillPromptAssetAdapter({
-      homedir: params?.homedir,
-      happierHomeDir: params?.happierHomeDir,
-    }),
-    createOpenCodeCommandPromptAssetAdapter({
-      homedir: params?.homedir,
-    }),
-    createOpenCodeSkillPromptAssetAdapter({
       homedir: params?.homedir,
       happierHomeDir: params?.happierHomeDir,
     }),

@@ -65,21 +65,21 @@ describe('newSessionAgentSelection', () => {
 
     it('resolves the next selectable agent while skipping unavailable intermediates', () => {
         expect(resolveNextSelectableAgentForNewSession({
-            candidateAgentIds: ['claude', 'codex', 'opencode'],
+            candidateAgentIds: ['claude', 'codex', 'gemini'],
             currentAgentId: 'claude',
             detectionTimestamp: 1,
-            availabilityById: { claude: true, codex: false, opencode: true },
+            availabilityById: { claude: true, codex: false, gemini: true },
             installableDepKeyCountByAgentId: { codex: 0 },
-        })).toBe('opencode');
+        })).toBe('gemini');
     });
 
     it('builds the selectable list from candidates using the same policy as chip cycling', () => {
         expect(getSelectableAgentIdsForNewSession({
-            candidateAgentIds: ['claude', 'codex', 'opencode'],
+            candidateAgentIds: ['claude', 'codex', 'gemini'],
             detectionTimestamp: 1,
-            availabilityById: { claude: true, codex: false, opencode: true },
+            availabilityById: { claude: true, codex: false, gemini: true },
             installableDepKeyCountByAgentId: { codex: 0 },
-        })).toEqual(['claude', 'opencode']);
+        })).toEqual(['claude', 'gemini']);
     });
 
     it('marks multi-cli profiles as available when at least one supported agent remains selectable', () => {

@@ -733,7 +733,7 @@ describe('ConnectedServiceRefreshCoordinator.refreshClaudeSubscriptionTokensForB
 
   it('R3-6: authorizes a broker bridge call by its selection identity when the sessionId is synthetic', async () => {
     // OpenCode/Pi brokers run in a SHARED managed server and cannot present a per-session id — the
-    // generated plugin sends a synthetic `opencode-broker:<ver>` sessionId. Authz must resolve the
+    // generated plugin sends a synthetic `gemini-broker:<ver>` sessionId. Authz must resolve the
     // canonical selection from a LIVE runtime target matched by the broker's stable selection identity.
     const now = 6_300_000;
     const record = buildConnectedServiceCredentialRecord({
@@ -767,22 +767,22 @@ describe('ConnectedServiceRefreshCoordinator.refreshClaudeSubscriptionTokensForB
       refreshLeaseMs: 30_000,
       now: () => now,
     });
-    const brokerSelectionIdentity = 'opencode|connected|broker:1|claude-subscription:broker-profile:anthropic-broker';
+    const brokerSelectionIdentity = 'gemini|connected|broker:1|claude-subscription:broker-profile:anthropic-broker';
     coordinator.registerSpawnTarget({
       pid: 104,
-      agentId: 'opencode',
-      sessionId: 'sess-real-opencode',
+      agentId: 'gemini',
+      sessionId: 'sess-real-gemini',
       brokerSelectionIdentity,
       connectedServicesBindingsRaw: {
         v: 1,
         bindingsByServiceId: { 'claude-subscription': { source: 'connected', profileId: 'broker-profile' } },
       },
-      materializationKey: 'sess-real-opencode',
+      materializationKey: 'sess-real-gemini',
     });
 
     // Broker sends the synthetic sessionId (never a registry hit) + its genuine selection identity.
     const result = await coordinator.refreshClaudeSubscriptionTokensForBridge({
-      sessionId: 'opencode-broker:anthropic:1',
+      sessionId: 'gemini-broker:anthropic:1',
       brokerSelectionIdentity,
       selection: { kind: 'profile' as const, serviceId: 'claude-subscription' as const, profileId: 'broker-profile' },
     });
@@ -810,8 +810,8 @@ describe('ConnectedServiceRefreshCoordinator.refreshClaudeSubscriptionTokensForB
     });
 
     await expect(coordinator.refreshClaudeSubscriptionTokensForBridge({
-      sessionId: 'opencode-broker:anthropic:1',
-      brokerSelectionIdentity: 'opencode|connected|broker:1|claude-subscription:ghost:none',
+      sessionId: 'gemini-broker:anthropic:1',
+      brokerSelectionIdentity: 'gemini|connected|broker:1|claude-subscription:ghost:none',
       selection: { kind: 'profile' as const, serviceId: 'claude-subscription' as const, profileId: 'ghost' },
     })).rejects.toThrow('connected_service_bridge_selection_not_authorized');
     expect(api.getConnectedServiceCredentialSealed).not.toHaveBeenCalled();
@@ -865,10 +865,10 @@ describe('ConnectedServiceRefreshCoordinator.refreshClaudeSubscriptionTokensForB
       materializationKey: 'sess-victim',
     });
     // Attacker's own live broker target (holds a valid broker selection identity).
-    const attackerIdentity = 'opencode|connected|broker:1|claude-subscription:attacker-profile:anthropic-attacker';
+    const attackerIdentity = 'gemini|connected|broker:1|claude-subscription:attacker-profile:anthropic-attacker';
     coordinator.registerSpawnTarget({
       pid: 202,
-      agentId: 'opencode',
+      agentId: 'gemini',
       sessionId: 'sess-attacker',
       brokerSelectionIdentity: attackerIdentity,
       connectedServicesBindingsRaw: {
@@ -919,7 +919,7 @@ describe('ConnectedServiceRefreshCoordinator.refreshClaudeSubscriptionTokensForB
 
     await expect(coordinator.refreshClaudeSubscriptionTokensForBridge({
       sessionId: 'sess-victim',
-      brokerSelectionIdentity: 'opencode|connected|broker:1|claude-subscription:ghost:none',
+      brokerSelectionIdentity: 'gemini|connected|broker:1|claude-subscription:ghost:none',
       selection: { kind: 'profile' as const, serviceId: 'claude-subscription' as const, profileId: 'victim-profile' },
     })).rejects.toThrow('connected_service_bridge_selection_not_authorized');
     expect(getSealed).not.toHaveBeenCalled();

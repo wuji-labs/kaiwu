@@ -12,11 +12,11 @@ describe('createProviderAttachStatePublisher', () => {
       encryption: { type: 'legacy', secret: new Uint8Array(32).fill(1) },
     };
     const rawSession = createSessionRecordFixture({
-      id: 'sid_opencode_1',
+      id: 'sid_codex_1',
       encryptionMode: 'plain',
       agentState: JSON.stringify({ existing: 'value' }),
       agentStateVersion: 4,
-      metadata: JSON.stringify({ flavor: 'opencode' }),
+      metadata: JSON.stringify({ flavor: 'codex' }),
     });
     const socket = {
       connect: vi.fn(),
@@ -29,8 +29,8 @@ describe('createProviderAttachStatePublisher', () => {
     });
 
     const publisher = createProviderAttachStatePublisher({
-      agentId: 'opencode',
-      sessionId: 'sid_opencode_1',
+      agentId: 'codex',
+      sessionId: 'sid_codex_1',
       credentials,
       rawSession,
       createSessionScopedSocketFn: () => socket as any,
@@ -43,7 +43,7 @@ describe('createProviderAttachStatePublisher', () => {
     await publisher?.publishAttached(false);
 
     expect(updateSessionAgentStateWithAckFn).toHaveBeenNthCalledWith(1, expect.objectContaining({
-      sessionId: 'sid_opencode_1',
+      sessionId: 'sid_codex_1',
       getAgentStateVersion: expect.any(Function),
       setAgentStateVersion: expect.any(Function),
     }));

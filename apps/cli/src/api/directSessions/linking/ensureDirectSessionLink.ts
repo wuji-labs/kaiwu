@@ -3,7 +3,6 @@ import os from 'node:os';
 
 import {
   buildCodexAgentRuntimeDescriptor,
-  buildOpenCodeAgentRuntimeDescriptor,
   normalizeCodexBackendMode,
   type CodexBackendMode,
 } from '@happier-dev/agents';
@@ -314,20 +313,6 @@ function resolveSourceKey(providerId: DirectSessionsProviderId, source: DirectSe
       const projectId = normalizeNullableString(source.projectId) ?? '';
       return `claudeConfig:${configDir}:${projectId}`;
     }
-    case 'opencode': {
-      if (source.kind !== 'opencodeServer') return 'opencodeServer:invalid';
-      const baseUrl = normalizeNullableString(source.baseUrl) ?? '';
-      const directory = normalizeNullableString(source.directory) ?? '';
-      return `opencodeServer:${baseUrl}:${directory}`;
-    }
-    case 'pi': {
-      if (source.kind !== 'piAgentDir') return 'piAgentDir:invalid';
-      // Dedupe keys must survive equivalent path spellings (mixed separators, home
-      // syntax, trailing separators) or repeated linking mints a second session for
-      // one pi source — normalize with the canonical comparison owner.
-      const agentDir = normalizePathForComparison(source.agentDir) ?? '';
-      return `piAgentDir:${agentDir}`;
-    }
     default:
       return 'unknown';
   }
@@ -435,47 +420,6 @@ function resolveCodexDirectSessionLinkIdentity(params: Readonly<{
       connectedServiceGroupId:
         canonicalRuntimeDescriptor?.connectedServiceGroupId ?? sourceAffinity.connectedServiceGroupId,
       homePath: canonicalRuntimeDescriptor?.homePath ?? sourceAffinity.homePath,
-    }),
-  };
-}
-
-function resolveOpenCodeDirectSessionLinkIdentity(params: Readonly<{
-  remoteSessionId: string;
-  source: DirectSessionsSource;
-  runtimeDescriptor?: AgentRuntimeDescriptorV1 | null;
-}>): Readonly<{
-  remoteSessionId: string;
-  runtimeDescriptor: AgentRuntimeDescriptorV1 | null;
-}> {
-  const canonicalRuntimeDescriptor = readCanonicalAgentRuntimeDescriptorV1ForProvider(params.runtimeDescriptor, 'opencode');
-  const runtimeVendorSessionId = canonicalRuntimeDescriptor?.vendorSessionId ?? '';
-  const remoteSessionId = runtimeVendorSessionId || params.remoteSessionId;
-
-  // Direct sessions for OpenCode are currently backed by OpenCode server transport only.
-  // Keep the linked runtime descriptor consistent with the direct-session source, even if a stale
-  // descriptor claims ACP mode (for example from handoff bundles).
-  const backendMode =
-    params.source.kind === 'opencodeServer'
-      ? 'server'
-      : canonicalRuntimeDescriptor?.backendMode === 'acp' || canonicalRuntimeDescriptor?.backendMode === 'server'
-        ? canonicalRuntimeDescriptor.backendMode
-        : null;
-  if (!backendMode) {
-    return { remoteSessionId, runtimeDescriptor: params.runtimeDescriptor ?? null };
-  }
-
-  const serverBaseUrl = canonicalRuntimeDescriptor?.serverBaseUrl
-    ?? (params.source.kind === 'opencodeServer' && typeof params.source.baseUrl === 'string' && params.source.baseUrl.trim().length > 0
-      ? params.source.baseUrl.trim()
-      : undefined);
-
-  return {
-    remoteSessionId,
-    runtimeDescriptor: buildOpenCodeAgentRuntimeDescriptor({
-      backendMode,
-      vendorSessionId: remoteSessionId,
-      ...(serverBaseUrl ? { serverBaseUrl } : {}),
-      ...((canonicalRuntimeDescriptor?.serverBaseUrlExplicit ?? Boolean(serverBaseUrl)) ? { serverBaseUrlExplicit: true } : {}),
     }),
   };
 }
@@ -641,27 +585,6 @@ function buildDirectSessionMetadata(params: Readonly<{
     case 'claude':
       base.claudeSessionId = params.remoteSessionId;
       break;
-    case 'pi':
-      base.piSessionId = params.remoteSessionId;
-      break;
-    case 'opencode':
-      base.opencodeSessionId = params.remoteSessionId;
-      if (params.runtimeDescriptor?.providerId === 'opencode') {
-        const backendMode = params.runtimeDescriptor.provider.backendMode;
-        if (backendMode === 'server' || backendMode === 'acp') {
-          base.opencodeBackendMode = backendMode;
-        }
-        if (typeof params.runtimeDescriptor.provider.serverBaseUrl === 'string' && params.runtimeDescriptor.provider.serverBaseUrl.trim()) {
-          base.opencodeServerBaseUrl = params.runtimeDescriptor.provider.serverBaseUrl.trim();
-          if (params.runtimeDescriptor.provider.serverBaseUrlExplicit === true) {
-            base.opencodeServerBaseUrlExplicit = true;
-          }
-        }
-        base.agentRuntimeDescriptorV1 = params.runtimeDescriptor;
-      } else {
-        base.opencodeBackendMode = 'server';
-      }
-      break;
   }
 
   return base;
@@ -689,17 +612,10 @@ export async function ensureDirectSessionLink(params: Readonly<{
       runtimeDescriptor: params.runtimeDescriptor,
     })
     : null;
-  const openCodeIdentity = params.providerId === 'opencode'
-    ? resolveOpenCodeDirectSessionLinkIdentity({
-      remoteSessionId: params.remoteSessionId,
-      source: params.source,
-      runtimeDescriptor: params.runtimeDescriptor,
-    })
-    : null;
-  const remoteSessionId = codexIdentity?.remoteSessionId ?? openCodeIdentity?.remoteSessionId ?? params.remoteSessionId;
+  const remoteSessionId = codexIdentity?.remoteSessionId ?? params.remoteSessionId;
   const source = codexIdentity?.source ?? params.source;
   const codexBackendMode = codexIdentity?.codexBackendMode ?? params.codexBackendMode ?? null;
-  const runtimeDescriptor = codexIdentity?.runtimeDescriptor ?? openCodeIdentity?.runtimeDescriptor ?? params.runtimeDescriptor ?? null;
+  const runtimeDescriptor = codexIdentity?.runtimeDescriptor ?? params.runtimeDescriptor ?? null;
   const connectedServiceRuntimeSnapshot = await resolveConnectedServiceRuntimeSnapshotForDirectLink({
     providerId: params.providerId,
     remoteSessionId,

@@ -21,9 +21,6 @@ import { ReleaseNotesAutoShowMount } from '@/changelog/releaseNotes';
 import { createAppStackScreenOptions } from '@/components/navigation/createAppStackScreenOptions';
 import { MobileBottomChromeHost } from '@/components/navigation/mobile/chrome/MobileBottomChromeHost';
 import { AppHeaderCloseButton } from '@/components/navigation/AppHeaderCloseButton';
-import { DesktopPetOverlayRuntimeMount } from '@/components/pets/runtime/DesktopPetOverlayRuntimeMount';
-import { PetAppShellCompanionMount } from '@/components/pets/runtime/PetAppShellCompanionMount';
-import { isDesktopPetOverlayWindowContext } from '@/components/pets/desktop/runtime/isDesktopPetOverlayWindowContext';
 import { SessionCockpitChromeRegistryProvider } from '@/components/workspaceCockpit/session/SessionCockpitChromeRegistry';
 import { safeRouterBack } from '@/utils/navigation/safeRouterBack';
 import { RootLayoutNavigationEffects } from '@/components/navigation/root/RootLayoutNavigationEffects';
@@ -35,7 +32,6 @@ import {
 } from '@/components/sessions/new/navigation/newSessionPresentation';
 import { useSetting } from '@/sync/domains/state/storage';
 
-const DESKTOP_PET_OVERLAY_SCREEN_OPTIONS = { headerShown: false } as const;
 // Module-scope so the options callback hands the navigator the same object on every render.
 const NEW_SESSION_TRANSPARENT_CONTENT_STYLE = { backgroundColor: 'transparent' } as const;
 const MAIN_TAB_STACK_SCREEN_OPTIONS = { animation: 'none' } as const;
@@ -107,8 +103,6 @@ function NewSessionKeyboardDismissHeaderTitle(): React.ReactElement {
 const AuthenticatedAppShellRuntimes = React.memo(function AuthenticatedAppShellRuntimes(): React.ReactElement {
     return (
         <>
-            <DesktopPetOverlayRuntimeMount />
-            <PetAppShellCompanionMount />
             <ReleaseNotesAutoShowMount />
             <PushNotificationPermissionPrimingRuntime />
         </>
@@ -138,7 +132,6 @@ const RootLayoutShell = React.memo(function RootLayoutShell(): React.ReactElemen
 
     // Use custom header on Android and Mac Catalyst, native header on iOS (non-Catalyst)
     const shouldUseCustomHeader = Platform.OS === 'android' || isRunningOnMac() || Platform.OS === 'web';
-    const isDesktopPetOverlayWindow = isDesktopPetOverlayWindowContext();
     const baseStackScreenOptions = React.useMemo(() => createAppStackScreenOptions({
         headerBackTitle: t('common.back'),
         shouldUseCustomHeader,
@@ -178,17 +171,6 @@ const RootLayoutShell = React.memo(function RootLayoutShell(): React.ReactElemen
         };
     }, [auth.isAuthenticated]);
 
-    if (isDesktopPetOverlayWindow) {
-        return (
-            <Stack screenOptions={DESKTOP_PET_OVERLAY_SCREEN_OPTIONS}>
-                <Stack.Screen
-                    name="desktop/pet-overlay"
-                    options={DESKTOP_PET_OVERLAY_SCREEN_OPTIONS}
-                />
-            </Stack>
-        );
-    }
-
     return (
         <SessionCockpitChromeRegistryProvider>
             <ActivityBadgeRuntime />
@@ -196,10 +178,6 @@ const RootLayoutShell = React.memo(function RootLayoutShell(): React.ReactElemen
             <DesktopTrayRuntime />
             {auth.isAuthenticated ? <AuthenticatedAppShellRuntimes /> : null}
             <Stack screenOptions={baseStackScreenOptions}>
-            <Stack.Screen
-                name="desktop/pet-overlay"
-                options={DESKTOP_PET_OVERLAY_SCREEN_OPTIONS}
-            />
             <Stack.Screen
                 name="index"
                 options={{

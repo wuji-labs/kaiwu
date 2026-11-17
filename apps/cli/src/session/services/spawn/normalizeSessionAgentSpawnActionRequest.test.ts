@@ -5,7 +5,7 @@ import {
   type ConnectedServiceBindingsV1,
   type SessionAgentSpawnPolicyV1,
 } from '@happier-dev/protocol';
-import { buildOpenCodeAgentRuntimeDescriptor } from '@happier-dev/agents';
+import { buildCodexAgentRuntimeDescriptor } from '@happier-dev/agents';
 import type { Credentials } from '@/persistence';
 
 import {
@@ -143,9 +143,9 @@ describe('normalizeSessionAgentSpawnActionRequest', () => {
       parentMetadata: {
         permissionMode: 'safe-yolo',
         permissionModeUpdatedAt: 101,
-        agentRuntimeDescriptorV1: buildOpenCodeAgentRuntimeDescriptor({
-          backendMode: 'server',
-          vendorSessionId: 'opencode-parent',
+        agentRuntimeDescriptorV1: buildCodexAgentRuntimeDescriptor({
+          backendMode: 'acp',
+          vendorSessionId: 'codex-parent',
         }),
       },
       currentSession: {
@@ -160,7 +160,7 @@ describe('normalizeSessionAgentSpawnActionRequest', () => {
     expect(result.ok).toBe(true);
     if (!result.ok) throw new Error('expected normalized spawn request');
 
-    expect(result.createParams.backendTarget).toEqual({ kind: 'builtInAgent', agentId: 'opencode' });
+    expect(result.createParams.backendTarget).toEqual({ kind: 'builtInAgent', agentId: 'codex' });
     expect(result.sources.backendTarget).toEqual({
       kind: 'runtimeDescriptorMetadata',
       key: 'agentRuntimeDescriptorV1',

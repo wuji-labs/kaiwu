@@ -5,7 +5,7 @@ import { createCliActionOptionProviderRegistry } from './actionOptionProviderReg
 describe('createCliActionOptionProviderRegistry', () => {
   it('matches model-scoped options by the exact opaque model identifier', async () => {
     const probeModels = vi.fn(async () => ({
-      provider: 'cursor' as const,
+      provider: 'claude' as const,
       availableModels: [
         { id: 'model-a', name: 'Plain', modelOptions: [{ id: 'plain', name: 'Plain option', type: 'select', currentValue: 'x' }] },
         { id: ' model-a ', name: 'Spaced', modelOptions: [{ id: 'spaced', name: 'Spaced option', type: 'select', currentValue: 'y' }] },
@@ -16,15 +16,15 @@ describe('createCliActionOptionProviderRegistry', () => {
     const registry = createCliActionOptionProviderRegistry({
       probeModels,
       probeModes: vi.fn(),
-      probeConfigOptions: vi.fn(async () => ({ provider: 'cursor' as const, configOptions: [], source: 'dynamic' as const })),
+      probeConfigOptions: vi.fn(async () => ({ provider: 'claude' as const, configOptions: [], source: 'dynamic' as const })),
       cwd: '/repo',
       credentials: null,
       accountSettings: null,
     });
 
     const result = await registry.agentsConfigOptionsList({
-      agentId: 'cursor',
-      backendTargetKey: 'agent:cursor',
+      agentId: 'claude',
+      backendTargetKey: 'agent:claude',
       modelId: ' model-a ',
     });
 

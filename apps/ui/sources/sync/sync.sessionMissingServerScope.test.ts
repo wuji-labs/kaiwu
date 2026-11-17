@@ -1563,47 +1563,6 @@ describe('sync.fetchMessages server-scoped known-session checks', () => {
         expect((sync as any).pendingSettings).toEqual({ viewInline: false });
     });
 
-    it('switches the active account pet library projection when credentials change account scope', async () => {
-        const server = upsertServerProfile({ serverUrl: 'https://settings-scope.example', name: 'Settings Scope' });
-        setActiveServerId(server.id, { scope: 'device' });
-
-        const { sync } = await import('./sync');
-
-        (sync as any).activateAccountSettingsScopeForCredentials({
-            token: buildTokenWithSub('account-a'),
-            secret: encodeBase64(new Uint8Array(32).fill(3), 'base64url'),
-        });
-        storage.getState().upsertAccountPet({
-            accountPetId: 'pet-a',
-            packageFormat: 'codex-compatible-atlas-v1',
-            manifest: {
-                id: 'blink-a',
-                displayName: 'Blink A',
-                description: 'Pet A',
-                spritesheetPath: 'spritesheet.webp',
-            },
-            spritesheetAssetRef: {
-                assetId: 'asset-a',
-                mediaType: 'image/webp',
-                digest: 'sha256:asset-a',
-                sizeBytes: 5,
-            },
-            digest: 'sha256:pkg-a',
-            sizeBytes: 128,
-            createdAt: 1,
-            updatedAt: 2,
-            origin: { kind: 'manualImport' },
-        });
-        expect(Object.keys(storage.getState().accountPetsById)).toEqual(['pet-a']);
-
-        (sync as any).activateAccountSettingsScopeForCredentials({
-            token: buildTokenWithSub('account-b'),
-            secret: encodeBase64(new Uint8Array(32).fill(4), 'base64url'),
-        });
-
-        expect(storage.getState().accountPetsById).toEqual({});
-    });
-
     it('clears the account settings scope when credentials contain a malformed token', async () => {
         const server = upsertServerProfile({ serverUrl: 'https://settings-scope.example', name: 'Settings Scope' });
         setActiveServerId(server.id, { scope: 'device' });
@@ -1631,7 +1590,6 @@ describe('sync.fetchMessages server-scoped known-session checks', () => {
             expect(storage.getState().settingsScope).toBeNull();
             expect(storage.getState().settingsVersion).toBeNull();
             expect(storage.getState().settings.viewInline).toBe(settingsDefaults.viewInline);
-            expect(storage.getState().accountPetsById).toEqual({});
             expect((sync as any).pendingSettingsScope).toBeNull();
             expect((sync as any).pendingSettings).toEqual({});
             expect(warnSpy).toHaveBeenCalledWith(
@@ -1665,28 +1623,6 @@ describe('sync.fetchMessages server-scoped known-session checks', () => {
                 token: buildTokenWithSub('account-settings-user'),
                 secret: encodeBase64(new Uint8Array(32).fill(3), 'base64url'),
             });
-            storage.getState().upsertAccountPet({
-                accountPetId: 'pet-a',
-                packageFormat: 'codex-compatible-atlas-v1',
-                manifest: {
-                    id: 'blink-a',
-                    displayName: 'Blink A',
-                    description: 'Pet A',
-                    spritesheetPath: 'spritesheet.webp',
-                },
-                spritesheetAssetRef: {
-                    assetId: 'asset-a',
-                    mediaType: 'image/webp',
-                    digest: 'sha256:asset-a',
-                    sizeBytes: 5,
-                },
-                digest: 'sha256:pkg-a',
-                sizeBytes: 128,
-                createdAt: 1,
-                updatedAt: 2,
-                origin: { kind: 'manualImport' },
-            });
-
             process.env.EXPO_PUBLIC_HAPPIER_DEBUG_SETTINGS_SYNC = '1';
             await expect(sync.create({
                 token: buildTokenWithSub(''),
@@ -1699,7 +1635,6 @@ describe('sync.fetchMessages server-scoped known-session checks', () => {
 
             expect(storage.getState().settingsScope).toBeNull();
             expect(storage.getState().settingsVersion).toBeNull();
-            expect(storage.getState().accountPetsById).toEqual({});
             expect((sync as any).pendingSettingsScope).toBeNull();
             expect((sync as any).pendingSettings).toEqual({});
             expect(warnSpy).toHaveBeenCalledWith(

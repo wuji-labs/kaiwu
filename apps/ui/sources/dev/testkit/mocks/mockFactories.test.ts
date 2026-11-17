@@ -631,7 +631,6 @@ describe('UI testkit mock factories', () => {
         })(async () =>
             ({
                 loadSettings: () => ({ settings: { analyticsOptOut: false }, version: null }),
-                loadLocalPetSourcesBySourceKey: () => ({}),
             }) as any);
         const syncOpsModule = await installSyncOpsModuleMock({
             sessionAbort: vi.fn(async (_sessionId: string) => {}),
@@ -662,7 +661,6 @@ describe('UI testkit mock factories', () => {
             settings: { analyticsOptOut: boolean };
         };
         expect(loadedSettings.settings.analyticsOptOut).toBe(true);
-        expect(persistenceModule.loadLocalPetSourcesBySourceKey()).toEqual({});
 
         await syncOpsModule.sessionAbort('session-1');
 

@@ -829,7 +829,7 @@ afterEach(() => {
 
     coordinator.registerSpawnTarget({
       pid: 123,
-      agentId: 'pi',
+      agentId: 'codex',
       connectedServicesBindingsRaw: {
         v: 1,
         bindingsByServiceId: { 'openai-codex': { source: 'connected', profileId: 'work' } },
@@ -841,7 +841,7 @@ afterEach(() => {
 
     expect(onAuthUpdated).toHaveBeenCalledWith(expect.objectContaining({
       binding: { serviceId: 'openai-codex', profileId: 'work' },
-      affectedTargets: [expect.objectContaining({ pid: 123, agentId: 'pi' })],
+      affectedTargets: [expect.objectContaining({ pid: 123, agentId: 'codex' })],
     }));
   });
 

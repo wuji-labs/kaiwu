@@ -5,7 +5,6 @@ import { handleToolCall, handleToolCallUpdate, markToolCallRunningAfterPermissio
 import { DefaultTransport, defaultTransport } from '../../transport';
 import { CodexAcpTransport } from '@/backends/codex/acp/transport';
 import { GeminiTransport } from '@/backends/gemini/acp/transport';
-import { KimiTransport } from '@/backends/kimi/acp/transport';
 import { createAcpToolCallLifecycle } from '../updates/toolCalls/createAcpToolCallLifecycle';
 
 function createCtx(opts?: { transport?: HandlerContext['transport'] }): HandlerContext & { emitted: any[] } {
@@ -582,25 +581,6 @@ describe('sessionUpdateHandlers tool call tracking', () => {
 	    expect(ctx.toolCalls.get('call_perm_wait_1')?.snapshot.status).toBe('in_progress');
 
     vi.useRealTimers();
-  });
-
-  it('infers tool name from title when ACP tool kind and id are opaque (Kimi)', () => {
-    const ctx = createCtx({ transport: new KimiTransport() });
-
-    const update: SessionUpdate = {
-      sessionUpdate: 'tool_call',
-      toolCallId: 'opaque-tool-id',
-      status: 'in_progress',
-      title: 'ReadFile',
-      content: {},
-    };
-
-    handleToolCall(update, ctx);
-
-    const toolCall = ctx.emitted.find((m) => m.type === 'tool-call' && m.callId === 'opaque-tool-id');
-    expect(toolCall).toBeTruthy();
-    expect(toolCall.toolName).toBe('read');
-    expect(ctx.toolCalls.get('opaque-tool-id')?.toolName).toBe('read');
   });
 
   it('extracts tool output from update.result when output/rawOutput/content are absent', () => {

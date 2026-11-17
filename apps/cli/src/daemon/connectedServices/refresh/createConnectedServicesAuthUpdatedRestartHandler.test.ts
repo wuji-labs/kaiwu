@@ -2,8 +2,6 @@ import { describe, expect, it, vi } from 'vitest';
 
 import type { ConnectedServiceId } from '@happier-dev/protocol';
 import type { CatalogAgentId } from '@/backends/types';
-import { agent as openCodeAgent } from '@/backends/opencode';
-import { agent as piAgent } from '@/backends/pi';
 import type { ConnectedServiceCredentialLifecycleDescriptor } from '@/daemon/connectedServices/credentials/lifecycleTypes';
 import type { TrackedSession } from '@/daemon/types';
 import { createConnectedServicesAuthUpdatedRestartHandler } from './createConnectedServicesAuthUpdatedRestartHandler';
@@ -524,140 +522,9 @@ describe('createConnectedServicesAuthUpdatedRestartHandler', () => {
     expect(restartRequestedPids.has(1)).toBe(false);
   });
 
-  it('does not restart OpenCode or Pi for brokered same-account OAuth refreshes', async () => {
-    const restartRequestedPids = new Set<number>();
-    const requestRestartSignal = vi.fn(async (_params: RestartSignalParams) => ({ signaled: true }));
-    const pidToTrackedSession = new Map<number, TrackedSession>([
-      [1, createTrackedSession({ pid: 1, sessionId: 'opencode-session' })],
-      [2, createTrackedSession({ pid: 2, sessionId: 'pi-session' })],
-    ]);
 
-    const handler = createConnectedServicesAuthUpdatedRestartHandler({
-      restartRequestedPids,
-      pidToTrackedSession,
-      resolveLifecycleDescriptor: async (agentId) => {
-        if (agentId === 'opencode') return await openCodeAgent.getConnectedServiceCredentialLifecycleDescriptor();
-        if (agentId === 'pi') return await piAgent.getConnectedServiceCredentialLifecycleDescriptor();
-        return createLifecycleDescriptor(agentId, 'restart_required');
-      },
-      resolveProcessGroupPid: (tracked) => tracked.pid,
-      requestRestartSignal,
-      restartSignalDelayMs: 0,
-    } satisfies RestartHandlerParams);
 
-    await handler({
-      binding: { serviceId: 'openai-codex', profileId: 'work' },
-      affectedTargets: [
-        { pid: 1, agentId: 'opencode' },
-        { pid: 2, agentId: 'pi' },
-      ],
-      trigger: 'refresh_triggered_restart',
-    });
 
-    expect(requestRestartSignal).not.toHaveBeenCalled();
-    expect(restartRequestedPids.size).toBe(0);
-  });
-
-  it('restarts a Pi claude-subscription SETUP-TOKEN session on reconnect (raw api_key, no broker to hot-apply)', async () => {
-    // R3-7: Pi's descriptor no-restart claim for claude-subscription is only truthful for the brokered
-    // OAuth shape. A setup-token materializes as a raw api_key baked into auth.json at spawn (no broker
-    // env), so a reconnected credential can only reach the running Pi process via a restart. The
-    // absence of PI_BROKER_SELECTIONS_ENV on the tracked session marks it as the setup-token shape.
-    const restartRequestedPids = new Set<number>();
-    const requestRestartSignal = vi.fn(async (_params: RestartSignalParams) => ({ signaled: true }));
-    const pidToTrackedSession = new Map<number, TrackedSession>([
-      [1, createTrackedSession({ pid: 1, sessionId: 'pi-setup-token-session' })],
-    ]);
-
-    const handler = createConnectedServicesAuthUpdatedRestartHandler({
-      restartRequestedPids,
-      pidToTrackedSession,
-      resolveLifecycleDescriptor: async (agentId) => {
-        if (agentId === 'pi') return await piAgent.getConnectedServiceCredentialLifecycleDescriptor();
-        return createLifecycleDescriptor(agentId, 'restart_required');
-      },
-      resolveProcessGroupPid: (tracked) => tracked.pid,
-      requestRestartSignal,
-      restartSignalDelayMs: 0,
-    } satisfies RestartHandlerParams);
-
-    await handler({
-      binding: { serviceId: 'claude-subscription', profileId: 'work' },
-      affectedTargets: [{ pid: 1, agentId: 'pi' }],
-      trigger: 'reconnect_propagation',
-    });
-
-    expect(requestRestartSignal).toHaveBeenCalledWith(expect.objectContaining({ pid: 1 }));
-    expect(restartRequestedPids.has(1)).toBe(true);
-  });
-
-  it('does not restart a Pi claude-subscription OAuth (brokered) session on reconnect', async () => {
-    const { PI_BROKER_SELECTIONS_ENV, serializePiBrokerSelections } = await import('@/backends/pi/brokerExtension');
-    const restartRequestedPids = new Set<number>();
-    const requestRestartSignal = vi.fn(async (_params: RestartSignalParams) => ({ signaled: true }));
-    const tracked: TrackedSession = {
-      ...createTrackedSession({ pid: 1, sessionId: 'pi-brokered-session' }),
-      spawnOptions: {
-        directory: '/tmp/pi-brokered-session',
-        environmentVariables: {
-          [PI_BROKER_SELECTIONS_ENV]: serializePiBrokerSelections({
-            anthropic: { serviceId: 'claude-subscription', profileId: 'work', accountId: null, planType: null },
-          }),
-        },
-      },
-    };
-    const pidToTrackedSession = new Map<number, TrackedSession>([[1, tracked]]);
-
-    const handler = createConnectedServicesAuthUpdatedRestartHandler({
-      restartRequestedPids,
-      pidToTrackedSession,
-      resolveLifecycleDescriptor: async (agentId) => {
-        if (agentId === 'pi') return await piAgent.getConnectedServiceCredentialLifecycleDescriptor();
-        return createLifecycleDescriptor(agentId, 'restart_required');
-      },
-      resolveProcessGroupPid: (t) => t.pid,
-      requestRestartSignal,
-      restartSignalDelayMs: 0,
-    } satisfies RestartHandlerParams);
-
-    await handler({
-      binding: { serviceId: 'claude-subscription', profileId: 'work' },
-      affectedTargets: [{ pid: 1, agentId: 'pi' }],
-      trigger: 'reconnect_propagation',
-    });
-
-    expect(requestRestartSignal).not.toHaveBeenCalled();
-    expect(restartRequestedPids.has(1)).toBe(false);
-  });
-
-  it('still restarts OpenCode when a direct API-key connected service is reconnected', async () => {
-    const restartRequestedPids = new Set<number>();
-    const requestRestartSignal = vi.fn(async (_params: RestartSignalParams) => ({ signaled: true }));
-    const pidToTrackedSession = new Map<number, TrackedSession>([
-      [1, createTrackedSession({ pid: 1, sessionId: 'opencode-session' })],
-    ]);
-
-    const handler = createConnectedServicesAuthUpdatedRestartHandler({
-      restartRequestedPids,
-      pidToTrackedSession,
-      resolveLifecycleDescriptor: async (agentId) => {
-        if (agentId === 'opencode') return await openCodeAgent.getConnectedServiceCredentialLifecycleDescriptor();
-        return createLifecycleDescriptor(agentId, 'restart_required');
-      },
-      resolveProcessGroupPid: (tracked) => tracked.pid,
-      requestRestartSignal,
-      restartSignalDelayMs: 0,
-    } satisfies RestartHandlerParams);
-
-    await handler({
-      binding: { serviceId: 'openai', profileId: 'platform-key' },
-      affectedTargets: [{ pid: 1, agentId: 'opencode' }],
-      trigger: 'reconnect_propagation',
-    });
-
-    expect(requestRestartSignal).toHaveBeenCalledTimes(1);
-    expect(restartRequestedPids.has(1)).toBe(true);
-  });
 
   it('passes the resolved tracked session and gated-restart target to the restart-signal dependency (K3)', async () => {
     // K3: the wiring site routes the restart through the gated deferral primitive

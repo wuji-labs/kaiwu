@@ -3,7 +3,6 @@ import { vi } from 'vitest';
 import {
     CURRENT_PENDING_INPUT_PROTOCOL_VERSION,
     SESSION_SYNC_PROTOCOL_VERSION_RUNTIME_ACTIVITY,
-    DEFAULT_PETS_CAPABILITIES,
     DEFAULT_SESSION_CAPABILITIES,
     type FeaturesResponse,
 } from '@happier-dev/protocol';
@@ -20,8 +19,6 @@ type FixtureOverrides = {
     connectedServicesQuotasEnabled?: boolean;
     updatesOtaEnabled?: boolean;
     sessionMediaGeneratedEnabled?: boolean;
-    petsCompanionEnabled?: boolean;
-    petsSyncEnabled?: boolean;
     pairingDesktopQrMobileScanEnabled?: boolean;
     oauthProviders?: Record<string, { enabled: boolean; configured: boolean }>;
     authProviders?: Record<string, { enabled: boolean; configured: boolean }>;
@@ -74,10 +71,6 @@ export function buildServerFeaturesResponse(overrides: FixtureOverrides = {}): F
                 media: {
                     generated: { enabled: overrides.sessionMediaGeneratedEnabled ?? false },
                 },
-            },
-            pets: {
-                companion: { enabled: overrides.petsCompanionEnabled ?? false },
-                sync: { enabled: overrides.petsSyncEnabled ?? false },
             },
             automations: {
                 enabled: overrides.automationsEnabled ?? true,
@@ -195,7 +188,6 @@ export function buildServerFeaturesResponse(overrides: FixtureOverrides = {}): F
                 requested: voiceEnabled,
                 disabledByBuildPolicy: false,
             },
-            pets: DEFAULT_PETS_CAPABILITIES,
             sharing: {
                 pendingQueueV2: {
                     deliveryState: false,

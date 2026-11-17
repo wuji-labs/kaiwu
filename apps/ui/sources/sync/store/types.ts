@@ -23,7 +23,6 @@ import type { CustomerInfo } from '../domains/purchases/types';
 import type { ApplyMachinesOptions } from './domains/machines';
 import type { SessionMessages } from './domains/messages';
 import type { SessionPending } from './domains/pending';
-import type { PetsDomain } from './domains/pets';
 import type {
     EndpointConnectivitySnapshot,
     EndpointConnectivityStatus,
@@ -349,7 +348,6 @@ export type StorageState = SettingsDomainSlice
     & TodosDomainSlice
     & ArtifactsDomainSlice
     & AutomationsDomainSlice
-    & PetsDomain
     & ProjectDomainSlice
     & FriendsDomainSlice
     & FeedDomainSlice

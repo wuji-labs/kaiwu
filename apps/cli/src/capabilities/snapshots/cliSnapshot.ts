@@ -11,7 +11,7 @@ import type { CliAuthSpec, CliAuthStatus } from '@/backends/types';
 import { resolveProviderCliCommand } from '@/runtime/managedTools/providerCliResolution';
 import { resolveJavaScriptRuntimeExecutable } from '@/runtime/js/resolveJavaScriptRuntimeExecutable';
 import { AsyncTtlCache } from '@happier-dev/protocol';
-import { getProviderCliRuntimeSpec } from '@happier-dev/agents';
+import { DEFAULT_ACTIVE_AGENT_IDS, getProviderCliRuntimeSpec } from '@happier-dev/agents';
 import { isProviderCliPathRunnable, providerCliPathRequiresJavaScriptRuntime } from '@happier-dev/cli-common/providers';
 import { resolveWindowsCommandInvocation, resolveWindowsCommandOnPath } from '@happier-dev/cli-common/process';
 
@@ -19,6 +19,14 @@ const execFileAsync = promisify(execFile);
 type ExecFileBestEffortOptions = ExecOptions & Readonly<{ windowsVerbatimArguments?: boolean }>;
 
 export type DetectCliName = CatalogAgentId;
+
+/**
+ * Agents probed when a snapshot request names no explicit CLIs. Cold adapters
+ * stay resolvable through an explicit `requestedCliNames` entry, but they no
+ * longer pay a version/auth/launch-command probe on every default snapshot.
+ */
+const DEFAULT_PROBE_CLI_NAMES: readonly DetectCliName[] = DEFAULT_ACTIVE_AGENT_IDS
+    .filter((agentId) => Object.prototype.hasOwnProperty.call(AGENTS, agentId)) as readonly DetectCliName[];
 
 export interface DetectCliRequest {
     /**
@@ -627,7 +635,7 @@ export async function detectCliSnapshotOnDaemonPath(data: DetectCliRequest): Pro
 
     const names = requestedCliNames.length > 0
         ? requestedCliNames
-        : Object.keys(AGENTS) as DetectCliName[];
+        : DEFAULT_PROBE_CLI_NAMES;
 
     const pairs = await Promise.all(
         names.map(async (name) => {

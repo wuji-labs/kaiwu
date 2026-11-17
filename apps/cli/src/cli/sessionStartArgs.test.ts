@@ -99,30 +99,6 @@ describe('parseSessionStartArgs', () => {
     expect(trapped.error).toBeNull();
   });
 
-  it('treats --permission-mode plan as a deprecated alias for --agent-mode plan on OpenCode', () => {
-    const parsed = parseSessionStartArgs(['happier', '--permission-mode', 'plan']);
-    const resolved = applyDeprecatedSessionStartAliasesForAgent({
-      agentId: 'opencode',
-      ...parsed,
-    });
-
-    expect(resolved.agentModeId).toBe('plan');
-    expect(resolved.permissionMode).toBe('read-only');
-    expect(resolved.warnings.join(' ')).toMatch(/deprecated/i);
-  });
-
-  it('treats --permission-mode plan as a deprecated alias for --agent-mode plan on Kilo', () => {
-    const parsed = parseSessionStartArgs(['happier', '--permission-mode', 'plan']);
-    const resolved = applyDeprecatedSessionStartAliasesForAgent({
-      agentId: 'kilo',
-      ...parsed,
-    });
-
-    expect(resolved.agentModeId).toBe('plan');
-    expect(resolved.permissionMode).toBe('read-only');
-    expect(resolved.warnings.join(' ')).toMatch(/deprecated/i);
-  });
-
   it('treats --permission-mode plan as a deprecated alias for --agent-mode plan on Claude', () => {
     const parsed = parseSessionStartArgs(['happier', '--permission-mode', 'plan']);
     const resolved = applyDeprecatedSessionStartAliasesForAgent({

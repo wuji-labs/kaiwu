@@ -16,7 +16,7 @@ vi.mock('./createConfiguredAcpProbeBackend', () => ({
 
 vi.mock('@/backends/catalog', () => ({
   AGENTS: {
-    opencode: {
+    gemini: {
       resolveModelsProbeVariant: ({ connectedServices }: { connectedServices?: { bindingsByServiceId?: Record<string, { selection?: string; groupId?: string; profileId?: string }> } | null }) => {
         const binding = connectedServices?.bindingsByServiceId?.['openai-codex'];
         if (binding?.selection === 'group') return `test:group:${binding.groupId ?? ''}`;
@@ -59,9 +59,9 @@ describe('probeAgentModelsBestEffort (cache)', () => {
     const countFile = resolve(join(fixture.dir, 'count.txt'));
     await writeFile(countFile, '', 'utf8');
 
-    const opencodePath = resolve(join(binDir, 'opencode'));
+    const geminiPath = resolve(join(binDir, 'gemini'));
     await writeExecutableScript(
-      opencodePath,
+      geminiPath,
       process.platform === 'win32'
         ? `@echo off\r\nif not "%HAPPIER_TEST_PROBE_COUNT_FILE%"=="" echo|set /p=1>> "%HAPPIER_TEST_PROBE_COUNT_FILE%"\r\nif "%1"=="models" (\r\necho openai/gpt-4.1\r\necho openai/gpt-4.1-mini\r\nexit /b 0\r\n)\r\nexit /b 1\r\n`
         : `#!/bin/sh\nif [ -n \"$HAPPIER_TEST_PROBE_COUNT_FILE\" ]; then printf 1 >> \"$HAPPIER_TEST_PROBE_COUNT_FILE\"; fi\nif [ \"$1\" = \"models\" ]; then\n  printf '%s\\n' 'openai/gpt-4.1' 'openai/gpt-4.1-mini'\n  exit 0\nfi\nexit 1\n`,
@@ -69,17 +69,17 @@ describe('probeAgentModelsBestEffort (cache)', () => {
 
     const prevPath = process.env.PATH;
     const prevCountFile = process.env.HAPPIER_TEST_PROBE_COUNT_FILE;
-    const prevOverride = process.env.HAPPIER_OPENCODE_PATH;
+    const prevOverride = process.env.HAPPIER_GEMINI_PATH;
     process.env.PATH = `${binDir}${delimiter}${prevPath ?? ''}`;
     process.env.HAPPIER_TEST_PROBE_COUNT_FILE = countFile;
-    process.env.HAPPIER_OPENCODE_PATH = opencodePath;
+    process.env.HAPPIER_GEMINI_PATH = geminiPath;
     try {
       const { probeAgentModelsBestEffort } = await import('./agentModelsProbe');
 
-      const first = await probeAgentModelsBestEffort({ agentId: 'opencode', cwd: fixture.dir, timeoutMs: 2_000 });
+      const first = await probeAgentModelsBestEffort({ agentId: 'gemini', cwd: fixture.dir, timeoutMs: 2_000 });
       expect(first.source).toBe('dynamic');
 
-      const second = await probeAgentModelsBestEffort({ agentId: 'opencode', cwd: fixture.dir, timeoutMs: 2_000 });
+      const second = await probeAgentModelsBestEffort({ agentId: 'gemini', cwd: fixture.dir, timeoutMs: 2_000 });
       expect(second.source).toBe('dynamic');
 
       const count = (await readFile(countFile, 'utf8')).trim();
@@ -92,9 +92,9 @@ describe('probeAgentModelsBestEffort (cache)', () => {
         delete process.env.HAPPIER_TEST_PROBE_COUNT_FILE;
       }
       if (typeof prevOverride === 'string') {
-        process.env.HAPPIER_OPENCODE_PATH = prevOverride;
+        process.env.HAPPIER_GEMINI_PATH = prevOverride;
       } else {
-        delete process.env.HAPPIER_OPENCODE_PATH;
+        delete process.env.HAPPIER_GEMINI_PATH;
       }
       await fixture.cleanup();
     }
@@ -131,13 +131,13 @@ describe('probeAgentModelsBestEffort (cache)', () => {
       } as const;
 
       const group = await probeAgentModelsBestEffort({
-        agentId: 'opencode',
+        agentId: 'gemini',
         cwd: fixture.dir,
         timeoutMs: 2_000,
         connectedServices: groupConnectedServices,
       });
       const profile = await probeAgentModelsBestEffort({
-        agentId: 'opencode',
+        agentId: 'gemini',
         cwd: fixture.dir,
         timeoutMs: 2_000,
         connectedServices: profileConnectedServices,

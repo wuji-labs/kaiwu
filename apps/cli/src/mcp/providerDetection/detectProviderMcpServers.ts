@@ -2,7 +2,6 @@ import type { DaemonMcpServersDetectWarningV1, DetectedMcpServerV1, McpDetectedP
 
 import { detectClaudeMcpServers } from '@/backends/claude/mcp/detectClaudeMcpServers';
 import { detectCodexMcpServers } from '@/backends/codex/mcp/detectCodexMcpServers';
-import { detectOpenCodeMcpServers } from '@/backends/opencode/mcp/detectOpenCodeMcpServers';
 
 export type DetectProviderMcpServersResult = Readonly<{
   servers: ReadonlyArray<DetectedMcpServerV1>;
@@ -13,7 +12,7 @@ function normalizeProvidersFilter(input: unknown): ReadonlySet<McpDetectedProvid
   if (!Array.isArray(input) || input.length === 0) return null;
   const out = new Set<McpDetectedProviderV1>();
   for (const entry of input) {
-    if (entry === 'claude' || entry === 'codex' || entry === 'opencode') out.add(entry);
+    if (entry === 'claude' || entry === 'codex') out.add(entry);
   }
   return out.size > 0 ? out : null;
 }
@@ -40,12 +39,6 @@ export async function detectProviderMcpServers(params: Readonly<{
 
   if (include('codex')) {
     const out = await detectCodexMcpServers({ env });
-    servers.push(...out.servers);
-    warnings.push(...out.warnings);
-  }
-
-  if (include('opencode')) {
-    const out = await detectOpenCodeMcpServers({ directory, env });
     servers.push(...out.servers);
     warnings.push(...out.warnings);
   }

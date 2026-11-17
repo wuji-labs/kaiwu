@@ -24,8 +24,6 @@ describe('isPublicRouteForUnauthenticated', () => {
         { name: 'grouped account connect route', segments: ['(app)', 'account'], expected: true },
         { name: 'mTLS callback route', segments: ['mtls'], expected: true },
         { name: 'grouped mTLS callback route', segments: ['(app)', 'mtls'], expected: true },
-        { name: 'desktop pet overlay route', segments: ['desktop', 'pet-overlay'], expected: true },
-        { name: 'nested desktop pet overlay route', segments: ['(app)', 'desktop', 'pet-overlay'], expected: true },
         { name: 'oauth return route', segments: ['oauth', 'github'], expected: true },
         { name: 'grouped oauth return route', segments: ['(app)', 'oauth', 'github'], expected: true },
         { name: 'private settings route', segments: ['settings'], expected: false },

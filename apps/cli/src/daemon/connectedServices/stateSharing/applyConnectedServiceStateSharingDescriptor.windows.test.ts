@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 function createDescriptor(): ConnectedServiceStateSharingDescriptor {
   return {
-    providerId: 'pi',
+    providerId: 'gemini',
     providerSupportStatus: 'supported',
     config: {
       supported: false,
@@ -21,7 +21,7 @@ function createDescriptor(): ConnectedServiceStateSharingDescriptor {
     },
     authIsolation: {
       mode: 'materialized_home',
-      secretEntries: ['auth.json'],
+      secretEntries: ['.gemini/oauth_creds.json'],
     },
   };
 }

@@ -95,23 +95,6 @@ describe('detectCliSnapshotOnDaemonPath', () => {
     },
   );
 
-  it.skipIf(process.platform === 'win32')(
-    'detects OpenCode in ~/.opencode/bin even when it is not on PATH',
-    async () => {
-      const opencodeBinDir = join(homeDir, '.opencode', 'bin');
-      mkdirSync(opencodeBinDir, { recursive: true });
-      const opencodePath = makeExecutableShim({
-        dir: opencodeBinDir,
-        name: 'opencode',
-        stdout: 'echo "0.4.1"',
-      });
-
-      const snapshot = await detectCliSnapshotOnDaemonPath({});
-      expect(snapshot.clis.opencode.available).toBe(true);
-      expect(snapshot.clis.opencode.resolvedPath).toBe(opencodePath);
-      expect(snapshot.clis.opencode.version).toBe('0.4.1');
-    },
-  );
 
   it('detects Claude when HAPPIER_CLAUDE_PATH is set even when it is not on PATH', async () => {
     const binDir = join(workDir, 'bin');
@@ -176,22 +159,6 @@ describe('detectCliSnapshotOnDaemonPath', () => {
     },
   );
 
-  it('detects OpenCode when HAPPIER_OPENCODE_PATH is set even when it is not on PATH', async () => {
-    const binDir = join(workDir, 'bin');
-    mkdirSync(binDir, { recursive: true });
-    const opencodePath = makeExecutableShim({
-      dir: binDir,
-      name: 'opencode',
-      stdout: 'echo "0.0.0-test (OpenCode)"',
-    });
-
-    setEnv('HAPPIER_OPENCODE_PATH', opencodePath);
-
-    const snapshot = await detectCliSnapshotOnDaemonPath({});
-    expect(snapshot.clis.opencode.available).toBe(true);
-    expect(snapshot.clis.opencode.resolvedPath).toBe(opencodePath);
-    expect(snapshot.clis.opencode.version).toBe('0.0.0-test');
-  });
 
   it.skipIf(process.platform === 'win32')(
     'fails closed for a system node-shebang CLI when the explicit JavaScript runtime override is invalid',
@@ -669,77 +636,6 @@ describe('detectCliSnapshotOnDaemonPath', () => {
     },
   );
 
-  it.skipIf(process.platform === 'win32')(
-    'parses OpenCode auth status from `auth list` output',
-    async () => {
-      const binDir = join(workDir, 'bin');
-      mkdirSync(binDir, { recursive: true });
 
-      makeExecutableShim({
-        dir: binDir,
-        name: 'opencode',
-        stdout: [
-          'if [ "$1" = "--version" ] || [ "$1" = "version" ] || [ "$1" = "-v" ]; then',
-          '  echo "0.4.1"',
-          '  exit 0',
-          'fi',
-          'if [ "$1" = "auth" ] && [ "$2" = "list" ]; then',
-          '  echo "openai alice@example.com default"',
-          '  exit 0',
-          'fi',
-          'exit 1',
-        ].join('\n'),
-      });
 
-      setEnv('PATH', binDir);
-
-      const snapshot = await detectCliSnapshotOnDaemonPath({ includeLoginStatus: true });
-      expect(snapshot.clis.opencode.available).toBe(true);
-      expect(snapshot.clis.opencode.isLoggedIn).toBe(true);
-      expect(snapshot.clis.opencode.authStatus).toMatchObject({
-        state: 'logged_in',
-        method: 'oauth_cli',
-        source: 'command',
-        accountLabel: 'alice@example.com',
-      });
-    },
-  );
-
-  it('detects Kilo from the canonical `kilo` binary', async () => {
-    const binDir = join(workDir, 'bin');
-    mkdirSync(binDir, { recursive: true });
-    const kiloPath = makeExecutableShim({
-      dir: binDir,
-      name: 'kilo',
-      stdout: 'echo "1.0.0"',
-    });
-
-    setEnv('PATH', binDir);
-
-    const snapshot = await detectCliSnapshotOnDaemonPath({});
-    expect(snapshot.clis.kilo.available).toBe(true);
-    expect(snapshot.clis.kilo.resolvedPath).toBe(kiloPath);
-  });
-
-  it('reports Pi auth details from OPENAI_API_KEY', async () => {
-    const binDir = join(workDir, 'bin');
-    mkdirSync(binDir, { recursive: true });
-    makeExecutableShim({
-      dir: binDir,
-      name: 'pi',
-      stdout: 'echo "0.1.0"',
-    });
-
-    setEnv('PATH', binDir);
-    setEnv('OPENAI_API_KEY', 'sk-openai-test');
-
-    const snapshot = await detectCliSnapshotOnDaemonPath({ includeLoginStatus: true });
-    expect(snapshot.clis.pi.available).toBe(true);
-    expect(snapshot.clis.pi.isLoggedIn).toBe(true);
-    expect(snapshot.clis.pi.authStatus).toMatchObject({
-      state: 'logged_in',
-      method: 'api_key_env',
-      source: 'env',
-    });
-  });
 });

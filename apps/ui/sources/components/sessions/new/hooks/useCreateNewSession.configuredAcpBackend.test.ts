@@ -94,8 +94,6 @@ async function setupHarness() {
         loadThemePreference: () => 'adaptive',
         loadPurchases: () => ({}),
         savePurchases: vi.fn(),
-        loadLocalPetSourcesBySourceKey: () => ({}),
-        saveLocalPetSourcesBySourceKey: vi.fn(),
         loadSessionDrafts: () => ({}),
         saveSessionDrafts: vi.fn(),
         loadSessionReviewCommentsDrafts: () => ({}),

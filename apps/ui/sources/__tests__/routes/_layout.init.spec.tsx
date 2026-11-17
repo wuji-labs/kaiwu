@@ -24,9 +24,6 @@ const shellChromeState = vi.hoisted(() => ({
     isTauriDesktop: false,
     isTablet: true,
 }));
-const desktopPetOverlayWindowState = vi.hoisted(() => ({
-    value: false,
-}));
 const authContextState = vi.hoisted(() => ({
     liveIsAuthenticated: null as boolean | null,
 }));
@@ -143,10 +140,6 @@ vi.mock('@/utils/platform/tauri', () => ({
 
 vi.mock('@/utils/platform/responsive', () => ({
     useIsTablet: () => shellChromeState.isTablet,
-}));
-
-vi.mock('@/components/pets/desktop/runtime/isDesktopPetOverlayWindowContext', () => ({
-    isDesktopPetOverlayWindowContext: () => desktopPetOverlayWindowState.value,
 }));
 
 vi.mock('@/components/ui/layout/useChromeSafeAreaInsets', () => ({
@@ -387,7 +380,6 @@ describe('app/_layout init resilience', () => {
         bootCredentialsState.value = null;
         shellChromeState.isTauriDesktop = false;
         shellChromeState.isTablet = true;
-        desktopPetOverlayWindowState.value = false;
         authContextState.liveIsAuthenticated = null;
         notificationNativeState.unavailable = false;
         // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
@@ -899,17 +891,4 @@ describe('app/_layout init resilience', () => {
         expect(dragSurface?.props.leftOffsetPx).toBe(0);
     });
 
-    it('restores sync state in the desktop pet overlay window without rendering root shell update chrome', async () => {
-        bootCredentialsState.value = { token: 'token', secret: 'secret' };
-        shellChromeState.isTauriDesktop = true;
-        shellChromeState.isTablet = false;
-        desktopPetOverlayWindowState.value = true;
-
-        const screen = await renderSettledRootLayout();
-
-        expect(screen.findAllByTestId('desktop-fallback-shell-chrome')).toHaveLength(0);
-        expect(screen.findAllByTestId('root-shell-app-update-status-tag')).toHaveLength(0);
-        expect(screen.findAllByTestId('desktop-main-content-drag-surface')).toHaveLength(0);
-        expect(syncRestoreMock).toHaveBeenCalledWith({ token: 'token', secret: 'secret' });
-    });
 });

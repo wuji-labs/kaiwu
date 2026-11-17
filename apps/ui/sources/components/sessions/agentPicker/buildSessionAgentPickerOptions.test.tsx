@@ -35,11 +35,11 @@ const availablePresentation = { disabled: false, muted: false } as const;
 describe('buildSessionAgentPickerOptions', () => {
     it('leads with favorites, then applicable rows, then blocked rows', () => {
         const options = buildSessionAgentPickerOptions({
-            entries: [entry('claude'), entry('codex'), entry('gemini'), entry('kimi')],
+            entries: [entry('claude'), entry('codex'), entry('gemini'), entry('customAcp')],
             favoriteBackendTargetKeys: ['builtInAgent:gemini'],
             leadingOptions: [{ id: 'favorite-models', label: 'Favorites' }],
             resolvePresentation: (candidate) => {
-                if (candidate.providerAgentId === 'kimi') {
+                if (candidate.providerAgentId === 'customAcp') {
                     return { subtitle: 'CLI not detected', disabled: true, muted: true };
                 }
                 if (candidate.providerAgentId === 'codex') {
@@ -55,15 +55,15 @@ describe('buildSessionAgentPickerOptions', () => {
             'builtInAgent:gemini',
             'builtInAgent:claude',
             'builtInAgent:codex',
-            'builtInAgent:kimi',
+            'builtInAgent:customAcp',
         ]);
     });
 
     it('carries the caller-owned explanation, availability, and behavior onto each row', () => {
         const onSelectImmediate = vi.fn();
         const options = buildSessionAgentPickerOptions({
-            entries: [entry('codex'), entry('kimi')],
-            resolvePresentation: (candidate) => (candidate.providerAgentId === 'kimi'
+            entries: [entry('codex'), entry('customAcp')],
+            resolvePresentation: (candidate) => (candidate.providerAgentId === 'customAcp'
                 ? { subtitle: 'Update the CLI', disabled: true, muted: true }
                 : availablePresentation),
             resolveBehavior: ({ presentation, entry: candidate }) => (presentation.disabled
@@ -80,7 +80,7 @@ describe('buildSessionAgentPickerOptions', () => {
             closeOnSelectImmediate: false,
         });
         expect(kimiOption).toMatchObject({
-            id: 'builtInAgent:kimi',
+            id: 'builtInAgent:customAcp',
             disabled: true,
             muted: true,
             subtitle: 'Update the CLI',

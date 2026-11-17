@@ -6,7 +6,6 @@ export type AppShellChromeHost =
 
 export type ResolveAppShellChromeHostParams = Readonly<{
     isAuthenticated: boolean;
-    isDesktopPetOverlayWindow: boolean;
     isWeb: boolean;
     isTauriDesktop: boolean;
     isTablet: boolean;
@@ -16,7 +15,7 @@ export type ResolveAppShellChromeHostParams = Readonly<{
 export function resolveAppShellChromeHost(
     params: ResolveAppShellChromeHostParams,
 ): AppShellChromeHost {
-    if (params.isTerminalConnectRoute || params.isDesktopPetOverlayWindow) {
+    if (params.isTerminalConnectRoute) {
         return 'none';
     }
 
