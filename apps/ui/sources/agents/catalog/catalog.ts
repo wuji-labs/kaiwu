@@ -51,7 +51,8 @@ export function getAgentCore(id: AgentId): AgentCoreConfig {
 }
 
 export function getAgentUi(id: AgentId): AgentUiConfig {
-    return registryUi().AGENTS_UI[id];
+    const ui = registryUi();
+    return ui.AGENTS_UI[id] ?? ui.AGENTS_UI[DEFAULT_AGENT_ID];
 }
 
 export function getAgentIconSource(agentId: AgentId): ReturnType<RegistryUiModule['getAgentIconSource']> {

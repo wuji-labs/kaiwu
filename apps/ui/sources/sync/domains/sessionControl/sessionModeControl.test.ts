@@ -29,9 +29,9 @@ function createMetadata(overrides: Partial<Metadata> = {}): Metadata {
 describe('sessionModeControl', () => {
   it('supportsSessionModeOverrides reflects agent catalog intent', async () => {
     const { supportsSessionModeOverrides } = await import('./sessionModeControl');
-    expect(supportsSessionModeOverrides('opencode' as never)).toBe(true);
     expect(supportsSessionModeOverrides('claude')).toBe(true);
     expect(supportsSessionModeOverrides('codex')).toBe(true);
+    expect(supportsSessionModeOverrides('gemini')).toBe(false);
   });
 
   it('computeSessionModePickerControl returns ACP modes and effective selection', async () => {
@@ -39,7 +39,7 @@ describe('sessionModeControl', () => {
     const metadata = createMetadata({
       sessionModesV1: {
         v: 1,
-        provider: 'opencode' as never,
+        provider: 'codex' as never,
         updatedAt: 1,
         currentModeId: 'build',
         availableModes: [
@@ -49,7 +49,7 @@ describe('sessionModeControl', () => {
       },
     });
 
-    const res = computeSessionModePickerControl({ agentId: 'opencode' as never, metadata });
+    const res = computeSessionModePickerControl({ agentId: 'codex' as never, metadata });
     expect(res).not.toBeNull();
     expect(res?.currentModeId).toBe('build');
     expect(res?.effectiveModeId).toBe('build');
@@ -61,7 +61,7 @@ describe('sessionModeControl', () => {
     const metadata = createMetadata({
       sessionModesV1: {
         v: 1,
-        provider: 'opencode' as never,
+        provider: 'codex' as never,
         updatedAt: 1,
         currentModeId: 'review',
         availableModes: [
@@ -72,7 +72,7 @@ describe('sessionModeControl', () => {
       },
     });
 
-    const res = computeSessionModePickerControl({ agentId: 'opencode' as never, metadata });
+    const res = computeSessionModePickerControl({ agentId: 'codex' as never, metadata });
     expect(res?.options.map((option) => option.id)).toEqual(['default', 'plan', 'review']);
     expect(res?.options.map((option) => option.name)).toEqual(['Build', 'Plan', 'Human review']);
   });
@@ -82,7 +82,7 @@ describe('sessionModeControl', () => {
     const metadata = createMetadata({
       sessionModesV1: {
         v: 1,
-        provider: 'opencode' as never,
+        provider: 'codex' as never,
         updatedAt: 1,
         currentModeId: 'build',
         availableModes: [{ id: 'build', name: 'Build' }, { id: 'plan', name: 'Plan' }],
@@ -90,7 +90,7 @@ describe('sessionModeControl', () => {
       sessionModeOverrideV1: { v: 1, updatedAt: 2, modeId: 'plan' },
     });
 
-    const res = computeSessionModePickerControl({ agentId: 'opencode' as never, metadata });
+    const res = computeSessionModePickerControl({ agentId: 'codex' as never, metadata });
     expect(res?.effectiveModeId).toBe('plan');
     expect(res?.isPending).toBe(true);
     expect(res?.requestedModeId).toBe('plan');
@@ -133,7 +133,7 @@ describe('sessionModeControl', () => {
     const metadata = createMetadata({
       acpSessionModesV1: {
         v: 1,
-        provider: 'opencode' as never,
+        provider: 'codex' as never,
         updatedAt: 1,
         currentModeId: 'build',
         availableModes: [{ id: 'build', name: 'Build' }, { id: 'plan', name: 'Plan' }],
@@ -141,7 +141,7 @@ describe('sessionModeControl', () => {
       acpSessionModeOverrideV1: { v: 1, updatedAt: 2, modeId: 'plan' },
     });
 
-    const res = computeSessionModePickerControl({ agentId: 'opencode' as never, metadata });
+    const res = computeSessionModePickerControl({ agentId: 'codex' as never, metadata });
     expect(res?.effectiveModeId).toBe('plan');
   });
 
@@ -193,7 +193,7 @@ describe('sessionModeControl', () => {
     const metadata = createMetadata({
       sessionModesV1: {
         v: 1,
-        provider: 'opencode' as never,
+        provider: 'codex' as never,
         updatedAt: 1,
         currentModeId: 'build',
         availableModes: [
@@ -203,7 +203,7 @@ describe('sessionModeControl', () => {
       },
     });
 
-    const control = computeSessionModePickerControl({ agentId: 'opencode' as never, metadata });
+    const control = computeSessionModePickerControl({ agentId: 'codex' as never, metadata });
     expect(resolveRequestedSessionModeIdForMetadata(control, 'default')).toBe('');
   });
 });

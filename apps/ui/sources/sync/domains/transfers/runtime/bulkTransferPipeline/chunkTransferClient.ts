@@ -156,6 +156,7 @@ async function uploadInChunksOnce<
     requestObjectStoreRelay: boolean,
 ): Promise<Readonly<{ result: TFinalize | { success: false; error: string }; relayFailed: boolean }>> {
     let uploadId: string | null = null;
+    let pendingPrefetch: Promise<unknown> | null = null;
     const done = (result: TFinalize | { success: false; error: string }) => ({ result, relayFailed: false });
 
     try {
@@ -251,6 +252,7 @@ async function uploadInChunksOnce<
                 // send, or an earlier encryption failure); swallow the rejection so it is not reported
                 // as an unhandled rejection. Awaiting the same promise still observes the error.
                 pending.catch(() => undefined);
+                pendingPrefetch = pending;
                 return pending;
             };
 
@@ -272,6 +274,7 @@ async function uploadInChunksOnce<
                 // Read + encrypt the next chunk while this chunk's RPC round trip is in flight, so
                 // encryption latency and network latency overlap instead of stacking per chunk.
                 prefetched = index + 1 < chunkCount ? prepareChunk(index + 1) : null;
+                if (!prefetched) pendingPrefetch = null;
 
                 const chunk = await runUploadRpcWithLifecycleRecovery(() => params.sendChunk({
                     uploadId: currentUploadId,
@@ -298,6 +301,15 @@ async function uploadInChunksOnce<
         uploadId = null;
         return done(finalized);
     } finally {
+        if (pendingPrefetch) {
+            try {
+                await pendingPrefetch;
+            } catch {
+                // The active upload result already reports the failure; this drain only protects
+                // the file reader from being closed while a discarded prefetch is still reading.
+            }
+            pendingPrefetch = null;
+        }
         if (uploadId) {
             try {
                 await params.abort?.({ uploadId });

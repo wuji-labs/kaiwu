@@ -51,6 +51,67 @@ describe('bulkTransferPipeline', () => {
         expect(close).toHaveBeenCalledTimes(1);
     });
 
+    it('waits for a prefetched native read before closing the reader after a chunk failure', async () => {
+        let prefetchStarted = false;
+        let releasePrefetch: (() => void) | null = null;
+        let resolvePrefetchStarted: (() => void) | null = null;
+        const prefetchStartedPromise = new Promise<void>((resolve) => {
+            resolvePrefetchStarted = resolve;
+        });
+        let prefetchFinished = false;
+        let closeObservedPrefetchFinished = false;
+        const close = vi.fn(async () => {
+            closeObservedPrefetchFinished = prefetchFinished;
+        });
+        const readBytes = vi.fn(async (offset: number, length: number) => {
+            if (offset === 2) {
+                prefetchStarted = true;
+                resolvePrefetchStarted?.();
+                await new Promise<void>((resolve) => {
+                    releasePrefetch = resolve;
+                });
+                prefetchFinished = true;
+            }
+            return new TextEncoder().encode('hello').subarray(offset, offset + length);
+        });
+        let resolveFailure: (() => void) | null = null;
+        const failureGate = new Promise<void>((resolve) => {
+            resolveFailure = resolve;
+        });
+        const sendChunk = vi.fn(async (request: { index: number }) => {
+            if (request.index === 0) {
+                await prefetchStartedPromise;
+                await failureGate;
+                return { success: false as const, error: 'chunk failed' };
+            }
+            return { success: true as const };
+        });
+
+        const uploadPromise = uploadBulkPayloadFromFile({
+            fileReader: {
+                sizeBytes: 5,
+                readBytes,
+                close,
+            },
+            init: async () => ({
+                success: true as const,
+                uploadId: 'upload-failure',
+                chunkSizeBytes: 2,
+                recipientPublicKeyBase64: Buffer.alloc(32, 9).toString('base64'),
+            }),
+            sendChunk,
+            finalize: async () => ({ success: true as const }),
+        });
+
+        await vi.waitFor(() => expect(prefetchStarted).toBe(true));
+        resolveFailure!();
+        await new Promise<void>((resolve) => setTimeout(resolve, 0));
+        releasePrefetch!();
+
+        await expect(uploadPromise).resolves.toEqual({ success: false, error: 'chunk failed' });
+        expect(closeObservedPrefetchFinished).toBe(true);
+    });
+
     it('downloads an encrypted payload into the provided file sink and closes it on success', async () => {
         const written: Uint8Array[] = [];
         const close = vi.fn(async () => {});

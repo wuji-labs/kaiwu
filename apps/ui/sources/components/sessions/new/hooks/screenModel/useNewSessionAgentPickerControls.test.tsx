@@ -866,20 +866,20 @@ describe('useNewSessionAgentPickerControls', () => {
         const setModelMode = vi.fn();
         const setAcpSessionModeId = vi.fn();
         const onRememberEngineSelection = vi.fn();
-        const kimiEntry = {
-            target: { kind: 'builtInAgent', agentId: 'kimi' },
-            targetKey: 'agent:kimi',
+        const geminiEntry = {
+            target: { kind: 'builtInAgent', agentId: 'gemini' },
+            targetKey: 'agent:gemini',
             title: 'Kimi',
             subtitle: null,
-            providerAgentId: 'kimi',
-            builtInAgentId: 'kimi',
-            iconAgentId: 'kimi',
+            providerAgentId: 'gemini',
+            builtInAgentId: 'gemini',
+            iconAgentId: 'gemini',
         } as const;
 
         const hook = await renderHook(() => useNewSessionAgentPickerControls(buildAgentPickerHookParams({
             resolvedBackendEntries: [
                 ...buildAgentPickerHookParams().resolvedBackendEntries,
-                kimiEntry as any,
+                geminiEntry as any,
             ],
             setBackendTarget,
             setModelMode: setModelMode as any,
@@ -888,13 +888,13 @@ describe('useNewSessionAgentPickerControls', () => {
             onRememberEngineSelection,
         })));
 
-        hook.getCurrent().handleAgentPickerSelect('agent:kimi');
+        hook.getCurrent().handleAgentPickerSelect('agent:gemini');
 
-        expect(setBackendTarget).toHaveBeenCalledWith({ kind: 'builtInAgent', agentId: 'kimi' });
+        expect(setBackendTarget).toHaveBeenCalledWith({ kind: 'builtInAgent', agentId: 'gemini' });
         expect(setModelMode).toHaveBeenCalledWith('default');
         expect(setAcpSessionModeId).toHaveBeenCalledWith(null);
         expect(onRememberEngineSelection).toHaveBeenCalledWith(
-            { kind: 'builtInAgent', agentId: 'kimi' },
+            { kind: 'builtInAgent', agentId: 'gemini' },
             {
                 modelId: 'default',
                 acpSessionModeId: null,

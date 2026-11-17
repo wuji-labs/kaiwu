@@ -1,7 +1,7 @@
 import type { ImageSourcePropType } from 'react-native';
 import type { UnistylesThemes } from 'react-native-unistyles';
 
-import type { AgentId } from './registryCore';
+import { DEFAULT_AGENT_ID, type AgentId } from './registryCore';
 
 import { CLAUDE_UI } from '@/agents/providers/claude/ui';
 import { CODEX_UI } from '@/agents/providers/codex/ui';
@@ -45,37 +45,41 @@ export const AGENTS_UI: Readonly<Record<AgentId, AgentUiConfig>> = Object.freeze
     customAcp: CUSTOM_ACP_UI,
 });
 
+function getAgentUiConfig(agentId: AgentId): AgentUiConfig {
+    const config = (AGENTS_UI as Partial<Record<AgentId, AgentUiConfig>>)[agentId];
+    return config ?? AGENTS_UI[DEFAULT_AGENT_ID];
+}
+
 export function getAgentIconSource(agentId: AgentId): ImageSourcePropType | null {
-    return AGENTS_UI[agentId].icon;
+    return getAgentUiConfig(agentId).icon;
 }
 
 export function getAgentIconSvgXml(
     agentId: AgentId,
     theme: UnistylesThemes[keyof UnistylesThemes],
 ): string | null {
-    const resolveSvgXml = AGENTS_UI[agentId].svgIconXml;
+    const resolveSvgXml = getAgentUiConfig(agentId).svgIconXml;
     return resolveSvgXml ? resolveSvgXml(theme) : null;
 }
 
 export function getAgentIconTintColor(agentId: AgentId, theme: UnistylesThemes[keyof UnistylesThemes]): string | undefined {
-    const tint = AGENTS_UI[agentId].tintColor;
+    const tint = getAgentUiConfig(agentId).tintColor;
     if (!tint) return undefined;
     return tint(theme);
 }
 
 export function getAgentPickerIconScale(agentId: AgentId): number {
-    const cfg = AGENTS_UI[agentId];
-    if (!cfg) return 1;
+    const cfg = getAgentUiConfig(agentId);
     return cfg.pickerIconScale ?? 1;
 }
 
 export function getAgentAvatarOverlaySizes(agentId: AgentId, size: number): { circleSize: number; iconSize: number } {
-    const cfg = AGENTS_UI[agentId];
+    const cfg = getAgentUiConfig(agentId);
     const circleSize = Math.round(size * cfg.avatarOverlay.circleScale);
     const iconSize = cfg.avatarOverlay.iconScale({ size });
     return { circleSize, iconSize };
 }
 
 export function getAgentCliGlyph(agentId: AgentId): string {
-    return AGENTS_UI[agentId].cliGlyph;
+    return getAgentUiConfig(agentId).cliGlyph;
 }

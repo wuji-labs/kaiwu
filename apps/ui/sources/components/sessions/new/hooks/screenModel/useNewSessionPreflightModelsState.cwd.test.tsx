@@ -36,7 +36,7 @@ describe('useNewSessionPreflightModelsState', () => {
 
     function Harness() {
       useNewSessionPreflightModelsState({
-        backendTarget: { kind: 'builtInAgent', agentId: 'opencode' },
+        backendTarget: { kind: 'builtInAgent', agentId: 'codex' },
         selectedMachineId: 'machine-1',
         capabilityServerId: 'server-1',
         cwd: '/repo',
@@ -53,7 +53,7 @@ describe('useNewSessionPreflightModelsState', () => {
     expect(machineCapabilitiesInvokeMock).toHaveBeenCalledTimes(1);
     const request = machineCapabilitiesInvokeMock.mock.calls[0]?.[1];
     expect(request).toMatchObject({
-      id: 'cli.opencode',
+      id: 'cli.codex',
       method: 'probeModels',
       params: expect.objectContaining({ cwd: '/repo' }),
     });

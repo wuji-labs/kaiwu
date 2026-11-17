@@ -13,6 +13,8 @@ import {
     resolveAgentIdFromFlavor,
     getAgentCore,
     AGENT_IDS,
+    DEFAULT_AGENT_ID,
+    type AgentId,
 } from './registryCore';
 import { buildAgentToolsUiConfig } from './buildAgentToolsUiConfig';
 
@@ -34,7 +36,6 @@ describe('agents/registryCore', () => {
     it('resolves known flavors and aliases to canonical agent ids', () => {
         expect(resolveAgentIdFromFlavor('claude')).toBe('claude');
         expect(resolveAgentIdFromFlavor('codex')).toBe('codex');
-        expect(resolveAgentIdFromFlavor('opencode')).toBe('opencode');
         expect(resolveAgentIdFromFlavor('gemini')).toBe('gemini');
 
         // Common Codex aliases found in persisted session metadata.
@@ -53,8 +54,6 @@ describe('agents/registryCore', () => {
         const cases = [
             { detectKey: 'claude', expected: 'claude' },
             { detectKey: 'codex', expected: 'codex' },
-            { detectKey: 'opencode', expected: 'opencode' },
-            { detectKey: 'kiro-cli', expected: 'kiro' },
             { detectKey: 'custom-acp', expected: 'customAcp' },
             { detectKey: '  ', expected: null },
             { detectKey: 'unknown', expected: null },
@@ -86,6 +85,12 @@ describe('agents/registryCore', () => {
         const customAcp = getAgentCore('customAcp');
         expect(customAcp.id).toBe('customAcp');
         expect(customAcp.cli.detectKey).toBe('custom-acp');
+    });
+
+    it('falls back to the default core for unknown or retired agent ids', () => {
+        const defaultCore = getAgentCore(DEFAULT_AGENT_ID);
+        expect(getAgentCore('unknown-agent' as AgentId)).toBe(defaultCore);
+        expect(getAgentCore('retired-agent' as AgentId)).toBe(defaultCore);
     });
 
     it('uses generic installer guidance instead of hardcoded package-manager commands', () => {

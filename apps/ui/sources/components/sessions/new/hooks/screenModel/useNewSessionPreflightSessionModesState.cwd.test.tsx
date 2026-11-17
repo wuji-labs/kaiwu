@@ -54,7 +54,7 @@ describe('useNewSessionPreflightSessionModesState (cwd)', () => {
     };
     function Harness() {
       latest = useNewSessionPreflightSessionModesState({
-        backendTarget: { kind: 'builtInAgent', agentId: 'opencode' },
+        backendTarget: { kind: 'builtInAgent', agentId: 'codex' },
         selectedMachineId: 'machine-1',
         capabilityServerId: 'server-1',
         cwd,
@@ -101,7 +101,7 @@ describe('useNewSessionPreflightSessionModesState (cwd)', () => {
 
     function Harness() {
       useNewSessionPreflightSessionModesState({
-        backendTarget: { kind: 'builtInAgent', agentId: 'opencode' },
+        backendTarget: { kind: 'builtInAgent', agentId: 'codex' },
         selectedMachineId: 'machine-1',
         capabilityServerId: 'server-1',
         cwd: '/repo',
@@ -117,7 +117,7 @@ describe('useNewSessionPreflightSessionModesState (cwd)', () => {
 
     expect(captured.length).toBeGreaterThan(0);
     expect(captured[0]).toMatchObject({
-      id: 'cli.opencode',
+      id: 'cli.codex',
       method: 'probeModes',
       params: expect.objectContaining({ timeoutMs: NEW_SESSION_CAPABILITY_PROBE_TIMEOUT_MS, cwd: '/repo' }),
     });

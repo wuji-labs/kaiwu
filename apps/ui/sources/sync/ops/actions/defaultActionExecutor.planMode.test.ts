@@ -119,10 +119,10 @@ vi.mock('@/sync/domains/state/storage', async () => {
           metadata: {
             path: '/tmp/project',
             host: 'localhost',
-            flavor: 'opencode',
+            flavor: 'codex',
             acpSessionModesV1: {
               v: 1,
-              provider: 'opencode',
+              provider: 'codex',
               updatedAt: 1,
               currentModeId: 'build',
               availableModes: [

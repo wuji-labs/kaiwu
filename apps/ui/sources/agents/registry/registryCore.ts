@@ -219,10 +219,7 @@ export function isAgentId(value: unknown): value is AgentId {
 
 export function getAgentCore(id: AgentId): AgentCoreConfig {
     const core = (AGENTS_CORE as Partial<Record<AgentId, AgentCoreConfig>>)[id];
-    if (!core) {
-        throw new Error(`Unsupported UI agent core: ${id}`);
-    }
-    return core;
+    return core ?? AGENTS_CORE[DEFAULT_AGENT_ID];
 }
 
 export function resolveAgentIdFromFlavor(flavor: string | null | undefined): AgentId | null {

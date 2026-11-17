@@ -127,7 +127,7 @@ vi.mock('@/sync/domains/state/storageStore', async () => {
 });
 
 vi.mock('@/agents/catalog/catalog', () => ({
-    AGENT_IDS: ['codex', 'claude', 'opencode', 'gemini'],
+    AGENT_IDS: ['codex', 'claude', 'gemini'],
     DEFAULT_AGENT_ID: 'codex',
     resolveAgentIdFromFlavor: () => null,
     getAgentCore: () => ({
@@ -148,7 +148,7 @@ vi.mock('@/agents/catalog/catalog', () => ({
     }),
     getAgentIconSource: () => null,
     getAgentIconSvgXml: (agentId: string) => (
-        agentId === 'codex' || agentId === 'pi' || agentId === 'opencode'
+        agentId === 'codex' || agentId === 'claude'
             ? '<svg viewBox="0 0 16 16"><path fill="#111111" d="M8 0 16 8 8 16 0 8Z" /></svg>'
             : null
     ),
@@ -699,7 +699,7 @@ describe('AgentInput (modelOptionsOverride)', () => {
             onSend: () => {},
             autocompleteKinds: [],
             autocompleteSuggestions: async () => [],
-            agentType: 'opencode',
+            agentType: 'codex',
             permissionMode: 'default',
             onPermissionModeChange: () => {},
             modelMode: 'default',
@@ -732,7 +732,7 @@ describe('AgentInput (modelOptionsOverride)', () => {
             onSend: () => {},
             autocompleteKinds: [],
             autocompleteSuggestions: async () => [],
-            agentType: 'opencode',
+            agentType: 'codex',
             permissionMode: 'default',
             onPermissionModeChange: () => {},
             modelMode: 'default',
@@ -762,7 +762,7 @@ describe('AgentInput (modelOptionsOverride)', () => {
             onSend: () => {},
             autocompleteKinds: [],
             autocompleteSuggestions: async () => [],
-            agentType: 'opencode',
+            agentType: 'codex',
             permissionMode: 'default',
             onPermissionModeChange: () => {},
             modelMode: 'default',
@@ -796,7 +796,7 @@ describe('AgentInput (modelOptionsOverride)', () => {
                     onSend: () => {},
                     autocompleteKinds: [],
                     autocompleteSuggestions: async () => [],
-                    agentType: 'opencode',
+                    agentType: 'codex',
                     permissionMode: 'default',
                     onPermissionModeChange: () => {},
                     modelMode: 'default',
@@ -832,7 +832,7 @@ describe('AgentInput (modelOptionsOverride)', () => {
                     onSend: () => {},
                     autocompleteKinds: [],
                     autocompleteSuggestions: async () => [],
-                    agentType: 'opencode',
+                    agentType: 'codex',
                     permissionMode: 'default',
                     onPermissionModeChange: () => {},
                     modelMode: 'default',
@@ -864,7 +864,7 @@ describe('AgentInput (modelOptionsOverride)', () => {
                     onSend: () => {},
                     autocompleteKinds: [],
                     autocompleteSuggestions: async () => [],
-                    agentType: 'opencode',
+                    agentType: 'codex',
                     permissionMode: 'default',
                     onPermissionModeChange: () => {},
                     modelMode: 'default',
@@ -1440,7 +1440,7 @@ describe('AgentInput (modelOptionsOverride)', () => {
         expect(logo?.props.height).toBe(16);
     });
 
-    it('applies the shared provider picker icon scale to the engine chip logo', async () => {
+    it('applies the Claude provider picker icon scale to the engine chip logo', async () => {
         const { AgentInput } = await import('./AgentInput');
 
         const screen = await renderScreen(React.createElement(AgentInput, {
@@ -1450,26 +1450,26 @@ describe('AgentInput (modelOptionsOverride)', () => {
                     onSend: () => {},
                     autocompleteKinds: [],
                     autocompleteSuggestions: async () => [],
-                    agentType: 'pi',
+                    agentType: 'claude',
                     permissionMode: 'default',
                     onPermissionModeChange: () => {},
-                    modelMode: 'pi-model',
+                    modelMode: 'claude-model',
                     onModelModeChange: () => {},
                     modelOptionsOverride: [
-                        { value: 'pi-model', label: 'Pi Model', description: '' },
+                        { value: 'claude-model', label: 'Claude Model', description: '' },
                     ],
                 } as any));
 
-        expect(findTestInstanceByTypeContainingText(screen.findByTestId('agent-input-agent-chip')!, 'Text', 'Pi Model')).toBeTruthy();
+        expect(findTestInstanceByTypeContainingText(screen.findByTestId('agent-input-agent-chip')!, 'Text', 'Claude Model')).toBeTruthy();
 
         const logo = screen.findByTestId('agent-input-agent-chip-logo');
         expect(logo?.type).toBe('SvgXml');
         expect(logo?.props.width).toBe(16);
         expect(logo?.props.height).toBe(16);
-        expect(logo?.props.style.transform).toContainEqual({ scale: 0.9 });
+        expect(logo?.props.style.transform).toContainEqual({ scale: 1.1 });
     });
 
-    it('reuses non-Pi picker-row scaling for the engine chip logo', async () => {
+    it('reuses the default picker-row scaling for the Codex engine chip logo', async () => {
         const { AgentInput } = await import('./AgentInput');
 
         const screen = await renderScreen(React.createElement(AgentInput, {
@@ -1479,23 +1479,23 @@ describe('AgentInput (modelOptionsOverride)', () => {
                     onSend: () => {},
                     autocompleteKinds: [],
                     autocompleteSuggestions: async () => [],
-                    agentType: 'opencode',
+                    agentType: 'codex',
                     permissionMode: 'default',
                     onPermissionModeChange: () => {},
-                    modelMode: 'open-model',
+                    modelMode: 'codex-model',
                     onModelModeChange: () => {},
                     modelOptionsOverride: [
-                        { value: 'open-model', label: 'Open Model', description: '' },
+                        { value: 'codex-model', label: 'Codex Model', description: '' },
                     ],
                 } as any));
 
-        expect(findTestInstanceByTypeContainingText(screen.findByTestId('agent-input-agent-chip')!, 'Text', 'Open Model')).toBeTruthy();
+        expect(findTestInstanceByTypeContainingText(screen.findByTestId('agent-input-agent-chip')!, 'Text', 'Codex Model')).toBeTruthy();
 
         const logo = screen.findByTestId('agent-input-agent-chip-logo');
         expect(logo?.type).toBe('SvgXml');
         expect(logo?.props.width).toBe(16);
         expect(logo?.props.height).toBe(16);
-        expect(logo?.props.style.transform).toContainEqual({ scale: 0.9 });
+        expect(logo?.props.style.transform).toContainEqual({ scale: 1 });
     });
 
     it('caps the engine popover at 570px when the rail is hidden in stacked layout', async () => {
@@ -1703,7 +1703,7 @@ describe('AgentInput (modelOptionsOverride)', () => {
                     onSend: () => {},
                     autocompleteKinds: [],
                     autocompleteSuggestions: async () => [],
-                    agentType: 'opencode',
+                    agentType: 'codex',
                     permissionMode: 'default',
                     onPermissionModeChange: () => {},
                     modelMode: 'default',
