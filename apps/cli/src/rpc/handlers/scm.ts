@@ -54,8 +54,10 @@ import type {
     ScmWorktreesEnrichmentResponse,
 } from '@happier-dev/protocol';
 import { RPC_METHODS } from '@happier-dev/protocol/rpc';
+import { SCM_OPERATION_ERROR_CODES } from '@happier-dev/protocol';
 
 import type { RpcHandlerRegistrar } from '@/api/rpc/types';
+import { logger } from '@/ui/logger';
 import {
     createNonRepositoryScmSnapshotResponse,
     notRepositoryResponse,
@@ -67,6 +69,111 @@ import type { ScmConnectedAccountCredentialResolver } from '@/scm/types';
 import { registerScmPullRequestHandlers } from './scm/registerScmPullRequestHandlers';
 import { registerScmRepositoryProvisioningHandlers } from './scm/registerScmRepositoryProvisioningHandlers';
 import type { ScmHandlerRouteBase } from './scm/scmHandlerRouteBase';
+
+/**
+ * TTL cache with in-flight coalescing. Concurrent identical requests share one
+ * route invocation, and a settled result is reused for `ttlMs`. `invalidate`
+ * drops both the cached values and the in-flight entries so a stale response
+ * cannot be delivered after a mutating RPC.
+ */
+type CoalescedTtlCache<TValue> = Readonly<{
+    readFresh: (key: string) => TValue | undefined;
+    readLastKnown: (key: string) => TValue | undefined;
+    invalidate: () => void;
+    /**
+     * Drop the in-flight load for `key` without discarding the last known value.
+     * A load that overran its response deadline must not keep the next poll
+     * waiting on it, and its late settlement must not repopulate the cache.
+     */
+    abandon: (key: string) => void;
+    getOrLoad: (key: string, load: () => Promise<TValue>) => Promise<TValue>;
+}>;
+
+function createCoalescedTtlCache<TValue>(ttlMs: number): CoalescedTtlCache<TValue> {
+    const results = new Map<string, { value: TValue; expiresAtMs: number }>();
+    const inFlight = new Map<string, Promise<TValue>>();
+    const abandonedEpochByKey = new Map<string, number>();
+    let generation = 0;
+
+    const readFresh = (key: string): TValue | undefined => {
+        const cached = results.get(key);
+        return cached && cached.expiresAtMs > Date.now() ? cached.value : undefined;
+    };
+    const readLastKnown = (key: string): TValue | undefined => results.get(key)?.value;
+    const invalidate = (): void => {
+        generation += 1;
+        results.clear();
+        inFlight.clear();
+        abandonedEpochByKey.clear();
+    };
+    const abandon = (key: string): void => {
+        abandonedEpochByKey.set(key, (abandonedEpochByKey.get(key) ?? 0) + 1);
+        inFlight.delete(key);
+    };
+    const getOrLoad = (key: string, load: () => Promise<TValue>): Promise<TValue> => {
+        const existing = inFlight.get(key);
+        if (existing) return existing;
+
+        const startGeneration = generation;
+        const startKeyEpoch = abandonedEpochByKey.get(key) ?? 0;
+        const promise = load().then((value) => {
+            const stillCurrent = startGeneration === generation
+                && startKeyEpoch === (abandonedEpochByKey.get(key) ?? 0);
+            if (ttlMs > 0 && stillCurrent) {
+                results.set(key, { value, expiresAtMs: Date.now() + ttlMs });
+            }
+            return value;
+        });
+
+        inFlight.set(key, promise);
+        const settle = (): void => {
+            if (inFlight.get(key) === promise) {
+                inFlight.delete(key);
+            }
+        };
+        void promise.then(settle, settle);
+        return promise;
+    };
+
+    return { readFresh, readLastKnown, invalidate, abandon, getOrLoad };
+}
+
+const DEFAULT_SCM_RESPONSE_TIMEOUT_MS = 15_000;
+
+function readNonNegativeIntEnv(name: string, fallback: number): number {
+    const raw = (process.env[name] ?? '').trim();
+    if (!raw) return fallback;
+    const parsed = Number.parseInt(raw, 10);
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
+}
+
+/**
+ * Bounds the daemon-side wait for a snapshot/enrichment route. Callers get a
+ * bounded-projection fallback instead of blocking the event-loop-facing RPC.
+ * The timeout handler is expected to abandon the overrunning load so it neither
+ * blocks the next poll nor repopulates the cache when it eventually settles.
+ */
+async function withResponseTimeout<TValue>(
+    promise: Promise<TValue>,
+    timeoutMs: number,
+    onTimeout: () => TValue,
+): Promise<TValue> {
+    if (timeoutMs <= 0) return await promise;
+
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    try {
+        return await Promise.race([
+            promise,
+            new Promise<TValue>((resolve) => {
+                timeoutId = setTimeout(() => resolve(onTimeout()), timeoutMs);
+            }),
+        ]);
+    } finally {
+        if (timeoutId !== null) {
+            clearTimeout(timeoutId);
+        }
+    }
+}
 
 export function registerScmHandlers(
     rpcHandlerManager: RpcHandlerRegistrar,
@@ -81,28 +188,43 @@ export function registerScmHandlers(
         accessPolicy: deps?.accessPolicy,
         connectedAccounts: deps?.connectedAccounts,
     };
-    const statusSnapshotInFlight = new Map<string, Promise<ScmStatusSnapshotResponse>>();
-    const statusSnapshotCache = new Map<string, { value: ScmStatusSnapshotResponse; expiresAtMs: number }>();
-    const statusSnapshotCacheTtlMs = (() => {
-        const raw = (process.env.HAPPIER_SCM_STATUS_SNAPSHOT_CACHE_TTL_MS ?? '').trim();
-        if (!raw) return 1_000;
-        const parsed = Number.parseInt(raw, 10);
-        return Number.isFinite(parsed) && parsed >= 0 ? parsed : 1_000;
-    })();
-    let statusSnapshotCacheGeneration = 0;
-    const invalidateStatusSnapshotCache = (): void => {
-        statusSnapshotCacheGeneration += 1;
-        statusSnapshotCache.clear();
-        statusSnapshotInFlight.clear();
+    const statusSnapshotCache = createCoalescedTtlCache<ScmStatusSnapshotResponse>(
+        readNonNegativeIntEnv(
+            'HAPPIER_SCM_STATUS_SNAPSHOT_MIN_INTERVAL_MS',
+            readNonNegativeIntEnv('HAPPIER_SCM_STATUS_SNAPSHOT_CACHE_TTL_MS', 1_000),
+        ),
+    );
+    const statusSnapshotTimeoutMs = readNonNegativeIntEnv(
+        'HAPPIER_SCM_STATUS_SNAPSHOT_TIMEOUT_MS',
+        DEFAULT_SCM_RESPONSE_TIMEOUT_MS,
+    );
+    // Enrichment is background augmentation of the worktree picker, not the
+    // foreground status read, so its minimum execution interval is minutes rather
+    // than seconds; the git backend additionally skips the scan entirely when no
+    // worktree state changed.
+    const worktreesEnrichmentCache = createCoalescedTtlCache<ScmWorktreesEnrichmentResponse>(
+        readNonNegativeIntEnv(
+            'HAPPIER_SCM_WORKTREES_ENRICHMENT_MIN_INTERVAL_MS',
+            readNonNegativeIntEnv('HAPPIER_SCM_WORKTREES_ENRICHMENT_CACHE_TTL_MS', 300_000),
+        ),
+    );
+    const worktreesEnrichmentTimeoutMs = readNonNegativeIntEnv(
+        'HAPPIER_SCM_WORKTREES_ENRICHMENT_TIMEOUT_MS',
+        DEFAULT_SCM_RESPONSE_TIMEOUT_MS,
+    );
+
+    const invalidateScmCaches = (): void => {
+        statusSnapshotCache.invalidate();
+        worktreesEnrichmentCache.invalidate();
     };
-    const runWithStatusSnapshotCacheInvalidation = async <TResponse,>(
+    const runWithScmCacheInvalidation = async <TResponse,>(
         run: () => Promise<TResponse>,
     ): Promise<TResponse> => {
-        invalidateStatusSnapshotCache();
+        invalidateScmCaches();
         try {
             return await run();
         } finally {
-            invalidateStatusSnapshotCache();
+            invalidateScmCaches();
         }
     };
     const statusSnapshotKey = (request: ScmStatusSnapshotRequest): string => JSON.stringify({
@@ -110,38 +232,74 @@ export function registerScmHandlers(
         backendPreference: request.backendPreference ?? null,
         includeWorktreeStatus: request.includeWorktreeStatus === true,
     });
-    const runStatusSnapshot = (request: ScmStatusSnapshotRequest): Promise<ScmStatusSnapshotResponse> => {
+    const runStatusSnapshot = async (request: ScmStatusSnapshotRequest): Promise<ScmStatusSnapshotResponse> => {
         const key = statusSnapshotKey(request);
-        const cached = statusSnapshotCache.get(key);
-        if (cached && cached.expiresAtMs > Date.now()) {
-            return Promise.resolve(cached.value);
-        }
-        const existing = statusSnapshotInFlight.get(key);
-        if (existing) return existing;
-        const cacheGeneration = statusSnapshotCacheGeneration;
-        const promise = runScmRoute<ScmStatusSnapshotRequest, ScmStatusSnapshotResponse>({
-            request,
-            ...routeBase,
-            onNonRepository: async ({ cwd }) =>
-                createNonRepositoryScmSnapshotResponse({
-                    workingDirectory,
-                    cwd,
-                }),
-            runWithBackend: ({ context, selection }) =>
-                selection.backend.statusSnapshot({ context, request }),
-        }).then((value) => {
-            if (statusSnapshotCacheTtlMs > 0 && cacheGeneration === statusSnapshotCacheGeneration) {
-                statusSnapshotCache.set(key, { value, expiresAtMs: Date.now() + statusSnapshotCacheTtlMs });
-            }
-            return value;
+        const cached = statusSnapshotCache.readFresh(key);
+        if (cached !== undefined) return cached;
+
+        const promise = statusSnapshotCache.getOrLoad(key, () =>
+            runScmRoute<ScmStatusSnapshotRequest, ScmStatusSnapshotResponse>({
+                request,
+                ...routeBase,
+                onNonRepository: async ({ cwd }) =>
+                    createNonRepositoryScmSnapshotResponse({
+                        workingDirectory,
+                        cwd,
+                    }),
+                runWithBackend: ({ context, selection }) =>
+                    selection.backend.statusSnapshot({ context, request }),
+            })
+        );
+
+        return await withResponseTimeout(promise, statusSnapshotTimeoutMs, () => {
+            statusSnapshotCache.abandon(key);
+            logger.warn('SCM status snapshot timed out; returning the last known response', {
+                timeoutMs: statusSnapshotTimeoutMs,
+                key,
+            });
+            return statusSnapshotCache.readLastKnown(key) ?? {
+                success: false,
+                errorCode: SCM_OPERATION_ERROR_CODES.COMMAND_FAILED,
+                error: 'SCM status snapshot timed out',
+            };
         });
-        statusSnapshotInFlight.set(key, promise);
-        void promise.finally(() => {
-            if (statusSnapshotInFlight.get(key) === promise) {
-                statusSnapshotInFlight.delete(key);
-            }
+    };
+
+    const worktreesEnrichmentKey = (request: ScmWorktreesEnrichmentRequest): string => JSON.stringify({
+        cwd: request.cwd ?? null,
+        backendPreference: request.backendPreference ?? null,
+        worktreePaths: request.worktreePaths ?? [],
+    });
+    const runWorktreesEnrichment = async (
+        request: ScmWorktreesEnrichmentRequest,
+    ): Promise<ScmWorktreesEnrichmentResponse> => {
+        const key = worktreesEnrichmentKey(request);
+        const cached = worktreesEnrichmentCache.readFresh(key);
+        if (cached !== undefined) return cached;
+
+        const promise = worktreesEnrichmentCache.getOrLoad(key, () =>
+            runScmRoute<ScmWorktreesEnrichmentRequest, ScmWorktreesEnrichmentResponse>({
+                request,
+                ...routeBase,
+                onNonRepository: async () => ({ success: true, worktrees: [] }),
+                runWithBackend: ({ context, selection }) =>
+                    selection.backend.worktreesEnrichment({ context, request }),
+            })
+        );
+
+        return await withResponseTimeout(promise, worktreesEnrichmentTimeoutMs, () => {
+            worktreesEnrichmentCache.abandon(key);
+            logger.warn('SCM worktrees enrichment timed out; returning a path-only response', {
+                timeoutMs: worktreesEnrichmentTimeoutMs,
+                key,
+            });
+            return worktreesEnrichmentCache.readLastKnown(key) ?? {
+                // Bounded projection: keep the picker usable with the paths the
+                // caller already knows; per-worktree metrics are simply omitted.
+                success: true,
+                worktrees: (request.worktreePaths ?? []).map((path) => ({ path })),
+            };
         });
-        return promise;
     };
 
     rpcHandlerManager.registerHandler<ScmBackendDescribeRequest, ScmBackendDescribeResponse>(
@@ -188,7 +346,7 @@ export function registerScmHandlers(
     rpcHandlerManager.registerHandler<ScmChangeApplyRequest, ScmChangeApplyResponse>(
         RPC_METHODS.SCM_CHANGE_INCLUDE,
         async (request) =>
-            runWithStatusSnapshotCacheInvalidation(() =>
+            runWithScmCacheInvalidation(() =>
                 runScmRoute<ScmChangeApplyRequest, ScmChangeApplyResponse>({
                     request,
                     ...routeBase,
@@ -202,7 +360,7 @@ export function registerScmHandlers(
     rpcHandlerManager.registerHandler<ScmChangeApplyRequest, ScmChangeApplyResponse>(
         RPC_METHODS.SCM_CHANGE_EXCLUDE,
         async (request) =>
-            runWithStatusSnapshotCacheInvalidation(() =>
+            runWithScmCacheInvalidation(() =>
                 runScmRoute<ScmChangeApplyRequest, ScmChangeApplyResponse>({
                     request,
                     ...routeBase,
@@ -216,7 +374,7 @@ export function registerScmHandlers(
     rpcHandlerManager.registerHandler<ScmChangeDiscardRequest, ScmChangeDiscardResponse>(
         RPC_METHODS.SCM_CHANGE_DISCARD,
         async (request) =>
-            runWithStatusSnapshotCacheInvalidation(() =>
+            runWithScmCacheInvalidation(() =>
                 runScmRoute<ScmChangeDiscardRequest, ScmChangeDiscardResponse>({
                     request,
                     ...routeBase,
@@ -230,7 +388,7 @@ export function registerScmHandlers(
     rpcHandlerManager.registerHandler<ScmCommitCreateRequest, ScmCommitCreateResponse>(
         RPC_METHODS.SCM_COMMIT_CREATE,
         async (request) =>
-            runWithStatusSnapshotCacheInvalidation(() =>
+            runWithScmCacheInvalidation(() =>
                 runScmRoute<ScmCommitCreateRequest, ScmCommitCreateResponse>({
                     request,
                     ...routeBase,
@@ -268,7 +426,7 @@ export function registerScmHandlers(
     rpcHandlerManager.registerHandler<ScmBranchCreateRequest, ScmBranchCreateResponse>(
         RPC_METHODS.SCM_BRANCH_CREATE,
         async (request) =>
-            runWithStatusSnapshotCacheInvalidation(() =>
+            runWithScmCacheInvalidation(() =>
                 runScmRoute<ScmBranchCreateRequest, ScmBranchCreateResponse>({
                     request,
                     ...routeBase,
@@ -282,7 +440,7 @@ export function registerScmHandlers(
     rpcHandlerManager.registerHandler<ScmBranchCheckoutRequest, ScmBranchCheckoutResponse>(
         RPC_METHODS.SCM_BRANCH_CHECKOUT,
         async (request) =>
-            runWithStatusSnapshotCacheInvalidation(() =>
+            runWithScmCacheInvalidation(() =>
                 runScmRoute<ScmBranchCheckoutRequest, ScmBranchCheckoutResponse>({
                     request,
                     ...routeBase,
@@ -296,7 +454,7 @@ export function registerScmHandlers(
     rpcHandlerManager.registerHandler<ScmBranchIntegrationRequest, ScmBranchIntegrationResponse>(
         RPC_METHODS.SCM_BRANCH_MERGE,
         async (request) =>
-            runWithStatusSnapshotCacheInvalidation(() =>
+            runWithScmCacheInvalidation(() =>
                 runScmRoute<ScmBranchIntegrationRequest, ScmBranchIntegrationResponse>({
                     request,
                     ...routeBase,
@@ -310,7 +468,7 @@ export function registerScmHandlers(
     rpcHandlerManager.registerHandler<ScmBranchIntegrationRequest, ScmBranchIntegrationResponse>(
         RPC_METHODS.SCM_BRANCH_REBASE,
         async (request) =>
-            runWithStatusSnapshotCacheInvalidation(() =>
+            runWithScmCacheInvalidation(() =>
                 runScmRoute<ScmBranchIntegrationRequest, ScmBranchIntegrationResponse>({
                     request,
                     ...routeBase,
@@ -324,7 +482,7 @@ export function registerScmHandlers(
     rpcHandlerManager.registerHandler<ScmBranchOperationControlRequest, ScmBranchIntegrationResponse>(
         RPC_METHODS.SCM_BRANCH_OPERATION_CONTINUE,
         async (request) =>
-            runWithStatusSnapshotCacheInvalidation(() =>
+            runWithScmCacheInvalidation(() =>
                 runScmRoute<ScmBranchOperationControlRequest, ScmBranchIntegrationResponse>({
                     request,
                     ...routeBase,
@@ -338,7 +496,7 @@ export function registerScmHandlers(
     rpcHandlerManager.registerHandler<ScmBranchOperationControlRequest, ScmBranchIntegrationResponse>(
         RPC_METHODS.SCM_BRANCH_OPERATION_ABORT,
         async (request) =>
-            runWithStatusSnapshotCacheInvalidation(() =>
+            runWithScmCacheInvalidation(() =>
                 runScmRoute<ScmBranchOperationControlRequest, ScmBranchIntegrationResponse>({
                     request,
                     ...routeBase,
@@ -352,7 +510,7 @@ export function registerScmHandlers(
     rpcHandlerManager.registerHandler<ScmWorktreeCreateRequest, ScmWorktreeCreateResponse>(
         RPC_METHODS.SCM_WORKTREE_CREATE,
         async (request) =>
-            runWithStatusSnapshotCacheInvalidation(() =>
+            runWithScmCacheInvalidation(() =>
                 runScmRoute<ScmWorktreeCreateRequest, ScmWorktreeCreateResponse>({
                     request,
                     ...routeBase,
@@ -366,7 +524,7 @@ export function registerScmHandlers(
     rpcHandlerManager.registerHandler<ScmWorktreeRemoveRequest, ScmWorktreeRemoveResponse>(
         RPC_METHODS.SCM_WORKTREE_REMOVE,
         async (request) =>
-            runWithStatusSnapshotCacheInvalidation(() =>
+            runWithScmCacheInvalidation(() =>
                 runScmRoute<ScmWorktreeRemoveRequest, ScmWorktreeRemoveResponse>({
                     request,
                     ...routeBase,
@@ -380,7 +538,7 @@ export function registerScmHandlers(
     rpcHandlerManager.registerHandler<ScmWorktreePruneRequest, ScmWorktreePruneResponse>(
         RPC_METHODS.SCM_WORKTREE_PRUNE,
         async (request) =>
-            runWithStatusSnapshotCacheInvalidation(() =>
+            runWithScmCacheInvalidation(() =>
                 runScmRoute<ScmWorktreePruneRequest, ScmWorktreePruneResponse>({
                     request,
                     ...routeBase,
@@ -393,20 +551,13 @@ export function registerScmHandlers(
 
     rpcHandlerManager.registerHandler<ScmWorktreesEnrichmentRequest, ScmWorktreesEnrichmentResponse>(
         RPC_METHODS.SCM_WORKTREES_ENRICHMENT,
-        async (request) =>
-            runScmRoute<ScmWorktreesEnrichmentRequest, ScmWorktreesEnrichmentResponse>({
-                request,
-                ...routeBase,
-                onNonRepository: async () => ({ success: true, worktrees: [] }),
-                runWithBackend: ({ context, selection }) =>
-                    selection.backend.worktreesEnrichment({ context, request }),
-            })
+        async (request) => runWorktreesEnrichment(request)
     );
 
     rpcHandlerManager.registerHandler<ScmCommitBackoutRequest, ScmCommitBackoutResponse>(
         RPC_METHODS.SCM_COMMIT_BACKOUT,
         async (request) =>
-            runWithStatusSnapshotCacheInvalidation(() =>
+            runWithScmCacheInvalidation(() =>
                 runScmRoute<ScmCommitBackoutRequest, ScmCommitBackoutResponse>({
                     request,
                     ...routeBase,
@@ -420,7 +571,7 @@ export function registerScmHandlers(
     rpcHandlerManager.registerHandler<ScmRemoteAddRequest, ScmRemoteManagementResponse>(
         RPC_METHODS.SCM_REMOTE_ADD,
         async (request) =>
-            runWithStatusSnapshotCacheInvalidation(() =>
+            runWithScmCacheInvalidation(() =>
                 runScmRoute<ScmRemoteAddRequest, ScmRemoteManagementResponse>({
                     request,
                     ...routeBase,
@@ -434,7 +585,7 @@ export function registerScmHandlers(
     rpcHandlerManager.registerHandler<ScmRemoteSetUrlRequest, ScmRemoteManagementResponse>(
         RPC_METHODS.SCM_REMOTE_SET_URL,
         async (request) =>
-            runWithStatusSnapshotCacheInvalidation(() =>
+            runWithScmCacheInvalidation(() =>
                 runScmRoute<ScmRemoteSetUrlRequest, ScmRemoteManagementResponse>({
                     request,
                     ...routeBase,
@@ -448,7 +599,7 @@ export function registerScmHandlers(
     rpcHandlerManager.registerHandler<ScmRemoteRemoveRequest, ScmRemoteManagementResponse>(
         RPC_METHODS.SCM_REMOTE_REMOVE,
         async (request) =>
-            runWithStatusSnapshotCacheInvalidation(() =>
+            runWithScmCacheInvalidation(() =>
                 runScmRoute<ScmRemoteRemoveRequest, ScmRemoteManagementResponse>({
                     request,
                     ...routeBase,
@@ -462,7 +613,7 @@ export function registerScmHandlers(
     rpcHandlerManager.registerHandler<ScmRemoteRequest, ScmRemoteResponse>(
         RPC_METHODS.SCM_REMOTE_FETCH,
         async (request) =>
-            runWithStatusSnapshotCacheInvalidation(() =>
+            runWithScmCacheInvalidation(() =>
                 runScmRoute<ScmRemoteRequest, ScmRemoteResponse>({
                     request,
                     ...routeBase,
@@ -476,7 +627,7 @@ export function registerScmHandlers(
     rpcHandlerManager.registerHandler<ScmRemoteRequest, ScmRemoteResponse>(
         RPC_METHODS.SCM_REMOTE_PUSH,
         async (request) =>
-            runWithStatusSnapshotCacheInvalidation(() =>
+            runWithScmCacheInvalidation(() =>
                 runScmRoute<ScmRemoteRequest, ScmRemoteResponse>({
                     request,
                     ...routeBase,
@@ -490,7 +641,7 @@ export function registerScmHandlers(
     rpcHandlerManager.registerHandler<ScmRemoteRequest, ScmRemoteResponse>(
         RPC_METHODS.SCM_REMOTE_PULL,
         async (request) =>
-            runWithStatusSnapshotCacheInvalidation(() =>
+            runWithScmCacheInvalidation(() =>
                 runScmRoute<ScmRemoteRequest, ScmRemoteResponse>({
                     request,
                     ...routeBase,
@@ -504,7 +655,7 @@ export function registerScmHandlers(
     rpcHandlerManager.registerHandler<ScmRemotePublishRequest, ScmRemotePublishResponse>(
         RPC_METHODS.SCM_REMOTE_PUBLISH,
         async (request) =>
-            runWithStatusSnapshotCacheInvalidation(() =>
+            runWithScmCacheInvalidation(() =>
                 runScmRoute<ScmRemotePublishRequest, ScmRemotePublishResponse>({
                     request,
                     ...routeBase,
@@ -518,12 +669,12 @@ export function registerScmHandlers(
     registerScmRepositoryProvisioningHandlers(
         rpcHandlerManager,
         routeBase,
-        runWithStatusSnapshotCacheInvalidation
+        runWithScmCacheInvalidation
     );
     registerScmPullRequestHandlers(
         rpcHandlerManager,
         routeBase,
-        runWithStatusSnapshotCacheInvalidation
+        runWithScmCacheInvalidation
     );
 
     rpcHandlerManager.registerHandler<ScmStashListRequest, ScmStashListResponse>(
@@ -541,7 +692,7 @@ export function registerScmHandlers(
     rpcHandlerManager.registerHandler<ScmStashDropRequest, ScmStashDropResponse>(
         RPC_METHODS.SCM_STASH_DROP,
         async (request) =>
-            runWithStatusSnapshotCacheInvalidation(() =>
+            runWithScmCacheInvalidation(() =>
                 runScmRoute<ScmStashDropRequest, ScmStashDropResponse>({
                     request,
                     ...routeBase,
@@ -555,7 +706,7 @@ export function registerScmHandlers(
     rpcHandlerManager.registerHandler<ScmStashPopRequest, ScmStashPopResponse>(
         RPC_METHODS.SCM_STASH_POP,
         async (request) =>
-            runWithStatusSnapshotCacheInvalidation(() =>
+            runWithScmCacheInvalidation(() =>
                 runScmRoute<ScmStashPopRequest, ScmStashPopResponse>({
                     request,
                     ...routeBase,
@@ -569,7 +720,7 @@ export function registerScmHandlers(
     rpcHandlerManager.registerHandler<ScmStashApplyRequest, ScmStashApplyResponse>(
         RPC_METHODS.SCM_STASH_APPLY,
         async (request) =>
-            runWithStatusSnapshotCacheInvalidation(() =>
+            runWithScmCacheInvalidation(() =>
                 runScmRoute<ScmStashApplyRequest, ScmStashApplyResponse>({
                     request,
                     ...routeBase,

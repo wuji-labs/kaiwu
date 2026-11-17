@@ -1,11 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+// The resolver returns host-absolute paths (drive-qualified on win32), so stubs compare resolved forms.
+import { resolve } from 'node:path';
 
 import { readBundledWorkspaceSyncConfig } from './readBundledWorkspaceSyncConfig.mjs';
 
 test('readBundledWorkspaceSyncConfig derives stack workspace packages from bundledDependencies', () => {
   const config = readBundledWorkspaceSyncConfig('/repo/apps/stack', {
-    existsSync: (candidate) => candidate === '/repo/apps/stack/package.json',
+    existsSync: (candidate) => candidate === resolve('/repo/apps/stack/package.json'),
     readFileSync: () => JSON.stringify({
       bundledDependencies: [
         '@happier-dev/agents',

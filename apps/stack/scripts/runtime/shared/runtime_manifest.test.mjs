@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, normalize } from 'node:path';
 
 import {
   readRuntimeManifest,
@@ -12,6 +12,11 @@ import {
   writeRuntimeManifest,
   writeRuntimePointer,
 } from './runtime_manifest.mjs';
+
+// Fixtures use POSIX-shaped absolute paths; the code under test builds paths with node:path, so
+// compare against the host-native form (identity on POSIX, `\` separators on win32).
+const nativePath = (posixPath) => normalize(posixPath);
+
 
 async function withTempRoot(t) {
   const root = await mkdtemp(join(tmpdir(), 'hstack-runtime-manifest-'));
@@ -47,14 +52,14 @@ test('runtime pointer round-trips through disk', async (t) => {
 
   await writeRuntimePointer({
     currentPath,
-    pointer: { version: 1, snapshotId: 'snap-1', snapshotPath: '/tmp/snap-1', sourceFingerprint: 'src-1' },
+    pointer: { version: 1, snapshotId: 'snap-1', snapshotPath: nativePath('/tmp/snap-1'), sourceFingerprint: 'src-1' },
   });
   const pointer = await readRuntimePointer({ currentPath });
 
   assert.deepEqual(pointer, {
     version: 1,
     snapshotId: 'snap-1',
-    snapshotPath: '/tmp/snap-1',
+    snapshotPath: nativePath('/tmp/snap-1'),
     sourceFingerprint: 'src-1',
   });
 });
@@ -94,7 +99,7 @@ test('validateRuntimeManifest rejects component entrypoints that escape the snap
 test('resolveRuntimeManifestEntrypoint normalizes contained paths and rejects escaping paths', () => {
   assert.equal(
     resolveRuntimeManifestEntrypoint({
-      snapshotPath: '/tmp/runtime/builds/snap-1',
+      snapshotPath: nativePath('/tmp/runtime/builds/snap-1'),
       manifest: {
         components: {
           server: { entrypoint: './server/../server/happier-server' },
@@ -102,12 +107,12 @@ test('resolveRuntimeManifestEntrypoint normalizes contained paths and rejects es
       },
       component: 'server',
     }),
-    '/tmp/runtime/builds/snap-1/server/happier-server',
+    nativePath('/tmp/runtime/builds/snap-1/server/happier-server'),
   );
 
   assert.equal(
     resolveRuntimeManifestEntrypoint({
-      snapshotPath: '/tmp/runtime/builds/snap-1',
+      snapshotPath: nativePath('/tmp/runtime/builds/snap-1'),
       manifest: {
         components: {
           server: { entrypoint: '../outside-server' },

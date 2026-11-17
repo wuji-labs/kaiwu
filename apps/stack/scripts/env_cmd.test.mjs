@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname, join, normalize, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runNodeCapture as runNode } from './testkit/stack_script_command_testkit.mjs';
 
@@ -40,8 +40,8 @@ test('hstack env path defaults to main stack env file when no explicit env file 
   const out = JSON.parse(res.stdout || '{}');
   assert.equal(out.ok, true);
   assert.ok(
-    typeof out.envPath === 'string' && out.envPath.endsWith('/main/env'),
-    `expected main env path to end with /main/env, got: ${out.envPath}`
+    typeof out.envPath === 'string' && out.envPath.endsWith(`${sep}main${sep}env`),
+    `expected main env path to end with ${sep}main${sep}env, got: ${out.envPath}`
   );
 });
 
@@ -85,6 +85,8 @@ test('hstack env expands ~/ explicit env file overrides against HOME', async (t)
   const baseEnv = {
     ...process.env,
     HOME: homeDir,
+    // win32 resolves `~` from USERPROFILE (HOME is only a fallback there).
+    USERPROFILE: homeDir,
     HAPPIER_STACK_HOME_DIR: homeDir,
     HAPPIER_STACK_STORAGE_DIR: storageDir,
     HAPPIER_STACK_ENV_FILE: '~/.happier/stacks/dev/env',
@@ -97,7 +99,8 @@ test('hstack env expands ~/ explicit env file overrides against HOME', async (t)
   assert.equal(pathRes.code, 0, `expected exit 0, got ${pathRes.code}\nstdout:\n${pathRes.stdout}\nstderr:\n${pathRes.stderr}`);
 
   const pathOut = JSON.parse(pathRes.stdout || '{}');
-  assert.equal(pathOut.envPath, envPath);
+  // `~/` expansion keeps the override's own separators; compare the normalized location.
+  assert.equal(normalize(pathOut.envPath), envPath);
 
   const raw = await readFile(envPath, 'utf-8');
   assert.ok(raw.includes('FOO=bar'), `expected FOO in expanded env file\n${raw}`);

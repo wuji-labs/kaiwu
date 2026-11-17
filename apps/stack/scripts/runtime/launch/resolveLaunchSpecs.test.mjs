@@ -7,11 +7,17 @@ import {
   resolveCliRuntimeLaunchSpec,
 } from './resolveCliRuntimeLaunchSpec.mjs';
 import { resolveServerRuntimeLaunchSpec } from './resolveServerRuntimeLaunchSpec.mjs';
+import { join, normalize } from 'node:path';
+
+// Fixtures use POSIX-shaped absolute paths; the code under test builds paths with node:path, so
+// compare against the host-native form (identity on POSIX, `\` separators on win32).
+const nativePath = (posixPath) => normalize(posixPath);
+
 
 test('resolveCliRuntimeLaunchSpec returns a runtime binary command from the snapshot', () => {
   const resolved = resolveCliRuntimeLaunchSpec({
     snapshot: {
-      snapshotPath: '/tmp/stack/runtime/builds/snap-1',
+      snapshotPath: nativePath('/tmp/stack/runtime/builds/snap-1'),
       daemonDistClosureFingerprint: '1111111111111111',
       manifest: {
         components: {
@@ -23,10 +29,10 @@ test('resolveCliRuntimeLaunchSpec returns a runtime binary command from the snap
 
   assert.deepEqual(resolved, {
     source: 'runtime',
-    cliDir: '/tmp/stack/runtime/builds/snap-1/cli',
-    entrypoint: '/tmp/stack/runtime/builds/snap-1/cli/happier',
-    nodeEntrypoint: '/tmp/stack/runtime/builds/snap-1/cli/package-dist/index.mjs',
-    command: '/tmp/stack/runtime/builds/snap-1/cli/happier',
+    cliDir: nativePath('/tmp/stack/runtime/builds/snap-1/cli'),
+    entrypoint: nativePath('/tmp/stack/runtime/builds/snap-1/cli/happier'),
+    nodeEntrypoint: nativePath('/tmp/stack/runtime/builds/snap-1/cli/package-dist/index.mjs'),
+    command: nativePath('/tmp/stack/runtime/builds/snap-1/cli/happier'),
     args: [],
     runtimeBacked: true,
     daemonDistClosureFingerprint: '1111111111111111',
@@ -36,8 +42,8 @@ test('resolveCliRuntimeLaunchSpec returns a runtime binary command from the snap
 test('runtime CLI provenance is one canonical shape for daemon options and nested CLI environment', () => {
   const launchSpec = resolveCliRuntimeLaunchSpec({
     snapshot: {
-      snapshotPath: '/tmp/runtime/builds/snap-a',
-      launchPath: '/tmp/runtime/builds/snap-a',
+      snapshotPath: nativePath('/tmp/runtime/builds/snap-a'),
+      launchPath: nativePath('/tmp/runtime/builds/snap-a'),
       daemonDistClosureFingerprint: 'abcdef1234567890',
       manifest: {
         entrypoints: { daemon: 'cli/happier' },
@@ -48,14 +54,14 @@ test('runtime CLI provenance is one canonical shape for daemon options and neste
   assert.deepEqual(resolveCliRuntimeLaunchProvenance(launchSpec), {
     runtimeBacked: true,
     admittedDistClosureFingerprint: 'abcdef1234567890',
-    distEntrypoint: '/tmp/runtime/builds/snap-a/cli/package-dist/index.mjs',
+    distEntrypoint: nativePath('/tmp/runtime/builds/snap-a/cli/package-dist/index.mjs'),
   });
   const projected = applyCliRuntimeLaunchProvenanceEnv({
     env: {},
     cliLaunchSpec: launchSpec,
   });
   assert.equal(projected.HAPPIER_CLI_SUBPROCESS_RUNTIME_BACKED, '1');
-  assert.equal(projected.HAPPIER_CLI_SUBPROCESS_DIST_ENTRYPOINT, '/tmp/runtime/builds/snap-a/cli/package-dist/index.mjs');
+  assert.equal(projected.HAPPIER_CLI_SUBPROCESS_DIST_ENTRYPOINT, nativePath('/tmp/runtime/builds/snap-a/cli/package-dist/index.mjs'));
   assert.equal(projected.HAPPIER_CLI_SUBPROCESS_DAEMON_DIST_CLOSURE_FINGERPRINT, 'abcdef1234567890');
 });
 
@@ -84,7 +90,7 @@ test('resolveServerRuntimeLaunchSpec returns the runtime server binary command f
   const resolved = resolveServerRuntimeLaunchSpec({
     serverComponent: 'happier-server-light',
     snapshot: {
-      snapshotPath: '/tmp/stack/runtime/builds/snap-1',
+      snapshotPath: nativePath('/tmp/stack/runtime/builds/snap-1'),
       manifest: {
         source: { serverComponent: 'happier-server-light' },
         components: {
@@ -96,9 +102,9 @@ test('resolveServerRuntimeLaunchSpec returns the runtime server binary command f
 
   assert.deepEqual(resolved, {
     source: 'runtime',
-    serverDir: '/tmp/stack/runtime/builds/snap-1/server',
-    entrypoint: '/tmp/stack/runtime/builds/snap-1/server/happier-server',
-    command: '/tmp/stack/runtime/builds/snap-1/server/happier-server',
+    serverDir: nativePath('/tmp/stack/runtime/builds/snap-1/server'),
+    entrypoint: nativePath('/tmp/stack/runtime/builds/snap-1/server/happier-server'),
+    command: nativePath('/tmp/stack/runtime/builds/snap-1/server/happier-server'),
     args: [],
     migration: { mode: 'in-process' },
   });
@@ -108,7 +114,7 @@ test('resolveServerRuntimeLaunchSpec rejects a snapshot without admitted server 
   assert.throws(
     () => resolveServerRuntimeLaunchSpec({
       serverComponent: 'happier-server',
-      snapshot: { snapshotPath: '/tmp/stack/runtime/builds/snap-1' },
+      snapshot: { snapshotPath: nativePath('/tmp/stack/runtime/builds/snap-1') },
     }),
     (error) => error.code === 'ERUNTIMESERVERCOMPONENTUNAVAILABLE'
       && error.reason === 'missing_admitted_server_component',
@@ -124,7 +130,7 @@ test('resolveServerRuntimeLaunchSpec rejects both requested/admitted server comp
       () => resolveServerRuntimeLaunchSpec({
         serverComponent: requested,
         snapshot: {
-          snapshotPath: '/tmp/stack/runtime/builds/snap-1',
+          snapshotPath: nativePath('/tmp/stack/runtime/builds/snap-1'),
           manifest: {
             source: { serverComponent: admitted },
             components: { server: { entrypoint: 'server/happier-server' } },
@@ -154,14 +160,15 @@ test('resolveServerRuntimeLaunchSpec derives the Windows full-server migration e
     },
   });
 
-  assert.equal(resolved.migration.command, 'C:\\runtime\\builds\\snap-1/server/happier-server-migrate.exe');
+  // Derived beside the admitted entrypoint with the host path separator.
+  assert.equal(resolved.migration.command, join('C:\\runtime\\builds\\snap-1', 'server', 'happier-server-migrate.exe'));
   assert.deepEqual(resolved.migration.args, []);
-  assert.equal(resolved.migration.cwd, 'C:\\runtime\\builds\\snap-1/server');
+  assert.equal(resolved.migration.cwd, join('C:\\runtime\\builds\\snap-1', 'server'));
 });
 
 test('resolveServerRuntimeLaunchSpec derives packaged migrations from the provider, not the preset', () => {
   const snapshot = {
-    snapshotPath: '/tmp/stack/runtime/builds/snap-1',
+    snapshotPath: nativePath('/tmp/stack/runtime/builds/snap-1'),
     manifest: {
       source: { serverComponent: 'happier-server-light' },
       components: { server: { entrypoint: 'server/happier-server' } },
@@ -173,14 +180,14 @@ test('resolveServerRuntimeLaunchSpec derives packaged migrations from the provid
     dbProvider: 'postgres',
     snapshot,
   });
-  assert.equal(postgres.migration.command, '/tmp/stack/runtime/builds/snap-1/server/happier-server-migrate');
+  assert.equal(postgres.migration.command, nativePath('/tmp/stack/runtime/builds/snap-1/server/happier-server-migrate'));
 
   const pglite = resolveServerRuntimeLaunchSpec({
     serverComponent: 'happier-server-light',
     dbProvider: 'pglite',
     snapshot,
   });
-  assert.equal(pglite.migration.command, '/tmp/stack/runtime/builds/snap-1/server/happier-server-migrate');
+  assert.equal(pglite.migration.command, nativePath('/tmp/stack/runtime/builds/snap-1/server/happier-server-migrate'));
 
   const sqlite = resolveServerRuntimeLaunchSpec({
     serverComponent: 'happier-server-light',
@@ -201,7 +208,7 @@ test('resolveServerRuntimeLaunchSpec derives packaged migrations from the provid
 test('resolveCliRuntimeLaunchSpec falls back to the canonical cli path when the manifest entrypoint escapes the snapshot root', () => {
   const resolved = resolveCliRuntimeLaunchSpec({
     snapshot: {
-      snapshotPath: '/tmp/stack/runtime/builds/snap-1',
+      snapshotPath: nativePath('/tmp/stack/runtime/builds/snap-1'),
       daemonDistClosureFingerprint: '1111111111111111',
       manifest: {
         components: {
@@ -213,10 +220,10 @@ test('resolveCliRuntimeLaunchSpec falls back to the canonical cli path when the 
 
   assert.deepEqual(resolved, {
     source: 'runtime',
-    cliDir: '/tmp/stack/runtime/builds/snap-1/cli',
-    entrypoint: '/tmp/stack/runtime/builds/snap-1/cli/happier',
-    nodeEntrypoint: '/tmp/stack/runtime/builds/snap-1/cli/package-dist/index.mjs',
-    command: '/tmp/stack/runtime/builds/snap-1/cli/happier',
+    cliDir: nativePath('/tmp/stack/runtime/builds/snap-1/cli'),
+    entrypoint: nativePath('/tmp/stack/runtime/builds/snap-1/cli/kaiwu'),
+    nodeEntrypoint: nativePath('/tmp/stack/runtime/builds/snap-1/cli/package-dist/index.mjs'),
+    command: nativePath('/tmp/stack/runtime/builds/snap-1/cli/kaiwu'),
     args: [],
     runtimeBacked: true,
     daemonDistClosureFingerprint: '1111111111111111',
@@ -228,7 +235,7 @@ test('resolveServerRuntimeLaunchSpec falls back to the canonical server path whe
     serverComponent: 'happier-server',
     dbProvider: 'postgres',
     snapshot: {
-      snapshotPath: '/tmp/stack/runtime/builds/snap-1',
+      snapshotPath: nativePath('/tmp/stack/runtime/builds/snap-1'),
       manifest: {
         source: { serverComponent: 'happier-server' },
         components: {
@@ -240,15 +247,15 @@ test('resolveServerRuntimeLaunchSpec falls back to the canonical server path whe
 
   assert.deepEqual(resolved, {
     source: 'runtime',
-    serverDir: '/tmp/stack/runtime/builds/snap-1/server',
-    entrypoint: '/tmp/stack/runtime/builds/snap-1/server/happier-server',
-    command: '/tmp/stack/runtime/builds/snap-1/server/happier-server',
+    serverDir: nativePath('/tmp/stack/runtime/builds/snap-1/server'),
+    entrypoint: nativePath('/tmp/stack/runtime/builds/snap-1/server/happier-server'),
+    command: nativePath('/tmp/stack/runtime/builds/snap-1/server/happier-server'),
     args: [],
     migration: {
       mode: 'packaged',
-      command: '/tmp/stack/runtime/builds/snap-1/server/happier-server-migrate',
+      command: nativePath('/tmp/stack/runtime/builds/snap-1/server/happier-server-migrate'),
       args: [],
-      cwd: '/tmp/stack/runtime/builds/snap-1/server',
+      cwd: nativePath('/tmp/stack/runtime/builds/snap-1/server'),
     },
   });
 });

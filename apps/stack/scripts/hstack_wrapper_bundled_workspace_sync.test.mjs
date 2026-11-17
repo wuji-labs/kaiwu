@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { runNodeCapture } from './testkit/core/run_node_capture.mjs';
 import { coerceHappyMonorepoRootFromPath } from './utils/paths/paths.mjs';
@@ -85,7 +85,7 @@ test('hstack wrapper refreshes bundled workspace packages before a runtime comma
       cwd: rootDir,
       env: {
         ...process.env,
-        NODE_OPTIONS: `--experimental-loader=${loaderPath}`,
+        NODE_OPTIONS: `--experimental-loader=${pathToFileURL(loaderPath).href}`,
       },
     });
 
@@ -108,7 +108,7 @@ test('hstack root help bypasses bundled workspace preflight', async () => {
     });
     const res = await runNodeCapture([join(rootDir, 'bin', 'hstack.mjs'), '--help'], {
       cwd: rootDir,
-      env: { ...process.env, NODE_OPTIONS: `--experimental-loader=${loaderPath}` },
+      env: { ...process.env, NODE_OPTIONS: `--experimental-loader=${pathToFileURL(loaderPath).href}` },
     });
 
     assert.equal(res.code, 0, `expected root help exit 0\nstderr:\n${res.stderr}`);
@@ -128,7 +128,7 @@ test('bare hstack root help bypasses bundled workspace preflight', async () => {
     });
     const res = await runNodeCapture([join(rootDir, 'bin', 'hstack.mjs')], {
       cwd: rootDir,
-      env: { ...process.env, NODE_OPTIONS: `--experimental-loader=${loaderPath}` },
+      env: { ...process.env, NODE_OPTIONS: `--experimental-loader=${pathToFileURL(loaderPath).href}` },
     });
 
     assert.equal(res.code, 0, `expected bare root help exit 0\nstderr:\n${res.stderr}`);
@@ -148,7 +148,7 @@ test('hstack -h root help bypasses bundled workspace preflight and partial bundl
     });
     const res = await runNodeCapture([join(rootDir, 'bin', 'hstack.mjs'), '-h'], {
       cwd: rootDir,
-      env: { ...process.env, NODE_OPTIONS: `--experimental-loader=${loaderPath}` },
+      env: { ...process.env, NODE_OPTIONS: `--experimental-loader=${pathToFileURL(loaderPath).href}` },
     });
 
     assert.equal(res.code, 0, `expected short root help exit 0\nstderr:\n${res.stderr}`);
@@ -168,7 +168,7 @@ test('hstack help root help bypasses bundled workspace preflight and partial bun
     });
     const res = await runNodeCapture([join(rootDir, 'bin', 'hstack.mjs'), 'help'], {
       cwd: rootDir,
-      env: { ...process.env, NODE_OPTIONS: `--experimental-loader=${loaderPath}` },
+      env: { ...process.env, NODE_OPTIONS: `--experimental-loader=${pathToFileURL(loaderPath).href}` },
     });
 
     assert.equal(res.code, 0, `expected help root exit 0\nstderr:\n${res.stderr}`);
@@ -188,7 +188,7 @@ test('hstack dependency-importing command help retains bundled workspace preflig
     });
     const res = await runNodeCapture([join(rootDir, 'bin', 'hstack.mjs'), 'stack', '--help'], {
       cwd: rootDir,
-      env: { ...process.env, NODE_OPTIONS: `--experimental-loader=${loaderPath}` },
+      env: { ...process.env, NODE_OPTIONS: `--experimental-loader=${pathToFileURL(loaderPath).href}` },
     });
 
     assert.equal(res.code, 0, `expected command help exit 0\nstderr:\n${res.stderr}`);
@@ -210,7 +210,7 @@ test('hstack help command routing retains bundled workspace preflight repair', a
     });
     const res = await runNodeCapture([join(rootDir, 'bin', 'hstack.mjs'), 'help', 'stack'], {
       cwd: rootDir,
-      env: { ...process.env, NODE_OPTIONS: `--experimental-loader=${loaderPath}` },
+      env: { ...process.env, NODE_OPTIONS: `--experimental-loader=${pathToFileURL(loaderPath).href}` },
     });
 
     assert.equal(res.code, 0, `expected routed command help exit 0\nstderr:\n${res.stderr}`);
@@ -237,7 +237,7 @@ test('hstack wrapper keeps dependency-free dev-target commands responsive during
           ...process.env,
           HAPPIER_STACK_CLI_ROOT_DISABLE: '1',
           HAPPIER_STACK_UPDATE_CHECK: '0',
-          NODE_OPTIONS: `--experimental-loader=${loaderPath}`,
+          NODE_OPTIONS: `--experimental-loader=${pathToFileURL(loaderPath).href}`,
         },
       },
     );
@@ -266,7 +266,7 @@ test('hstack service mode exits successfully before preflight when its explicit 
         ...process.env,
         HAPPIER_STACK_ENV_FILE: missingEnvPath,
         HAPPIER_STACK_SERVICE_MODE: '1',
-        NODE_OPTIONS: `--experimental-loader=${loaderPath}`,
+        NODE_OPTIONS: `--experimental-loader=${pathToFileURL(loaderPath).href}`,
       },
     });
 
@@ -291,7 +291,7 @@ test('hstack service mode only treats the installed start --restart invocation a
         ...process.env,
         HAPPIER_STACK_ENV_FILE: missingEnvPath,
         HAPPIER_STACK_SERVICE_MODE: '1',
-        NODE_OPTIONS: `--experimental-loader=${loaderPath}`,
+        NODE_OPTIONS: `--experimental-loader=${pathToFileURL(loaderPath).href}`,
       },
     });
 
@@ -314,7 +314,7 @@ test('hstack help remains available with service mode and a missing explicit env
         ...process.env,
         HAPPIER_STACK_ENV_FILE: join(fixtureDir, 'missing', 'env'),
         HAPPIER_STACK_SERVICE_MODE: '1',
-        NODE_OPTIONS: `--experimental-loader=${loaderPath}`,
+        NODE_OPTIONS: `--experimental-loader=${pathToFileURL(loaderPath).href}`,
       },
     });
 
@@ -338,7 +338,7 @@ test('hstack interactive invocation fails clearly before preflight when its expl
         ...process.env,
         HAPPIER_STACK_ENV_FILE: missingEnvPath,
         HAPPIER_STACK_SERVICE_MODE: '',
-        NODE_OPTIONS: `--experimental-loader=${loaderPath}`,
+        NODE_OPTIONS: `--experimental-loader=${pathToFileURL(loaderPath).href}`,
       },
     });
 

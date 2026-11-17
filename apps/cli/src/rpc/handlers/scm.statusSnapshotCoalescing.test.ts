@@ -3,7 +3,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { RpcHandler, RpcHandlerRegistrar } from '@/api/rpc/types';
 import { RPC_METHODS } from '@happier-dev/protocol/rpc';
 
-const { runScmProvisioningRouteMock, runScmRouteMock } = vi.hoisted(() => ({
+const { loggerWarnMock, runScmProvisioningRouteMock, runScmRouteMock } = vi.hoisted(() => ({
+  loggerWarnMock: vi.fn(),
   runScmProvisioningRouteMock: vi.fn(),
   runScmRouteMock: vi.fn(),
 }));
@@ -15,9 +16,16 @@ vi.mock('@/scm/rpc/dispatch', () => ({
   runScmRoute: (...args: unknown[]) => runScmRouteMock(...args),
 }));
 
+vi.mock('@/ui/logger', () => ({
+  logger: { warn: (...args: unknown[]) => loggerWarnMock(...args) },
+}));
+
 describe('registerScmHandlers status snapshot coalescing', () => {
   afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllEnvs();
     vi.resetModules();
+    loggerWarnMock.mockReset();
     runScmProvisioningRouteMock.mockReset();
     runScmRouteMock.mockReset();
   });
@@ -167,5 +175,89 @@ describe('registerScmHandlers status snapshot coalescing', () => {
       { cwd: '.' },
       { route: 1, provisioning: 1 },
     );
+  });
+
+  it('shares one in-flight worktree enrichment and reuses its cached result', async () => {
+    const handlers = await registerHandlers();
+    const handler = handlers.get(RPC_METHODS.SCM_WORKTREES_ENRICHMENT);
+    expect(handler).toBeTypeOf('function');
+    if (!handler) throw new Error('SCM enrichment handler was not registered');
+
+    const response = { success: true, worktrees: [{ path: '/repo', changeCount: 2 }] };
+    let resolvePending: ((value: unknown) => void) | undefined;
+    runScmRouteMock.mockImplementation(() => new Promise((resolve) => {
+      resolvePending = resolve;
+    }));
+
+    const first = handler({ cwd: '.', worktreePaths: ['/repo'] });
+    const second = handler({ cwd: '.', worktreePaths: ['/repo'] });
+    expect(runScmRouteMock).toHaveBeenCalledTimes(1);
+    resolvePending?.(response);
+    await expect(Promise.all([first, second])).resolves.toEqual([response, response]);
+
+    runScmRouteMock.mockReset();
+    await expect(handler({ cwd: '.', worktreePaths: ['/repo'] })).resolves.toBe(response);
+    expect(runScmRouteMock).not.toHaveBeenCalled();
+  });
+
+  it('returns a bounded enrichment projection and logs when the scan exceeds its timeout', async () => {
+    vi.useFakeTimers();
+    vi.stubEnv('HAPPIER_SCM_WORKTREES_ENRICHMENT_TIMEOUT_MS', '25');
+    const handlers = await registerHandlers();
+    const handler = handlers.get(RPC_METHODS.SCM_WORKTREES_ENRICHMENT);
+    expect(handler).toBeTypeOf('function');
+    if (!handler) throw new Error('SCM enrichment handler was not registered');
+    runScmRouteMock.mockImplementation(() => new Promise(() => undefined));
+
+    const result = handler({ cwd: '.', worktreePaths: ['/repo'] });
+    await vi.advanceTimersByTimeAsync(25);
+
+    await expect(result).resolves.toEqual({
+      success: true,
+      worktrees: [{ path: '/repo' }],
+    });
+    expect(loggerWarnMock).toHaveBeenCalledWith(
+      expect.stringContaining('SCM worktrees enrichment timed out'),
+      expect.objectContaining({ timeoutMs: 25 }),
+    );
+  });
+
+  it('abandons a timed-out enrichment scan so the next poll starts a fresh one', async () => {
+    vi.useFakeTimers();
+    vi.stubEnv('HAPPIER_SCM_WORKTREES_ENRICHMENT_TIMEOUT_MS', '25');
+    const handlers = await registerHandlers();
+    const handler = handlers.get(RPC_METHODS.SCM_WORKTREES_ENRICHMENT);
+    expect(handler).toBeTypeOf('function');
+    if (!handler) throw new Error('SCM enrichment handler was not registered');
+
+    const scanResolvers: Array<(value: unknown) => void> = [];
+    runScmRouteMock.mockImplementation(() => new Promise((resolve) => {
+      scanResolvers.push(resolve);
+    }));
+
+    const timedOut = handler({ cwd: '.', worktreePaths: ['/repo'] });
+    await vi.advanceTimersByTimeAsync(25);
+    await expect(timedOut).resolves.toEqual({
+      success: true,
+      worktrees: [{ path: '/repo' }],
+    });
+    expect(runScmRouteMock).toHaveBeenCalledTimes(1);
+
+    // The next poll must not share the overrunning scan; it starts its own.
+    const nextPoll = handler({ cwd: '.', worktreePaths: ['/repo'] });
+    expect(runScmRouteMock).toHaveBeenCalledTimes(2);
+
+    // The abandoned scan settling late must not repopulate the cache.
+    scanResolvers[0]?.({ success: true, worktrees: [{ path: '/repo', changeCount: 1 }] });
+    await Promise.resolve();
+    scanResolvers[1]?.({ success: true, worktrees: [{ path: '/repo', changeCount: 9 }] });
+    await expect(nextPoll).resolves.toEqual({
+      success: true,
+      worktrees: [{ path: '/repo', changeCount: 9 }],
+    });
+
+    const cached = await handler({ cwd: '.', worktreePaths: ['/repo'] });
+    expect(cached).toEqual({ success: true, worktrees: [{ path: '/repo', changeCount: 9 }] });
+    expect(runScmRouteMock).toHaveBeenCalledTimes(2);
   });
 });

@@ -70,8 +70,9 @@ test('installCompanionCliFromBundle promotes the publicdev CLI payload with shar
   const rootDir = join(staging, rootName);
   await mkdir(join(rootDir, 'package-dist'), { recursive: true });
   await writeFile(join(rootDir, 'package-dist', 'index.mjs'), 'console.log("ok");\n', 'utf-8');
-  const binaryPath = join(rootDir, 'happier');
-  await writeFile(binaryPath, '#!/bin/sh\necho happier\n', 'utf-8');
+  // The catalog executable for happier-cli is `kaiwu` since the rebrand (releaseProductName stays happier).
+  const binaryPath = join(rootDir, 'kaiwu');
+  await writeFile(binaryPath, '#!/bin/sh\necho kaiwu\n', 'utf-8');
   spawnSync('bash', ['-lc', `chmod +x "${binaryPath.replaceAll('"', '\\"')}"`], { stdio: 'ignore' });
 
   const archiveName = `${rootName}.tar.gz`;
@@ -113,7 +114,7 @@ test('installCompanionCliFromBundle promotes the publicdev CLI payload with shar
   const installedEntrypoint = await readFile(join(homeDir, 'cli-dev', 'current', 'package-dist', 'index.mjs'), 'utf-8');
   assert.match(installedEntrypoint, /console\.log\("ok"\)/);
   assert.equal(existsSync(join(homeDir, 'bin', 'hdev')), true);
-  const resolvedCurrentBinary = join(homeDir, 'cli-dev', 'current', 'happier');
+  const resolvedCurrentBinary = join(homeDir, 'cli-dev', 'current', 'kaiwu');
   assert.equal(existsSync(resolvedCurrentBinary), true);
   assert.equal(existsSync(dirname(join(homeDir, 'cli-dev', 'versions', '1.2.3-dev.1'))), true);
 });

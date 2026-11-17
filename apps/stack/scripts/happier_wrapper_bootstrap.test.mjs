@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { runNodeCapture } from './testkit/core/run_node_capture.mjs';
 import { coerceHappyMonorepoRootFromPath } from './utils/paths/paths.mjs';
@@ -79,7 +79,7 @@ test('happier wrapper refreshes bundled workspace packages in preflight mode bef
       cwd: rootDir,
       env: {
         ...process.env,
-        NODE_OPTIONS: `--experimental-loader=${loaderPath}`,
+        NODE_OPTIONS: `--experimental-loader=${pathToFileURL(loaderPath).href}`,
       },
     });
 
@@ -139,7 +139,7 @@ test('happier wrapper skips bundled workspace preflight when disabled', async ()
       env: {
         ...process.env,
         HAPPIER_STACK_SYNC_BUNDLED_WORKSPACES: '0',
-        NODE_OPTIONS: `--experimental-loader=${loaderPath}`,
+        NODE_OPTIONS: `--experimental-loader=${pathToFileURL(loaderPath).href}`,
       },
     });
 
@@ -195,7 +195,7 @@ test('scripts/happier delegates to the command owner without a second bundled wo
       cwd: rootDir,
       env: {
         ...process.env,
-        NODE_OPTIONS: `--experimental-loader=${loaderPath}`,
+        NODE_OPTIONS: `--experimental-loader=${pathToFileURL(loaderPath).href}`,
       },
     });
 

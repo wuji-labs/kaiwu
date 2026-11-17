@@ -13,6 +13,11 @@ import {
   findAnyDaemonStatePairInCliHome,
 } from './credentials_paths.mjs';
 
+// Path suffix assertions are written POSIX-style; normalize win32 separators before comparing.
+function toPosixPath(value) {
+  return String(value ?? '').replaceAll('\\', '/');
+}
+
 function neutralStackEnv(overrides = {}) {
   const {
     HAPPIER_ACTIVE_SERVER_ID,
@@ -29,9 +34,9 @@ test('resolveStackCredentialPaths returns legacy + server-scoped paths', async (
   const out = resolveStackCredentialPaths({ cliHomeDir: dir, serverUrl, env: neutralStackEnv() });
   assert.equal(out.legacyPath, join(dir, 'access.key'));
   assert.ok(out.serverScopedPath.startsWith(join(dir, 'servers', 'env_')));
-  assert.ok(out.serverScopedPath.endsWith('/access.key'));
+  assert.ok(toPosixPath(out.serverScopedPath).endsWith('/access.key'));
   assert.equal(out.hostPortServerId, 'localhost-3009');
-  assert.ok(out.hostPortServerScopedPath.endsWith('/servers/localhost-3009/access.key'));
+  assert.ok(toPosixPath(out.hostPortServerScopedPath).endsWith('/servers/localhost-3009/access.key'));
   assert.deepEqual(out.paths, [out.serverScopedPath, out.hostPortServerScopedPath, out.legacyPath]);
 });
 
@@ -52,7 +57,7 @@ test('resolveStackCredentialPaths uses a neutral default server id when serverUr
   const out = resolveStackCredentialPaths({ cliHomeDir: dir, serverUrl: '', env: neutralStackEnv() });
   assert.equal(out.urlHashServerId, 'default');
   assert.equal(out.activeServerId, 'default');
-  assert.ok(out.serverScopedPath.endsWith('/servers/default/access.key'));
+  assert.ok(toPosixPath(out.serverScopedPath).endsWith('/servers/default/access.key'));
 });
 
 test('findExistingStackCredentialPath prefers server-scoped credentials', async () => {
@@ -124,8 +129,8 @@ test('resolveStackCredentialPaths uses HAPPIER_ACTIVE_SERVER_ID when provided', 
     env: { HAPPIER_ACTIVE_SERVER_ID: 'stack_main__id_default' },
   });
   assert.equal(out.activeServerId, 'stack_main__id_default');
-  assert.ok(out.serverScopedPath.endsWith('/servers/stack_main__id_default/access.key'));
-  assert.ok(out.urlHashServerScopedPath.endsWith('/access.key'));
+  assert.ok(toPosixPath(out.serverScopedPath).endsWith('/servers/stack_main__id_default/access.key'));
+  assert.ok(toPosixPath(out.urlHashServerScopedPath).endsWith('/access.key'));
   assert.notEqual(out.serverScopedPath, out.urlHashServerScopedPath);
 });
 
@@ -444,10 +449,10 @@ test('resolveStackDaemonStatePaths returns legacy + server-scoped state and lock
   assert.equal(out.legacyStatePath, join(dir, 'daemon.state.json'));
   assert.equal(out.legacyLockPath, join(dir, 'daemon.state.json.lock'));
   assert.ok(out.serverScopedStatePath.startsWith(join(dir, 'servers', 'env_')));
-  assert.ok(out.serverScopedStatePath.endsWith('/daemon.state.json'));
-  assert.ok(out.serverScopedLockPath.endsWith('/daemon.state.json.lock'));
-  assert.ok(out.hostPortServerScopedStatePath.endsWith('/servers/localhost-3009/daemon.state.json'));
-  assert.ok(out.hostPortServerScopedLockPath.endsWith('/servers/localhost-3009/daemon.state.json.lock'));
+  assert.ok(toPosixPath(out.serverScopedStatePath).endsWith('/daemon.state.json'));
+  assert.ok(toPosixPath(out.serverScopedLockPath).endsWith('/daemon.state.json.lock'));
+  assert.ok(toPosixPath(out.hostPortServerScopedStatePath).endsWith('/servers/localhost-3009/daemon.state.json'));
+  assert.ok(toPosixPath(out.hostPortServerScopedLockPath).endsWith('/servers/localhost-3009/daemon.state.json.lock'));
 });
 
 test('resolvePreferredStackDaemonStatePaths prefers server-scoped paths when present', async () => {

@@ -28,6 +28,15 @@ import {
   restoreSqliteSnapshot,
 } from './utils/sqlite/sqlite_snapshot.mjs';
 
+// sqlite-snapshot proves output privacy from POSIX mode bits (0600/0700) and detects namespace
+// replacement through POSIX rename/unlink/symlink semantics. On win32 mode bits cannot express
+// ACL privacy (the tool fails closed with "must have private 0600 permissions"), open SQLite
+// handles block unlink (EBUSY), and symlinks need elevated rights, so those contracts only run on
+// POSIX hosts. Argument validation and no-overwrite guards still run everywhere.
+const POSIX_PRIVATE_FILESYSTEM_SKIP = process.platform === 'win32'
+  ? 'requires POSIX private-mode and rename/unlink/symlink semantics (sqlite-snapshot fails closed on win32)'
+  : false;
+
 const scriptPath = fileURLToPath(new URL('./sqlite_snapshot.mjs', import.meta.url));
 
 async function withTempDir(run) {
@@ -136,7 +145,7 @@ async function waitForExisting(path) {
   throw new Error(`timed out waiting for ${path}`);
 }
 
-test('online snapshot includes committed WAL rows and publishes private output plus a fingerprint manifest', async () => {
+test('online snapshot includes committed WAL rows and publishes private output plus a fingerprint manifest', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     const disposableRoot = join(dir, 'disposable');
@@ -198,7 +207,7 @@ test('online snapshot includes committed WAL rows and publishes private output p
   });
 });
 
-test('restore verifies the snapshot manifest and publishes a new private database with identical fingerprints', async () => {
+test('restore verifies the snapshot manifest and publishes a new private database with identical fingerprints', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     const disposableRoot = join(dir, 'disposable');
@@ -231,7 +240,7 @@ test('restore verifies the snapshot manifest and publishes a new private databas
   });
 });
 
-test('restore preserves the exact content fingerprint of a snapshot created from a WAL source', async () => {
+test('restore preserves the exact content fingerprint of a snapshot created from a WAL source', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     const disposableRoot = join(dir, 'disposable');
@@ -261,7 +270,7 @@ test('restore preserves the exact content fingerprint of a snapshot created from
   });
 });
 
-test('fingerprints distinguish content and Prisma ledger changes while structural identity remains deterministic', async () => {
+test('fingerprints distinguish content and Prisma ledger changes while structural identity remains deterministic', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     const disposableRoot = join(dir, 'disposable');
@@ -292,7 +301,7 @@ test('fingerprints distinguish content and Prisma ledger changes while structura
   });
 });
 
-test('Prisma ledger fingerprint preserves valid 64-bit integer values without precision loss', async () => {
+test('Prisma ledger fingerprint preserves valid 64-bit integer values without precision loss', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     const disposableRoot = join(dir, 'disposable');
@@ -311,7 +320,7 @@ test('Prisma ledger fingerprint preserves valid 64-bit integer values without pr
   });
 });
 
-test('structure and Prisma ledger fingerprints are deterministic across creation and row order', async () => {
+test('structure and Prisma ledger fingerprints are deterministic across creation and row order', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const firstSourcePath = join(dir, 'first-source.sqlite');
     const secondSourcePath = join(dir, 'second-source.sqlite');
@@ -370,7 +379,7 @@ test('structure and Prisma ledger fingerprints are deterministic across creation
   });
 });
 
-test('snapshot reads a read-only source and excludes an active WAL writer uncommitted row', async () => {
+test('snapshot reads a read-only source and excludes an active WAL writer uncommitted row', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const readOnlySourcePath = join(dir, 'read-only.sqlite');
     const activeSourcePath = join(dir, 'active.sqlite');
@@ -405,7 +414,7 @@ test('snapshot reads a read-only source and excludes an active WAL writer uncomm
   });
 });
 
-test('online backup waits for a short exclusive busy period and copies the committed database', async () => {
+test('online backup waits for a short exclusive busy period and copies the committed database', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     const disposableRoot = join(dir, 'disposable');
@@ -440,7 +449,7 @@ test('online backup waits for a short exclusive busy period and copies the commi
   });
 });
 
-test('restore rejects database tampering and leaves no accepted output or partial artifact', async () => {
+test('restore rejects database tampering and leaves no accepted output or partial artifact', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     const disposableRoot = join(dir, 'disposable');
@@ -464,7 +473,7 @@ test('restore rejects database tampering and leaves no accepted output or partia
   });
 });
 
-test('restore rejects a tampered Prisma ledger fingerprint before publishing output', async () => {
+test('restore rejects a tampered Prisma ledger fingerprint before publishing output', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     const disposableRoot = join(dir, 'disposable');
@@ -486,7 +495,7 @@ test('restore rejects a tampered Prisma ledger fingerprint before publishing out
   });
 });
 
-test('restore rejects duplicate manifest keys instead of accepting JSON last-key-wins ambiguity', async () => {
+test('restore rejects duplicate manifest keys instead of accepting JSON last-key-wins ambiguity', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     const disposableRoot = join(dir, 'disposable');
@@ -513,7 +522,7 @@ test('restore rejects duplicate manifest keys instead of accepting JSON last-key
   });
 });
 
-test('restore rejects an oversized manifest before parsing or publishing output', async () => {
+test('restore rejects an oversized manifest before parsing or publishing output', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     const disposableRoot = join(dir, 'disposable');
@@ -534,7 +543,7 @@ test('restore rejects an oversized manifest before parsing or publishing output'
   });
 });
 
-test('restore rejects a manifest that is not valid UTF-8 before publishing output', async () => {
+test('restore rejects a manifest that is not valid UTF-8 before publishing output', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     const disposableRoot = join(dir, 'disposable');
@@ -554,7 +563,7 @@ test('restore rejects a manifest that is not valid UTF-8 before publishing outpu
   });
 });
 
-test('restore detects manifest replacement during backup and removes the unpublished restore', async () => {
+test('restore detects manifest replacement during backup and removes the unpublished restore', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     const disposableRoot = join(dir, 'disposable');
@@ -578,7 +587,7 @@ test('restore detects manifest replacement during backup and removes the unpubli
   });
 });
 
-test('fails closed for relative paths, outside destinations, nonregular files, and symlinks', async () => {
+test('fails closed for relative paths, outside destinations, nonregular files, and symlinks', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     createDatabase(sourcePath);
@@ -624,7 +633,7 @@ test('fails closed for relative paths, outside destinations, nonregular files, a
   });
 });
 
-test('restore rejects outside-root and symlinked snapshot or manifest inputs', async () => {
+test('restore rejects outside-root and symlinked snapshot or manifest inputs', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     const disposableRoot = join(dir, 'disposable');
@@ -685,7 +694,7 @@ test('rejects an existing database or manifest destination without overwriting e
   });
 });
 
-test('manifest publication conflict removes the owned database publication and preserves the conflict', async () => {
+test('manifest publication conflict removes the owned database publication and preserves the conflict', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     const disposableRoot = join(dir, 'disposable');
@@ -705,7 +714,7 @@ test('manifest publication conflict removes the owned database publication and p
   });
 });
 
-test('detects source replacement during backup and cleans unpublished artifacts', async () => {
+test('detects source replacement during backup and cleans unpublished artifacts', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     const replacedSourcePath = join(dir, 'source-original.sqlite');
@@ -726,7 +735,7 @@ test('detects source replacement during backup and cleans unpublished artifacts'
   });
 });
 
-test('detects private partial replacement during backup and never publishes the substitute', async () => {
+test('detects private partial replacement during backup and never publishes the substitute', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     const disposableRoot = join(dir, 'disposable');
@@ -755,7 +764,7 @@ test('detects private partial replacement during backup and never publishes the 
   });
 });
 
-test('detects manifest partial replacement and never accepts or removes the substitute', async () => {
+test('detects manifest partial replacement and never accepts or removes the substitute', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     const disposableRoot = join(dir, 'disposable');
@@ -785,7 +794,7 @@ test('detects manifest partial replacement and never accepts or removes the subs
   });
 });
 
-test('detects output-parent replacement, keeps private partials, and leaves no misleading artifact', async () => {
+test('detects output-parent replacement, keeps private partials, and leaves no misleading artifact', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     const disposableRoot = join(dir, 'disposable');
@@ -823,7 +832,7 @@ test('detects output-parent replacement, keeps private partials, and leaves no m
   });
 });
 
-test('nested output stages its manifest partial under the pinned output parent', async () => {
+test('nested output stages its manifest partial under the pinned output parent', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     const disposableRoot = join(dir, 'disposable');
@@ -841,7 +850,7 @@ test('nested output stages its manifest partial under the pinned output parent',
   });
 });
 
-test('late output-parent replacement rejects success and leaves only private unaccepted artifacts', async () => {
+test('late output-parent replacement rejects success and leaves only private unaccepted artifacts', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     const disposableRoot = join(dir, 'disposable');
@@ -875,7 +884,7 @@ test('late output-parent replacement rejects success and leaves only private una
   });
 });
 
-test('publishing the matching manifest is the final commit point', async () => {
+test('publishing the matching manifest is the final commit point', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     const disposableRoot = join(dir, 'disposable');
@@ -904,7 +913,7 @@ test('publishing the matching manifest is the final commit point', async () => {
   });
 });
 
-test('rejects disposable-root replacement without deleting substitutes and reports the private residual', async () => {
+test('rejects disposable-root replacement without deleting substitutes and reports the private residual', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     const disposableRoot = join(dir, 'disposable');
@@ -929,7 +938,7 @@ test('rejects disposable-root replacement without deleting substitutes and repor
   });
 });
 
-test('rejects mutation through the published hard link before accepting its manifest', async () => {
+test('rejects mutation through the published hard link before accepting its manifest', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     const disposableRoot = join(dir, 'disposable');
@@ -1000,7 +1009,7 @@ test('CLI requires explicit absolute source, output, and disposable-root paths',
   assert.match(result.stderr, /absolute/);
 });
 
-test('CLI emits the verified machine-readable manifest and fingerprints', async () => {
+test('CLI emits the verified machine-readable manifest and fingerprints', { skip: POSIX_PRIVATE_FILESYSTEM_SKIP }, async () => {
   await withTempDir(async (dir) => {
     const sourcePath = join(dir, 'source.sqlite');
     const disposableRoot = join(dir, 'disposable');

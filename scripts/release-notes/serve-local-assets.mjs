@@ -18,9 +18,9 @@
 import { createServer } from 'node:http';
 import { createReadStream, existsSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { parse as parseUrl } from 'node:url';
+import { parse as parseUrl, fileURLToPath } from 'node:url';
 
-const REPO_ROOT = resolve(new URL('../..', import.meta.url).pathname);
+const REPO_ROOT = resolve(fileURLToPath(new URL('../..', import.meta.url)));
 const ASSETS_DIR = join(REPO_ROOT, 'apps/ui/release-notes/assets');
 
 function parseFlags(argv) {

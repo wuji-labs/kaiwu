@@ -228,9 +228,11 @@ export function resolveStackCredentialPaths({ cliHomeDir, serverUrl = '', env = 
     ...matchingSettingsCredentialSourceIds,
   ])];
   const credentialSourcePaths = credentialSourceServerIds.map((id) => join(home, 'servers', id, 'access.key'));
-  const urlHashServerScopedPath = aliasServerScopedPaths.find((path) => path.includes(`/servers/${urlHashServerId}/`)) || '';
-  const hostPortServerScopedPath =
-    aliasServerScopedPaths.find((path) => path.includes(`/servers/${hostPortServerId}/`)) || '';
+  // Select by server id rather than a `/servers/<id>/` substring, which never matches win32 paths.
+  const aliasServerScopedPathFor = (id) =>
+    id && uniqueAliasServerIds.includes(id) ? join(home, 'servers', id, 'access.key') : '';
+  const urlHashServerScopedPath = aliasServerScopedPathFor(urlHashServerId);
+  const hostPortServerScopedPath = aliasServerScopedPathFor(hostPortServerId);
   const paths = [serverScopedPath, ...credentialSourcePaths, legacyPath].filter(Boolean);
   return {
     activeServerId,
@@ -273,14 +275,18 @@ export function resolveStackDaemonStatePaths({ cliHomeDir, serverUrl = '', env =
   ]
     .filter(Boolean);
   const uniqueAliasServerIds = [...new Set(aliasServerIds)];
-  const aliasStatePaths = uniqueAliasServerIds.map((id) => ({
+  const aliasStatePairsById = new Map(uniqueAliasServerIds.map((id) => [id, {
     statePath: join(home, 'servers', id, 'daemon.state.json'),
     lockPath: join(home, 'servers', id, 'daemon.state.json.lock'),
-  }));
-  const urlHashServerScopedStatePath = aliasStatePaths.find((pair) => pair.statePath.includes(`/servers/${urlHashServerId}/`))?.statePath || '';
-  const urlHashServerScopedLockPath = aliasStatePaths.find((pair) => pair.lockPath.includes(`/servers/${urlHashServerId}/`))?.lockPath || '';
-  const hostPortServerScopedStatePath = aliasStatePaths.find((pair) => pair.statePath.includes(`/servers/${hostPortServerId}/`))?.statePath || '';
-  const hostPortServerScopedLockPath = aliasStatePaths.find((pair) => pair.lockPath.includes(`/servers/${hostPortServerId}/`))?.lockPath || '';
+  }]));
+  const aliasStatePaths = [...aliasStatePairsById.values()];
+  // Resolve alias pairs by server id, not by matching a `/servers/<id>/` substring: path.join emits
+  // `\` separators on win32, so substring matching dropped every alias there and daemon stop/status
+  // could not find state published under the URL-hash or host:port scope.
+  const urlHashServerScopedStatePath = aliasStatePairsById.get(urlHashServerId)?.statePath || '';
+  const urlHashServerScopedLockPath = aliasStatePairsById.get(urlHashServerId)?.lockPath || '';
+  const hostPortServerScopedStatePath = aliasStatePairsById.get(hostPortServerId)?.statePath || '';
+  const hostPortServerScopedLockPath = aliasStatePairsById.get(hostPortServerId)?.lockPath || '';
 
   return {
     activeServerId,

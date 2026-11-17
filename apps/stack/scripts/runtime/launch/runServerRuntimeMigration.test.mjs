@@ -128,6 +128,15 @@ test('migration admission failures are typed and never spawn the normal server',
     assert.equal(exactSpawnCount, 0, name);
     await rm(command, { recursive: true, force: true });
   }
+});
+
+test('migration admission rejects a regular migration command without execute permission', async (t) => {
+  if (process.platform === 'win32') {
+    // win32 has no POSIX execute bit; admission treats every regular file as executable there.
+    t.skip('requires POSIX execute-permission semantics');
+    return;
+  }
+  const { spec, command } = await fixture(t);
   await writeFile(command, 'nope');
   await chmod(command, 0o644);
   let spawnCount = 0;

@@ -19,7 +19,10 @@ test('renderWindowsScheduledTaskWrapperPs1 emits a wrapper that sets env and run
   assert.match(ps1, /\$env:PORT = "3005"/);
   assert.match(ps1, /\$env:HAPPIER_DB_PROVIDER = "sqlite"/);
   assert.match(ps1, /& "C:\\\\Users\\\\me\\\\.happier\\\\self-host\\\\bin\\\\happier-server\.exe"/);
-  assert.match(ps1, /1>> "C:\\\\Users\\\\me\\\\.happier\\\\self-host\\\\logs\\\\server\.out\.log"/);
-  assert.match(ps1, /2>> "C:\\\\Users\\\\me\\\\.happier\\\\self-host\\\\logs\\\\server\.err\.log"/);
+  // Log targets are resolved per launch (falling back to a PID-suffixed file when another process
+  // holds the configured log open), and the program redirects into the resolved paths.
+  assert.match(ps1, /\$serviceOutLog = Resolve-ServiceLogPath "C:\\\\Users\\\\me\\\\.happier\\\\self-host\\\\logs\\\\server\.out\.log"/);
+  assert.match(ps1, /\$serviceErrLog = Resolve-ServiceLogPath "C:\\\\Users\\\\me\\\\.happier\\\\self-host\\\\logs\\\\server\.err\.log"/);
+  assert.match(ps1, /happier-server\.exe" 1>> \$serviceOutLog 2>> \$serviceErrLog/);
 });
 

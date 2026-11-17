@@ -45,3 +45,40 @@ exit 0
   assert.match(log, /^install provider gemini$/m);
   assert.doesNotMatch(log, /providers install/);
 });
+
+test('dev-box entrypoint installs provider CLIs via happier when KAIWU_PROVIDER_CLIS is set', (t) => {
+  const tmp = mkdtempSync(join(tmpdir(), 'happier-dev-box-entrypoint-'));
+  t.after(() => rmSync(tmp, { recursive: true, force: true }));
+
+  const logPath = join(tmp, 'happier.log');
+  writeFileSync(logPath, '', 'utf-8');
+
+  const { binDir } = writeFakeBin({
+    root: tmp,
+    name: 'happier',
+    content: `#!/bin/sh
+set -eu
+echo "$@" >> "${logPath}"
+exit 0
+`,
+  });
+
+  const entrypoint = join(repoRoot, 'docker', 'dev-box', 'entrypoint.sh');
+  const res = spawnSync('sh', [entrypoint, 'sh', '-lc', 'echo ok'], {
+    env: buildStackHarnessEnv({
+      binDirs: [binDir],
+      extraEnv: { KAIWU_PROVIDER_CLIS: 'codex, Gemini ', HAPPIER_PROVIDER_CLIS: 'ignored-legacy' },
+    }),
+    encoding: 'utf-8',
+    timeout: 15000,
+  });
+  if (res.error) throw res.error;
+  assert.equal(res.status, 0, res.stderr);
+  assert.match(res.stdout ?? '', /ok/);
+
+  const log = readFileSync(logPath, 'utf-8');
+  assert.match(log, /^install provider codex$/m);
+  assert.match(log, /^install provider gemini$/m);
+  assert.doesNotMatch(log, /providers install/);
+  assert.doesNotMatch(log, /ignored-legacy/);
+});

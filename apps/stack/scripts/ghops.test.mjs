@@ -6,6 +6,13 @@ import { join, resolve } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+// The fake gh/git/ssh tools below are extensionless `#!/usr/bin/env node` executables resolved via
+// HAPPIER_GHOPS_*_PATH / PATH. win32 cannot spawn shebang scripts directly, so those fixtures only
+// exercise ghops on POSIX hosts.
+const POSIX_SHEBANG_FIXTURE_SKIP = process.platform === 'win32'
+  ? 'requires POSIX shebang executable fixtures (fake gh/git cannot be spawned on win32)'
+  : false;
+
 const ghopsPath = fileURLToPath(new URL('./ghops.mjs', import.meta.url));
 const repoRoot = resolve(fileURLToPath(new URL('../../../', import.meta.url)));
 
@@ -165,7 +172,7 @@ test('prints help without requiring a token', () => {
   assert.match(res.stdout, /\.happier\/local\/ghops\/gh/);
 });
 
-test('forwards nested subcommand help to gh', () => {
+test('forwards nested subcommand help to gh', { skip: POSIX_SHEBANG_FIXTURE_SKIP }, () => {
   const dir = mkdtempSync(join(tmpdir(), 'ghops-nested-help-test-'));
   const { fakeGh } = createFakeBotAuthTools(dir);
 
@@ -179,7 +186,7 @@ test('forwards nested subcommand help to gh', () => {
   assert.deepEqual(JSON.parse(res.stdout).argv, ['issue', 'edit', '--help']);
 });
 
-test('supports an explicitly selected bot-authenticated branch push without exposing the token', () => {
+test('supports an explicitly selected bot-authenticated branch push without exposing the token', { skip: POSIX_SHEBANG_FIXTURE_SKIP }, () => {
   const dir = mkdtempSync(join(tmpdir(), 'ghops-git-push-test-'));
   const { fakeGh } = createFakeBotAuthTools(dir);
   const { fakeGit, gitLog } = createFakeGitPushTool(dir);
@@ -222,7 +229,7 @@ test('supports an explicitly selected bot-authenticated branch push without expo
   assert.match(res.stdout, new RegExp(`${localSha}.*refs/heads/pr-123`));
 });
 
-test('uses an exact force-with-lease when a bot rebase push is explicitly authorized', () => {
+test('uses an exact force-with-lease when a bot rebase push is explicitly authorized', { skip: POSIX_SHEBANG_FIXTURE_SKIP }, () => {
   const dir = mkdtempSync(join(tmpdir(), 'ghops-git-rebase-push-test-'));
   const { fakeGh } = createFakeBotAuthTools(dir);
   const { fakeGit, gitLog } = createFakeGitPushTool(dir);
@@ -259,7 +266,7 @@ test('uses an exact force-with-lease when a bot rebase push is explicitly author
   ]);
 });
 
-test('fails closed when an explicit bot push does not publish the intended commit', () => {
+test('fails closed when an explicit bot push does not publish the intended commit', { skip: POSIX_SHEBANG_FIXTURE_SKIP }, () => {
   const dir = mkdtempSync(join(tmpdir(), 'ghops-git-push-verification-test-'));
   const { fakeGh } = createFakeBotAuthTools(dir);
   const { fakeGit, gitLog } = createFakeGitPushTool(dir);
@@ -305,7 +312,7 @@ test('fails closed when token is missing', () => {
   assert.match(res.stderr, /HAPPIER_GITHUB_BOT_TOKEN/);
 });
 
-test('uses the execution-host credential broker when the VM has no environment token', () => {
+test('uses the execution-host credential broker when the VM has no environment token', { skip: POSIX_SHEBANG_FIXTURE_SKIP }, () => {
   const dir = mkdtempSync(join(tmpdir(), 'ghops-mac-host-token-test-'));
   const { fakeGh } = createFakeBotAuthTools(dir);
   const fixture = createMacHostCredentialFixture(dir);
@@ -328,7 +335,7 @@ test('uses the execution-host credential broker when the VM has no environment t
   assert.deepEqual(JSON.parse(input), { version: 1, operation: 'read-ghops-credential' });
 });
 
-test('keeps an explicit bot push on the authoritative checkout when the credential comes from mac-host', () => {
+test('keeps an explicit bot push on the authoritative checkout when the credential comes from mac-host', { skip: POSIX_SHEBANG_FIXTURE_SKIP }, () => {
   const dir = mkdtempSync(join(tmpdir(), 'ghops-mac-host-git-push-test-'));
   const { fakeGh } = createFakeBotAuthTools(dir);
   const { fakeGit, gitLog } = createFakeGitPushTool(dir);
@@ -359,7 +366,7 @@ test('keeps an explicit bot push on the authoritative checkout when the credenti
   assert.equal(readFileSync(fixture.sshLog, 'utf8').trim().split('\n').length, 1);
 });
 
-test('fails closed when the configured mac-host credential route is unavailable', () => {
+test('fails closed when the configured mac-host credential route is unavailable', { skip: POSIX_SHEBANG_FIXTURE_SKIP }, () => {
   const dir = mkdtempSync(join(tmpdir(), 'ghops-mac-host-unavailable-test-'));
   const { fakeGh } = createFakeBotAuthTools(dir);
   const fixture = createMacHostCredentialFixture(dir);
@@ -377,7 +384,7 @@ test('fails closed when the configured mac-host credential route is unavailable'
   assert.doesNotMatch(`${res.stdout}\n${res.stderr}`, /personal-token-should-not-be-used/);
 });
 
-test('rejects an ordinary command when the token belongs to a different GitHub identity', () => {
+test('rejects an ordinary command when the token belongs to a different GitHub identity', { skip: POSIX_SHEBANG_FIXTURE_SKIP }, () => {
   const dir = mkdtempSync(join(tmpdir(), 'ghops-command-wrong-user-test-'));
   const { fakeGh } = createFakeBotAuthTools(dir);
   const token = 'wrong-command-user-secret';
@@ -393,7 +400,7 @@ test('rejects an ordinary command when the token belongs to a different GitHub i
   assert.doesNotMatch(`${res.stdout}\n${res.stderr}`, new RegExp(token));
 });
 
-test('forwards args and forces gh auth via HAPPIER_GITHUB_BOT_TOKEN', () => {
+test('forwards args and forces gh auth via HAPPIER_GITHUB_BOT_TOKEN', { skip: POSIX_SHEBANG_FIXTURE_SKIP }, () => {
   const dir = mkdtempSync(join(tmpdir(), 'ghops-test-'));
   const fakeGh = join(dir, 'fake-gh');
   const configDir = join(dir, 'gh-config');
@@ -439,7 +446,7 @@ process.stdout.write(JSON.stringify(payload));
   assert.equal(out.env.GH_CONFIG_DIR, configDir);
 });
 
-test('expands ~/ overrides for gh binary and config dir against HOME', () => {
+test('expands ~/ overrides for gh binary and config dir against HOME', { skip: POSIX_SHEBANG_FIXTURE_SKIP }, () => {
   const dir = mkdtempSync(join(tmpdir(), 'ghops-home-test-'));
   const homeDir = join(dir, 'home');
   const fakeGh = join(homeDir, 'bin', 'fake-gh');

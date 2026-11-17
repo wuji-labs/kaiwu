@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 import { chmod, mkdir, mkdtemp, readFile, readlink, rm, symlink, writeFile } from 'node:fs/promises';
 import test from 'node:test';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname, join, normalize } from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 import * as selfHostRuntimeModule from './self_host_runtime.mjs';
 
@@ -35,6 +35,11 @@ import {
   resolveSelfHostServerInstallFromReleaseParams,
 } from './self_host_runtime.mjs';
 import { buildServiceDefinition, resolveServiceBackend } from './utils/service/service_manager.mjs';
+
+// Fixtures use POSIX-shaped absolute paths; the code under test builds paths with node:path, so
+// compare against the host-native form (identity on POSIX, `\` separators on win32).
+const nativePath = (posixPath) => normalize(posixPath);
+
 
 function b64(buf) {
   return Buffer.from(buf).toString('base64');
@@ -79,6 +84,15 @@ function sha256Hex(bytes) {
   return createHash('sha256').update(bytes).digest('hex');
 }
 
+// Local promotion runs against the host platform, whose release payload carries the
+// platform executable name (happier-server.exe on win32).
+const HOST_SERVER_BINARY_NAME = process.platform === 'win32' ? 'happier-server.exe' : 'happier-server';
+const HOST_MIGRATE_BINARY_NAME = process.platform === 'win32' ? 'happier-server-migrate.exe' : 'happier-server-migrate';
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 async function createLocalSelfHostRuntimePayloadRoot({ rootDir, binaryName, binaryText = '#!/bin/sh\necho ok\n' }) {
   await mkdir(join(rootDir, 'generated'), { recursive: true });
   await mkdir(join(rootDir, 'node_modules', '.prisma', 'client'), { recursive: true });
@@ -98,7 +112,7 @@ test('local self-host runtime promotion exposes the server-embedded UI to the po
     await rm(tmp, { recursive: true, force: true });
   });
 
-  const binaryName = 'happier-server';
+  const binaryName = HOST_SERVER_BINARY_NAME;
   const payloadRoot = join(tmp, 'payload');
   const sourceBinaryPath = await createLocalSelfHostRuntimePayloadRoot({ rootDir: payloadRoot, binaryName });
   await mkdir(join(payloadRoot, 'ui-web', 'current'), { recursive: true });
@@ -132,15 +146,15 @@ test('local self-host runtime promotion keeps the complete migration closure bes
     await rm(tmp, { recursive: true, force: true });
   });
 
-  const binaryName = 'happier-server';
+  const binaryName = HOST_SERVER_BINARY_NAME;
   const payloadRoot = join(tmp, 'payload');
   const sourceBinaryPath = await createLocalSelfHostRuntimePayloadRoot({ rootDir: payloadRoot, binaryName });
   await mkdir(join(payloadRoot, 'runtime'), { recursive: true });
   await mkdir(join(payloadRoot, 'prisma', 'migrations'), { recursive: true });
   await writeFile(join(payloadRoot, 'runtime', 'prisma-migrate'), 'runner\n', 'utf8');
   await writeFile(join(payloadRoot, 'prisma', 'migrations', 'migration.sql'), '-- migration\n', 'utf8');
-  await writeFile(join(payloadRoot, 'happier-server-migrate'), '#!/bin/sh\nexit 0\n', 'utf8');
-  await chmod(join(payloadRoot, 'happier-server-migrate'), 0o755);
+  await writeFile(join(payloadRoot, HOST_MIGRATE_BINARY_NAME), '#!/bin/sh\nexit 0\n', 'utf8');
+  await chmod(join(payloadRoot, HOST_MIGRATE_BINARY_NAME), 0o755);
 
   const installRoot = join(tmp, 'install');
   const config = {
@@ -155,7 +169,7 @@ test('local self-host runtime promotion keeps the complete migration closure bes
 
   assert.equal(await readFile(join(installRoot, 'bin', 'runtime', 'prisma-migrate'), 'utf8'), 'runner\n');
   assert.equal(await readFile(join(installRoot, 'bin', 'prisma', 'migrations', 'migration.sql'), 'utf8'), '-- migration\n');
-  assert.match(await readFile(join(installRoot, 'bin', 'happier-server-migrate'), 'utf8'), /exit 0/);
+  assert.match(await readFile(join(installRoot, 'bin', HOST_MIGRATE_BINARY_NAME), 'utf8'), /exit 0/);
 });
 
 test('managed UI activation fails closed when the server payload has no embedded UI', async () => {
@@ -201,6 +215,8 @@ test('self-host install-time migration delegates to the canonical provider plan'
     DATABASE_URL: 'file:/var/lib/happier/happier-server-light.sqlite',
   };
   const config = {
+    // POSIX self-host target (sidecar has no .exe suffix regardless of the test host).
+    platform: 'linux',
     installRoot: '/opt/happier',
     serverBinaryPath: '/opt/happier/bin/happier-server',
   };
@@ -934,7 +950,7 @@ test('installSelfHostBinaryFromLocalPath prunes older retained local versions af
   });
 
   const installRoot = join(tmp, 'install');
-  const binaryName = 'happier-server';
+  const binaryName = HOST_SERVER_BINARY_NAME;
   const config = {
     platform: process.platform,
     dataDir: join(installRoot, 'data'),
@@ -982,7 +998,7 @@ test('installSelfHostBinaryFromLocalPath runs the pre-promotion hook before muta
   });
 
   const installRoot = join(tmp, 'install');
-  const binaryName = 'happier-server';
+  const binaryName = HOST_SERVER_BINARY_NAME;
   const config = {
     platform: process.platform,
     dataDir: join(installRoot, 'data'),
@@ -1029,6 +1045,10 @@ test('installSelfHostBinaryFromLocalPath runs the pre-promotion hook before muta
 });
 
 test('runSelfHostRuntimeMutationWithServiceRecovery restores the previous service definition and env after a later failure', async (t) => {
+  if (process.platform === 'win32') {
+    t.skip('requires a POSIX shebang systemctl fixture (systemd user-service recovery)');
+    return;
+  }
   assert.equal(typeof selfHostRuntimeModule.runSelfHostRuntimeMutationWithServiceRecovery, 'function');
 
   const tempRoot = await mkdtemp(join(tmpdir(), 'happier-self-host-service-recovery-'));
@@ -1142,6 +1162,10 @@ test('runSelfHostRuntimeMutationWithServiceRecovery restores the previous servic
 });
 
 test('runSelfHostRuntimeMutationWithServiceRecovery does not recreate env or reinstall a missing service after a first-install failure', async (t) => {
+  if (process.platform === 'win32') {
+    t.skip('requires a POSIX shebang systemctl fixture (systemd user-service recovery)');
+    return;
+  }
   assert.equal(typeof selfHostRuntimeModule.runSelfHostRuntimeMutationWithServiceRecovery, 'function');
 
   const tempRoot = await mkdtemp(join(tmpdir(), 'happier-self-host-first-install-failure-'));
@@ -1223,6 +1247,10 @@ test('runSelfHostRuntimeMutationWithServiceRecovery does not recreate env or rei
 });
 
 test('runSelfHostRuntimeMutationWithServiceRecovery restores promoted runtime, ui, env, and service state after a later failure', async (t) => {
+  if (process.platform === 'win32') {
+    t.skip('requires unprivileged directory symlinks and a POSIX systemctl fixture');
+    return;
+  }
   assert.equal(typeof selfHostRuntimeModule.runSelfHostRuntimeMutationWithServiceRecovery, 'function');
 
   const tempRoot = await mkdtemp(join(tmpdir(), 'happier-self-host-runtime-rollback-'));
@@ -1539,17 +1567,17 @@ test('renderServerServiceUnit references configured binary and env file', () => 
 
 test('resolveSelfHostDefaults uses user-mode paths by default', () => {
   const cfg = resolveSelfHostDefaults({ platform: 'linux', mode: 'user', homeDir: '/home/me' });
-  assert.equal(cfg.installRoot, '/home/me/.happier/self-host');
-  assert.equal(cfg.binDir, '/home/me/.happier/bin');
-  assert.equal(cfg.configDir, '/home/me/.happier/self-host/config');
+  assert.equal(cfg.installRoot, nativePath('/home/me/.happier/self-host'));
+  assert.equal(cfg.binDir, nativePath('/home/me/.happier/bin'));
+  assert.equal(cfg.configDir, nativePath('/home/me/.happier/self-host/config'));
 });
 
 test('resolveSelfHostDefaults isolates publicdev into a side-by-side self-host root and service name', () => {
   const cfg = resolveSelfHostDefaults({ platform: 'linux', mode: 'user', channel: 'publicdev', homeDir: '/home/me' });
-  assert.equal(cfg.installRoot, '/home/me/.happier/self-host-dev');
-  assert.equal(cfg.configDir, '/home/me/.happier/self-host-dev/config');
-  assert.equal(cfg.dataDir, '/home/me/.happier/self-host-dev/data');
-  assert.equal(cfg.logDir, '/home/me/.happier/self-host-dev/logs');
+  assert.equal(cfg.installRoot, nativePath('/home/me/.happier/self-host-dev'));
+  assert.equal(cfg.configDir, nativePath('/home/me/.happier/self-host-dev/config'));
+  assert.equal(cfg.dataDir, nativePath('/home/me/.happier/self-host-dev/data'));
+  assert.equal(cfg.logDir, nativePath('/home/me/.happier/self-host-dev/logs'));
   assert.equal(cfg.serviceName, 'happier-server-dev');
 });
 
@@ -1591,11 +1619,11 @@ test('resolveConfig expands ~/ self-host path overrides against HOME', async () 
 
   try {
     const config = mod.resolveConfig({ platform: 'linux', mode: 'user', channel: 'stable' });
-    assert.equal(config.installRoot, '/scoped/home/relay/install');
-    assert.equal(config.binDir, '/scoped/home/relay/bin');
-    assert.equal(config.configDir, '/scoped/home/relay/config');
-    assert.equal(config.dataDir, '/scoped/home/relay/data');
-    assert.equal(config.logDir, '/scoped/home/relay/logs');
+    assert.equal(config.installRoot, nativePath('/scoped/home/relay/install'));
+    assert.equal(config.binDir, nativePath('/scoped/home/relay/bin'));
+    assert.equal(config.configDir, nativePath('/scoped/home/relay/config'));
+    assert.equal(config.dataDir, nativePath('/scoped/home/relay/data'));
+    assert.equal(config.logDir, nativePath('/scoped/home/relay/logs'));
   } finally {
     if (previous.HOME === undefined) delete process.env.HOME;
     else process.env.HOME = previous.HOME;
@@ -1624,6 +1652,8 @@ test('renderServerEnvFile emits sqlite/local defaults for self-host mode', () =>
   const envText = renderServerEnvFile({
     port: 3005,
     host: '127.0.0.1',
+    // POSIX self-host target layout (independent of the test host platform).
+    platform: 'linux',
     dataDir: '/var/lib/happier',
     filesDir: '/var/lib/happier/files',
     dbDir: '/var/lib/happier/pglite',
@@ -1644,6 +1674,8 @@ test('renderServerEnvFile includes ui bundle directory when provided', () => {
   const envText = renderServerEnvFile({
     port: 3005,
     host: '127.0.0.1',
+    // POSIX self-host target layout (independent of the test host platform).
+    platform: 'linux',
     dataDir: '/var/lib/happier',
     filesDir: '/var/lib/happier/files',
     dbDir: '/var/lib/happier/pglite',
@@ -1669,7 +1701,7 @@ test('renderServerEnvFile includes PRISMA_QUERY_ENGINE_LIBRARY when a packaged s
     dbDir: '/var/lib/happier/pglite',
   });
   assert.match(envText, /PRISMA_CLIENT_ENGINE_TYPE=library/);
-  assert.match(envText, new RegExp(`PRISMA_QUERY_ENGINE_LIBRARY=${enginePath.replaceAll('\\\\', '\\\\\\\\')}`));
+  assert.match(envText, new RegExp(`PRISMA_QUERY_ENGINE_LIBRARY=${escapeRegExp(enginePath)}`));
 });
 
 test('renderServerEnvFile includes PRISMA_QUERY_ENGINE_LIBRARY for packaged postgres prisma engine on linux arm64', async () => {
@@ -1690,8 +1722,8 @@ test('renderServerEnvFile includes PRISMA_QUERY_ENGINE_LIBRARY for packaged post
     dbDir: '/var/lib/happier/pglite',
   });
   assert.match(envText, /PRISMA_CLIENT_ENGINE_TYPE=library/);
-  assert.match(envText, new RegExp(`PRISMA_QUERY_ENGINE_LIBRARY=${enginePath.replaceAll('\\\\', '\\\\\\\\')}`));
-  assert.match(envText, new RegExp(`NODE_PATH=${join(serverBinDir, 'node_modules').replaceAll('\\\\', '\\\\\\\\')}`));
+  assert.match(envText, new RegExp(`PRISMA_QUERY_ENGINE_LIBRARY=${escapeRegExp(enginePath)}`));
+  assert.match(envText, new RegExp(`NODE_PATH=${escapeRegExp(join(serverBinDir, 'node_modules'))}`));
 });
 
 test('renderServerEnvFile uses Prisma-compatible sqlite DATABASE_URL semantics on Windows', () => {
@@ -1888,6 +1920,8 @@ test('mergeEnvTextWithDefaults preserves overrides while backfilling new default
   const defaults = renderServerEnvFile({
     port: 3005,
     host: '127.0.0.1',
+    // POSIX self-host target layout (independent of the test host platform).
+    platform: 'linux',
     dataDir: '/var/lib/happier',
     filesDir: '/var/lib/happier/files',
     dbDir: '/var/lib/happier/pglite',
